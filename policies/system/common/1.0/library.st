@@ -1,0 +1,247 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+#
+# Just bodies and editbundles here
+#
+############################################
+#perms validation
+body perms p(user,mode) {
+  owners => { "$(user)" };
+  mode   => "$(mode)";
+}
+
+############################################
+
+body file_select cf3_files {
+  leaf_name => { "cf-.*" };
+  file_result => "leaf_name";
+}
+
+
+
+#########################################################
+
+body changes lay_trip_wire {
+  hash           => "best";
+  report_changes => "content";
+  update_hashes  => "yes";
+}
+
+########################################################
+
+body action longjob {
+ifelapsed => "240"; # run only every 4 hours
+}
+
+#######################################################
+# For the library
+#######################################################
+
+body edit_defaults def
+{
+empty_file_before_editing => "false";
+edit_backup => "false";
+# max_file_size => "500000"; # It won't work with a too large inventory, such as an ubuntu one
+max_file_size => "1024000";
+}
+
+########################################################
+
+
+
+########################################################
+
+bundle edit_line DeleteLinesMatching(regex) {
+  delete_lines:
+
+    "$(regex)",
+  action => WarnOnly;
+
+}
+
+########################################################
+
+body action WarnOnly {
+  action_policy => "warn";
+}
+
+########################################
+# Bodies
+########################################
+
+body replace_with With(x)
+
+{
+replace_value => "$(x)";
+occurrences => "all";
+}
+
+########################################
+
+################################
+# For commands with a >
+################################
+body contain outputable
+{
+useshell => "true";
+no_output=> "false";
+}
+
+################################
+# For commands with a >, in a dir
+################################
+body contain outputable_dir(dir)
+{
+useshell => "true";
+no_output=> "false";
+chdir => "$(dir)";
+}
+
+################################
+# Process is launched ?
+################################
+body process_count islaunched(class) {
+  match_range => irange("1", "500");
+  in_range_define => { "$(class)"};
+  out_of_range_define => {"no_$(class)"};
+}
+
+
+###########################################################################################
+# Persistent class
+# If the promise is repaired, define repaired for length minutes and undefine failed
+# If the promise is not kept, undefine repaired and define failed for length minutes
+##########################################################################################
+body classes persistant_class(repaired, failed, length) {
+  promise_repaired => { "$(repaired)" };
+  repair_failed    => { "$(failed)" };
+  repair_denied    => { "$(failed)" };
+  repair_timeout   => { "$(failed)" };
+  
+  cancel_repaired => {"$(failed)"};
+  cancel_notkept => {"$(repaired)"};
+  
+  persist_time => "$(length)";
+}
+
+
+
+###########################################################################################
+# Persistent class
+# If the promise is repaired/kept, define repaired for length minutes and undefine failed
+# If the promise is not kept, undefine repaired and define failed for length minutes
+##########################################################################################
+body classes set_persist_classes(repaired, failed, length) {
+  promise_kept 	   => { "$(repaired)" };
+  promise_repaired => { "$(repaired)" };
+  repair_failed    => { "$(failed)" };
+  repair_denied    => { "$(failed)" };
+  repair_timeout   => { "$(failed)" };
+  
+  cancel_kept => {"$(failed)"};
+  cancel_repaired => {"$(failed)"};
+  cancel_notkept => {"$(repaired)"};
+   
+  persist_time => "$(length)";
+}
+
+################################################
+# kept_if_else
+# set kept if the promise is kept
+# yes if repaired
+# no if cannot repair
+################################################
+body classes kept_if_else(kept, yes,no)
+
+{
+promise_kept     => { "$(kept)" };
+promise_repaired => { "$(yes)" };
+repair_failed    => { "$(no)" };
+repair_denied    => { "$(no)" };
+repair_timeout   => { "$(no)" };
+}
+
+
+#########################################
+# Make a local copy with a digest check #
+#########################################
+body copy_from digest_cp(from)
+{
+source      => "$(from)";
+compare     => "digest";
+}
+
+################################################
+# Special kept_if_else
+# set kept if the promise is kept
+# yes if repaired
+# no if cannot repair
+# Trigger an additionnal promise if repaired
+################################################
+body classes kept_if_else_hook(kept,yes,no,hook)
+
+{
+promise_kept     => { "$(kept)" };
+promise_repaired => { "$(yes)", "$(hook)" };
+repair_failed    => { "$(no)" };
+repair_denied    => { "$(no)" };
+repair_timeout   => { "$(no)" };
+}
+
+################################################
+# Simple group adjustment body
+################################################
+body perms group(group)
+{
+        groups => { "${group}" };
+}
+
+
+################################################
+# Same as recurse but without xdev
+# and including the current dir
+################################################
+body depth_search recurse_with_current(d)
+
+{
+depth => "$(d)";
+include_basedir => "true";
+xdev  => "false";
+}
+
+########################################################################
+# Mount an NFS share, and allow the user to select if it is persistent #
+########################################################################
+body mount rudder_nfs(server,source,type,persistence)
+{
+mount_type => "$(type)";
+mount_source => "$(source)";
+mount_server => "$(server)";
+edit_fstab => "$(persistence)";
+}
+
+########################################################################
+# Same as std_defs, allowing user to specify the file erase policy     #
+########################################################################
+body edit_defaults rudder_empty_select(select)
+{
+empty_file_before_editing => "$(select)";
+edit_backup => "timestamp";
+max_file_size => "300000";
+}

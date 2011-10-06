@@ -1,0 +1,503 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+#
+# This file launch a fusion-inventory agent
+# inventory in local.
+# If fusion agent is not installed, 
+# the installation is done
+# 
+# Then the inventory file is improved with external informations (UUID, cf-key, VMs)
+
+
+bundle agent doInventory {
+        commands:
+          linux::
+                "/usr/bin/curl"
+                        args => "-s -f -o \"$(g.rudder_var_tmp)/uuid.txt\" http://${server_info.cfserved}/uuid",
+                        comment => "Getting the uuid from the server",
+                        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+
+	  windows::
+                "\"${g.rudder_base_sbin}\curl\curl.exe\""
+                        args => "-s -f -o \"$(g.rudder_var_tmp)\uuid.txt\" http://${server_info.cfserved}/uuid",
+                        comment => "Getting the uuid from the server",
+                        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+
+	vars:
+	  linux.uuid_succesfully_downloaded::
+		"policy_server_uuid" string => readfile("$(g.rudder_var_tmp)/uuid.txt", 50);
+
+	  windows.uuid_succesfully_downloaded::
+		"policy_server_uuid" string => readfile("$(g.rudder_var_tmp)/uuid.txt", 50);
+
+        classes:
+                "splaying" expression => splayclass("$(sys.host)$(sys.ipv4)","hourly");
+
+	  uuid_succesfully_downloaded::
+		"uuid_valid" expression => regcmp("[a-z0-9-]+","$(policy_server_uuid)");
+		"uuid_validity_checked"
+			expression => "any",
+			comment    => "This dummy class is just used for ordering the report using !uuid_valid below";
+
+        methods:
+
+                uuid_valid.force_inventory::
+			"any" usebundle => fusionAgent;
+			"any" usebundle => listInstalledVM;
+			"any" usebundle => generateExtraInformations;
+			"any" usebundle => turnUsersToUnicode;
+			"any" usebundle => addInformationsToInventory;
+			"any" usebundle => moveInventoryToFinalDestination;
+			"any" usebundle => sendInventory;
+
+		# Workaround the wrong class expansion
+		uuid_valid.Night.splaying.!inventory_sent::
+			"any" usebundle => fusionAgent;
+			"any" usebundle => listInstalledVM;
+			"any" usebundle => generateExtraInformations;
+			"any" usebundle => turnUsersToUnicode;
+			"any" usebundle => addInformationsToInventory;
+			"any" usebundle => moveInventoryToFinalDestination;
+			"any" usebundle => sendInventory;
+
+        reports:
+                could_not_download_uuid::
+                        "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not retrieve the UUID of the policy server";
+
+		uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
+			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not retrieve a valid UUID from the policy server";
+
+			# Send reports to confirm this PT's success even if we don't need to send an inventory
+			inventory_sent::
+				"@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#An inventory was already sent less than 8 hours ago";
+
+			!(Night.splaying).!force_inventory::
+				"@@Inventory@@result_success@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Next inventory scheduled between 00:00 and 06:00";
+			
+}
+
+bundle common inventory {
+	vars:
+	  windows::
+		# Files names
+		"UserListFile_cp" string => "${g.rudder_var_tmp}\UserList.tmp";
+		"UserListFile" string => "${g.rudder_var_tmp}\UserList.list";
+		
+	  any::
+	  	"CPUIDFile" string => "${g.rudder_var_tmp}/cpuid.arc";
+}
+
+bundle agent fusionAgent {
+     
+
+	files:
+	linux|cygwin::
+	    "${g.rudder_var_tmp}/inventory/."
+		create => "true",
+		comment => "Creating inventory directory",
+		classes => if_ok("inventoryfoldercreated");
+
+	    "${g.rudder_var_reports}/."
+		create => "true";
+
+	windows.!cygwin::
+	    "${g.rudder_var_tmp}\inventory\."
+		create => "true",
+		comment => "Creating inventory directory",
+		classes => if_ok("inventoryfoldercreated");
+
+	    "${g.rudder_var_reports}\."
+		create => "true";
+
+	commands:
+	    linux.inventoryfoldercreated::
+			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory",
+			classes => cf2_if_else("run_inventory", "inventory_failed"),
+			comment => "Generating inventory, in the temporary folder";
+
+	    windows::	    
+			"\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
+				        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" 2>nul",
+				        contain => in_shell,
+				        classes => cf2_if_else("run_inventory", "inventory_failed"),
+			 			comment => "Generating inventory";
+			 			
+	reports:
+		run_inventory::
+			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Running inventory";
+			
+		inventory_failed::
+			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not execute the inventory";
+			
+		cant_install_curl::
+			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install curl";
+			
+		cant_install_ocs::
+			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install ocs";
+			
+		curl_installed::
+			"@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
+			
+}
+
+# List all installed VM on the machine (based on VirtualBox)
+# CAUTION : Issue with path containing a whitespace, it's not working with windows
+bundle agent listInstalledVM {
+	commands:
+		linux.VirtualBoxInstalled::
+			"/usr/bin/VBoxManage"
+				args => "-q list vms > ${virtualMachines.VBoxListFile}",
+				contain => outputable,
+				classes => cf2_if_else("vb_listed", "cant_list_vb"),
+				comment => "Generating file with list of VM";
+
+
+		windows.VirtualBoxInstalled::
+			"\"${virtualMachines.virtual_box_install_path}VBoxManage.exe\""
+				args => "-q list vms > ${virtualMachines.VBoxListFile}",
+				contain => outputable,
+				classes => cf2_if_else("vb_listed", "cant_list_vb"),
+				comment => "Generating file with list of VM";
+
+		linux.VMWareInstalled::
+			"${virtualMachines.VMWareScript}"
+				contain => outputable,
+				args => " > ${virtualMachines.VMWareListFile}",
+				classes => cf2_if_else("vm_listed", "cant_list_vm"),
+				comment => "Generating file with list of VM";
+
+
+		windows.VMWareInstalled::
+			"${virtualMachines.VMWareScript}"
+				contain => outputable,
+				args => " > ${virtualMachines.VMWareListFile}",
+				classes => cf2_if_else("vm_listed", "cant_list_vm"),
+				comment => "Generating file with list of VM";
+
+	files:
+		VirtualBoxInstalled::
+			"${virtualMachines.VBoxListFile}"
+				create => "true",
+				edit_line => xmlify($(virtualMachines.VBoxAttr)),
+				comment => "Converting file into pseudo XML";
+
+		VMWareInstalled::
+			"${virtualMachines.VMWareListFile}"
+				create => "true",
+				edit_line => xmlify($(virtualMachines.VMWareAttr)),
+				comment => "Converting file into pseudo XML";
+
+
+	reports:
+		cant_list_vm::
+			"@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not list installed VMWare machines";
+			
+		cant_list_vb::
+			"@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not list installed VirtualBox machines";
+}
+
+bundle agent generateExtraInformations {
+  commands:
+    windows::
+		"\"${g.rudder_dependencies}\userlist.bat\""
+			args => " > \"${inventory.UserListFile_cp}\" ",
+			contain => outputable,
+			classes => cf2_if_else("userlist", "userlist_fail"),
+			comment => "Generating file with list of users";
+	
+		"${sys.winsysdir}\cscript.exe"
+			args => "/Nologo \"${g.rudder_dependencies}/cpuid-windows-V1.0.vbs\" > \"${inventory.CPUIDFile}\"",
+			contain => outputable,
+			classes => cf2_if_else("cpuid", "cpuid_fail"),
+			comment => "Generating file with CPUID information";
+			
+	linux::
+		"${g.rudder_dependencies}/cpuid-linux-V1.0.sh"
+			args => " > ${inventory.CPUIDFile}",
+			contain => outputable,
+			classes => cf2_if_else("cpuid", "cpuid_fail"),
+			comment => "Generating file with CPUID information";
+		
+ reports:
+		userlist::
+			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Generated the userlist";
+		cpuid::
+			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Generated the CPUID";
+		
+			
+		userlist_fail::
+			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not generate the user list";
+	
+		cpuid_fail::
+			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not generate the cpuid";
+}
+
+bundle agent turnUsersToUnicode {
+
+  commands:
+    windows::
+		"\"${g.rudder_dependencies}\iconv.exe\""
+			args => " -f CP850 -t UTF-8 \"${inventory.UserListFile_cp}\" > \"${inventory.UserListFile}\" ",
+			contain => outputable_dir("${g.rudder_dependencies}"),
+			classes => cf2_if_else("userlist", "userlist_fail"),
+			comment => "Generating file with list of users in UTF";
+		
+ reports:
+	
+		windows::
+			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#This is a windows machine. User list has been converted to Unicode";
+}
+
+
+# adding data to the inventory :
+# UUID and CFKey in <DEVICEID>, 
+# list of VM in <CONTENT>
+bundle agent addInformationsToInventory {
+  vars:
+	windows.!cygwin::
+		"CFKEY" string => execresult("${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"", "noshell");
+		"USER" string => getenv("USERNAME", 40);
+		"RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"","noshell");
+		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "33" );
+		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",50,4000) };
+		
+	cygwin::
+		"mywinpath" string => execresult("/usr/bin/echo $WINDIR ", "useshell");
+		"CFKEY" string => execresult("/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
+		"USER" string => execresult("/usr/bin/whoami", "noshell");
+		"RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs","noshell");
+		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
+		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
+
+	linux::
+		"RUDDERUUID" string => execresult("/usr/sbin/dmidecode -s system-uuid","noshell");
+		"CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
+		"USER" string => execresult("/usr/bin/whoami", "noshell");		
+		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
+		"usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
+		"users" slist => getindices("userslist");
+
+  files:
+	windows::
+		"C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
+		#"${g.esc_rudder_var_tmp}\\inventory\\.*.ocs"
+			edit_line => add_information_to_inventory($(RUDDERUUID), $(CFKEY), $(USER), $(polserv_uuid)),
+			edit_defaults => def,
+			pathtype => "regex";
+			
+		"C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
+		#"${g.esc_rudder_var_tmp}\\inventory\\.*.ocs"
+			edit_line => add_users_information_to_inventory($(users)),
+			edit_defaults => def,
+			pathtype => "regex";
+	
+	linux::
+		"${g.rudder_var_tmp}/inventory/.*.ocs"
+			edit_line => add_information_to_inventory($(RUDDERUUID), $(CFKEY), $(USER), $(polserv_uuid)),
+			edit_defaults => def;
+			
+		"${g.rudder_var_tmp}/inventory/.*.ocs"
+			edit_line => add_users_information_to_inventory($(users)),
+			edit_defaults => def;
+
+}
+
+
+# Move the inventory file in the shared directory
+bundle agent moveInventoryToFinalDestination {
+  files:
+    "${g.rudder_inventories}" 
+		copy_from => copy("$(g.rudder_var_tmp)/inventory"),
+		depth_search => recurse_visible(1),
+		file_select => inventory_files,
+		comment => "Moving inventory files to the final location",
+		action => bg(30, 10);
+
+}
+
+
+# Send the file to the promises server
+bundle agent sendInventory {
+  files:
+    linux::
+    "${g.rudder_inventories}" 
+		transformer => "/usr/bin/curl -s --user $(g.davuser):$(g.davpw) -T $(this.promiser)  http://${server_info.cfserved}/inventories/",
+		depth_search => recurse_visible(1),
+		file_select => inventory_files,
+		classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
+		comment => "Sending the inventory to the server";
+
+	# Once we've successfully sent all inventories, remove them
+	linux.inventory_sent.!cant_send_inventory::
+	"${g.rudder_inventories}" 
+		transformer  => "/bin/rm -f $(this.promiser)",
+		depth_search => recurse_visible(1),
+		file_select  => inventory_files,
+		classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
+		comment      => "Cleaning up inventory files already sent to the server";
+
+	"${g.rudder_var_tmp}/inventory"
+		transformer  => "/bin/rm -f $(this.promiser)",
+		depth_search => recurse_visible(1),
+		file_select  => inventory_files,
+		classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
+		comment      => "Cleaning up inventory files already sent to the server";
+
+	# TODO: we should find some way to have an equivalent behaviour to send-clean.sh above on Windows
+	windows::
+	 "${g.rudder_inventories}" 
+		transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s --user $(g.davuser):$(g.davpw) -T \"$(this.promiser)\"  http://${server_info.cfserved}/inventories/",
+		depth_search => recurse_visible(1),
+		file_select => inventory_files,
+		classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
+		comment => "Sending the inventory to the server";
+		
+	reports:
+		inventory_sent::
+			"@@Inventory@@result_success@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The inventory has been successfully sent";
+		
+		cant_send_inventory::
+			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not send the inventory";
+
+		cant_delete_inventory_file::
+			"@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not delete inventory file after sending to server";
+			
+}
+
+#####################################################
+#Adding the list of Virtual Machines into the report
+#Adding the ids in the report
+#####################################################
+bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUID)
+{
+	insert_lines:
+		"<UUID>${g.uuid}</UUID>$(const.n)<USER>$(USER)</USER>$(const.n)<AGENTSNAME>$(const.n)</AGENTSNAME>$(const.n)<MACHINEID>$(RUDDERUUID)</MACHINEID>$(const.n)<CFKEY>$(CFKEY)</CFKEY>$(const.n)<POLICIES>InitPolicies</POLICIES>$(const.n)<HOSTNAME>$(sys.fqhost)</HOSTNAME>$(const.n)<POLICY_SERVER>$(POLSRVUUID)</POLICY_SERVER>$(const.n)" location => after_deviceid,
+		comment => "Add the UUID and CFKEY tags in the inventory file";
+
+	any::
+		"<VMS>$(const.n)</VMS>$(const.n)<USERSLIST>$(const.n)</USERSLIST>" location => after_content;
+
+
+		"${inventory.CPUIDFile}"
+		    insert_type => "file",
+			location => after_location("<HOSTNAME>"),
+			comment => "Adding the CPUID data in the inventory file";
+
+	nova_edition::
+		"<AGENTNAME>Nova</AGENTNAME>"
+			location => after_location("<AGENTSNAME>"),
+			comment => "Adding the agent data in the inventory file";
+
+	community_edition::
+		"<AGENTNAME>Community</AGENTNAME>"
+			location => after_location("<AGENTSNAME>"),
+			comment => "Adding the agent data in the inventory file";
+			
+	VirtualBoxInstalled::
+		"${virtualMachines.VBoxListFile}"
+		        insert_type => "file",
+			location => after_location("<VMS>"),
+			comment => "Adding the list of VM in the inventory file";
+
+	VMWareInstalled::
+		"${virtualMachines.VMWareListFile}"
+		        insert_type => "file",
+			location => after_vm,
+			comment => "Adding the list of VM in the inventory file";
+}
+
+bundle edit_line add_users_information_to_inventory(userlist)
+{
+	insert_lines:
+		"<USER>${userlist}</USER>$(const.n)" location => after_users,
+		comment => "Add the UUID and CFKEY tags in the inventory file";	
+}
+
+#Locators
+body location after_location(pos) {
+	select_line_matching => ".*$(pos).*";
+	before_after => "after";
+}
+
+body location after_deviceid {
+	select_line_matching => ".*<DEVICEID>.*";
+	before_after => "after";
+}
+
+body location after_content {
+        select_line_matching => ".*<CONTENT>.*";
+        before_after => "after";
+}
+body location after_vm {
+        select_line_matching => ".*<VMS>.*";
+        before_after => "after";
+}
+body location after_users {
+        select_line_matching => ".*<USERSLIST>.*";
+        before_after => "after";
+}
+
+###############
+# Editors
+##############
+# Convert a simple list in <VM TYPe="vmtype"><NAME>machine_name</NAME><UUID>value<UUID></VM>
+bundle edit_line xmlify(ATTR) {
+	replace_patterns:
+		"\"(.*)\" \{(.*)\}"
+			replace_with=> xmled($(ATTR));
+
+}
+
+body replace_with xmled(attribute) {
+	replace_value => "<VM TYPE=\"$(attribute)\"><NAME>$(match.1)</NAME><UUID>$(match.2)</UUID></VM>";
+}
+
+
+# select the inventory files that has the right extension
+#I'd like to select also those older than 4 hours (ctime => irange(ago(0,0,0,4,0,0),now);) not working...
+# (for some reason, ocs duplicated files over time)
+body file_select inventory_files {
+
+	(windows|linux)::
+		leaf_name => { ".*.ocs" };
+		file_result => "leaf_name";
+
+	#windows::
+	#	leaf_name => { ".*.xml" };
+	#	file_result => "leaf_name";
+
+}
+
+body perms inventory_perms 
+{
+	mode => "0700";
+}
+
+
+body file_select one_day_age
+#
+# we can build old "include", "exclude", and "ignore" 
+# from these as standard patterns - these bodies can
+# form a library of standard patterns
+#
+
+{
+mtime     => irange(ago(1,0,0,0,0,0),ago(0,0,1,0,0,0));  
+file_result => "mtime"; 
+}

@@ -1,0 +1,135 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+#
+# Failsafe file
+#
+
+body common control
+
+{
+bundlesequence => { "init_files", "update" };
+
+output_prefix => "rudder";
+
+}
+
+############################################
+
+#generate a key if not present
+bundle agent init_files {
+
+        vars:
+                "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+
+                nova_edition::
+                        "cfengine_install_path" string => "/usr/local";
+                community_edition::
+                        "cfengine_install_path" string => "/opt/rudder";
+        
+    classes:
+        "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv") ;
+
+    files:
+        linux|cygwin::
+                "${sys.workdir}/bin/${components}"
+                perms => u_p("700"),
+                copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),
+                action => immediate;
+		
+    commands:
+        cygwin.missing_key::
+            "${sys.workdir}/bin/cf-key.exe";
+
+		windows.missing_key.!cygwin::
+   			"\"$(sys.workdir)\bin\cf-key\"";
+   
+        linux.missing_key::
+            "${sys.workdir}/bin/cf-key";
+}
+
+
+
+#simple copy method
+body copy_from remote(server, path) {
+
+    servers => {
+        "${server}" 
+    };
+    encrypt  => "false";
+    trustkey => "true";
+    source   => "${path}";
+    compare  => "digest";
+    preserve => "false";
+    verify   => "true";
+    purge    => "true";
+  community_edition:: 
+  	portnumber => "5309";
+    
+}
+
+bundle common server_info {
+  vars:
+        any::
+			"policy_server_file" string => translatepath("$(sys.workdir)/policy_server.dat"),
+                      comment => "Path to file containing address to policy server";     
+        
+            "cfserved" string      =>  readfile("$(policy_server_file)", 40);            #server IP
+			"policy_files" string  => "/var/cfengine/masterfiles";   #the bootstrap policies, in case of error
+}
+
+bundle agent update {
+    vars:
+        any::            
+            "server_inputs" string => "${server_info.policy_files}"; #the bootstrap policies, in case of error
+            "client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
+
+    files:
+        any::
+            "${client_inputs}"  #that's a loop on each files in client_inputs
+            copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
+            depth_search => recurse("inf"),
+            action => immediate;
+            
+}
+
+body depth_search recurse(d)
+{
+depth => "$(d)";
+}
+
+#perms validation
+body perms u_p(p) {
+  mode  => "$(p)";
+}
+
+#server may be a list
+body copy_from cp(from,server) {
+  servers     => { "${server}" };
+  source      => "$(from)";
+  compare     => "digest";
+community_edition::
+  portnumber => "5309";
+
+}
+
+body action immediate
+{
+   ifelapsed => "0";
+}
+

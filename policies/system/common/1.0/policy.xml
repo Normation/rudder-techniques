@@ -1,0 +1,108 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<POLICY  name="Common policies">
+  <DESCRIPTION>Has a policy server</DESCRIPTION>
+  <SYSTEM>true</SYSTEM>
+
+  <TMLS>
+    <TML name="cf-served"/>
+    <TML name="cfengine_stdlib" />
+    <TML name="core-lib" />
+    <TML name="process_matching" />
+    <TML name="e2s_activation"/>
+    <TML name="library"/>
+    <TML name="site"/>
+    <TML name="update"/>
+    <TML name="failsafe">
+      <OUTPATH>failsafe.cf</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="promises">
+      <OUTPATH>promises.cf</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+  </TMLS>
+      
+  <SYSTEMVARS>
+    <NAME>ALLOWCONNECT</NAME>
+    <NAME>CLIENTSLIST</NAME>
+    <NAME>INPUTLIST</NAME>
+    <NAME>LICENSESPAID</NAME>
+    <NAME>BUNDLELIST</NAME>
+    <NAME>NOVA</NAME>
+    <NAME>COMMUNITY</NAME>
+    <NAME>COMMUNITYPORT</NAME>
+    <NAME>NODEROLE</NAME>
+  </SYSTEMVARS>  
+
+  <SECTIONS>
+
+	  <!-- The following sections are for reporting only, variable are defined in the main section below -->
+	  <SECTION name="Red Button" component="true" />
+	  <SECTION name="Update" component="true" />
+	  <SECTION name="Log system for reports" component="true" />
+
+    <SECTION name="common">
+      <INPUT>
+        <NAME>POLICYSERVER_ADMIN</NAME>
+        <DESCRIPTION>The policy server admin allowed to connect to this node via cf-runagent (see also distributePolicy.ADMIN)</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>OWNER</NAME>
+        <DESCRIPTION>User launching cfe (usually root)</DESCRIPTION>
+        <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
+      </INPUT>
+      <INPUT>
+        <NAME>UUID</NAME>
+        <DESCRIPTION>UUID of the machine</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>POLICYSERVER</NAME>
+        <DESCRIPTION>Promises server hostname</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>POLICYSERVER_ID</NAME>
+        <DESCRIPTION>UUID of the policy server</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>POLICYCHILDREN</NAME>
+        <DESCRIPTION>List of node that receive policies from this machine</DESCRIPTION>
+        <MULTIVALUED>true</MULTIVALUED>
+      </INPUT>
+      <INPUT>
+        <NAME>CHILDRENID</NAME>
+        <DESCRIPTION>List of uids of nodes that receive policies from this machine</DESCRIPTION>
+        <MULTIVALUED>true</MULTIVALUED>
+      </INPUT>
+      <INPUT>
+        <NAME>ADMIN</NAME>
+        <DESCRIPTION>List of admins of nodes that receive policies from this machine</DESCRIPTION>
+        <MULTIVALUED>true</MULTIVALUED>
+      </INPUT>
+      <INPUT>
+        <NAME>ALLOWEDNETWORK</NAME>
+        <DESCRIPTION>The network(s) allowed to connect to the server (can use the / parameter)</DESCRIPTION>
+        <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
+        <MULTIVALUED>true</MULTIVALUED>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+  
+</POLICY>

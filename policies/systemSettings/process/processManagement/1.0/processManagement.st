@@ -1,0 +1,114 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+# Enforce the defined process parameters
+
+bundle agent process_management {
+vars:
+
+	"dim_array" int =>  readstringarray("file","${sys.workdir}/promises/processManagement/proclist","#[^\n]*",":",15,4000);
+
+	"procList" slist => getindices("file");
+
+	"blacklist" slist => {&PROCESS_BLACKLIST: { "&it&"};separator=","&};
+
+processes:
+
+	"$(blacklist)"
+			comment => "Kill the process",
+			signals => { "stop", "term", "kill" },
+			classes => kept_if_else("$(blacklist)_ok", "$(blacklist)_killed", "$(blacklist)_kill_failed");
+
+methods:
+
+	"any" usebundle => check_process("$(file[$(procList)][0])",
+			"$(file[$(procList)][1])",
+			"$(file[$(procList)][2])",
+			"$(file[$(procList)][3])",
+			"$(file[$(procList)][4])",
+			"$(file[$(procList)][5])");
+
+}
+
+bundle agent check_process(policyInstanceId, name, maxInst, minInst, command, args) {
+
+classes:
+
+	"$(name)_command_empty" expression => strcmp("command","");
+
+processes:
+
+		"$(name)"
+				comment => "Enforcing process parameters",
+				process_count => check_process_count("$(name)", "$(maxInst)","$(minInst)"),
+				restart_class => "$(name)_restart",
+				classes => kept_if_else("$(name)_ok", "$(name)_anomaly", "$(name)_error");
+
+commands:
+
+	$(name)_restart.!$(name)_command_empty::
+
+		"$(command)"
+			args => "$(args)",
+			classes => kept_if_else("$(name)_restart_ok", "$(name)_restart_ok", "$(name)_restart_error");
+
+	$(name)_restart.$(name)_command_empty::
+
+		"/etc/init.d/$(name)"
+			args => "restart",
+			classes => kept_if_else("$(name)_restart_ok", "$(name)_restart_ok", "$(name)_restart_error");
+
+reports:
+  		
+  	(linux|!linux)::
+
+  		"@@ProcessManagement@@result_error@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process count could't be checked"
+			ifvarclass => "$(name)_error";
+
+		"@@ProcessManagement@@log_info@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process instance count is out of the permitted range"
+			ifvarclass => "$(name)_anomaly";
+
+		"@@ProcessManagement@@log_info@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process will be restarted"
+			ifvarclass => "$(name)_restart";
+
+		"@@ProcessManagement@@result_success@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process was in range ($(minInst)-$(maxInst))"
+			ifvarclass => "$(name)_ok";
+
+		"@@ProcessManagement@@result_repaired@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process has been restarted"
+			ifvarclass => "$(name)_restart_ok";
+
+		"@@ProcessManagement@@result_repaired@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process could not be restarted"
+			ifvarclass => "$(name)_restart_error";
+
+		"@@ProcessManagement@@result_error@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process could not be killed"
+			ifvarclass => "$(blacklist)_kill_failed";
+
+		"@@ProcessManagement@@result_repaired@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process has been killed (as requested)"
+			ifvarclass => "$(blacklist)_killed";
+
+		"@@ProcessManagement@@result_success@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process is not running (as requested)"
+			ifvarclass => "$(blacklist)_ok";
+
+}
+
+body process_count check_process_count(name, max, min)
+{
+	match_range => irange("$(min)","$(max)");
+	out_of_range_define => { "$(name)_anomaly" };
+}
+

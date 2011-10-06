@@ -1,0 +1,330 @@
+                           Net::SNMP Changes
+
+RELEASE 6.0.1 SEP-09-2010
+
+- Removed all occurrences of the "locked" attribute that was
+  deprecated in Perl 5.12.0.
+- Changed the test validating the presence of a monotonic time value
+  to check for invalid implementations.
+- The SNMPv3 contextEngineID and contextName are now stored as part
+  of the request allowing for these values to be changed between
+  messages.
+
+
+RELEASE 6.0.0 SEP-09-2009
+
+- Substantial internal code cleanup was performed based upon the
+  Perl::Critic module and the "Perl Best Practices" book.
+- Added support for the Module::Build system for building, testing,
+  and installing Perl modules.
+- The translation logic for OCTET STRINGs now uses the definition of
+  a DisplayString in RFC 2579 to determine if the octets are to be
+  converted into a hexadecimal representation.
+- The get_table() and get_entries() methods were refactored as part
+  of the code cleanup.  The get_entries() method now handles "holes"
+  in tables better and indexes with a value of zero.
+- The inheritance structure of the Transport Domain objects was
+  updated to reduce code duplication and increase maintainability.
+- The resolution of IPv6 addresses was made more exhaustive.
+- The handling of OBJECT IDENTIFIERs was made more efficient by 
+  using [un]pack() with a BER compressed integer template. 
+- Additional validation of the values passed to most methods is now
+  performed and the error messages have been made more robust.
+- The documented examples were updated based upon commonly asked
+  questions (specifically Example 3 and Example 4).
+- A Response-PDU with an error-status set to "noError" no longer
+  generates an error when the error-index is non-zero, as decribed
+  in Section 4.2.4 of RFC 3416.
+- The function oid_lex_cmp() was added to provide for the
+  lexicographical comparison of two OBJECT IDENTIFIERs.
+- The error-status is no longer set for the exceptions noSuchObject,
+  noSuchInstance, and endOfMibView when translation is not enabled.
+
+RELEASE 5.2.0 OCT-20-2005
+
+- Removed the dependency on the IO::Socket::INET and IO::Socket::INET6
+  modules.  The IO::Socket module is now used for all socket objects.
+- The port information can now be included as part of the transport
+  address specified with the session() Transport Domain arguments.
+- Added support for specifying the scope zone index for IPv6 addresses
+  as described in RFC 4007 - "IPv6 Scoped Address Architecture".
+- The default value for the agent-addr in SNMPv1 Trap-PDUs is now the
+  IP address associated with the interface on which the trap will be
+  transmitted.
+
+RELEASE 5.1.0 JUL-20-2005
+
+- Support of the AES privacy protocol was updated to be compliant with
+  RFC 3826 - "The Advanced Encryption Standard (AES) Cipher Algorithm
+  in the SNMP User-based Security Model".
+- Corrected an issue where any non-blocking SNMPv3 message queued prior
+  to calling snmp_dispatcher() was sent with an empty contextEngineID. 
+- The first SNMPv3 discovery message is again being sent with a zero-
+  length msgUserName as suggested by RFC 3414.
+- All sockets are now flagged as non-blocking to prevent a possible
+  deadlock due to an interaction between recv() and select().
+- The sending of messages is now bounded by the receive processing rate
+  to avoid receive buffer overflows.
+- The return value of select() is now checked for both "undef" and -1.
+- The "usm.t" tests are now skipped if any of the non-core modules
+  required by the Net::SNMP::Security::USM module are not present.
+
+RELEASE 5.0.1 SEP-09-2004
+
+- The module is now again functional with Perl 5.6.x.  Compensations
+  were made for compatibility problems with the IO::Socket::INET and
+  Math::BigInt modules packaged with Perl 5.6.x.
+- The UDP/IPv6 and TCP/IPv6 Transport Domains are now functional when
+  using version 2.0x of the IO::Socket::INET6 module.
+   
+RELEASE 5.0.0 JUL-20-2004 
+
+- Added support for the UDP/IPv6 Transport Domain listed in RFC 3419.
+- Support for the TCP/IPv4 and TCP/IPv6 Transport Domains was added
+  as described in RFC 3430 - "SNMP over TCP Transport Mapping".  
+- Optimizations were made to ASN.1 processing and preparation methods. 
+- Corrected a possible memory exhaustion error with OCTET STRINGs that
+  contain "printf" format characters. 
+- The ASN.1 types associated with the ObjectSyntax values in the
+  VarBindList can now be retrieved using the var_bind_types() method.
+- The function snmp_type_ntop() was added for displaying ASN.1 types.
+- The Net::SNMP::Dispatcher module now checks for select() errors.
+- Passing the "-maxrepetitions" argument with a value of 1 or less
+  to the get_table() or get_entries() methods instructs them to use 
+  get-next-request messages instead of get-bulk-request messages. 
+- The maximum allowed value for the maxMsgSize was reduced to 65535.
+- The Perl modules for the non-default Transport Domains and Security
+  Model are now loaded at runtime instead of compile time.
+
+RELEASE 4.1.2 SEP-11-2003
+
+- Removed an unintended dependency on the Crypt::Rijndael that would cause 
+  SNMPv3 support to be unavailable and the "usm.t" tests to fail due to
+  a "strict subs" error in Net::SNMP::Security::USM module.
+ 
+RELEASE 4.1.1 SEP-09-2003
+
+- Corrected a misinterpretation of the "The AES Cipher Algorithm in the
+  SNMP's User-based Security Model" draft specification that lead to
+  the incorrect encoding and decoding of the last block of the message.
+- The syntax of the get_entries() method was changed to expect the column
+  values to entered as full OBJECT IDENTIFIERs allowing the traversal of
+  conceptual rows in different tables which are indexed identically.
+- The processing of the serialization of an OBJECT IDENTIFIER was optimized.
+- The oid_lex_sort() function was updated to order OBJECT IDENTIFIER strings
+  padded with spaces as lexicographically greater than unpadded strings.
+- An empty contextEngineId in a response message is now accepted during  
+  the SNMPv3 discovery process.
+- Corrected an argument validation error with the get_bulk_request()
+  method.
+
+RELEASE 4.1.0 MAY-06-2003
+
+- Working in conjunction with the Extended Security Options Consortium
+  (http://www.snmp.com/eso), support for additional privacy protocols 
+  has been added to the SNMPv3 User-based Security Model.
+  "Extension to the USM to Support Triple-DES EDE in 'Outside' CBC Mode"
+  Reeder and Gudmunsson; October 1999, expired April 2000
+  http://www.snmp.com/eso/draft-reeder-snmpv3-usm-3desede-00.txt
+  "The AES Cipher Algorithm in the SNMP's User-based Security Model"
+  Blumenthal, Maino, and McCloghrie; October 2002, expired April 2003 
+  http://www.snmp.com/eso/draft-blumenthal-aes-usm-04.txt
+- A new method called get_entries() was added to allow the retrieval
+  of columns of a table entry using get-next-requests or get-bulk-requests.
+- The argument "-maxrepetitions" was added to the get_table() method.
+- Responses to SNMPv3 messages with non-default contextEngineIDs or
+  contextNames are now properly processed.
+- The method var_bind_names() was added to retrieve an array of the 
+  ObjectNames in the VarBindList in the order in which they were 
+  received in the GetResponse-PDU. 
+ 
+RELEASE 4.0.3 SEP-09-2002
+
+- Net::SNMP objects are now destroyed as expected when they are no
+  longer referenced.  An internal reference to the object allocated by  
+  the Net::SNMP::Dispatcher module is now properly cleared.
+- A socket with a file descriptor value of 0 is now accepted by the 
+  Net::SNMP module as a valid and open filehandle. 
+- Removed an "optimization" which was intended to provide a smoother 
+  initialization of the dispatcher but instead could lead to messages 
+  incorrectly timing out. 
+
+RELEASE 4.0.2 MAY-06-2002
+
+- The SNMPv3 request message sent for time synchronization is now sent
+  with the same securityLevel that is configured for the session.
+- The "reserved" bits in the msgFlags field of an incoming SNMPv3
+  message are now ignored as suggested by RFC 2572.
+- When encrypting a SNMPv3 message, the padding byte(s) are now set to
+  a value equal to the size of the padding.  "The actual pad value is
+  irrelevant..." according RFC 2574 Section 8.1.1.2.  However, there 
+  are some agents that expect this byte pattern.
+- Corrected a reference count mismatch which would leave a listening 
+  socket open if no response is received from the remote agent.
+- Corrected a "deep recursion" error that occurred when using the
+  get_table() method to retrieve large tables in blocking mode.
+- Using the "-delay" argument with the get_table() method no longer
+  incorrectly delays between message exchanges when retrieving the table.
+- Optimizations and improvements were made to the Net::SNMP::Dispatcher
+  event scheduling and handling procedures.
+- The "translate unsigned" logic now correctly handles properly 
+  formatted (but unexpected) negative Counter64, Counter, Gauge, and 
+  TimeTick values. 
+
+RELEASE 4.0.1 JAN-01-2002
+
+- SNMPv3 objects using authentication now send a separate authenticated
+  request message for time synchronization while performing discovery.
+- Non-blocking SNMPv1/2c messages with a "-delay" argument which are
+  queued before entering the event loop are no longer incorrectly
+  discarded.
+- The Net::SNMP::Security::Community::security_model() method now 
+  returns the correct value as reserved by RFC 2571.
+- The first subidentifier in an OBJECT IDENTIFIER is now restricted to
+  ccitt(0), iso(1), or joint-iso-ccitt(2) as specified by ISO/IEC 8825.
+- Changed the appropriate CHECK blocks into BEGIN blocks to avoid the 
+  "Can't call method 'send_pdu' on an undefined value" error when the 
+  module is loaded using a quoted eval statement. 
+
+RELEASE 4.0.0 NOV-09-2001
+
+- The module has been completely redesigned to add support for SNMPv3 
+  and to follow the SNMP Management Framework defined by RFC 2571.
+- Perl version 5.6.0 or greater is now required to use the module.
+- Updated the method calls to expect the same argument syntax regardless 
+  of whether they are invoked by "blocking" or "non-blocking" objects. 
+- The non-core modules Crypt::DES, Digest::MD5, Digest::SHA1, and 
+  Digest::HMAC are now required to support SNMPv3.
+- Added the ability to specify the local address and port number used by
+  each object.
+
+RELEASE 3.65 SEP-09-2001
+
+- Corrected an error in the Net::SNMP::FSM module that would cause all
+  response messages to be dropped in "non-blocking" mode if there is
+  a recv() error.
+- Updated the logic in the "blocking" response handling method such
+  the transmit buffer is properly updated if there is a decode
+  error while parsing the GetResponse-PDU. 
+- Counter, Gauge, and TimeTick values that are incorrectly encoded as
+  negative signed integers are now converted to unsigned values.  This
+  feature can be disabled by setting the "-unsigned" flag to false 
+  using the translate() method.
+- An empty community name is now allowed.
+- Updated the "non-blocking" example script.
+
+RELEASE 3.60 SEP-09-2000
+
+- Translation can now be enabled or disabled on a per ASN.1 type basis.
+- The Net::SNMP::FSM "event loop" now prioritizes processing SNMP responses
+  over other actions.
+- A set of example scripts is now included with the distribution.
+
+RELEASE 3.50 MAY-06-2000
+
+- The methods that expect a SNMP GetResponse-PDU in "blocking" mode now ignore
+  messages with request-ids that do not match the current request-id.  This
+  change addresses a common occurrence of the "Received request-id xxxx is
+  not equal to transmitted request-id xxxx" error.  The manifestation of this
+  error that has been corrected occurs when a remote agent is too busy to
+  respond immediately, buffers the request, and responds to the request after
+  the Net::SNMP timeout has expired.
+- A new argument "-delay" was added to all methods that can function in "non-
+  blocking" mode.
+- The Net::SNMP::FSM "event loop" sub-module was completely rewritten to more
+  logically handle events.
+- The get_table() method now uses get-bulk-requests instead of
+  get-next-requests when the calling object's version is SNMPv2c.
+- When a duplicate OBJECT IDENTIFIER is received in the VarBindList of a
+  GetResponse-PDU, the duplicate is now padded with an appropriate number of
+  spaces to make it an unique key in the HASH reference returned by the object.
+- The default Maximum Transport Unit was changed from 484 to 1500.  The
+  minimum allow MTU is now 484.
+
+RELEASE 3.01 JAN-01-2000
+
+- Performance enhancements were made to the most heavily used methods.
+- Changed the default timeout to 5.0 seconds and the default number of retries
+  to 1 to reduce network traffic and to work around a problem with responses 
+  from certain routers when they are busy.  The total default timeout period
+  remains the same at 10 seconds. 
+- Removed the verify_ip() method and the "-verifyip" argument to the 
+  constructor.
+
+RELEASE 3.00 SEP-09-1999
+
+- Added event loop based "non-blocking" support.
+- Deprecated the verify_ip() method because verification of the received
+  IP address and port number is no longer done.
+- The "null" character (\000) no longer triggers an OCTET STRING in a
+  GetResponse-PDU to be converted to a hexadecimal representation if
+  translation is enabled.
+- A single socket is now used for all Net::SNMP objects.
+- Corrected an error where a blocking session would send one too many 
+  retries and fail to listen for the last message sent.
+- Added a new export tag ":snmp" used to define SNMP related symbols.
+- New utility functions oid_context_match(), oid_lex_sort(), and 
+  ticks_to_time() were added to provide support for commonly requested 
+  tasks.
+- The length of the varBind SEQUENCE is now properly encoded when multiple
+  varBinds exist. 
+
+RELEASE 2.00 MAY-06-1999
+
+- Added support for SNMPv2c (Community-Based SNMPv2).
+- Modified the ASN.1 encode routine for INTEGERs to correctly handle 
+  positive values greater than 8388607.
+- Added an installation test to verify basic usage of the module, 
+  including verification of basic encode and decode methods.
+
+RELEASE 1.40 APR-26-1999
+
+- All parameters for the object that used to be only configurable via an 
+  object method can now be modified at object creation by passing named
+  arguments to the constructor.
+- The translate() and debug() methods were modified to require a boolean
+  argument to enable or disable the feature.  This deprecates the toggle
+  functionality they had previously.
+- New method verify_ip() added that enables or disables the verification
+  of the IP address and UDP port number on datagrams received by the object.
+- Added support for decoding ASN.1 lengths encoded with 3 or 4 bytes. 
+- Installation tests for the modules required by Net::SNMP and for basic 
+  socket functionality were added to the distribution. 
+
+RELEASE 1.30 MAR-17-1999
+
+- Modified the OBJECT INDENTIFIER decode method to return a leading dot
+  on all identifiers if there was a leading dot on any OBJECT IDENTIFIER
+  passed to the encode method. 
+- Changed the address comparison used when receiving an UDP packet to just 
+  include the port and address information in order to work around an AIX 
+  problem.
+
+RELEASE 1.20 NOV-06-1998
+
+- Now use gensym() from the Symbol module to generate typeglob references 
+  for socket handles, correcting a memory leak.
+- All private methods renamed to Perl programming style recommendations. 
+
+RELEASE 1.10 OCT-14-1998
+
+- New method trap() for sending SNMP Trap-PDUs added.
+- New method error_status() which retrieves the SNMP error-status contained
+  in the last SNMP GetResponse-PDU added.
+- Named arguments for the method session() are now validated.
+- New export tags ":asn1", ":generictrap", and ":ALL" added.
+- New exportable symbols for generic-trap types added. 
+- A comma contained in an OCTET STRING no longer causes the decoded result 
+  of a GetResponse-PDU to be converted to a hexadecimal representation if 
+  translation is enabled.
+- The control characters \n\r\t no longer trigger an OCTET STRING in a
+  GetResponse-PDU to be converted to a hexadecimal representation if 
+  translation is enabled.
+ 
+RELEASE 1.00 SEP-09-1998
+
+- Initial release.
+
+RCS
+
+    $Id: Changes,v 6.1 2010/09/10 00:01:22 dtown Rel $

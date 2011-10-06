@@ -1,0 +1,258 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+##########################################################################
+# Sudo configuration PT                                                  #
+# ---------------------------------------------------------------------- #
+# Objective : Configure /etc/sudoers according to the given parameters   #
+##########################################################################
+
+bundle agent check_sudo_parameters {
+
+	classes:
+
+		"sudoers_present" expression => fileexists("/etc/sudoers");
+
+	vars:
+
+                &SUDO_TYPE:{type |"sudo_entity_type[&i&]" string => "&type&";
+}&
+
+                &SUDO_NAME:{name |"sudo_entity_name[&i&]" string => "&name&";
+}&
+
+                &SUDO_NOPASSWD:{nopasswd |"sudo_entity_nopasswd[&i&]" string => "&nopasswd&";
+}&
+
+                &SUDO_ALL:{alldo |"sudo_entity_all[&i&]" string => "&alldo&";
+}&
+
+                &SUDO_COMMAND:{command |"sudo_entity_command[&i&]" string => "&command&";
+}&
+
+                &TRACKINGKEY:{piuuid |"sudo_policy_instance_uuid[&i&]" string => "&piuuid&";
+}&
+
+                "sudo_index" slist => getindices("sudo_entity_type");
+
+	methods:
+
+		"any"
+
+			usebundle => check_sudo_installation("$(sudo_policy_instance_uuid[$(sudo_index)])");
+
+	commands:
+
+		temp_sudoers_edited|temp_sudoers_kept::
+
+			"/usr/sbin/visudo"
+				args => "-c -s -f /etc/sudoers.rudder",
+				classes => cf2_if_else("sudoers_valid", "sudoers_invalid"),
+				comment => "Checking new sudoers validity";
+
+	files:
+
+		# Only copy /etc/sudoers if it exists (this is to avoid falling into an
+		# error report below)
+		sudoers_present::
+                        "/etc/sudoers.rudder"
+                                copy_from => local_dcp("/etc/sudoers"),
+                                perms => mog("0440", "root", "root"),
+                                classes => kept_if_else("sudoers_tmp_ok", "sudoers_tmp_copied", "sudoers_tmp_copy_failed"),
+                                comment => "Copying sudoers to a temporary file for editing";
+
+		# If there is no /etc/sudoers file, remove our local copy before
+		# rebuilding, so that success/repaired reports make sense for the
+		# /etc/sudoers file, not just for our copy of it, and set result classes
+		# as if we had set it up correctly.
+		!sudoers_present::
+			"/etc/sudoers.rudder"
+				delete  => tidy,
+				classes => kept_if_else("sudoers_tmp_ok", "sudoers_tmp_copied", "sudoers_tmp_copy_failed"),
+				comment => "Remove temporary copy of /etc/sudoers that Rudder keeps in /etc/sudoers.rudder";
+
+
+		((sudoers_tmp_ok|sudoers_tmp_copied).(!sudoers_tmp_copy_failed))::
+			"/etc/sudoers.rudder"
+				edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_policy_instance_uuid", "$(sudo_force_content)"),
+				create => "true",
+                                edit_defaults => std_defs,
+                                perms => mog("0440", "root", "root"),
+				classes => kept_if_else("temp_sudoers_kept", "temp_sudoers_edited", "temp_sudoers_failed"),
+				comment => "Editing temporary sudoers file";
+
+		sudoers_valid::
+
+			"/etc/sudoers"
+				copy_from => local_dcp("/etc/sudoers.rudder"),
+				create => "true",
+				perms => mog("0440", "root", "root"),
+				classes => kept_if_else("sudoers_kept", "sudoers_copied", "could_not_copy_sudoers"),
+				comment => "Copying sudoers to its final home";
+
+	reports:
+
+		sudoers_kept.!sudoers_copied::
+
+			"@@sudoParameters@@result_success@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file did not require any modification";
+
+		sudoers_copied::
+
+			"@@sudoParameters@@result_repaired@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file was fixed and successfully updated";
+
+		temp_sudoers_failed|could_not_copy_sudoers|sudoers_tmp_copy_failed::
+
+			"@@sudoParameters@@result_error@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file could NOT be edited!";
+
+		sudoers_invalid::
+			"@@sudoParameters@@result_error@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
+
+}
+
+bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, piuuid, force) {
+
+vars:
+
+	"index" slist => getindices("$(type)");
+
+	check_sudo_parameters_sudo_add_line_classes_defined::
+
+	"lines[$(index)]"
+		string => "%$($(name)[$(index)])	ALL=(ALL) NOPASSWD:ALL",
+		ifvarclass => "(sudo_$(index)_isgroup.sudo_$(index)_alldo.sudo_$(index)_nopasswd).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+        "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) ALL",
+			ifvarclass => "(sudo_$(index)_isgroup.sudo_$(index)_alldo.!sudo_$(index)_nopasswd).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+        "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) NOPASSWD:$(command)",
+			ifvarclass => "(sudo_$(index)_isgroup.sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+        "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) $(command)",
+			ifvarclass => "(sudo_$(index)_isgroup.!sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) NOPASSWD:ALL",
+			ifvarclass => "(sudo_$(index)_isuser.sudo_$(index)_alldo.sudo_$(index)_nopasswd).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) ALL",
+			ifvarclass => "(sudo_$(index)_isuser.sudo_$(index)_alldo.!sudo_$(index)_nopasswd).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) NOPASSWD:$(command)",
+			ifvarclass => "(sudo_$(index)_isuser.sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) $(command)",
+			ifvarclass => "(sudo_$(index)_isuser.!sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
+
+	"all_lines" slist => getvalues("lines");
+
+classes:
+
+	"sudo_force_content" expression => strcmp("true", "$(force)");
+
+	# Is it a group ?
+	"sudo_$(index)_isgroup" expression => strcmp("$($(type)[$(index)])","group");
+
+	# Is it a user ?
+	"sudo_$(index)_isuser" expression => strcmp("$($(type)[$(index)])","user");
+
+	# Disable password asking ?
+	"sudo_$(index)_nopasswd" expression => strcmp("$($(nopasswd)[$(index)])","true");
+
+	# Should we enable ALL as command ?
+	"sudo_$(index)_alldo" expression => strcmp("$($(alldo)[$(index)])","true");
+
+	# Is command empty ?
+	"sudo_$(index)_command_notempty" not => strcmp("$($(command)[$(index)])","");
+
+	"check_sudo_parameters_sudo_add_line_classes_defined" expression => "any";
+
+	"check_sudo_parameters_sudo_add_line_vars_defined"    expression => isvariable("lines[$(index)]");
+
+	"all_lines_defined"    expression => isvariable("all_lines");
+
+insert_lines:
+
+		"Defaults	env_reset";
+
+	check_sudo_parameters_sudo_add_line_vars_defined::
+		"$(lines[$(index)])"
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed");
+
+delete_lines:
+
+	all_lines_defined.force::
+
+		".*"
+			delete_select => sudo_select_nomatch("$(all_lines)"),
+			classes => if_repaired("line_deleted");
+
+reports:
+
+	all_lines_defined::
+
+		"@@sudoParameters@@log_warn@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#Entry for $($(type)[$(index)]) $($(name)[$(index)]) is invalid (no command given), and has been ignored"
+			ifvarclass => "!sudo_$(index)_command_notempty.!sudo_$(index)_alldo";
+
+		"@@sudoParameters@@result_repaired@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) has been handled"
+			ifvarclass => canonify("line_$(index)_added");
+
+		"@@sudoParameters@@result_success@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) is already present"
+			ifvarclass => canonify("line_$(index)_kept");
+
+		"@@sudoParameters@@result_error@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) could not be handled"
+			ifvarclass => canonify("line_$(index)_add_failed");
+
+	all_lines_defined.force::
+
+                "@@sudoParameters@@result_repaired@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt"
+                        ifvarclass => canonify("line_deleted");
+
+}
+
+bundle agent check_sudo_installation(piuuid) {
+
+        packages:
+                linux::
+                        "sudo"
+                                package_policy  => "add",
+                                package_method  => generic,
+                                classes => kept_if_else("sudo_here", "sudo_installed", "cant_install_sudo"),
+                                comment => "Installing sudo using generic interface";
+
+        reports:
+                sudo_here::
+                        "@@sudoParameters@@result_success@@$(piuuid)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo already installed";
+
+                sudo_installed::
+                        "@@sudoParameters@@result_repaired@@$(piuuid)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo installed";
+
+                cant_install_sudo::
+                        "@@sudoParameters@@result_error@@$(piuuid)@@Install@@None@@$(g.execRun)##$(g.uuid)@#Can't install sudo";
+
+}
+
+body delete_select sudo_select_nomatch(s)
+{
+     delete_if_not_match_from_list => { "Defaults	env_reset", @(s) };
+}
+
+# From cfengine_stdlib but not in our version
+body copy_from local_dcp(from)
+{
+	source      => "$(from)";
+	compare     => "digest";
+}

@@ -1,0 +1,137 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+#######################################################
+#
+# promises.cf
+# 
+# This is the bootstrap promises :
+# - generate the inventory with the information
+# - send it
+# - try to retrieve its promises from the server
+#######################################################
+body common control {
+
+    inputs => {
+	"common/1.0/library.cf","common/1.0/site.cf", "common/1.0/update.cf","inventory/1.0/virtualMachines.cf","common/1.0/cfengine_stdlib.cf","inventory/1.0/fusionAgent.cf","common/1.0/core-lib.cf","common/1.0/process_matching.cf", "inventory/1.0/fetchFusionTools.cf"
+    };
+
+    bundlesequence => { @(va.bs), @(va.end)};
+    
+    output_prefix => "rudder"; 
+    
+    host_licenses_paid => "1";
+
+}
+
+bundle common va {
+  vars:
+    "bs" slist => { "startExecution",  "update", "process_matching", "check_cf_processes", "fetchFusionTools", "virtualMachines", "doInventory"
+     };
+
+
+    "end" slist => { "endExecution" };
+
+
+# definition of the machine roles
+# This node doesn't have any specific role
+}
+
+#########################################################
+# Control execution
+#########################################################
+bundle agent startExecution {
+  reports:
+   linux|windows::
+       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@5@@common@@StartRun@@$(g.execRun)##$(g.uuid)@#Start execution";
+}
+
+bundle agent endExecution {
+  reports:
+   linux|windows::
+       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@5@@common@@EndRun@@$(g.execRun)##$(g.uuid)@#End execution";
+}
+
+###################################################
+# Check that CFengine services are up 
+###################################################
+bundle agent check_cf_processes {
+
+processes:
+
+	linux::
+
+		"$(sys.workdir)/bin/cf-serverd"  restart_class => "start_server";
+		"$(sys.workdir)/bin/cf-execd"    restart_class => "start_executor";
+
+	windows::
+
+		"$(escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
+		"$(escaped_workdir)\/bin\/cf-execd"    restart_class => "start_executor";
+
+commands:
+
+	start_server::
+		"$(sys.cf_serverd)"
+			action => u_ifwin_bg,
+			classes => outcome("server");
+	
+	start_executor::
+		"$(sys.cf_execd)"
+			action => u_ifwin_bg,
+			classes => outcome("executor");
+
+}
+
+#######################################################
+
+body agent control {
+    # if default runtime is 5 mins we need this for long jobs
+    ifelapsed => "1";
+
+    #define here some environment variables
+    environment => { "DEBIAN_FRONTEND=noninteractive" }; 
+
+	abortclasses => { "should_not_continue", "could_not_download_uuid" };
+	
+	agentfacility => "LOG_LOCAL6";
+
+}
+
+#######################################################
+
+body executor control {
+    splaytime => "1";
+
+    exec_command => "$(sys.workdir)/bin/cf-agent"; # No failsafe in the init policies
+    schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
+    executorfacility => "LOG_DAEMON";
+}
+
+#######################################################
+
+#Enforce that the file only contains this information
+bundle edit_line enforce_content(str) {
+
+	delete_lines:
+  		"$(str)" not_matching => "true";
+
+	insert_lines:
+		"$(str)";
+}
+

@@ -1,0 +1,244 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the APT Package Manager Configuration PT.
+    Compatibility : Debian like
+
+It is intended to set a bunch of options commonly
+appreciated by administrators on the APT package
+manager, and eventually enforce them.
+-->
+<POLICY name="APT package manager configuration">
+  <DESCRIPTION>This policy template configure the APT package manager.</DESCRIPTION>
+
+  <BUNDLES>
+    <NAME>check_apt_settings</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="aptPackageManagerSettings"/>
+  </TMLS>
+  
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>APT_URL</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+    <!-- General settings Section , index 1-->
+    <SECTION name="General settings">
+      <SELECT1>
+        <NAME>APT_INSTALLRECOMMENDS</NAME>
+        <DESCRIPTION>Install 'recommended' packages automatically</DESCRIPTION>
+        <ITEM>
+          <VALUE>dontchange</VALUE>
+          <LABEL>Don't change</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"1\";</VALUE>
+          <LABEL>Yes</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"0\";</VALUE>
+          <LABEL>No</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>dontchange</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>APT_INSTALLSUGGESTS</NAME>
+        <DESCRIPTION>Install 'suggested' packages automatically</DESCRIPTION>
+        <ITEM>
+          <VALUE>dontchange</VALUE>
+          <LABEL>Don't change</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"1\";</VALUE>
+          <LABEL>Yes</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"0\";</VALUE>
+          <LABEL>No</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>dontchange</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+
+    <!-- Proxy settings Section , index 10-->
+    <SECTION name="Proxy settings">
+      <INPUT>
+        <NAME>APT_HTTPPROXY_URL</NAME>
+        <DESCRIPTION>HTTP proxy URL (optionnal) :</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: http://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APT_FTPPROXY_URL</NAME>
+        <DESCRIPTION>FTP proxy URL (optionnal):</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: ftp://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+    <!-- Repository settings Section , index 20 -->
+    <SECTION name="Repository settings">
+      <INPUT>
+        <NAME>APT_ADDREPOSITORIES</NAME>
+        <DESCRIPTION>Also add the corresponding source repositories</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SECTION name="Repository" multivalued="true">
+        <INPUT>
+          <NAME>APT_URL</NAME>
+          <DESCRIPTION>Repository URL</DESCRIPTION>
+		  <CONSTRAINT>
+		    <MAYBEEMPTY>true</MAYBEEMPTY>
+		  </CONSTRAINT>
+		</INPUT>
+        <INPUT>
+          <NAME>APT_DISTRO_AUTODETECT</NAME>
+          <DESCRIPTION>Automatically detect the distribution</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>APT_DISTRIBUTION</NAME>
+          <DESCRIPTION>Distribution</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+        <SELECT1>
+          <NAME>APT_COMPONENT_MAIN</NAME>
+          <DESCRIPTION>Use main</DESCRIPTION>
+          <ITEM>
+            <VALUE>main</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>main</DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_CONTRIB</NAME>
+          <DESCRIPTION>Use contrib</DESCRIPTION>
+          <ITEM>
+            <VALUE>contrib</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_NON_FREE</NAME>
+          <DESCRIPTION>Use non-free</DESCRIPTION>
+          <ITEM>
+            <VALUE>non-free</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_RESTRICTED</NAME>
+          <DESCRIPTION>Use restricted</DESCRIPTION>
+          <ITEM>
+            <VALUE>restricted</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_UNIVERSE</NAME>
+          <DESCRIPTION>Use universe</DESCRIPTION>
+          <ITEM>
+            <VALUE>universe</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_MULTIVERSE</NAME>
+          <DESCRIPTION>Use multiverse</DESCRIPTION>
+          <ITEM>
+            <VALUE>multiverse</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+      </SECTION>
+      
+      <INPUT>
+        <NAME>APT_DISABLEREPOSITORIES</NAME>
+        <DESCRIPTION>Disable all other repositories than these (potentially dangerous)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</POLICY>       
