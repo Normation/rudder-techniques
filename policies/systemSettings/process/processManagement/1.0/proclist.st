@@ -19,5 +19,5 @@
 # List of the process parameters to enforce
 # Format of the file :
 # policyIsntanceId, name:maximum_instances:minimum_instances
-&TRACKINGKEY, PROCESS_NAME, PROCESS_MIN_INSTANCES, PROCESS_MAX_INSTANCES, PROCESS_COMMAND, PROCESS_ARGS:{policyInstanceId, name, maxInst, minInst, command, args | &policyInstanceId&,&name&,&maxInst&,&minInst&,&command&,&args&
+&TRACKINGKEY, PROCESS_NAME, PROCESS_MIN_INSTANCES, PROCESS_MAX_INSTANCES, PROCESS_COMMAND, PROCESS_MAX_ARGS:{policyInstanceId, name, maxInst, minInst, command, args | &policyInstanceId&,&name&,&maxInst&,&minInst&,&command&,&args&
 }&

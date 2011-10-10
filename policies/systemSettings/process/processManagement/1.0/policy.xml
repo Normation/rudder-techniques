@@ -35,6 +35,7 @@ necessary and kill undesired processes.
     <TML name="processManagement"/>
     <TML name="proclist">
       <INCLUDED>false</INCLUDED>
+	  <OUTPATH>processManagement/proclist</OUTPATH>
     </TML>
   </TMLS>
 
@@ -71,13 +72,14 @@ necessary and kill undesired processes.
         <DESCRIPTION>The arguments of the command used to restart the process</DESCRIPTION>
       </INPUT>
     </SECTION>
-
+<!--
 	<SECTION name="Blacklisted process" multivalued="true" component="true" componentKey="PROCESS_BLACKLIST">
       <INPUT>
         <NAME>PROCESS_BLACKLIST</NAME>
         <DESCRIPTION>Process name to ban. If present, kill them (accepts regular expressions)</DESCRIPTION>
       </INPUT>
     </SECTION>
+-->
   </SECTIONS>
   
 </POLICY>
