@@ -160,7 +160,7 @@ bundle agent check_usergroup_user_parameters_userhandle(login, name, password, p
 		!user_exists.user_remove::
 			"@@userGroupManagement@@result_success@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) does not exist, as required";
 
-		user_exists.user_update::
+		user_exists.user_update.!login_added::
 			"@@userGroupManagement@@result_success@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) is already present on the system";
 
 		user_exists.user_checkabs::
