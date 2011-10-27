@@ -31,13 +31,13 @@ commands:
 
     linux.file_not_found::
 		"/usr/bin/curl"
-			args => "-o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+			args => "-f -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
 			comment => "Getting the file from the server",
 			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
 
     windows.file_not_found::
 		"\"${g.rudder_base_sbin}\curl\curl.exe\""
-			args => "-o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+			args => "-f -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
 			comment => "Getting the file from the server",
 			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
 
