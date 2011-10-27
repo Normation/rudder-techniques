@@ -337,7 +337,7 @@ bundle agent sendInventory {
   files:
     linux::
     "${g.rudder_inventories}" 
-		transformer => "/usr/bin/curl -s --user $(g.davuser):$(g.davpw) -T $(this.promiser)  http://${server_info.cfserved}/inventories/",
+		transformer => "/usr/bin/curl -f -s --user $(g.davuser):$(g.davpw) -T $(this.promiser)  http://${server_info.cfserved}/inventories/",
 		depth_search => recurse_visible(1),
 		file_select => inventory_files,
 		classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
@@ -362,7 +362,7 @@ bundle agent sendInventory {
 	# TODO: we should find some way to have an equivalent behaviour to send-clean.sh above on Windows
 	windows::
 	 "${g.rudder_inventories}" 
-		transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s --user $(g.davuser):$(g.davpw) -T \"$(this.promiser)\"  http://${server_info.cfserved}/inventories/",
+		transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --user $(g.davuser):$(g.davpw) -T \"$(this.promiser)\"  http://${server_info.cfserved}/inventories/",
 		depth_search => recurse_visible(1),
 		file_select => inventory_files,
 		classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
