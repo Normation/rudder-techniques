@@ -1,0 +1,72 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<POLICY name="Manage files and folders">
+  <DESCRIPTION>Make sure that some folder exists</DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <OS version=">= XP/5.1 (Whistler)">Windows</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>manageFilesAndFolders</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="manageFilesAndFolders"/>
+  </TMLS>
+    
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>FILE_AND_FOLDER_MANAGEMENT_PATH</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+
+    <SECTION name="File" multivalued="true" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+      <INPUT>
+        <NAME>FILE_AND_FOLDER_MANAGEMENT_PATH</NAME>
+        <DESCRIPTION>Path</DESCRIPTION>
+      </INPUT>
+<!--      <INPUT>
+        <NAME>FILE_AND_FOLDER_MANAGEMENT_OWNER</NAME>
+        <DESCRIPTION>Owner of the file</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>root</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>FILE_AND_FOLDER_MANAGEMENT_GROUP</NAME>
+        <DESCRIPTION>Group of the file</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>root</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>FILE_AND_FOLDER_MANAGEMENT_PERM</NAME>
+        <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>perm</TYPE>
+        </CONSTRAINT>
+      </INPUT> -->
+    </SECTION>
+  </SECTIONS>
+
+</POLICY>
