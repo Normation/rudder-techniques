@@ -36,7 +36,10 @@ bundle agent check_generic_file_content {
                 &GENERIC_FILE_CONTENT_PERM:{perms |"generic_file_content_perms[&i&]" string => "&perms&";
 }&
 
-                &GENERIC_FILE_CONTENT_PAYLOAD:{payload |"generic_file_content_payload[&i&]" string => "&payload&";
+&GENERIC_FILE_CONTENT_PAYLOAD:{payload |"generic_file_content_payload[&i&]" string => "&payload&";
+}&
+
+&GENERIC_FILE_CONTENT_ENFORCE:{enforce |"generic_file_content_enforced[&i&]" string => "&enforce&";
 }&
 
                 &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
@@ -47,9 +50,10 @@ bundle agent check_generic_file_content {
         files:
 
 		"$(generic_file_content_path[$(index)])"
-			edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])"),
+			edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])",
+													"$(generic_file_content_enforced[$(index)])"),
 			create => "true",
-			edit_defaults => std_defs,
+			edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
 			perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
 			classes => kept_if_else("content_$(index)_kept", "content_$(index)_modified", "content_$(index)_failed"),
 			comment => "Editing $(generic_file_content_path[$(index)])...";
@@ -70,12 +74,18 @@ reports:
 
 }
 
-bundle edit_line set_arbitrary_file_content(content)
+bundle edit_line set_arbitrary_file_content(content, enforce)
 {
+classes:
+	"preserve_file_content" expression => strcmp("true", "$(enforce)");
 
 insert_lines:
-
+  preserve_file_content::
 	"$(content)"
 		insert_type => "preserve_block";
+
+  !preserve_file_content::
+	"$(content)";
+
 
 }

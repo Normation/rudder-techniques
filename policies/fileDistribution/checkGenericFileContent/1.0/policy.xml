@@ -74,6 +74,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <TYPE>textarea</TYPE>
         </CONSTRAINT>
       </INPUT>
+      <SELECT1>
+        <NAME>GENERIC_FILE_CONTENT_ENFORCE</NAME>
+        <DESCRIPTION>Enforce the content of the file</DESCRIPTION>
+        <LONGDESCRIPTION>If yes, the file will exactly contains what is in the "Content of the file" field, otherwise the content will be added, leaving the rest of the file untouched</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
     </SECTION>
   </SECTIONS>
 
