@@ -219,13 +219,13 @@ bundle agent check_ssh_configuration {
 				comment => "restarting ssh";
 
 		debian.!ssh_bootstarted.ssh_initd_present::
-			"/usr/sbin/update-rc.d ssh remove && /usr/sbin/update-rc.d ssh defaults"
+			"/usr/sbin/update-rc.d ssh remove \&\& /usr/sbin/update-rc.d ssh defaults"
 				contain => in_shell,
 				classes => cf2_if_else("ssh_bootstarted_ok", "ssh_still_unbootstarted"),
 				comment => "adding ssh to the startup scripts";
 
 		(redhat|SuSE).!ssh_bootstarted.ssh_initd_present::
-			"/sbin/chkconfig --del sshd && /sbin/chkconfig --add sshd"
+			"/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd"
 				contain => in_shell,
 				classes => cf2_if_else("ssh_bootstarted_ok", "ssh_still_unbootstarted"),
 				comment => "adding ssh to the startup scripts";
