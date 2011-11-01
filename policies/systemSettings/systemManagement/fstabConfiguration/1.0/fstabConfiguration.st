@@ -28,6 +28,8 @@ bundle agent check_fstab_configuration {
 
 		&FSTAB_ORIGIN:{origin |"fstab[&i&][origin]" string => "&origin&";
 }&
+		&FSTAB_MOUNT_SELECTOR:{selector |"fstab[&i&][selector]" string => "&selector&";
+}&
 		&FSTAB_DESTINATION:{destination |"fstab[&i&][destination]" string => "&destination&";
 }&
 		&FSTAB_FILESYSTEM:{filesystem |"fstab[&i&][filesystem]" string => "&filesystem&";
@@ -44,7 +46,7 @@ bundle agent check_fstab_configuration {
 }&
 		&FSTAB_EXEC:{exec |"fstab_options[&i&][exec]" string => "&exec&";
 }&
-		&FSTAB_SUID:{suid |"fstab_options[&i&][async]" string => "&suid&";
+		&FSTAB_SUID:{suid |"fstab_options[&i&][suid]" string => "&suid&";
 }&
 		&FSTAB_USER:{user |"fstab_options[&i&][user]" string => "&user&";
 }&
@@ -93,8 +95,8 @@ bundle agent check_fstab_configuration {
 			"/etc/fstab"
 				edit_line => fstab_add_line("check_fstab_configuration.fstab", "check_fstab_configuration.fields", "check_fstab_configuration.fstab_alteronly"),
 				create => "true",
-                                edit_defaults => std_defs,
-                                perms => mog("0644", "root", "root"),
+				edit_defaults => std_defs,
+				perms => mog("0644", "root", "root"),
 				classes => kept_if_else("fstab_kept", "fstab_edited", "fstab_failed"),
 				comment => "Editing the fstab file";
 
@@ -102,58 +104,77 @@ bundle agent check_fstab_configuration {
 
                 fstab_kept.!fstab_edited::
 
-			"@@fstabConfiguration@@log_info@@$(fstab[1][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was in accordance with the required policy";
+			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was in accordance with the required policy";
 
                 fstab_edited::
 
-			"@@fstabConfiguration@@log_info@@$(fstab[1][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was successfully edited";
+			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was edited by at least one instance of this policy template";
 
                 fstab_failed::
 
-			"@@fstabConfiguration@@result_error@@$(fstab[1][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file could NOT be edited!";
+			"@@fstabConfiguration@@log_warn@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file could NOT be edited by at least one instance of this policy template!";
 
                 windows::
 
-			"@@fstabConfiguration@@result_error@@$(fstab[1][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstabConfiguration Policy Template is not intended to be run on windows. Skipping.";
+			"@@fstabConfiguration@@result_error@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstabConfiguration Policy Template is not intended to be run on windows. Skipping.";
 
 }
 
 bundle edit_line fstab_add_line(data_array, fields, alteronly) {
-
-classes:
-
-	"addentry_$(index)" expression => strcmp("$($(alteronly)[$(index)])", "false");
 
 vars:
 
 	"index" slist => getindices("$(data_array)");
 	"indices_fields" slist => getindices("$(fields)");
 
+classes:
+
+	"addentry_$(index)" expression => strcmp("$($(alteronly)[$(index)])", "false");
+	"empty_origin_$(index)" expression => strcmp("$($(data_array)[$(index)][origin])", "");
+	"use_origin_$(index)" expression => strcmp("$($(data_array)[$(index)][selector])", "origin");
+
+	# Cannot handle an addition without the origin, nor handle a reference on the origin if there aren't any
+	"invalid_$(index)" expression => "empty_origin_$(index).(use_origin_$(index)|addentry_$(index))";
+
 field_edits:
 
 		"^$($(data_array)[$(index)][origin])[ \t].*"
 			edit_field => col("[ \t]","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
-			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed");
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed"),
+			ifvarclass => "use_origin_$(index).!invalid_$(index)";
+
+		"^.*[ \t]$($(data_array)[$(index)][destination])[ \t].*"
+			edit_field => col("[ \t]","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed"),
+			ifvarclass => "!use_origin_$(index)";
 
 insert_lines:
 
 		"$($(data_array)[$(index)][origin]) $($(data_array)[$(index)][destination]) $($(data_array)[$(index)][filesystem]) $($(data_array)[$(index)][options]) $($(data_array)[$(index)][dump]) $($(data_array)[$(index)][fsckorder])",
-			ifvarclass => "addentry_$(index).!line_$(index)_added",
+			ifvarclass => "addentry_$(index).!line_$(index)_added.!invalid_$(index)",
 			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed");
 reports:
 
 	linux::
 
-		"@@fstabConfiguration@@result_repaired@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][origin])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) has been handled"
+		"@@fstabConfiguration@@result_error@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) is invalid, for it doesn't contain an origin : how can it be updated/inserted?"
+			ifvarclass => "invalid_$(index)";
+
+		"@@fstabConfiguration@@result_repaired@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) has been handled"
 			ifvarclass => "line_$(index)_added";
 
-		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][origin])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) is already present"
-			ifvarclass => "line_$(index)_kept.!line_$(index)_added";
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) is already present"
+			ifvarclass => "line_$(index)_kept.!line_$(index)_added.!empty_origin_$(index)";
 
-		"@@fstabConfiguration@@result_error@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][origin])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) could not be handled"
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) contained the proper fields"
+			ifvarclass => "line_$(index)_kept.!line_$(index)_added.empty_origin_$(index)";
+
+		"@@fstabConfiguration@@result_error@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) could not be handled"
 			ifvarclass => "line_$(index)_add_failed";
 
-		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][origin])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) was not present but policy required alteration only. This line will be ignored"
-			ifvarclass => "!addentry_$(index).!line_$(index)_added.!line_$(index)_kept.!line_$(index)_add_failed";
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) was not present but policy required alteration only. This line will be ignored"
+			ifvarclass => "!addentry_$(index).!line_$(index)_added.!line_$(index)_kept.!line_$(index)_add_failed.use_origin_$(index)";
 
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) was not present but policy required alteration only. This line will be ignored"
+			ifvarclass => "!addentry_$(index).!line_$(index)_added.!line_$(index)_kept.!line_$(index)_add_failed.!use_origin_$(index)";
 }

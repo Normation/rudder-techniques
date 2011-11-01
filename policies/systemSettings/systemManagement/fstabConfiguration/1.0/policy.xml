@@ -38,7 +38,7 @@ given parameters.
   </TMLS>  
   
   <TRACKINGVARIABLE>
-    <SAMESIZEAS>FSTAB_ORIGIN</SAMESIZEAS>
+    <SAMESIZEAS>FSTAB_DESTINATION</SAMESIZEAS>
   </TRACKINGVARIABLE>
     
   <SECTIONS>
@@ -58,9 +58,30 @@ given parameters.
           <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
+
+      <SELECT1>
+        <NAME>FSTAB_MOUNT_SELECTOR</NAME>
+        <DESCRIPTION>Use the Origin or the Destination as reference</DESCRIPTION>
+        <ITEM>
+          <LABEL>Origin</LABEL>
+          <VALUE>origin</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Destination</LABEL>
+          <VALUE>destination</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>destination</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
       <INPUT>
         <NAME>FSTAB_ORIGIN</NAME>
         <DESCRIPTION>Mountpoint origin</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+          <REGEX error="Can't use space in the origin">[^\s]*</REGEX>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FSTAB_DESTINATION</NAME>
