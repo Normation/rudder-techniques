@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <POLICY name="Manage files and folders">
-  <DESCRIPTION>Make sure that some folder exists</DESCRIPTION>
+  <DESCRIPTION>Make sure that files and folders exist, and set their permissions</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
@@ -39,12 +39,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TRACKINGVARIABLE>
     
   <SECTIONS>
+    <SECTION name="File to manage" multivalued="true">
+		<SECTION name="File" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+			<INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_PATH</NAME>
+				<DESCRIPTION>Path</DESCRIPTION>
+			</INPUT>
+		</SECTION>
 
-    <SECTION name="File" multivalued="true" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
-      <INPUT>
-        <NAME>FILE_AND_FOLDER_MANAGEMENT_PATH</NAME>
-        <DESCRIPTION>Path</DESCRIPTION>
-      </INPUT>
 <!--      <INPUT>
         <NAME>FILE_AND_FOLDER_MANAGEMENT_OWNER</NAME>
         <DESCRIPTION>Owner of the file</DESCRIPTION>
@@ -66,6 +68,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <TYPE>perm</TYPE>
         </CONSTRAINT>
       </INPUT> -->
+
+	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+		  <INPUT>
+			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN</NAME>
+			  <DESCRIPTION>After any modifications on the above paths, run the following command</DESCRIPTION>
+			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND</NAME>
+			  <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
+			  <CONSTRAINT><TYPE>textarea</TYPE></CONSTRAINT>
+		  </INPUT>
+	  </SECTION>
     </SECTION>
   </SECTIONS>
 
