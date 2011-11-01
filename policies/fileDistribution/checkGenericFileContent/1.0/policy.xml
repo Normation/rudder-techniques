@@ -40,57 +40,67 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TRACKINGVARIABLE>
     
   <SECTIONS>
-
-    <SECTION name="File" multivalued="true" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
-      <INPUT>
-        <NAME>GENERIC_FILE_CONTENT_PATH</NAME>
-        <DESCRIPTION>Path</DESCRIPTION>
-      </INPUT>
-      <INPUT>
-        <NAME>GENERIC_FILE_CONTENT_OWNER</NAME>
-        <DESCRIPTION>Owner of the file</DESCRIPTION>
-        <CONSTRAINT>
-          <DEFAULT>root</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>GENERIC_FILE_CONTENT_GROUP</NAME>
-        <DESCRIPTION>Group of the file</DESCRIPTION>
-        <CONSTRAINT>
-          <DEFAULT>root</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>GENERIC_FILE_CONTENT_PERM</NAME>
-        <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>perm</TYPE>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
-        <DESCRIPTION>Content of the file</DESCRIPTION>
-        <CONSTRAINT>
-            <TYPE>textarea</TYPE>
-        </CONSTRAINT>
-      </INPUT>
-      <SELECT1>
-        <NAME>GENERIC_FILE_CONTENT_ENFORCE</NAME>
-        <DESCRIPTION>Enforce the content of the file</DESCRIPTION>
-        <LONGDESCRIPTION>If yes, the file will exactly contains what is in the "Content of the file" field, otherwise the content will be added, leaving the rest of the file untouched</LONGDESCRIPTION>
-        <ITEM>
-          <LABEL>Yes</LABEL>
-          <VALUE>true</VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>No</LABEL>
-          <VALUE>false</VALUE>
-        </ITEM>
-        <CONSTRAINT>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </SELECT1>
-    </SECTION>
+	<SECTION name="File to manage" multivalued="true">
+		<SECTION name="File" multivalued="false" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_PATH</NAME>
+		    <DESCRIPTION>Path</DESCRIPTION>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_OWNER</NAME>
+		    <DESCRIPTION>Owner of the file</DESCRIPTION>
+		    <CONSTRAINT>
+		      <DEFAULT>root</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_GROUP</NAME>
+		    <DESCRIPTION>Group of the file</DESCRIPTION>
+		    <CONSTRAINT>
+		      <DEFAULT>root</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_PERM</NAME>
+		    <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
+		    <CONSTRAINT>
+		      <TYPE>perm</TYPE>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
+		    <DESCRIPTION>Content of the file</DESCRIPTION>
+		    <CONSTRAINT>
+		        <TYPE>textarea</TYPE>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <SELECT1>
+		    <NAME>GENERIC_FILE_CONTENT_ENFORCE</NAME>
+		    <DESCRIPTION>Enforce the content of the file</DESCRIPTION>
+		    <LONGDESCRIPTION>If yes, the file will exactly contains what is in the "Content of the file" field, otherwise the content will be added, leaving the rest of the file untouched</LONGDESCRIPTION>
+		    <ITEM>
+		      <LABEL>Yes</LABEL>
+		      <VALUE>true</VALUE>
+		    </ITEM>
+		    <ITEM>
+		      <LABEL>No</LABEL>
+		      <VALUE>false</VALUE>
+		    </ITEM>
+		    <CONSTRAINT>
+		      <DEFAULT>false</DEFAULT>
+		    </CONSTRAINT>
+		  </SELECT1>
+		</SECTION>
+	</SECTION>
+	<SECTION name="PostHook" multivalued="false" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		<INPUT>
+			  <NAME>GENERIC_FILE_CONTENT_POST_HOOK_COMMAND</NAME>
+			  <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
+			  <CONSTRAINT>
+			 	 <MAYBEEMPTY>true</MAYBEEMPTY>
+			  </CONSTRAINT>
+		</INPUT>
+	</SECTION>
   </SECTIONS>
 
 </POLICY>
