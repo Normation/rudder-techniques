@@ -92,12 +92,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		  </SELECT1>
 		</SECTION>
 	</SECTION>
-	<SECTION name="PostHook" multivalued="false" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+	<SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		<INPUT>
+			  <NAME>GENERIC_FILE_CONTENT_POST_HOOK_RUN</NAME>
+			  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the above paths?</DESCRIPTION>
+			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+		</INPUT>
 		<INPUT>
 			  <NAME>GENERIC_FILE_CONTENT_POST_HOOK_COMMAND</NAME>
 			  <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
 			  <CONSTRAINT>
-			 	 <MAYBEEMPTY>true</MAYBEEMPTY>
+					<TYPE>textarea</TYPE>
+					<MAYBEEMPTY>true</MAYBEEMPTY>
 			  </CONSTRAINT>
 		</INPUT>
 	</SECTION>
