@@ -46,29 +46,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<DESCRIPTION>Path</DESCRIPTION>
 			</INPUT>
 		</SECTION>
+		<SECTION name="Permissions" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+			<SELECT1>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_CHECK_PERMISSIONS</NAME>
+				<DESCRIPTION>Set permissions</DESCRIPTION>
+				<ITEM>
+				  <VALUE>false</VALUE>
+				  <LABEL>No, don't change any permissions</LABEL>
+				</ITEM>
+				<ITEM>
+				  <VALUE>true</VALUE>
+				  <LABEL>Yes, enforce permissions described below</LABEL>
+				</ITEM>
+				<CONSTRAINT>
+					<DEFAULT>false</DEFAULT>
+				</CONSTRAINT>
+			</SELECT1>
+			  <INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_PERM</NAME>
+				<DESCRIPTION>File mode</DESCRIPTION>
+				<CONSTRAINT>
+				  <TYPE>perm</TYPE>
+				</CONSTRAINT>
+			  </INPUT>
+			 <INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_OWNER</NAME>
+				<DESCRIPTION>File Owner</DESCRIPTION>
+				<CONSTRAINT>
+				  <MAYBEEMPTY>true</MAYBEEMPTY>
+				</CONSTRAINT>
+			  </INPUT>
+			  <INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_GROUP</NAME>
+				<DESCRIPTION>File Group</DESCRIPTION>
+				<CONSTRAINT>
+				  <MAYBEEMPTY>true</MAYBEEMPTY>
+				</CONSTRAINT>
+			  </INPUT>
 
-<!--      <INPUT>
-        <NAME>FILE_AND_FOLDER_MANAGEMENT_OWNER</NAME>
-        <DESCRIPTION>Owner of the file</DESCRIPTION>
-        <CONSTRAINT>
-          <DEFAULT>root</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>FILE_AND_FOLDER_MANAGEMENT_GROUP</NAME>
-        <DESCRIPTION>Group of the file</DESCRIPTION>
-        <CONSTRAINT>
-          <DEFAULT>root</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>FILE_AND_FOLDER_MANAGEMENT_PERM</NAME>
-        <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>perm</TYPE>
-        </CONSTRAINT>
-      </INPUT> -->
-
+		</SECTION>
 	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
 		  <INPUT>
 			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN</NAME>
