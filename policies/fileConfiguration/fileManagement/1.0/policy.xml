@@ -72,13 +72,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
 		  <INPUT>
 			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN</NAME>
-			  <DESCRIPTION>After any modifications on the above paths, run the following command</DESCRIPTION>
+			  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the above paths?</DESCRIPTION>
 			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
 		  </INPUT>
 		  <INPUT>
 			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND</NAME>
-			  <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
-			  <CONSTRAINT><TYPE>textarea</TYPE></CONSTRAINT>
+			  <DESCRIPTION>Command(s) to run</DESCRIPTION>
+			  <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
+			  <CONSTRAINT>
+				<TYPE>textarea</TYPE>
+				<MAYBEEMPTY>true</MAYBEEMPTY>
+			</CONSTRAINT>
 		  </INPUT>
 	  </SECTION>
     </SECTION>
