@@ -88,7 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
 		  <INPUT>
 			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN</NAME>
-			  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the above paths?</DESCRIPTION>
+			  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the path above?</DESCRIPTION>
 			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
 		  </INPUT>
 		  <INPUT>
