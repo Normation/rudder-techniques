@@ -49,13 +49,28 @@ bundle agent manageFilesAndFolders {
 
 		&FILE_AND_FOLDER_MANAGEMENT_CHECK_PERMISSIONS:{perms |"manageFilesAndFolders_check_permissions_&i&" expression => strcmp("&perms&", "true");
 }&
+		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{nocreate | "manageFilesAndFolders_nocreate_&i&" expression => strcmp("&nocreate&", "none");
+}&
+		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createfile | "manageFilesAndFolders_createfile_&i&" expression => strcmp("&createfile&", "file");
+}&
+		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createdir | "manageFilesAndFolders_createdir_&i&" expression => strcmp("&createdir&", "dir");
+}&
+		"manageFilesAndFolders_isdir_$(index)" expression => isdir("$(file[$(index)][path])");
+		"manageFilesAndFolders_isfile_$(index)" expression => isplain("$(file[$(index)][path])");
 
 	files:
 
 		"$(file[$(index)][path])/."
 			create => "true",
-			classes => kept_if_else("manageFilesAndFolders_$(index)_kept", "manageFilesAndFolders_$(index)_modified", "manageFilesAndFolders_$(index)_failed"),
-			comment => "Enforcing the existance of folder $(file[$(index)][path])";
+			classes => kept_if_else("manageFolders_$(index)_kept", "manageFolders_$(index)_modified", "manageFolders_$(index)_failed"),
+			comment => "Enforcing the existance of folder $(file[$(index)][path])",
+			ifvarclass => "!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createfile_$(index).manageFilesAndFolders_createdir_$(index)";
+
+		"$(file[$(index)][path])"
+			create => "true",
+			classes => kept_if_else("manageFiles_$(index)_kept", "manageFiles_$(index)_modified", "manageFiles_$(index)_failed"),
+			comment => "Enforcing the existance of file $(file[$(index)][path])",
+			ifvarclass => "!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_createfile_$(index)";
 
 
 		# Check the permission
@@ -76,14 +91,28 @@ bundle agent manageFilesAndFolders {
 
 			# Reporting for directory creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) already exists"
-				ifvarclass => "manageFilesAndFolders_$(index)_kept.!manageFilesAndFolders_$(index)_modified";
+				ifvarclass => "manageFolders_$(index)_kept.!manageFolders_$(index)_modified.manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_isfile_$(index)";
 
 			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) was successfully created"
-				ifvarclass => "manageFilesAndFolders_$(index)_modified";
+				ifvarclass => "manageFolders_$(index)_modified";
 
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageFilesAndFolders_$(index)_failed";
+				ifvarclass => "manageFolders_$(index)_failed|manageFolders_$(index)_kept.manageFilesAndFolders_isfile_$(index)";
 
+			# Reporting for file creation
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) already exists"
+				ifvarclass => "manageFiles_$(index)_kept.!manageFiles_$(index)_modified.manageFilesAndFolders_isplain_$(index).!manageFilesAndFolders_isdir_$(index)";
+
+			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) was successfully created"
+				ifvarclass => "manageFiles_$(index)_modified";
+
+			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) could not be created"
+				ifvarclass => "manageFiles_$(index)_failed|manageFiles_$(index)_kept.manageFilesAndFolders_isdir_$(index)";
+
+			# Reporting for no change
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#No action on $(file[$(index)][path])"
+                                ifvarclass => "manageFilesAndFolders_nocreate_$(index)";
+			
 			# Reporting for the permissions
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was not requested to have its permission enforced"
 				ifvarclass => "!manageFilesAndFolders_check_permissions_$(index)";

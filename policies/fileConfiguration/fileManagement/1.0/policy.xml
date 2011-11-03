@@ -46,6 +46,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<DESCRIPTION>Path</DESCRIPTION>
 			</INPUT>
 		</SECTION>
+		<SELECT1>
+			<NAME>FILE_AND_FOLDER_MANAGEMENT_ACTION</NAME>
+			<DESCRIPTION>Set action on file or folder</DESCRIPTION>
+			<ITEM>
+				<VALUE>none</VALUE>
+				<LABEL>Do nothing</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>file</VALUE>
+				<LABEL>Create an empty file</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>dir</VALUE>
+				<LABEL>Create an empty directory</LABEL>
+			</ITEM>
+			<CONSTRAINT>
+				<DEFAULT>none</DEFAULT>
+			</CONSTRAINT>
+		</SELECT1>
 		<SECTION name="Permissions" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
 			<SELECT1>
 				<NAME>FILE_AND_FOLDER_MANAGEMENT_CHECK_PERMISSIONS</NAME>
