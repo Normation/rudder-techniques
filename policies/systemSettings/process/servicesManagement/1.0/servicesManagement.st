@@ -182,16 +182,16 @@ bundle agent services_management {
 
 		# Service boot starting parameters
 
-		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) starting parameters check not required"
+		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) starting parameters check not required"
 			ifvarclass => "!bootstart_process_$(index)";
 
-		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) is started on boot as required"
+		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) is started on boot as required"
 			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted";
 
-		"@@ServicesManagement@@result_repaired@@$(service[$(index)][uuid])@@Service starting parameters@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) has been set to start on boot"
+		"@@ServicesManagement@@result_repaired@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) has been set to start on boot"
 			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted_ok";
 
-		"@@ServicesManagement@@result_error@@$(service[$(index)][uuid])@@Service starting parameters@@None@@$(g.execRun)##$(g.uuid)@#Could not set $(service[$(index)][name]) to start on boot!"
+		"@@ServicesManagement@@result_error@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#Could not set $(service[$(index)][name]) to start on boot!"
 			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted_fail";
 
 }
