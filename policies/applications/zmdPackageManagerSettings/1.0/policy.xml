@@ -1,0 +1,127 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<POLICY name="RUG / YaST package manager configuration (ZMD)">
+  <DESCRIPTION>This policy template configures the RUG and YaST package manager using Novell's ZMD.</DESCRIPTION>
+
+  <COMPATIBLE>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_zmd_settings</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="zmdPackageManagerSettings"/>
+  </TMLS>
+  
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>ZMD_URL</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+    <SECTION name="ZMD process" component="true" />
+    <!-- General settings Section , index 1-->
+    <SECTION name="General settings" component="true">
+      <SELECT1>
+        <NAME>ZMD_SOURCEPOLICY</NAME>
+        <DESCRIPTION>Package sources policy</DESCRIPTION>
+        <LONGDESCRIPTION>This option defines which component of a repository is used as a trusted reference for the packages. Signature checks the package against the repository PGP key and Checksum only checks the package integrity. None installs the packages blindly without checking them.</LONGDESCRIPTION>
+        <ITEM>
+          <VALUE>signature</VALUE>
+          <LABEL>Signature</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>checksum</VALUE>
+          <LABEL>Checksum</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>none</VALUE>
+          <LABEL>Nothing</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>dontchange</VALUE>
+          <LABEL>Don't change</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>dontchange</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
+    <!-- Proxy settings Section , index 10
+    <SECTION name="Proxy settings">
+      <INPUT>
+        <NAME>ZMD_HTTPPROXY_URL</NAME>
+        <DESCRIPTION>HTTP proxy URL (optionnal) :</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: http://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>ZMD_FTPPROXY_URL</NAME>
+        <DESCRIPTION>FTP proxy URL (optionnal):</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: ftp://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    -->
+
+    </SECTION>
+    <!-- Repository settings Section , index 20 -->
+    <SECTION name="Repository settings">
+      <INPUT>
+        <NAME>ZMD_ADDREPOSITORIES</NAME>
+        <DESCRIPTION>Add the following repository(ies)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SECTION name="Repository" multivalued="true" component="true" componentKey="ZMD_URL">
+        <INPUT>
+          <NAME>ZMD_URL</NAME>
+          <DESCRIPTION>Repository URL</DESCRIPTION>
+            <CONSTRAINT>
+              <MAYBEEMPTY>true</MAYBEEMPTY>
+            </CONSTRAINT>
+	</INPUT>
+        <INPUT>
+          <NAME>ZMD_NAME</NAME>
+          <DESCRIPTION>Repository local name</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+
+      <!--
+      <INPUT>
+        <NAME>ZMD_DISABLEREPOSITORIES</NAME>
+        <DESCRIPTION>Disable all other repositories than these (potentially dangerous)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    -->
+
+    </SECTION>
+  </SECTIONS>
+
+</POLICY>       
