@@ -51,8 +51,11 @@ bundle agent check_generic_file_content {
 		"index" slist => getindices("generic_file_content_path");
 
 	classes:
-		"execute_command_$(index)" not => strcmp("$(generic_file_content_posthook[$(index)])",
-														"");
+classes:
+		# Set a class to define when we need to run the post-modification hook
+		&GENERIC_FILE_CONTENT_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
+}&
+
 	files:
 
 		"$(generic_file_content_path[$(index)])"
@@ -83,16 +86,16 @@ bundle agent check_generic_file_content {
                         ifvarclass => "content_$(index)_failed";
 
 		# Posthook report
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@PostHook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No command for $(generic_file_content_path[$(index)]) was to be executed"
+                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No command for $(generic_file_content_path[$(index)]) was to be executed"
 			ifvarclass => "!execute_command_$(index)";
 
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@PostHook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#$(generic_file_content_path[$(index)]) was in the proper state, so no command to execute"
+                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#$(generic_file_content_path[$(index)]) was in the proper state, so no command to execute"
 			ifvarclass => "execute_command_$(index).content_$(index)_kept.!content_$(index)_modified";
 
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@PostHook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) was correctly executed"
+                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) was correctly executed"
 			ifvarclass => "generic_file_content_posthook_$(index)_command_run_ok";
 
-                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@PostHook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) could not to be executed"
+                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) could not to be executed"
 			ifvarclass => "generic_file_content_posthook_$(index)_command_run_failed";
 
 }
