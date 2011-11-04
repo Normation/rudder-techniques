@@ -74,6 +74,23 @@ necessary and kill undesired processes.
 		    </CONSTRAINT>
 		  </SELECT1>
 		</SECTION>
+		<SECTION name="Service starting parameters"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
+		  <SELECT1>
+		    <NAME>PROCESS_MANAGED_BOOTSTART</NAME>
+		    <DESCRIPTION>Do you want to ensure that the process is started on boot</DESCRIPTION>
+		    <ITEM>
+		      <LABEL>Yes</LABEL>
+		      <VALUE>true</VALUE>
+		    </ITEM>
+		    <ITEM>
+		      <LABEL>No</LABEL>
+		      <VALUE>false</VALUE>
+		    </ITEM>
+		    <CONSTRAINT>
+		      <DEFAULT>true</DEFAULT>
+		    </CONSTRAINT>
+		  </SELECT1>
+		</SECTION>
 		<SECTION name="Advanced options"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
 		  <SELECT1>
 		    <NAME>PROCESS_MANAGED_KILLING_METHOD</NAME>

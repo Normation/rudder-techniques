@@ -56,6 +56,8 @@ bundle agent services_management {
 }&
 		&PROCESS_MANAGED_KILLING_METHOD:{kill |"kill_stop_process_&i&" expression => strcmp("&kill&", "kill");
 }&
+		&PROCESS_MANAGED_BOOTSTART:{bootstart |"bootstart_process_&i&" expression => strcmp("&bootstart&", "true");
+}&
 
 
 	processes:
@@ -108,9 +110,21 @@ bundle agent services_management {
 			classes => kept_if_else("process_$(index)_out_of_range_restart_ok", "process_$(index)_out_of_range_restart_ok", "process_$(index)_out_of_range_restart_error"),
 			ifvarclass => canonify("$(service[$(index)][name])_out_of_range");
 
+		"/sbin/chkconfig"
+			args => "--check $(service[$(index)][name])",
+			classes => if_else("service_$(index)_bootstarted", "service_$(index)_unbootstarted"),
+			ifvarclass => "bootstart_process_$(index)",
+			comment => "Check if the service $(service[$(index)][name]) is already started on boot";
+
+		"/sbin/insserv"
+			args => "-d $(service[$(index)][name])",
+			classes => if_else("service_$(index)_bootstarted_ok", "service_$(index)_bootstarted_fail"),
+			ifvarclass => "service_$(index)_unbootstarted",
+			comment => "Set the service $(service[$(index)][name]) to start on boot";
 
 	reports:
 	  linux::
+
 		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Process@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) didn't need to have its process checked"
 			ifvarclass => "!start_process_$(index).!stop_process_$(index)";
 
@@ -164,5 +178,20 @@ bundle agent services_management {
 
 		"@@ServicesManagement@@result_error@@$(service[$(index)][uuid])@@Advanced options@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The process range for service $(service[$(index)][name]) was not correct, but was repaired"
 			ifvarclass => "check_process_range_$(index).defined_process_name_$(index).$(service[$(index)][canon_name])_out_of_range.process_$(index)_out_of_range_restart_error";
+
+
+		# Service boot starting parameters
+
+		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) starting parameters check not required"
+			ifvarclass => "!bootstart_process_$(index)";
+
+		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) is started on boot as required"
+			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted";
+
+		"@@ServicesManagement@@result_repaired@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) has been set to start on boot"
+			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted_ok";
+
+		"@@ServicesManagement@@result_error@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#Could not set $(service[$(index)][name]) to start on boot!"
+			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted_fail";
 
 }
