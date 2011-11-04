@@ -77,7 +77,7 @@ necessary and kill undesired processes.
 		<SECTION name="Service starting parameters"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
 		  <SELECT1>
 		    <NAME>PROCESS_MANAGED_BOOTSTART</NAME>
-		    <DESCRIPTION>Do you want to ensure that the process is started on boot</DESCRIPTION>
+		    <DESCRIPTION>This service should be set to start on boot</DESCRIPTION>
 		    <ITEM>
 		      <LABEL>Yes</LABEL>
 		      <VALUE>true</VALUE>
@@ -85,6 +85,10 @@ necessary and kill undesired processes.
 		    <ITEM>
 		      <LABEL>No</LABEL>
 		      <VALUE>false</VALUE>
+		    </ITEM>
+		    <ITEM>
+		      <LABEL>Don't change</LABEL>
+		      <VALUE>ignore</VALUE>
 		    </ITEM>
 		    <CONSTRAINT>
 		      <DEFAULT>true</DEFAULT>

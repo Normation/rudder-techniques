@@ -58,7 +58,8 @@ bundle agent services_management {
 }&
 		&PROCESS_MANAGED_BOOTSTART:{bootstart |"bootstart_process_&i&" expression => strcmp("&bootstart&", "true");
 }&
-
+		&PROCESS_MANAGED_BOOTSTART:{bootstart |"bootstart_prevent_process_&i&" expression => strcmp("&bootstart&", "false");
+}&
 
 	processes:
 		# check the service status
@@ -113,14 +114,21 @@ bundle agent services_management {
 		"/sbin/chkconfig"
 			args => "--check $(service[$(index)][name])",
 			classes => if_else("service_$(index)_bootstarted", "service_$(index)_unbootstarted"),
-			ifvarclass => "bootstart_process_$(index)",
-			comment => "Check if the service $(service[$(index)][name]) is already started on boot";
+			ifvarclass => "bootstart_process_$(index)|bootstart_prevent_process_$(index)",
+			comment => "Check if the service $(service[$(index)][name]) is started on boot";
 
 		"/sbin/insserv"
 			args => "-d $(service[$(index)][name])",
 			classes => if_else("service_$(index)_bootstarted_ok", "service_$(index)_bootstarted_fail"),
-			ifvarclass => "service_$(index)_unbootstarted",
+			ifvarclass => "service_$(index)_unbootstarted.bootstart_process_$(index)",
 			comment => "Set the service $(service[$(index)][name]) to start on boot";
+
+		"/sbin/insserv"
+			args => "-r $(service[$(index)][name])",
+			classes => if_else("service_$(index)_unbootstarted_ok", "service_$(index)_unbootstarted_fail"),
+			ifvarclass => "service_$(index)_bootstarted.bootstart_prevent_process_$(index)",
+			comment => "Set the service $(service[$(index)][name]) to not be started on boot";
+
 
 	reports:
 	  linux::
@@ -183,7 +191,7 @@ bundle agent services_management {
 		# Service boot starting parameters
 
 		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) starting parameters check not required"
-			ifvarclass => "!bootstart_process_$(index)";
+			ifvarclass => "!bootstart_process_$(index).!bootstart_prevent_process_$(index)";
 
 		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) is started on boot as required"
 			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted";
@@ -193,5 +201,17 @@ bundle agent services_management {
 
 		"@@ServicesManagement@@result_error@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#Could not set $(service[$(index)][name]) to start on boot!"
 			ifvarclass => "bootstart_process_$(index).service_$(index)_bootstarted_fail";
+
+
+
+		"@@ServicesManagement@@result_success@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) is not started on boot as required"
+			ifvarclass => "!bootstart_process_$(index).bootstart_prevent_process_$(index)";
+
+		"@@ServicesManagement@@result_repaired@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][name]) has been prevented to start on boot"
+			ifvarclass => "bootstart_prevent_process_$(index).service_$(index)_unbootstarted_ok";
+
+		"@@ServicesManagement@@result_error@@$(service[$(index)][uuid])@@Service starting parameters@@$(service[$(index)][name])@@$(g.execRun)##$(g.uuid)@#Could not prevent $(service[$(index)][name]) to start on boot!"
+			ifvarclass => "bootstart_prevent_process_$(index).service_$(index)_unbootstarted_fail";
+
 
 }
