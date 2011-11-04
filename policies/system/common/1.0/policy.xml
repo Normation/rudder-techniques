@@ -47,6 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>COMMUNITY</NAME>
     <NAME>COMMUNITYPORT</NAME>
     <NAME>NODEROLE</NAME>
+	<NAME>SHARED_FILES_FOLDER</NAME>
   </SYSTEMVARS>  
 
   <SECTIONS>
