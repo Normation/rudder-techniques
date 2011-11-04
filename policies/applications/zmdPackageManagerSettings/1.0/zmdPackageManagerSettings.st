@@ -22,6 +22,33 @@
 
 bundle agent check_zmd_settings {
 
+	vars:
+
+
+
+		&ZMD_URL:{zmd_url |"zmd_url[&i&]" string => "&zmd_url&";
+}&
+
+		&ZMD_NAME:{zmd_name |"zmd_name[&i&]" string => "&zmd_name&";
+}&
+
+
+		"zmd_index" slist => getindices("zmd_url");
+
+&if(ZMD_SET_REFRESH_INTERVAL)&
+		"zmdconf[Server][refresh-interval]" string => "&ZMD_REFRESH_INTERVAL&";
+&endif&
+
+		"zmdconf[Advanced][security-level]" string => "&ZMD_SOURCEPOLICY&";
+
+
+		"zmdconf[Server][remote-enabled]" string => "&ZMD_REMOTE_ENABLED&";
+
+		"zmdconf[Debug][syslog-level]" string => "&ZMD_SYSLOG_LEVEL&";
+
+
+		"zmd_sections" slist => getindices("zmdconf");
+
 	classes:
 
 		# Repositories edition ?
@@ -30,30 +57,9 @@ bundle agent check_zmd_settings {
 		# Disable repositories ?
 		"zmd_disablerepositories" not => strcmp("&ZMD_DISABLEREPOSITORIES&","false");
 
-		# Package sources policy edition ?
-		"zmd_sources_policy_edit" not => strcmp("&ZMD_SOURCEPOLICY&","dontchange");
-
 		# Is the checkzmd script present ?
 		"checkzmd_present" expression => fileexists("${g.rudder_dependencies}/checkzmd.pl");
 
-	vars:
-
-		zmd_sources_policy_edit::
-
-			"zmdconf[security-level]" string => "&ZMD_SOURCEPOLICY&";
-
-		any::
-
-		&ZMD_URL:{zmd_url |"zmd_url[&i&]" string => "&zmd_url&";
-}&
-
-		&ZMD_NAME:{zmd_name |"zmd_name[&i&]" string => "&zmd_name&";
-}&
-
-                &TRACKINGKEY:{uuid |"zmd_uuid[&i&]" string => "&uuid&";
-}&
-
-		"zmd_index" slist => getindices("zmd_url");
 
 	processes:
 
@@ -92,13 +98,13 @@ bundle agent check_zmd_settings {
 	files:
 
 		SuSE::
-
 			"/etc/zmd/zmd.conf"
 				create => "true",
 				perms => mog("600", "root", "root"),
 				edit_defaults => std_defs,
-				edit_line => set_zmd_config_values("check_zmd_settings.zmdconf"),
+				edit_line => set_advanced_zmd_config_values("check_zmd_settings.zmdconf", "$(zmd_sections)"),
 				classes => kept_if_else("zmd_conf_kept", "zmd_conf_validated", "zmd_conf_failed");
+
 
 	reports:
 
@@ -149,48 +155,50 @@ bundle agent check_zmd_settings {
 
 }
 
-bundle edit_line set_zmd_config_values(tab)
 
+bundle edit_line set_advanced_zmd_config_values(tab, sectionName) {
  # Sets the RHS of configuration items in the file of the form
- # LHS RHS
+ # LHS=RHS
  # If the line is commented out with #, it gets uncommented first.
  # Adds a new line if none exists.
- # The argument is an associative array containing v[LHS]="rhs"
+ # The argument is an associative array containing tab[SectionName][LHS]="RHS"
+ # don't change value when the RHS is dontchange
 
  # Based on set_variable_values from cfengine_stdlib.cf, modified to
- # use whitespace as separator, and to handle commented-out lines.
+ # use section to define were to write, and to handle commented-out lines.
 
-{
-vars:
-  "index" slist => getindices("$(tab)");
+ # CAUTION : for it to work nicely, you should use Cfengine with the commit n°3229
+ # otherwise you may risk a segfault 
+
+ vars:
+  "index" slist => getindices("$(tab)[$(sectionName)]");
 
   # Be careful if the index string contains funny chars
   "cindex[$(index)]" string => canonify("$(index)");
 
+ classes:
+	"edit_$(cindex[$(index)])" not => strcmp("$($(tab)[$(sectionName)][$(index)])","dontchange");
+
 field_edits:
 
   # If the line is there, but commented out, first uncomment it
-  "#+$(index)\s+.*"
-     edit_field => col("\s+","1","$(index)","set");
+  "#+$(index)=.*"
+ 	 select_region => INI_section("$(sectionName)"),
+     edit_field => col("=","1","$(index)","set"),
+	 ifvarclass => "edit_$(cindex[$(index)])";
 
   # match a line starting like the key something
-  "$(index)\s+.*"
-     edit_field => col("\s+","2","$($(tab)[$(index)])","set"),
-       	classes => if_ok("not_$(cindex[$(index)])");
+  "$(index)=.*"
+     edit_field => col("=","2","$($(tab)[$(sectionName)][$(index)])","set"),
+		select_region => INI_section("$(sectionName)"),
+       	classes => if_ok("not_$(cindex[$(index)])"),
+		ifvarclass => "edit_$(cindex[$(index)])";
 
 insert_lines:
-
-# 	"// #############################################################
-# // ### This file is protected by your Rudder infrastructure. ###
-# // ### Manually editing the file might lead your Rudder      ###
-# // ### infrastructure to change back the server’s            ###
-# // ### configuration and/or to raise a compliance alert.     ###
-# // #############################################################
-# "
-#                 location => start,
-#                 insert_type => "preserve_block";
-
-	"$(index)=$($(tab)[$(index)])",
-		ifvarclass => "!not_$(cindex[$(index)])";
+	"$(index)=$($(tab)[$(sectionName)][$(index)])",
+		select_region => INI_section("$(sectionName)"),
+		ifvarclass => "!not_$(cindex[$(index)]).edit_$(cindex[$(index)])";
 
 }
+
+

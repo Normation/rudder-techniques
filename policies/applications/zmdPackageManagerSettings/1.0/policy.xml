@@ -15,10 +15,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <POLICY name="RUG / YaST package manager configuration (ZMD)">
   <DESCRIPTION>This policy template configures the RUG and YaST package manager using Novell's ZMD.</DESCRIPTION>
-
+  <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
-    <AGENT version=">= 3.5">cfengine-community</AGENT>
+    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>
@@ -94,13 +94,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </INPUT>
       <SECTION name="Repository" multivalued="true" component="true" componentKey="ZMD_URL">
-        <INPUT>
+		<INPUT>
           <NAME>ZMD_URL</NAME>
           <DESCRIPTION>Repository URL</DESCRIPTION>
             <CONSTRAINT>
               <MAYBEEMPTY>true</MAYBEEMPTY>
             </CONSTRAINT>
-	</INPUT>
+		</INPUT>
         <INPUT>
           <NAME>ZMD_NAME</NAME>
           <DESCRIPTION>Repository local name</DESCRIPTION>
@@ -109,6 +109,82 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </CONSTRAINT>
         </INPUT>
       </SECTION>
+
+	  <SECTION name="Advanced repository settings">
+		<INPUT>
+		    <NAME>ZMD_SET_REFRESH_INTERVAL</NAME>
+		    <DESCRIPTION>Set the refresh interval</DESCRIPTION>
+		    <CONSTRAINT>
+		      <TYPE>boolean</TYPE>
+		      <DEFAULT>false</DEFAULT>
+		    </CONSTRAINT>
+		</INPUT>
+
+        <INPUT>
+          <NAME>ZMD_REFRESH_INTERVAL</NAME>
+          <DESCRIPTION>How long between refreshes, in seconds</DESCRIPTION>
+          <CONSTRAINT>
+			<TYPE>integer</TYPE>
+			<DEFAULT>86400</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+
+		<SELECT1>
+          <NAME>ZMD_REMOTE_ENABLED</NAME>
+          <DESCRIPTION>Allow clients to connect remotely to this daemon</DESCRIPTION>
+          <ITEM>
+		      <LABEL>True</LABEL>
+		      <VALUE>True</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>False</LABEL>
+		      <VALUE>False</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>Don't change</LABEL>
+		      <VALUE>dontchange</VALUE>
+		  </ITEM>
+		  <CONSTRAINT>
+		    <DEFAULT>dontchange</DEFAULT>
+		  </CONSTRAINT>
+        </SELECT1>
+
+		<SELECT1>
+          <NAME>ZMD_SYSLOG_LEVEL</NAME>
+          <DESCRIPTION>Logging level (off, fatal, error, warn, info, debug)</DESCRIPTION>
+          <ITEM>
+		      <LABEL>Off</LABEL>
+		      <VALUE>off</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>Fatal</LABEL>
+		      <VALUE>fatal</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>Error</LABEL>
+		      <VALUE>error</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>Warn</LABEL>
+		      <VALUE>warn</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>Info</LABEL>
+		      <VALUE>info</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>Debug</LABEL>
+		      <VALUE>debug</VALUE>
+		  </ITEM>
+		  <ITEM>
+		      <LABEL>Don't change</LABEL>
+		      <VALUE>dontchange</VALUE>
+		  </ITEM>
+		  <CONSTRAINT>
+		    <DEFAULT>dontchange</DEFAULT>
+		  </CONSTRAINT>
+        </SELECT1>
+	  </SECTION>
 
       <!--
       <INPUT>
