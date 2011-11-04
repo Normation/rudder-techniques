@@ -32,17 +32,17 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_GROUP:{group |"file[&i&][group]" string => "&group&";
 }&
-
 		&FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND:{cmd |"file[&i&][post_hook_command]" string => "&cmd&";
 }&
-
+		&FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE:{symsrc |"file[&i&][symlink_source]" string => "&symsrc&";
+}&
 		&TRACKINGKEY:{piuuid |"file[&i&][uuid]" string => "&piuuid&";
 }&
-
 
 		"index" slist => getindices("file");
 
 	classes:
+
 		# Set a class to define when we need to run the post-modification hook
 		&FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN:{run |"manageFilesAndFolders_post_hook_run_&i&" expression => strcmp("&run&", "true");
 }&
@@ -55,23 +55,35 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createdir | "manageFilesAndFolders_createdir_&i&" expression => strcmp("&createdir&", "dir");
 }&
+		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createsymlink | "manageFilesAndFolders_createsymlink_&i&" expression => strcmp("&createsymlink&", "symlink");
+}&
 		"manageFilesAndFolders_isdir_$(index)" expression => isdir("$(file[$(index)][path])");
 		"manageFilesAndFolders_isfile_$(index)" expression => isplain("$(file[$(index)][path])");
+		"manageFilesAndFolders_islink_$(index)" expression => islink("$(file[$(index)][path])");
 
 	files:
 
+		# Directory
 		"$(file[$(index)][path])/."
 			create => "true",
 			classes => kept_if_else("manageFolders_$(index)_kept", "manageFolders_$(index)_modified", "manageFolders_$(index)_failed"),
 			comment => "Enforcing the existance of folder $(file[$(index)][path])",
-			ifvarclass => "!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createfile_$(index).manageFilesAndFolders_createdir_$(index)";
+			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createfile_$(index).manageFilesAndFolders_createdir_$(index)).!manageFilesAndFolders_createsymlink_$(index)";
 
+		# File
 		"$(file[$(index)][path])"
 			create => "true",
 			classes => kept_if_else("manageFiles_$(index)_kept", "manageFiles_$(index)_modified", "manageFiles_$(index)_failed"),
 			comment => "Enforcing the existance of file $(file[$(index)][path])",
-			ifvarclass => "!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_createfile_$(index)";
+			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_createfile_$(index)).!manageFilesAndFolders_createsymlink_$(index)";
 
+		# Symlink
+		"$(file[$(index)][path])"
+			# create => "true",
+			link_from => ln_s("$(file[$(index)][symlink_source])"),
+			classes => kept_if_else("manageSyms_$(index)_kept", "manageSyms_$(index)_modified", "manageSyms_$(index)_failed"),
+			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).manageFilesAndFolders_createsymlink_$(index)",
+			comment => "Create the $(file[$(index)][path]) symlink pointing to $(file[$(index)][symlink_source])";
 
 		# Check the permission
 		"$(file[$(index)][path])"
@@ -83,7 +95,7 @@ bundle agent manageFilesAndFolders {
 		"$(file[$(index)][post_hook_command])"
 			classes => if_else("manageFilesAndFolders_$(index)_command_run_ok", "manageFilesAndFolders_$(index)_command_run_failed"),
 			contain => in_shell,
-			ifvarclass => "manageFilesAndFolders_post_hook_run_$(index).manageFilesAndFolders_$(index)_modified";
+			ifvarclass => "manageFilesAndFolders_post_hook_run_$(index).(manageFiles_$(index)_modified|manageFolders_$(index)_modified|manageSyms_$(index)_modified|manageFilesAndFolders_perms_$(index)_modified)";
 
 	reports:
 
@@ -91,23 +103,33 @@ bundle agent manageFilesAndFolders {
 
 			# Reporting for directory creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) already exists"
-				ifvarclass => "manageFolders_$(index)_kept.!manageFolders_$(index)_modified.manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_isfile_$(index)";
+				ifvarclass => "manageFolders_$(index)_kept.!manageFolders_$(index)_modified.manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_islink_$(index)";
 
 			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) was successfully created"
 				ifvarclass => "manageFolders_$(index)_modified";
 
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageFolders_$(index)_failed|manageFolders_$(index)_kept.manageFilesAndFolders_isfile_$(index)";
+				ifvarclass => "manageFolders_$(index)_failed|manageFolders_$(index)_kept.(manageFilesAndFolders_isfile_$(index)|!manageFilesAndFolders_islink_$(index))";
 
 			# Reporting for file creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) already exists"
-				ifvarclass => "manageFiles_$(index)_kept.!manageFiles_$(index)_modified.manageFilesAndFolders_isplain_$(index).!manageFilesAndFolders_isdir_$(index)";
+				ifvarclass => "manageFiles_$(index)_kept.!manageFiles_$(index)_modified.manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_islink_$(index)";
 
 			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) was successfully created"
 				ifvarclass => "manageFiles_$(index)_modified";
 
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageFiles_$(index)_failed|manageFiles_$(index)_kept.manageFilesAndFolders_isdir_$(index)";
+				ifvarclass => "manageFiles_$(index)_failed|manageFiles_$(index)_kept.(manageFilesAndFolders_isdir_$(index)|manageFilesAndFolders_islink_$(index))";
+
+			# Reporting for symlink creation
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) already exists"
+				ifvarclass => "manageSyms_$(index)_kept.!manageSyms_$(index)_modified";
+
+			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) was successfully created"
+				ifvarclass => "manageSyms_$(index)_modified";
+
+			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) could not be created"
+				ifvarclass => "manageSyms_$(index)_failed";
 
 			# Reporting for no change
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#No action on $(file[$(index)][path])"
@@ -136,7 +158,5 @@ bundle agent manageFilesAndFolders {
 
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@Post-modification hook@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#An error occured when running the post-execution hook"
 				ifvarclass => "manageFilesAndFolders_$(index)_command_run_failed";
+
 }
-
-
-
