@@ -114,7 +114,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				  <MAYBEEMPTY>true</MAYBEEMPTY>
 				</CONSTRAINT>
 			  </INPUT>
-
+			<SELECT1>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_RECURSIVE</NAME>
+				<DESCRIPTION>Set these permissions</DESCRIPTION>
+				<ITEM>
+					<VALUE>1</VALUE>
+					<LABEL>On this path only</LABEL>
+				</ITEM>
+				<ITEM>
+					<VALUE>inf</VALUE>
+					<LABEL>Recursively from this path</LABEL>
+				</ITEM>
+				<CONSTRAINT>
+					<DEFAULT>1</DEFAULT>
+				</CONSTRAINT>
+			</SELECT1>
 		</SECTION>
 	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
 		  <INPUT>

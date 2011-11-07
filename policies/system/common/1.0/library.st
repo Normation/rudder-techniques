@@ -245,3 +245,22 @@ empty_file_before_editing => "$(select)";
 edit_backup => "timestamp";
 max_file_size => "300000";
 }
+
+########################################################################
+# Handle a directory recursively, including the dir itself             #
+########################################################################
+body depth_search recurse_withroot(d)
+{
+depth => "$(d)";
+# xdev  => "true";
+include_basedir => "true";
+}
+
+########################################################################
+# Change group and mode of a file/directory                            #
+########################################################################
+body perms mg(mode,group)
+{
+groups => { "$(group)" };
+mode   => "$(mode)";
+}

@@ -36,6 +36,8 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE:{symsrc |"file[&i&][symlink_source]" string => "&symsrc&";
 }&
+		&FILE_AND_FOLDER_MANAGEMENT_RECURSIVE:{recursive |"file[&i&][recursive]" string => "&recursive&";
+}&
 		&TRACKINGKEY:{piuuid |"file[&i&][uuid]" string => "&piuuid&";
 }&
 
@@ -57,10 +59,16 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createsymlink | "manageFilesAndFolders_createsymlink_&i&" expression => strcmp("&createsymlink&", "symlink");
 }&
+		&FILE_AND_FOLDER_MANAGEMENT_RECURSIVE:{isrecursive | "manageFilesAndFolders_isrecursive_&i&" expression => strcmp("&isrecursive&", "inf");
+}&
+		&FILE_AND_FOLDER_MANAGEMENT_OWNER:{userset | "manageFilesAndFolders_userset_&i&" expression => strcmp("&userset&", "$(file[&i&][owner])");
+}&
+		&FILE_AND_FOLDER_MANAGEMENT_GROUP:{groupset | "manageFilesAndFolders_groupset_&i&" expression => strcmp("&groupset&", "$(file[&i&][group])");
+}&
 		"manageFilesAndFolders_isdir_$(index)" expression => isdir("$(file[$(index)][path])");
 		"manageFilesAndFolders_isfile_$(index)" expression => isplain("$(file[$(index)][path])");
 		"manageFilesAndFolders_islink_$(index)" expression => islink("$(file[$(index)][path])");
-
+ 
 	files:
 
 		# Directory
@@ -85,11 +93,41 @@ bundle agent manageFilesAndFolders {
 			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).manageFilesAndFolders_createsymlink_$(index)",
 			comment => "Create the $(file[$(index)][path]) symlink pointing to $(file[$(index)][symlink_source])";
 
-		# Check the permission
+		# Check the permissions none recursively
+		## With user and group
 		"$(file[$(index)][path])"
 			perms => mog("$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_$(index)";
+			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).manageFilesAndFolders_groupset_$(index)";
+		## With user
+		"$(file[$(index)][path])"
+			perms => mo("$(file[$(index)][mode])", "$(file[$(index)][owner])"),
+			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).!manageFilesAndFolders_groupset_$(index)";
+		## With group
+		"$(file[$(index)][path])"
+			perms => mg("$(file[$(index)][mode])", "$(file[$(index)][group])"),
+			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_groupset_$(index).!manageFilesAndFolders_userset_$(index)";
+		# Check the permissions recursively
+		## With user and group
+		"$(file[$(index)][path])"
+			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
+			perms => mog("$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
+			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).manageFilesAndFolders_groupset_$(index)";
+		## With user
+		"$(file[$(index)][path])"
+			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
+			perms => mo("$(file[$(index)][mode])", "$(file[$(index)][owner])"),
+			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).!manageFilesAndFolders_groupset_$(index)";
+		## With group
+		"$(file[$(index)][path])"
+			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
+			perms => mg("$(file[$(index)][mode])", "$(file[$(index)][group])"),
+			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_groupset_$(index).!manageFilesAndFolders_userset_$(index)";
 
 	commands:
 		"$(file[$(index)][post_hook_command])"
@@ -136,6 +174,7 @@ bundle agent manageFilesAndFolders {
                                 ifvarclass => "manageFilesAndFolders_nocreate_$(index)";
 			
 			# Reporting for the permissions
+			## Success if not set
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was not requested to have its permission enforced"
 				ifvarclass => "!manageFilesAndFolders_check_permissions_$(index)";
 
@@ -145,8 +184,15 @@ bundle agent manageFilesAndFolders {
 			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The permissions of the item $(file[$(index)][path]) have been corrected"
 				ifvarclass => "manageFilesAndFolders_perms_$(index)_modified.!manageFilesAndFolders_perms_$(index)_failed";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) couldn't have its permission changed"
+			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The permissions of the item $(file[$(index)][path]) could not be set"
 				ifvarclass => "manageFilesAndFolders_perms_$(index)_failed";
+
+
+			"@@manageFilesAndFolders@@log_info@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) will be handled recursively"
+				ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_recursive_$(index)";
+
+			"@@manageFilesAndFolders@@log_warn@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) will NOT be handled recursively, because it is either a file or a symlink"
+				ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_recursive_$(index)";
 
 
 			# Reporting for post-command execution
