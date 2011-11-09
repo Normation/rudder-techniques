@@ -24,28 +24,34 @@ bundle agent check_zmd_settings {
 
 	vars:
 
+		proxy_edit::
 
+			"zmdconf[Network][proxy-url]" string => "&ZMD_PROXY_URL&";
+
+		proxy_edit_user::
+
+			"zmdconf[Network][proxy-username]" string => "&ZMD_PROXY_USER&";
+
+		proxy_edit_password::
+
+			"zmdconf[Network][proxy-password]" string => "&ZMD_PROXY_PASSWORD&";
+
+		class_ok::
 
 		&ZMD_URL:{zmd_url |"zmd_url[&i&]" string => "&zmd_url&";
 }&
-
 		&ZMD_NAME:{zmd_name |"zmd_name[&i&]" string => "&zmd_name&";
 }&
-
-
 		"zmd_index" slist => getindices("zmd_url");
 
 &if(ZMD_SET_REFRESH_INTERVAL)&
 		"zmdconf[Server][refresh-interval]" string => "&ZMD_REFRESH_INTERVAL&";
 &endif&
-
 		"zmdconf[Advanced][security-level]" string => "&ZMD_SOURCEPOLICY&";
-
 
 		"zmdconf[Server][remote-enabled]" string => "&ZMD_REMOTE_ENABLED&";
 
 		"zmdconf[Debug][syslog-level]" string => "&ZMD_SYSLOG_LEVEL&";
-
 
 		"zmd_sections" slist => getindices("zmdconf");
 
@@ -60,6 +66,18 @@ bundle agent check_zmd_settings {
 		# Is the checkzmd script present ?
 		"checkzmd_present" expression => fileexists("${g.rudder_dependencies}/checkzmd.pl");
 
+		# Do we want to set the proxy ?
+		"proxy_edit" not => strcmp("&ZMD_PROXY_URL&", "");
+
+		# Do we want to set the proxy username ?
+		"proxy_edit_user" not => strcmp("&ZMD_PROXY_USER&", "");
+
+		# Do we want to set the proxy username ?
+		"proxy_edit_password" not => strcmp("&ZMD_PROXY_PASSWORD&", "");
+
+		"class_ok" expression => strcmp("true", "true");
+
+		"showtime" expression => isvariable("zmd_sections");
 
 	processes:
 
@@ -68,14 +86,14 @@ bundle agent check_zmd_settings {
 
 	commands:
 
-		SuSE.checkzmd_present::
+		showtime.SuSE.checkzmd_present::
 
 			"${g.rudder_dependencies}/checkzmd.pl \"$(zmd_name[$(zmd_index)])\" \"$(zmd_url[$(zmd_index)])\" $(zmd_index)"
 				contain => in_shell,
 				module => "true",
 				comment => "Analyzing ZMD's output";
 
-		SuSE.zmd_repositories_edit::
+		showtime.SuSE.zmd_repositories_edit::
 
 			"/usr/bin/rug"
 				args => "sa --type=zypp \"$(zmd_url[$(zmd_index)])\" \"$(zmd_name[$(zmd_index)])\"",
@@ -89,7 +107,7 @@ bundle agent check_zmd_settings {
 				classes => kept_if_else("source_$(zmd_index)_subkept", "source_$(zmd_index)_subscribed", "source_$(zmd_index)_subfailed"),
 				comment => "Subscribe $(zmd_index) as a new source";
 				
-		SuSE.(zmd_restart|zmd_conf_validated)::
+		showtime.SuSE.(zmd_restart|zmd_conf_validated)::
 
 			"/etc/init.d/novell-zmd"
 				args => "restart",
@@ -97,7 +115,7 @@ bundle agent check_zmd_settings {
 				comment => "Restart the ZMD daemon";
 	files:
 
-		SuSE::
+		showtime.SuSE::
 			"/etc/zmd/zmd.conf"
 				create => "true",
 				perms => mog("600", "root", "root"),
@@ -195,6 +213,9 @@ field_edits:
 		ifvarclass => "edit_$(cindex[$(index)])";
 
 insert_lines:
+	"[$(sectionName)]"
+		location => start;
+
 	"$(index)=$($(tab)[$(sectionName)][$(index)])",
 		select_region => INI_section("$(sectionName)"),
 		ifvarclass => "!not_$(cindex[$(index)]).edit_$(cindex[$(index)])";

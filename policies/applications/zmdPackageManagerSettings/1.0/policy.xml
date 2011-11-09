@@ -62,26 +62,31 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </SELECT1>
 
-    <!-- Proxy settings Section , index 10
-    <SECTION name="Proxy settings">
+    <!-- Proxy settings Section , index 10 -->
       <INPUT>
-        <NAME>ZMD_HTTPPROXY_URL</NAME>
-        <DESCRIPTION>HTTP proxy URL (optionnal) :</DESCRIPTION>
+        <NAME>ZMD_PROXY_URL</NAME>
+        <DESCRIPTION>Proxy URL</DESCRIPTION>
         <LONGDESCRIPTION>The URL should be in the following format: http://[user:password@]server[:port]/</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
-        <NAME>ZMD_FTPPROXY_URL</NAME>
-        <DESCRIPTION>FTP proxy URL (optionnal):</DESCRIPTION>
-        <LONGDESCRIPTION>The URL should be in the following format: ftp://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <NAME>ZMD_PROXY_USER</NAME>
+        <DESCRIPTION>Proxy username</DESCRIPTION>
+        <LONGDESCRIPTION>This should be the username used to connect to the proxy, if required</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
-    -->
-
+      <INPUT>
+        <NAME>ZMD_PROXY_PASSWORD</NAME>
+        <DESCRIPTION>Proxy password</DESCRIPTION>
+        <LONGDESCRIPTION>This should be the password used to connect to the proxy, if required</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
     </SECTION>
     <!-- Repository settings Section , index 20 -->
     <SECTION name="Repository settings">
