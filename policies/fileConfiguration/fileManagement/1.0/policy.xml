@@ -175,6 +175,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			</CONSTRAINT>
 		</SELECT1>
 		<INPUT>
+			<DESCRIPTION>File selection pattern</DESCRIPTION>
+			<LONGDESCRIPTION>A regular expression to use as a pattern</LONGDESCRIPTION>
+			<NAME>FILE_AND_FOLDER_DELETION_PATTERN</NAME>
+			<CONSTRAINT>
+				<DEFAULT>.*</DEFAULT>
+			</CONSTRAINT>
+		</INPUT>
+		<INPUT>
 			<DESCRIPTION>Suppress if older than (days)</DESCRIPTION>
 			<LONGDESCRIPTION>A time to live for the object(s). 0 means everything without any time constraint</LONGDESCRIPTION>
 			<NAME>FILE_AND_FOLDER_DELETION_DAYS</NAME>

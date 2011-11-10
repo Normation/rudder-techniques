@@ -40,6 +40,8 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_DELETION_DAYS:{ttl |"file[&i&][ttl]" string => "&ttl&";
 }&
+		&FILE_AND_FOLDER_DELETION_PATTERN:{pattern |"file[&i&][pattern]" string => "&pattern&";
+}&
 		&TRACKINGKEY:{piuuid |"file[&i&][uuid]" string => "&piuuid&";
 }&
 
@@ -144,7 +146,7 @@ bundle agent manageFilesAndFolders {
 		# This will not delete the parent
 		"$(file[$(index)][path])" 
 			delete => tidy,
-			file_select => days_old("$(file[$(index)][ttl])"),
+			file_select => date_pattern("$(file[$(index)][ttl])", "$(file[$(index)][pattern])"),
 			ifvarclass => "manageFilesAndFolders_clean_$(index).manageFilesAndFolders_deletion_single_recursive_$(index)",
 			depth_search => recurse("0"),
 			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
@@ -152,7 +154,7 @@ bundle agent manageFilesAndFolders {
 		# This will not delete the parent
 		"$(file[$(index)][path])" 
 			delete => tidy,
-			file_select => days_old("$(file[$(index)][ttl])"),
+			file_select => date_pattern("$(file[$(index)][ttl])", "$(file[$(index)][pattern])"),
 			depth_search => recurse("inf"),
 			ifvarclass => "manageFilesAndFolders_clean_$(index).(manageFilesAndFolders_deletion_full_recursive_$(index)|manageFilesAndFolders_deletion_exterminate_$(index))",
 			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
