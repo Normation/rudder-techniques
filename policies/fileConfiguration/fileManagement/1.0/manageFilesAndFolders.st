@@ -234,7 +234,7 @@ bundle agent manageFilesAndFolders {
 				ifvarclass => "!manageFilesAndFolders_clean_$(index)";
 
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was in conformity with the deletion policy"
-				ifvarclass => "manageFilesAndFolders_delete_$(index)_kept";
+				ifvarclass => "manageFilesAndFolders_clean_$(index).!manageFilesAndFolders_delete_$(index)_modified.!manageFilesAndFolders_delete_$(index)_failed";
 
 			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) has been put in conformity with the deletion policy"
 				ifvarclass => "manageFilesAndFolders_delete_$(index)_modified";
