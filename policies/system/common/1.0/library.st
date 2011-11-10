@@ -264,3 +264,14 @@ body perms mg(mode,group)
 groups => { "$(group)" };
 mode   => "$(mode)";
 }
+
+########################################################################
+# Select a file using a date AND a pattern                             #
+########################################################################
+body file_select date_pattern(age, pattern)
+{
+	mtime       => irange(ago(0,0,"$(age)",0,0,0), now);
+	leaf_name   => { "$(pattern)" };
+
+	file_result => "leaf_name.!mtime";
+}
