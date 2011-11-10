@@ -65,6 +65,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<VALUE>symlink</VALUE>
 				<LABEL>Create a symbolic link</LABEL>
 			</ITEM>
+			<ITEM>
+				<VALUE>clean</VALUE>
+				<LABEL>Clean (see below)</LABEL>
+			</ITEM>
 			<CONSTRAINT>
 				<DEFAULT>none</DEFAULT>
 			</CONSTRAINT>
@@ -145,6 +149,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<MAYBEEMPTY>true</MAYBEEMPTY>
 			</CONSTRAINT>
 		  </INPUT>
+	  </SECTION>
+	  <SECTION name="File cleaning options" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+		<SELECT1>
+			<DESCRIPTION>Deletion operation</DESCRIPTION>
+			<NAME>FILE_AND_FOLDER_DELETION_OPTION</NAME>
+			<ITEM>
+				<VALUE>none</VALUE>
+				<LABEL>This file or directory only</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>single</VALUE>
+				<LABEL>This file or directory content only</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>full</VALUE>
+				<LABEL>Everything in this directory (full recursion)</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>exterminate</VALUE>
+				<LABEL>Everything in this directory and the directory itself</LABEL>
+			</ITEM>
+			<CONSTRAINT>
+				<DEFAULT>none</DEFAULT>
+			</CONSTRAINT>
+		</SELECT1>
+		<INPUT>
+			<DESCRIPTION>Suppress if older than (days)</DESCRIPTION>
+			<LONGDESCRIPTION>A time to live for the object(s). 0 means everything without any time constraint</LONGDESCRIPTION>
+			<NAME>FILE_AND_FOLDER_DELETION_DAYS</NAME>
+			<CONSTRAINT>
+				<DEFAULT>0</DEFAULT>
+			</CONSTRAINT>
+		</INPUT>
 	  </SECTION>
     </SECTION>
   </SECTIONS>

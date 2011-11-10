@@ -38,6 +38,8 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_RECURSIVE:{recursive |"file[&i&][recursive]" string => "&recursive&";
 }&
+		&FILE_AND_FOLDER_DELETION_DAYS:{ttl |"file[&i&][ttl]" string => "&ttl&";
+}&
 		&TRACKINGKEY:{piuuid |"file[&i&][uuid]" string => "&piuuid&";
 }&
 
@@ -59,11 +61,21 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createsymlink | "manageFilesAndFolders_createsymlink_&i&" expression => strcmp("&createsymlink&", "symlink");
 }&
+		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{clean | "manageFilesAndFolders_clean_&i&" expression => strcmp("&clean&", "clean");
+}&
 		&FILE_AND_FOLDER_MANAGEMENT_RECURSIVE:{isrecursive | "manageFilesAndFolders_isrecursive_&i&" expression => strcmp("&isrecursive&", "inf");
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_OWNER:{userset | "manageFilesAndFolders_userset_&i&" expression => strcmp("&userset&", "$(file[&i&][owner])");
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_GROUP:{groupset | "manageFilesAndFolders_groupset_&i&" expression => strcmp("&groupset&", "$(file[&i&][group])");
+}&
+		&FILE_AND_FOLDER_DELETION_OPTION:{delopt | "manageFilesAndFolders_deletion_simple_&i&" expression => strcmp("&delopt&", "none");
+}&
+		&FILE_AND_FOLDER_DELETION_OPTION:{delopt | "manageFilesAndFolders_deletion_single_recursive_&i&" expression => strcmp("&delopt&", "single");
+}&
+		&FILE_AND_FOLDER_DELETION_OPTION:{delopt | "manageFilesAndFolders_deletion_full_recursive_&i&" expression => strcmp("&delopt&", "full");
+}&
+		&FILE_AND_FOLDER_DELETION_OPTION:{delopt | "manageFilesAndFolders_deletion_exterminate_&i&" expression => strcmp("&delopt&", "exterminate");
 }&
 		"manageFilesAndFolders_isdir_$(index)" expression => isdir("$(file[$(index)][path])");
 		"manageFilesAndFolders_isfile_$(index)" expression => isplain("$(file[$(index)][path])");
@@ -128,6 +140,28 @@ bundle agent manageFilesAndFolders {
 			perms => mg("$(file[$(index)][mode])", "$(file[$(index)][group])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_groupset_$(index).!manageFilesAndFolders_userset_$(index)";
+
+		# This will not delete the parent
+		"$(file[$(index)][path])" 
+			delete => tidy,
+			file_select => days_old("$(file[$(index)][ttl])"),
+			ifvarclass => "manageFilesAndFolders_clean_$(index).manageFilesAndFolders_deletion_single_recursive_$(index)",
+			depth_search => recurse("0"),
+			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
+
+		# This will not delete the parent
+		"$(file[$(index)][path])" 
+			delete => tidy,
+			file_select => days_old("$(file[$(index)][ttl])"),
+			depth_search => recurse("inf"),
+			ifvarclass => "manageFilesAndFolders_clean_$(index).(manageFilesAndFolders_deletion_full_recursive_$(index)|manageFilesAndFolders_deletion_exterminate_$(index))",
+			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
+
+		# This WILL delete the parent
+		"$(file[$(index)][path])" 
+			delete => tidy,
+			ifvarclass => "manageFilesAndFolders_clean_$(index).(manageFilesAndFolders_deletion_simple_$(index)|manageFilesAndFolders_deletion_exterminate_$(index))",
+			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
 
 	commands:
 		"$(file[$(index)][post_hook_command])"
@@ -194,6 +228,19 @@ bundle agent manageFilesAndFolders {
 			"@@manageFilesAndFolders@@log_warn@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) will NOT be handled recursively, because it is either a file or a symlink"
 				ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_recursive_$(index)";
 
+			# Reporting for the deletion
+			## Success if not set
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was not requested to be deleted"
+				ifvarclass => "!manageFilesAndFolders_clean_$(index)";
+
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was in conformity with the deletion policy"
+				ifvarclass => "manageFilesAndFolders_delete_$(index)_kept";
+
+			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) has been put in conformity with the deletion policy"
+				ifvarclass => "manageFilesAndFolders_delete_$(index)_modified";
+
+			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) deletion policy could not be enforced"
+				ifvarclass => "manageFilesAndFolders_delete_$(index)_failed";
 
 			# Reporting for post-command execution
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@Post-modification hook@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Post-execution hook did not need running"
