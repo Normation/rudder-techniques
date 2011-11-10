@@ -54,10 +54,16 @@ It is intended to check the user parameters on the target host.
       <INPUT>
         <NAME>USERGROUP_USER_NAME</NAME>
         <DESCRIPTION>Full name for this account</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_USER_PASSWORD</NAME>
         <DESCRIPTION>Password for this account</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
       </INPUT>
       <SELECT1>
         <NAME>USERGROUP_USER_ACTION</NAME>
