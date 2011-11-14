@@ -39,7 +39,7 @@ body common control {
 
 bundle common va {
   vars:
-    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "e2s_enable"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "e2s_enable"
      };
 
 

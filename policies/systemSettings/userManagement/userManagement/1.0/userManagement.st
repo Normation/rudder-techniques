@@ -70,6 +70,21 @@ bundle agent check_usergroup_user_parameters_userhandle(login, name, password, p
 	#
 	#	"pwcrypt" string => hash("$(password)","crypt");
 
+	vars:
+
+		nos::
+
+			"nameopt"
+				string => "",
+				ifvarclass => "user_nameempty";
+
+			"nameopt"
+				string => "-c \"$(name)\"",
+				ifvarclass => "!user_nameempty.!windows";
+
+			"nameopt"
+				string => "/FULLNAME:\"$(name)\"",
+				ifvarclass => "!user_nameempty.windows";
 	classes:
 
 		# Actions
@@ -90,12 +105,18 @@ bundle agent check_usergroup_user_parameters_userhandle(login, name, password, p
 
 		"user_pweverytime" expression => strcmp("$(passwordpolicy)","everytime");
 
+		"user_pwempty" expression => strcmp("$(password)","");
+
+		"user_nameempty" expression => strcmp("$(name)","");
+
+		"nos" expression => "any";
+
 	commands:
 
 		!user_exists.user_update.windows::
 
 			"\"${sys.winsysdir}\net.exe\""
-				args => "USER $(login) $(password) /ADD /FULLNAME:\"$(name)\"",
+				args => "USER $(login) $(password) /ADD $(nameopt)",
 				classes => cf2_if_else("login_added", "login_add_failed"),
 				comment => "Create the user";
 
@@ -106,7 +127,7 @@ bundle agent check_usergroup_user_parameters_userhandle(login, name, password, p
 				classes => cf2_if_else("login_removed", "login_remove_failed"),
 				comment => "Create the user";
 
-		(login_added.user_pwoneshot.windows)|(user_exists.user_pweverytime.windows)::
+		(login_added.user_pwoneshot.windows.!user_pwempty)|(user_exists.user_pweverytime.windows.!user_pwempty)::
 
 			"\"${sys.winsysdir}\net.exe\""
 				args => "USER $(login) $(password)";
@@ -114,24 +135,24 @@ bundle agent check_usergroup_user_parameters_userhandle(login, name, password, p
 		!user_exists.user_update.!user_pershome.linux::
 
 			"/usr/sbin/useradd"
-				args => "-m -c \"$(name)\" -s $(shell) $(login)",
+				args => "-m $(nameopt) -s $(shell) $(login)",
 				classes => cf2_if_else("login_added", "login_add_failed"),
 				comment => "Create the user";
 
 		!user_exists.user_update.user_pershome.linux::
 
 			"/usr/sbin/useradd"
-				args => "-m -c \"$(name)\" -s $(shell) -d $(home) $(login)",
+				args => "-m $(nameopt) -s $(shell) -d $(home) $(login)",
 				classes => cf2_if_else("login_added", "login_add_failed"),
 				comment => "Create the user";
 
-		login_added.user_pwoneshot.linux::
+		login_added.user_pwoneshot.linux.!user_pwempty::
 
 			"/bin/echo -e \"$(password)\n$(password)\" | /usr/bin/passwd $(login)"
 				contain => in_shell;
 
 
-		user_exists.user_pweverytime.linux::
+		user_exists.user_pweverytime.linux.!user_pwempty::
 
 			"/bin/echo -e \"$(password)\n$(password)\" | /usr/bin/passwd $(login)"
 				contain => in_shell;

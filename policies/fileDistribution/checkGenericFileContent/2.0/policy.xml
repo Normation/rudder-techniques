@@ -47,27 +47,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		    <DESCRIPTION>Path</DESCRIPTION>
 		  </INPUT>
 		  <INPUT>
-		    <NAME>GENERIC_FILE_CONTENT_OWNER</NAME>
-		    <DESCRIPTION>Owner of the file</DESCRIPTION>
-		    <CONSTRAINT>
-		      <DEFAULT>root</DEFAULT>
-		    </CONSTRAINT>
-		  </INPUT>
-		  <INPUT>
-		    <NAME>GENERIC_FILE_CONTENT_GROUP</NAME>
-		    <DESCRIPTION>Group of the file</DESCRIPTION>
-		    <CONSTRAINT>
-		      <DEFAULT>root</DEFAULT>
-		    </CONSTRAINT>
-		  </INPUT>
-		  <INPUT>
-		    <NAME>GENERIC_FILE_CONTENT_PERM</NAME>
-		    <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
-		    <CONSTRAINT>
-		      <TYPE>perm</TYPE>
-		    </CONSTRAINT>
-		  </INPUT>
-		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
 		    <DESCRIPTION>Content of the file</DESCRIPTION>
 		    <CONSTRAINT>
@@ -90,6 +69,35 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		      <DEFAULT>false</DEFAULT>
 		    </CONSTRAINT>
 		  </SELECT1>
+		</SECTION>
+		<SECTION name="Permission adjustment" multivalued="false" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+			<INPUT>
+				  <NAME>GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT</NAME>
+				  <DESCRIPTION>Set explicit permissions to apply on the file</DESCRIPTION>
+				  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+			</INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_OWNER</NAME>
+		    <DESCRIPTION>Owner of the file</DESCRIPTION>
+		    <CONSTRAINT>
+		      <DEFAULT>root</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_GROUP</NAME>
+		    <DESCRIPTION>Group of the file</DESCRIPTION>
+		    <CONSTRAINT>
+		      <DEFAULT>root</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_PERM</NAME>
+		    <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
+		    <CONSTRAINT>
+				<TYPE>perm</TYPE>
+				<DEFAULT>644</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
 		</SECTION>
 		<SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
 			<INPUT>
