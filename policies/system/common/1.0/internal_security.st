@@ -22,7 +22,7 @@ bundle agent internal_security
 
 		!windows::
 
-			"mode" string => "755";
+			"mode" string => "600";
 			"user" string => "root";
 			"group" string => "root";
 
@@ -36,21 +36,21 @@ bundle agent internal_security
 
 		!windows::
 
-			"$(g.rudder_base)"
+			"$(g.rudder_var)/cfengine-community/inputs"
 				depth_search => recurse("inf"),
 				perms => mog("$(mode)", "$(user)", "$(group)"),
 				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-			"$(g.rudder_base)"
+			"$(g.rudder_var)/cfengine-community/inputs"
 				perms => mog("$(mode)", "$(user)", "$(group)"),
 				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-			"$(g.rudder_var)"
+			"$(g.rudder_var)/cfengine-community/ppkeys"
 				depth_search => recurse("inf"),
 				perms => mog("$(mode)", "$(user)", "$(group)"),
 				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-			"$(g.rudder_var)"
+			"$(g.rudder_var)/cfengine-community/ppkeys"
 				perms => mog("$(mode)", "$(user)", "$(group)"),
 				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
