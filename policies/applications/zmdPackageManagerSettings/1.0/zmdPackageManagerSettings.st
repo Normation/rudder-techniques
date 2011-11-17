@@ -147,7 +147,7 @@ bundle agent check_zmd_settings {
 
 			# Repositories
 
-			"@@zmdPackageManagerSettings@@result_success@@e30cd62a-8eba-4398-b9d1-23318c680289@@525da5be-1fe1-404c-98f3-49fc42ea48dc@@10@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) is not here but no edition required. Skipping..."
+			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) is not here but no edition required. Skipping..."
 				ifvarclass => "index_$(zmd_index)_not_matched.!zmd_repositories_edit";
 
 			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was already here. Skipping..."
