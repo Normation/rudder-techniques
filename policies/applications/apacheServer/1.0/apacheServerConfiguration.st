@@ -265,7 +265,7 @@ bundle agent check_apache_configuration {
 
 		SuSE::
 
-                        "/etc/rc2.d/S.*apache2.*"
+                        "/etc/rc.d/rc3.d/S.*apache2.*"
                                 create => "true",
                                 #depth_search => recurse("0"),
                                 #file_select => apache_startlink,
@@ -277,10 +277,6 @@ bundle agent check_apache_configuration {
 				classes => if_repaired("apache_change"),
 				file_select => ex_list("@(vhosts_files)"),
 				depth_search => recurse("inf");
-
-			#"/etc/httpd/conf.d/welcome.conf"
-			#	rename => disable,
-			#	comment => "Disable an annoying file";
 
 			"/etc/apache2/httpd.conf"
 				create => "true",
@@ -335,55 +331,58 @@ bundle agent check_apache_configuration {
 
 		apache_selinux_adjust.selinux_bin_present::
 
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#The SELinux context definition was successful for directory $(apache_vhost_root[$(apache_vhost_index)])"
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#The SELinux context definition was successful for directory $(apache_vhost_root[$(apache_vhost_index)])"
 				ifvarclass => canonify("apache_selinux_$(apache_vhost_index)_adjusted");
 
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#The SELinux context definition for directory $(apache_vhost_root[$(apache_vhost_index)]) has failed !"
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#The SELinux context definition for directory $(apache_vhost_root[$(apache_vhost_index)]) has failed !"
 				ifvarclass => canonify("apache_selinux_$(apache_vhost_index)_not_adjusted");
 
 		apache_selinux_adjust.!selinux_bin_present::
 
-			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#The automatic SELinux context definition was enabled but SELinux binaries";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#The automatic SELinux context definition was enabled but SELinux binaries";
+
+		!apache_selinux_adjust::
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#No SELinux context definition required for $(apache_vhost_root[$(apache_vhost_index)])";
 
 		apache_ports_kept::
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings OK";
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Port settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings OK";
 
 		apache_ports_repaired::
-			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings reset";
+			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Port settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings reset";
 
 		apache_ports_failed::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings could not be set !";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Port settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings could not be set !";
 
 		apache_security_kept::
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings OK";
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Security settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings OK";
 
 		apache_security_repaired::
-			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings reset";
+			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Security settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings reset";
 
 		apache_security_failed::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings could not be set !";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Security settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings could not be set !";
 
 		linux::
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) already set"
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) already set"
 				ifvarclass => canonify("apache_vhost_$(apache_vhost_index)_kept");
 
-			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) reset"
+			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) reset"
 				ifvarclass => canonify("apache_vhost_$(apache_vhost_index)_repaired");
 
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) could not be set !"
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) could not be set !"
 				ifvarclass => canonify("apache_vhost_$(apache_vhost_index)_failed");
 
-			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#The root directory $(apache_vhost_root[$(apache_vhost_index)]) was created"
+			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#The root directory $(apache_vhost_root[$(apache_vhost_index)]) was created"
 				ifvarclass => canonify("root_$(apache_vhost_root[$(apache_vhost_index)])_created");
 
 		apache_autostart.apache_bootstarted_ok::
-			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is now starting on boot";
+			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is now starting on boot";
 
 		apache_autostart.apache_still_unbootstarted::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD could not be set to start on boot";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD could not be set to start on boot";
 
 		apache_autostart.apache_bootstarted::
-			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD already set to start on boot";
+			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD already set to start on boot";
 
 		apache_restarted::
 			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD restarted";

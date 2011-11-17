@@ -33,7 +33,7 @@ It then adds apache to the boot init scripts if not already set to start on boot
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
-    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <OS version=">= 11 SP1 (Celadon)">SuSE LES / DES / OpenSuSE</OS>
     <AGENT version=">= 3.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
@@ -53,6 +53,9 @@ It then adds apache to the boot init scripts if not already set to start on boot
   </TRACKINGVARIABLE>
     
   <SECTIONS>
+    <SECTION name="SELinux context" component="true" />
+    <SECTION name="Port settings edition" component="true" />
+    <SECTION name="Security settings edition" component="true" />
     <!-- general Section , index 1 -->
     <SECTION name="General settings">
       <INPUT>
@@ -167,7 +170,7 @@ It then adds apache to the boot init scripts if not already set to start on boot
     </SECTION>
 
     <!-- virtual host Section , index 20 -->
-    <SECTION name="Virtual host settings" multivalued="true">
+    <SECTION name="Virtual host settings" multivalued="true" component="true" componentKey="APACHE_VHOST_FQDN">
       <INPUT>
         <NAME>APACHE_VHOST_FQDN</NAME>
         <DESCRIPTION>On which host name is the virtual host to be reachable</DESCRIPTION>
