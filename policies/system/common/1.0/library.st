@@ -275,3 +275,32 @@ body file_select date_pattern(age, pattern)
 
 	file_result => "leaf_name.!mtime";
 }
+
+########################################################################
+# Install a package using rug                                          #
+########################################################################
+body package_method rudder_rug {
+
+	package_changes => "individual";
+
+	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+	package_patch_list_command => "/usr/bin/rug patches";
+	package_list_update_ifelapsed => "240";
+	package_installed_regex => "i.*";
+	package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+
+	package_patch_installed_regex => ".*Installed.*|.*Not Applicable.*";
+	package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
+	package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+
+	package_name_convention => "$(name)";
+	package_add_command => "/usr/bin/rug install -y";
+	package_delete_command => "/usr/bin/rug remove -y";
+	package_update_command => "/usr/bin/rug update -y";
+
+#Unsure about the behavior of this command ...
+#package_patch_command => "/usr/bin/rug patch-info";
+package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+}

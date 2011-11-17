@@ -172,12 +172,18 @@ bundle agent check_clock_configuration {
 				classes => class_trigger("ntp_installed", "cant_install_ntp", "ntp_install_kept"),
 				comment => "Installing ntp using yum";
 
-		SuSE::
+		SuSE_11::
 			"ntp"
 				package_policy => "add",
 				package_method => zypper,
 				classes => class_trigger("ntp_installed", "cant_install_ntp", "ntp_install_kept"),
-				comment => "Installing ntp using yum";
+				comment => "Installing ntp using zypper";
+		SuSE_10::
+			"xntp"
+				package_policy => "add",
+				package_method => rudder_rug,
+				classes => class_trigger("ntp_installed", "cant_install_ntp", "ntp_install_kept"),
+				comment => "Installing xntp using rug";
 
 	processes:
 
@@ -322,6 +328,9 @@ bundle agent check_clock_configuration {
 		localtime_kept.((redhat.redhattz_kept)|(debian.debiantz_kept)|(SuSE.susetz_kept))::
 			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time zone@@None@@$(g.execRun)##$(g.uuid)@#Time zone was already correctly configured";
 
+		clock_timezone_noedit::
+			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time zone@@None@@$(g.execRun)##$(g.uuid)@#Time zone edition disabled";
+
 		# Individual reports for the "Time zone" component's parts
 		repaired_localtime::
 			"@@ntpConfiguration@@log_repaired@@&TRACKINGKEY&@@Time zone@@None@@$(g.execRun)##$(g.uuid)@#Time zone was reset (localtime file changed)";
@@ -361,16 +370,16 @@ bundle agent check_clock_configuration {
 
 		# Global reports for the "Hardware clock (RTC)" component
 		(!windows.!ntp_hwclock_sync_error.!ntp_hwclock_synced)::
-			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@$(g.execRun)##$(g.uuid)@#It is not yet time to synchronize the hardware clock with the NTP time. Skipping...";
+			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Hardware clock (RTC)@@None@@$(g.execRun)##$(g.uuid)@#It is not yet time to synchronize the hardware clock with the NTP time. Skipping...";
 
 		ntp_hwclock_synced::
-			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@$(g.execRun)##$(g.uuid)@#The hardware clock has been synchronized with the NTP time";
+			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Hardware clock (RTC)@@None@@$(g.execRun)##$(g.uuid)@#The hardware clock has been synchronized with the NTP time";
 
 		ntp_hwclock_sync_error::
-			"@@ntpConfiguration@@result_error@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@$(g.execRun)##$(g.uuid)@#The hardware clock could not be synchronized with the NTP time";
+			"@@ntpConfiguration@@result_error@@&TRACKINGKEY&@@Hardware clock (RTC)@@None@@$(g.execRun)##$(g.uuid)@#The hardware clock could not be synchronized with the NTP time";
 
 		windows::
-			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@$(g.execRun)##$(g.uuid)@#The hardware clock is automatically synchronized with the NTP time on Windows";
+			"@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Hardware clock (RTC)@@None@@$(g.execRun)##$(g.uuid)@#The hardware clock is automatically synchronized with the NTP time on Windows";
 
 }
 
