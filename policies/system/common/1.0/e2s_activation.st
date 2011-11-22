@@ -126,7 +126,7 @@ bundle agent e2sConfigure {
       create    => "true",
       classes   => kept_if_else("e2s_configure_kept", "e2s_configure_repaired", "e2s_configure_error"),
       edit_line => e2s_parameters("$(server_info.cfserved)", "514", "TCP", "${e2sCommon.e2s_tpl}"),
-      edit_defaults => empty;
+      edit_defaults => empty_backup;
 
   reports:
 	e2s_configure_error::

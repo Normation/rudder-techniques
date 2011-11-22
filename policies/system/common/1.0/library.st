@@ -53,14 +53,27 @@ ifelapsed => "240"; # run only every 4 hours
 # For the library
 #######################################################
 
-body edit_defaults def
+body edit_defaults noempty_backup
+{
+empty_file_before_editing => "false";
+edit_backup => "timestamp";  # we want to keep a track of everything
+max_file_size => "300000";
+}
+
+body edit_defaults empty_backup
+{
+empty_file_before_editing => "true";
+edit_backup => "timestamp";
+max_file_size => "300000";
+}
+
+
+body edit_defaults def_no_backup
 {
 empty_file_before_editing => "false";
 edit_backup => "false";
-# max_file_size => "500000"; # It won't work with a too large inventory, such as an ubuntu one
 max_file_size => "1024000";
 }
-
 ########################################################
 
 
@@ -242,8 +255,8 @@ edit_fstab => "$(persistence)";
 body edit_defaults rudder_empty_select(select)
 {
 empty_file_before_editing => "$(select)";
-edit_backup => "timestamp";
 max_file_size => "300000";
+edit_backup => "timestamp";
 }
 
 ########################################################################

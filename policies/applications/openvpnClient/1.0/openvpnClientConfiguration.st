@@ -147,7 +147,7 @@ bundle agent check_openvpn_client_configuration {
 
 			"/etc/openvpn/keyring.pwd"
                                 create => "true",
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				perms => mog("600", "root", "root"),
 				edit_line => set_openvpn_config_values_keyring("&OVPN_CLIENT_REMOTE_USER&", "&OVPN_CLIENT_REMOTE_PASS&"),
 				classes => kept_if_else("openvpn_keyring_kept", "openvpn_keyring_validated", "openvpn_keyring_failed");

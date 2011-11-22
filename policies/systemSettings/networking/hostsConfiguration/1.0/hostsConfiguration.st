@@ -42,9 +42,9 @@ bundle agent check_hosts_configuration {
 				create => "true",
 				perms => m("644"),
 &if (HOSTS_ENFORCE)&
-				edit_defaults => empty,
+				edit_defaults => empty_backup,
 &else&
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 &endif&
 
 				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
@@ -57,9 +57,9 @@ bundle agent check_hosts_configuration {
 				create => "true",
 				# perms => m("644"),
 &if (HOSTS_ENFORCE)&
-				edit_defaults => empty,
+				edit_defaults => empty_backup,
 &else&
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 &endif&
 
 				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),

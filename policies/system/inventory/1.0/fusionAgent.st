@@ -298,23 +298,23 @@ bundle agent addInformationsToInventory {
 		"C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
 		#"${g.esc_rudder_var_tmp}\\inventory\\.*.ocs"
 			edit_line => add_information_to_inventory($(RUDDERUUID), $(CFKEY), $(USER), $(polserv_uuid)),
-			edit_defaults => def,
+			edit_defaults => def_no_backup,
 			pathtype => "regex";
 			
 		"C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
 		#"${g.esc_rudder_var_tmp}\\inventory\\.*.ocs"
 			edit_line => add_users_information_to_inventory($(users)),
-			edit_defaults => def,
+			edit_defaults => def_no_backup,
 			pathtype => "regex";
 	
 	linux::
 		"${g.rudder_var_tmp}/inventory/.*.ocs"
 			edit_line => add_information_to_inventory($(RUDDERUUID), $(CFKEY), $(USER), $(polserv_uuid)),
-			edit_defaults => def;
+			edit_defaults => def_no_backup;
 			
 		"${g.rudder_var_tmp}/inventory/.*.ocs"
 			edit_line => add_users_information_to_inventory($(users)),
-			edit_defaults => def;
+			edit_defaults => def_no_backup;
 
 }
 

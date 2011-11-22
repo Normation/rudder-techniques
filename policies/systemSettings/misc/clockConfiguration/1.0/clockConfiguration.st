@@ -262,7 +262,7 @@ bundle agent check_clock_configuration {
 
                 (debian.!clock_timezone_noedit).clock_vardef::
                         "/etc/timezone"
-                                edit_defaults => empty,
+                                edit_defaults => empty_backup,
                                 edit_line => EditDebianTimezone("$(linux_timezone)"),
                                 classes => class_trigger("repaired_debiantz", "not_repaired_debiantz", "debiantz_kept");
 

@@ -187,14 +187,14 @@ bundle agent check_apache_configuration {
 			"/etc/apache2/ports.conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_apache_config_ports("@(check_apache_configuration.apache_ports)"),
 				classes =>  kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
 			"/etc/apache2/conf.d/security"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => empty,
+				edit_defaults => empty_backup,
 				edit_line => set_apache_config_security("check_apache_configuration.apache_security"),
 				classes =>  kept_if_else_hook("apache_security_kept", "apache_security_repaired", "apache_security_failed", "apache_change");
 
@@ -207,7 +207,7 @@ bundle agent check_apache_configuration {
 			"/etc/apache2/sites-enabled/vhost-$(apache_vhost_fqdn[$(apache_vhost_index)]).conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => empty,
+				edit_defaults => empty_backup,
 				edit_line => set_apache_config_vhost("$(apache_vhost_fqdn[$(apache_vhost_index)])", "$(apache_vhost_port[$(apache_vhost_index)])", "$(apache_vhost_root[$(apache_vhost_index)])", "$(apache_vhost_expires[$(apache_vhost_index)])", "$(apache_vhost_expires_ttl[$(apache_vhost_index)])", "$(apache_vhost_alias_one_src[$(apache_vhost_index)])", "$(apache_vhost_alias_one_dst[$(apache_vhost_index)])", "$(apache_vhost_alias_two_src[$(apache_vhost_index)])", "$(apache_vhost_alias_two_dst[$(apache_vhost_index)])", "$(apache_vhost_alias_three_src[$(apache_vhost_index)])", "$(apache_vhost_alias_three_dst[$(apache_vhost_index)])", "$(g.rudder_dependencies)/apache-vhost.tpl"),
 				classes =>  kept_if_else_hook("apache_vhost_$(apache_vhost_index)_kept", "apache_vhost_$(apache_vhost_index)_repaired", "apache_vhost_$(apache_vhost_index)_failed", "apache_change");
 
@@ -233,7 +233,7 @@ bundle agent check_apache_configuration {
 			"/etc/httpd/conf/httpd.conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => cleanup_redhat_apache("check_apache_configuration.apache_security"),
 				classes =>  kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
@@ -245,21 +245,21 @@ bundle agent check_apache_configuration {
 			"/etc/httpd/rudder.conf.d/ports.conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_apache_config_ports("@(check_apache_configuration.apache_ports)"),
 				classes =>  kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
 			"/etc/httpd/rudder.conf.d/security.conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_apache_config_security("check_apache_configuration.apache_security"),
 				classes =>  kept_if_else_hook("apache_security_kept", "apache_security_repaired", "apache_security_failed", "apache_change");
 
 			"/etc/httpd/rudder.conf.d/vhost-$(apache_vhost_fqdn[$(apache_vhost_index)]).conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => empty,
+				edit_defaults => empty_backup,
 				edit_line => set_apache_config_vhost("$(apache_vhost_fqdn[$(apache_vhost_index)])", "$(apache_vhost_port[$(apache_vhost_index)])", "$(apache_vhost_root[$(apache_vhost_index)])", "$(apache_vhost_expires[$(apache_vhost_index)])", "$(apache_vhost_expires_ttl[$(apache_vhost_index)])", "$(apache_vhost_alias_one_src[$(apache_vhost_index)])", "$(apache_vhost_alias_one_dst[$(apache_vhost_index)])", "$(apache_vhost_alias_two_src[$(apache_vhost_index)])", "$(apache_vhost_alias_two_dst[$(apache_vhost_index)])", "$(apache_vhost_alias_three_src[$(apache_vhost_index)])", "$(apache_vhost_alias_three_dst[$(apache_vhost_index)])", "$(g.rudder_dependencies)/apache-vhost.tpl"),
 				classes =>  kept_if_else_hook("apache_vhost_$(apache_vhost_index)_kept", "apache_vhost_$(apache_vhost_index)_repaired", "apache_vhost_$(apache_vhost_index)_failed", "apache_change");
 
@@ -281,7 +281,7 @@ bundle agent check_apache_configuration {
 			"/etc/apache2/httpd.conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => cleanup_redhat_apache("check_apache_configuration.apache_security"),
 				classes =>  kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
@@ -293,21 +293,21 @@ bundle agent check_apache_configuration {
 			"/etc/apache2/listen.conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_apache_config_ports("@(check_apache_configuration.apache_ports)"),
 				classes =>  kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
 			"/etc/apache2/rudder.conf.d/security.conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_apache_config_security("check_apache_configuration.apache_security"),
 				classes =>  kept_if_else_hook("apache_security_kept", "apache_security_repaired", "apache_security_failed", "apache_change");
 
 			"/etc/apache2/rudder.conf.d/vhost-$(apache_vhost_fqdn[$(apache_vhost_index)]).conf"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => empty,
+				edit_defaults => empty_backup,
 				edit_line => set_apache_config_vhost("$(apache_vhost_fqdn[$(apache_vhost_index)])", "$(apache_vhost_port[$(apache_vhost_index)])", "$(apache_vhost_root[$(apache_vhost_index)])", "$(apache_vhost_expires[$(apache_vhost_index)])", "$(apache_vhost_expires_ttl[$(apache_vhost_index)])", "$(apache_vhost_alias_one_src[$(apache_vhost_index)])", "$(apache_vhost_alias_one_dst[$(apache_vhost_index)])", "$(apache_vhost_alias_two_src[$(apache_vhost_index)])", "$(apache_vhost_alias_two_dst[$(apache_vhost_index)])", "$(apache_vhost_alias_three_src[$(apache_vhost_index)])", "$(apache_vhost_alias_three_dst[$(apache_vhost_index)])", "$(g.rudder_dependencies)/apache-vhost.tpl"),
 				classes =>  kept_if_else_hook("apache_vhost_$(apache_vhost_index)_kept", "apache_vhost_$(apache_vhost_index)_repaired", "apache_vhost_$(apache_vhost_index)_failed", "apache_change");
 
