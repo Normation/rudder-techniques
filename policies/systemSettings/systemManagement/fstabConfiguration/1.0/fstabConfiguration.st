@@ -139,12 +139,12 @@ classes:
 field_edits:
 
 		"^$($(data_array)[$(index)][origin])[ \t].*"
-			edit_field => col("[ \t]","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
+			edit_field => col("[ \t]+","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
 			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed"),
 			ifvarclass => "use_origin_$(index).!invalid_$(index)";
 
 		"^.*[ \t]$($(data_array)[$(index)][destination])[ \t].*"
-			edit_field => col("[ \t]","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
+			edit_field => col("[ \t]+","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
 			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed"),
 			ifvarclass => "!use_origin_$(index)";
 
