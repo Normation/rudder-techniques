@@ -44,7 +44,7 @@ bundle agent e2s_enable {
 			"@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Centreon E2S service was not installed, configured and running. Fixed.";
 
 		e2s_tool_kept.!e2s_tool_copied.!cannot_copy_e2s.!e2s_installed.!e2s_install_failed.e2s_configure_kept.!e2s_configure_repaired.!e2s_configure_error.e2s_service_kept.!e2s_service_repaired.!e2s_service_error::
-			"@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Centreon E2S service already installed, configured and running as expected.";
+			"@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Centreon E2S service already installed, configured and running as expected.";
 			
 }
 
