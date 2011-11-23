@@ -91,7 +91,7 @@ bundle agent check_sudo_parameters {
 			"/etc/sudoers.rudder"
 				edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_policy_instance_uuid", "$(sudo_force_content)"),
 				create => "true",
-                                edit_defaults => std_defs,
+                                edit_defaults => noempty_backup,
                                 perms => mog("0440", "root", "root"),
 				classes => kept_if_else("temp_sudoers_kept", "temp_sudoers_edited", "temp_sudoers_failed"),
 				comment => "Editing temporary sudoers file";

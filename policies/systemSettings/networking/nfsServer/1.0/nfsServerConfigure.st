@@ -101,7 +101,7 @@ bundle agent check_nfs_server_configuration {
 
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_nfs_server_values("$(nfs_server_path[$(nfs_server_index)])", "$(nfs_server_network[$(nfs_server_index)])", "$(nfs_server_options[$(nfs_server_index)])"),
 				classes => kept_if_else("nfs_server_$(nfs_server_index)_kept", "nfs_server_$(nfs_server_index)_done", "nfs_server_$(nfs_server_index)_failed");
 

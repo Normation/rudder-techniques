@@ -24,7 +24,7 @@ bundle agent check_apache_installation {
 
 	packages:
 
-		debian.SuSE::
+		debian.SuSE_11::
 
 			"apache2"
 				package_policy  => "add",
@@ -32,6 +32,13 @@ bundle agent check_apache_installation {
 				classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
 				comment => "Installing apache using generic interface";
 
+		SuSE_10::
+
+			"apache2"
+				package_policy  => "add",
+				package_method  => rudder_rug,
+				classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
+				comment => "Installing apache using the rug interface";
 		redhat::
 
 			"httpd"
@@ -41,12 +48,12 @@ bundle agent check_apache_installation {
 				comment => "Installing apache using generic interface";
 
 	reports:
-		apache_here::
-			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache already installed";
+		#apache_here::
+		#	"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache already installed";
 
 		apache_installed::
-			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache installed";
+			"@@apacheServerConfiguration@@log_repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache installed";
 
 		cant_install_apache::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Can't install Apache";
+			"@@apacheServerConfiguration@@log_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Can't install Apache";
 }

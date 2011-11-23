@@ -191,7 +191,7 @@ bundle agent check_uuid {
 	"${g.uuid_file}"
 		create    => "true",
        		edit_line => enforce_content("${g.uuid}"),
-       		edit_defaults => std_defs,
+       		edit_defaults => noempty_backup,
 		perms => m("644"),
        		comment => "Setting the uuid variable in a machine";
 			
@@ -218,7 +218,7 @@ bundle agent check_log_system {
   	  "/etc/rsyslog.d/rudder-agent.conf"
   		edit_line => append_if_no_lines("#Rudder log system$(const.n)if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then @@$(server_info.cfserved):514"),
 		create => "true",
-		edit_defaults => empty,
+		edit_defaults => empty_backup,
   		classes => class_trigger("rsyslog_repaired" , "rsyslog_failed", "rsyslog_kept");
 
 	"/etc/rsyslog.conf"
@@ -299,6 +299,9 @@ body agent control {
 	abortclasses => { "should_not_continue" };
 	
 	agentfacility => "LOG_LOCAL6";
+
+	# Repository where to put the copy of modified files
+	default_repository => "/var/rudder/modified-files";
 
 }
 

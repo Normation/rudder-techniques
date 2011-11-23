@@ -68,7 +68,7 @@ files:
 
 		"/etc/cron.d/$(cron_name[$(cron_index)])"
 			create => "true",
-			edit_defaults => empty,
+			edit_defaults => empty_backup,
 			perms  => mog("644", "root", "root"),
 			edit_line => insert_lines("$(cron_manual[$(cron_index)]) $(cron_user[$(cron_index)]) $(cron_command[$(cron_index)])"),
 			ifvarclass => "$(cron_index)_manual",
@@ -76,7 +76,7 @@ files:
 
 		"/etc/cron.$(cron_frequency[$(cron_index)])/$(cron_name[$(cron_index)])"
 			create => "true",
-			edit_defaults => empty,
+			edit_defaults => empty_backup,
 			perms  => mog("755", "root", "root"),
 			edit_line => insert_lines("$(cron_command[$(cron_index)])"),
 			ifvarclass => "!$(cron_index)_manual",

@@ -56,7 +56,7 @@ bundle agent check_zypper_settings {
 			"/etc/zypp/zypp.conf"
 				create => "true",
 				perms => mog("644", "root", "root"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_advanced_zypper_config_values("check_zypper_settings.zmdconf", "$(zypper_sections)"),
 				classes => kept_if_else("zypper_conf_kept", "zypper_conf_validated", "zypper_conf_failed");
 
@@ -66,14 +66,14 @@ bundle agent check_zypper_settings {
                         #        create => "true",
                         #        perms => m("644"),
                         #        edit_line => set_zypper_repos("check_zypper_settings.zypper_name", "check_zypper_settings.zypper_url", "check_zypper_settings.zypper_enabled", "check_zypper_settings.zypper_type"),
-                        #        edit_defaults => empty,
+                        #        edit_defaults => empty_backup,
                         #        classes =>  kept_if_else("zypper_tier1_kept", "zypper_tier1_validated", "zypper_tier1_failed");
 
                         "/etc/zypp/repos.d/rudder-$(zypper_name[$(zypper_index)]).repo"
                                 create => "true",
                                 perms => m("644"),
                                 edit_line => set_zypper_repos("$(zypper_name[$(zypper_index)])", "$(zypper_url[$(zypper_index)])", "$(zypper_enabled[$(zypper_index)])", "$(zypper_type[$(zypper_index)])", "$(g.rudder_dependencies)/zypper-repo.tpl"),
-                                edit_defaults => empty,
+                                edit_defaults => empty_backup,
                                 classes =>  kept_if_else("zypper_$(zypper_index)_kept", "zypper_$(zypper_index)_validated", "zypper_$(zypper_index)_failed");
 
 		SuSE.zypper_disablerepositories::

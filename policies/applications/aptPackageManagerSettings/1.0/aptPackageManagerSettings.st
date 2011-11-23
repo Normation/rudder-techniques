@@ -103,7 +103,7 @@ bundle agent check_apt_settings {
 				create => "true",
 				perms => m("644"),
 				edit_line => set_apt_config_values_tier1("check_apt_settings.apt_url", "check_apt_settings.apt_distro", "check_apt_settings.apt_components"),
-				edit_defaults => empty,
+				edit_defaults => empty_backup,
 				classes =>  kept_if_else("apt_tier1_kept", "apt_tier1_validated", "apt_tier1_failed");
 
 		debian::
@@ -111,7 +111,7 @@ bundle agent check_apt_settings {
 			"/etc/apt/apt.conf.d/99rudder"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_apt_config_values_tier2("check_apt_settings.aptconf"),
 				classes => kept_if_else("apt_tier2_kept", "apt_tier2_validated", "apt_tier2_failed");
 
@@ -120,13 +120,13 @@ bundle agent check_apt_settings {
 			"/etc/apt/sources.list"
 				create => "true",
 				perms => m("644"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => comment_lines_matching("^[^#].*$","#"),
 				classes => kept_if_else("apt_disabled_kept", "apt_disabled_validated", "apt_disabled_failed");
 		
 			"/etc/apt/sources.list.d/.*"
 				edit_line => comment_lines_matching("^[^#].*$","#"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				file_select => not_rudderaptlist,
 				classes => kept_if_else("apt_disabled_kept", "apt_disabled_validated", "apt_disabled_failed");
 

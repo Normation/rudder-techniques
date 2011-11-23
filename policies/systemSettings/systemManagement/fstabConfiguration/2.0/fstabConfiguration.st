@@ -130,6 +130,7 @@ vars:
 classes:
 
 	"addentry_$(index)" expression => strcmp("$($(alteronly)[$(index)])", "false");
+	"delentry_$(index)" expression => strcmp("$($(alteronly)[$(index)])", "delete");
 	"empty_origin_$(index)" expression => strcmp("$($(data_array)[$(index)][origin])", "");
 	"use_origin_$(index)" expression => strcmp("$($(data_array)[$(index)][selector])", "origin");
 
@@ -140,41 +141,47 @@ field_edits:
 
 		"^$($(data_array)[$(index)][origin])[ \t].*"
 			edit_field => col("[ \t]+","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
-			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed"),
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed"),
 			ifvarclass => "use_origin_$(index).!invalid_$(index)";
 
 		"^.*[ \t]$($(data_array)[$(index)][destination])[ \t].*"
 			edit_field => col("[ \t]+","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
-			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed"),
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed"),
 			ifvarclass => "!use_origin_$(index)";
 
 insert_lines:
 
 		"$($(data_array)[$(index)][origin]) $($(data_array)[$(index)][destination]) $($(data_array)[$(index)][filesystem]) $($(data_array)[$(index)][options]) $($(data_array)[$(index)][dump]) $($(data_array)[$(index)][fsckorder])",
-			ifvarclass => "addentry_$(index).!line_$(index)_added.!invalid_$(index)",
-			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed");
+			ifvarclass => "addentry_$(index).!line_$(index)_handled.!invalid_$(index)",
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed");
+
+delete_lines:
+
+		"^$($(data_array)[$(index)][origin]).*"
+			ifvarclass => "delentry_$(index).!line_$(index)_handled.!invalid_$(index)",
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed");
 reports:
 
 	linux::
 
-		"@@fstabConfiguration@@result_error@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) is invalid, for it doesn't contain an origin : how can it be updated/inserted?"
+		"@@fstabConfiguration@@result_error@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) is invalid, for it doesn't contain an origin : how can it be updated/inserted/deleted?"
 			ifvarclass => "invalid_$(index)";
 
 		"@@fstabConfiguration@@result_repaired@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) has been handled"
-			ifvarclass => "line_$(index)_added";
+			ifvarclass => "line_$(index)_handled";
 
-		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) is already present"
-			ifvarclass => "line_$(index)_kept.!line_$(index)_added.!empty_origin_$(index)";
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) is already in accordance with the policy"
+			ifvarclass => "line_$(index)_kept.!line_$(index)_handled.!empty_origin_$(index)";
 
 		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) contained the proper fields"
-			ifvarclass => "line_$(index)_kept.!line_$(index)_added.empty_origin_$(index)";
+			ifvarclass => "line_$(index)_kept.!line_$(index)_handled.empty_origin_$(index)";
 
 		"@@fstabConfiguration@@result_error@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) could not be handled"
-			ifvarclass => "line_$(index)_add_failed";
+			ifvarclass => "line_$(index)_handle_failed";
 
 		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) was not present but policy required alteration only. This line will be ignored"
-			ifvarclass => "!addentry_$(index).!line_$(index)_added.!line_$(index)_kept.!line_$(index)_add_failed.use_origin_$(index)";
+			ifvarclass => "!addentry_$(index).!line_$(index)_handled.!line_$(index)_kept.!line_$(index)_handle_failed.use_origin_$(index)";
 
 		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) was not present but policy required alteration only. This line will be ignored"
-			ifvarclass => "!addentry_$(index).!line_$(index)_added.!line_$(index)_kept.!line_$(index)_add_failed.!use_origin_$(index)";
+			ifvarclass => "!addentry_$(index).!line_$(index)_handled.!line_$(index)_kept.!line_$(index)_handle_failed.!use_origin_$(index)";
 }

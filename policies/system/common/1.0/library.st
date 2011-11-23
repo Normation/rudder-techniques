@@ -53,14 +53,27 @@ ifelapsed => "240"; # run only every 4 hours
 # For the library
 #######################################################
 
-body edit_defaults def
+body edit_defaults noempty_backup
+{
+empty_file_before_editing => "false";
+edit_backup => "timestamp";  # we want to keep a track of everything
+max_file_size => "300000";
+}
+
+body edit_defaults empty_backup
+{
+empty_file_before_editing => "true";
+edit_backup => "timestamp";
+max_file_size => "300000";
+}
+
+
+body edit_defaults def_no_backup
 {
 empty_file_before_editing => "false";
 edit_backup => "false";
-# max_file_size => "500000"; # It won't work with a too large inventory, such as an ubuntu one
 max_file_size => "1024000";
 }
-
 ########################################################
 
 
@@ -242,8 +255,8 @@ edit_fstab => "$(persistence)";
 body edit_defaults rudder_empty_select(select)
 {
 empty_file_before_editing => "$(select)";
-edit_backup => "timestamp";
 max_file_size => "300000";
+edit_backup => "timestamp";
 }
 
 ########################################################################
@@ -274,4 +287,33 @@ body file_select date_pattern(age, pattern)
 	leaf_name   => { "$(pattern)" };
 
 	file_result => "leaf_name.!mtime";
+}
+
+########################################################################
+# Install a package using rug                                          #
+########################################################################
+body package_method rudder_rug {
+
+	package_changes => "individual";
+
+	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+	package_patch_list_command => "/usr/bin/rug patches";
+	package_list_update_ifelapsed => "240";
+	package_installed_regex => "i.*";
+	package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+
+	package_patch_installed_regex => ".*Installed.*|.*Not Applicable.*";
+	package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
+	package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+
+	package_name_convention => "$(name)";
+	package_add_command => "/usr/bin/rug install -y";
+	package_delete_command => "/usr/bin/rug remove -y";
+	package_update_command => "/usr/bin/rug update -y";
+
+#Unsure about the behavior of this command ...
+#package_patch_command => "/usr/bin/rug patch-info";
+package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
 }

@@ -119,7 +119,7 @@ bundle agent check_zmd_settings {
 			"/etc/zmd/zmd.conf"
 				create => "true",
 				perms => mog("600", "root", "root"),
-				edit_defaults => std_defs,
+				edit_defaults => noempty_backup,
 				edit_line => set_advanced_zmd_config_values("check_zmd_settings.zmdconf", "$(zmd_sections)"),
 				classes => kept_if_else("zmd_conf_kept", "zmd_conf_validated", "zmd_conf_failed");
 
@@ -146,6 +146,9 @@ bundle agent check_zmd_settings {
 		SuSE::
 
 			# Repositories
+
+			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) is not here but no edition required. Skipping..."
+				ifvarclass => "index_$(zmd_index)_not_matched.!zmd_repositories_edit";
 
 			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was already here. Skipping..."
 				ifvarclass => "index_$(zmd_index)_matched.!source_$(zmd_index)_subscribed";

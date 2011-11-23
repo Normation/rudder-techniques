@@ -48,18 +48,31 @@ bundle agent download_from_shared_folder {
 	classes:
 		"is_valid" not => strcmp("&SHARED_FILES_FOLDER&", "");
 
+		"is_file_$(index)" not => isdir("$(copyfile[$(index)][destination])");
+		"exist_$(index)" expression => fileexists("$(copyfile[$(index)][destination])");
 
 	files:
 	  is_valid::
 		
 		"$(copyfile[$(index)][destination])"
-			copy_from => secure_cp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)"),
+			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "false", "false", "false"),
 			depth_search => recurse("$(copyfile[$(index)][recursion])"),
 			perms => mog("$(copyfile[$(index)][owner])"
 					   , "$(copyfile[$(index)][group])"
 					   , "$(copyfile[$(index)][perm])"),
 			comment => "Enforce content of $(copyfile[$(index)][destination]) based on the content on the Rudder server",
-			classes => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed");
+			classes => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed"),
+			ifvarclass => "!exist_$(index)|!is_file_$(index)";
+
+		# If it's a file, the depth_search prevents from enforcing the file content
+		"$(copyfile[$(index)][destination])"
+			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "false", "false", "false"),
+			perms => mog("$(copyfile[$(index)][owner])"
+					   , "$(copyfile[$(index)][group])"
+					   , "$(copyfile[$(index)][perm])"),
+			comment => "Enforce content of file $(copyfile[$(index)][destination]) based on the content on the Rudder server",
+			classes => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed"),
+			ifvarclass => "exist_$(index).is_file_$(index)";
 
 
 
