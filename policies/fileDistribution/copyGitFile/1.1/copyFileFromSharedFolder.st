@@ -53,7 +53,7 @@ bundle agent download_from_shared_folder {
 	  is_valid::
 		
 		"$(copyfile[$(index)][destination])"
-			copy_from => secure_cp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)"),
+			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "false", "false", "false"),
 			depth_search => recurse("$(copyfile[$(index)][recursion])"),
 			perms => mog("$(copyfile[$(index)][owner])"
 					   , "$(copyfile[$(index)][group])"
