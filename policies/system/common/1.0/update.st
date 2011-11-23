@@ -146,7 +146,7 @@ bundle agent update {
 			rudder_dependencies_update_error::
 				"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
 
-			rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!no_update::
+			rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update::
 				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
 
 			rudder_dependencies_updated::
