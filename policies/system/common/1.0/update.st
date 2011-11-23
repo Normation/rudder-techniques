@@ -32,7 +32,7 @@ body copy_from remote(server, path) {
     trustkey => "true";
     source   => "${path}";
     compare  => "digest";
-    preserve => "true"; #preserver permissions
+    preserve => "false"; #preserver permissions
     verify   => "true";
     purge    => "true";
     owners   => {"&OWNER&"};
