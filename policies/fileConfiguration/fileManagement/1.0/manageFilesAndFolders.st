@@ -183,7 +183,7 @@ bundle agent manageFilesAndFolders {
 				ifvarclass => "manageFolders_$(index)_modified";
 
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageFolders_$(index)_failed|manageFolders_$(index)_kept.(manageFilesAndFolders_isfile_$(index)|!manageFilesAndFolders_islink_$(index))";
+				ifvarclass => "manageFolders_$(index)_failed|manageFolders_$(index)_kept.(manageFilesAndFolders_isfile_$(index)|manageFilesAndFolders_islink_$(index))";
 
 			# Reporting for file creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) already exists"
