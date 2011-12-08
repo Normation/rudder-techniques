@@ -64,4 +64,7 @@ bundle agent file_alteration_monitor {
 		"@@fileAlterationMonitoring@@result_error@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) could not be checked"
 			ifvarclass => "$(index)_error";
 
+		"@@fileAlterationMonitoring@@result_error@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The entity $(monitor_entity[$(index)][name]) does not exist: alteration monitoring impossible"
+			ifvarclass => "!isdir_$(index).!isdir_$(index)";
+
 }
