@@ -40,14 +40,14 @@ bundle agent file_alteration_monitor {
 		"$(monitor_entity[$(index)][name])"
 
 			ifvarclass => "isdir_$(index)",
-			changes => detect_content,
+			changes => detect_all_change,
 			classes => kept_if_else("$(index)_kept", "$(index)_changed", "$(index)_error"),
 			depth_search => recurse("inf");
 
 		"$(monitor_entity[$(index)][name])"
 
 			ifvarclass => "isfile_$(index)",
-			changes => detect_content,
+			changes => detect_all_change,
 			classes => kept_if_else("$(index)_kept", "$(index)_changed", "$(index)_error");
 
 
