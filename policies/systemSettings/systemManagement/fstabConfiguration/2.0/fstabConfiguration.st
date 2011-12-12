@@ -157,8 +157,12 @@ insert_lines:
 
 delete_lines:
 
-		"^$($(data_array)[$(index)][origin]).*"
-			ifvarclass => "delentry_$(index).!line_$(index)_handled.!invalid_$(index)",
+		"^$($(data_array)[$(index)][origin])[ \t]+.*"
+			ifvarclass => "delentry_$(index).use_origin_$(index).!invalid_$(index)",
+			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed");
+
+		"^[^#]+[ \t]+$($(data_array)[$(index)][destination])[ \t]+.*"
+			ifvarclass => "delentry_$(index).!use_origin_$(index)",
 			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed");
 reports:
 
