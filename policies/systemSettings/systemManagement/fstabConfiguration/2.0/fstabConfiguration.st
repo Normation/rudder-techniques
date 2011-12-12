@@ -144,7 +144,7 @@ field_edits:
 			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed"),
 			ifvarclass => "use_origin_$(index).!invalid_$(index)";
 
-		"^.*[ \t]$($(data_array)[$(index)][destination])[ \t].*"
+		"^[^#]*[ \t]$($(data_array)[$(index)][destination])[ \t].*"
 			edit_field => col("[ \t]+","$($(fields)[$(indices_fields)])","$($(data_array)[$(index)][$(indices_fields)])","set"),
 			classes => kept_if_else("line_$(index)_kept", "line_$(index)_handled", "line_$(index)_handle_failed"),
 			ifvarclass => "!use_origin_$(index)";
