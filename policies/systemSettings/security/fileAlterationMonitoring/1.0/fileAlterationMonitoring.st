@@ -31,8 +31,6 @@ bundle agent file_alteration_monitor {
 
 		"isfile_$(index)" expression => isplain("$(monitor_entity[$(index)][name])");
 		"isdir_$(index)" expression => isdir("$(monitor_entity[$(index)][name])");
-		"issym_$(index)" expression => islink("$(monitor_entity[$(index)][name])");
-
 
 
 	files:
@@ -58,13 +56,13 @@ bundle agent file_alteration_monitor {
 		"@@fileAlterationMonitoring@@result_success@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) is consistent"
 			ifvarclass => "$(index)_kept";
 
-		"@@fileAlterationMonitoring@@result_repaired@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) is INCONSISTENT : Either the file has changed or one of the element in the directory has"
+		"@@fileAlterationMonitoring@@result_repaired@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) is INCONSISTENT: Either the file has changed or one of the elements in the directory has"
 			ifvarclass => "$(index)_changed";
 
 		"@@fileAlterationMonitoring@@result_error@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) could not be checked"
 			ifvarclass => "$(index)_error";
 
 		"@@fileAlterationMonitoring@@result_error@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The entity $(monitor_entity[$(index)][name]) does not exist: alteration monitoring impossible"
-			ifvarclass => "!isdir_$(index).!isdir_$(index)";
+			ifvarclass => "!isdir_$(index).!isfile_$(index)";
 
 }
