@@ -68,30 +68,32 @@ classes:
 
 	"edit_recurse"  not => strcmp("${recursion}","false");
 
+	"is_symlink"    expression => islink("$(fileName)");
+
 files:
 
-	file_exists.edit_owner.!user_absent.!edit_recurse::
+	file_exists.edit_owner.!user_absent.!edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => owner("${user}"),
 			comment => "Setting the file owner",
 			classes => kept_if_else("$(identifier)_owner_ok", "$(identifier)_owner_repaired", "$(identifier)_owner_not_repaired");
 
-	file_exists.edit_group.!group_absent.!edit_recurse::
+	file_exists.edit_group.!group_absent.!edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => group("${group}"),
 			comment => "Setting the file group",
 			classes => kept_if_else("$(identifier)_group_ok", "$(identifier)_group_repaired", "$(identifier)_group_not_repaired");
 
-	file_exists.edit_mode.!edit_recurse::
+	file_exists.edit_mode.!edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => m("${mode}"),
 			comment => "Setting the file mode",
 			classes => kept_if_else("$(identifier)_mode_ok", "$(identifier)_mode_repaired", "$(identifier)_mode_not_repaired");
 
-	file_exists.edit_owner.!user_absent.edit_recurse::
+	file_exists.edit_owner.!user_absent.edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => owner("${user}"),
@@ -99,7 +101,7 @@ files:
 			comment => "Setting the file owner",
 			classes => kept_if_else("$(identifier)_owner_ok", "$(identifier)_owner_repaired", "$(identifier)_owner_not_repaired");
 
-	file_exists.edit_group.!group_absent.edit_recurse::
+	file_exists.edit_group.!group_absent.edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => group("${group}"),
@@ -107,7 +109,7 @@ files:
 			comment => "Setting the file group",
 			classes => kept_if_else("$(identifier)_group_ok", "$(identifier)_group_repaired", "$(identifier)_group_not_repaired");
 
-	file_exists.edit_mode.edit_recurse::
+	file_exists.edit_mode.edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => m("${mode}"),
@@ -116,6 +118,9 @@ files:
 			classes => kept_if_else("$(identifier)_mode_ok", "$(identifier)_mode_repaired", "$(identifier)_mode_not_repaired");
 
 reports:
+
+	is_symlink::
+		"@@FilesPermissions@@result_error@@$(policyInstanceId)@@File permissions@@${fileName}@@$(g.execRun)##$(g.uuid)@#Will not adjust permissions on ${fileName}, because it is a symlink";
 
 	!file_exists::
 		"@@FilesPermissions@@result_error@@$(policyInstanceId)@@File permissions@@${fileName}@@$(g.execRun)##$(g.uuid)@#File or directory not found: ${fileName}";

@@ -124,7 +124,7 @@ bundle agent services_management {
 			comment => "Set the service $(service[$(index)][name]) to start on boot";
 
 		"/sbin/insserv"
-			args => "-r $(service[$(index)][name])",
+			args => "-rd $(service[$(index)][name])",
 			classes => if_else("service_$(index)_unbootstarted_ok", "service_$(index)_unbootstarted_fail"),
 			ifvarclass => "service_$(index)_bootstarted.bootstart_prevent_process_$(index)",
 			comment => "Set the service $(service[$(index)][name]) to not be started on boot";
