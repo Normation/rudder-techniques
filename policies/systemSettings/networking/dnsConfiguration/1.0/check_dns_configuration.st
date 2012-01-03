@@ -95,8 +95,12 @@ classes:
                 cant_repair_dns_resolver::
                         "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Could not set DNS resolver list in the Windows registry";
 
-                (dns_kept)|(!dns_searchlist_edit.!dns_resolver_edit)|(windows.dns_searchlist_kept.dns_resolver_kept.!cant_repair_dns_resolver.!cant_repair_dns_searchlist)::
-                        "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Every step completed successfully";
+				linux.dns_kept.!dns_repaired.!cant_repair_dns::
+                        "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The DNS is correctly configured";
+
+				#windows and something to do
+				windows.((dns_resolver_edit.dns_resolver_kept.!dns_repaired_resolver)|!dns_resolver_edit).((dns_searchlist_edit.dns_searchlist_kept.!dns_repaired_searchlist)|!dns_searchlist_edit)::
+					"@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The DNS is correctly configured";
 
 &if(COMMUNITY)&
 		windows::
