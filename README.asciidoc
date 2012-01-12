@@ -44,7 +44,7 @@ initial-promises:: Contains the cfengine promises used to "bootstrap" a new Rudd
                    and make him send his inventory to the Rudder server in order to be
                    recognized by the system
 
-policy-templates:: The Policy Templates Library
+policies:: The Policy Templates Library
 
 tools:: Contains the tools used by the PTL to perform every task
 
