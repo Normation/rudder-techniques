@@ -52,6 +52,10 @@ and to ensure they are present if required.
       <INPUT>
         <NAME>ROUTING_FOUR_DESTINATION</NAME>
         <DESCRIPTION>Route destination network/host</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid IP address">\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b</REGEX>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>ROUTING_FOUR_NETMASK</NAME>
@@ -59,11 +63,16 @@ and to ensure they are present if required.
         <LONGDESCRIPTION>Please input a netmask in dotted quad notation (eg. 255.255.255.0), for a single host, it will be 255.255.255.255.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid IP address">\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b</REGEX>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>ROUTING_FOUR_GATEWAY</NAME>
         <DESCRIPTION>Route destination</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid IP address">\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b</REGEX>
+        </CONSTRAINT>
       </INPUT>
       <SELECT1>
         <NAME>ROUTING_FOUR_ACTION</NAME>
