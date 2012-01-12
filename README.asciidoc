@@ -1,0 +1,58 @@
+Rudder: configuration management for the masses
+-----------------------------------------------
+
+This project is part of Rudder - configuration management for the masses. 
+ 
+See: http://rudder-project.org for more information. 
+
+[horizontal]
+Screenshots:: http://www.rudder-project.org/foswiki/Screenshots/WebHome
+User documentation:: http://www.rudder-project.org/rudder-doc/rudder-doc.html
+Bug report:: http://www.rudder-project.org/redmine/projects/rudder/issues
+Mailing list, irc:: http://www.rudder-project.org/foswiki/Community/
+
+=== Authors
+
+Normation http://normation.com
+
+- Nicolas "ncharles" Charles nicolas.charles@normation.com
+- Jonathan "jooooooon" Clarke jonathan.clarke@normation.com
+- Matthieu "Kegeruneku" Cerfa matthieu.cerda@normation.com
+- Nicolas "Kelindil" Perron nicolas.perron@normation.com
+
+=== License
+
+This project is licensed under AGPLv3 license, 
+see the provided "LICENSE" file or 
+http://www.gnu.org/licenses/agpl-3.0.txt
+
+=== Contributing
+
+Thank you for your interest in our project!
+The contribution process is detailed here: 
+http://www.rudder-project.org/HowToContribute
+
+=== Synopsis
+
+This project regroups the Policy Templates Library of Rudder, which enables Rudder to perform
+every task configured in its interface using the CFengine configuration management software.
+
+This project is composed of three directories:
+
+[horizontal]
+initial-promises:: Contains the cfengine promises used to "bootstrap" a new Rudder agent
+                   and make him send his inventory to the Rudder server in order to be
+                   recognized by the system
+
+policy-templates:: The Policy Templates Library
+
+rudder-web:: Contains the tools used by the PTL to perform every task
+
+=== Usage
+
+This project is part of Rudder, and as such is bundled with every Rudder server.
+
+However, if you want to test a new release of the policy templates or use a more up
+to date revision, you can clone this repository and copy it's contents to the appropriate
+directories in /var/rudder.
+
