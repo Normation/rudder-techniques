@@ -17,14 +17,14 @@ Normation http://normation.com
 
 - Nicolas "ncharles" Charles nicolas.charles@normation.com
 - Jonathan "jooooooon" Clarke jonathan.clarke@normation.com
-- Matthieu "Kegeruneku" Cerfa matthieu.cerda@normation.com
+- Matthieu "Kegeruneku" Cerda matthieu.cerda@normation.com
 - Nicolas "Kelindil" Perron nicolas.perron@normation.com
 
 === License
 
-This project is licensed under AGPLv3 license, 
+This sub-project is licensed under GPLv3 license, 
 see the provided "LICENSE" file or 
-http://www.gnu.org/licenses/agpl-3.0.txt
+http://www.gnu.org/licenses/gpl-3.0.txt
 
 === Contributing
 
@@ -46,7 +46,7 @@ initial-promises:: Contains the cfengine promises used to "bootstrap" a new Rudd
 
 policy-templates:: The Policy Templates Library
 
-rudder-web:: Contains the tools used by the PTL to perform every task
+tools:: Contains the tools used by the PTL to perform every task
 
 === Usage
 
