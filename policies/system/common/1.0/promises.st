@@ -39,7 +39,7 @@ body common control {
 
 bundle common va {
   vars:
-    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "e2s_enable"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "e2s_enable"
      };
 
 
@@ -285,6 +285,48 @@ bundle agent check_log_system {
 	(syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired)::
     	"@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Logging system for report centralization is already correctly configured";
 } 
+
+#######################################################
+# Check if the cron daemon is running
+# This only works with unix flavoured systems too
+
+bundle agent check_cron_daemon {
+
+    processes:
+
+        "/usr/sbin/cron"
+            restart_class => "restart_crond";
+
+    commands:
+
+        debian.restart_crond::
+
+            "/etc/init.d/cron"
+
+                args => "restart",
+                comment => "Restarting crond",
+                classes => class_trigger("crond_restarted" , "crond_failed", "crond_ok");
+
+        (redhat|SuSE).restart_crond::
+
+            "/sbin/service"
+
+                args => "cron restart",
+                comment => "Restarting crond",
+                classes => class_trigger("crond_restarted" , "crond_failed", "crond_ok");
+
+    reports:
+
+        crond_failed::
+            "@@Common@@result_error@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon was not running and could not be restarted";
+
+        crond_restarted::
+            "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon has been successfully restarted";
+
+        !restart_crond.!crond_restarted.!crond_failed::
+            "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon is running";
+
+}
 
 
 #######################################################
