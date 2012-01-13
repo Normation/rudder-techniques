@@ -292,29 +292,26 @@ bundle agent check_log_system {
 
 bundle agent check_cron_daemon {
 
-    vars:
-
-        (debian|SuSE)::
-
-            "cron_bin" string => "/usr/sbin/cron";
-            "cron_restartcmd" string => "/etc/init.d/cron restart";
-
-        redhat::
-
-            "cron_bin" string => "crond";
-            "cron_restartcmd" string => "/etc/init.d/crond restart";
-
     processes:
 
-            "$(cron_bin)"
-                restart_class => "restart_crond";
+        "/usr/sbin/cron"
+            restart_class => "restart_crond";
 
     commands:
 
-        restart_crond::
+        debian.restart_crond::
 
-            "$(cron_restartcmd)"
+            "/etc/init.d/cron"
 
+                args => "restart",
+                comment => "Restarting crond",
+                classes => class_trigger("crond_restarted" , "crond_failed", "crond_ok");
+
+        (redhat|SuSE).restart_crond::
+
+            "/sbin/service"
+
+                args => "cron restart",
                 comment => "Restarting crond",
                 classes => class_trigger("crond_restarted" , "crond_failed", "crond_ok");
 
