@@ -55,145 +55,137 @@ bundle agent check_usergroup_user_parameters {
 
 		"usergroup_user_index" slist => getindices("usergroup_user_login");
 
-	methods:
-
-		"any"
-
-			usebundle => check_usergroup_user_parameters_userhandle("$(usergroup_user_login[$(usergroup_user_index)])", "$(usergroup_user_fullname[$(usergroup_user_index)])", "$(usergroup_user_password[$(usergroup_user_index)])", "$(usergroup_user_password_policy[$(usergroup_user_index)])", "$(usergroup_user_action[$(usergroup_user_index)])", "$(usergroup_user_home_perso[$(usergroup_user_index)])", "$(usergroup_user_home[$(usergroup_user_index)])", "$(usergroup_user_shell[$(usergroup_user_index)])", "$(usergroup_policy_instance_uuid[$(usergroup_user_index)])");
-
-}
-
-bundle agent check_usergroup_user_parameters_userhandle(login, name, password, passwordpolicy, action, homeperso, home, shell, piuuid) {
-
-	# I'd really like to do that and stream the password directly to useradd, but cfengine does not currently permits the use of crypt in hash()
-	#vars:
-	#
-	#	"pwcrypt" string => hash("$(password)","crypt");
-
-	vars:
 
 		nos::
 
-			"nameopt"
+			"nameopt[$(usergroup_user_index)]"
 				string => "",
-				ifvarclass => "user_nameempty";
+				ifvarclass => "user_nameempty_$(usergroup_user_index)";
 
-			"nameopt"
-				string => "-c \"$(name)\"",
-				ifvarclass => "!user_nameempty.!windows";
+			"nameopt[$(usergroup_user_index)]"
+				string => "-c \"$(usergroup_user_fullname[$(usergroup_user_index)])\"",
+				ifvarclass => "!user_nameempty_$(usergroup_user_index).!windows";
 
-			"nameopt"
-				string => "/FULLNAME:\"$(name)\"",
-				ifvarclass => "!user_nameempty.windows";
+			"nameopt[$(usergroup_user_index)]"
+				string => "/FULLNAME:\"$(usergroup_user_fullname[$(usergroup_user_index)])\"",
+				ifvarclass => "!user_nameempty_$(usergroup_user_index).windows";
+
+			"repname[$(usergroup_user_index)]"
+				string => "Without any defined full name",
+				ifvarclass => "user_nameempty_$(usergroup_user_index)";
+
+			"repname[$(usergroup_user_index)]"
+				string => "$(usergroup_user_fullname[$(usergroup_user_index)])",
+				ifvarclass => "!user_nameempty_$(usergroup_user_index)";
+
 	classes:
 
 		# Actions
 
-		"user_update" expression => strcmp("$(action)","add");
+		"user_update_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_action[$(usergroup_user_index)])","add");
 
-		"user_remove" expression => strcmp("$(action)","remove");
+		"user_remove_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_action[$(usergroup_user_index)])","remove");
 
-		"user_checkpres" expression => strcmp("$(action)","checkhere");
+		"user_checkpres_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_action[$(usergroup_user_index)])","checkhere");
 
-		"user_checkabs" expression => strcmp("$(action)","checknothere");
+		"user_checkabs_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_action[$(usergroup_user_index)])","checknothere");
 
-		"user_pershome" not => strcmp("$(homeperso)","true");
+		"user_pershome_$(usergroup_user_index)" not => strcmp("$(usergroup_user_home_perso[$(usergroup_user_index)])","true");
 
-		"user_exists" expression => userexists("$(login)");
+		"user_exists_$(usergroup_user_index)" expression => userexists("$(usergroup_user_login[$(usergroup_user_index)])");
 
-		"user_pwoneshot" expression => strcmp("$(passwordpolicy)","oneshot");
+		"user_pwoneshot_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_password_policy[$(usergroup_user_index)])","oneshot");
 
-		"user_pweverytime" expression => strcmp("$(passwordpolicy)","everytime");
+		"user_pweverytime_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_password_policy[$(usergroup_user_index)])","everytime");
 
-		"user_pwempty" expression => strcmp("$(password)","");
-
-		"user_nameempty" expression => strcmp("$(name)","");
+		"user_pwempty_$(usergroup_user_index)" not => isvariable("usergroup_user_password[$(usergroup_user_index)]");
+		
+		"user_nameempty_$(usergroup_user_index)" not => isvariable("usergroup_user_fullname[$(usergroup_user_index)]");
 
 		"nos" expression => "any";
 
+		"showtime" expression => isvariable("nameopt[1]");
+
 	commands:
 
-		!user_exists.user_update.windows::
+		windows.showtime::
 
 			"\"${sys.winsysdir}\net.exe\""
-				args => "USER $(login) $(password) /ADD $(nameopt)",
-				classes => cf2_if_else("login_added", "login_add_failed"),
-				comment => "Create the user";
-
-		user_exists.user_remove.windows::
-
-			"\"${sys.winsysdir}\net.exe\""
-				args => "USER $(login) /DELETE",
-				classes => cf2_if_else("login_removed", "login_remove_failed"),
-				comment => "Create the user";
-
-		(login_added.user_pwoneshot.windows.!user_pwempty)|(user_exists.user_pweverytime.windows.!user_pwempty)::
+				args => "USER $(usergroup_user_login[$(usergroup_user_index)]) $(usergroup_user_password[$(usergroup_user_index)]) /ADD $(nameopt[$(usergroup_user_index)])",
+				classes => cf2_if_else("login_added_$(usergroup_user_index)", "login_add_failed_$(usergroup_user_index)"),
+				comment => "Create the user",
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index)";
 
 			"\"${sys.winsysdir}\net.exe\""
-				args => "USER $(login) $(password)";
+				args => "USER $(usergroup_user_login[$(usergroup_user_index)]) /DELETE",
+				classes => cf2_if_else("login_removed_$(usergroup_user_index)", "login_remove_failed_$(usergroup_user_index)"),
+				comment => "Create the user",
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index)";
 
-		!user_exists.user_update.!user_pershome.linux::
+			"\"${sys.winsysdir}\net.exe\""
+				args => "USER $(usergroup_user_login[$(usergroup_user_index)]) $(usergroup_user_password[$(usergroup_user_index)])",
+				ifvarclass => "(login_added_$(usergroup_user_index).user_pwoneshot_$(usergroup_user_index).!user_pwempty_$(usergroup_user_index))|(user_exists_$(usergroup_user_index).user_pweverytime_$(usergroup_user_index).!user_pwempty_$(usergroup_user_index))";
+
+		linux.showtime::
 
 			"/usr/sbin/useradd"
-				args => "-m $(nameopt) -s $(shell) $(login)",
-				classes => cf2_if_else("login_added", "login_add_failed"),
-				comment => "Create the user";
-
-		!user_exists.user_update.user_pershome.linux::
+				args => "-m $(nameopt[$(usergroup_user_index)]) -s $(usergroup_user_shell[$(usergroup_user_index)]) $(usergroup_user_login[$(usergroup_user_index)])",
+				classes => cf2_if_else("login_added_$(usergroup_user_index)", "login_add_failed_$(usergroup_user_index)"),
+				comment => "Create the user",
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).!user_pershome_$(usergroup_user_index)";
 
 			"/usr/sbin/useradd"
-				args => "-m $(nameopt) -s $(shell) -d $(home) $(login)",
-				classes => cf2_if_else("login_added", "login_add_failed"),
-				comment => "Create the user";
+				args => "-m $(nameopt[$(usergroup_user_index)]) -s $(usergroup_user_shell[$(usergroup_user_index)]) -d $(usergroup_user_home[$(usergroup_user_index)]) $(usergroup_user_login[$(usergroup_user_index)])",
+				classes => cf2_if_else("login_added_$(usergroup_user_index)", "login_add_failed_$(usergroup_user_index)"),
+				comment => "Create the user",
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).user_pershome_$(usergroup_user_index)";
 
-		login_added.user_pwoneshot.linux.!user_pwempty::
+			"/bin/echo -e \"$(usergroup_user_password[$(usergroup_user_index)])\n$(usergroup_user_password[$(usergroup_user_index)])\" | /usr/bin/passwd $(usergroup_user_login[$(usergroup_user_index)])"
+				contain => in_shell,
+				ifvarclass => "login_added_$(usergroup_user_index).user_pwoneshot_$(usergroup_user_index).!user_pwempty_$(usergroup_user_index)";
 
-			"/bin/echo -e \"$(password)\n$(password)\" | /usr/bin/passwd $(login)"
-				contain => in_shell;
-
-
-		user_exists.user_pweverytime.linux.!user_pwempty::
-
-			"/bin/echo -e \"$(password)\n$(password)\" | /usr/bin/passwd $(login)"
-				contain => in_shell;
-
-		user_exists.user_remove.linux::
+			"/bin/echo -e \"$(usergroup_user_password[$(usergroup_user_index)])\n$(usergroup_user_password[$(usergroup_user_index)])\" | /usr/bin/passwd $(usergroup_user_login[$(usergroup_user_index)])"
+				contain => in_shell,
+				ifvarclass => "user_exists_$(usergroup_user_index).user_pweverytime_$(usergroup_user_index).!user_pwempty_$(usergroup_user_index)";
 
 			"/usr/sbin/userdel"
-				args => "$(login)",
-				classes => cf2_if_else("login_removed", "login_remove_failed"),
-				comment => "Delete the user";
+				args => "$(usergroup_user_login[$(usergroup_user_index)])",
+				classes => cf2_if_else("login_removed_$(usergroup_user_index)", "login_remove_failed_$(usergroup_user_index)"),
+				comment => "Delete the user",
+				ifvarclass => "user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index)";
 
 	reports:
 
-		!user_exists.user_update.login_added::
-			"@@userGroupManagement@@result_repaired@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) has been added to the system";
+		(linux|windows).showtime::
 
-		!user_exists.user_update.login_add_failed::
-			"@@userGroupManagement@@result_error@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) could not be added to the system";
+			"@@userGroupManagement@@result_repaired@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been added to the system"
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).login_added_$(usergroup_user_index)";
 
-		user_exists.user_remove.login_removed::
-			"@@userGroupManagement@@result_repaired@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) has been removed from the system";
+			"@@userGroupManagement@@result_error@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be added to the system"
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).login_add_failed_$(usergroup_user_index)";
 
-		user_exists.user_remove.login_remove_failed::
-			"@@userGroupManagement@@result_error@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) could not be removed from the system";
+			"@@userGroupManagement@@result_repaired@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been removed from the system"
+				ifvarclass => "user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index).login_removed_$(usergroup_user_index)";
 
-		!user_exists.user_remove::
-			"@@userGroupManagement@@result_success@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) does not exist, as required";
+			"@@userGroupManagement@@result_error@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be removed from the system"
+				ifvarclass => "user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index).login_remove_failed_$(usergroup_user_index)";
 
-		user_exists.user_update.!login_added::
-			"@@userGroupManagement@@result_success@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) is already present on the system";
+			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) does not exist, as required"
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index)";
 
-		user_exists.user_checkabs::
-			"@@userGroupManagement@@log_warn@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) is present on the system, which violates the non presence policy";
+			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is already present on the system"
+				ifvarclass => "user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).!login_added_$(usergroup_user_index)";
 
-		!user_exists.user_checkabs::
-			"@@userGroupManagement@@result_success@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) is not present on the system, which is in accordance with the non presence policy";
+			"@@userGroupManagement@@log_warn@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which violates the non presence policy"
+				ifvarclass => "user_exists_$(usergroup_user_index).user_checkabs_$(usergroup_user_index)";
 
-		user_exists.user_checkpres::
-			"@@userGroupManagement@@result_success@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) is present on the system, which is in conformance with the presence policy";
+			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which is in accordance with the non presence policy"
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_checkabs_$(usergroup_user_index)";
 
-		!user_exists.user_checkpres::
-			"@@userGroupManagement@@log_warn@@$(piuuid)@@Users@@$(login)@@$(g.execRun)##$(g.uuid)@#The user $(login) ( $(name) ) is not present on the system, which violates the presence policy";
+			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which is in conformance with the presence policy"
+				ifvarclass => "user_exists_$(usergroup_user_index).user_checkpres_$(usergroup_user_index)";
+
+			"@@userGroupManagement@@log_warn@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which violates the presence policy"
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_checkpres_$(usergroup_user_index)";
 
 }
