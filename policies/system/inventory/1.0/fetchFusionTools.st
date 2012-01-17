@@ -41,6 +41,8 @@ bundle agent fetchFusionTools {
 
 		windows::
 
+				# This won't work anymore now we've removed Perl from tools
+				# See http://www.rudder-project.org/redmine/issues/2177
                   "${g.rudder_sbin}/perl"
                         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}/perl"),
                         depth_search => recurse("inf"),
