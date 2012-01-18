@@ -39,7 +39,6 @@ vars:
 		"rudder_base_sbin" string  => "$(rudder_base)\sbin"; #folder where tools are installed
 		"rudder_inventories"  string => "$(rudder_var)\inventories";
 		"rudder_base_sbin_arg" string => "$(sys.winprogdir)\Rudder\sbin"; # for the installer command line
-		"win_install_inventory" string => "${rudder_base_sbin}\ocsagent.exe"; #installation file
  
  
 	windows.!cygwin::
