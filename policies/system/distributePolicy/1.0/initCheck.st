@@ -16,11 +16,6 @@
 #
 #####################################################################################
 
-#body common control {
-#	bundlesequence => { "root_init_check" };
-#	inputs => { "/var/rudder/cfengine-community/inputs/common/1.0/cfengine_stdlib.cf", "/var/rudder/cfengine-community/inputs/common/1.0/core-lib.cf", "/var/rudder/cfengine-community/inputs/common/1.0/library.cf" };
-#}
-
 bundle agent root_init_check {
 
 	vars:
@@ -95,7 +90,7 @@ bundle agent root_init_check {
 		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Process of $(service[$(index)][initscript]) was not running and has been restarted"
 			ifvarclass => "process_$(index)_restart.process_$(index)_restart_ok";
 
-		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][initscript]): the process couldn't be started"
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][initscript]): the process couldn't be started"
 			ifvarclass => "process_$(index)_restart_error";
 
 		# Service boot starting parameters
