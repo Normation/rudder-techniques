@@ -39,7 +39,7 @@ body common control {
 
 bundle common va {
   vars:
-    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "e2s_enable"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "check_binaries_freshness", "e2s_enable"
      };
 
 
@@ -331,6 +331,43 @@ bundle agent check_cron_daemon {
 
 }
 
+#######################################################
+# Copy the CFengine binaries from the /opt repository
+# to the CFengine working directory
+
+bundle agent check_binaries_freshness {
+
+	vars:
+
+		community_edition::
+
+			"components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key" };
+
+		nova_edition::
+
+			"components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+
+	files:
+
+		"${sys.workdir}/bin/${components}"
+			perms => u_p("700"),
+			copy_from => cp("${g.rudder_sbin}/${components}", "localhost"),
+			classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
+			action => immediate,
+			comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
+
+    reports:
+
+        binaries_fresh.!binaries_rotten.!binaries_missing::
+            "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#The CFengine binaries in ${sys.workdir}/bin are up to date";
+
+        binaries_rotten.!binaries_missing::
+            "@@Common@@result_repaired@@&TRACKINGKEY&@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#The CFengine binaries have been updated in ${sys.workdir}/bin";
+
+        binaries_missing::
+            "@@Common@@result_error@@&TRACKINGKEY&@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
+
+}
 
 #######################################################
 
