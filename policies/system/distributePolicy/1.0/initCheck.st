@@ -16,93 +16,117 @@
 #
 #####################################################################################
 
-bundle agent root_init_check {
+bundle agent root_init_check() {
 
 	vars:
 
-			"service[1][binary]" string => "/opt/rudder/libexec/slapd";
-			"service[1][initscript]" string => "slapd";
+		"service[1][binary]" string => "/opt/rudder/libexec/slapd";
+		"service[1][initscript]" string => "slapd";
 
-			"service[2][binary]" string => ".*java.*/opt/rudder/jetty7/start.jar";
-			"service[2][initscript]" string => "jetty";
+		"service[2][binary]" string => ".*java.*/opt/rudder/jetty7/start.jar";
+		"service[2][initscript]" string => "jetty";
 
-			"service[3][binary]" string => "postgres: writer process";
-			"service[3][initscript]" string => "postgresql";
+		"service[3][binary]" string => "postgres: writer process";
+		"service[3][initscript]" string => "postgresql";
 
-			"service[4][binary]" string => "/var/rudder/cfengine-community/bin/cf-.*";
-			"service[4][initscript]" string => "cfengine-community";
+		"service[4][binary]" string => "/var/rudder/cfengine-community/bin/cf-.*";
+		"service[4][initscript]" string => "cfengine-community";
 
-			"index" slist => getindices("service");
+		"index" slist => getindices("service");
+
+	methods:
+
+		"any" usebundle => generic_process_check_process("$(service[$(index)][binary])", "$(service[$(index)][initscript])", "false");
+		"any" usebundle => generic_process_check_bootstart("$(service[$(index)][binary])", "$(service[$(index)][initscript])");
+
+}
+
+bundle agent generic_process_check_process(binary, initscript, force_restart) {
+
+	classes:
+
+			"forced_trigger" expression => strcmp("$(force_restart)", "true");
 
 	processes:
 
 		# check the service status
-		"$(service[$(index)][binary])"
+		"$(binary)"
 				comment => "Check the process status",
-				restart_class => "process_$(index)_restart",
-				classes => kept_if_else("service_$(index)_running", "service_$(index)_anomaly", "service_$(index)_error");
+				restart_class => "process_restart",
+				classes => kept_if_else("service_running", "service_anomaly", "service_error");
 
 	commands:
 
-		"/etc/init.d/$(service[$(index)][initscript])"
+		"/etc/init.d/$(initscript)"
 			args => "restart </dev/null >/dev/null 2>/dev/null",
 			contain => in_shell_silent,
 			# action => bg("0", "120"),
-			classes => kept_if_else("process_$(index)_restart_ok", "process_$(index)_restart_ok", "process_$(index)_restart_error"),
-			ifvarclass => "process_$(index)_restart";
-
-	(SuSE|redhat)::
-
-			"/sbin/chkconfig"
-				args => "--check $(service[$(index)][initscript])",
-				classes => if_else("service_$(index)_bootstarted", "service_$(index)_unbootstarted"),
-				comment => "Check if the service $(service[$(index)][initscript]) is started on boot";
-
-			"/sbin/insserv"
-				args => "-d $(service[$(index)][initscript])",
-				classes => if_else("service_$(index)_bootstarted_ok", "service_$(index)_bootstarted_fail"),
-				ifvarclass => "service_$(index)_unbootstarted",
-				comment => "Set the service $(service[$(index)][initscript]) to start on boot";
-
-	debian::
-
-			"/usr/sbin/update-rc.d $(service[$(index)][initscript]) remove \&\& /usr/sbin/update-rc.d $(service[$(index)][initscript]) defaults"
-				contain => in_shell,
-				classes => if_else("service_$(index)_bootstarted_ok", "service_$(index)_bootstarted_fail"),
-				ifvarclass => "service_$(index)_unbootstarted",
-				comment => "Set the service $(service[$(index)][initscript]) to start on boot";
-
-	files:
-
-		debian::
-
-                        "/etc/rc2.d/S.*$(service[$(index)][initscript]).*"
-                                create => "true",
-                                action => WarnOnly,
-                                classes => if_else("service_$(index)_bootstarted", "service_$(index)_unbootstarted");
+			classes => kept_if_else("process_restart_ok", "process_restart_ok", "process_restart_error"),
+			ifvarclass => "process_restart|forced_trigger";
 
 	reports:
 
 	  linux::
 
-		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Process of $(service[$(index)][initscript]) was indeed running"
-			ifvarclass => "!process_$(index)_restart";
+		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process is already running"
+			ifvarclass => "!process_restart.!forced_trigger";
 
-		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Process of $(service[$(index)][initscript]) was not running and has been restarted"
-			ifvarclass => "process_$(index)_restart.process_$(index)_restart_ok";
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process was not running and has been restarted"
+			ifvarclass => "process_restart.process_restart_ok.!forced_trigger";
 
-		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][initscript]): the process couldn't be started"
-			ifvarclass => "process_$(index)_restart_error";
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process has been restarted"
+			ifvarclass => "process_restart_ok.forced_trigger";
 
-		# Service boot starting parameters
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process couldn't be restarted"
+			ifvarclass => "process_restart_error";
 
-		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][initscript]) is started on boot as required"
-			ifvarclass => "service_$(index)_bootstarted";
+}
 
-		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#$(service[$(index)][initscript]) has been set to start on boot"
-			ifvarclass => "!service_$(index)_bootstarted.service_$(index)_bootstarted_ok";
+bundle agent generic_process_check_bootstart(binary, initscript) {
 
-		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Could not set $(service[$(index)][initscript]) to start on boot!"
-			ifvarclass => "!service_$(index)_bootstarted.service_$(index)_bootstarted_fail";
+	commands:
+
+	(SuSE|redhat)::
+
+			"/sbin/chkconfig"
+				args => "--check $(initscript)",
+				classes => if_else("service_bootstarted", "service_unbootstarted"),
+				comment => "Check if the service $(initscript) is started on boot";
+
+			"/sbin/insserv"
+				args => "-d $(initscript)",
+				classes => if_else("service_bootstarted_ok", "service_bootstarted_fail"),
+				ifvarclass => "service_unbootstarted",
+				comment => "Set the service $(initscript) to start on boot";
+
+	debian::
+
+			"/usr/sbin/update-rc.d $(initscript) remove \&\& /usr/sbin/update-rc.d $(initscript) defaults"
+				contain => in_shell,
+				classes => if_else("service_bootstarted_ok", "service_bootstarted_fail"),
+				ifvarclass => "service_unbootstarted",
+				comment => "Set the service $(initscript) to start on boot";
+
+	files:
+
+		debian::
+
+                        "/etc/rc2.d/S.*$(initscript).*"
+                                create => "true",
+                                action => WarnOnly,
+                                classes => if_else("service_bootstarted", "service_unbootstarted");
+
+	reports:
+
+	  linux::
+
+		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#$(initscript) is started on boot as required"
+			ifvarclass => "service_bootstarted";
+
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#$(initscript) has been set to start on boot"
+			ifvarclass => "!service_bootstarted.service_bootstarted_ok";
+
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Could not set $(initscript) to start on boot!"
+			ifvarclass => "!service_bootstarted.service_bootstarted_fail";
 
 }
