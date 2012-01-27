@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>sendInventoryToCmdb</NAME>
     <NAME>root_init_check</NAME>
     <NAME>root_postgres_check</NAME>
+    <NAME>root_logrotate_check</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -32,12 +33,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="rsyslogConf"/>
     <TML name="initCheck"/>
     <TML name="postgresCheck"/>
+    <TML name="logrotateCheck"/>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="rudder">
       <OUTPATH>distributePolicy/rsyslog.conf/rudder.conf</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="logrotate">
+      <OUTPATH>distributePolicy/logrotate.conf/rudder</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
   </TMLS>
