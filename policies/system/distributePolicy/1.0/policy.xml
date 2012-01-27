@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>propagatePromises</NAME>
     <NAME>sendInventoryToCmdb</NAME>
     <NAME>root_init_check</NAME>
+    <NAME>root_postgres_check</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -30,6 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="propagatePromises"/>
     <TML name="rsyslogConf"/>
     <TML name="initCheck"/>
+    <TML name="postgresCheck"/>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>

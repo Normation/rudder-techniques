@@ -317,3 +317,17 @@ body package_method rudder_rug {
 #package_patch_command => "/usr/bin/rug patch-info";
 package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
 }
+
+###################################################
+# edit_line prepend
+###################################################
+
+bundle edit_line prepend(lines)
+{
+insert_lines:
+
+  "$(lines)"
+    comment => "Prepending line : $(lines)",
+    location => start;
+
+}
