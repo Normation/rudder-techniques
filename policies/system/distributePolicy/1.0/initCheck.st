@@ -45,8 +45,9 @@ bundle agent root_init_check {
 	commands:
 
 		"/etc/init.d/$(service[$(index)][initscript])"
-			args => "start",
-			action => bg("0", "120"),
+			args => "restart </dev/null >/dev/null 2>/dev/null",
+			contain => in_shell_silent,
+			# action => bg("0", "120"),
 			classes => kept_if_else("process_$(index)_restart_ok", "process_$(index)_restart_ok", "process_$(index)_restart_error"),
 			ifvarclass => "process_$(index)_restart";
 

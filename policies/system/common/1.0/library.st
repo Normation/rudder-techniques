@@ -331,3 +331,43 @@ insert_lines:
     location => start;
 
 }
+
+###################################################
+# edit_line replace_line
+###################################################
+
+bundle edit_line replace_line(regex,replacement)
+{
+replace_patterns:
+
+	"$(regex)"
+		replace_with => With("$(replacement)"),
+		comment => "Replace every occurence of $(regex) with $(replacement)";
+
+}
+
+###################################################
+# edit_line from_to
+###################################################
+
+bundle edit_line from_to(from,to)
+{
+delete_lines:
+
+	"$(from)" comment => "Reset $(from)";
+
+insert_lines:
+
+	"$(to)" comment => "Add $(to)";
+
+}
+
+###################################################
+# contain in_shell_silent
+###################################################
+
+body contain in_shell_silent
+{
+	useshell => "true";
+	no_output => "true";
+}
