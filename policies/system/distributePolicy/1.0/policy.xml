@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_init_check</NAME>
     <NAME>root_postgres_check</NAME>
     <NAME>root_logrotate_check</NAME>
+    <NAME>root_integrity_check</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -34,6 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="initCheck"/>
     <TML name="postgresCheck"/>
     <TML name="logrotateCheck"/>
+    <TML name="integrityCheck"/>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
