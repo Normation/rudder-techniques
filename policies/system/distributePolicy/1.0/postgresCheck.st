@@ -52,7 +52,7 @@ bundle agent root_postgres_check {
 		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The SuSE specific postgresql configuration has been added"
 			ifvarclass => "psql_conf_updated.!psql_conf_update_error";
 
-		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The SuSE specific postgresql configuration could not be added"
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The SuSE specific postgresql configuration could not be added"
 			ifvarclass => "psql_conf_update_error";
 
 }
