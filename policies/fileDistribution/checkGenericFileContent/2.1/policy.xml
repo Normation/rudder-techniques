@@ -69,6 +69,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		      <DEFAULT>false</DEFAULT>
 		    </CONSTRAINT>
 		  </SELECT1>
+		</SECTION>
                 <INPUT>
                   <NAME>GENERIC_FILE_CONTENT_DELETION_BOOLEAN</NAME>
                   <DESCRIPTION>Enable the deletion of lines using a regexp</DESCRIPTION>
@@ -85,8 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                     <DEFAULT>false</DEFAULT>
                   </CONSTRAINT>
                 </INPUT>
-		</SECTION>
-		<SECTION name="Line deletion regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		<SECTION name="Line deletion regular expressions" multivalued="true" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_DELETION_REGEXP</NAME>
 		    <DESCRIPTION>Regular expression</DESCRIPTION>
@@ -97,7 +97,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		    </CONSTRAINT>
 		  </INPUT>
 		</SECTION>
-		<SECTION name="Line replacement regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		<SECTION name="Line replacement regular expressions" multivalued="true" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_MODIFICATION_REGEXP</NAME>
 		    <DESCRIPTION>Regular expression</DESCRIPTION>
