@@ -26,53 +26,53 @@ bundle agent check_generic_file_content {
 
 		tier1::
 
-                &GENERIC_FILE_CONTENT_PATH:{path |"generic_file_content_path[&i&]" string => "&path&";
+	                &GENERIC_FILE_CONTENT_PATH:{path |"generic_file_content_path[&i&]" string => "&path&";
 }&
 
-                &GENERIC_FILE_CONTENT_OWNER:{owner |"generic_file_content_owner[&i&]" string => "&owner&";
+	                &GENERIC_FILE_CONTENT_OWNER:{owner |"generic_file_content_owner[&i&]" string => "&owner&";
 }&
 
-                &GENERIC_FILE_CONTENT_GROUP:{group |"generic_file_content_group[&i&]" string => "&group&";
+        	        &GENERIC_FILE_CONTENT_GROUP:{group |"generic_file_content_group[&i&]" string => "&group&";
 }&
 
-                &GENERIC_FILE_CONTENT_PERM:{perms |"generic_file_content_perms[&i&]" string => "&perms&";
+                	&GENERIC_FILE_CONTENT_PERM:{perms |"generic_file_content_perms[&i&]" string => "&perms&";
 }&
 
 # Because the stupid StringTemplate systems passes the indentation as-is inside the generated variable
 &GENERIC_FILE_CONTENT_PAYLOAD:{payload |"generic_file_content_payload[&i&]" string => "&payload&";
 }&
 
-		&GENERIC_FILE_CONTENT_ENFORCE:{enforce |"generic_file_content_enforced[&i&]" string => "&enforce&";
+			&GENERIC_FILE_CONTENT_ENFORCE:{enforce |"generic_file_content_enforced[&i&]" string => "&enforce&";
 }&
-		&GENERIC_FILE_CONTENT_POST_HOOK_COMMAND:{command |"generic_file_content_posthook[&i&]" string => "&command&";
+			&GENERIC_FILE_CONTENT_POST_HOOK_COMMAND:{command |"generic_file_content_posthook[&i&]" string => "&command&";
 }&
-		&GENERIC_FILE_CONTENT_DELETION_REGEXP:{delreg |"generic_file_content_deletion_regexp[&i&]" string => "&delreg&";
+			&GENERIC_FILE_CONTENT_DELETION_REGEXP:{delreg |"generic_file_content_deletion_regexp[&i&]" string => "&delreg&";
 }&
-		&GENERIC_FILE_CONTENT_MODIFICATION_REGEXP:{delreg |"generic_file_content_modification_regexp[&i&]" string => "&delreg&";
+			&GENERIC_FILE_CONTENT_MODIFICATION_REGEXP:{delreg |"generic_file_content_modification_regexp[&i&]" string => "&delreg&";
 }&
-		&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
+			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
 }&
-                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
+	                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
 }&
 
-		"index" slist => getindices("generic_file_content_path");
+			"index" slist => getindices("generic_file_content_path");
 
-		"file_edit_go" string => "go";
+			"file_edit_go" string => "go";
 
 classes:
 
-		# Set a class to define when we need to run the post-modification hook
-		&GENERIC_FILE_CONTENT_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
+			# Set a class to define when we need to run the post-modification hook
+			&GENERIC_FILE_CONTENT_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
 }&
-		&GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT:{adjust |"adjust_permissions_&i&" expression => strcmp("&adjust&", "true");
+			&GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT:{adjust |"adjust_permissions_&i&" expression => strcmp("&adjust&", "true");
 }&
-		&GENERIC_FILE_CONTENT_DELETION_BOOLEAN:{deletion |"delete_lines_&i&" expression => strcmp("&deletion&", "true");
+			&GENERIC_FILE_CONTENT_DELETION_BOOLEAN:{deletion |"delete_lines_&i&" expression => strcmp("&deletion&", "true");
 }&
-		&GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN:{modification |"modify_lines_&i&" expression => strcmp("&modification&", "true");
+			&GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN:{modification |"modify_lines_&i&" expression => strcmp("&modification&", "true");
 }&
-		"tier1" expression => "any";
+			"tier1" expression => "any";
 
-		"tier2" expression => isvariable("file_edit_go");
+			"tier2" expression => isvariable("file_edit_go");
 
 	files:
 
@@ -100,12 +100,12 @@ classes:
 			        ifvarclass => "modify_lines_$(index)",
 			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
-			"$(generic_file_content_path[$(index)])"
-				create => "true",
-				perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
-				classes => kept_if_else("perms_$(index)_kept", "perms_$(index)_modified", "perms_$(index)_failed"),
-				ifvarclass => "adjust_permissions_$(index)",
-				comment => "Setting $(generic_file_content_path[$(index)]) permissions...";
+			  "$(generic_file_content_path[$(index)])"
+				  create => "true",
+				  perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
+				  classes => kept_if_else("perms_$(index)_kept", "perms_$(index)_modified", "perms_$(index)_failed"),
+				  ifvarclass => "adjust_permissions_$(index)",
+				  comment => "Setting $(generic_file_content_path[$(index)]) permissions...";
 
 	commands:
 
@@ -120,55 +120,54 @@ classes:
 
         (linux|windows).tier2::
 
-			# Files edition
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
-					ifvarclass => "content_$(index)_kept.!content_$(index)_modified";
+		# Files edition
+		"@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
+			ifvarclass => "content_$(index)_kept.!content_$(index)_modified";
 
 		"@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated"
-					ifvarclass => "content_$(index)_modified";
+			ifvarclass => "content_$(index)_modified";
 
                 "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated"
-					ifvarclass => "content_$(index)_failed";
+			ifvarclass => "content_$(index)_failed";
 
                         # Files edition - deletion
- 
-               "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line deletion"
-                                        ifvarclass => "!delete_lines_$(index)";
+                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line deletion"
+                        ifvarclass => "!delete_lines_$(index)";
 
                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the deletion policy"
-                                        ifvarclass => "content_deletion_kept_$(index).!content_deletion_modified_$(index).!content_deletion_failed_$(index)";
+                        ifvarclass => "content_deletion_kept_$(index).!content_deletion_modified_$(index).!content_deletion_failed_$(index)";
 
                 "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the deletion policy"
-                                        ifvarclass => "content_deletion_modified_$(index)";
+                        ifvarclass => "content_deletion_modified_$(index)";
 
                 "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the deletion policy"
-                                        ifvarclass => "content_deletion_failed_$(index)";
+                        ifvarclass => "content_deletion_failed_$(index)";
 
                         # Files edition - replacement
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line replacement"
-                                        ifvarclass => "!modify_lines_$(index)";
+                        ifvarclass => "!modify_lines_$(index)";
 
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the deletion policy"
-                                        ifvarclass => "content_modification_kept_$(index).!content_modification_modified_$(index).!content_modification_failed_$(index)";
+                        ifvarclass => "content_modification_kept_$(index).!content_modification_modified_$(index).!content_modification_failed_$(index)";
 
                 "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the deletion policy"
-                                        ifvarclass => "content_modification_modified_$(index)";
+                        ifvarclass => "content_modification_modified_$(index)";
 
                 "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the deletion policy"
-                                        ifvarclass => "content_modification_failed_$(index)";
+                        ifvarclass => "content_modification_failed_$(index)";
 
 			# Permissions edition
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) uses default permissions"
-					ifvarclass => "!adjust_permissions_$(index)";
+			ifvarclass => "!adjust_permissions_$(index)";
 
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions are OK"
-					ifvarclass => "perms_$(index)_kept";
+			ifvarclass => "perms_$(index)_kept";
 
 		"@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions were adjusted"
-					ifvarclass => "perms_$(index)_modified";
+			ifvarclass => "perms_$(index)_modified";
 
                 "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions could not be adjusted"
-					ifvarclass => "perms_$(index)_failed";
+			ifvarclass => "perms_$(index)_failed";
 
 		# Posthook report
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No command for $(generic_file_content_path[$(index)]) was to be executed"
@@ -187,17 +186,21 @@ classes:
 
 bundle edit_line set_arbitrary_file_content(content, enforce)
 {
+
 classes:
+
 	"preserve_file_content" expression => strcmp("true", "$(enforce)");
 
 insert_lines:
-  preserve_file_content::
-	"$(content)"
-		insert_type => "preserve_block";
 
-  !preserve_file_content::
-	"$(content)";
+	preserve_file_content::
 
+		"$(content)"
+			insert_type => "preserve_block";
+
+	!preserve_file_content::
+
+		"$(content)";
 
 }
 
