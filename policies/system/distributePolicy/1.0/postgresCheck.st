@@ -46,6 +46,7 @@ bundle agent root_postgres_check {
 
 	  SuSE::
 
+		# Report about the configuration file edition
 		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The SuSE specific postgresql configuration is present"
 			ifvarclass => "psql_conf_ok.!psql_conf_updated.!psql_conf_update_error";
 
@@ -54,5 +55,12 @@ bundle agent root_postgres_check {
 
 		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The SuSE specific postgresql configuration could not be added"
 			ifvarclass => "psql_conf_update_error";
+
+		# Reports about Postgres restart status
+		"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#PostgreSQL has been restarted"
+			ifvarclass => "psql_restart_ok";
+
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#PostgreSQL restart has failed! Rudder is most certainly broken..."
+			ifvarclass => "psql_restart_error";
 
 }
