@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_integrity_check</NAME>
     <NAME>root_apache_webdav_check</NAME>
     <NAME>root_ldap_check</NAME>
+    <NAME>root_alive_check</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -40,6 +41,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="integrityCheck"/>
     <TML name="apacheCheck"/>
     <TML name="ldapCheck"/>
+    <TML name="aliveCheck"/>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
