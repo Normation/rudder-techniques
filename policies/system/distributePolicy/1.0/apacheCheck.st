@@ -27,13 +27,22 @@ bundle agent root_apache_webdav_check {
 			"dav_password[1]" string => "PoBZbSkW/8bcE";
 
 			"iterator" slist => getindices("dav_user");
+
+		debian::
+
+			"webdav_check_wwwgroup" string => "www-data";
+
+		!debian::
+
+			"webdav_check_wwwgroup" string => "www";
+
 	files:
 
 			"$(g.rudder_base)/etc/htpasswd-webdav"
 				create => "true",
 				edit_line => insert_lines("$(dav_user[$(iterator)]):$(dav_password[$(iterator)])"),
 				edit_defaults => empty,
-				perms => mog("644", "root", "root"),
+				perms => mog("640", "root", "$(webdav_check_wwwgroup)"),
         			classes => kept_if_else("rudder_apache_davpassword_ok", "rudder_apache_davpassword_changed", "rudder_apache_davpassword_failed"),
 			        comment => "Verifying the Rudder WebDAV user and password";
 
