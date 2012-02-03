@@ -35,13 +35,13 @@ bundle agent root_ldap_check {
 
 			"$(g.rudder_base)/etc/openldap/slapd.conf"
 				edit_line => ldap_password_slapd("$(ldap_rudder_hashed_password)"),
-				perms => mog("644", "root", "root"),
+				perms => mog("600", "root", "root"),
         			classes => kept_if_else("rudder_ldap_slapd_password_ok", "rudder_ldap_slapd_password_changed", "rudder_ldap_slapd_password_failed"),
 			        comment => "Verifying the Rudder LDAP password in slapd.conf";
 
 			"$(ldap_dot_properties)"
 				edit_line => ldap_password_properties("$(ldap_rudder_cleartext_password)"),
-				perms => mog("644", "root", "root"),
+				perms => mog("600", "root", "root"),
         			classes => kept_if_else("rudder_ldap_prop_password_ok", "rudder_ldap_prop_password_changed", "rudder_ldap_prop_password_failed"),
 			        comment => "Verifying the Rudder LDAP password in the properties files";
 
