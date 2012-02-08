@@ -16,28 +16,37 @@
 #
 #####################################################################################
 
-#body common control {
-#       bundlesequence => { "root_alive_check" };
-#       inputs => { "/var/rudder/cfengine-community/inputs/common/1.0/cfengine_stdlib.cf", "/var/rudder/cfengine-community/inputs/common/1.0/core-lib.cf", "/var/rudder/cfengine-community/inputs/common/1.0/library.cf", "/var/rudder/cfengine-community/inputs/distributePolicy/1.0/initCheck.cf" };
-#}
-
 bundle agent root_alive_check {
 
 	vars:
 
-			"site_to_check" slist => { "http://127.0.0.1:8080/" };
+		"sites_to_check" slist => { "http://localhost:8080/rudder/api/status", "http://localhost:8080/endpoint/api/status" };
 
-			"cleanup_failed_classes" slist => { "site_down_once", "site_alivecheck_restart_jetty" };
+	methods:
 
-		!site_down_once.!first_iteration_passed::
+		"any" usebundle => generic_alive_check("$(sites_to_check)");
 
-			"failed_result_class" string => "site_down_once";
-			"site_failure_persist_time" string => "10";
+}
 
-		site_down_once.!first_iteration_passed::
+bundle agent generic_alive_check(site_to_check) {
 
-			"failed_result_class" string => "site_alivecheck_restart_jetty";
-			"site_failure_persist_time" string => "0";
+	vars:
+
+			"sitename" string => canonify("$(site_to_check)");
+
+			"cleanup_failed_classes" slist => { "site_down_once_$(sitename)", "site_alivecheck_restart_jetty_$(sitename)" };
+
+			"failed_result_class" string => "site_down_once_$(sitename)",
+				ifvarclass => "!site_down_once_$(sitename).!first_iteration_passed";
+
+			"site_failure_persist_time" string => "10",
+				ifvarclass => "!site_down_once_$(sitename).!first_iteration_passed";
+
+			"failed_result_class" string => "site_alivecheck_restart_jetty_$(sitename)",
+				ifvarclass => "site_down_once_$(sitename).!first_iteration_passed";
+
+			"site_failure_persist_time" string => "0",
+				ifvarclass => "site_down_once_$(sitename).!first_iteration_passed";
 
 	classes:
 
@@ -46,32 +55,28 @@ bundle agent root_alive_check {
 	methods:
 	
 			"any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "true"),
-				ifvarclass => "site_alivecheck_restart_jetty",
-				classes => set_persist_classes("site_alivecheck_jetty_restarted", "site_down_once" ,"0");
+				ifvarclass => "site_alivecheck_restart_jetty_$(sitename)",
+				classes => set_persist_classes("site_alivecheck_jetty_restarted_$(sitename)", "site_down_once_$(sitename)" ,"0");
 
 	commands:
 
-			"/usr/bin/curl"
-				args => "-f $(site_to_check)",
+			"/usr/bin/curl -s $(site_to_check) |/bin/grep -q OK"
 				contain => in_shell_silent,
-        			classes => set_persist_classes_alivecheck("site_ok", "$(failed_result_class)", "@(root_alive_check.cleanup_failed_classes)", "$(site_failure_persist_time)"),
+        			classes => set_persist_classes_alivecheck("site_ok", "$(failed_result_class)", "@(generic_alive_check.cleanup_failed_classes)", "$(site_failure_persist_time)"),
 			        comment => "Checking if $(site_to_check) is alive";
 
 	reports:
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder web application is running"
-				ifvarclass => "site_ok.!site_down";
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application is running"
+				ifvarclass => "site_ok.!site_down_once_$(sitename)";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder web application is DOWN!"
-				ifvarclass => "site_down";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#This is the first time the $(site_to_check) web application failed to respond. Deferring the restart."
+				ifvarclass => "site_down_once_$(sitename).!site_alivecheck_restart_jetty_$(sitename)";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#This is the first time the web application failed to respond. Deferring the restart."
-				ifvarclass => "site_down_once";
-
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The web application failed to respond for the second time. Restarting jetty NOW !"
-				ifvarclass => "site_alivecheck_restart_jetty";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application failed to respond for the second time. Restarting jetty NOW !"
+				ifvarclass => "site_alivecheck_restart_jetty_$(sitename)";
 
 }
 
