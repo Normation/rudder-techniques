@@ -85,21 +85,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>POLICYCHILDREN</NAME>
         <DESCRIPTION>List of node that receive policies from this machine</DESCRIPTION>
-        <MULTIVALUED>true</MULTIVALUED>
       </INPUT>
       </SECTION>
       <SECTION name="childrenIdSection" multivalued="true">
       <INPUT>
         <NAME>CHILDRENID</NAME>
         <DESCRIPTION>List of uids of nodes that receive policies from this machine</DESCRIPTION>
-        <MULTIVALUED>true</MULTIVALUED>
       </INPUT>
       </SECTION>
       <SECTION name="adminSection" multivalued="true">
       <INPUT>
         <NAME>ADMIN</NAME>
         <DESCRIPTION>List of admins of nodes that receive policies from this machine</DESCRIPTION>
-        <MULTIVALUED>true</MULTIVALUED>
       </INPUT>
       </SECTION>
       <SECTION name="authorizedNetworkSection" multivalued="true">
@@ -107,7 +104,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <NAME>ALLOWEDNETWORK</NAME>
         <DESCRIPTION>The network(s) allowed to connect to the server (can use the / parameter)</DESCRIPTION>
         <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
-        <MULTIVALUED>true</MULTIVALUED>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
