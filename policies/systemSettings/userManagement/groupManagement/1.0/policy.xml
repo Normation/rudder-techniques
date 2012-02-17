@@ -22,7 +22,7 @@ It is intended to check the group parameters on the target host.
 -->
 
 <TECHNIQUE name="Group management">
-  <DESCRIPTION>This policy template manages the target host(s) groups.
+  <DESCRIPTION>This technique manages the target host(s) groups.
 
   It will ensure that the defined groups are present on the system.</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>

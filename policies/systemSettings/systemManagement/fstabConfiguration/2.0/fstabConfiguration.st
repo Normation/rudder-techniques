@@ -104,15 +104,15 @@ bundle agent check_fstab_configuration {
 
                 fstab_kept.!fstab_edited::
 
-			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was in accordance with the required policy";
+			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was in accordance with the required directive";
 
                 fstab_edited::
 
-			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was edited by at least one instance of this policy template";
+			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was edited by at least one directive derived from this technique";
 
                 fstab_failed::
 
-			"@@fstabConfiguration@@log_warn@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file could NOT be edited by at least one instance of this policy template!";
+			"@@fstabConfiguration@@log_warn@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file could NOT be edited by at least one instance of this technique!";
 
                 windows::
 
@@ -174,7 +174,7 @@ reports:
 		"@@fstabConfiguration@@result_repaired@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) has been handled"
 			ifvarclass => "line_$(index)_handled";
 
-		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) is already in accordance with the policy"
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) is already in accordance with the directive"
 			ifvarclass => "line_$(index)_kept.!line_$(index)_handled.!empty_origin_$(index)";
 
 		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) contained the proper fields"
@@ -183,9 +183,9 @@ reports:
 		"@@fstabConfiguration@@result_error@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) could not be handled"
 			ifvarclass => "line_$(index)_handle_failed";
 
-		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) was not present but policy required alteration only. This line will be ignored"
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][origin]) to $($(data_array)[$(index)][destination]) was not present but directive required alteration only. This line will be ignored"
 			ifvarclass => "!addentry_$(index).!line_$(index)_handled.!line_$(index)_kept.!line_$(index)_handle_failed.use_origin_$(index)";
 
-		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) was not present but policy required alteration only. This line will be ignored"
+		"@@fstabConfiguration@@result_success@@$($(data_array)[$(index)][uuid])@@fstabConfiguration@@$($(data_array)[$(index)][destination])@@$(g.execRun)##$(g.uuid)@#The entry for $($(data_array)[$(index)][destination]) was not present but directive required alteration only. This line will be ignored"
 			ifvarclass => "!addentry_$(index).!line_$(index)_handled.!line_$(index)_kept.!line_$(index)_handle_failed.!use_origin_$(index)";
 }

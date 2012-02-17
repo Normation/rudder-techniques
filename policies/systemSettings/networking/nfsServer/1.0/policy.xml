@@ -75,7 +75,7 @@ required mount points are set with the right options.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_READWRITE</NAME>
-        <DESCRIPTION>Which access policy do you want to apply</DESCRIPTION>
+        <DESCRIPTION>Which access directive do you want to apply</DESCRIPTION>
         <ITEM>
           <LABEL>Read/Write</LABEL>
           <VALUE>rw</VALUE>
@@ -90,7 +90,7 @@ required mount points are set with the right options.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_SYNC</NAME>
-        <DESCRIPTION>Which writing policy do you want to apply</DESCRIPTION>
+        <DESCRIPTION>Which writing directive do you want to apply</DESCRIPTION>
         <LONGDESCRIPTION>Synchronized mode is advised for a safe usage and is the default, Asynchronized mode is mainly used if performance is required over all (This violates the plain NFS protocol and might not be compatible with all implementations)</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Synchronized</LABEL>

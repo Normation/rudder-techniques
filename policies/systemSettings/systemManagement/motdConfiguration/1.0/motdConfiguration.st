@@ -57,11 +57,11 @@ reports:
 
 	motd_file_kept.!motd_file_edited::
 
-		"@@motdConfiguration@@result_success@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The MOTD is in conformance with the policy";
+		"@@motdConfiguration@@result_success@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The MOTD is in conformance with the directive";
 
 	motd_file_edited::
 
-		"@@motdConfiguration@@result_repaired@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The MOTD was successfully edited to match the policy";
+		"@@motdConfiguration@@result_repaired@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The MOTD was successfully edited to match the directive";
 
 	motd_file_failed::
 
@@ -73,6 +73,6 @@ reports:
 
 	windows::
 
-		"@@motdConfiguration@@result_error@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#This is a Windows machine. This Policy Template currently incompatible with it";
+		"@@motdConfiguration@@result_error@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#This is a Windows machine. This technique is currently incompatible with it";
 
 }

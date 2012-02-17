@@ -16,5 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <xml>
     <name>Networking</name>
-    <description>This sub-category contains policy templates to configure networking on a system (DNS, routing, interfaces...)</description>
+    <description>This sub-category contains techniques to configure networking on a system (DNS, routing, interfaces...)</description>
 </xml>

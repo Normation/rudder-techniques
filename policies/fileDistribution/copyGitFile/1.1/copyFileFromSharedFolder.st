@@ -39,7 +39,7 @@ bundle agent download_from_shared_folder {
                 &COPYFILE_DESTINATION:{destination |"copyfile[&i&][destination]" string => "&destination&";
 }&
 
-                &TRACKINGKEY:{piuuid |"copyfile[&i&][uuid]" string => "&piuuid&";
+                &TRACKINGKEY:{directiveId |"copyfile[&i&][uuid]" string => "&directiveId&";
 }&
 		"shared_folder" string => "&SHARED_FILES_FOLDER&";
 

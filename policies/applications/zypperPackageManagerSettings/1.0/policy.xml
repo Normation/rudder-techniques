@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <TECHNIQUE name="Zypper package manager configuration">
-  <DESCRIPTION>This policy template configure the Zypper package manager.</DESCRIPTION>
+  <DESCRIPTION>This technique configure the Zypper package manager.</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
 

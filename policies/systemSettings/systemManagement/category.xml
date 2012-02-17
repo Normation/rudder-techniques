@@ -16,5 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <xml>
     <name>System management</name>
-    <description>This category contains policy templates to manage all system related parameters, such as fstab, ...</description>
+    <description>This category contains techniques to manage all system related parameters, such as fstab, ...</description>
 </xml>

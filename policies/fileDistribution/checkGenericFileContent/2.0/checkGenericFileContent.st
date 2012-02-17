@@ -45,7 +45,7 @@ bundle agent check_generic_file_content {
 				&GENERIC_FILE_CONTENT_POST_HOOK_COMMAND:{command |"generic_file_content_posthook[&i&]" string => "&command&";
 }&
 
-                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
+                &TRACKINGKEY:{directiveId |"generic_file_content_uuid[&i&]" string => "&directiveId&";
 }&
 
 		"index" slist => getindices("generic_file_content_path");
@@ -86,7 +86,7 @@ classes:
         (linux|windows)::
 
 			# Files edition
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
+                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the directive"
 					ifvarclass => "content_$(index)_kept.!content_$(index)_modified";
 
 		"@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated"

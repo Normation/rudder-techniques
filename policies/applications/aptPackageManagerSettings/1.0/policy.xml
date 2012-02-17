@@ -23,7 +23,7 @@ appreciated by administrators on the APT package
 manager, and eventually enforce them.
 -->
 <TECHNIQUE name="APT package manager configuration">
-  <DESCRIPTION>This policy template configure the APT package manager.</DESCRIPTION>
+  <DESCRIPTION>This technique configure the APT package manager.</DESCRIPTION>
 
   <BUNDLES>
     <NAME>check_apt_settings</NAME>

@@ -15,9 +15,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <xml>
-    <name>System policy templates</name>
+    <name>System techniques</name>
     <description>
-        That category contains system and library policy template. 
+        That category contains system and library technique. 
         These package should not be used directly. 
     </description>
     <system>true</system>

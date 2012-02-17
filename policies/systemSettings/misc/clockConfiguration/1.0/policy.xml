@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!-- This policy template sets generalist clock parameters like NTP servers and timezones -->
+<!-- This technique sets generalist clock parameters like NTP servers and timezones -->
 <TECHNIQUE name="Time settings">
   <DESCRIPTION>Configure system clock (automatic updates via NTP, time zone, ...)</DESCRIPTION>
   <COMPATIBLE>

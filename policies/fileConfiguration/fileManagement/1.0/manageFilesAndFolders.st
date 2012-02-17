@@ -42,7 +42,7 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_DELETION_PATTERN:{pattern |"file[&i&][pattern]" string => "&pattern&";
 }&
-		&TRACKINGKEY:{piuuid |"file[&i&][uuid]" string => "&piuuid&";
+		&TRACKINGKEY:{directiveId |"file[&i&][uuid]" string => "&directiveId&";
 }&
 
 		"index" slist => getindices("file");
