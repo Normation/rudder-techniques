@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <!-- This policy template sets generalist clock parameters like NTP servers and timezones -->
-<POLICY name="Generic CFengine variable definition">
+<TECHNIQUE name="Generic CFengine variable definition">
   <DESCRIPTION>Configures a generic CFengine variable in a common bundle, to be used in another Policy Template. This Policy Template does nothing by itself, you must reuse the variable(s) you will create here in another Policy Template with the form  : $(generic_variable_definition.variablename)</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
@@ -59,4 +59,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>

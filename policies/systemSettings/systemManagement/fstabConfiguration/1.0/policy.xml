@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if the fstab is up to date with the
 given parameters.
 -->
-<POLICY name="Fstab configuration">
+<TECHNIQUE name="Fstab configuration">
   <DESCRIPTION>Configures the system fstab</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
@@ -406,4 +406,4 @@ given parameters.
       </SELECT1>
     </SECTION>
   </SECTIONS>
-</POLICY>
+</TECHNIQUE>

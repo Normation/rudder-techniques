@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if the NFS server is installed and if the
 required mount points are set with the right options.
 -->
-<POLICY name="NFS Server">
+<TECHNIQUE name="NFS Server">
   <DESCRIPTION>Configure a NFS server</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
@@ -187,4 +187,4 @@ required mount points are set with the right options.
     </SECTION>
   </SECTIONS>
 
-</POLICY>
+</TECHNIQUE>

@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if the NFS client is installed and if the
 required mount points are set with the right options.
 -->
-<POLICY name="NFS Client">
+<TECHNIQUE name="NFS Client">
   <DESCRIPTION>Configure an NFS Client</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
@@ -118,4 +118,4 @@ required mount points are set with the right options.
     </SECTION>
   </SECTIONS>
 
-</POLICY>
+</TECHNIQUE>

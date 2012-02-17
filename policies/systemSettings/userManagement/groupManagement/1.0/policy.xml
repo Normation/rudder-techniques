@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check the group parameters on the target host.
 -->
 
-<POLICY name="Group management">
+<TECHNIQUE name="Group management">
   <DESCRIPTION>This policy template manages the target host(s) groups.
 
   It will ensure that the defined groups are present on the system.</DESCRIPTION>
@@ -60,4 +60,4 @@ It is intended to check the group parameters on the target host.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>

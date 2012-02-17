@@ -22,7 +22,7 @@ It is intended to set a bunch of options commonly
 appreciated by administrators on the APT package
 manager, and eventually enforce them.
 -->
-<POLICY name="APT package manager configuration">
+<TECHNIQUE name="APT package manager configuration">
   <DESCRIPTION>This policy template configure the APT package manager.</DESCRIPTION>
 
   <BUNDLES>
@@ -241,4 +241,4 @@ manager, and eventually enforce them.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>

@@ -23,7 +23,7 @@ and to ensure certain parameters are met, such as the
 presence of a package, and if not met to enforce them.
 -->
 
-<POLICY name="Package management for RHEL / CentOS / SuSE / RPM systems">
+<TECHNIQUE name="Package management for RHEL / CentOS / SuSE / RPM systems">
   <DESCRIPTION>This policy template operates on individual packages.
 
   It will ensure that the defined packages are installed, up-to-date or removed using the yum/zypper package manager.</DESCRIPTION>
@@ -81,4 +81,4 @@ presence of a package, and if not met to enforce them.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>

@@ -13,7 +13,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<POLICY name="RUG / YaST package manager configuration (ZMD)">
+<TECHNIQUE name="RUG / YaST package manager configuration (ZMD)">
   <DESCRIPTION>This policy template configures the RUG and YaST package manager using Novell's ZMD.</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
@@ -205,4 +205,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>

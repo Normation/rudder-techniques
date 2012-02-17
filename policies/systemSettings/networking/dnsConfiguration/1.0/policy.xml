@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 It is intended to check if the required DNS entries are set.
 -->
-<POLICY name="Name resolution">
+<TECHNIQUE name="Name resolution">
   <DESCRIPTION>Configure DNS lookups</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
@@ -90,4 +90,4 @@ It is intended to check if the required DNS entries are set.
     </SECTION>
   </SECTIONS>
 
-</POLICY>
+</TECHNIQUE>
