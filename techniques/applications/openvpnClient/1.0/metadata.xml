@@ -30,7 +30,7 @@ It then adds openvpn to the boot init scripts if not already set to start on boo
 
   Configuration will create a rudder.conf file.
 
-  As of this version, only the PSK peer identification method is supported, please use the "Download File" Policy Template to distribute the secret key.
+  As of this version, only the PSK peer identification method is supported, please use the "Download File" Technique to distribute the secret key.
   </DESCRIPTION>
 
   <BUNDLES>

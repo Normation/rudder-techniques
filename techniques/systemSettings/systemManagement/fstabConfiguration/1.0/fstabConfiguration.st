@@ -116,7 +116,7 @@ bundle agent check_fstab_configuration {
 
                 windows::
 
-			"@@fstabConfiguration@@result_error@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstabConfiguration Policy Template is not intended to be run on windows. Skipping.";
+			"@@fstabConfiguration@@result_error@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstabConfiguration Technique is not intended to be run on windows. Skipping.";
 
 }
 

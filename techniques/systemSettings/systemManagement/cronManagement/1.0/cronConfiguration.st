@@ -122,6 +122,6 @@ reports:
 
 	windows::
 
-		"@@cronConfiguration@@result_error@@$(cron_uuid[$(cron_index)])@@cronConfiguration@@None@@$(g.execRun)##$(g.uuid)@#This is a Windows machine. This Policy Template currently incompatible with it";
+		"@@cronConfiguration@@result_error@@$(cron_uuid[$(cron_index)])@@cronConfiguration@@None@@$(g.execRun)##$(g.uuid)@#This is a Windows machine. This Technique currently incompatible with it";
 
 }

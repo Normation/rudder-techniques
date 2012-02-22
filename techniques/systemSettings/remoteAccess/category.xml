@@ -16,5 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <xml>
     <name>Remote access</name>
-    <description>This sub-category contains policy templates to configure remote access to a system (SSH, RDP, VNC, ...)</description>
+    <description>This sub-category contains Techniques to configure remote access to a system (SSH, RDP, VNC, ...)</description>
 </xml>

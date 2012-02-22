@@ -16,5 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <xml>
     <name>Application management</name>
-    <description>This category contains policy templates designed to install, configure and manage applications</description>
+    <description>This category contains Techniques designed to install, configure and manage applications</description>
 </xml>

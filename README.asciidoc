@@ -34,8 +34,8 @@ http://www.rudder-project.org/HowToContribute
 
 === Synopsis
 
-This project regroups the Policy Templates Library of Rudder, which enables Rudder to perform
-every task configured in its interface using the CFengine configuration management software.
+This repository contains the Techniques Library of Rudder, which enables Rudder to perform
+every task configured in its interface using the CFEngine configuration management software.
 
 This project is composed of three directories:
 
@@ -44,15 +44,15 @@ initial-promises:: Contains the cfengine promises used to "bootstrap" a new Rudd
                    and make him send his inventory to the Rudder server in order to be
                    recognized by the system
 
-policies:: The Policy Templates Library
+techniques:: The Techniques Library
 
-tools:: Contains the tools used by the PTL to perform every task
+tools:: Contains the tools used by the Techniques Library to perform some tasks
 
 === Usage
 
 This project is part of Rudder, and as such is bundled with every Rudder server.
 
-However, if you want to test a new release of the policy templates or use a more up
+However, if you want to test a new release of the Techniques or use a more up
 to date revision, you can clone this repository and copy it's contents to the appropriate
 directories in /var/rudder.
 

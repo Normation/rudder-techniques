@@ -90,13 +90,13 @@ bundle common server_info {
                       comment => "Path to file containing address to policy server";     
         
             "cfserved" string      =>  readfile("$(policy_server_file)", 40);            #server IP
-			"policy_files" string  => "/var/cfengine/masterfiles";   #the bootstrap policies, in case of error
+			"policy_files" string  => "/var/cfengine/masterfiles";   #the bootstrap promises, in case of error
 }
 
 bundle agent update {
     vars:
         any::            
-            "server_inputs" string => "${server_info.policy_files}"; #the bootstrap policies, in case of error
+            "server_inputs" string => "${server_info.policy_files}"; #the bootstrap promises, in case of error
             "client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
 
     files:

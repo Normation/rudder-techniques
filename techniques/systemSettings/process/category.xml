@@ -16,5 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <xml>
     <name>Process</name>
-    <description>This sub-category contains policy templates to enforce some system process policies</description>
+    <description>This sub-category contains Techniques to enforce some system process policies</description>
 </xml>

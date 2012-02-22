@@ -118,7 +118,7 @@ body agent control {
 body executor control {
     splaytime => "1";
 
-    exec_command => "$(sys.workdir)/bin/cf-agent"; # No failsafe in the init policies
+    exec_command => "$(sys.workdir)/bin/cf-agent"; # No failsafe in the initial promises
     schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
     executorfacility => "LOG_DAEMON";
 }

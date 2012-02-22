@@ -15,8 +15,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <!-- This policy template sets generalist clock parameters like NTP servers and timezones -->
-<TECHNIQUE name="Generic CFengine variable definition">
-  <DESCRIPTION>Configures a generic CFengine variable in a common bundle, to be used in another Policy Template. This Policy Template does nothing by itself, you must reuse the variable(s) you will create here in another Policy Template with the form  : $(generic_variable_definition.variablename)</DESCRIPTION>
+<TECHNIQUE name="Generic CFEngine variable definition">
+  <DESCRIPTION>Configures a generic CFEngine variable in a common bundle, to be used in another Technique. This Technique does nothing by itself, you must reuse the variable(s) you will create here in another Technique with the form: $(generic_variable_definition.variablename)</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable name</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEXP error="Please enter a valid CFengine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEXP>
+          <REGEXP error="Please enter a valid CFEngine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEXP>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -46,7 +46,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable content</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEXP error="Please enter a valid CFengine variable content"><![CDATA[ [^"&]*[^"&\\] ]]></REGEXP>
+          <REGEXP error="Please enter a valid CFEngine variable content"><![CDATA[ [^"&]*[^"&\\] ]]></REGEXP>
         </CONSTRAINT>
       </INPUT>
     </SECTION>

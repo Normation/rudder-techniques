@@ -16,5 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <xml>
     <name>Job scheduling</name>
-    <description>This category contains policy templates to schedule jobs across groups of nodes</description>
+    <description>This category contains Techniques to schedule jobs across groups of nodes</description>
 </xml>

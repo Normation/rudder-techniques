@@ -73,6 +73,6 @@ reports:
 
 	windows::
 
-		"@@motdConfiguration@@result_error@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#This is a Windows machine. This Policy Template currently incompatible with it";
+		"@@motdConfiguration@@result_error@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#This is a Windows machine. This Technique currently incompatible with it";
 
 }

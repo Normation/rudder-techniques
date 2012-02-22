@@ -15,8 +15,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <xml>
-    <name>Reference policy template library's root</name>
+    <name>Technique library root</name>
     <description>
-        This is the root category for the Policy Templates reference library. It contains Policy Templates provided by Normation.
+        This is the root category for the Techniques library. It contains Techniques provided by Normation.
     </description>
 </xml>

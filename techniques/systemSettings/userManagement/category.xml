@@ -16,5 +16,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <xml>
     <name>User management</name>
-    <description>This category contains policy templates to manage all user related parameters, such as group and user creation, sudo parameters...</description>
+    <description>This category contains Techniques to manage all user related parameters, such as group and user creation, sudo parameters...</description>
 </xml>
