@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<POLICY name="Job scheduler">
+<TECHNIQUE name="Job scheduler">
   <DESCRIPTION>Runs commands, optionally in the background, optionally with a random distribution across nodes. The command will be run on all nodes, with execution time spread over the period selected. Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
@@ -282,4 +282,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
     </SECTION>
   </SECTIONS>
-</POLICY>       
+</TECHNIQUE>       

@@ -23,7 +23,7 @@ supported source (such as HTTP) and store it on
 the given destination.
 -->
 
-<POLICY name="Download a file">
+<TECHNIQUE name="Download a file">
   <DESCRIPTION>This policy template downloads a file from a server.
 
   It takes a cURL compatible source (HTTP/FTP/...) and a destination on the target host.
@@ -83,4 +83,4 @@ the given destination.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>       

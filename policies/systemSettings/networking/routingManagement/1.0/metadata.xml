@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check the defined routes, by OS,
 and to ensure they are present if required.
 -->
-<POLICY name="IPv4 routing management">
+<TECHNIQUE name="IPv4 routing management">
   <DESCRIPTION>This policy template operates on the system routing table.
 
   It will ensure that the defined routes are present, and will add them if required.</DESCRIPTION>
@@ -100,4 +100,4 @@ and to ensure they are present if required.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>       

@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 It is intended to check if all the required SSH keys are installed.
 -->
-<POLICY name="SSH keys distribution">
+<TECHNIQUE name="SSH keys distribution">
   <DESCRIPTION>This policy template will check if the required SSH keys are present on a user directory.</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
@@ -78,4 +78,4 @@ It is intended to check if all the required SSH keys are installed.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>       

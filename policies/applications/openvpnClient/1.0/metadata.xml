@@ -23,7 +23,7 @@ then check if it is started on boot.
 
 It then adds openvpn to the boot init scripts if not already set to start on boot.
 -->
-<POLICY name="OpenVPN client">
+<TECHNIQUE name="OpenVPN client">
   <DESCRIPTION>This policy template will configure the OpenVPN client service and ensure it is running.
 
   It will ensure the "openvpn" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.
@@ -266,4 +266,4 @@ It then adds openvpn to the boot init scripts if not already set to start on boo
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>       

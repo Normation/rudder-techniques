@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<POLICY name="Distribute the policy to servers">
+<TECHNIQUE name="Distribute the policy to servers">
   <DESCRIPTION>Distribute policy</DESCRIPTION>
 
   <BUNDLES>
@@ -69,4 +69,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="distribute">
     </SECTION>
   </SECTIONS>
-</POLICY>
+</TECHNIQUE>

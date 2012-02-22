@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 It is intended to check the user parameters on the target host.
 -->
-<POLICY name="User management">
+<TECHNIQUE name="User management">
   <DESCRIPTION>This policy template manages the target host(s) users.
 
   It will ensure that the defined users are present on the system.</DESCRIPTION>
@@ -129,4 +129,4 @@ It is intended to check the user parameters on the target host.
     </SECTION>
   </SECTIONS>
 
-</POLICY>       
+</TECHNIQUE>       
