@@ -266,4 +266,4 @@ It then adds openvpn to the boot init scripts if not already set to start on boo
     </SECTION>
   </SECTIONS>
 
-</TECHNIQUE>       
+</TECHNIQUE>

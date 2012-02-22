@@ -609,4 +609,5 @@ It then adds ssh to the boot init scripts if not already set to start on boot.
       </SELECT1>
     </SECTION>
   </SECTIONS>
-</TECHNIQUE>       
+
+</TECHNIQUE>

@@ -17,7 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <TECHNIQUE name="Enforce a file content">
   <DESCRIPTION>Checks if a file matches a given content and if not, updates it</DESCRIPTION>
 
-  <!--  <CONFIGURATIONPOLICY>false</CONFIGURATIONPOLICY> -->
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
