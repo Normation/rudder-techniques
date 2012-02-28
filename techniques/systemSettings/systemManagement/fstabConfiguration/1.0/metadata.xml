@@ -26,7 +26,7 @@ given parameters.
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
-    <AGENT version=">= 3.5">cfengine-community</AGENT>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>

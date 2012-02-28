@@ -34,7 +34,7 @@ It then adds apache to the boot init scripts if not already set to start on boot
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
     <OS version=">= 11 SP1 (Celadon)">SuSE LES / DES / OpenSuSE</OS>
-    <AGENT version=">= 3.5">cfengine-community</AGENT>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
 
