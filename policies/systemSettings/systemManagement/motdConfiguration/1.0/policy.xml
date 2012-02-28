@@ -24,7 +24,7 @@ It is intended to check if the required motd is installed.
   <DESCRIPTION>This policy template will check if the required Message Of The Day is present on the system.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
-    <AGENT version=">= 3.5">cfengine-community</AGENT>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <MULTIINSTANCE>false</MULTIINSTANCE>
