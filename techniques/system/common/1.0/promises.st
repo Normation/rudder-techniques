@@ -39,7 +39,7 @@ body common control {
 
 bundle common va {
   vars:
-    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "check_binaries_freshness", "e2s_enable"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "e2s_enable"
      };
 
 
@@ -328,6 +328,24 @@ bundle agent check_cron_daemon {
 
         !restart_crond.!crond_restarted.!crond_failed::
             "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon is running";
+
+}
+
+########################################################
+# Trash every output report older than 30 days         #
+########################################################
+
+bundle agent garbage_collection
+{
+
+	files:
+
+		"$(sys.workdir)/outputs" 
+
+			delete => tidy,
+			file_select => days_old("30"),
+			depth_search => recurse("inf");
+
 
 }
 
