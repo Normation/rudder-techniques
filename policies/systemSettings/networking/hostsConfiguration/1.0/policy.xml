@@ -39,8 +39,7 @@ It is intended to check if the required hosts entries are set.
   </TMLS>
   
   <SECTIONS>
-    <!-- resolver settings , index 1-->
-    <SECTION name="Hosts settings" multivalued="true">
+    <SECTION name="Enforce the content of the ihost file">
       <INPUT>
         <NAME>HOSTS_ENFORCE</NAME>
         <DESCRIPTION>Force the hosts file content</DESCRIPTION>
@@ -49,6 +48,9 @@ It is intended to check if the required hosts entries are set.
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
+    </SECTION>
+    <!-- resolver settings , index 1-->
+    <SECTION name="Hosts settings" multivalued="true">
       <INPUT>
         <NAME>HOSTS_HOST</NAME>
         <DESCRIPTION>Hostname</DESCRIPTION>
