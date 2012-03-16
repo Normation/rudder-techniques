@@ -203,15 +203,13 @@ bundle agent check_uuid {
 # This only works with unix flavoured system
 
 bundle agent check_log_system {
-  processes:
-	"rsyslogd"
-		process_count => islaunched("rsyslogd");
+  classes:
 
-	"syslog-ng"
-		process_count => islaunched("syslogng");
+	"rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
-	"[^r]syslogd"
-		process_count => islaunched("syslogd");
+	"syslogng" expression => fileexists("/etc/syslog-ng/syslog-ng.conf");
+
+	"syslogd" expression => fileexists("/etc/syslog.conf");
 
   files:
   	linux.rsyslogd.!policy_server::
@@ -266,8 +264,6 @@ bundle agent check_log_system {
 
 
   reports:
-    linux.no_rsyslogd.no_syslogng.no_syslogd::
-    	"@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Logging system not recognized, cannot setup logs for report centralization";
 
 	syslogd::
 		"@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Detected running syslog as syslogd";
