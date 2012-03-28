@@ -91,6 +91,10 @@ vars:
 
 	"hosts_index" slist => getindices("$(hosts)");
 
+delete_lines:
+
+	"$($(ips)[$(hosts_index)]).*";
+
 insert_lines:
 
 &if (HOSTS_ENFORCE)&
