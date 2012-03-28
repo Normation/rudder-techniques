@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if the required hosts entries are set.
 -->
 <POLICY name="Hosts settings">
-  <DESCRIPTION>Configure Hosts file</DESCRIPTION>
+  <DESCRIPTION>This technique configures the machine hosts file. Be careful: The IP address is used as the key reference for any edition and if multiple hosts have been specified with the same IP in the hosts file, the matching entry defined here will take precedence and erase all the other occurrences of the same IP</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
@@ -39,7 +39,7 @@ It is intended to check if the required hosts entries are set.
   </TMLS>
   
   <SECTIONS>
-    <SECTION name="Enforce the content of the ihost file">
+    <SECTION name="Enforce the content of the host file">
       <INPUT>
         <NAME>HOSTS_ENFORCE</NAME>
         <DESCRIPTION>Force the hosts file content</DESCRIPTION>
