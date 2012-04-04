@@ -108,11 +108,11 @@ bundle agent check_fstab_configuration {
 
                 fstab_edited::
 
-			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was edited by at least one instance of this policy template";
+			"@@fstabConfiguration@@log_info@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file was edited by at least one instance of this technique";
 
                 fstab_failed::
 
-			"@@fstabConfiguration@@log_warn@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file could NOT be edited by at least one instance of this policy template!";
+			"@@fstabConfiguration@@log_warn@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file could NOT be edited by at least one instance of this technique!";
 
                 windows::
 

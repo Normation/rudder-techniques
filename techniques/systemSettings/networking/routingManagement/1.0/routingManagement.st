@@ -39,7 +39,7 @@ bundle agent check_routing_parameters {
 		&ROUTING_FOUR_ACTION:{action |"action[&i&]" string => "&action&";
 }&
 
-		&TRACKINGKEY:{piuuid |"routing_policy_instance_uuid[&i&]" string => "&piuuid&";
+		&TRACKINGKEY:{directiveId |"routing_directive_id[&i&]" string => "&directiveId&";
 }&
 
 		"routing_index" slist => getindices("route");
@@ -94,37 +94,37 @@ bundle agent check_routing_parameters {
 
 		(windows|linux).checkroute_present::
 			
-			"@@routingManagement@@result_success@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) found, as expected."
+			"@@routingManagement@@result_success@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) found, as expected."
 				ifvarclass => canonify("route_$(routing_index)_found");
 
 			# This should be a log_warn, when it's supported
-			"@@routingManagement@@result_error@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) found, and policy is: Check absence!"
+			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) found, and policy is: Check absence!"
 				ifvarclass => canonify("route_$(routing_index)_found_warn");
 
-			"@@routingManagement@@result_success@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found, as expected"
+			"@@routingManagement@@result_success@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found, as expected"
 				ifvarclass => canonify("route_$(routing_index)_notfound");
 
 			# This should be a log_warn, when it's supported
-			"@@routingManagement@@result_error@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found , and policy is: Check presence!"
+			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found , and policy is: Check presence!"
 				ifvarclass => canonify("route_$(routing_index)_notfound_warn");
 
-			"@@routingManagement@@log_info@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found, attempting to add route..."
+			"@@routingManagement@@log_info@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found, attempting to add route..."
 				ifvarclass => canonify("route_$(routing_index)_add");
 
-			"@@routingManagement@@result_repaired@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) added successfully!"
+			"@@routingManagement@@result_repaired@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) added successfully!"
 				ifvarclass => canonify("route_$(routing_index)_added");
 
-			"@@routingManagement@@result_error@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not add route $(displayName[$(routing_index)])!"
+			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not add route $(displayName[$(routing_index)])!"
 				ifvarclass => canonify("route_$(routing_index)_add_failed");
 
-			"@@routingManagement@@result_repaired@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) deleted successfully!"
+			"@@routingManagement@@result_repaired@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) deleted successfully!"
 				ifvarclass => canonify("route_$(routing_index)_deleted");
 
-			"@@routingManagement@@result_error@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not delete route $(displayName[$(routing_index)])!"
+			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not delete route $(displayName[$(routing_index)])!"
 				ifvarclass => canonify("route_$(routing_index)_delete_failed");
 
 		(windows|linux).!checkroute_present::
 
-			"@@routingManagement@@result_error@@$(routing_policy_instance_uuid[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not add route $(displayName[$(routing_index)]): helper program checkroute.pl not found!";
+			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not add route $(displayName[$(routing_index)]): helper program checkroute.pl not found!";
 
 }

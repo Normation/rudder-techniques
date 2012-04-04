@@ -24,7 +24,7 @@ the given destination.
 -->
 
 <TECHNIQUE name="Download a file">
-  <DESCRIPTION>This policy template downloads a file from a server.
+  <DESCRIPTION>This technique downloads a file from a server.
 
   It takes a cURL compatible source (HTTP/FTP/...) and a destination on the target host.
   </DESCRIPTION>

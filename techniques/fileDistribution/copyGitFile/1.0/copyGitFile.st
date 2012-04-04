@@ -48,7 +48,7 @@ bundle agent download_file_from_git {
                 &COPYFILE_GIT_DEST:{destination |"copyfile_git_dest[&i&]" string => "&destination&";
 }&
 
-                &TRACKINGKEY:{piuuid |"copyfile_git_uuid[&i&]" string => "&piuuid&";
+                &TRACKINGKEY:{directiveId |"copyfile_git_uuid[&i&]" string => "&directiveId&";
 }&
 
 		"index" slist => getindices("copyfile_git_name");
@@ -119,7 +119,7 @@ reports:
 
 }
 
-bundle agent check_git_installation(piuuid) {
+bundle agent check_git_installation(directiveId) {
 
         packages:
 
@@ -141,12 +141,12 @@ bundle agent check_git_installation(piuuid) {
         reports:
 
                 git_here::
-                        "@@copyGitFile@@result_success@@$(piuuid)@@GIT Installation@@None@@$(g.execRun)##$(g.uuid)@#git already installed";
+                        "@@copyGitFile@@result_success@@$(directiveId)@@GIT Installation@@None@@$(g.execRun)##$(g.uuid)@#git already installed";
 
                 git_installed::
-                        "@@copyGitFile@@result_repaired@@$(piuuid)@@GIT Installation@@None@@$(g.execRun)##$(g.uuid)@#git installed";
+                        "@@copyGitFile@@result_repaired@@$(directiveId)@@GIT Installation@@None@@$(g.execRun)##$(g.uuid)@#git installed";
 
                 cant_install_git::
-                        "@@copyGitFile@@result_error@@$(piuuid)@@GIT Installation@@None@@$(g.execRun)##$(g.uuid)@#Can't install git";
+                        "@@copyGitFile@@result_error@@$(directiveId)@@GIT Installation@@None@@$(g.execRun)##$(g.uuid)@#Can't install git";
 
 }

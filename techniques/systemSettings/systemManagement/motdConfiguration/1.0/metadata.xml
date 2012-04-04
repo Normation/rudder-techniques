@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if the required motd is installed.
 -->
 <TECHNIQUE name="MOTD configuration">
-  <DESCRIPTION>This policy template will check if the required Message Of The Day is present on the system.</DESCRIPTION>
+  <DESCRIPTION>This technique will check if the required Message Of The Day is present on the system.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>

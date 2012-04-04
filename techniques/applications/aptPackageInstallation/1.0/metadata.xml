@@ -24,7 +24,7 @@ presence of a package, and if not met to enforce them.
 -->
 
 <TECHNIQUE name="Package management for Debian / Ubuntu / APT systems">
-  <DESCRIPTION>This policy template operates on individual packages.
+  <DESCRIPTION>This technique operates on individual packages.
 
   It will ensure that the defined packages are installed, up-to-date or removed using the APT package manager.</DESCRIPTION>
   

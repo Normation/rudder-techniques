@@ -52,7 +52,7 @@ bundle agent check_generic_file_content {
 }&
 			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
 }&
-	                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
+	                &TRACKINGKEY:{directiveId |"generic_file_content_uuid[&i&]" string => "&directiveId&";
 }&
 
 			"index" slist => getindices("generic_file_content_path");

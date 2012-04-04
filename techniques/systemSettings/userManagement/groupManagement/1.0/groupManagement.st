@@ -35,7 +35,7 @@ bundle agent check_usergroup_grp_parameters {
 		&USERGROUP_GROUP_POLICY:{policy |"usergroup_group_policy[&i&]" string => "&policy&";
 }&
 
-		&TRACKINGKEY:{piuuid |"usergroup_group_policy_instance_uuid[&i&]" string => "&piuuid&";
+		&TRACKINGKEY:{directiveId |"usergroup_group_directive_id[&i&]" string => "&directiveId&";
 }&
 
 		"usergroup_group_index" slist => getindices("usergroup_group_name");
@@ -44,11 +44,11 @@ bundle agent check_usergroup_grp_parameters {
 
 		"any"
 
-			usebundle => check_usergroup_group_parameters_grouphandle("$(usergroup_group_name[$(usergroup_group_index)])", "$(usergroup_group_content[$(usergroup_group_index)])", "$(usergroup_group_index)", "$(usergroup_group_policy_instance_uuid[$(usergroup_group_index)])");
+			usebundle => check_usergroup_group_parameters_grouphandle("$(usergroup_group_name[$(usergroup_group_index)])", "$(usergroup_group_content[$(usergroup_group_index)])", "$(usergroup_group_index)", "$(usergroup_group_directive_id[$(usergroup_group_index)])");
 
 }
 
-bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, piuuid) {
+bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, directiveId) {
 
 	classes:
 
@@ -79,13 +79,13 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, 
 
 		linux::
 
-			"@@groupManagement@@result_success@@$(piuuid)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already compliant with the policy"
+			"@@groupManagement@@result_success@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already compliant with the policy"
 				ifvarclass => canonify("group_$(index)_kept.!group_$(index)_added");
 
-			"@@groupManagement@@result_repaired@@$(piuuid)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) has been updated"
+			"@@groupManagement@@result_repaired@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) has been updated"
 				ifvarclass => canonify("group_$(index)_added");
 
-			"@@groupManagement@@result_error@@$(piuuid)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) could not be created or updated"
+			"@@groupManagement@@result_error@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) could not be created or updated"
 				ifvarclass => canonify("group_$(index)_add_failed");
 }
 

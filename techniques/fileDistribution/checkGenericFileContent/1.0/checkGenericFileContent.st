@@ -45,7 +45,7 @@ bundle agent check_generic_file_content {
 &GENERIC_FILE_CONTENT_POST_HOOK_COMMAND:{command |"generic_file_content_posthook[&i&]" string => "&command&";
 }&
 
-                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
+                &TRACKINGKEY:{directiveId |"generic_file_content_uuid[&i&]" string => "&directiveId&";
 }&
 
 		"index" slist => getindices("generic_file_content_path");

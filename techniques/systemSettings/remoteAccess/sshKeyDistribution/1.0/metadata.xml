@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if all the required SSH keys are installed.
 -->
 <TECHNIQUE name="SSH keys distribution">
-  <DESCRIPTION>This policy template will check if the required SSH keys are present on a user directory.</DESCRIPTION>
+  <DESCRIPTION>This technique will check if the required SSH keys are present on a user directory.</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>

@@ -34,7 +34,7 @@ bundle agent check_apt_package_installation {
 		&APT_PACKAGE_DEBACTION:{action |"apt_action[&i&]" string => "&action&";
 		}&
 
-		&TRACKINGKEY:{piuuid |"apt_policy_instance_uuid[&i&]" string => "&piuuid&";
+		&TRACKINGKEY:{directiveId |"apt_directive_id[&i&]" string => "&directiveId&";
 		}&
 
 		# "debian_packagelist"  slist => {&APT_PACKAGE_DEBLIST: { "&it&" };separator=", "&};
@@ -55,13 +55,13 @@ bundle agent check_apt_package_installation {
 
 		debian::
 
-                        "@@packageInstallation@@result_repaired@@$(apt_policy_instance_uuid[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#Performed repair action for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)])"
+                        "@@packageInstallation@@result_repaired@@$(apt_directive_id[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#Performed repair action for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)])"
                                 ifvarclass => canonify("debian_installed_$(apt_package[$(index_aptpkg)])");
 
-                        "@@packageInstallation@@result_error@@$(apt_policy_instance_uuid[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#Error taking action for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)])"
+                        "@@packageInstallation@@result_error@@$(apt_directive_id[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#Error taking action for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)])"
                                 ifvarclass => canonify("debian_install_failed_$(apt_package[$(index_aptpkg)])");
 
-                        "@@packageInstallation@@result_success@@$(apt_policy_instance_uuid[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)])"
+                        "@@packageInstallation@@result_success@@$(apt_directive_id[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)])"
                                 ifvarclass => canonify("debian_install_kept_$(apt_package[$(index_aptpkg)])");
 
 }

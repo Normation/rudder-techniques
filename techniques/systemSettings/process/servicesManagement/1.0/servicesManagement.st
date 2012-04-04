@@ -35,7 +35,7 @@ bundle agent services_management {
 }&
 		&PROCESS_MANAGED_MAX_INSTANCES:{max_instance |"service[&i&][max_instance]" string => "&max_instance&";
 }&
-		&TRACKINGKEY:{piuuid |"service[&i&][uuid]" string => "&piuuid&";
+		&TRACKINGKEY:{directiveId |"service[&i&][uuid]" string => "&directiveId&";
 }&
 
 		"index" slist => getindices("service");

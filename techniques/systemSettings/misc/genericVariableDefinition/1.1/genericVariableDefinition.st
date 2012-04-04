@@ -27,7 +27,7 @@ bundle common generic_variable_definition {
 
 bundle agent generic_variable_def_report {
 	vars:
-                &TRACKINGKEY:{piuuid |"generic_name_uuid[&i&]" string => "&piuuid&";
+                &TRACKINGKEY:{directiveId |"generic_name_uuid[&i&]" string => "&directiveId&";
 }& 
                 &GENERIC_VARIABLE_NAME:{name |"generic_variable_name[&i&]" string => "&name&";
 }&

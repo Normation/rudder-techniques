@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 <TECHNIQUE name="Cron daemon configuration">
-  <DESCRIPTION>This policy template enables you to set tasks (or "jobs") that will be launched regularily using crond.</DESCRIPTION>
+  <DESCRIPTION>This technique enables you to set tasks (or "jobs") that will be launched regularily using crond.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
     <AGENT version=">= 3.2.0">cfengine-community</AGENT>

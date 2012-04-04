@@ -45,7 +45,7 @@ bundle agent check_sudo_parameters {
                 &SUDO_COMMAND:{command |"sudo_entity_command[&i&]" string => "&command&";
 }&
 
-                &TRACKINGKEY:{piuuid |"sudo_policy_instance_uuid[&i&]" string => "&piuuid&";
+                &TRACKINGKEY:{directiveId |"sudo_directive_id[&i&]" string => "&directiveId&";
 }&
 
                 "sudo_index" slist => getindices("sudo_entity_type");
@@ -54,7 +54,7 @@ bundle agent check_sudo_parameters {
 
 		"any"
 
-			usebundle => check_sudo_installation("$(sudo_policy_instance_uuid[$(sudo_index)])");
+			usebundle => check_sudo_installation("$(sudo_directive_id[$(sudo_index)])");
 
 	commands:
 
@@ -89,7 +89,7 @@ bundle agent check_sudo_parameters {
 
 		((sudoers_tmp_ok|sudoers_tmp_copied).(!sudoers_tmp_copy_failed))::
 			"/etc/sudoers.rudder"
-				edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_policy_instance_uuid", "$(sudo_force_content)"),
+				edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_directive_id", "$(sudo_force_content)"),
 				create => "true",
                                 edit_defaults => noempty_backup,
                                 perms => mog("0440", "root", "root"),
@@ -109,22 +109,22 @@ bundle agent check_sudo_parameters {
 
 		sudoers_kept.!sudoers_copied::
 
-			"@@sudoParameters@@result_success@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file did not require any modification";
+			"@@sudoParameters@@result_success@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file did not require any modification";
 
 		sudoers_copied::
 
-			"@@sudoParameters@@result_repaired@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file was fixed and successfully updated";
+			"@@sudoParameters@@result_repaired@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file was fixed and successfully updated";
 
 		temp_sudoers_failed|could_not_copy_sudoers|sudoers_tmp_copy_failed::
 
-			"@@sudoParameters@@result_error@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file could NOT be edited!";
+			"@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file could NOT be edited!";
 
 		sudoers_invalid::
-			"@@sudoParameters@@result_error@@$(sudo_policy_instance_uuid[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
+			"@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
 
 }
 
-bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, piuuid, force) {
+bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId, force) {
 
 vars:
 
@@ -204,16 +204,16 @@ reports:
 
 	all_lines_defined::
 
-		"@@sudoParameters@@log_warn@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#Entry for $($(type)[$(index)]) $($(name)[$(index)]) is invalid (no command given), and has been ignored"
+		"@@sudoParameters@@log_warn@@$($(directiveId)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#Entry for $($(type)[$(index)]) $($(name)[$(index)]) is invalid (no command given), and has been ignored"
 			ifvarclass => "!sudo_$(index)_command_notempty.!sudo_$(index)_alldo";
 
-		"@@sudoParameters@@result_repaired@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) has been handled"
+		"@@sudoParameters@@result_repaired@@$($(directiveId)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) has been handled"
 			ifvarclass => canonify("line_$(index)_added");
 
-		"@@sudoParameters@@result_success@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) is already present"
+		"@@sudoParameters@@result_success@@$($(directiveId)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) is already present"
 			ifvarclass => canonify("line_$(index)_kept");
 
-		"@@sudoParameters@@result_error@@$($(piuuid)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) could not be handled"
+		"@@sudoParameters@@result_error@@$($(directiveId)[$(index)])@@Permissions@@$($(name)[$(index)])@@$(g.execRun)##$(g.uuid)@#The $($(type)[$(index)]) $($(name)[$(index)]) could not be handled"
 			ifvarclass => canonify("line_$(index)_add_failed");
 
 	all_lines_defined.force::
@@ -223,7 +223,7 @@ reports:
 
 }
 
-bundle agent check_sudo_installation(piuuid) {
+bundle agent check_sudo_installation(directiveId) {
 
         packages:
                 linux::
@@ -235,13 +235,13 @@ bundle agent check_sudo_installation(piuuid) {
 
         reports:
                 sudo_here::
-                        "@@sudoParameters@@result_success@@$(piuuid)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo already installed";
+                        "@@sudoParameters@@result_success@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo already installed";
 
                 sudo_installed::
-                        "@@sudoParameters@@result_repaired@@$(piuuid)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo installed";
+                        "@@sudoParameters@@result_repaired@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo installed";
 
                 cant_install_sudo::
-                        "@@sudoParameters@@result_error@@$(piuuid)@@Install@@None@@$(g.execRun)##$(g.uuid)@#Can't install sudo";
+                        "@@sudoParameters@@result_error@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#Can't install sudo";
 
 }
 

@@ -50,7 +50,7 @@ bundle agent check_usergroup_user_parameters {
 		&USERGROUP_USER_SHELL:{shell |"usergroup_user_shell[&i&]" string => "&shell&";
 }&
 
-		&TRACKINGKEY:{piuuid |"usergroup_policy_instance_uuid[&i&]" string => "&piuuid&";
+		&TRACKINGKEY:{directiveId |"usergroup_directive_id[&i&]" string => "&directiveId&";
 }&
 
 		"usergroup_user_index" slist => getindices("usergroup_user_login");
@@ -158,34 +158,34 @@ bundle agent check_usergroup_user_parameters {
 
 		(linux|windows).showtime::
 
-			"@@userGroupManagement@@result_repaired@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been added to the system"
+			"@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been added to the system"
 				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).login_added_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@result_error@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be added to the system"
+			"@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be added to the system"
 				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).login_add_failed_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@result_repaired@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been removed from the system"
+			"@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been removed from the system"
 				ifvarclass => "user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index).login_removed_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@result_error@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be removed from the system"
+			"@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be removed from the system"
 				ifvarclass => "user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index).login_remove_failed_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) does not exist, as required"
+			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) does not exist, as required"
 				ifvarclass => "!user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is already present on the system"
+			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is already present on the system"
 				ifvarclass => "user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index).!login_added_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@log_warn@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which violates the non presence policy"
+			"@@userGroupManagement@@log_warn@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which violates the non presence policy"
 				ifvarclass => "user_exists_$(usergroup_user_index).user_checkabs_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which is in accordance with the non presence policy"
+			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which is in accordance with the non presence policy"
 				ifvarclass => "!user_exists_$(usergroup_user_index).user_checkabs_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@result_success@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which is in conformance with the presence policy"
+			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which is in conformance with the presence policy"
 				ifvarclass => "user_exists_$(usergroup_user_index).user_checkpres_$(usergroup_user_index)";
 
-			"@@userGroupManagement@@log_warn@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which violates the presence policy"
+			"@@userGroupManagement@@log_warn@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which violates the presence policy"
 				ifvarclass => "!user_exists_$(usergroup_user_index).user_checkpres_$(usergroup_user_index)";
 
 }

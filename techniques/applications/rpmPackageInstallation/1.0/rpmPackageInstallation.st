@@ -34,7 +34,7 @@ bundle agent check_rpm_package_installation {
 		&RPM_PACKAGE_REDACTION:{action |"rpm_action[&i&]" string => "&action&";
 		}&
 
-		&TRACKINGKEY:{piuuid |"rpm_policy_instance_uuid[&i&]" string => "&piuuid&";
+		&TRACKINGKEY:{directiveId |"rpm_directive_id[&i&]" string => "&directiveId&";
 		}&
 
 		"index_rpmpkg" slist => getindices("rpm_package");
@@ -61,13 +61,13 @@ bundle agent check_rpm_package_installation {
 
 		redhat|SuSE::
 
-			"@@packageInstallation@@result_repaired@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Performed repair action for RPM package $(rpm_package[$(index_rpmpkg)]) to comply with policy: $(rpm_action[$(index_rpmpkg)])"
+			"@@packageInstallation@@result_repaired@@$(rpm_directive_id[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Performed repair action for RPM package $(rpm_package[$(index_rpmpkg)]) to comply with policy: $(rpm_action[$(index_rpmpkg)])"
 				ifvarclass => canonify("rpm_package_installed_$(rpm_package[$(index_rpmpkg)])");
 
-			"@@packageInstallation@@result_error@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Error taking action for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_action[$(index_rpmpkg)])"
+			"@@packageInstallation@@result_error@@$(rpm_directive_id[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Error taking action for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_action[$(index_rpmpkg)])"
 				ifvarclass => canonify("rpm_package_install_failed_$(rpm_package[$(index_rpmpkg)])");
 
-			"@@packageInstallation@@result_success@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_action[$(index_rpmpkg)])"
+			"@@packageInstallation@@result_success@@$(rpm_directive_id[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_action[$(index_rpmpkg)])"
 				ifvarclass => canonify("rpm_package_install_kept_$(rpm_package[$(index_rpmpkg)])");
 
 }

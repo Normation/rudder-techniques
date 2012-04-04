@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Download a file from the shared folder">
-  <DESCRIPTION>This policy ensure that some files are the copy of files on the shared folder of the Rudder Root Server</DESCRIPTION>
+  <DESCRIPTION>This technique ensures that some files are the copy of files on the shared folder of the Rudder Root Server</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
