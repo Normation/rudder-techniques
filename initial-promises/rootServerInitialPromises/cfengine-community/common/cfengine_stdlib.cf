@@ -16,6 +16,23 @@
 #
 #####################################################################################
 
+###########################################################################
+#  Copyright (C) Cfengine AS
+# 
+#  This program is free software; you can redistribute it and/or modify it
+#  under the terms of the GNU General Public License as published by the
+#  Free Software Foundation; version 3.
+#   
+#  This program is distributed in the hope that it will be useful,
+#  but WITHOUT ANY WARRANTY; without even the implied warranty of
+#  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+#  GNU General Public License for more details.
+#
+#  To the extent this program is licensed as part of the Enterprise
+#  versions of Cfengine, the applicable Commerical Open Source License
+#  (COSL) may apply to this file if you as a licensee so wish it. See
+#  included file COSL.txt.
+###########################################################################
 #
 # Cfengine Community Open Promise-Body Library
 #
@@ -29,7 +46,6 @@
 #
 # Names should be intuitive and parameters should be
 # minimal to assist readability and comprehensibility.
-#
 
 # Contributions to this file are voluntarily given to
 # the cfengine community, and are moderated by Cfengine.
@@ -41,6 +57,9 @@
 # the online docs
 #
 
+# Subversion : $Rev: 71 $
+# For Cfengine Core: 3.1.0
+
 ###################################################
 # If you find Cfengine useful, please consider    #
 # purchasing a commercial version of the software.#
@@ -50,6 +69,16 @@
 # edit_line bundles
 ###################################################
 
+bundle edit_line insert_lines(lines)
+{
+insert_lines:
+
+  "$(lines)"
+    comment => "Append lines if they don't exist";
+}
+
+##
+
 bundle edit_line comment_lines_matching(regex,comment)
 
  # Comment lines of a file matching a regex
@@ -57,7 +86,10 @@ bundle edit_line comment_lines_matching(regex,comment)
 {
 replace_patterns:
 	 
- "^($(regex))$" replace_with => comment("$(comment)");
+ "^($(regex))$" 
+
+     replace_with => comment("$(comment)"),
+          comment => "Search and replace string";
 }
 	 
 ##
@@ -70,7 +102,10 @@ bundle edit_line uncomment_lines_matching(regex,comment)
 {
 replace_patterns:
  
- "^$(comment)\s?($(regex))$" replace_with => uncomment;
+ "^$(comment)\s?($(regex))$" 
+
+       replace_with => uncomment,
+            comment => "Uncomment lines matching a regular expression";
 }
 	 
 ##
@@ -82,7 +117,10 @@ bundle edit_line comment_lines_containing(regex,comment)
 {
 replace_patterns:
  
- "^(.*$(regex).*)$" replace_with => comment("$(comment)");
+ "^(.*$(regex).*)$" 
+
+     replace_with => comment("$(comment)"),
+          comment => "Comment out lines in a file";
 }
 	 
 ##
@@ -95,7 +133,10 @@ bundle edit_line uncomment_lines_containing(regex,comment)
 {
 replace_patterns:
  
- "^$(comment)\s?(.*$(regex).*)$" replace_with => uncomment;
+ "^$(comment)\s?(.*$(regex).*)$" 
+
+    replace_with => uncomment,
+         comment => "Uncomment a line containing a fragment";
 }
 
 ##
@@ -104,7 +145,9 @@ bundle edit_line delete_lines_matching(regex)
 {
 delete_lines:
 
-  "$(regex)";
+  "$(regex)"
+
+     comment => "Delete lines matching regular expressions";
 }
 
 ##
@@ -113,7 +156,10 @@ bundle edit_line warn_lines_matching(regex)
 {
 delete_lines:
 
-  "$(regex)"  action => warn_only;
+  "$(regex)"  
+
+   comment => "Warn about lines in a file",
+    action => warn_only;
 }
 
 ##
@@ -122,7 +168,9 @@ bundle edit_line append_if_no_line(str)
 {
 insert_lines:
 
- "$(str)";
+ "$(str)"
+
+     comment => "Append a line to the file if it doesn't already exist";
 }
 
 ##
@@ -131,7 +179,9 @@ bundle edit_line append_if_no_lines(list)
 {
 insert_lines:
 
- "$(list)";
+ "$(list)"
+
+   comment => "Append lines to the file if they don't already exist";
 }
 
 ##
@@ -144,12 +194,13 @@ bundle edit_line resolvconf(search,list)
 {
 delete_lines:
 
-  "search.*";
+  "search.*"     comment => "Reset search lines from resolver";
+  "nameserver.*" comment => "Reset nameservers in resolver";
 
 insert_lines:
 
-  "search $(search)";
-  "nameserver $(list)";
+  "search $(search)"    comment => "Add search domains to resolver";
+  "nameserver $(list)"  comment => "Add name servers to resolver";
 }
 
 ##
@@ -183,12 +234,14 @@ field_edits:
   "\s*$(index)\s*=.*"
 
      edit_field => col("=","2","$($(v)[$(index)])","set"),
-        classes => if_ok("$(cindex[$(index)])_in_file");
+        classes => if_ok("$(cindex[$(index)])_in_file"),
+        comment => "Match a line starting like key = something";
 
 insert_lines:
 
   "$(index)=$($(v)[$(index)])",
 
+         comment => "Insert a variable definition",
       ifvarclass => "!$(cindex[$(index)])_in_file";
 }
 
@@ -212,6 +265,7 @@ insert_lines:
 
   "$($(v)[$(index)])",
 
+         comment => "Append users into a password file format",
       ifvarclass => "add_$(index)";
 }
 
@@ -235,6 +289,7 @@ insert_lines:
 
   "$($(v)[$(index)])",
 
+         comment => "Append users into a group file format",
       ifvarclass => "add_$(index)";
 
 }
@@ -249,8 +304,9 @@ bundle edit_line set_user_field(user,field,val)
 {
 field_edits:
 
- "$(user).*"
+ "$(user):.*"
 
+        comment => "Edit a user attribute in the password file",
      edit_field => col(":","$(field)","$(val)","set");
 }
 
@@ -268,8 +324,9 @@ vars:
 
 field_edits:
 
- "$(group).*"
+ "$(group):.*"
 
+       comment => "Append users into a password file format",
     edit_field => col(":","$(field)","$(val)","alphanum");
 }
 
@@ -285,9 +342,44 @@ insert_lines:
 
    "$(templatefile)"
 
-          insert_type => "file",
-       expand_scalars => "true";
+        insert_type => "file",
+            comment => "Expand variables in the template file",
+     expand_scalars => "true";
 }
+
+##
+
+bundle agent cronjob(commands,user,hours,mins)
+
+ # For adding lines to crontab for a user
+ # methods:
+ #  "cron" usebundle => cronjob("/bin/ls","mark","*","5,10");
+
+{
+vars:
+  SuSE::
+   "crontab" string => "/var/spool/cron/tabs";
+ !SuSE::
+   "crontab" string => "/var/spool/cron/crontabs";
+
+files:
+
+  "$(crontab)/$(user)" 
+
+    comment => "A user's regular batch jobs are added to this file",
+     create => "true",
+     edit_line => append_if_no_line("$(mins) $(hours) * * * $(commands)"),
+     perms => mo("644","$(user)");
+
+processes:
+
+   "cron"
+         comment => "Most crons need to be huped after file changes",
+         signals => { "hup" };
+
+}
+
+
 
 ##
 ## editing bodies
@@ -364,6 +456,14 @@ before_after => "before";
 }
 
 ##
+
+body location after(str)
+{
+before_after => "after";
+select_line_matching => "$(str)";
+}
+
+##
 ## replace_with
 ##
 
@@ -418,7 +518,7 @@ ifelapsed => "60";
 
 body action bg(elapsed,expire)
 {
-ifelapsed   => "$(elapsed)";    # run only every 8 hours
+ifelapsed   => "$(elapsed)";
 expireafter => "$(expire)";
 background  => "true";
 }
@@ -436,6 +536,13 @@ background => "true";
 body action immediate
 {
 ifelapsed => "0";
+}
+
+##
+
+body action policy(p)
+{
+action_policy => "$(p)";
 }
 
 ##
@@ -462,6 +569,14 @@ no_output => "true";
 body contain in_dir(s)
 {
 chdir => "$(s)";
+}
+
+##
+
+body contain in_dir_shell(s)
+{
+chdir => "$(s)";
+useshell => "true";
 }
 
 ##
@@ -577,6 +692,21 @@ promise_repaired => { "$(x)" };
 persist_time => "10";
 }
 
+##
+
+body classes enumerate(x)
+
+#
+# This is used by commercial editions to count 
+# instances of jobs in a cluster
+#
+
+{
+promise_repaired => { "mXC_$(x)" };
+promise_kept => { "mXC_$(x)" };
+persist_time => "15";
+}
+
 ###################################################
 # agent bundles
 ###################################################
@@ -613,6 +743,14 @@ compare     => "mtime";
 body copy_from local_cp(from)
 {
 source      => "$(from)";
+}
+
+##
+
+body copy_from perms_cp(from)
+{
+source      => "$(from)";
+preserve    => "true";
 }
 
 ##
@@ -705,8 +843,8 @@ mode   => "$(mode)";
 
 body perms og(u,g)
 {
-owners => { "${u}" };
-groups => { "${g}" };
+owners => { "$(u)" };
+groups => { "$(g)" };
 }
 
 ##
@@ -714,6 +852,32 @@ groups => { "${g}" };
 body perms owner(user)
 {
 owners => { "$(user)" };
+}
+
+##
+## ACLS (extended Unix perms)
+##
+
+body acl access_generic(acl)
+# default/inherited ACLs are left unchanged,
+# applicable for both files and directory on all platforms
+{
+acl_method => "overwrite";
+aces => { "@(acl)" };
+}
+
+##
+
+body acl strict
+# NOTE: May need to take ownership of file/dir
+# to be sure no-one else is allowed access
+{
+acl_method => "overwrite";
+
+windows::
+aces => { "user:Administrator:rwx" };
+!windows::
+aces => { "user:root:rwx" };
 }
 
 ##
@@ -725,8 +889,6 @@ body depth_search recurse(d)
 {
 depth => "$(d)";
 xdev  => "true";
-
-exclude_dirs => { "\.X11", ".*kde.*", "\.svn" };
 }
 
 ##
@@ -778,7 +940,7 @@ newname => "$(file)";
 body file_select name_age(name,days)
 {
 leaf_name   => { "$(name)" };
-mtime       => irange(0,ago(0,0,$(days),0,0,0));  
+mtime       => irange(0,ago(0,0,"$(days)",0,0,0));  
 file_result => "mtime.leaf_name"; 
 }
 
@@ -786,7 +948,7 @@ file_result => "mtime.leaf_name";
 
 body file_select days_old(days)
 {
-mtime       => irange(ago(1,0,0,0,0,0),ago(0,0,$(days),0,0,0));
+mtime       => irange(0,ago(0,0,"$(days)",0,0,0));
 file_result => "mtime";
 }
 
@@ -862,6 +1024,27 @@ report_changes => "content";
 update_hashes  => "yes";
 }
 
+##
+
+body changes noupdate
+# Use on (small) files that should never change
+{
+hash           => "sha256";
+report_changes => "content";
+update_hashes  => "no";
+}
+
+##
+
+body changes diff
+# Generates diff report (Nova and above)
+{
+hash           => "sha256";
+report_changes => "content";
+report_diffs   => "true";
+update_hashes  => "yes";
+}
+
 ##--------------------------------------------------------------
 ## Packages promises
 ##--------------------------------------------------------------
@@ -871,7 +1054,7 @@ body package_method zypper
 {
 package_changes => "bulk";
 
-package_list_command => "/usr/bin/zypper packages";
+package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
 package_patch_list_command => "/usr/bin/zypper patches";
 package_installed_regex => "i.*";
 package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
@@ -883,12 +1066,12 @@ package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
 package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
 
 package_name_convention => "$(name)";
-package_add_command => "/usr/bin/zypper -non-interactive install";
-package_delete_command => "/usr/bin/zypper -non-interactive remove --force-resolution";
-package_update_command => "/usr/bin/zypper -non-interactive update";
+package_add_command => "/usr/bin/zypper --non-interactive install";
+package_delete_command => "/usr/bin/zypper --non-interactive remove --force-resolution";
+package_update_command => "/usr/bin/zypper --non-interactive update";
 
-package_patch_command => "/usr/bin/zypper -non-interactive patch$"; # $ means no args
-package_verify_command => "/usr/bin/zypper -non-interactive verify$";
+package_patch_command => "/usr/bin/zypper --non-interactive patch$"; # $ means no args
+package_verify_command => "/usr/bin/zypper --non-interactive verify$";
 }
 
 ##
@@ -901,16 +1084,23 @@ package_list_name_regex    => "ii\s+([^\s]+).*";
 package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
 package_installed_regex => ".*"; # all reported are installed
 package_name_convention => "$(name)";
+package_list_update_ifelapsed => "240";		# 4 hours
 
 have_aptitude::
    package_add_command => "/usr/bin/aptitude --assume-yes install";
+   package_list_update_command => "/usr/bin/aptitude update";
    package_delete_command => "/usr/bin/aptitude --assume-yes remove";
    package_update_command =>  "/usr/bin/aptitude --assume-yes install";
+   package_verify_command =>  "/usr/bin/aptitude show";
+   package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
 
 !have_aptitude::
    package_add_command => "/usr/bin/apt-get --yes install";
+   package_list_update_command => "/usr/bin/apt-get update";
    package_delete_command => "/usr/bin/apt-get --yes remove";
    package_update_command =>  "/usr/bin/apt-get --yes install";
+   package_verify_command => "/usr/bin/dpkg -s";
+   package_noverify_returncode => "1";
 }
 
 ##
@@ -940,7 +1130,9 @@ package_noverify_regex => ".*[^\s].*";
 
 ##
 
-body package_method msi_version(repo)
+body package_method msi_implicit(repo)
+# Use whole file name as promiser, e.g. "7-Zip-4.50-x86_64.msi",
+# the name, version and arch is then deduced from the promiser
 {
 package_changes => "individual";
 package_file_repositories => { "$(repo)" };
@@ -948,6 +1140,30 @@ package_file_repositories => { "$(repo)" };
 package_installed_regex => ".*";
  
 package_name_convention => "$(name)-$(version)-$(arch).msi";
+package_delete_convention => "$(firstrepo)$(name)-$(version)-$(arch).msi";
+
+package_name_regex => "^(\S+)-(\d+\.?)+";
+package_version_regex => "^\S+-((\d+\.?)+)";
+package_arch_regex => "^\S+-[\d\.]+-(.*).msi";
+
+package_add_command => "\"$(sys.winsysdir)\msiexec.exe\" /qn /i";
+package_update_command => "\"$(sys.winsysdir)\msiexec.exe\" /qn /i";
+package_delete_command => "\"$(sys.winsysdir)\msiexec.exe\" /qn /x";
+}
+
+##
+
+body package_method msi_explicit(repo)
+# use software name as promiser, e.g. "7-Zip", and explicitly
+# specify any package_version and package_arch
+{
+package_changes => "individual";
+package_file_repositories => { "$(repo)" };
+
+package_installed_regex => ".*";
+ 
+package_name_convention => "$(name)-$(version)-$(arch).msi";
+package_delete_convention => "$(firstrepo)$(name)-$(version)-$(arch).msi";
 
 package_add_command => "\"$(sys.winsysdir)\msiexec.exe\" /qn /i";
 package_update_command => "\"$(sys.winsysdir)\msiexec.exe\" /qn /i";
@@ -960,6 +1176,7 @@ body package_method yum
 {
 package_changes => "bulk";
 package_list_command => "/usr/bin/yum list installed";
+package_patch_list_command => "/usr/bin/yum check-update";
 
 # Remember to escape special characters like |
 
@@ -970,9 +1187,50 @@ package_list_arch_regex    => "[^.]+\.([^\s]+).*";
 package_installed_regex => ".*installed.*";
 package_name_convention => "$(name).$(arch)";
 
+package_list_update_ifelapsed => "240";
+
+package_patch_installed_regex => "";
+package_patch_name_regex    => "([^.]+).*";
+package_patch_version_regex => "[^\s]\s+([^\s]+).*";
+package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
+
 package_add_command => "/usr/bin/yum -y install";
 package_delete_command => "/bin/rpm -e";
 package_verify_command => "/bin/rpm -V";
+}
+
+##
+
+body package_method yum_rpm
+# Contributed by Trond Hasle Amundsen
+
+# More efficient package method for RedHat - uses rpm to list instead of yum
+# Notes:
+# - using $(name).$(arch) instead of $(name) for package_name_convention
+#   causes uninstallation to fail.
+# - using allmatches to remove for all architectures
+#
+{
+  package_changes => "bulk";
+  package_list_command => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+  package_patch_list_command => "/usr/bin/yum check-update";
+
+  package_list_name_regex    => "^(\S+?)\s\S+?\s\S+$";
+  package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
+  package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
+
+  package_installed_regex => ".*";
+  package_name_convention => "$(name)";
+
+  package_patch_installed_regex => "";
+  package_patch_name_regex    => "([^.]+).*";
+  package_patch_version_regex => "[^\s]\s+([^\s]+).*";
+  package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
+
+  package_add_command    => "/usr/bin/yum -y install";
+  package_update_command => "/usr/bin/yum -y update";
+  package_delete_command => "/bin/rpm -e --allmatches";
+  package_verify_command => "/bin/rpm -V";
 }
 
 ##
@@ -1039,20 +1297,26 @@ SuSE::
  package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
  package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
  package_name_convention => "$(name)";
- package_add_command => "/usr/bin/zypper -non-interactive install";
- package_delete_command => "/usr/bin/zypper -non-interactive remove --force-resolution";
- package_update_command => "/usr/bin/zypper -non-interactive update";
- package_patch_command => "/usr/bin/zypper -non-interactive patch$"; # $ means no args
- package_verify_command => "/usr/bin/zypper -non-interactive verify$";
+ package_add_command => "/usr/bin/zypper --non-interactive install";
+ package_delete_command => "/usr/bin/zypper --non-interactive remove --force-resolution";
+ package_update_command => "/usr/bin/zypper --non-interactive update";
+ package_patch_command => "/usr/bin/zypper --non-interactive patch$"; # $ means no args
+ package_verify_command => "/usr/bin/zypper --non-interactive verify$";
 
 redhat::
  package_changes => "bulk";
- package_list_command => "/usr/bin/yum list installed";
- package_list_name_regex    => "([^.]+).*";
- package_list_version_regex => "[^\s]\s+([^\s]+).*";
- package_list_arch_regex    => "[^.]+\.([^\s]+).*";
- package_installed_regex => ".*installed.*";
- package_name_convention => "$(name).$(arch)";
+ package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+ package_patch_list_command => "/usr/bin/yum check-update";
+ package_installed_regex => "i.*";
+ package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+ package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+ package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+ package_name_convention => "$(name)";
+ package_list_update_ifelapsed => "240";
+ package_patch_installed_regex => "";
+ package_patch_name_regex    => "([^.]+).*";
+ package_patch_version_regex => "[^\s]\s+([^\s]+).*";
+ package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
  package_add_command => "/usr/bin/yum -y install";
  package_delete_command => "/bin/rpm -e";
  package_verify_command => "/bin/rpm -V";
@@ -1064,17 +1328,23 @@ debian::
  package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
  package_installed_regex => ".*"; # all reported are installed
  package_name_convention => "$(name)";
+ package_list_update_ifelapsed => "240";		# 4 hours
 
-have_aptitude::
+debian.have_aptitude::
    package_add_command => "/usr/bin/aptitude --assume-yes install";
+   package_list_update_command => "/usr/bin/aptitude update";
    package_delete_command => "/usr/bin/aptitude --assume-yes remove";
    package_update_command =>  "/usr/bin/aptitude --assume-yes install";
+   package_verify_command =>  "/usr/bin/aptitude show";
+   package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
 
-!have_aptitude::
+debian.!have_aptitude::
    package_add_command => "/usr/bin/apt-get --yes install";
+   package_list_update_command => "/usr/bin/apt-get update";
    package_delete_command => "/usr/bin/apt-get --yes remove";
    package_update_command =>  "/usr/bin/apt-get --yes install";
-
+   package_verify_command => "/usr/bin/dpkg -s";
+   package_noverify_returncode => "1";
 
 freebsd::
  package_changes => "individual";
@@ -1136,7 +1406,7 @@ unmount => "true";
 ## process promises
 ##-------------------------------------------------------
 
-body select_process exclude_procs(x)
+body process_select exclude_procs(x)
 {
 command => "$(x)";
 process_result => "!command";
@@ -1150,6 +1420,26 @@ match_range => irange("$(lower)","$(upper)");
 out_of_range_define => { "$(name)_out_of_range" };
 }
 
+##
+## service promises
+##
+
+body service_method bootstart
+{
+  service_autostart_policy => "boot_time";
+  service_dependence_chain => "start_parent_services";
+windows::
+  service_type => "windows";
+}
+
+##
+
+body service_method force_deps
+{
+  service_dependence_chain => "all_related";
+windows::
+  service_type => "windows";
+}
 
 ####################################################
 ## monitor bodyparts
