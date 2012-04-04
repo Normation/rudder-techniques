@@ -77,13 +77,13 @@ bundle agent install_rsyslogd {
                                 package_policy  => "add",
                                 package_method  => generic,
                                 classes => cf2_if_else("rsyslog_installed", "cant_install_rsyslog"),
-                                comment => "Installing rsyslog using apt backports";
+                                comment => "Installing rsyslog using generic package manager";
 
                         "rsyslog-pgsql"
                                 package_policy  => "add",
                                 package_method  => generic,
                                 classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
-                                comment => "Installing rsyslog_pgsql using apt backports";
+                                comment => "Installing rsyslog_pgsql using generic package manager";
 
 	files:
 		policy_server::
