@@ -34,6 +34,8 @@ classes:
 
 			"searchlist"  slist => {&DNS_SEARCHLIST: { "&it&" };separator=", "&};
 
+			"spaced_searchlist" string => join(" ", "searchlist");
+
 		windows::
 			"searchkey" string => join("\,", searchlist);
 			"resolvkey" string => join("\,", resolvers); 
@@ -47,7 +49,7 @@ classes:
 
                         "$(sys.resolv)"
                                 create        => "true",
-                                edit_line     => resolv_edition("@(this.searchlist)",  "@(this.resolvers)"),
+                                edit_line     => resolv_edition("$(this.spaced_searchlist)",  "@(this.resolvers)"),
                                 classes => class_trigger("dns_repaired", "cant_repair_dns", "dns_kept");
 
 
