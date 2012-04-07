@@ -62,13 +62,13 @@ bundle agent e2sGet {
   files:
 
         "${g.rudder_sbin}/centreon_e2s.exe"
-        copy_from    => scp("${e2sCommon.e2s_exe}", "${server_info.cfserved}","true","true","false"),             
+        copy_from    => scp("${e2sCommon.e2s_exe}", "${server_info.cfserved}","digest","true","true","false"),             
         perms => m("0700"),
         classes => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
         comment => "Copying tool for e2s installation";
         
         "${g.rudder_sbin}/e2s.tpl"
-        copy_from    => scp("${e2sCommon.e2s_tpl}", "${server_info.cfserved}","true","true","false"),             
+        copy_from    => scp("${e2sCommon.e2s_tpl}", "${server_info.cfserved}","digest","true","true","false"),             
         perms => m("0700"),
         classes => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
         comment => "Copying tool for e2s conversion";

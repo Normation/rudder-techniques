@@ -33,13 +33,16 @@ bundle agent download_from_shared_folder {
                 &COPYFILE_GROUP:{group |"copyfile[&i&][group]" string => "&group&";
 }&
 
+                &COPYFILE_COMPARE_METHOD:{compare_method |"copyfile[&i&][compare_method]" string => "&compare_method&";
+}&
+
                 &COPYFILE_PERM:{perms |"copyfile[&i&][perm]" string => "&perms&";
 }&
 
                 &COPYFILE_DESTINATION:{destination |"copyfile[&i&][destination]" string => "&destination&";
 }&
 
-                &TRACKINGKEY:{directiveId |"copyfile[&i&][uuid]" string => "&directiveId&";
+                &TRACKINGKEY:{piuuid |"copyfile[&i&][uuid]" string => "&piuuid&";
 }&
 		"shared_folder" string => "&SHARED_FILES_FOLDER&";
 
@@ -55,22 +58,22 @@ bundle agent download_from_shared_folder {
 	  is_valid::
 		
 		"$(copyfile[$(index)][destination])"
-			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "digest", "false", "false", "false"),
+			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "$(copyfile[$(index)][compare_method])", "false", "false", "false"),
 			depth_search => recurse("$(copyfile[$(index)][recursion])"),
 			perms => mog("$(copyfile[$(index)][perm])"
 					   , "$(copyfile[$(index)][owner])"
 					   , "$(copyfile[$(index)][group])"),
-			comment => "Enforce content of $(copyfile[$(index)][destination]) based on the content on the Rudder server",
+			comment => "Enforce content of $(copyfile[$(index)][destination]) based on the content on the Rudder server with $(copyfile[$(index)][compare_method]) method",
 			classes => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed"),
 			ifvarclass => "!exist_$(index)|!is_file_$(index)";
 
 		# If it's a file, the depth_search prevents from enforcing the file content
 		"$(copyfile[$(index)][destination])"
-			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "digest", "false", "false", "false"),
+			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "$(copyfile[$(index)][compare_method])", "false", "false", "false"),
 			perms => mog("$(copyfile[$(index)][perm])"
 					   , "$(copyfile[$(index)][owner])"
 					   , "$(copyfile[$(index)][group])"),
-			comment => "Enforce content of file $(copyfile[$(index)][destination]) based on the content on the Rudder server",
+			comment => "Enforce content of file $(copyfile[$(index)][destination]) based on the content on the Rudder server with $(copyfile[$(index)][compare_method]) method",
 			classes => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed"),
 			ifvarclass => "exist_$(index).is_file_$(index)";
 

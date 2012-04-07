@@ -33,13 +33,19 @@ bundle agent download_from_shared_folder {
                 &COPYFILE_GROUP:{group |"copyfile[&i&][group]" string => "&group&";
 }&
 
+                &COPYFILE_COMPARE_METHOD:{compare_method |"copyfile[&i&][compare_method]" string => "&compare_method&";
+}&
+
                 &COPYFILE_PERM:{perms |"copyfile[&i&][perm]" string => "&perms&";
 }&
 
                 &COPYFILE_DESTINATION:{destination |"copyfile[&i&][destination]" string => "&destination&";
 }&
 
-                &TRACKINGKEY:{directiveId |"copyfile[&i&][uuid]" string => "&directiveId&";
+                &COPYFILE_POST_HOOK_COMMAND:{command |"copyfile[&i&][posthook]" string => "&command&";
+}&
+
+                &TRACKINGKEY:{piuuid |"copyfile[&i&][uuid]" string => "&piuuid&";
 }&
 		"shared_folder" string => "&SHARED_FILES_FOLDER&";
 
@@ -51,30 +57,40 @@ bundle agent download_from_shared_folder {
 		"is_file_$(index)" not => isdir("$(copyfile[$(index)][destination])");
 		"exist_$(index)" expression => fileexists("$(copyfile[$(index)][destination])");
 
+                # Set a class to define when we need to run the post-modification hook
+                &COPYFILE_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
+}&
+
+
 	files:
 	  is_valid::
 		
 		"$(copyfile[$(index)][destination])"
-			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "digest", "false", "false", "false"),
+			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "$(copyfile[$(index)][compare_method])", "false", "false", "false"),
 			depth_search => recurse("$(copyfile[$(index)][recursion])"),
 			perms => mog("$(copyfile[$(index)][perm])"
 					   , "$(copyfile[$(index)][owner])"
 					   , "$(copyfile[$(index)][group])"),
-			comment => "Enforce content of $(copyfile[$(index)][destination]) based on the content on the Rudder server",
+			comment => "Enforce content of $(copyfile[$(index)][destination]) based on the content on the Rudder server with $(copyfile[$(index)][compare_method]) method",
 			classes => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed"),
 			ifvarclass => "!exist_$(index)|!is_file_$(index)";
 
 		# If it's a file, the depth_search prevents from enforcing the file content
 		"$(copyfile[$(index)][destination])"
-			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "digest", "false", "false", "false"),
+			copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "$(copyfile[$(index)][compare_method])", "false", "false", "false"),
 			perms => mog("$(copyfile[$(index)][perm])"
 					   , "$(copyfile[$(index)][owner])"
 					   , "$(copyfile[$(index)][group])"),
-			comment => "Enforce content of file $(copyfile[$(index)][destination]) based on the content on the Rudder server",
+			comment => "Enforce content of file $(copyfile[$(index)][destination]) based on the content on the Rudder server with $(copyfile[$(index)][compare_method]) method",
 			classes => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed"),
 			ifvarclass => "exist_$(index).is_file_$(index)";
 
-
+	commands:
+		"$(copyfile[$(index)][posthook])"
+			contain => in_shell,
+			classes => if_else("copyfile_posthook_$(index)_command_run_ok", "copyfile_posthook_$(index)_command_run_failed"),
+			ifvarclass => "execute_command_$(index).copy_file_$(index)_modified.!copy_file_$(index)_failed",
+			comment => "Execute the posthook command if a file was changed";
 
 	reports:
 		linux|windows::
@@ -88,5 +104,19 @@ bundle agent download_from_shared_folder {
 			ifvarclass => "copy_file_$(index)_modified";
 
 		"@@copyFile@@result_error@@$(copyfile[$(index)][uuid])@@Copy file@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content or permissions of the file(s) could not have been repaired for some reason"
-			ifvarclass => "copy_file_$(index)_failed";		
+			ifvarclass => "copy_file_$(index)_failed";
+
+		#posthook reports
+		"@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#No command for $(copyfile[$(index)][destination]) was defined"
+                        ifvarclass => "!execute_command_$(index)";
+
+                "@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(copyfile[$(index)][destination]) was in the proper state, so no command were requiered"
+                        ifvarclass => "execute_command_$(index).copy_file_$(index)_kept.!copy_file_$(index)_modified";
+
+                "@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The command for $(copyfile[$(index)][destination]) was correctly executed"
+                        ifvarclass => "copyfile_posthook_$(index)_command_run_ok";
+
+                "@@copyFile@@result_error@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The command for $(copyfile[$(index)][destination]) couldn't be executed"
+                        ifvarclass => "copyfile_posthook_$(index)_command_run_failed";
+
 }

@@ -46,10 +46,10 @@ community_edition::
   
 }
 
-body copy_from scp(from, server,trustkey,preserve,purge) {
+body copy_from scp(from, server,compare,trustkey,preserve,purge) {
   servers  => { "${server}" };
   source   => "$(from)";
-  compare  => "digest";
+  compare  => "$(compare)";
   encrypt  => "true";
   verify   => "true";
   trustkey => "${trustkey}";
@@ -58,6 +58,7 @@ body copy_from scp(from, server,trustkey,preserve,purge) {
 community_edition::
  	portnumber => "&COMMUNITYPORT&";
 }
+
 
 body copy_from copy(from) {
 	source => "$(from)";
