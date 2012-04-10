@@ -107,16 +107,16 @@ bundle agent download_from_shared_folder {
 			ifvarclass => "copy_file_$(index)_failed";
 
 		#posthook reports
-		"@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#No command for $(copyfile[$(index)][destination]) was defined"
+		"@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#No post-hook command for $(copyfile[$(index)][destination]) was defined, not executing"
                         ifvarclass => "!execute_command_$(index)";
 
-                "@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(copyfile[$(index)][destination]) was in the proper state, so no command were requiered"
+                "@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#$(copyfile[$(index)][destination]) was already in the desired state, so no command was executed"
                         ifvarclass => "execute_command_$(index).copy_file_$(index)_kept.!copy_file_$(index)_modified";
 
-                "@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The command for $(copyfile[$(index)][destination]) was correctly executed"
+                "@@copyFile@@result_success@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The post-hook command for $(copyfile[$(index)][destination]) was correctly executed"
                         ifvarclass => "copyfile_posthook_$(index)_command_run_ok";
 
-                "@@copyFile@@result_error@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The command for $(copyfile[$(index)][destination]) couldn't be executed"
+                "@@copyFile@@result_error@@$(copyfile[$(index)][uuid])@@Post-modification hook@@$(copyfile[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The post-hook command for $(copyfile[$(index)][destination]) couldn't be executed"
                         ifvarclass => "copyfile_posthook_$(index)_command_run_failed";
 
 }

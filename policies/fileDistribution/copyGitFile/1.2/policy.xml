@@ -78,11 +78,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<LONGDESCRIPTION>This is the method to use for comparison between source and destination files.
 - "mtime" copies the file if the modification time of the source file is more recent than that of the promised file.
 - "ctime" CFEngine copies the file if the creation time of the source file is more recent than that of the promised file.
-- "atime" CFEngine copies the file if the modification time or creation time of the source file is more recent than that of the promised file. If the times are equal, a byte-for-bye comparison is done on the files to determine if it needs to be copied.
+- "atime" CFEngine copies the file if the modification time or creation time of the source file is more recent than that of the promised file. If the times are equal, a byte-for-byte comparison is done on the files to determine if it needs to be copied.
 - "exists" copies the file if the promised file does not already exist.
 - "binary" copies the file if they are both plain files and a byte-for-byte comparison determines that they are different. If both are not plain files, CFEngine reverts to comparing the mtime and ctime of the files. If the source file is on a different machine (i.e., network copy), then hash is used instead to reduce network bandwidth.
-- "digest" copies the file if they are both plain files and a message digest comparison indicates that the files are different.
-This is "mtime" option which is set by default but "digest" is highly recommended for critical files such as shadow.</LONGDESCRIPTION>
+- "digest" copies the file if they are both plain files and a MD5 message digest comparison indicates that the files are different.
+The "mtime" option is set by default but "digest" is highly recommended for critical files such as shadow.</LONGDESCRIPTION>
 			<ITEM>
 				<VALUE>mtime</VALUE>
 				<LABEL>mtime</LABEL>
