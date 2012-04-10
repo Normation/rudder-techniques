@@ -38,6 +38,6 @@ bundle agent generic_variable_def_report {
 
 		(linux|!linux)::
 
-			"@@genericVariableDefinition@@result_success@@$(generic_name_uuid[$(generic_variable_name_index)])@@genericVariableDefinition@@$(generic_variable_name[$(generic_variable_name_index)])@@$(g.execRun)##$(g.uuid)@#A generic variable definition is set for variable $(generic_variable_name[$(generic_variable_name_index)])";
+			"@@genericVariableDefinition@@result_success@@$(generic_name_uuid[$(generic_variable_name_index)])@@Variable definition@@$(generic_variable_name[$(generic_variable_name_index)])@@$(g.execRun)##$(g.uuid)@#A generic variable definition is set for variable $(generic_variable_name[$(generic_variable_name_index)])";
 
 }
