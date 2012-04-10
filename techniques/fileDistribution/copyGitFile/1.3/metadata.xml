@@ -14,8 +14,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<POLICY name="Download a file from the shared folder">
-  <DESCRIPTION>This policy ensure that some files are the copy of files on the shared folder of the Rudder Root Server, and let you optionnaly execute a command if the content of the file was modified</DESCRIPTION>
+<TECHNIQUE name="Download a file from the shared folder">
+  <DESCRIPTION>This technique ensure that some files are the copy of files on the shared folder of the Rudder Root Server, and let you optionnaly execute a command if the content of the file was modified</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
@@ -147,4 +147,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	</SECTION>
   </SECTIONS>
 
-</POLICY>
+</TECHNIQUE>
