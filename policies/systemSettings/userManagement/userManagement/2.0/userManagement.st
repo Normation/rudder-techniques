@@ -101,9 +101,9 @@ bundle agent check_usergroup_user_parameters {
 
 		"user_pweverytime_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_password_policy[$(usergroup_user_index)])","everytime");
 
-		"user_pwempty_$(usergroup_user_index)" not => isvariable("usergroup_user_password[$(usergroup_user_index)]");
+		"user_pwempty_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_password[$(usergroup_user_index)])", "");
 
-    "user_pwcryptempty_$(usergroup_user_index)" not => isvariable("usergroup_user_password_crypt[$(usergroup_user_index)]");
+    "user_pwcryptempty_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_password_crypt[$(usergroup_user_index)])", "");
 		
 		"user_nameempty_$(usergroup_user_index)" not => isvariable("usergroup_user_fullname[$(usergroup_user_index)]");
 
