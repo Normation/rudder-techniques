@@ -154,14 +154,14 @@ bundle agent check_usergroup_user_parameters {
 				ifvarclass => "user_exists_$(usergroup_user_index).user_pweverytime_$(usergroup_user_index).!user_pwempty_$(usergroup_user_index).user_pwcryptempty_$(usergroup_user_index)";
 
       "/usr/sbin/usermod"
-        args => "$(usergroup_user_login[$(usergroup_user_index)]) -p '$(usergroup_user_password_crypt[$(user    group_user_index)])'",
+        args => "$(usergroup_user_login[$(usergroup_user_index)]) -p '$(usergroup_user_password_crypt[$(usergroup_user_index)])'",
         comment => "create initial password",
-        ifvarclass => "login_added_$(usergroup_user_index).user_pwoneshot_$(usergroup_user_index).!user_pwcr    yptempty_$(usergroup_user_index)";
+        ifvarclass => "login_added_$(usergroup_user_index).user_pwoneshot_$(usergroup_user_index).!user_pwcryptempty_$(usergroup_user_index)";
 
       "/usr/sbin/usermod"
-        args => "$(usergroup_user_login[$(usergroup_user_index)]) -p '$(usergroup_user_password_crypt[$(user    group_user_index)])'",
+        args => "$(usergroup_user_login[$(usergroup_user_index)]) -p '$(usergroup_user_password_crypt[$(usergroup_user_index)])'",
         comment => "force initial password",
-        ifvarclass => "user_exists_$(usergroup_user_index).user_pweverytime_$(usergroup_user_index).!user_pw    cryptempty_$(usergroup_user_index)";
+        ifvarclass => "user_exists_$(usergroup_user_index).user_pweverytime_$(usergroup_user_index).!user_pwcryptempty_$(usergroup_user_index)";
 
 			"/usr/sbin/userdel"
 				args => "$(usergroup_user_login[$(usergroup_user_index)])",
