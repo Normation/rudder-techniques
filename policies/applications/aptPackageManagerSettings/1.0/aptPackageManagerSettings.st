@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2012 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -136,7 +136,7 @@ bundle agent check_apt_settings {
 		(apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated.apt_tier2_kept.!apt_tier2_validated.(!apt_disablerepositories|apt_disabled_kept).!apt_disabled_validated::
 			"@@aptPackageManagerSettings@@result_success@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#APT settings were all already correct";
 
-		apt_repositories_edit|apt_tier2_validated|apt_disabled_validated::
+		(apt_tier1_validated|apt_tier2_validated|apt_disabled_validated).(!apt_tier1_failed|!apt_tier2_failed|!apt_disabled_failed)::
 			"@@aptPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#Some APT settings were reset";
 
 		apt_tier1_kept::
@@ -165,7 +165,6 @@ bundle agent check_apt_settings {
 
 		apt_disabled_failed::
 			"@@aptPackageManagerSettings@@result_error@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#APT repositories deactivation is failed";
-
 
 		!debian::
 			"@@aptPackageManagerSettings@@result_error@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#APT cannot be configured on non Debian OSes";
