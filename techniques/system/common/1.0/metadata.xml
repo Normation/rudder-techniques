@@ -21,11 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="cf-served"/>
     <TML name="cfengine_stdlib" />
-    <TML name="core-lib" />
+    <TML name="rudder_lib" />
     <TML name="process_matching" />
     <TML name="internal_security" />
     <TML name="e2s_activation"/>
-    <TML name="library"/>
     <TML name="site"/>
     <TML name="update"/>
     <TML name="failsafe">
