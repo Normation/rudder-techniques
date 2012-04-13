@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2012 Normation SAS
+# Copyright 2011-2012 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
