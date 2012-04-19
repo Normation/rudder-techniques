@@ -283,10 +283,10 @@ mode   => "$(mode)";
 ########################################################################
 body file_select date_pattern(age, pattern)
 {
-	mtime       => irange(ago(0,0,"$(age)",0,0,0), now);
+	mtime       => irange("0", ago(0,0,"$(age)",0,0,0));
 	leaf_name   => { "$(pattern)" };
 
-	file_result => "leaf_name.!mtime";
+	file_result => "leaf_name.mtime";
 }
 
 ########################################################################
