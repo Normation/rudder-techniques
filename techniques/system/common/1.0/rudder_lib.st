@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2011-2012 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,11 +15,92 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #####################################################################################
+#
+# This is Rudder's library of common CFEngine functions.
+#
+# Only bodies and editbundles are to be appended here !!!
+#
+#####################################################################################
 
-#
-# Just bodies and editbundles here
-#
-############################################
+body depth_search recurse_visible(d) {
+    depth        => "$(d)";
+    exclude_dirs => { "\..*" };
+}
+
+#perms validation
+body perms u_p(p) {
+  mode  => "$(p)";
+}
+
+#########################################################
+#server may be a list
+body copy_from cp(from,server) {
+  servers     => { "${server}" };
+  source      => "$(from)";
+  compare     => "digest";
+community_edition::
+ 	portnumber => "&COMMUNITYPORT&";
+  
+}
+
+body copy_from scp(from, server,compare,trustkey,preserve,purge) {
+  servers  => { "${server}" };
+  source   => "$(from)";
+  compare  => "$(compare)";
+  encrypt  => "true";
+  verify   => "true";
+  trustkey => "${trustkey}";
+  preserve => "${preserve}"; #preserver permissions
+  purge    => "${purge}";
+community_edition::
+ 	portnumber => "&COMMUNITYPORT&";
+}
+
+
+body copy_from copy(from) {
+	source => "$(from)";
+	copy_backup => "false";
+	preserve => "true";
+}
+
+body copy_from copy_digest(from) {
+        source => "$(from)";
+        copy_backup => "false";
+        preserve => "true";
+	compare => "digest";
+}
+
+#########################################################
+body classes class_trigger(if,else,kept)
+{
+promise_kept => { "$(kept)" };
+promise_repaired => { "$(if)" };
+repair_failed => { "$(else)" };
+repair_denied    => { "$(else)" };
+repair_timeout   => { "$(else)" };
+}
+
+#########################################################
+body location append
+{
+before_after => "after";
+}
+
+#########################################################
+body package_method yum_remi
+{
+ package_changes => "bulk";
+ package_list_command => "/usr/bin/yum list installed";
+ package_list_name_regex    => "([^.]+).*";
+ package_list_version_regex => "[^\s]\s+([^\s]+).*";
+ package_list_arch_regex    => "[^.]+\.([^\s]+).*";
+ package_installed_regex => ".*installed.*";
+ package_name_convention => "$(name).$(arch)";
+ package_add_command => "/usr/bin/yum --enablerepo=remi -y install";
+ package_delete_command => "/bin/rpm -e";
+ package_verify_command => "/bin/rpm -V";
+}
+
 #perms validation
 body perms p(user,mode) {
   owners => { "$(user)" };
@@ -32,7 +113,6 @@ body file_select cf3_files {
   leaf_name => { "cf-.*" };
   file_result => "leaf_name";
 }
-
 
 
 #########################################################
@@ -283,10 +363,10 @@ mode   => "$(mode)";
 ########################################################################
 body file_select date_pattern(age, pattern)
 {
-	mtime       => irange(ago(0,0,"$(age)",0,0,0), now);
+	mtime       => irange("0", ago(0,0,"$(age)",0,0,0));
 	leaf_name   => { "$(pattern)" };
 
-	file_result => "leaf_name.!mtime";
+	file_result => "leaf_name.mtime";
 }
 
 ########################################################################
