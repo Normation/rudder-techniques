@@ -39,7 +39,7 @@ if [ ${METADATA_EXISTS} -ne 0 ];then
 fi
 
 # Check that all XML files are well-formed
-XML_VALID=$(find ${REPOSITORY_PATH} -type f -name "*.xml" | xargs -L 1 ./xval.pl)
+XML_VALID=$(find ${REPOSITORY_PATH} -type f -name "*.xml" | xargs -L 1 ${REPOSITORY_PATH}/tools/xval.pl)
 if [ ${METADATA_EXISTS} -ne 0 ];then
     exit 3
 fi
