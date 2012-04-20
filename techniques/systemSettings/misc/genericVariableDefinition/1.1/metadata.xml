@@ -38,7 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   
   <SECTIONS>
     <!-- general Section -->
-    <SECTION name="Variable definition" multivalued="true" componentKey="GENERIC_VARIABLE_NAME">
+    <SECTION name="Variable definition" component="true" multivalued="true" componentKey="GENERIC_VARIABLE_NAME">
       <INPUT>
         <NAME>GENERIC_VARIABLE_NAME</NAME>
         <DESCRIPTION>Variable name</DESCRIPTION>

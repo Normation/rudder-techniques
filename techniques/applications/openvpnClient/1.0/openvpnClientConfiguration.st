@@ -190,7 +190,7 @@ bundle agent check_openvpn_client_configuration {
 				ifvarclass => canonify("ovpn_client_pwauth");
 
 		ovpn_client_autostart.openvpn_bootstarted_ok::
-			"@@openvpnClientConfiguration@@Repaired@@&TRACKINGKEY&@@OpenVPN configuration@@None@@$(g.execRun)##$(g.uuid)@#OpenVPN is now starting on boot";
+			"@@openvpnClientConfiguration@@result_repaired@@&TRACKINGKEY&@@OpenVPN configuration@@None@@$(g.execRun)##$(g.uuid)@#OpenVPN is now starting on boot";
 
 		ovpn_client_autostart.openvpn_still_unbootstarted::
 			"@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@$(g.execRun)##$(g.uuid)@#OpenVPN could not be set to start on boot";
