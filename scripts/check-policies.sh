@@ -27,7 +27,7 @@ fi
 }
 
 # Check that there is no "techniques" folder at the repository root
-TECHNIQUES_EXISTS=$(find ${REPOSITORY_PATH} -type d -name "techniques" | wc -l)
+TECHNIQUES_EXISTS=$(find ${REPOSITORY_PATH} -maxdepth 1 -type d -name "techniques" | wc -l)
 if [ ${TECHNIQUES_EXISTS} -ne 0 ];then
 	exit 1
 fi
@@ -39,7 +39,7 @@ if [ ${METADATA_EXISTS} -ne 0 ];then
 fi
 
 # Check that all XML files are well-formed
-XML_VALID=$(find ${REPOSITORY_PATH} -type f -name "*.xml" | xargs -L 1 ${REPOSITORY_PATH}/tools/xval.pl)
-if [ ${METADATA_EXISTS} -ne 0 ];then
+if ! find ${REPOSITORY_PATH} -type f -name "*.xml" | xargs -L 1 ${REPOSITORY_PATH}/scripts/xval.pl
+then
     exit 3
 fi
