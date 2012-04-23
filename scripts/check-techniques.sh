@@ -1,5 +1,5 @@
 #!/bin/bash
-# Bundle of tests for Rudder Policy Templates
+# Bundle of tests for Rudder Techniques
 set -e
 
 #Set variables
@@ -13,10 +13,10 @@ EXIT_STATUS=$?
 if [ ${EXIT_STATUS} -ne 0 ]; then
 	echo "ERROR: This repository seems corrupted"
 	if [ ${EXIT_STATUS} -eq 1 ]; then
-		echo "Reason: There is a 'techniques' folder in the repository. Use 'policies'"\
+		echo "Reason: There is a 'policies' folder in the repository. Use 'techniques'"\
 			 "instead"
 	elif [ ${EXIT_STATUS} -eq 2 ]; then
-		echo "Reason: There are 'metadata.xml' files in the repository. Use 'policy.xml'"\
+		echo "Reason: There are 'policy.xml' files in the repository. Use 'metadata.xml'"\
 			 "instead"
 	elif [ ${EXIT_STATUS} -eq 3 ]; then
 		echo "Reason: XML file(s) seems to be not valid in the repository."
@@ -27,13 +27,13 @@ fi
 }
 
 # Check that there is no "techniques" folder at the repository root
-TECHNIQUES_EXISTS=$(find ${REPOSITORY_PATH} -maxdepth 1 -type d -name "techniques" | wc -l)
+TECHNIQUES_EXISTS=$(find ${REPOSITORY_PATH} -maxdepth 1 -type d -name "policies" | wc -l)
 if [ ${TECHNIQUES_EXISTS} -ne 0 ];then
 	exit 1
 fi
 
 # Check that there are no "metadata.xml" files in each of policy folder
-METADATA_EXISTS=$(find ${REPOSITORY_PATH} -type f -name "metadata.xml" | wc -l)
+METADATA_EXISTS=$(find ${REPOSITORY_PATH} -type f -name "policy.xml" | wc -l)
 if [ ${METADATA_EXISTS} -ne 0 ];then
 	exit 2
 fi
