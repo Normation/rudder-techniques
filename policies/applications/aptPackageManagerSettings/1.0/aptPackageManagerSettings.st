@@ -133,9 +133,25 @@ bundle agent check_apt_settings {
 			
 	reports:
 
+		# SUCCESS if:
+		## Do not need to edit repositories or repositories good = ((apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated)
+		## and
+		## APT Config good = (apt_tier2_kept.!apt_tier2_validated)
+		## and
+		## No need to disable other repositories (not require or already disabled) = ((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated)
+		## and
+		## No error = !(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)
 		(apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated.apt_tier2_kept.!apt_tier2_validated.(!apt_disablerepositories|apt_disabled_kept).!apt_disabled_validated::
 			"@@aptPackageManagerSettings@@result_success@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#APT settings were all already correct";
 
+		# REPAIRED if:
+		## Need to edit repositories and no error= apt_tier1_validated
+		## or
+		## Need to edit APT config and no error = apt_tier2_validated
+		## or
+		## Need to disable other repositories and no error= apt_disabled_validated
+		## and
+		## No error = !(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)
 		(apt_tier1_validated|apt_tier2_validated|apt_disabled_validated).(!apt_tier1_failed|!apt_tier2_failed|!apt_disabled_failed)::
 			"@@aptPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#Some APT settings were reset";
 
