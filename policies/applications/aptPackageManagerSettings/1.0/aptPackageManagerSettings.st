@@ -141,7 +141,7 @@ bundle agent check_apt_settings {
 		## No need to disable other repositories (not require or already disabled) = ((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated)
 		## and
 		## No error = !(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)
-		(apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated.apt_tier2_kept.!apt_tier2_validated.(!apt_disablerepositories|apt_disabled_kept).!apt_disabled_validated::
+		((apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated).(apt_tier2_kept.!apt_tier2_validated).((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated).!(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)::
 			"@@aptPackageManagerSettings@@result_success@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#APT settings were all already correct";
 
 		# REPAIRED if:
