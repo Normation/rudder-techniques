@@ -78,6 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		    <DESCRIPTION>Content of the file</DESCRIPTION>
 		    <CONSTRAINT>
 		        <TYPE>textarea</TYPE>
+		        <MAYBEEMPTY>true</MAYBEEMPTY>
 		    </CONSTRAINT>
 		  </INPUT>
 		</SECTION>
