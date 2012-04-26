@@ -72,7 +72,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   </CONSTRAINT>
                 </INPUT>
 		</SECTION>
-		<SECTION name="File content" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		<SECTION name="File content" component="false">
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
 		    <DESCRIPTION>Content of the file</DESCRIPTION>
