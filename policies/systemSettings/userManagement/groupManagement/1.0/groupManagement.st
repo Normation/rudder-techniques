@@ -72,7 +72,7 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, 
 			"/etc/group"
 				edit_line => groups_file_append("$(name)", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
 				classes => kept_if_else("group_$(index)_kept", "group_$(index)_added", "group_$(index)_add_failed"),
-				ifvarclass => "!group_$(index)_absent",
+				ifvarclass => "!group_$(index)_absent|group_$(index)_added",
 				comment => "Set users on the group $(name) only if the group is already present";
 
 	reports:
