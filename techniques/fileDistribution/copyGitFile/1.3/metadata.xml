@@ -75,7 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			</SELECT1>
 			<SELECT1>
 				<NAME>COPYFILE_COMPARE_METHOD</NAME>
-				<DESCRIPTION>Compare method</DESCRIPTION>
+				<DESCRIPTION>File comparison method</DESCRIPTION>
 				<LONGDESCRIPTION>This is the method to use for comparison between source and destination files.
 	- "mtime" copies the file if the modification time of the source file is more recent than that of the promised file.
 	- "ctime" CFEngine copies the file if the creation time of the source file is more recent than that of the promised file.
@@ -99,6 +99,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<ITEM>
 					<VALUE>digest</VALUE>
 					<LABEL>digest</LABEL>
+				</ITEM>
+				<ITEM>
+					<VALUE>binary</VALUE>
+					<LABEL>binary</LABEL>
 				</ITEM>
 				<ITEM>
 					<VALUE>exists</VALUE>
