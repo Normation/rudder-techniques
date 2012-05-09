@@ -249,7 +249,7 @@ bundle agent manageFilesAndFolders {
 
 			# Reporting for post-command execution
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@Post-modification hook@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Post-execution hook did not need running"
-				ifvarclass => "!manageFilesAndFolders_post_hook_run_$(index)|(manageFilesAndFolders_$(index)_kept.!manageFilesAndFolders_$(index)_modified)";
+				ifvarclass => "!manageFilesAndFolders_post_hook_run_$(index)|((manageFiles_$(index)_kept|manageFolders_$(index)_kept|manageSyms_$(index)_kept|manageFilesAndFolders_perms_$(index)_kept).!(manageFiles_$(index)_modified|manageFolders_$(index)_modified|manageSyms_$(index)_modified|manageFilesAndFolders_perms_$(index)_modified))";
 
 			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@Post-modification hook@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Post-execution hook successfully run"
 				ifvarclass => "manageFilesAndFolders_$(index)_command_run_ok";
