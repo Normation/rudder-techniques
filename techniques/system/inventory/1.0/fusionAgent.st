@@ -62,7 +62,6 @@ bundle agent doInventory {
 
                 uuid_valid.force_inventory::
 			"any" usebundle => fusionAgent;
-			"any" usebundle => androidPreparation;
 			"any" usebundle => listInstalledVM;
 			"any" usebundle => generateExtraInformations;
 			"any" usebundle => turnUsersToUnicode;
@@ -74,7 +73,6 @@ bundle agent doInventory {
 		# Workaround the wrong class expansion
 		uuid_valid.Night.splaying.!inventory_sent::
 			"any" usebundle => fusionAgent;
-			"any" usebundle => androidPreparation;
 			"any" usebundle => listInstalledVM;
 			"any" usebundle => generateExtraInformations;
 			"any" usebundle => turnUsersToUnicode;
@@ -182,27 +180,6 @@ bundle agent fusionAgent {
 			
 }
 
-bundle agent androidPreparation {
-
-	files:
-
-		android::
-
-			"/data/rudder/tmp/"
-				transformer => "/system/bin/mv $(this.promiser) ${g.rudder_var_tmp}/inventory/rudder_android.ocs",
-				depth_search => recurse_visible(1),
-				file_select => all_files,
-				classes => cf2_if_else("android_inventory_prepped", "cant_prepare_android_inventory"),
-				comment => "Copying android flavored fusion inventory to Rudder's directory";
-	reports:
-		android_inventory_prepped::
-			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Copied android fusion inventory report into Rudder directory";
-
-		cant_prepare_android_inventory::
-			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not copy android fusion inventory report into Rudder directory";
-
-}
-
 # List all installed VM on the machine (based on VirtualBox)
 # CAUTION : Issue with path containing a whitespace, it's not working with windows
 bundle agent listInstalledVM {
@@ -274,8 +251,15 @@ bundle agent generateExtraInformations {
 			classes => cf2_if_else("cpuid", "cpuid_fail"),
 			comment => "Generating file with CPUID information";
 			
-	linux::
+	linux.!android::
 		"${g.rudder_dependencies}/cpuid-linux-V1.0.sh"
+			args => " > ${inventory.CPUIDFile}",
+			contain => outputable,
+			classes => cf2_if_else("cpuid", "cpuid_fail"),
+			comment => "Generating file with CPUID information";
+
+	android::
+		"${g.rudder_dependencies}/cpuid-android-V1.0.sh"
 			args => " > ${inventory.CPUIDFile}",
 			contain => outputable,
 			classes => cf2_if_else("cpuid", "cpuid_fail"),
@@ -341,9 +325,9 @@ bundle agent addInformationsToInventory {
 	xen.xenrudderuuid::
 		"RUDDERUUID" string => "$(vmarray[1])";
 
-
-	linux.!xen::
+	linux.!android.!xen::
 		"RUDDERUUID" string => execresult("/usr/sbin/dmidecode -s system-uuid","noshell");
+
 	linux::
 		"CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
 		"USER" string => execresult("/usr/bin/whoami", "noshell");		
@@ -359,6 +343,11 @@ bundle agent addInformationsToInventory {
 		"uuiddefined" expression => isvariable("RUDDERUUID");
 
 	android::
+		"RUDDERUUID" string => "69286a09-59e7-4d9b-ba65-e328da2bed46";
+		"CFKEY" string => readfile("${sys.workdir}/ppkeys/localhost.pub", "1024");
+		"USER" string => execresult("/system/xbin/whoami", "noshell");
+		"usersnumber" int =>  "1";
+		"users" slist => {"root"};
 		"android_kernelname" string => "linux";
 		"android_kernelversion" string => execresult("/system/xbin/uname -r", "noshell");
 		"android_name" string => "Android";
@@ -507,7 +496,7 @@ insert_lines:
 	android::
 
 		"<OPERATINGSYSTEM>$(const.n)<FULL_NAME>$(fullname)</FULL_NAME>$(const.n)<KERNEL_NAME>$(kernelname)</KERNEL_NAME>$(const.n)<KERNEL_VERSION>$(kernelversion)</KERNEL_VERSION>$(const.n)<NAME>$(name)</NAME>$(const.n)<VERSION>$(version)</VERSION>$(const.n)</OPERATINGSYSTEM>"
-			location => after_location("</UUID>"),
+			location => after_location("<CONTENTS>"),
 			comment => "Adding the list of OPERATINGSYSTEM part";
 
 }
