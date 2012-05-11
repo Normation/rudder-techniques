@@ -330,11 +330,13 @@ bundle agent check_log_system {
 
   classes:
 
-	"rsyslogd" expression => fileexists("/etc/rsyslog.conf");
+	!android::
 
-	"syslogng" expression => fileexists("/etc/syslog-ng/syslog-ng.conf");
+		"rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
-	"syslogd" expression => fileexists("/etc/syslog.conf");
+		"syslogng" expression => fileexists("/etc/syslog-ng/syslog-ng.conf");
+
+		"syslogd" expression => fileexists("/etc/syslog.conf");
 
   files:
 	linux.rsyslogd::
@@ -400,6 +402,9 @@ bundle agent check_log_system {
 
 	(syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired)::
     	"@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Logging system for report centralization is already correctly configured";
+
+	android::
+    	"@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#This is an android machine: Logging system configuration skipped.";
 } 
 
 #######################################################
@@ -421,6 +426,8 @@ bundle agent check_cron_daemon {
             "cron_restartcmd" string => "/etc/init.d/crond restart";
 
     processes:
+
+	!android::
 
             "$(cron_bin)"
                 restart_class => "restart_crond";
@@ -444,6 +451,9 @@ bundle agent check_cron_daemon {
 
         !restart_crond.!crond_restarted.!crond_failed::
             "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon is running";
+
+        android::
+            "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#This is an android machine: CRON verifications skipped !";
 
 }
 
