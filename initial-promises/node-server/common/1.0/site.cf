@@ -43,7 +43,7 @@ vars:
  windows.!cygwin::
    "uuid_file" string => "${rudder_base}\etc\uuid.hive";
 
- linux|cygwin::
+ (linux|cygwin).!android::
     "rudder_base" string => "/opt/rudder";
     "rudder_var"  string => "/var/rudder";
     "rudder_sbin" string  => "$(rudder_base)/sbin";
@@ -53,9 +53,25 @@ vars:
     "uuid_file" string => "${rudder_base}/etc/uuid.hive";
     "rudder_dependencies" string => "/var/rudder/tools";
     "crontab" string => "/etc/crontab";
-
+    "rudder_curl" string => "/usr/bin/curl";
     # The time at which the execution started
     "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
+
+ android::
+    "rudder_base" string => "/data/rudder";
+    "rudder_var"  string => "/data/rudder";
+    "rudder_sbin" string  => "$(rudder_base)/sbin";
+    "rudder_var_tmp" string  => "$(rudder_var)/tmp"; # tmp generated data
+    "rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
+    "rudder_inventories" string  => "$(rudder_var)/inventories";
+    "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+    "rudder_dependencies" string => "$(rudder_var)/tools";
+    "crontab" string => "/etc/crontab";
+    "rudder_curl" string => "/system/bin/curl";
+
+    # The time at which the execution started
+    # "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\"", "noshell"); <= Problem with the timezone (missing semicolon)
+    "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
 
 
  any::
