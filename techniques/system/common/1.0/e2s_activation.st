@@ -32,7 +32,6 @@ bundle agent e2s_enable {
 
       windows::
 
-#        "any" usebundle => e2sGet;
         "any" usebundle => e2sInstall;
         "any" usebundle => e2sConfigure;
 &if(NOVA)&
@@ -55,32 +54,6 @@ bundle common e2sCommon {
     "e2s_exe" string => "$(g.rudder_dependencies)/centreon-e2s.exe";
     "e2s_tpl" string => "$(g.rudder_dependencies)/e2s.tpl";
     
-}
-
-bundle agent e2sGet {
-
-  files:
-
-        "${g.rudder_sbin}/centreon_e2s.exe"
-        copy_from    => scp("${e2sCommon.e2s_exe}", "${server_info.cfserved}","digest","true","true","false"),             
-        perms => m("0700"),
-        classes => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
-        comment => "Copying tool for e2s installation";
-        
-        "${g.rudder_sbin}/e2s.tpl"
-        copy_from    => scp("${e2sCommon.e2s_tpl}", "${server_info.cfserved}","digest","true","true","false"),             
-        perms => m("0700"),
-        classes => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
-        comment => "Copying tool for e2s conversion";
-
-  reports:
-  
-		e2s_tool_copied::
-			"@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Copied E2S utilities";
-			
-		cannot_copy_e2s::
-			"@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not copy E2S utilities";
-
 }
 
 bundle agent e2sInstall {
