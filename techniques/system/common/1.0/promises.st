@@ -356,16 +356,18 @@ bundle agent check_binaries_freshness {
 		community_edition::
 
 			"components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key" };
+			"cfengine_install_path" string => "${g.rudder_sbin}";
 
 		nova_edition::
 
 			"components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+			"cfengine_install_path" string => "/usr/local/sbin";
 
 	files:
 
 		"${sys.workdir}/bin/${components}"
 			perms => u_p("700"),
-			copy_from => cp("${g.rudder_sbin}/${components}", "localhost"),
+			copy_from => cp("${cfengine_install_path}/${components}", "localhost"),
 			classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
 			action => immediate,
 			comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
