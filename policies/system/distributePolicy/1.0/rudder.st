@@ -40,7 +40,7 @@ $EscapeControlCharactersOnReceive off
 $ActionQueueType Direct
 $ActionQueueSaveOnShutdown on 
 
-# The RudderDbLinuxReportFormat, for the manipulation with the application
+# The RudderLinuxReportFormat, for the manipulation with the application
 # nodeId : the node id
 # configurationRuleId : configurationRuleId
 # policyinstanceid : the policyinstanceid
@@ -51,15 +51,14 @@ $ActionQueueSaveOnShutdown on
 
 
 
-$template RudderDbLinuxReportFormat,"insert into RudderSysEvents (executionDate, nodeId, configurationRuleId, policyInstanceId, serial, Component, KeyValue, executionTimeStamp, eventType, msg, Policy) values ('%timereported:::date-rfc3339%','%msg:R,ERE,1,DFLT:.*##(.*)@#.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@(.*)@@.*@@.*@@.*@@.*@@.*##.*--end%' , '%msg:R,ERE,1,ZERO:.*@@.*@@.*@@.*@@(.*)@@.*@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@(.*)@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@(.*)@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@.*@@(.*)@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@.*@@.*@@(.*)##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@(.*)@@.*@@.*@@.*@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@#(.*)--end%', '%msg:R,ERE,1,DFLT:.*@@(.*)@@.*@@.*--end%' )",stdsql
+$template RudderLinuxReportFormat,"insert into RudderSysEvents (executionDate, nodeId, configurationRuleId, policyInstanceId, serial, Component, KeyValue, executionTimeStamp, eventType, msg, Policy) values ('%timereported:::date-rfc3339%','%msg:R,ERE,1,DFLT:.*##(.*)@#.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@(.*)@@.*@@.*@@.*@@.*@@.*##.*--end%' , '%msg:R,ERE,1,ZERO:.*@@.*@@.*@@.*@@(.*)@@.*@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@(.*)@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@(.*)@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@.*@@(.*)@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@.*@@.*@@(.*)##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@(.*)@@.*@@.*@@.*@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@#(.*)--end%', '%msg:R,ERE,1,DFLT:.*@@(.*)@@.*@@.*--end%' )",stdsql
 
 # Windows templates for inserting in database
-$template RudderDbWindowsReportFormat,"insert into RudderSysEvents (executionDate, nodeId, configurationRuleId, policyInstanceId, eventType, msg, Policy) values ('%timereported:::date-rfc3339%','%msg:R,ERE,1,FIELD:.*##(.*)@#.*--end%', '%msg:R,ERE,1,FIELD:.*@@.*@@.*@@(.*)#@.*--end%' , '%msg:R,ERE,1,FIELD:.*#@(.*)##.*--end%', '%msg:R,ERE,1,FIELD:.*@@.*@@(.*)@@.*#@.*--end%', '%msg:R,ERE,1,BLANK:.*@#(.*)--end%', '%msg:R,ERE,1,FIELD:.*@@(.*)@@.*@@.*--end%' )",stdsql
 
 
 # We start by logging all the Windows and Linux message
 :programname, contains, "rudder" /var/log/rudder/reports/linuxlog.log
-:programname, contains, "MSWinEventLog" /var/log/rudder/reports/winlog.log
+:programname, contains, "Cfengine_Nova" /var/log/rudder/reports/winlog.log
 
 # Filtering by content
 # Process :
@@ -70,19 +69,12 @@ $template RudderDbWindowsReportFormat,"insert into RudderSysEvents (executionDat
 if $programname startswith 'rudder' and $msg startswith '  R: @@' then /var/log/rudder/reports/extLinuxReport.log
 
 # Enforce the content of the line with a regular expression
-:msg, ereregex, "R: @@[ a-zA-Z0-9\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.{1,64}?@@.{1,64}?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:localhost,rudder,rudder,Normation;RudderDbLinuxReportFormat
+:msg, ereregex, "R: @@[ a-zA-Z0-9\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.{1,64}?@@.{1,64}?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:localhost,rudder,rudder,Normation;RudderLinuxReportFormat
+
 
 # We shouldn't have any rudder message here left
 if $programname startswith 'rudder' then ~
 
-# Should remain only program with non-Rudder
-
-# We are only interested in windows message, set via E2S
-# Drop all non-windows messages
-
-:msg, regex, ".*Description: rudder.*@@.*@@.*@@.*#@.*@#.*"  /var/log/rudder/reports/extWinReport.log
-:msg, regex, ".*Description: rudder.*@@.*@@.*@@.*#@.*@#.*" :ompgsql:localhost,rudder,rudder,Normation;RudderDbWindowsReportFormat
-:msg, regex, ".*Description: rudder.*@@.*@@.*@@.*#@.*@#.*"   ~
 
 
 
