@@ -38,7 +38,7 @@ vars:
    "escaped_workdir" string => escape("$(sys.workdir)");
 
    # The time at which the execution started
-   "execRun" string => execresult("${g.rudder_sbin}/getDate.bat", "noshell");
+   "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 
  windows.!cygwin::
    "uuid_file" string => "${rudder_base}\etc\uuid.hive";
