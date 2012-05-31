@@ -33,10 +33,6 @@ bundle common virtualMachines {
 		# Tools for fetching data
 		"VMWareScript" string => "${g.inventory_directory}/vmware_info.sh";
 
-		windows.!cygwin::
-			"virtual_box_install_path" string => execresult("${sys.winsysdir}\cmd.exe /c \"echo %VBOX_INSTALL_PATH%\"", "noshell"),
-				comment => "Looking for VirtualBox environment variables";
-
 
 		cygwin::
 			"virtual_box_install_path" string => execresult("/usr/bin/echo $VBOX_INSTALL_PATH | /usr/bin/sed ''s/\\\/\//g'' ", "useshell"),
@@ -52,6 +48,7 @@ bundle common virtualMachines {
 				comment => "Checking installation of VMWare";
 
 		windows::
-			"VirtualBoxInstalled" not => regcmp("", "$(virtual_box_install_path)");
+#deactivating this test on windows
+			"VirtualBoxInstalled" not => "any";
 }
 

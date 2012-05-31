@@ -81,7 +81,7 @@ classes:
 				database_type => "ms_registry",
 				database_rows => { "SearchList,REG_SZ,$(searchkey)"},
 				comment => "Set the search list",
-				classes => if_else("dns_repaired_searchlist", "cant_repair_dns_searchlist", "dns_searchlist_kept");
+				classes => class_trigger("dns_repaired_searchlist", "cant_repair_dns_searchlist", "dns_searchlist_kept");
 &endif&
 	
 	reports:

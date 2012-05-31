@@ -30,6 +30,10 @@ It is intended to check if the required DNS entries are set.
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <BUNDLES>
     <NAME>check_dns_configuration</NAME>
   </BUNDLES>

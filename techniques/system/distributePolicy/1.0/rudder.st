@@ -42,16 +42,17 @@ $ActionQueueSaveOnShutdown on
 
 # The RudderDbReportFormat, for the manipulation with the application
 # nodeId : the node id
-# ruleId : the Rule Id
-# directiveId : the directive id
+# configurationRuleId : configurationRuleId
+# policyinstanceid : the policyinstanceid
 # eventtype : the severity
 # policy : the policy name
 
-#  format is @@Policy@@State@@RuleId@@DirectiveId@@VersionId@@Component@@Key@@ExecutionTimeStamp##NodeId@#HumanReadableMessage
+#  format is @@Policy@@State@@ConfigurationRuleId@@PolicyInstanceId@@VersionId@@Component@@Key@@ExecutionTimeStamp##NodeId@#HumanReadableMessage
 
 
 
 $template RudderDbReportFormat,"insert into RudderSysEvents (executionDate, nodeId, ruleId, directiveId, serial, Component, KeyValue, executionTimeStamp, eventType, msg, Policy) values ('%timereported:::date-rfc3339%','%msg:R,ERE,1,DFLT:.*##(.*)@#.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@(.*)@@.*@@.*@@.*@@.*@@.*##.*--end%' , '%msg:R,ERE,1,ZERO:.*@@.*@@.*@@.*@@(.*)@@.*@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@(.*)@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@(.*)@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@.*@@(.*)@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@.*@@.*@@.*@@.*@@.*@@.*@@(.*)##.*--end%', '%msg:R,ERE,1,DFLT:.*@@.*@@(.*)@@.*@@.*@@.*@@.*@@.*@@.*##.*--end%', '%msg:R,ERE,1,DFLT:.*@#(.*)--end%', '%msg:R,ERE,1,DFLT:.*@@(.*)@@.*@@.*--end%' )",stdsql
+
 
 
 
@@ -69,6 +70,8 @@ if $programname startswith 'rudder' and $msg startswith '  R: @@' then /var/log/
 
 # Enforce the content of the line with a regular expression
 :msg, ereregex, "R: @@[ a-zA-Z0-9\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.{1,64}?@@.{1,64}?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:localhost,rudder,rudder,Normation;RudderDbReportFormat
+
+
 
 
 # We shouldn't have any rudder message here left

@@ -104,14 +104,7 @@ bundle common inventory {
 }
 
 bundle agent fusionAgent {
-
-	vars:
-
-		windows.x86_64::
-			"win_fusion_path" string => "$(sys.winprogdir86)\FusionInventory-Agent";
-
-		windows.!x86_64::
-			"win_fusion_path" string => "$(sys.winprogdir)\FusionInventory-Agent";
+     
 
 	files:
 	linux|cygwin::
@@ -139,12 +132,12 @@ bundle agent fusionAgent {
 			comment => "Generating inventory, in the temporary folder";
 
 	    windows::	    
-			"\"${win_fusion_path}\fusioninventory-agent.bat\""
-				args => "--local=\"${g.rudder_var_tmp}\inventory\" 2>nul",
-				contain => in_dir_shell(${win_fusion_path}),
-				classes => cf2_if_else("run_inventory", "inventory_failed"),
-				comment => "Generating inventory";
-
+			"\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
+				        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" 2>nul",
+				        contain => in_shell,
+				        classes => cf2_if_else("run_inventory", "inventory_failed"),
+			 			comment => "Generating inventory";
+			 			
 	reports:
 		run_inventory::
 			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Running inventory";
@@ -313,12 +306,7 @@ bundle agent addInformationsToInventory {
 			edit_line => add_users_information_to_inventory($(users)),
 			edit_defaults => def_no_backup,
 			pathtype => "regex";
-
-		"C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
-			edit_line => add_version_information_to_inventory,
-			edit_defaults => def_no_backup,
-			pathtype => "regex";
-
+	
 	linux::
 		"${g.rudder_var_tmp}/inventory/.*.ocs"
 			edit_line => add_information_to_inventory($(RUDDERUUID), $(CFKEY), $(USER), $(polserv_uuid)),
@@ -440,30 +428,6 @@ bundle edit_line add_users_information_to_inventory(userlist)
 		"<USER>${userlist}</USER>$(const.n)" location => after_users,
 		comment => "Add the UUID and CFKEY tags in the inventory file";	
 }
-
-bundle edit_line add_version_information_to_inventory
-{
-vars:
-
-	windows.Windows_Server_2008_R2::
-		"version" string => "6.1";
-	windows.Windows_Server_2008::
-		"version" string => "6.0";
-	windows.Windows_Server_2003_R2::
-		"version" string => "5.2";
-	windows.Windows_Server_2003::
-		"version" string => "5.1";
-
-insert_lines:
-
-windows::
-
-	"      <VERSION>$(version)</VERSION>$(const.n)"
-		location => after_location("<OPERATINGSYSTEM>"),
-		comment => "Adding the VERSION part of OPERATINGSYSTEM";
-
-}
-
 
 #Locators
 body location after_location(pos) {

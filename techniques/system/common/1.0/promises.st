@@ -357,23 +357,26 @@ bundle agent check_binaries_freshness {
 		community_edition::
 
 			"components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key" };
-			"cfengine_install_path" string => "${g.rudder_sbin}";
 
 		nova_edition::
 
 			"components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
-			"cfengine_install_path" string => "/usr/local/sbin";
 
 	files:
 
-		"${sys.workdir}/bin/${components}"
-			perms => u_p("700"),
-			copy_from => cp("${cfengine_install_path}/${components}", "localhost"),
-			classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
-			action => immediate,
-			comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
+		community_edition::
+
+			"${sys.workdir}/bin/${components}"
+				perms => u_p("700"),
+				copy_from => cp("${g.rudder_sbin}/${components}", "localhost"),
+				classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
+				action => immediate,
+				comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
 
     reports:
+
+        nova_edition::
+            "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#This is a nova agent: leaving binaries alone";
 
         binaries_fresh.!binaries_rotten.!binaries_missing::
             "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#The CFengine binaries in ${sys.workdir}/bin are up to date";
@@ -404,8 +407,6 @@ body agent control {
     linux::
 	default_repository => "/var/rudder/modified-files";
 
-    windows::
-	default_repository => "c:\Program Files\Rudder\modified-files";
 }
 
 #######################################################
@@ -413,9 +414,9 @@ body agent control {
 body executor control {
     splaytime => "1";
 
-    exec_command => "$(sys.cf-agent) -f failsafe.cf \&\& $(sys.cf-agent)";
-    schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
-    executorfacility => "LOG_DAEMON";
+    exec_command => "$(sys.cf_agent) -f failsafe.cf \&\& $(sys.cf_agent)";
+    #schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
+    #executorfacility => "LOG_DAEMON";
 }
 
 ########################################################

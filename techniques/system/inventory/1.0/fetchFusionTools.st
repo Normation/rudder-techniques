@@ -37,18 +37,18 @@ bundle agent fetchFusionTools {
                                 classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
                                 comment => "Installing curl using yum";
 
-	files:
-
-		windows::
-
-				# This won't work anymore now we've removed Perl from tools
-				# See http://www.rudder-project.org/redmine/issues/2177
-                  "${g.rudder_sbin}/perl"
-                        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}/perl"),
-                        depth_search => recurse("inf"),
-                        action => if_elapsed("2880"),
-                        classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
-			comment => "Copying PERL userland";
+#	files:
+#
+#		windows::
+#
+#				# This won't work anymore now we've removed Perl from tools
+#				# See http://www.rudder-project.org/redmine/issues/2177
+#                  "${g.rudder_sbin}/perl"
+#                        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}/perl"),
+#                        depth_search => recurse("inf"),
+#                        action => if_elapsed("2880"),
+#                        classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
+#			comment => "Copying PERL userland";
 				
 	reports:
 		fusion_tools_copied::
@@ -56,6 +56,9 @@ bundle agent fetchFusionTools {
 			
 		cannot_copy_fusion_tools::
 			"@@Inventory@@result_error@@&TRACKINGKEY&@@tools@@None@@$(g.execRun)##$(g.uuid)@#Can't copy fusion utilities. Fusion might not work";
+
+		windows::
+			"@@Inventory@@log_info@@&TRACKINGKEY&@@tools@@None@@$(g.execRun)##$(g.uuid)@#Nothing to do on Windows";
 }
 
 body perms myperms
