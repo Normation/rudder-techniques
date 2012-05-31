@@ -302,6 +302,7 @@ bundle agent check_cron_daemon {
 
     processes:
 
+	!windows::
             "$(cron_bin)"
                 restart_class => "restart_crond";
 
@@ -398,9 +399,13 @@ body agent control {
 	
 	agentfacility => "LOG_LOCAL6";
 
+
 	# Repository where to put the copy of modified files
+    linux::
 	default_repository => "/var/rudder/modified-files";
 
+    windows::
+	default_repository => "c:\Program Files\Rudder\modified-files";
 }
 
 #######################################################
@@ -408,7 +413,7 @@ body agent control {
 body executor control {
     splaytime => "1";
 
-    exec_command => "$(sys.workdir)/bin/cf-agent -f failsafe.cf \&\& $(sys.workdir)/bin/cf-agent";
+    exec_command => "$(sys.cf-agent) -f failsafe.cf \&\& $(sys.cf-agent)";
     schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
     executorfacility => "LOG_DAEMON";
 }
