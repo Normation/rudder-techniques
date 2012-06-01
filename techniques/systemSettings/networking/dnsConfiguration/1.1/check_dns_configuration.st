@@ -92,9 +92,12 @@ classes:
                 dns_searchlist_edit::
                         "@@ConfigureDNS@@log_debug@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Settings are to edit DNS searchlist";
 
-                (linux.dns_repaired)|(windows.dns_repaired_resolver.!cant_repair_dns_resolver.dns_repaired_searchlist.!cant_repair_dns_searchlist)::
-                        "@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#DNS settings were updated";
-                        
+		(linux.dns_repaired)::
+			"@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#DNS settings were updated";
+
+		windows.((dns_repaired_resolver.!cant_repair_dns_resolver.dns_resolver_edit)|(dns_repaired_searchlist.!cant_repair_dns_searchlist.dns_searchlist_edit))::
+			"@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#DNS settings were updated";
+
                 cant_repair_dns::
                         "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Could not edit the $(sys.resolv) configuration file";
 
