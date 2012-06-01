@@ -125,6 +125,8 @@ bundle agent e2sLaunch {
 	e2s_service_repaired::
 		"@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Centreon E2S was restarted";
 
+	e2s_service_kept.!e2s_configure_repaired::
+		"@@Common@@result_succes@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Centreon E2S was correctly configured";
 }
 &endif&
 
