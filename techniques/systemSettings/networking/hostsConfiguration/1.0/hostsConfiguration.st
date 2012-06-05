@@ -33,8 +33,6 @@ bundle agent check_hosts_configuration {
 		&HOSTS_IP:{ip |"hosts_ip[&i&]" string => "&ip&";
 }&
 
-		"hosts_base_template" string => "&HOSTS_BASE_TEMPLATE&";
-
 	files:
 
 		linux::
@@ -49,7 +47,7 @@ bundle agent check_hosts_configuration {
 				edit_defaults => noempty_backup,
 &endif&
 
-				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip", "$(hosts_base_template)"),
+				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
 				classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
 
 		windows::
@@ -87,7 +85,7 @@ bundle agent check_hosts_configuration {
 
 }
 
-bundle edit_line set_hosts_values(hosts, ips, base_tmpl) {
+bundle edit_line set_hosts_values(hosts, ips) {
 
 vars:
 
@@ -100,10 +98,18 @@ delete_lines:
 insert_lines:
 
 &if (HOSTS_ENFORCE)&
-
-	"$(base_tmpl)"
-		insert_type => "preserve_block";
-
+	"127.0.0.1	localhost";
+	"127.0.1.1	$(sys.host)";
+	"##";
+	"# The following lines are desirable for IPv6 capable hosts";
+	"::1     localhost ip6-localhost ip6-loopback";
+	"fe00::0 ip6-localnet";
+	"ff00::0 ip6-mcastprefix";
+	"ff02::1 ip6-allnodes";
+	"ff02::2 ip6-allrouters";
+	"ff02::3 ip6-allhosts";
+	"###";
+	"## Here follows all the rudder defined hosts :";
 &endif&
 
 	"$($(ips)[$(hosts_index)])	$($(hosts)[$(hosts_index)])";
