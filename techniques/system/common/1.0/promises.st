@@ -342,6 +342,11 @@ bundle agent garbage_collection
 			file_select => days_old("30"),
 			depth_search => recurse("inf");
 
+		"$(g.rudder_var)/modified-files"
+
+			delete => tidy,
+			file_select => days_old("30"),
+			depth_search => recurse("inf");
 
 }
 
