@@ -124,7 +124,7 @@ bundle agent check_usergroup_user_parameters {
 				args => "USER $(usergroup_user_login[$(usergroup_user_index)]) /DELETE",
 				classes => cf2_if_else("login_remove_$(usergroup_user_index)_repaired", "login_remove_$(usergroup_user_index)_error"),
 				comment => "Delete the user",
-				ifvarclass => "!user_exists_$(usergroup_user_index).user_update_$(usergroup_user_index)";
+				ifvarclass => "!user_exists_$(usergroup_user_index).user_remove_$(usergroup_user_index)";
 
 			"\"${sys.winsysdir}\net.exe\""
 				args => "USER $(usergroup_user_login[$(usergroup_user_index)]) $(usergroup_user_password[$(usergroup_user_index)])",
