@@ -56,7 +56,7 @@ bundle agent check_usergroup_user_parameters {
 		"usergroup_user_index" slist => getindices("usergroup_user_login");
 
 
-		nos::
+		any_2nd_pass::
 
 			# Options to use whether Fullname is defined or not
 			"nameopt[$(usergroup_user_index)]"
@@ -106,7 +106,9 @@ bundle agent check_usergroup_user_parameters {
 		
 		"user_nameempty_$(usergroup_user_index)" not => isvariable("usergroup_user_fullname[$(usergroup_user_index)]");
 
-		"nos" expression => "any";
+		# Class 'any' is executed before others classes defined.
+		# Same as 'any' but execution will be after all classes defined
+		"any_2nd_pass" expression => "any";
 
 		"showtime" expression => isvariable("nameopt[1]");
 
