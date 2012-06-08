@@ -61,32 +61,32 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, 
 
 	commands:
 
-                        "/usr/sbin/groupadd"
-                                args => "-f \"$(name)\"",
-                                classes => if_else("group_$(index)_added", "group_$(index)_add_failed"),
-				ifvarclass => "group_$(index)_absent",
-                                comment => "Add the group $(name) if it doesn't exists";
+		"/usr/sbin/groupadd"
+			args => "-f \"$(name)\"",
+			classes => if_else("group_add_$(index)_repaired", "group_add_$(index)_error"),
+			ifvarclass => "group_$(index)_absent",
+			comment => "Add the group $(name) if it doesn't exists";
 
 	files:
 
-			"/etc/group"
-				edit_line => groups_file_append("$(name)", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
-				classes => kept_if_else("group_$(index)_kept", "group_$(index)_added", "group_$(index)_add_failed"),
-				ifvarclass => "!group_$(index)_absent|group_$(index)_added",
-				comment => "Set users on the group $(name) only if the group is already present";
+		"/etc/group"
+			edit_line => groups_file_append("$(name)", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
+			classes => kept_if_else("group_add_$(index)_kept", "group_add_$(index)_repaired", "group_add_$(index)_error"),
+			ifvarclass => "!group_$(index)_absent|group_add_$(index)_repaired",
+			comment => "Set users on the group $(name) only if the group is already present";
 
 	reports:
 
 		linux::
 
-			"@@groupManagement@@result_success@@$(piuuid)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already compliant with the policy"
-				ifvarclass => "group_$(index)_kept.!group_$(index)_added";
+			"@@groupManagement@@result_success@@$(piuuid)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already present and compliant with the policy"
+				ifvarclass => "group_add_$(index)_kept.!(group_add_$(index)_repaired|group_add_$(index)_error)";
 
 			"@@groupManagement@@result_repaired@@$(piuuid)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) has been updated"
-				ifvarclass => "group_$(index)_added";
+				ifvarclass => "group_add_$(index)_repaired.!(group_add_$(index)_kept|group_add_$(index)_error)";
 
 			"@@groupManagement@@result_error@@$(piuuid)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) could not be created or updated"
-				ifvarclass => "group_$(index)_add_failed";
+				ifvarclass => "group_add_$(index)_error";
 }
 
 bundle edit_line groups_file_append(group,userlist)
@@ -101,6 +101,7 @@ field_edits:
 	"$(group):.*"
 
 	# Set field of the file to parameter
+	# /etc/group entry is: groupname:x:gid:users
 	edit_field => col(":","4","$(finalgroup)","set");
 
 }
