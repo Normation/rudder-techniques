@@ -27,6 +27,11 @@ bundlesequence => { "init_files", "update" };
 
 inputs => { "common/1.0/update.cf" };
 output_prefix => "rudder";
+
+&if(NOVA)&
+        host_licenses_paid => "&LICENSESPAID&";
+
+&endif&
 }
 
 bundle common g
@@ -69,7 +74,7 @@ bundle agent init_files {
 		"missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
     files:
-    	linux|cygwin::
+    	cfengine_community.(linux|cygwin)::
 	        "${sys.workdir}/bin/${components}" 
     	        perms => u_p("700"),
         	    copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),

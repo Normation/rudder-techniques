@@ -81,7 +81,7 @@ classes:
 				database_type => "ms_registry",
 				database_rows => { "SearchList,REG_SZ,$(searchkey)"},
 				comment => "Set the search list",
-				classes => if_else("dns_repaired_searchlist", "cant_repair_dns_searchlist", "dns_searchlist_kept");
+				classes => class_trigger("dns_repaired_searchlist", "cant_repair_dns_searchlist", "dns_searchlist_kept");
 &endif&
 	
 	reports:
@@ -92,7 +92,10 @@ classes:
                 dns_searchlist_edit::
                         "@@ConfigureDNS@@log_debug@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Settings are to edit DNS searchlist";
 
-                (linux.dns_repaired)|(windows.dns_repaired_resolver.!cant_repair_dns_resolver.dns_repaired_searchlist.!cant_repair_dns_searchlist)::
+		(linux.dns_repaired)::
+			"@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#DNS settings were updated";
+
+		windows.((dns_repaired_resolver.!cant_repair_dns_resolver.dns_resolver_edit)|(dns_repaired_searchlist.!cant_repair_dns_searchlist.dns_searchlist_edit))::
                         "@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#DNS settings were updated";
                         
                 cant_repair_dns::

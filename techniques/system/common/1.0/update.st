@@ -102,7 +102,7 @@ bundle agent update {
 
 
 	processes:
-		config::
+		config.!windows::
 			"cf-serverd"  restart_class => "start_server";
 
 		config.!windows::
