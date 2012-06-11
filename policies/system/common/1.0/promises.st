@@ -304,6 +304,8 @@ body agent control {
     linux::
 	default_repository => "/var/rudder/modified-files";
 
+    windows::
+	default_repository => "c:\Program Files\Rudder\modified-files";
 }
 
 #######################################################
