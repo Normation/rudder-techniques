@@ -167,7 +167,7 @@ processes:
 	windows::
 
 		"$(escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
-		"$(escaped_workdir)\/bin\/cf-execd"    restart_class => "start_executor";
+		"cf-execd"    restart_class => "start_executor";
 
 commands:
 
@@ -301,6 +301,7 @@ body agent control {
 	agentfacility => "LOG_LOCAL6";
 
 	# Repository where to put the copy of modified files
+    linux::
 	default_repository => "/var/rudder/modified-files";
 
 }
@@ -310,7 +311,7 @@ body agent control {
 body executor control {
     splaytime => "1";
 
-    exec_command => "$(sys.workdir)/bin/cf-agent -f failsafe.cf \&\& $(sys.workdir)/bin/cf-agent";
+    exec_command => "$(sys.cf_agent) -f failsafe.cf \&\& $(sys.cf_agent)";
     schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
     executorfacility => "LOG_DAEMON";
 }
