@@ -26,7 +26,7 @@ bundle agent check_sudo_parameters {
 
 	classes:
 
-		"sudoers_present" expression => fileexists("/etc/sudoers");
+		"sudoconfiguration_sudoers_present" expression => fileexists("/etc/sudoers");
 
 	vars:
 
@@ -58,68 +58,68 @@ bundle agent check_sudo_parameters {
 
 	commands:
 
-		temp_sudoers_edited|temp_sudoers_kept::
+		sudoconfiguration_sudoers_tmp_edit_repair|sudoconfiguration_sudoers_tmp_edit_kept::
 
 			"/usr/sbin/visudo"
 				args => "-c -s -f /etc/sudoers.rudder",
-				classes => cf2_if_else("sudoers_valid", "sudoers_invalid"),
+				classes => cf2_if_else("sudoconfiguration_sudoers_valid", "sudoconfiguration_sudoers_invalid"),
 				comment => "Checking new sudoers validity";
 
 	files:
 
 		# Only copy /etc/sudoers if it exists (this is to avoid falling into an
 		# error report below)
-		sudoers_present::
-                        "/etc/sudoers.rudder"
-                                copy_from => local_dcp("/etc/sudoers"),
-                                perms => mog("0440", "root", "root"),
-                                classes => kept_if_else("sudoers_tmp_ok", "sudoers_tmp_copied", "sudoers_tmp_copy_failed"),
-                                comment => "Copying sudoers to a temporary file for editing";
+		sudoconfiguration_sudoers_present::
+			"/etc/sudoers.rudder"
+				copy_from => local_dcp("/etc/sudoers"),
+				perms => mog("0440", "root", "root"),
+				classes => kept_if_else("sudoconfiguration_sudoers_tmp_copy_kept", "sudoconfiguration_sudoers_tmp_copy_repaired", "sudoconfiguration_sudoers_tmp_copy_error"),
+				comment => "Copying sudoers to a temporary file for editing";
 
 		# If there is no /etc/sudoers file, remove our local copy before
 		# rebuilding, so that success/repaired reports make sense for the
 		# /etc/sudoers file, not just for our copy of it, and set result classes
 		# as if we had set it up correctly.
-		!sudoers_present::
+		!sudoconfiguration_sudoers_present::
 			"/etc/sudoers.rudder"
 				delete  => tidy,
-				classes => kept_if_else("sudoers_tmp_ok", "sudoers_tmp_copied", "sudoers_tmp_copy_failed"),
+				classes => kept_if_else("sudoconfiguration_sudoers_tmp_copy_kept", "sudoconfiguration_sudoers_tmp_copy_repaired", "sudoconfiguration_sudoers_tmp_copy_error"),
 				comment => "Remove temporary copy of /etc/sudoers that Rudder keeps in /etc/sudoers.rudder";
 
 
-		((sudoers_tmp_ok|sudoers_tmp_copied).(!sudoers_tmp_copy_failed))::
+		((sudoconfiguration_sudoers_tmp_copy_kept|sudoconfiguration_sudoers_tmp_copy_repaired).(!sudoconfiguration_sudoers_tmp_copy_error))::
 			"/etc/sudoers.rudder"
 				edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_directive_id", "$(sudo_force_content)"),
 				create => "true",
-                                edit_defaults => noempty_backup,
-                                perms => mog("0440", "root", "root"),
-				classes => kept_if_else("temp_sudoers_kept", "temp_sudoers_edited", "temp_sudoers_failed"),
+				edit_defaults => noempty_backup,
+				perms => mog("0440", "root", "root"),
+				classes => kept_if_else("sudoconfiguration_sudoers_tmp_edit_kept", "sudoconfiguration_sudoers_tmp_edit_repair", "sudoconfiguration_sudoers_tmp_edit_error"),
 				comment => "Editing temporary sudoers file";
 
-		sudoers_valid::
+		sudoconfiguration_sudoers_valid::
 
 			"/etc/sudoers"
 				copy_from => local_dcp("/etc/sudoers.rudder"),
 				create => "true",
 				perms => mog("0440", "root", "root"),
-				classes => kept_if_else("sudoers_kept", "sudoers_copied", "could_not_copy_sudoers"),
+				classes => kept_if_else("sudoconfiguration_sudoers_copy_kept", "sudoconfiguration_sudoers_copy_repaired", "sudoconfiguration_sudoers_copy_error"),
 				comment => "Copying sudoers to its final home";
 
 	reports:
 
-		sudoers_kept.!sudoers_copied::
+		sudoconfiguration_sudoers_copy_kept.!sudoconfiguration_sudoers_copy_repaired::
 
 			"@@sudoParameters@@result_success@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file did not require any modification";
 
-		sudoers_copied::
+		sudoconfiguration_sudoers_copy_repaired::
 
 			"@@sudoParameters@@result_repaired@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file was fixed and successfully updated";
 
-		temp_sudoers_failed|could_not_copy_sudoers|sudoers_tmp_copy_failed::
+		sudoconfiguration_sudoers_tmp_edit_error|sudoconfiguration_sudoers_copy_error|sudoconfiguration_sudoers_tmp_copy_error::
 
 			"@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file could NOT be edited!";
 
-		sudoers_invalid::
+		sudoconfiguration_sudoers_invalid::
 			"@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
 
 }
@@ -218,30 +218,30 @@ reports:
 
 	all_lines_defined.force::
 
-                "@@sudoParameters@@result_repaired@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt"
-                        ifvarclass => canonify("line_deleted");
+		"@@sudoParameters@@result_repaired@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt"
+			ifvarclass => canonify("line_deleted");
 
 }
 
 bundle agent check_sudo_installation(directiveId) {
 
-        packages:
-                linux::
-                        "sudo"
-                                package_policy  => "add",
-                                package_method  => generic,
-                                classes => kept_if_else("sudo_here", "sudo_installed", "cant_install_sudo"),
-                                comment => "Installing sudo using generic interface";
+	packages:
+		linux::
+			"sudo"
+				package_policy  => "add",
+				package_method  => generic,
+				classes => kept_if_else("sudoconfiguration_sudo_install_kept", "sudoconfiguration_sudo_install_repaired", "sudoconfiguration_sudo_install_error"),
+				comment => "Installing sudo using generic interface";
 
-        reports:
-                sudo_here::
-                        "@@sudoParameters@@result_success@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo already installed";
+	reports:
+		sudoconfiguration_sudo_install_kept::
+			 "@@sudoParameters@@result_success@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo already installed";
 
-                sudo_installed::
-                        "@@sudoParameters@@result_repaired@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo installed";
+		sudoconfiguration_sudo_install_repaired::
+			"@@sudoParameters@@result_repaired@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#sudo has been successfully installed";
 
-                cant_install_sudo::
-                        "@@sudoParameters@@result_error@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#Can't install sudo";
+		sudoconfiguration_sudo_install_error::
+			"@@sudoParameters@@result_error@@$(directiveId)@@Install@@None@@$(g.execRun)##$(g.uuid)@#Can't install sudo";
 
 }
 

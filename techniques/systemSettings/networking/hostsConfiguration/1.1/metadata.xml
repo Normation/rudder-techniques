@@ -43,9 +43,29 @@ It is intended to check if the required hosts entries are set.
       <INPUT>
         <NAME>HOSTS_ENFORCE</NAME>
         <DESCRIPTION>Force the hosts file content</DESCRIPTION>
-        <LONGDESCRIPTION>If enabled, only the entries defined here and the TCP/IP defaults ones will be inserted in the hosts file. Every other line will be deleted</LONGDESCRIPTION>
+        <LONGDESCRIPTION>If enabled, only the entries and the template defined below will be inserted in the hosts file. Every other line will be deleted</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>HOSTS_BASE_TEMPLATE</NAME>
+        <DESCRIPTION>Basic template to use in case of full replacement</DESCRIPTION>
+        <LONGDESCRIPTION>Please input a basic template that you want to use whichever IP have to be added after. You MUST use at lease the default TCP/IP entries (like localhost) or you WILL break your TCP/IP stack !</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>textarea</TYPE>
+          <DEFAULT>127.0.0.1    localhost
+127.0.1.1    $(sys.host)
+##
+# The following lines are desirable for IPv6 capable hosts
+::1     localhost ip6-localhost ip6-loopback
+fe00::0 ip6-localnet
+ff00::0 ip6-mcastprefix
+ff02::1 ip6-allnodes
+ff02::2 ip6-allrouters
+ff02::3 ip6-allhosts
+###
+## Here follows all the rudder defined hosts :</DEFAULT>
         </CONSTRAINT>
       </INPUT>
     </SECTION>
