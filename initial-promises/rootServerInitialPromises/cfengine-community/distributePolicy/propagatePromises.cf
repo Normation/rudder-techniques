@@ -16,6 +16,7 @@
 #
 #####################################################################################
 
+
 #
 # Fetch the promises from the server to be available for others machines
 # Must not do it on the RootServer though...
@@ -29,13 +30,12 @@ bundle agent propagatePromises {
             "client_data" string => "/var/rudder/share/";  #where to put the files on the client when downloaded 
 
     files:
-        root_server::
-	        "${g.rudder_dependencies}"
-           		copy_from    => copy("${g.rudder_base}/share/tools"),
+	root_server::
+		"${g.rudder_dependencies}" 
+            		copy_from    => copy("${g.rudder_base}/share/tools"),
           		depth_search => recurse_visible("inf"),
           		comment => "Fetching the tools for the promises execution",
           		classes => cf2_if_else("tools_propagated", "could_not_propagate_tools");
-
         !root_server::
             "${client_data}"  #that's a loop on each files in client_inputs
             	copy_from    => remote("${server_info.cfserved}","${server_data}"),
@@ -88,6 +88,7 @@ bundle agent sendInventoryToCmdb {
 			comment => "Sending the inventory to the cmdb";
 
 
+# NEED TO DO THE RSYNC PART
 	
 	reports:
 		inventory_sent::

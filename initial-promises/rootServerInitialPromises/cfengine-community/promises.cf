@@ -24,10 +24,10 @@
 body common control {
 
     inputs => {       
-        "common/site.cf","common/update.cf","common/process_matching.cf","distributePolicy/propagatePromises.cf", "distributePolicy/rsyslogConf.cf", "common/cfengine_stdlib.cf","common/cf-served.cf","common/library.cf","common/core-lib.cf"
+        "common/site.cf", "common/update.cf", "common/process_matching.cf", "common/cfengine_stdlib.cf","common/cf-served.cf","common/library.cf","common/core-lib.cf", "distributePolicy/propagatePromises.cf", "distributePolicy/rsyslogConf.cf", "distributePolicy/initCheck.cf", "distributePolicy/postgresCheck.cf", "distributePolicy/logrotateCheck.cf", "distributePolicy/integrityCheck.cf", "distributePolicy/apacheCheck.cf", "distributePolicy/ldapCheck.cf", "distributePolicy/aliveCheck.cf"
     };
 
-    bundlesequence => { @(va.bs) , "propagatePromises", "setup_debian_backports", "install_rsyslogd", "sendInventoryToCmdb" };
+    bundlesequence => { @(va.bs) , "setup_debian_backports", "install_rsyslogd", "propagatePromises", "sendInventoryToCmdb", "root_init_check", "root_postgres_check", "root_logrotate_check", "root_integrity_check", "root_apache_webdav_check", "root_ldap_check", "root_alive_check" };
     
 	output_prefix => "rudder"; 
     
