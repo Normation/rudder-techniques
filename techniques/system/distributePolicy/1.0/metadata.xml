@@ -26,6 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_postgres_check</NAME>
     <NAME>root_logrotate_check</NAME>
     <NAME>root_integrity_check</NAME>
+    <NAME>root_networks_check</NAME>
     <NAME>root_apache_webdav_check</NAME>
     <NAME>root_ldap_check</NAME>
     <NAME>root_alive_check</NAME>
@@ -43,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="postgresCheck"/>
     <TML name="logrotateCheck"/>
     <TML name="integrityCheck"/>
+    <TML name="networkCheck"/>
     <TML name="apacheCheck"/>
     <TML name="ldapCheck"/>
     <TML name="aliveCheck"/>
@@ -53,6 +55,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </TML>
     <TML name="rudder">
       <OUTPATH>distributePolicy/rsyslog.conf/rudder.conf</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="rudder-apache">
+      <OUTPATH>distributePolicy/apache.conf/rudder.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="logrotate">
