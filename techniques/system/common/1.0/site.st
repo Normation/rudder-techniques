@@ -62,8 +62,8 @@ vars:
    "uuid" string => readfile("$(g.uuid_file)", 60);
    "server_shares_folder" string  => "/var/rudder/share/${uuid}/promises/shares";
    "rudder_var_reports" string => "$(rudder_var)/reports";
-   "davuser" string => "rudder";
-   "davpw" string => "rudder";
+   "davuser" string => "&DAVUSER&";
+   "davpw" string => "&DAVPASSWORD&";
    "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
    "rudder_dependencies_origin" string => "/var/rudder/tools";
 

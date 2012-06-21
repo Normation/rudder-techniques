@@ -26,10 +26,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_postgres_check</NAME>
     <NAME>root_logrotate_check</NAME>
     <NAME>root_integrity_check</NAME>
-    <NAME>root_apache_webdav_check</NAME>
-    <NAME>root_ldap_check</NAME>
     <NAME>root_alive_check</NAME>
-    <NAME>root_password_check</NAME>
+    <NAME>root_password_check_file</NAME>
+    <NAME>root_password_check_ldap</NAME>
+    <NAME>root_password_check_psql</NAME>
+    <NAME>root_password_check_dav</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -40,8 +41,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="postgresCheck"/>
     <TML name="logrotateCheck"/>
     <TML name="integrityCheck"/>
-    <TML name="apacheCheck"/>
-    <TML name="ldapCheck"/>
     <TML name="aliveCheck"/>
     <TML name="passwordCheck"/>
     <TML name="clientlist">
@@ -61,8 +60,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SYSTEMVARS>
     <NAME>CMDBENDPOINT</NAME>
     <NAME>CLIENTSFOLDERS</NAME>
-    <NAME>DAVUSER</NAME>
-    <NAME>DAVPASSWORD</NAME>
   </SYSTEMVARS>
 
   <TRACKINGVARIABLE>

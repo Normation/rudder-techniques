@@ -90,7 +90,9 @@ bundle agent install_rsyslogd {
 	files:
 		policy_server::
 			"/etc/rsyslog.d/rudder.conf"
-				copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/rudder.conf"),
+				create    => "true",
+				edit_defaults => empty,
+				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/rudder.conf"),
         			classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
 			        comment => "Copying rsyslog conf";	
 
