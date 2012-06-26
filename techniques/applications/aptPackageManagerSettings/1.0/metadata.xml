@@ -80,7 +80,7 @@ manager, and eventually enforce them.
     <SECTION name="Proxy settings">
       <INPUT>
         <NAME>APT_HTTPPROXY_URL</NAME>
-        <DESCRIPTION>HTTP proxy URL:</DESCRIPTION>
+        <DESCRIPTION>HTTP proxy URL</DESCRIPTION>
         <LONGDESCRIPTION>The URL should be in the following format: http://[user:password@]server[:port]/</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -88,7 +88,7 @@ manager, and eventually enforce them.
       </INPUT>
       <INPUT>
         <NAME>APT_FTPPROXY_URL</NAME>
-        <DESCRIPTION>FTP proxy URL:</DESCRIPTION>
+        <DESCRIPTION>FTP proxy URL</DESCRIPTION>
         <LONGDESCRIPTION>The URL should be in the following format: ftp://[user:password@]server[:port]/</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
