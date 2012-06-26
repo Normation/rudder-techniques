@@ -162,6 +162,7 @@ bundle agent manageFilesAndFolders {
 		# This WILL delete the parent
 		"$(file[$(index)][path])" 
 			delete => tidy,
+			file_select => date_pattern("$(file[$(index)][ttl])", "$(file[$(index)][pattern])"),
 			ifvarclass => "manageFilesAndFolders_clean_$(index).(manageFilesAndFolders_deletion_simple_$(index)|manageFilesAndFolders_deletion_exterminate_$(index))",
 			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
 
