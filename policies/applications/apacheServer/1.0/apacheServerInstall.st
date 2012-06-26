@@ -55,5 +55,5 @@ bundle agent check_apache_installation {
 			"@@apacheServerConfiguration@@log_repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache installed";
 
 		cant_install_apache::
-			"@@apacheServerConfiguration@@log_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Can't install Apache";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Can't install Apache";
 }
