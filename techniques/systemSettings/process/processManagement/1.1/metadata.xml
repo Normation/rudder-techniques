@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It then reports out of bounds process count numbers, restarts them if
 necessary and kill undesired processes.
 -->
-<POLICY name="Process Management">
+<TECHNIQUE name="Process Management">
   <DESCRIPTION>Enforce defined parameters on system processes</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
@@ -86,4 +86,4 @@ necessary and kill undesired processes.
 -->
   </SECTIONS>
   
-</POLICY>
+</TECHNIQUE>
