@@ -126,7 +126,7 @@ bundle agent check_usergroup_user_parameters {
 				args => "USER $(usergroup_user_login[$(usergroup_user_index)]) /DELETE",
 				classes => cf2_if_else("usermanagement_login_remove_$(usergroup_user_index)_repaired", "usermanagement_login_remove_$(usergroup_user_index)_error"),
 				comment => "Delete the user $(usergroup_user_login[$(usergroup_user_index)])",
-				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index)";
+				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index)";
 
 			"\"${sys.winsysdir}\net.exe\""
 				args => "USER $(usergroup_user_login[$(usergroup_user_index)]) $(usergroup_user_password[$(usergroup_user_index)])",
@@ -159,7 +159,7 @@ bundle agent check_usergroup_user_parameters {
 			"/usr/sbin/userdel"
 				args => "$(usergroup_user_login[$(usergroup_user_index)])",
 				classes => cf2_if_else("usermanagement_login_remove_$(usergroup_user_index)_repaired", "usermanagement_login_remove_$(usergroup_user_index)_error"),
-				comment => "Delete the user",
+				comment => "Delete the user $(usergroup_user_login[$(usergroup_user_index)])",
 				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index)";
 
 	reports:
