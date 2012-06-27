@@ -61,26 +61,26 @@ bundle agent check_usergroup_user_parameters {
 			# Options to use whether Fullname is defined or not
 			"nameopt[$(usergroup_user_index)]"
 				string => "",
-				ifvarclass => "usermanagament_user_nameempty_$(usergroup_user_index)";
+				ifvarclass => "usermanagement_user_nameempty_$(usergroup_user_index)";
 
 			## On UNIX
 			"nameopt[$(usergroup_user_index)]"
 				string => "-c \"$(usergroup_user_fullname[$(usergroup_user_index)])\"",
-				ifvarclass => "!usermanagament_user_nameempty_$(usergroup_user_index).!windows";
+				ifvarclass => "!usermanagement_user_nameempty_$(usergroup_user_index).!windows";
 
 			## On Windows
 			"nameopt[$(usergroup_user_index)]"
 				string => "/FULLNAME:\"$(usergroup_user_fullname[$(usergroup_user_index)])\"",
-				ifvarclass => "!usermanagament_user_nameempty_$(usergroup_user_index).windows";
+				ifvarclass => "!usermanagement_user_nameempty_$(usergroup_user_index).windows";
 
 			## Part of reports to return whether Fullname is defined or not
 			"repname[$(usergroup_user_index)]"
 				string => "Without any defined full name",
-				ifvarclass => "usermanagament_user_nameempty_$(usergroup_user_index)";
+				ifvarclass => "usermanagement_user_nameempty_$(usergroup_user_index)";
 
 			"repname[$(usergroup_user_index)]"
 				string => "$(usergroup_user_fullname[$(usergroup_user_index)])",
-				ifvarclass => "!usermanagament_user_nameempty_$(usergroup_user_index)";
+				ifvarclass => "!usermanagement_user_nameempty_$(usergroup_user_index)";
 
 	classes:
 
@@ -104,7 +104,7 @@ bundle agent check_usergroup_user_parameters {
 
 		"usermanagement_user_pwempty_$(usergroup_user_index)" not => isvariable("usergroup_user_password[$(usergroup_user_index)]");
 		
-		"usermanagament_user_nameempty_$(usergroup_user_index)" not => isvariable("usergroup_user_fullname[$(usergroup_user_index)]");
+		"usermanagement_user_nameempty_$(usergroup_user_index)" not => isvariable("usergroup_user_fullname[$(usergroup_user_index)]");
 
 		# Class 'any' is executed before others classes defined.
 		# Same as 'any' but execution will be after all classes defined
