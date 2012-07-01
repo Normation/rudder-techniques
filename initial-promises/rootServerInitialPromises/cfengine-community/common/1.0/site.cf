@@ -39,7 +39,9 @@ vars:
 		"rudder_base_sbin" string  => "$(rudder_base)\sbin"; #folder where tools are installed
 		"rudder_inventories"  string => "$(rudder_var)\inventories";
 		"rudder_base_sbin_arg" string => "$(sys.winprogdir)\Rudder\sbin"; # for the installer command line
- 
+
+	# The time at which the execution started
+	"execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
  
 	windows.!cygwin::
 		"cfengine_share_directory" string => "c:\opt\hive\cf-served";
@@ -54,6 +56,9 @@ vars:
 		"rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
 		"rudder_inventories" string  => "$(rudder_var)/inventories";
 		"uuid_file" string => "${rudder_base}/etc/uuid.hive";
+
+	# The time at which the execution started
+	"execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
     	
 	any::
   

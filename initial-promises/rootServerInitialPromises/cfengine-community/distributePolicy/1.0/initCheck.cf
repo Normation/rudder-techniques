@@ -75,16 +75,16 @@ bundle agent generic_process_check_process(binary, initscript, force_restart) {
 
 	  linux::
 
-		"@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process is already running"
+		"@@DistributePolicy@@result_success@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process is already running"
 			ifvarclass => "!process_restart_$(canoname).!forced_trigger_$(canoname)";
 
-		"@@DistributePolicy@@Repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process was not running and has been restarted"
+		"@@DistributePolicy@@result_repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process was not running and has been restarted"
 			ifvarclass => "process_restart_$(canoname).process_restart_ok_$(canoname).!forced_trigger_$(canoname)";
 
-		"@@DistributePolicy@@Repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process has been restarted"
+		"@@DistributePolicy@@result_repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process has been restarted"
 			ifvarclass => "process_restart_ok_$(canoname).forced_trigger_$(canoname)";
 
-		"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process couldn't be restarted"
+		"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(initscript) process couldn't be restarted"
 			ifvarclass => "process_restart_error_$(canoname)";
 
 }
@@ -112,7 +112,7 @@ bundle agent generic_process_check_bootstart(binary, initscript) {
 
 	debian::
 
-			"/usr/sbin/update-rc.d $(initscript) remove \&\& /usr/sbin/update-rc.d $(initscript) defaults"
+			"/usr/sbin/update-rc.d $(initscript) remove && /usr/sbin/update-rc.d $(initscript) defaults"
 				contain => in_shell,
 				classes => if_else("service_bootstarted_ok_$(canoname)", "service_bootstarted_fail_$(canoname)"),
 				ifvarclass => "service_unbootstarted_$(canoname)",
@@ -131,13 +131,13 @@ bundle agent generic_process_check_bootstart(binary, initscript) {
 
 	  linux::
 
-		"@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##$(g.uuid)@#$(initscript) is started on boot as required"
+		"@@DistributePolicy@@result_success@@root-DP#@root-distributePolicy##$(g.uuid)@#$(initscript) is started on boot as required"
 			ifvarclass => "service_bootstarted_$(canoname)";
 
-		"@@DistributePolicy@@Repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#$(initscript) has been set to start on boot"
+		"@@DistributePolicy@@result_repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#$(initscript) has been set to start on boot"
 			ifvarclass => "!service_bootstarted_$(canoname).service_bootstarted_ok_$(canoname)";
 
-		"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Could not set $(initscript) to start on boot!"
+		"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Could not set $(initscript) to start on boot!"
 			ifvarclass => "!service_bootstarted_$(canoname).service_bootstarted_fail_$(canoname)";
 
 }

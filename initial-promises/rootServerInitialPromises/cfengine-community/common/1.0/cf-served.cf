@@ -23,6 +23,7 @@
 #######################################################
 
 bundle server access_rules {
+# Access rules are only defined on a policy server. Standard nodes should not share any files.
     access:
 
     policy_server::
@@ -36,6 +37,12 @@ bundle server access_rules {
 		"${g.rudder_dependencies}"
 			maproot => {  @(def.acl)  },
 			admit   => {  @(def.acl)  };
+
+		"/var/rudder/configuration-repository/shared-files"
+			comment => "Grant access to the share files",
+			maproot => {  @(def.acl)  },
+			admit   => {  @(def.acl)  };
+
 
 
     any::

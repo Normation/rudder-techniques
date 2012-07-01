@@ -63,16 +63,16 @@ bundle agent propagatePromises {
           		
 	reports:
 		could_not_propagate_promise::
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate policy files";
+			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate policy files";
 
 		could_not_propagate_tools::
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate tools";
+			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate tools";
 
 		could_not_propagate_masterfiles::
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate masterfiles";
+			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate masterfiles";
 
 		could_not_copy_license::
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot copy local license";
+			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot copy local license";
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
@@ -92,9 +92,9 @@ bundle agent sendInventoryToCmdb {
 	
 	reports:
 		inventory_sent::
-			"@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##$(g.uuid)@#The inventory has been successfully added to the cmdb";
+			"@@DistributePolicy@@result_success@@root-DP#@root-distributePolicy##$(g.uuid)@#The inventory has been successfully added to the cmdb";
 		cant_send_inventory::
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Could not send the inventory to the cmdb";
+			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Could not send the inventory to the cmdb";
 }
 
 
