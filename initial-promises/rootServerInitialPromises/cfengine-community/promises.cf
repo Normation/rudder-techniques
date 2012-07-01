@@ -24,10 +24,10 @@
 body common control {
 
     inputs => {       
-        "common/site.cf", "common/update.cf", "common/process_matching.cf", "common/cfengine_stdlib.cf","common/cf-served.cf","common/library.cf","common/core-lib.cf", "distributePolicy/propagatePromises.cf", "distributePolicy/rsyslogConf.cf", "distributePolicy/initCheck.cf", "distributePolicy/postgresCheck.cf", "distributePolicy/logrotateCheck.cf", "distributePolicy/integrityCheck.cf", "distributePolicy/apacheCheck.cf", "distributePolicy/ldapCheck.cf", "distributePolicy/aliveCheck.cf"
+        "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/process_matching.cf", "common/1.0/internal_security.cf", "common/1.0/cfengine_stdlib.cf","common/1.0/cf-served.cf","common/1.0/rudder_lib.cf", "distributePolicy/1.0/propagatePromises.cf", "distributePolicy/1.0/rsyslogConf.cf", "distributePolicy/1.0/initCheck.cf", "distributePolicy/1.0/postgresCheck.cf", "distributePolicy/1.0/logrotateCheck.cf", "distributePolicy/1.0/integrityCheck.cf", "distributePolicy/1.0/apacheCheck.cf", "distributePolicy/1.0/ldapCheck.cf", "distributePolicy/1.0/aliveCheck.cf"
     };
 
-    bundlesequence => { @(va.bs) , "setup_debian_backports", "install_rsyslogd", "propagatePromises", "sendInventoryToCmdb", "root_init_check", "root_postgres_check", "root_logrotate_check", "root_integrity_check", "root_apache_webdav_check", "root_ldap_check", "root_alive_check" };
+    bundlesequence => { @(va.bs) , "setup_debian_backports", "install_rsyslogd", "propagatePromises", "sendInventoryToCmdb", "root_init_check", "root_postgres_check", "root_logrotate_check", "root_integrity_check", "root_apache_webdav_check", "root_ldap_check", "root_alive_check" , @(va.end)};
     
 	output_prefix => "rudder"; 
     
@@ -35,16 +35,33 @@ body common control {
 
 bundle common va {
   vars:
-    "bs" slist => { "clean_red_button", "set_red_button", "update", "process_matching", "check_cf_processes", "check_uuid"
-    #,  "executor"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "garbage_collection"
      };
+
+
+	"end" slist => { "endExecution" };
+
 
 # definition of the machine roles
 classes: 
-    "root_server" expression => "any";
     "policy_server" expression => "any";
+    "root_server" expression => "any";
 }
 
+#########################################################
+# Control execution
+#########################################################
+bundle agent startExecution {
+  reports:
+   linux|windows::
+       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@4@@common@@StartRun@@$(g.execRun)##$(g.uuid)@#Start execution";
+}
+
+bundle agent endExecution {
+  reports:
+   linux|windows::
+       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@4@@common@@EndRun@@$(g.execRun)##$(g.uuid)@#End execution";
+}
 
 ##########################################################
 # Red Button part.
@@ -65,13 +82,13 @@ bundle agent clean_red_button() {
 		comment => "Deleting the stop file on clients promises, cfengine is good to go";
              
 	safe.!policy_server::
-        "${sys.workdir}/inputs/stop" 
+        "${sys.workdir}/inputs/stopFile" 
              delete => tidy,
              comment => "Deleting the stop file, cfengine is good to go";
              
    reports:
      safe::
-		"@@Common@@Inform@@hasPolicyServer-root#@common-root##$(g.uuid)@#Authorizing Cfengine to restart";
+		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#Authorizing Cfengine to restart";
 }
 
 bundle agent set_red_button() {
@@ -87,7 +104,6 @@ bundle agent set_red_button() {
 }
 
 bundle agent setStopFile {
-
  files:
     danger.!policy_server::
         "${sys.workdir}/inputs/stopFile" 
@@ -98,9 +114,9 @@ bundle agent setStopFile {
   
   reports:
      danger.!policy_server::
-		"@@Common@@Inform@@hasPolicyServer-root#@common-root##$(g.uuid)@#Creating stop file";
+		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#Creating stop file";
      danger.policy_server::
-		"@@Common@@Inform@@hasPolicyServer-root#@common-root##$(g.uuid)@#Creating stop files for clients";
+		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#Creating stop files for clients";
     
 }
 
@@ -117,7 +133,7 @@ bundle agent stopClients {
  
  reports:
      danger.policy_server::
-		"@@Common@@Inform@@hasPolicyServer-root#@common-root##$(g.uuid)@#gStopping all Cfengine operation";
+		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#gStopping all Cfengine operation";
  
 }
 
@@ -166,6 +182,30 @@ bundle agent check_uuid {
 			
 }
 
+########################################################
+# Trash every output report older than 30 days         #
+########################################################
+
+bundle agent garbage_collection
+{
+
+   files:
+
+       "$(sys.workdir)/outputs" 
+
+           delete => tidy,
+           file_select => days_old("30"),
+           depth_search => recurse("inf");
+
+       "$(g.rudder_var)/modified-files"
+
+           delete => tidy,
+           file_select => days_old("30"),
+           depth_search => recurse("inf");
+
+}
+
+
 #######################################################
 
 body agent control {
@@ -175,7 +215,13 @@ body agent control {
     #define here some environment variables
     environment => { "DEBIAN_FRONTEND=noninteractive" }; 
 
+	abortclasses => { "should_not_continue" };
+
 	agentfacility => "LOG_LOCAL6";
+
+	# Repository where to put the copy of modified files
+	linux::
+		default_repository => "/var/rudder/modified-files";
 
 }
 
@@ -184,56 +230,12 @@ body agent control {
 body executor control {
     splaytime => "1";
 
-    exec_command => "$(sys.workdir)/bin/cf-agent -f failsafe.cf && $(sys.workdir)/bin/cf-agent";
+    exec_command => "$(sys.cf_agent) -f failsafe.cf && $(sys.cf_agent)";
     schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
     executorfacility => "LOG_DAEMON";
 }
 
-# Not currently used
-bundle agent executor {
-#    processes:
-#        linux.!nova_edition::
-#            "cf-execd"
-#                restart_class => "start_cfexecd";  #call a class
-
-#    commands:
-#        start_cfexecd::  #define a class
-#            "/var/cfengine/bin/cf-execd";l
-
-    files:
-    	linux.!nova_edition::
-        "${g.crontab}"
-            create      => "true",
-            edit_line   => upgrade_cfexecd;
-}
 ########################################################
-
-
-# Not currently used
-bundle edit_line upgrade_cfexecd {
-  classes:
-    "exec_fix" not => regline(".*cf-execd.*","$(edit.filename)");
-
-  insert_lines:
-    exec_fix::
-      "0,5,10,15,20,25,30,35,40,45,50,55 * * * * /var/cfengine/bin/cf-execd -F";
-
-  reports:
-    exec_fix::
-    "Added a 5 minute schedule to crontabs to verify cf-execd is up";
-}
-
-
-#######################################################
-
-body reporter control {
-    reports => { "classes", "audit", "all_locks", "hashes", "performance", "last_seen", "monitor_history" };
-    build_directory => "$(sys.workdir)/reports";
-    report_output => "xml";
-}
-
-#######################################################
-
 
 #Enforce that the file only contains this information
 bundle edit_line enforce_content(str) {
