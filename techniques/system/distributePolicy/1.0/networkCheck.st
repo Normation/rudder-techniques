@@ -71,7 +71,7 @@ bundle agent root_networks_check {
 			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd has been reloaded successfully"
 				ifvarclass => "apache_restarted.!apache_restart_failed";
 
-			"@@DistributePolicy@@log_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd failed to restart"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd failed to restart"
 				ifvarclass => "apache_restart_failed";
 
 }
