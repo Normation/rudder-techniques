@@ -24,17 +24,9 @@ bundle agent root_networks_check {
 
 			"networks" string => join("$(const.n)$(const.t)$(const.t)Allow from ","network_list");
 
-		(SuSE|debian)::
-
-			"file_path" string => "/etc/apache2/rudder-networks.conf";
-
-		redhat::
-
-			"file_path" string => "/etc/httpd/rudder-networks.conf";
-
 	files:
 
-			"$(file_path)"
+			"/opt/rudder/etc/rudder-networks.conf"
 				create => "true",
 				perms => mog("644", "root", "root"),
 				edit_defaults => empty,
