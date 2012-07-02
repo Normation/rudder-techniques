@@ -24,17 +24,13 @@ bundle agent root_networks_check {
 
 			"networks" string => join("$(const.n)$(const.t)$(const.t)Allow from ","network_list");
 
-		SuSE::
+		(SuSE|debian)::
 
-			"file_path" string => "/etc/apache2/vhosts.d/rudder-default.conf";
+			"file_path" string => "/etc/apache2/rudder-networks.conf";
 
 		redhat::
 
-			"file_path" string => "/etc/httpd/conf.d/rudder-default.conf";
-
-		debian::
-
-			"file_path" string => "/etc/apache2/sites-enabled/rudder-default.conf";
+			"file_path" string => "/etc/httpd/rudder-networks.conf";
 
 	files:
 
@@ -42,7 +38,7 @@ bundle agent root_networks_check {
 				create => "true",
 				perms => mog("644", "root", "root"),
 				edit_defaults => empty,
-				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/apache.conf/rudder.conf"),
+				edit_line => insert_lines("Allow from $(networks)"),
 				classes => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
 			        comment => "Copying rudder apache configuration";
 

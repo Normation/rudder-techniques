@@ -57,10 +57,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>distributePolicy/rsyslog.conf/rudder.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="rudder-apache">
-      <OUTPATH>distributePolicy/apache.conf/rudder.conf</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
     <TML name="logrotate">
       <OUTPATH>distributePolicy/logrotate.conf/rudder</OUTPATH>
       <INCLUDED>false</INCLUDED>
