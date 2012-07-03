@@ -20,9 +20,9 @@ bundle agent root_networks_check {
 
 	vars:
 
-			"network_list" slist => { &ALLOWCONNECT: { host2ip("&it&"), }& };
+			"network_list" slist => { &ALLOWEDNETWORK: { "&it&", }& };
 
-			"networks" string => join("$(const.n)$(const.t)$(const.t)Allow from ","network_list");
+			"networks" string => join("$(const.n)Allow from ","network_list");
 
 	files:
 
@@ -30,7 +30,7 @@ bundle agent root_networks_check {
 				create => "true",
 				perms => mog("644", "root", "root"),
 				edit_defaults => empty,
-				edit_line => insert_lines("Allow from $(networks)"),
+				edit_line => insert_lines("Allow from 127.0.0.0/8$(const.n)Allow from $(networks)"),
 				classes => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
 			        comment => "Copying rudder apache configuration";
 
