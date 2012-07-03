@@ -145,13 +145,7 @@ bundle agent root_password_check_psql {
 				contain => setuid_sh("postgres"),
 				classes => if_else("postgres_updated", "postgres_update_failed");
 
-		rudder_web_password_integrity_changed::
-
-			"/etc/init.d/slapd restart"
-				contain => in_shell,
-				classes => if_else("slapd_restarted", "slapd_restart_failed");
-
-		postgres_updated::
+		(postgres_updated|rudder_web_password_integrity_changed)::
 
 			"/etc/init.d/jetty restart </dev/null >/dev/null 2>/dev/null"
 				contain => in_shell,
