@@ -46,6 +46,8 @@ bundle agent root_password_check_file {
 
 	reports:
 
+		linux::
+
 			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder passwords file is present and secure"
 				ifvarclass => "file_ok.!file_repaired.!file_error";
 
