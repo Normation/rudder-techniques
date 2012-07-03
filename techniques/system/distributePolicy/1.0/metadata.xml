@@ -45,8 +45,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="logrotateCheck"/>
     <TML name="integrityCheck"/>
     <TML name="networkCheck"/>
-    <TML name="apacheCheck"/>
-    <TML name="ldapCheck"/>
     <TML name="aliveCheck"/>
     <TML name="passwordCheck"/>
     <TML name="clientlist">
