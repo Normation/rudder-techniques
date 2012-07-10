@@ -62,6 +62,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SYSTEMVARS>
     <NAME>CMDBENDPOINT</NAME>
     <NAME>CLIENTSFOLDERS</NAME>
+    <NAME>ALLOWEDNETWORK</NAME>
   </SYSTEMVARS>
 
   <TRACKINGVARIABLE>
