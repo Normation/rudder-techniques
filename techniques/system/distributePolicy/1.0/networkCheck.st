@@ -20,9 +20,7 @@ bundle agent root_networks_check {
 
 	vars:
 
-			"network_list" slist => { &ALLOWEDNETWORK: { "&it&", }& };
-
-			"networks" string => join("$(const.n)Allow from ","network_list");
+			"networks" string => join("$(const.n)Allow from ","def.acl");
 
 	files:
 
