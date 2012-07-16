@@ -162,6 +162,19 @@ bundle agent check_usergroup_user_parameters {
 				comment => "Delete the user $(usergroup_user_login[$(usergroup_user_index)])",
 				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index)";
 
+	files:
+
+		"/etc/passwd"
+			create => "false",
+			edit_line => set_user_fullname("$(usergroup_user_login[$(usergroup_user_index)])","$(usergroup_user_index)","$(usergroup_user_fullname[$(usergroup_user_index)])"),
+			ifvarclass => "usermanagement_user_update_$(usergroup_user_index).!usermanagement_user_nameempty_$(usergroup_user_index)";
+
+		"/etc/passwd"
+			create => "false",
+			edit_line => set_user_fullname("$(usergroup_user_login[$(usergroup_user_index)])","$(usergroup_user_index)","$(usergroup_user_fullname[$(usergroup_user_index)])"),
+			action => "warn_only",
+			ifvarclass => "usermanagement_user_checkpres_$(usergroup_user_index).!usermanagement_user_nameempty_$(usergroup_user_index)";
+
 	reports:
 
 		(linux|windows).showtime::
@@ -169,9 +182,13 @@ bundle agent check_usergroup_user_parameters {
 			# Add user
 			## Does exist (Success)
 			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is already present on the system"
-				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).!usermanagement_login_add_$(usergroup_user_index)_repaired";
+				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).!usermanagement_login_add_$(usergroup_user_index)_repaired.(usermanagement_user_nameempty_$(usergroup_user_index)|usermanagement_fullname_edit_$(usergroup_user_index)_kept)";
 
-			## Added
+			## Seems to exist with a wrong Full Name (Repaired)
+			"@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) had a wrong fullname"
+				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).!usermanagement_user_nameempty_$(usergroup_user_index).(usermanagement_fullname_edit_$(usergroup_user_index)_repaired|usermanagement_fullname_edit_$(usergroup_user_index)_error)";
+
+			## Added (Repaired)
 			"@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been added to the system"
 				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_login_add_$(usergroup_user_index)_repaired";
 
@@ -180,11 +197,11 @@ bundle agent check_usergroup_user_parameters {
 				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_login_add_$(usergroup_user_index)_error";
 
 			# Remove user
-			## Does not exist(Success)
+			## Does not exist (Success)
 			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) does not exist, as required"
 				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index)";
 
-			## Removed
+			## Removed (Repaired)
 			"@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) has been removed from the system"
 				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index).usermanagement_login_remove_$(usergroup_user_index)_repaired";
 
@@ -192,22 +209,36 @@ bundle agent check_usergroup_user_parameters {
 			"@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be removed from the system"
 				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index).usermanagement_login_remove_$(usergroup_user_index)_error";
 
-			# Check user exists
+			# Check user not exists
 			## Does not exist (Success)
 			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which is in accordance with the non presence policy"
 				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_checkabs_$(usergroup_user_index)";
 
-			## Does not exist (Error)
-			"@@userGroupManagement@@log_warn@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which violates the non presence policy"
+			## Does exist (Error)
+			"@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which violates the non presence policy"
 				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_checkabs_$(usergroup_user_index)";
 
 			# Check user exists
 			## Does exist (Success)
 			"@@userGroupManagement@@result_success@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, which is in conformance with the presence policy"
-				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_checkpres_$(usergroup_user_index)";
+				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_checkpres_$(usergroup_user_index).(usermanagement_user_nameempty_$(usergroup_user_index)|usermanagement_fullname_edit_$(usergroup_user_index)_kept)";
+
+			## Seems to exist with a wrong Full Name (Error)
+			"@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is present on the system, but does not have the right fullname"
+				ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_checkpres_$(usergroup_user_index).!usermanagement_user_nameempty_$(usergroup_user_index).(usermanagement_fullname_edit_$(usergroup_user_index)_repaired|usermanagement_fullname_edit_$(usergroup_user_index)_error)";
 
 			## Does not exist (Error)
-			"@@userGroupManagement@@log_warn@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which violates the presence policy"
+			"@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) is not present on the system, which violates the presence policy"
 				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_checkpres_$(usergroup_user_index)";
+
+}
+
+bundle edit_line set_user_fullname(user,user_index,fullname)
+{
+	field_edits:
+		"$(user):.*"
+			# Edit GECOS on /etc/passwd
+			edit_field => col(":", "5", "$(fullname)", "set"),
+			classes => kept_if_else("usermanagement_fullname_edit_$(user_index)_kept","usermanagement_fullname_edit_$(user_index)_repaired","usermanagement_fullname_edit_$(user_index)_error");
 
 }
