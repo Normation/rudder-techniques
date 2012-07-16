@@ -79,22 +79,31 @@ bundle agent propagatePromises {
 bundle agent sendInventoryToCmdb {
 
 	files:
-	   	root_server::
-	    "${g.rudder_inventories}/incoming" 
-			transformer => "$(g.rudder_dependencies)/send-clean.sh &CMDBENDPOINT& $(this.promiser) ${g.rudder_inventories}/received/",
-			depth_search => recurse_visible(1),
-			file_select => all_files,
-			classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
-			comment => "Sending the inventory to the cmdb";
+
+		root_server::
+
+			"${g.rudder_inventories}/incoming"
+				transformer => "$(g.rudder_dependencies)/send-clean.sh &CMDBENDPOINT& $(this.promiser) ${g.rudder_inventories}/received/",
+				depth_search => recurse_visible(1),
+				file_select => all_files,
+				classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
+				comment => "Sending the inventory to the cmdb";
+
+			"${g.rudder_inventories}/accepted-nodes-updates"
+				transformer => "$(g.rudder_dependencies)/send-clean.sh &CMDBENDPOINT& $(this.promiser) ${g.rudder_inventories}/received/",
+				depth_search => recurse_visible(1),
+				file_select => all_files,
+				classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
+				comment => "Sending the inventory to the cmdb";
 
 
 # NEED TO DO THE RSYNC PART
 	
 	reports:
-		inventory_sent::
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The inventory has been successfully added to the cmdb";
+		inventory_sent.!cant_send_inventory::
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Incoming inventories were successfully added to Rudder";
 		cant_send_inventory::
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Could not send the inventory to the cmdb";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Some inventories failed to add successfully to Rudder";
 }
 
 
