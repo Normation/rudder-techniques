@@ -74,12 +74,12 @@ bundle agent root_password_check_ldap {
 	files:
 
 			"$(properties_files)"
-				edit_line => set_variable_values("root_password_check.rudder"),
+				edit_line => set_variable_values("root_password_check_ldap.rudder"),
 				classes => kept_if_else("rudder_web_password_integrity_ok", "rudder_web_password_integrity_changed", "rudder_web_password_integrity_failed"),
 			        comment => "Verifying the Rudder Webapp properties file passwords and users";
 
 			"$(g.rudder_base)/etc/openldap/slapd.conf"
-				edit_line => update_slapd("root_password_check.slapd"),
+				edit_line => update_slapd("root_password_check_ldap.slapd"),
         			classes => kept_if_else("rudder_ldap_password_integrity_ok", "rudder_ldap_password_integrity_changed", "rudder_ldap_password_integrity_failed"),
 			        comment => "Verifying the Rudder LDAP file password and user";
 
@@ -135,7 +135,7 @@ bundle agent root_password_check_psql {
 	files:
 
 			"$(g.rudder_base)/etc/rudder-web.properties"
-				edit_line => set_variable_values("root_password_check.rudder"),
+				edit_line => set_variable_values("root_password_check_psql.rudder"),
 				classes => kept_if_else("rudder_web_password_integrity_ok", "rudder_web_password_integrity_changed", "rudder_web_password_integrity_failed"),
 			        comment => "Verifying the Rudder Webapp properties file passwords and users";
 
