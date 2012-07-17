@@ -164,10 +164,22 @@ processes:
 		"$(sys.workdir)/bin/cf-serverd"  restart_class => "start_server";
 		"$(sys.workdir)/bin/cf-execd"    restart_class => "start_executor";
 
+		"$(sys.workdir)/bin/cf-execd"
+			process_count => system_check_process_count("execd", "0","2"),
+			signals => { "term", "kill" },
+			classes => if_else("execd_is_tame", "execd_has_gone_wild"),
+			comment => "Checking if cf-execd has gone wild";
+
 	windows::
 
-		"$(escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
+		"$(g.escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
 		"cf-execd"    restart_class => "start_executor";
+
+		"cf-execd"
+			process_count => system_check_process_count("execd", "0","2"),
+			signals => { "term" },
+			classes => if_else("execd_is_tame", "execd_has_gone_wild"),
+			comment => "Checking if cf-execd has gone wild";
 
 commands:
 
@@ -180,6 +192,12 @@ commands:
 		"$(sys.cf_execd)",
 			action => u_ifwin_bg,
 			classes => outcome("executor");
+
+reports:
+
+	execd_has_gone_wild::
+
+		"@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#Warning, too many cf-execd processes were detected. They have been killed.";
 
 }
 
@@ -462,3 +480,8 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove) {
 
 }
 
+body process_count system_check_process_count(name, max, min)
+{
+	match_range => irange("$(min)","$(max)");
+	out_of_range_define => { "$(name)_is_defective" };
+}
