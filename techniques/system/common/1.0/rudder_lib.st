@@ -451,3 +451,16 @@ body contain in_shell_silent
 	useshell => "true";
 	no_output => "true";
 }
+
+###################################################
+# edit_line insert_rudder_disclaimer
+###################################################
+
+bundle edit_line insert_rudder_disclaimer
+{
+insert_lines:
+
+	"## File managed by Rudder - Edit with caution, some changes may disappear (especially passwords) ##"
+		location => start;
+
+}
