@@ -16,7 +16,6 @@
 #
 #####################################################################################
 
-
 #
 # Define what an agent has to do when it updates
 # its promises
@@ -26,37 +25,18 @@
 body copy_from remote(server, path) {
 
     servers => {
-        "${server}"
+        "${server}" 
     };
     encrypt  => "true";
     trustkey => "true";
     source   => "${path}";
     compare  => "digest";
-    preserve => "false"; #preserver permissions
-    verify   => "true";
-    purge    => "true";
-    owners   => {"root"};
-community_edition::
-                portnumber => "5309";
-
-}
-
-#simple copy method, unencrypted
-body copy_from remote_unsecured(server, path) {
-
-    servers => {
-        "${server}"
-    };
-    encrypt  => "false";
-    trustkey => "true";
-    source   => "${path}";
-    compare  => "mtime";
     preserve => "true"; #preserver permissions
     verify   => "true";
-    purge    => "true";
+    purge    => "false";
     owners   => {"root"};
 community_edition::
-                portnumber => "5309";
+ 	 	portnumber => "5309";
 
 }
 
@@ -78,31 +58,21 @@ bundle agent update {
 
     files:
 	!root_server::
+		  "${g.rudder_dependencies}"
+			copy_from    => remote("${server_info.cfserved}", "${g.rudder_dependencies}"),
+			depth_search => recurse("inf"),
+			action => immediate,
+			classes => success("rudder_dependencies_updated_ok", "rudder_dependencies_update_error");
+
           "${client_inputs}" 
             copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
             depth_search => recurse("inf"),
             action => immediate,
-            classes => success("config", "no_update", "config_ok");
-
-        !root_server.(!windows|cygwin)::
-		  "${g.rudder_dependencies}"
-			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-			#depth_search => recurse("inf"),
-			depth_search => recurse_ignore("inf", @(g.excludedreps)),
-			action => immediate,
-			classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
-
-        !root_server.(windows.!cygwin)::
-		  "${g.rudder_sbin}"
-			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-			#depth_search => recurse("inf"),
-			depth_search => recurse_ignore("inf", @(g.excludedreps)),
-			action => immediate,
-			classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+            classes => success("config", "no_update");
 
 
 	processes:
-		config.!windows::
+		config::
 			"cf-serverd"  restart_class => "start_server";
 
 		config.!windows::
@@ -127,27 +97,14 @@ bundle agent update {
 #########################################################
 	reports:
   			server_ok::
- 				"@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the server (cf-serverd)";
+ 				"@@HasPolicyServer@@Inform@@hasPolicyServer-root#@common-root##$(g.uuid)@#Started the server - system ready to serve";
   			executor_ok::
-  			    "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the scheduler (cf-execd)";
+  			    "@@HasPolicyServer@@Inform@@hasPolicyServer-root#@common-root##$(g.uuid)@#Started the scheduler - system functional";
   			    
   			no_update::
-  				"@@Common@@result_error@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update node's policy (CFEngine promises)";
+  				"@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Cannot update policy files";
 			rudder_dependencies_update_error::
-				"@@Common@@result_error@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
-
-			rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update::
-				"@@Common@@result_success@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
-
-			rudder_dependencies_updated::
-				"@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Dependencies updated";
-
-			config::
-				"@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Node's policy (CFEngine promises) updated";
-
-			config|rudder_dependencies_updated|server_ok|executor_ok::
-				"@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@1@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
-
+				"@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Cannot update dependencies";
 }
 
 
@@ -162,9 +119,8 @@ body action u_background
 background => "true";
 }
 ############################################
-body classes success(if, else, kept)
+body classes success(if, else)
 {
-promise_kept => { "$(kept)" };
 promise_repaired => {"$(if)"};
 repair_failed => { "$(else)" };
 repair_denied => { "$(else)" };
