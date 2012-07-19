@@ -46,10 +46,10 @@ community_edition::
   
 }
 
-body copy_from scp(from, server,trustkey,preserve,purge) {
+body copy_from scp(from, server,compare,trustkey,preserve,purge) {
   servers  => { "${server}" };
   source   => "$(from)";
-  compare  => "digest";
+  compare  => "$(compare)";
   encrypt  => "true";
   verify   => "true";
   trustkey => "${trustkey}";
@@ -59,16 +59,47 @@ community_edition::
  	portnumber => "5309";
 }
 
+
 body copy_from copy(from) {
 	source => "$(from)";
 	copy_backup => "false";
 	preserve => "true";
 }
 
-
 body copy_from copy_digest(from) {
         source => "$(from)";
         copy_backup => "false";
         preserve => "true";
 	compare => "digest";
+}
+
+#########################################################
+body classes class_trigger(if,else,kept)
+{
+promise_kept => { "$(kept)" };
+promise_repaired => { "$(if)" };
+repair_failed => { "$(else)" };
+repair_denied    => { "$(else)" };
+repair_timeout   => { "$(else)" };
+}
+
+#########################################################
+body location append
+{
+before_after => "after";
+}
+
+#########################################################
+body package_method yum_remi
+{
+ package_changes => "bulk";
+ package_list_command => "/usr/bin/yum list installed";
+ package_list_name_regex    => "([^.]+).*";
+ package_list_version_regex => "[^\s]\s+([^\s]+).*";
+ package_list_arch_regex    => "[^.]+\.([^\s]+).*";
+ package_installed_regex => ".*installed.*";
+ package_name_convention => "$(name).$(arch)";
+ package_add_command => "/usr/bin/yum --enablerepo=remi -y install";
+ package_delete_command => "/bin/rpm -e";
+ package_verify_command => "/bin/rpm -V";
 }
