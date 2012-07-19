@@ -63,38 +63,47 @@ bundle agent propagatePromises {
           		
 	reports:
 		could_not_propagate_promise::
-			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate policy files";
+			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@16@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate policy files";
 
 		could_not_propagate_tools::
-			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate tools";
+			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@16@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate tools";
 
 		could_not_propagate_masterfiles::
-			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate masterfiles";
+			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@16@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate masterfiles";
 
 		could_not_copy_license::
-			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot copy local license";
+			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@16@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot copy local license";
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
 bundle agent sendInventoryToCmdb {
 
 	files:
-	   	root_server::
-	    "${g.rudder_inventories}/incoming" 
-			transformer => "$(g.rudder_dependencies)/send-clean.sh http://localhost:8080/endpoint/upload/ $(this.promiser) ${g.rudder_inventories}/received/",
-			depth_search => recurse_visible(1),
-			file_select => all_files,
-			classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
-			comment => "Sending the inventory to the cmdb";
+
+		root_server::
+
+			"${g.rudder_inventories}/incoming"
+				transformer => "$(g.rudder_dependencies)/send-clean.sh http://localhost:8080/endpoint/upload/ $(this.promiser) ${g.rudder_inventories}/received/",
+				depth_search => recurse_visible(1),
+				file_select => all_files,
+				classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
+				comment => "Sending the inventory to the cmdb";
+
+			"${g.rudder_inventories}/accepted-nodes-updates"
+				transformer => "$(g.rudder_dependencies)/send-clean.sh http://localhost:8080/endpoint/upload/ $(this.promiser) ${g.rudder_inventories}/received/",
+				depth_search => recurse_visible(1),
+				file_select => all_files,
+				classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
+				comment => "Sending the inventory to the cmdb";
 
 
 # NEED TO DO THE RSYNC PART
 	
 	reports:
-		inventory_sent::
-			"@@DistributePolicy@@result_success@@root-DP#@root-distributePolicy##$(g.uuid)@#The inventory has been successfully added to the cmdb";
+		inventory_sent.!cant_send_inventory::
+			"@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@16@@reports@@None@@$(g.execRun)##$(g.uuid)@#Incoming inventories were successfully added to Rudder";
 		cant_send_inventory::
-			"@@DistributePolicy@@result_error@@root-DP#@root-distributePolicy##$(g.uuid)@#Could not send the inventory to the cmdb";
+			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@16@@reports@@None@@$(g.execRun)##$(g.uuid)@#Some inventories failed to add successfully to Rudder";
 }
 
 
