@@ -16,7 +16,6 @@
 #
 #####################################################################################
 
-
 #
 # Fetch the promises from the server to be available for others machines
 # Must not do it on the RootServer though...
@@ -30,12 +29,13 @@ bundle agent propagatePromises {
             "client_data" string => "/var/rudder/share/";  #where to put the files on the client when downloaded 
 
     files:
-	root_server::
-		"${g.rudder_dependencies}"
-            		copy_from    => copy("${g.rudder_base}/share/tools"),
+        root_server::
+	        "${g.rudder_dependencies}"
+           		copy_from    => copy("${g.rudder_base}/share/tools"),
           		depth_search => recurse_visible("inf"),
           		comment => "Fetching the tools for the promises execution",
           		classes => cf2_if_else("tools_propagated", "could_not_propagate_tools");
+
         !root_server::
             "${client_data}"  #that's a loop on each files in client_inputs
             	copy_from    => remote("${server_info.cfserved}","${server_data}"),
@@ -63,16 +63,16 @@ bundle agent propagatePromises {
           		
 	reports:
 		could_not_propagate_promise::
-			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@1@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate policy files";
+			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate policy files";
 
 		could_not_propagate_tools::
-			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@1@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate tools";
+			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate tools";
 
 		could_not_propagate_masterfiles::
-			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@1@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate masterfiles";
+			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot propagate masterfiles";
 
 		could_not_copy_license::
-			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@1@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot copy local license";
+			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Cannot copy local license";
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
@@ -88,13 +88,12 @@ bundle agent sendInventoryToCmdb {
 			comment => "Sending the inventory to the cmdb";
 
 
-# NEED TO DO THE RSYNC PART
 	
 	reports:
 		inventory_sent::
-			"@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@1@@reports@@None@@$(g.execRun)##$(g.uuid)@#The inventory has been successfully added to the cmdb";
+			"@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##$(g.uuid)@#The inventory has been successfully added to the cmdb";
 		cant_send_inventory::
-			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@1@@reports@@None@@$(g.execRun)##$(g.uuid)@#Could not send the inventory to the cmdb";
+			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#Could not send the inventory to the cmdb";
 }
 
 
