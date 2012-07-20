@@ -50,6 +50,17 @@ bundle common va {
 &NODEROLE&
 }
 
+bundle common rudder_roles {
+
+	classes:
+		# Abort if no uuid is defined
+		"should_not_continue" expression not => fileexists("${g.uuid_file}");
+		# Policy Server is a machine which delivers promises
+		"policy_server" expression => strcmp("root","$(g.uuid)");
+		# Root Server is the top policy server machine
+		"root_server" expression => strcmp("root","$(g.uuid)");
+}
+
 #########################################################
 # Control execution
 #########################################################
