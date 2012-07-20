@@ -35,7 +35,7 @@ body common control {
 
 bundle common va {
   vars:
-    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
      };
 
 
@@ -43,13 +43,17 @@ bundle common va {
 
 
 # definition of the machine roles
-classes: 
-	# Abort if no uuid is defined
-	"should_not_continue" expression not => fileexists("${g.uuid_file}");
-	# Policy Server is a machine which delivers promises
-    "policy_server" expression => strcmp("root","$(g.uuid)");
-	# Root Server is the top policy server machine
-    "root_server" expression => strcmp("root","$(g.uuid)");
+}
+
+bundle common rudder_roles {
+
+    classes:
+        # Abort if no uuid is defined
+        "should_not_continue" expression not => fileexists("${g.uuid_file}");
+        # Policy Server is a machine which delivers promises
+        "policy_server" expression => strcmp("root","$(g.uuid)");
+        # Root Server is the top policy server machine
+        "root_server" expression => strcmp("root","$(g.uuid)");
 }
 
 #########################################################
@@ -58,13 +62,13 @@ classes:
 bundle agent startExecution {
   reports:
    linux|windows::
-       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@4@@common@@StartRun@@$(g.execRun)##$(g.uuid)@#Start execution";
+       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@StartRun@@$(g.execRun)##$(g.uuid)@#Start execution";
 }
 
 bundle agent endExecution {
   reports:
    linux|windows::
-       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@4@@common@@EndRun@@$(g.execRun)##$(g.uuid)@#End execution";
+       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@EndRun@@$(g.execRun)##$(g.uuid)@#End execution";
 }
 
 ##########################################################
@@ -92,7 +96,7 @@ bundle agent clean_red_button() {
              
    reports:
      safe::
-		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#Authorizing Cfengine to restart";
+       "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@$(g.execRun)##$(g.uuid)@#Authorizing Cfengine to restart";
 }
 
 bundle agent set_red_button() {
@@ -118,9 +122,9 @@ bundle agent setStopFile {
   
   reports:
      danger.!policy_server::
-		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#Creating stop file";
+       "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@00@@Red Button@@None@@$(g.execRun)##$(g.uuid)@#Creating local stop file for this node";
      danger.policy_server::
-		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#Creating stop files for clients";
+       "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@$(g.execRun)##$(g.uuid)@#Creating stop files for all clients of this policy server";
     
 }
 
@@ -137,7 +141,7 @@ bundle agent stopClients {
  
  reports:
      danger.policy_server::
-		"@@Common@@result_repaired@@hasPolicyServer-root#@common-root##$(g.uuid)@#gStopping all Cfengine operation";
+       "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@$(g.execRun)##$(g.uuid)@#Actively stopping CFEngine operations on all clients of this policy server (via cf-runagent)";
  
 }
 
@@ -145,6 +149,11 @@ bundle agent check_red_button_status() {
 	classes:
 		!policy_server::
 			"should_not_continue" expression => fileexists("${sys.workdir}/inputs/stopFile");
+
+   reports:
+       !should_not_continue::
+           "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@$(g.execRun)##$(g.uuid)@#Red Button is not in effect, continuing as normal...";
+
 }
 
 
@@ -155,8 +164,27 @@ bundle agent check_cf_processes {
 
 processes:
 
+  linux::
+
   "$(sys.workdir)/bin/cf-serverd"  restart_class => "start_server";
   "$(sys.workdir)/bin/cf-execd"    restart_class => "start_executor";
+
+       "$(sys.workdir)/bin/cf-execd"
+           process_count => system_check_process_count("execd", "0","2"),
+           signals => { "term", "kill" },
+           classes => if_else("execd_is_tame", "execd_has_gone_wild"),
+           comment => "Checking if cf-execd has gone wild";
+
+   windows::
+
+       "$(g.escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
+       "cf-execd"    restart_class => "start_executor";
+
+       "cf-execd"
+           process_count => system_check_process_count("execd", "0","2"),
+           signals => { "term" },
+           classes => if_else("execd_is_tame", "execd_has_gone_wild"),
+           comment => "Checking if cf-execd has gone wild";
 
 commands:
 
@@ -170,6 +198,12 @@ commands:
 			action => u_ifwin_bg,
 			classes => outcome("executor");
 
+reports:
+
+   execd_has_gone_wild::
+
+       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#Warning, too many cf-execd processes were detected. They have been killed.";
+
 }
 
 #######################################################
@@ -180,7 +214,7 @@ bundle agent check_uuid {
 	"${g.uuid_file}"
 		create    => "true",
        		edit_line => enforce_content("${g.uuid}"),
-       		edit_defaults => empty_backup,
+       		edit_defaults => noempty_backup,
 		perms => m("644"),
        		comment => "Setting the uuid variable in a machine";
 			
@@ -221,13 +255,13 @@ bundle agent check_cron_daemon {
     reports:
 
         crond_failed::
-            "@@Common@@result_error@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon was not running and could not be restarted";
+            "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon was not running and could not be restarted";
 
         crond_restarted::
-            "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon has been successfully restarted";
+            "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon has been successfully restarted";
 
         !restart_crond.!crond_restarted.!crond_failed::
-            "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon is running";
+            "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon is running";
 
 }
 
@@ -254,6 +288,43 @@ bundle agent garbage_collection
 
 }
 
+#######################################################
+# Copy the CFengine binaries from the /opt repository
+# to the CFengine working directory
+
+bundle agent check_binaries_freshness {
+
+    vars:
+
+        community_edition::
+
+            "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key" };
+
+        nova_edition::
+
+            "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+
+    files:
+
+        "${sys.workdir}/bin/${components}"
+            perms => u_p("700"),
+            copy_from => cp("${g.rudder_sbin}/${components}", "localhost"),
+            classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
+            action => immediate,
+            comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
+
+    reports:
+
+        binaries_fresh.!binaries_rotten.!binaries_missing::
+            "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#The CFengine binaries in ${sys.workdir}/bin are up to date";
+
+        binaries_rotten.!binaries_missing::
+            "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#The CFengine binaries have been updated in ${sys.workdir}/bin";
+
+        binaries_missing::
+            "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
+
+}
 
 #######################################################
 
