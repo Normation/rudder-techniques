@@ -387,7 +387,7 @@ bundle agent sendInventory {
 bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUID)
 {
 	insert_lines:
-		"<UUID>${g.uuid}</UUID>$(const.n)<USER>$(USER)</USER>$(const.n)<AGENTSNAME>$(const.n)</AGENTSNAME>$(const.n)<MACHINEID>$(RUDDERUUID)</MACHINEID>$(const.n)<CFKEY>$(CFKEY)</CFKEY>$(const.n)<POLICIES>InitPolicies</POLICIES>$(const.n)<HOSTNAME>$(sys.fqhost)</HOSTNAME>$(const.n)<POLICY_SERVER>$(POLSRVUUID)</POLICY_SERVER>$(const.n)" location => after_deviceid,
+		"<UUID>${g.uuid}</UUID>$(const.n)<USER>$(USER)</USER>$(const.n)<AGENTSNAME>$(const.n)</AGENTSNAME>$(const.n)<MACHINEID>$(RUDDERUUID)</MACHINEID>$(const.n)<CFKEY>$(CFKEY)</CFKEY>$(const.n)<HOSTNAME>$(sys.fqhost)</HOSTNAME>$(const.n)<POLICY_SERVER>$(POLSRVUUID)</POLICY_SERVER>$(const.n)" location => after_deviceid,
 		comment => "Add the UUID and CFKEY tags in the inventory file";
 
 	any::
