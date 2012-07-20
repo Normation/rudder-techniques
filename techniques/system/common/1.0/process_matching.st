@@ -42,7 +42,7 @@ processes:
 
   windows::
   # Always stop cf-monitord
-  "${escaped_workdir}\/bin\/cf-monitord"  signals => { "$(stop_signal)" };
+  "${g.escaped_workdir}\/bin\/cf-monitord"  signals => { "$(stop_signal)" };
 
   linux::
   # Always stop cf-monitord
