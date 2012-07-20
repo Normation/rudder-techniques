@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_password_check_ldap</NAME>
     <NAME>root_password_check_psql</NAME>
     <NAME>root_password_check_dav</NAME>
+    <NAME>root_password_restart_jetty</NAME>
   </BUNDLES>
 
   <TMLS>
