@@ -26,7 +26,7 @@ bundle common g
 {
 vars:
 
- policy_server.windows::
+ windows::
    "rudder_base" string  => "$(sys.winprogdir)\Rudder";
    "rudder_sbin" string  => "$(rudder_base)\sbin";
    "rudder_var" string  => "$(sys.winprogdir)\Rudder\var";
@@ -40,10 +40,10 @@ vars:
    # The time at which the execution started
    "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 
- policy_server.(windows.!cygwin)::
+ windows.!cygwin::
    "uuid_file" string => "${rudder_base}\etc\uuid.hive";
 
- policy_server.(linux|cygwin)::
+ linux|cygwin::
     "rudder_base" string => "/opt/rudder";
     "rudder_var"  string => "/var/rudder";
     "rudder_sbin" string  => "$(rudder_base)/sbin";
@@ -58,7 +58,7 @@ vars:
     "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
 
 
- policy_server::
+ any::
    "uuid" string => readfile("$(g.uuid_file)", 60);
    "server_shares_folder" string  => "/var/rudder/share/${uuid}/promises/shares";
    "rudder_var_reports" string => "$(rudder_var)/reports";
