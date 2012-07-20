@@ -25,87 +25,67 @@ body common control
 {
 bundlesequence => { "init_files", "update" };
 
+inputs => { "common/1.0/update.cf" };
 output_prefix => "rudder";
 
+}
+
+bundle common g
+{
+	vars:
+	 windows::
+	   "rudder_base" string  => "$(sys.winprogdir)\Rudder";
+	   "rudder_sbin" string  => "$(rudder_base)\sbin";
+	   "rudder_dependencies" string => "$(rudder_sbin)";
+
+	 linux|cygwin::
+	    "rudder_base" string => "/opt/rudder";
+	    "rudder_sbin" string  => "$(rudder_base)/sbin";
+	    "rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
+	    "rudder_dependencies" string => "/var/rudder/tools";
+ 	
+
+	 any::
+	   "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+	   "rudder_dependencies_origin" string => "/var/rudder/tools";
+	   "uuid" string => "06da3556-5204-4bd7-b3b0-fa5e7bcfbbea";
+
+# definition of the node roles
+	# This node doesn't have any specific role
 }
 
 ############################################
 
 #generate a key if not present
 bundle agent init_files {
+	vars:
+		"components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
 
-        vars:
-                "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
-
-                nova_edition::
-                        "cfengine_install_path" string => "/usr/local";
-                community_edition::
-                        "cfengine_install_path" string => "/opt/rudder";
+		nova_edition::
+			"cfengine_install_path" string => "/usr/local";
+		community_edition::
+			"cfengine_install_path" string => "/opt/rudder";
         
     classes:
-        "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv") ;
+		"missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
     files:
-        linux|cygwin::
-                "${sys.workdir}/bin/${components}"
-                perms => u_p("700"),
-                copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),
-                action => immediate;
+    	cfengine_community.(linux|cygwin)::
+	        "${sys.workdir}/bin/${components}" 
+    	        perms => u_p("700"),
+        	    copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),
+            	action => immediate;
+
 		
     commands:
-        cygwin.missing_key::
-            "${sys.workdir}/bin/cf-key.exe";
+		cygwin.missing_key::
+			"${sys.workdir}/bin/cf-key.exe";
 
 		windows.missing_key.!cygwin::
-   			"\"$(sys.workdir)\bin\cf-key\"";
+			"\"$(sys.workdir)\bin\cf-key\"";
    
-        linux.missing_key::
-            "${sys.workdir}/bin/cf-key";
-}
-
-
-
-#simple copy method
-body copy_from remote(server, path) {
-
-    servers => {
-        "${server}" 
-    };
-    encrypt  => "false";
-    trustkey => "true";
-    source   => "${path}";
-    compare  => "digest";
-    preserve => "false";
-    verify   => "true";
-    purge    => "true";
-  community_edition:: 
-  	portnumber => "5309";
-    
-}
-
-bundle common server_info {
-  vars:
-        any::
-			"policy_server_file" string => translatepath("$(sys.workdir)/policy_server.dat"),
-                      comment => "Path to file containing address to policy server";     
-        
-            "cfserved" string      =>  readfile("$(policy_server_file)", 40);            #server IP
-			"policy_files" string  => "/var/cfengine/masterfiles";   #the bootstrap promises, in case of error
-}
-
-bundle agent update {
-    vars:
-        any::            
-            "server_inputs" string => "${server_info.policy_files}"; #the bootstrap promises, in case of error
-            "client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
-
-    files:
-        any::
-            "${client_inputs}"  #that's a loop on each files in client_inputs
-            copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
-            depth_search => recurse("inf"),
-            action => immediate;
-            
+		linux.missing_key::
+			"${sys.workdir}/bin/cf-key";
 }
 
 body depth_search recurse(d)
@@ -130,6 +110,11 @@ community_edition::
 
 body action immediate
 {
-   ifelapsed => "0";
+	ifelapsed => "0";
 }
 
+body depth_search recurse_ignore(d,list)
+{
+depth => "$(d)";
+exclude_dirs => { @(list) };
+}

@@ -52,10 +52,10 @@ bundle agent fetchFusionTools {
 				
 	reports:
 		fusion_tools_copied::
-			"@@Inventory@@log_info@@hasPolicyServer-root#@common-root##$(g.uuid)@#Copied fusion related utilities";
+			"@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@tools@@None@@$(g.execRun)##$(g.uuid)@#Copied fusion related utilities";
 			
 		cannot_copy_fusion_tools::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Can't copy fusion utilities. Fusion might not work";
+			"@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@tools@@None@@$(g.execRun)##$(g.uuid)@#Can't copy fusion utilities. Fusion might not work";
 }
 
 body perms myperms

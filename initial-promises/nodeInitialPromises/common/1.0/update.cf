@@ -35,8 +35,10 @@ body copy_from remote(server, path) {
     preserve => "false"; #preserver permissions
     verify   => "true";
     purge    => "true";
+    owners   => {"root"};
   community_edition:: 
   	portnumber => "5309";
+
 }
 
 #simple copy method, unencrypted
@@ -52,8 +54,10 @@ body copy_from remote_unsecured(server, path) {
     preserve => "true"; #preserver permissions
     verify   => "true";
     purge    => "true";
+    owners   => {"root"};
 community_edition::
                 portnumber => "5309";
+
 }
 
 bundle common server_info {
@@ -63,47 +67,45 @@ bundle common server_info {
                       comment => "Path to file containing address to policy server";     
         
       "cfserved" string      =>  readfile("$(policy_server_file)", 40);            #server IP
-      "policy_server_uuid" string => remotescalar("policy_server_uuid", "$(cfserved)", "no");
 			
 			"policy_files" string  => "/var/rudder/share/$(g.uuid)";   #directory where to look for promises in the server for that client
 }
 
 bundle agent update {
     vars:
+       "client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
   		nova_edition::
         "server_inputs" string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
       community_edition::
         "server_inputs" string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
-		any::
-      	"client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
 
     files:
-        !windows|cygwin::
+        !root_server::
+            "${client_inputs}"
+            copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
+            depth_search => recurse("inf"),
+            action => immediate,
+            classes => success("config", "no_update", "config_ok");
+
+        !root_server.(!windows|cygwin)::
                   "${g.rudder_dependencies}"
                         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
                         #depth_search => recurse("inf"),
                         depth_search => recurse_ignore("inf", @(g.excludedreps)),
                         action => immediate,
-                        classes => success("rudder_dependencies_updated_ok", "rudder_dependencies_update_error");
+                        classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
-        windows.!cygwin::
+        !root_server.(windows.!cygwin)::
                   "${g.rudder_sbin}"
                         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
                         #depth_search => recurse("inf"),
                         depth_search => recurse_ignore("inf", @(g.excludedreps)),
                         action => immediate,
-                        classes => success("rudder_dependencies_updated_ok", "rudder_dependencies_update_error");
+                        classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
-        any::
-            "${client_inputs}"  #that's a loop on each files in client_inputs
-            copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
-            depth_search => recurse("inf"),
-            action => immediate,
-            classes => success("config", "no_update");
-       
 
 	processes:
-		config::
+		config.!windows::
 			"cf-serverd"  restart_class => "start_server";
 
 		config.!windows::
@@ -126,24 +128,28 @@ bundle agent update {
 				classes => outcome("server");
 	
 #########################################################
-
-	services:
-		windows::
-  			"CfengineNovaExec"
-     			service_policy => "start",
-     			service_method => u_bootstart,
-     			classes => outcome("executor"),
-            	comment => "Start the executor windows service now and at boot time";
-
-
 	reports:
   			server_ok::
- 				"@@HasPolicyServer@@Debug@@hasPolicyServer-root#@common-root##$(g.uuid)@#Started the server - system ready to serve";
+				"@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the server (cf-serverd)";
   			executor_ok::
-  			    "@@HasPolicyServer@@Debug@@hasPolicyServer-root#@common-root##$(g.uuid)@#Started the scheduler - system functional";
+				"@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the scheduler (cf-execd)";
   			    
   			no_update::
-  				"@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Cannot update policy files";
+               "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update node's policy (CFEngine promises)";
+           rudder_dependencies_update_error::
+               "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
+
+           rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update::
+               "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
+
+           rudder_dependencies_updated::
+               "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Dependencies updated";
+
+           config::
+               "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Node's policy (CFEngine promises) updated";
+
+           config|rudder_dependencies_updated|server_ok|executor_ok::
+               "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
 }
 
 
@@ -158,8 +164,9 @@ body action u_background
 background => "true";
 }
 ############################################
-body classes success(if, else)
+body classes success(if, else, kept)
 {
+promise_kept => { "$(kept)" };
 promise_repaired => {"$(if)"};
 repair_failed => { "$(else)" };
 repair_denied => { "$(else)" };
@@ -172,9 +179,3 @@ body action u_ifwin_bg
 	windows::
  		background => "true";
 }
-
-body service_method u_bootstart
-{
-service_autostart_policy => "boot_time";
-}
-

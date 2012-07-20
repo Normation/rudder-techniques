@@ -40,16 +40,23 @@ classes:
 
 processes:
 
+  windows::
+  # Always stop cf-monitord
+  "${escaped_workdir}\/bin\/cf-monitord"  signals => { "$(stop_signal)" };
+
+  linux::
   # Always stop cf-monitord
   "${sys.workdir}/bin/cf-monitord"  signals => { "$(stop_signal)" };
 
-  restart_cf::
-
+  restart_cf.!policy_server::
     "$(cf_components)" signals => { "$(stop_signal)" };
 
-  restart_cf.!windows::
-    "cf-execd"  signals => { "$(stop_signal)" };
+  # Policy servers have both Nova and Community, don't blindly kill the wrong processes
+  restart_cf.policy_server::
+    "${sys.workdir}/bin/$(cf_components)" signals => { "$(stop_signal)" };
 
+  restart_cf.!windows::
+    "${sys.workdir}/bin/cf-execd"  signals => { "$(stop_signal)" };
 
 commands:
 
@@ -57,18 +64,6 @@ commands:
 
     "$(sys.cf_serverd)";
     "$(sys.cf_execd)";
-
-
-services:
-
-  restart_cf.windows::
-    "CfengineNovaExec"
-    service_policy => "stop",
-           comment => "Stop the executor service, part of scheduled restart";
-
-    "CfengineNovaExec"
-    service_policy => "start",
-           comment => "Start the executor service, part of scheduled restart";
 
 files:
 
@@ -100,4 +95,3 @@ insert_lines:
         "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ `ps -efww | grep cf-execd | grep \"/var/rudder/cfengine-community/bin/cf-execd\" | grep -v grep | wc -l` -eq 0 ]; then /var/rudder/cfengine-community/bin/cf-execd; fi";
 
 }
-

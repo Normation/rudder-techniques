@@ -68,10 +68,17 @@ bundle agent doInventory {
 			
         reports:
                 could_not_download_uuid::
-                        "@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not retrieve the UUID of the policy server";
+						"@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not retrieve the UUID of the policy server";
 
 		uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not retrieve a valid UUID from the policy server";
+           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not retrieve a valid UUID from the policy server";
+
+           # Send reports to confirm this PT's success even if we don't need to send an inventory
+           inventory_sent::
+               "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#An inventory was already sent less than 8 hours ago";
+
+           !(Night.splaying).!force_inventory::
+               "@@Inventory@@result_success@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Next inventory scheduled between 00:00 and 06:00";
 }
 
 bundle common inventory {
@@ -109,32 +116,32 @@ bundle agent fusionAgent {
 
 	commands:
 	    linux.inventoryfoldercreated::
-			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory",
+			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs",
 			classes => cf2_if_else("run_inventory", "inventory_failed"),
 			comment => "Generating inventory, in the temporary folder";
 
 	    windows::	    
 			"\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
-				        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" 2>nul",
+				        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
 				        contain => in_shell,
 				        classes => cf2_if_else("run_inventory", "inventory_failed"),
 			 			comment => "Generating inventory";
 			 			
 	reports:
 		run_inventory::
-			"@@Inventory@@log_debug@@hasPolicyServer-root#@common-root##$(g.uuid)@#Running inventory";
+           "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Running inventory";
 			
 		inventory_failed::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not execute the inventory";
+           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not execute the inventory";
 			
 		cant_install_curl::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not install curl";
+           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install curl";
 			
 		cant_install_ocs::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not install ocs";
+           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install ocs";
 			
 		curl_installed::
-			"@@Inventory@@log_debug@@hasPolicyServer-root#@common-root##$(g.uuid)@#Curl installed";
+           "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
 			
 }
 
@@ -188,10 +195,10 @@ bundle agent listInstalledVM {
 
 	reports:
 		cant_list_vm::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not list installed VMWare machines";
+           "@@Inventory@@log_warn@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not list installed VMWare machines";
 			
 		cant_list_vb::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not list installed VirtualBox machines";
+           "@@Inventory@@log_warn@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not list installed VirtualBox machines";
 }
 
 bundle agent generateExtraInformations {
@@ -218,16 +225,16 @@ bundle agent generateExtraInformations {
 		
  reports:
 		userlist::
-			"@@Inventory@@Debug@@hasPolicyServer-root#@common-root##$(g.uuid)@#Generated the userlist";
+           "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Generated the userlist";
 		cpuid::
-			"@@Inventory@@Debug@@hasPolicyServer-root#@common-root##$(g.uuid)@#Generated the CPUID";
+           "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Generated the CPUID";
 		
 			
 		userlist_fail::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not generate the user list";
+           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not generate the user list";
 	
 		cpuid_fail::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not generate the cpuid";
+           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not generate the cpuid";
 }
 
 bundle agent turnUsersToUnicode {
@@ -243,7 +250,7 @@ bundle agent turnUsersToUnicode {
  reports:
 	
 		windows::
-			"@@Inventory@@log_debug@@hasPolicyServer-root#@common-root##$(g.uuid)@#This is a windows machine. User list has been converted to Unicode";
+           "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#This is a windows machine. User list has been converted to Unicode";
 }
 
 
@@ -341,6 +348,7 @@ bundle agent sendInventory {
 		classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
 		comment      => "Cleaning up inventory files already sent to the server";
 
+   # TODO: we should find some way to have an equivalent behaviour to send-clean.sh above on Windows
 	windows::
 	 "${g.rudder_inventories}" 
 		transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --user $(g.davuser):$(g.davpw) -T \"$(this.promiser)\"  http://${server_info.cfserved}/inventories/",
@@ -351,13 +359,13 @@ bundle agent sendInventory {
 		
 	reports:
 		inventory_sent::
-			"@@Inventory@@result_success@@hasPolicyServer-root#@common-root##$(g.uuid)@#The inventory has been successfully sent";
+           "@@Inventory@@result_success@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The inventory has been successfully sent";
 		
 		cant_send_inventory::
-			"@@Inventory@@result_error@@hasPolicyServer-root#@common-root##$(g.uuid)@#Could not send the inventory";
+           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not send the inventory";
 
 		cant_delete_inventory_file::
-			"@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not delete inventory file after sending to server";
+           "@@Inventory@@log_warn@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not delete inventory file after sending to server";
 			
 }
 
