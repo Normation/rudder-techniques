@@ -33,6 +33,10 @@ output_prefix => "rudder";
 bundle common g
 {
     vars:
+	 windows::
+		"rudder_base" string  => "$(sys.winprogdir)\Rudder";
+		"rudder_sbin" string  => "$(rudder_base)\sbin";
+		"rudder_dependencies" string => "$(rudder_sbin)";
 
      linux|cygwin::
         "rudder_base" string => "/opt/rudder";
@@ -71,7 +75,7 @@ bundle agent init_files {
 		"missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
     files:
-    	linux|cygwin::
+    	cfengine_community.(linux|cygwin)::
 	        "${sys.workdir}/bin/${components}" 
     	        perms => u_p("700"),
         	    copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),
@@ -112,4 +116,10 @@ community_edition::
 body action immediate
 {
 	ifelapsed => "0"; 
+}
+
+body depth_search recurse_ignore(d,list)
+{
+	depth => "$(d)";
+	exclude_dirs => { @(list) };
 }

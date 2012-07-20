@@ -24,10 +24,10 @@
 body common control {
 
     inputs => {       
-        "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/process_matching.cf", "common/1.0/internal_security.cf", "common/1.0/cfengine_stdlib.cf","common/1.0/cf-served.cf","common/1.0/rudder_lib.cf", "distributePolicy/1.0/propagatePromises.cf", "distributePolicy/1.0/rsyslogConf.cf", "distributePolicy/1.0/initCheck.cf", "distributePolicy/1.0/postgresCheck.cf", "distributePolicy/1.0/logrotateCheck.cf", "distributePolicy/1.0/integrityCheck.cf", "distributePolicy/1.0/apacheCheck.cf", "distributePolicy/1.0/ldapCheck.cf", "distributePolicy/1.0/aliveCheck.cf"
+        "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf"
     };
 
-    bundlesequence => { @(va.bs) , "setup_debian_backports", "install_rsyslogd", "propagatePromises", "sendInventoryToCmdb", "root_init_check", "root_postgres_check", "root_logrotate_check", "root_integrity_check", "root_apache_webdav_check", "root_ldap_check", "root_alive_check" , @(va.end)};
+    bundlesequence => { @(va.bs),"setup_debian_backports","install_rsyslogd","propagatePromises","sendInventoryToCmdb","root_init_check","root_postgres_check","root_logrotate_check","root_integrity_check","root_networks_check","root_alive_check","root_password_check_file",,"root_password_check_ldap","root_password_check_psql","root_password_check_dav","root_password_restart_jetty" , @(va.end)};
     
 	output_prefix => "rudder"; 
     
@@ -35,7 +35,7 @@ body common control {
 
 bundle common va {
   vars:
-    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "garbage_collection"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection"
      };
 
 
@@ -184,6 +184,51 @@ bundle agent check_uuid {
 			
 }
 
+#######################################################
+# Check if the cron daemon is running
+# This only works with unix flavoured systems too
+
+bundle agent check_cron_daemon {
+
+    vars:
+
+        (debian|SuSE)::
+
+            "cron_bin" string => "/usr/sbin/cron";
+            "cron_restartcmd" string => "/etc/init.d/cron restart";
+
+        redhat::
+
+            "cron_bin" string => "crond";
+            "cron_restartcmd" string => "/etc/init.d/crond restart";
+
+    processes:
+
+            "$(cron_bin)"
+                restart_class => "restart_crond";
+
+    commands:
+
+        restart_crond::
+
+            "$(cron_restartcmd)"
+
+                comment => "Restarting crond",
+                classes => class_trigger("crond_restarted" , "crond_failed", "crond_ok");
+
+    reports:
+
+        crond_failed::
+            "@@Common@@result_error@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon was not running and could not be restarted";
+
+        crond_restarted::
+            "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon has been successfully restarted";
+
+        !restart_crond.!crond_restarted.!crond_failed::
+            "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon is running";
+
+}
+
 ########################################################
 # Trash every output report older than 30 days         #
 ########################################################
@@ -249,3 +294,8 @@ bundle edit_line enforce_content(str) {
 		"$(str)";
 }
 
+body process_count system_check_process_count(name, max, min)
+{
+    match_range => irange("$(min)","$(max)");
+    out_of_range_define => { "$(name)_is_defective" };
+}
