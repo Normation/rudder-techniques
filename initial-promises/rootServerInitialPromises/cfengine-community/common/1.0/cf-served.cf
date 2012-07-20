@@ -38,8 +38,6 @@ bundle server access_rules {
 			maproot => {  @(def.acl)  },
 			admit   => {  @(def.acl)  };
 
-    any::	
-
         	"/var/rudder/share/root/"
     			maproot => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  },
     			admit   => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  };

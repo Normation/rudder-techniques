@@ -41,15 +41,17 @@ bundle common g
         "rudder_dependencies" string => "/var/rudder/tools";
 
 
-     any::
+     policy_server::
        "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
        "rudder_dependencies_origin" string => "/var/rudder/tools";
        "uuid" string => "root";
 
 # definition of the node roles
 classes:
-	"policy_server" expression => "any";
-	"root_server" expression => "any";
+	# Policy Server is a machine which delivers promises
+	"policy_server" expression => strcmp("root","$(g.uuid)");
+	# Root Server is the top policy server machine
+	"root_server" expression => strcmp("root","$(g.uuid)");
 
 }
 
