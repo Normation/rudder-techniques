@@ -33,6 +33,9 @@ output_prefix => "rudder";
 bundle common g
 {
     vars:
+	 any::
+		"uuid" string => readfile("$(g.uuid_file)", 60);
+
 	 windows::
 		"rudder_base" string  => "$(sys.winprogdir)\Rudder";
 		"rudder_sbin" string  => "$(rudder_base)\sbin";
@@ -48,10 +51,11 @@ bundle common g
      policy_server::
        "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
        "rudder_dependencies_origin" string => "/var/rudder/tools";
-       "uuid" string => "root";
 
 # definition of the node roles
 classes:
+	# Abort if no uuid is defined
+	"should_not_continue" expression not => fileexists("${g.uuid_file}");
 	# Policy Server is a machine which delivers promises
 	"policy_server" expression => strcmp("root","$(g.uuid)");
 	# Root Server is the top policy server machine
