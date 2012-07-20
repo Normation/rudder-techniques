@@ -172,7 +172,7 @@ processes:
 
 	windows::
 
-		"$(escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
+		"$(g.escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
 		"cf-execd"    restart_class => "start_executor";
 
 		"cf-execd"
