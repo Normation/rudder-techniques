@@ -164,21 +164,40 @@ processes:
 		"$(sys.workdir)/bin/cf-serverd"  restart_class => "start_server";
 		"$(sys.workdir)/bin/cf-execd"    restart_class => "start_executor";
 
+		# If there is more than 2 cf-execd's, it means cf-execd is starting to
+		# go crazy, so we ask politely to these processes to shut down.
 		"$(sys.workdir)/bin/cf-execd"
-			process_count => system_check_process_count("execd", "0","2"),
-			signals => { "term", "kill" },
-			classes => if_else("execd_is_tame", "execd_has_gone_wild"),
+			process_count => check_range("execd", "0","2"),
+			signals => { "term" },
+			classes => if_repaired("execd_has_gone_wild"),
 			comment => "Checking if cf-execd has gone wild";
+
+		# If there is more than 5 cf-execd's, it means cf-execd is really going
+		# crazy. Let's be a bit less polite and more violent about killing them.
+		#
+		# These two promises overlap, because when you go past the 5-limit treshold,
+		# you still leave a chance for execd to die with SIGTERM before the SIGKILL.
+		#
+		# Reason: The backend databases that stores the classes and some runtime
+		# parameters do really not appreciate beeing killed violently and may prevent
+		# the agent from operating properly.
+
+		"$(sys.workdir)/bin/cf-execd"
+			process_count => check_range("execd", "0","5"),
+			signals => { "kill" },
+			classes => if_repaired("execd_has_gone_really_wild"),
+			comment => "Checking if cf-execd has gone really wild";
 
 	windows::
 
 		"$(g.escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
 		"cf-execd"    restart_class => "start_executor";
 
+		# Windows does only implement SIGTERM. Using SIGKILL here makes no sense
 		"cf-execd"
-			process_count => system_check_process_count("execd", "0","2"),
+			process_count => check_range("execd", "0","2"),
 			signals => { "term" },
-			classes => if_else("execd_is_tame", "execd_has_gone_wild"),
+			classes => if_repaired("execd_has_gone_wild"),
 			comment => "Checking if cf-execd has gone wild";
 
 commands:
@@ -195,9 +214,17 @@ commands:
 
 reports:
 
-	execd_has_gone_wild::
+	!execd_has_gone_wild.!execd_has_gone_really_wild::
 
-		"@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#Warning, too many cf-execd processes were detected. They have been killed.";
+		"@@Common@@result_success@@&TRACKINGKEY&@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#There is an acceptable number of cf-execd processes (between 0 and 2)";
+
+	execd_has_gone_wild.!execd_has_gone_really_wild::
+
+		"@@Common@@result_repaired@@&TRACKINGKEY&@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#Warning, more than 2 cf-execd processes were detected. They have been sent a graceful termination signal.";
+
+	execd_has_gone_really_wild::
+
+		"@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#ALERT: more than 5 cf-execd processes were detected. Killing processes that do not respect graceful termination signals.";
 
 }
 
@@ -478,10 +505,4 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove) {
 	insert_lines:
 		"$(line_to_add)";
 
-}
-
-body process_count system_check_process_count(name, max, min)
-{
-	match_range => irange("$(min)","$(max)");
-	out_of_range_define => { "$(name)_is_defective" };
 }
