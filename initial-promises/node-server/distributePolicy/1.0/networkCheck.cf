@@ -21,10 +21,11 @@ bundle agent root_networks_check {
 	vars:
 
 			"networks" string => join("$(const.n)Allow from ","def.acl");
+			"file_path" string => "/opt/rudder/etc/rudder-networks.conf";
 
 	files:
 
-			"/opt/rudder/etc/rudder-networks.conf"
+			"$(file_path)"
 				create => "true",
 				perms => mog("644", "root", "root"),
 				edit_defaults => empty,
