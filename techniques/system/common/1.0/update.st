@@ -63,8 +63,15 @@ community_edition::
 bundle common server_info {
   vars:
         any::
-            "cfserved" string      => "&POLICYSERVER&";
             "policy_files" string  => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
+
+        policy_server::
+            "cfserved" string => "&POLICYSERVER&";
+
+        !policy_server::
+            "policy_server_file" string  => translatepath("$(sys.workdir)/policy_server.dat"),
+                                 comment => "Path to file containing address to policy server";
+            "cfserved" string =>  readfile("$(policy_server_file)", 40);            #server IP
 }
 
 bundle agent update {

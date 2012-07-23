@@ -23,13 +23,14 @@
 #######################################################
 body common control {
 
+  any::
+	output_prefix => "rudder"; 
+
     inputs => {       
         &INPUTLIST&
     };
 
     bundlesequence => { @(va.bs) &BUNDLELIST& , @(va.end)};
-    
-	output_prefix => "rudder"; 
 
 &if(NOVA)&
 	host_licenses_paid => "&LICENSESPAID&";
@@ -39,10 +40,15 @@ body common control {
 
 bundle common va {
   vars:
+    policy_server::
     "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "e2s_enable"
      };
 
-
+    !policy_server::
+      "bs" slist => { "startExecution",  "update", "internal_security", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
+     };
+ 
+    any::
     "end" slist => { "endExecution" };
 
 
@@ -214,12 +220,12 @@ processes:
 commands:
 
 	start_server::
-		"$(sys.cf_serverd)",
+		"$(sys.cf_serverd)"
 			action => u_ifwin_bg,
 			classes => outcome("server");
 	
 	start_executor::
-		"$(sys.cf_execd)",
+		"$(sys.cf_execd)"
 			action => u_ifwin_bg,
 			classes => outcome("executor");
 
