@@ -37,6 +37,11 @@ output_prefix => "rudder";
 bundle common g
 {
 	vars:
+	 any::
+	   "uuid" string => "&UUID&";
+	   "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+	   "rudder_dependencies_origin" string => "/var/rudder/tools";
+
 	 windows::
 	   "rudder_base" string  => "$(sys.winprogdir)\Rudder";
 	   "rudder_sbin" string  => "$(rudder_base)\sbin";
@@ -48,11 +53,6 @@ bundle common g
 	    "rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
 	    "rudder_dependencies" string => "/var/rudder/tools";
  	
-
-	 any::
-	   "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
-	   "rudder_dependencies_origin" string => "/var/rudder/tools";
-	   "uuid" string => "&UUID&";
 
 # definition of the node roles
 	&NODEROLE&
