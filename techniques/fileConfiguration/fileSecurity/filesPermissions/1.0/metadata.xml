@@ -62,7 +62,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>FILEPERMISSION_USER</NAME>
         <DESCRIPTION>Owner of the file</DESCRIPTION>
-        <MAYBEEMPTY>true</MAYBEEMPTY>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_EDITGROUP</NAME>
@@ -74,7 +76,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>FILEPERMISSION_GROUP</NAME>
         <DESCRIPTION>Group of the file</DESCRIPTION>
-        <MAYBEEMPTY>true</MAYBEEMPTY>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_EDITMODE</NAME>
