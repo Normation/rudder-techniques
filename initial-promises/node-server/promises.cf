@@ -21,6 +21,27 @@
 # promises.cf
 #
 #######################################################
+bundle common rudder_roles {
+
+   vars:
+     windows.!cygwin::
+       "uuid_file" string => "${rudder_base}\etc\uuid.hive";
+
+     linux|cygwin::
+       "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+
+     any::
+       "uuid" string => readfile("$(uuid_file)", 60);
+
+    classes:
+        # Abort if no uuid is defined
+        "should_not_continue" not => fileexists("${uuid_file}");
+        # Policy Server is a machine which delivers promises
+        "policy_server" expression => strcmp("root","${uuid)");
+        # Root Server is the top policy server machine
+        "root_server" expression => strcmp("root","$(uuid)");
+}
+
 body common control {
   
   any::
@@ -61,17 +82,6 @@ bundle common va {
 
 
 # definition of the machine roles
-}
-
-bundle common rudder_roles {
-
-    classes:
-        # Abort if no uuid is defined
-        "should_not_continue" not => fileexists("${g.uuid_file}");
-        # Policy Server is a machine which delivers promises
-        "policy_server" expression => strcmp("root","$(g.uuid)");
-        # Root Server is the top policy server machine
-        "root_server" expression => strcmp("root","$(g.uuid)");
 }
 
 #########################################################
