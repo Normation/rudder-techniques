@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>setup_debian_backports</NAME>
     <NAME>install_rsyslogd</NAME>
     <NAME>propagatePromises</NAME>
-    <NAME>sendInventoryToCmdb</NAME>
     <NAME>root_init_check</NAME>
     <NAME>root_postgres_check</NAME>
     <NAME>root_logrotate_check</NAME>
@@ -33,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_password_check_psql</NAME>
     <NAME>root_password_check_dav</NAME>
     <NAME>root_password_restart_jetty</NAME>
+    <NAME>sendInventoryToCmdb</NAME>
   </BUNDLES>
 
   <TMLS>
