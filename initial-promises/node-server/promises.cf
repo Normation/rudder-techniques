@@ -25,9 +25,11 @@ bundle common rudder_roles {
 
    vars:
      windows.!cygwin::
+       "rudder_base" string  => "$(sys.winprogdir)\Rudder";
        "uuid_file" string => "${rudder_base}\etc\uuid.hive";
 
      linux|cygwin::
+       "rudder_base" string => "/opt/rudder";
        "uuid_file" string => "${rudder_base}/etc/uuid.hive";
 
      any::
@@ -47,18 +49,15 @@ body common control {
   any::
     output_prefix => "rudder";
 
-  policy_server::
     inputs => {       
         "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
     };
 
+  policy_server::
+
     bundlesequence => { @(va.bs),"setup_debian_backports","install_rsyslogd","propagatePromises","root_init_check","root_postgres_check","root_logrotate_check","root_integrity_check","root_networks_check","root_alive_check","root_password_check_file","root_password_check_ldap","root_password_check_psql","root_password_check_dav","root_password_restart_jetty", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @(va.end)};
     
   !policy_server::
-
-    inputs => {
-        "common/1.0/cfengine_stdlib.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
-    };
 
     bundlesequence => { @(va.bs) , "fetchFusionTools", "virtualMachines", "doInventory" , @(va.end)};
 
