@@ -69,7 +69,8 @@ bundle common def {
 	policy_server::
 		"acl" slist => {
 			%%POLICY_SERVER_ALLOWED_NETWORKS%%
-		};	!policy_server::
+		};
+	!policy_server::
 		"acl" slist => {
 			"$(def.policy_server)"
 		};
