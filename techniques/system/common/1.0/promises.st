@@ -45,7 +45,7 @@ bundle common va {
      };
 
     !policy_server::
-      "bs" slist => { "startExecution",  "update", "internal_security", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "check_log_system", "e2s_enable"
+      "bs" slist => { "startExecution",  "update", "internal_security", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "check_log_system", "e2s_enable", "check_red_button_status", "check_uuid"
      };
  
     any::
