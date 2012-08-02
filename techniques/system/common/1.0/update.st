@@ -165,6 +165,8 @@ bundle agent update {
 			config|rudder_dependencies_updated|server_ok|executor_ok::
 				"@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
 
+			policy_server::
+				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy server doesn't need to be updated";
 }
 
 
