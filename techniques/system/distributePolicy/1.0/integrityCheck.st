@@ -29,10 +29,10 @@ bundle agent root_integrity_check {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(g.rudder_var)/configuration-repository directory is present"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(g.rudder_var)/configuration-repository directory is present"
 				ifvarclass => "rudder_integrity_ok.!rudder_integrity_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#EMERGENCY: THE $(g.rudder_var)/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY."
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#EMERGENCY: THE $(g.rudder_var)/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY."
 				ifvarclass => "!rudder_integrity_ok|rudder_integrity_failed";
 
 }

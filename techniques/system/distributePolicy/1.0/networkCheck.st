@@ -46,19 +46,19 @@ bundle agent root_networks_check {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file is OK"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file is OK"
 				ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file has been corrected"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file has been corrected"
 				ifvarclass => "rudder_networks_repaired.!rudder_networks_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file was NOT edited because of an error"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file was NOT edited because of an error"
 				ifvarclass => "rudder_networks_failed";
 
-			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd has been reloaded successfully"
+			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd has been reloaded successfully"
 				ifvarclass => "apache_restarted.!apache_restart_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd failed to restart"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd failed to restart"
 				ifvarclass => "apache_restart_failed";
 
 }

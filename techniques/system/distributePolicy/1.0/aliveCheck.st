@@ -69,13 +69,13 @@ bundle agent generic_alive_check(site_to_check) {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application is running"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application is running"
 				ifvarclass => "site_ok.!site_down_once_$(sitename)";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#This is the first time the $(site_to_check) web application failed to respond. Deferring the restart."
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#This is the first time the $(site_to_check) web application failed to respond. Deferring the restart."
 				ifvarclass => "site_down_once_$(sitename).!site_alivecheck_restart_jetty_$(sitename)";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application failed to respond for the second time. Restarting jetty NOW !"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application failed to respond for the second time. Restarting jetty NOW !"
 				ifvarclass => "site_alivecheck_restart_jetty_$(sitename)";
 
 }

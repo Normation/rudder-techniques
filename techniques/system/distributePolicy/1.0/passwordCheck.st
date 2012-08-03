@@ -66,13 +66,13 @@ bundle agent root_password_check_file {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder passwords file is present and secure"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder passwords file is present and secure"
 				ifvarclass => "file_ok.!file_repaired.!file_error";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder passwords file permissions were fixed"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder passwords file permissions were fixed"
 				ifvarclass => "file_repaired.!file_error";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#EMERGENCY: THE $(g.rudder_base)/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY."
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#EMERGENCY: THE $(g.rudder_base)/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY."
 				ifvarclass => "file_error";
 
 }
@@ -113,25 +113,25 @@ bundle agent root_password_check_ldap {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files are OK (checked LDAP password)"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files are OK (checked LDAP password)"
 				ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files were updated with a new LDAP password"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files were updated with a new LDAP password"
 				ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files could not be updated to set the LDAP password"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files could not be updated to set the LDAP password"
 				ifvarclass => "rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file is OK (checked rootdn password)"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file is OK (checked rootdn password)"
 				ifvarclass => "rudder_ldap_password_integrity_ok.!rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file was updated with a new rootdn password"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file was updated with a new rootdn password"
 				ifvarclass => "rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file could not be updated to set the rootdn password"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file could not be updated to set the rootdn password"
 				ifvarclass => "rudder_ldap_password_integrity_failed";
 
-			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#slapd has been restarted"
+			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#slapd has been restarted"
 				ifvarclass => "slapd_restarted";
 
 }
@@ -168,22 +168,22 @@ bundle agent root_password_check_psql {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files are OK (checked SQL password)"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files are OK (checked SQL password)"
 				ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files were updated with a new SQL password"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files were updated with a new SQL password"
 				ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files could not be updated to set the SQL password"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files could not be updated to set the SQL password"
 				ifvarclass => "rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password is correct and works"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password is correct and works"
 				ifvarclass => "!psql_cant_connect";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password has been changed"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password has been changed"
 				ifvarclass => "postgres_updated";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password could not be changed!"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password could not be changed!"
 				ifvarclass => "postgres_update_failed";
 
 }
@@ -200,7 +200,7 @@ bundle agent root_password_restart_jetty {
 
 	reports:
 
-			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Jetty has been restarted"
+			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#Jetty has been restarted"
 				ifvarclass => "jetty_restarted";
 
 
@@ -247,13 +247,13 @@ bundle agent root_password_check_dav {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password are OK"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password are OK"
 				ifvarclass => "!dav_cant_connect";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password were updated"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password were updated"
 				ifvarclass => "rudder_apache_davpassword_changed.!rudder_apache_davpassword_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password could not be updated"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password could not be updated"
 				ifvarclass => "rudder_apache_davpassword_failed";
 
 }

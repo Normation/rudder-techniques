@@ -29,13 +29,13 @@ bundle agent root_logrotate_check {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The logrotate configuration is correct"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The logrotate configuration is correct"
 				ifvarclass => "rudder_logrotate_conf_ok.!rudder_logrotate_conf_copied.!cannot_copy_rudder_logrotate_conf";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The logrotate configuration has been updated"
+			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The logrotate configuration has been updated"
 				ifvarclass => "rudder_logrotate_conf_copied.!cannot_copy_rudder_logrotate_conf";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#The logrotate configuration could not be updated"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The logrotate configuration could not be updated"
 				ifvarclass => "cannot_copy_rudder_logrotate_conf";
 
 }

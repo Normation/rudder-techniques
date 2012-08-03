@@ -101,9 +101,9 @@ bundle agent sendInventoryToCmdb {
 	
 	reports:
 		inventory_sent.!cant_send_inventory::
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Incoming inventories were successfully added to Rudder";
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#Incoming inventories were successfully added to Rudder";
 		cant_send_inventory::
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@reports@@None@@$(g.execRun)##$(g.uuid)@#Some inventories failed to add successfully to Rudder";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#Some inventories failed to add successfully to Rudder";
 }
 
 
