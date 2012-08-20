@@ -30,7 +30,7 @@ bundle agent root_init_check() {
 		"service[3][initscript]" string => "postgresql";
 
 		"service[4][binary]" string => "/var/rudder/cfengine-community/bin/cf-.*";
-		"service[4][initscript]" string => "cfengine-community";
+		"service[4][initscript]" string => "rudder-agent";
 
 		"service[5][binary]" string => "apache2";
 		"service[5][initscript]" string => "apache2";
