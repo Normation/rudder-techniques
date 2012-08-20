@@ -63,4 +63,7 @@ bundle agent root_postgres_check {
 		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@$(g.execRun)##$(g.uuid)@#PostgreSQL restart has failed! Rudder is most certainly broken..."
 			ifvarclass => "psql_restart_error";
 
+	  !SuSE::
+
+		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@$(g.execRun)##$(g.uuid)@#Their is no need of specific postgresql configuration on this system";
 }
