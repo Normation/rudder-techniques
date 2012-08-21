@@ -20,18 +20,19 @@ bundle agent root_alive_check {
 
 	vars:
 
-		"sites_to_check" slist => { "http://localhost:8080/rudder/api/status", "http://localhost:8080/endpoint/api/status" };
+		"apps_to_check" slist => { "rudder", "endpoint" };
 
 	methods:
 
-		"any" usebundle => generic_alive_check("$(sites_to_check)");
+		"any" usebundle => generic_alive_check("$(apps_to_check)");
 
 }
 
-bundle agent generic_alive_check(site_to_check) {
+bundle agent generic_alive_check(app) {
 
 	vars:
 
+			"site_to_check" string => "http://localhost:8080/$(app)/api/status";
 			"sitename" string => canonify("$(site_to_check)");
 
 			"cleanup_failed_classes" slist => { "site_down_once_$(sitename)", "site_alivecheck_restart_jetty_$(sitename)" };
@@ -69,13 +70,13 @@ bundle agent generic_alive_check(site_to_check) {
 
 		linux::
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application is running"
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check $(app) status@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application is running"
 				ifvarclass => "site_ok.!site_down_once_$(sitename)";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#This is the first time the $(site_to_check) web application failed to respond. Deferring the restart."
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check $(app) status@@None@@$(g.execRun)##$(g.uuid)@#This is the first time the $(site_to_check) web application failed to respond. Deferring the restart."
 				ifvarclass => "site_down_once_$(sitename).!site_alivecheck_restart_jetty_$(sitename)";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application failed to respond for the second time. Restarting jetty NOW !"
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check $(app) status@@None@@$(g.execRun)##$(g.uuid)@#The $(site_to_check) web application failed to respond for the second time. Restarting jetty NOW !"
 				ifvarclass => "site_alivecheck_restart_jetty_$(sitename)";
 
 }

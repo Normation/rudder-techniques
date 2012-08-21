@@ -62,17 +62,21 @@ bundle agent propagatePromises {
           		classes => cf2_if_else("license_copied", "could_not_copy_license");
           		
 	reports:
+		(tools_propagated|tools_propagated.promises_propagated.masterfiles_propagated.license_copied).!(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license)::
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#All files have been propagated";
+		!((tools_propagated|tools_propagated.promises_propagated.masterfiles_propagated.license_copied).(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license))::
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#No file need to be propagated";
 		could_not_propagate_promise::
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate policy files";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate policy files";
 
 		could_not_propagate_tools::
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate tools";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate tools";
 
 		could_not_propagate_masterfiles::
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate masterfiles";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate masterfiles";
 
 		could_not_copy_license::
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@propagatePromises@@None@@$(g.execRun)##$(g.uuid)@#Cannot copy local license";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#Cannot copy local license";
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
@@ -101,9 +105,11 @@ bundle agent sendInventoryToCmdb {
 	
 	reports:
 		inventory_sent.!cant_send_inventory::
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#Incoming inventories were successfully added to Rudder";
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@$(g.execRun)##$(g.uuid)@#Incoming inventories were successfully added to Rudder";
 		cant_send_inventory::
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#Some inventories failed to add successfully to Rudder";
+			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@$(g.execRun)##$(g.uuid)@#Some inventories failed to add successfully to Rudder";
+		!inventory_sent::
+			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@$(g.execRun)##$(g.uuid)@#No inventory to send";
 }
 
 

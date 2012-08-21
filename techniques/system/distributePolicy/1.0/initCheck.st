@@ -30,7 +30,7 @@ bundle agent root_init_check() {
 		"service[3][initscript]" string => "postgresql";
 
 		"service[4][binary]" string => "/var/rudder/cfengine-community/bin/cf-.*";
-		"service[4][initscript]" string => "cfengine-community";
+		"service[4][initscript]" string => "rudder-agent";
 
 		"service[5][binary]" string => "apache2";
 		"service[5][initscript]" string => "apache2";
@@ -75,16 +75,16 @@ bundle agent generic_process_check_process(binary, initscript, force_restart) {
 
 	  linux::
 
-		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process is already running"
+		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check $(initscript) process@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process is already running"
 			ifvarclass => "!process_restart_$(canoname).!forced_trigger_$(canoname)";
 
-		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process was not running and has been restarted"
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check $(initscript) process@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process was not running and has been restarted"
 			ifvarclass => "process_restart_$(canoname).process_restart_ok_$(canoname).!forced_trigger_$(canoname)";
 
-		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process has been restarted"
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check $(initscript) process@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process has been restarted"
 			ifvarclass => "process_restart_ok_$(canoname).forced_trigger_$(canoname)";
 
-		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process couldn't be restarted"
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check $(initscript) process@@None@@$(g.execRun)##$(g.uuid)@#The $(initscript) process couldn't be restarted"
 			ifvarclass => "process_restart_error_$(canoname)";
 
 }
@@ -131,13 +131,13 @@ bundle agent generic_process_check_bootstart(binary, initscript) {
 
 	  linux::
 
-		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#$(initscript) is started on boot as required"
+		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check $(initscript) boot script@@None@@$(g.execRun)##$(g.uuid)@#$(initscript) is started on boot as required"
 			ifvarclass => "service_bootstarted_$(canoname)";
 
-		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#$(initscript) has been set to start on boot"
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check $(initscript) boot script@@None@@$(g.execRun)##$(g.uuid)@#$(initscript) has been set to start on boot"
 			ifvarclass => "!service_bootstarted_$(canoname).service_bootstarted_ok_$(canoname)";
 
-		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@distributePolicy@@None@@$(g.execRun)##$(g.uuid)@#Could not set $(initscript) to start on boot!"
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check $(initscript) boot script@@None@@$(g.execRun)##$(g.uuid)@#Could not set $(initscript) to start on boot!"
 			ifvarclass => "!service_bootstarted_$(canoname).service_bootstarted_fail_$(canoname)";
 
 }

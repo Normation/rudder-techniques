@@ -54,8 +54,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>distributePolicy/rsyslog.conf/rudder.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="logrotate">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder</OUTPATH>
+    <TML name="logrotate.debian">
+      <OUTPATH>distributePolicy/logrotate.conf/rudder.debian</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="logrotate.suse">
+      <OUTPATH>distributePolicy/logrotate.conf/rudder.suse</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
   </TMLS>
@@ -70,7 +74,30 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TRACKINGVARIABLE>
 
   <SECTIONS>
-    <SECTION name="distribute">
-    </SECTION>
+    <!-- The following sections are for reporting only -->
+    <SECTION name="Propagate promises" component="true"/>
+    <SECTION name="Send inventories to CMDB" component="true"/>
+    <SECTION name="Check postgresql process" component="true"/>
+    <SECTION name="Check jetty process" component="true"/>
+    <SECTION name="Check slapd process" component="true"/>
+    <SECTION name="Check apache2 process" component="true"/>
+    <SECTION name="Check cfengine-community process" component="true"/>
+    <SECTION name="Check postgresql boot script" component="true"/>
+    <SECTION name="Check jetty boot script" component="true"/>
+    <SECTION name="Check slapd boot script" component="true"/>
+    <SECTION name="Check apache2 boot script" component="true"/>
+    <SECTION name="Check cfengine-community boot script" component="true"/>
+    <SECTION name="Check PostgreSQL configuration" component="true"/>
+    <SECTION name="Check logrotate configuration" component="true"/>
+    <SECTION name="Check configuration-repository folder" component="true"/>
+    <SECTION name="Check rudder-networks.conf file" component="true"/>
+    <SECTION name="Check rudder status" component="true"/>
+    <SECTION name="Check endpoint status" component="true"/>
+    <SECTION name="Check rudder-passwords.conf and pgpass files" component="true"/>
+    <SECTION name="Check LDAP credentials" component="true"/>
+    <SECTION name="Check LDAP in rudder-webapp.properties" component="true"/>
+    <SECTION name="Check SQL credentials" component="true"/>
+    <SECTION name="Check SQL in rudder-webapp.properties" component="true"/>
+    <SECTION name="Check WebDAV credentials" component="true"/>
   </SECTIONS>
 </TECHNIQUE>

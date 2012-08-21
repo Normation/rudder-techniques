@@ -5,16 +5,10 @@
         compress
         delaycompress
 		notifempty
-		create 640 root adm
+		create 640 root root
         sharedscripts
         postrotate
-			if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
-				if [ -x /usr/sbin/invoke-rc.d ]; then
-					invoke-rc.d apache2 reload > /dev/null
-				else
-					/etc/init.d/apache2 reload > /dev/null
-				fi
-			fi
+			/etc/init.d/apache2 reload > /dev/null
 		endscript
 }
 
@@ -25,7 +19,7 @@
         compress
         delaycompress
         notifempty
-		create 640 root adm
+		create 640 root root
 }
 
 /var/log/rudder/reports/*.log {
@@ -35,5 +29,15 @@
         compress
         delaycompress
         notifempty
-		create 640 root adm
+		create 640 root root
+}
+
+/var/log/rudder/core/*.log {
+        daily
+        missingok
+        rotate 30
+        compress
+        delaycompress
+        notifempty
+        create 640 root root
 }
