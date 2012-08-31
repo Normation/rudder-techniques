@@ -286,24 +286,24 @@ bundle agent check_log_system {
 		"/etc/rsyslog.conf"
 			edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
 			comment => "Add the rsyslog.conf.d include if not already present",
-			classes => class_trigger("rsyslog_repaired" , "rsyslog_failed", "rsyslog_kept");
+			classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
 	linux.rsyslogd.!policy_server::
 			"/etc/rsyslog.d/rudder-agent.conf"
 				edit_line => append_if_no_lines("#Rudder log system$(const.n)if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then @@$(server_info.cfserved):514"),
 				create => "true",
 				edit_defaults => empty_backup,
-				classes => class_trigger("rsyslog_repaired" , "rsyslog_failed", "rsyslog_kept");
+				classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
 	linux.syslogng.!policy_server::
 		"/etc/syslog-ng/syslog-ng.conf"
 			edit_line => edit_syslog_conf_file("$(syslog_ng_conf)", "$(syslog_ng_conf_regex)"),
-			classes => class_trigger("syslog_ng_repaired" , "syslog_ng_failed", "syslog_ng_kept");
+			classes => kept_if_else("syslog_ng_kept", "syslog_ng_repaired" , "syslog_ng_failed");
 
 	linux.syslogd.!policy_server::
 		"/etc/syslog.conf"
 			edit_line => fix_syslogd("@$(server_info.cfserved)"),
-			classes => class_trigger("syslogd_repaired" , "syslogd_failed", "syslogd_kept");
+			classes => kept_if_else("syslogd_kept", "syslogd_repaired" , "syslogd_failed");
 			#Probably, we want to do something if it is repaired ?
 
       
@@ -377,7 +377,7 @@ bundle agent check_cron_daemon {
             "$(cron_restartcmd)"
 
                 comment => "Restarting crond",
-                classes => class_trigger("crond_restarted" , "crond_failed", "crond_ok");
+                classes => kept_if_else("crond_ok" ,"crond_restarted" , "crond_failed");
 
     reports:
 

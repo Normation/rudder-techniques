@@ -50,7 +50,7 @@ classes:
                         "$(sys.resolv)"
                                 create        => "true",
                                 edit_line     => resolv_edition("$(this.spaced_searchlist)",  "@(this.resolvers)"),
-                                classes => class_trigger("dns_repaired", "cant_repair_dns", "dns_kept");
+                                classes => kept_if_else("dns_kept", "dns_repaired", "cant_repair_dns");
 
 
 &if(NOVA)&
@@ -66,7 +66,7 @@ classes:
 				database_type => "ms_registry",
 				database_rows => { "NameServer,REG_SZ,$(resolvkey)"},
 				comment => "Set the top level resolver",
-				classes => class_trigger("dns_repaired_resolver", "cant_repair_dns_resolver", "dns_resolver_kept");
+				classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
 
 		windows.dns_searchlist_edit::
 			"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
@@ -127,7 +127,7 @@ bundle agent checkDNS(adapter, regKey) {
 				database_operation => "verify",
 				database_type => "ms_registry",
 				database_rows => { "NameServer,REG_SZ,$(regKey)"},
-				classes => class_trigger("dns_repaired_resolver", "cant_repair_dns_resolver", "dns_resolver_kept");
+				classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
 
 }
 &endif&

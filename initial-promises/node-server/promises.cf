@@ -304,7 +304,7 @@ bundle agent check_cron_daemon {
             "$(cron_restartcmd)"
 
                 comment => "Restarting crond",
-                classes => class_trigger("crond_restarted" , "crond_failed", "crond_ok");
+                classes => kept_if_else("crond_ok", "crond_restarted" , "crond_failed");
 
     reports:
 

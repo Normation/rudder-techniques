@@ -33,13 +33,13 @@ commands:
 		"/usr/bin/curl"
 			args => "-f -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
 			comment => "Getting the file from the server",
-			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
+			classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
     windows.file_not_found::
 		"\"${g.rudder_base_sbin}\curl\curl.exe\""
 			args => "-f -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
 			comment => "Getting the file from the server",
-			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
+			classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
 files:
 
@@ -47,7 +47,7 @@ files:
 		"&DOWNLOADFILE_DESTINATION&"
 			pathtype => "literal", 	# force literal interpretation
 			perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
-			classes => class_trigger("file_perms_ok", "file_perms_fail", "file_perms_idle");
+			classes => kept_if_else("file_download_idle", "file_perms_ok", "file_perms_fail");
 
 reports:
 
