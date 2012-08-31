@@ -288,7 +288,7 @@ bundle agent check_log_system {
 			comment => "Add the rsyslog.conf.d include if not already present",
 			classes => class_trigger("rsyslog_repaired" , "rsyslog_failed", "rsyslog_kept");
 
-		!policy_server::
+	linux.rsyslogd.!policy_server::
 			"/etc/rsyslog.d/rudder-agent.conf"
 				edit_line => append_if_no_lines("#Rudder log system$(const.n)if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then @@$(server_info.cfserved):514"),
 				create => "true",
