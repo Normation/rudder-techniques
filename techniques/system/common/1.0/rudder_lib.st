@@ -71,6 +71,8 @@ body copy_from copy_digest(from) {
 }
 
 #########################################################
+# This body is deprecated, and should not be used anymore
+#########################################################
 body classes class_trigger(if,else,kept)
 {
 promise_kept => { "$(kept)" };

@@ -152,8 +152,8 @@ bundle agent check_clock_configuration {
         database_operation => "create",
         database_rows => { "Type,REG_SZ,NTP", "NtpServer,REG_SZ,$(serverskey)"},
         database_type => "ms_registry",
-	comment => "Editing the windows registry to set the required NTP entries",
-	classes => class_trigger("ntp_regset", "ntp_regfail", "ntp_regkept");
+        comment => "Editing the windows registry to set the required NTP entries",
+        classes => kept_if_else("ntp_regkept", "ntp_regset", "ntp_regfail");
 &endif&
 
 	# Install the NTP package
@@ -162,27 +162,27 @@ bundle agent check_clock_configuration {
 			"ntp"
 				package_policy  => "add",
 				package_method  => apt,
-				classes => class_trigger("ntp_installed", "cant_install_ntp", "ntp_install_kept"),
+				classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
 				comment => "Installing ntp using apt";
 
 		redhat::
 			"ntp"
 				package_policy => "add",
 				package_method => yum,
-				classes => class_trigger("ntp_installed", "cant_install_ntp", "ntp_install_kept"),
+				classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
 				comment => "Installing ntp using yum";
 
 		SuSE_11::
 			"ntp"
 				package_policy => "add",
 				package_method => zypper,
-				classes => class_trigger("ntp_installed", "cant_install_ntp", "ntp_install_kept"),
+				classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
 				comment => "Installing ntp using zypper";
 		SuSE_10::
 			"xntp"
 				package_policy => "add",
 				package_method => rudder_rug,
-				classes => class_trigger("ntp_installed", "cant_install_ntp", "ntp_install_kept"),
+				classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
 				comment => "Installing xntp using rug";
 
 	processes:
@@ -240,31 +240,31 @@ bundle agent check_clock_configuration {
                 (debian|redhat|SuSE)::
                         "/etc/ntp.conf"
                                 edit_line => setNtpServer("@(this.ntpServers)"),
-                                classes => class_trigger("repaired_ntpconf", "not_repaired_ntpconf", "ntpconf_kept");
+                                classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
 		# Copy the correct localtime file (distro independant)
                 !clock_timezone_noedit.linux.clock_vardef::
                         "/etc/localtime"
                                 copy_from => digest_cp("/usr/share/zoneinfo/$(linux_timezone)"),
                                 comment => "Updating the /etc/localtime file",
-                                classes => class_trigger("repaired_localtime", "not_repaired_localtime", "localtime_kept");
+                                classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
 
 		# Edit the distro dependant files to set the TZ on boot
                 (redhat.!clock_timezone_noedit).clock_vardef::
                         "/etc/sysconfig/clock"
                                 edit_line => EditCentOSTimezone("$(linux_timezone)"),
-                                classes => class_trigger("repaired_redhattz", "not_repaired_redhattz", "redhattz_kept");
+                                classes => kept_if_else("redhattz_kept", "repaired_redhattz", "not_repaired_redhattz");
 
                 (SuSE.!clock_timezone_noedit).clock_vardef::
                         "/etc/sysconfig/clock"
                                 edit_line => EditSuSETimezone("$(linux_timezone)"),
-                                classes => class_trigger("repaired_susetz", "not_repaired_susetz", "susetz_kept");
+                                classes => kept_if_else("susetz_kept", "repaired_susetz", "not_repaired_susetz");
 
                 (debian.!clock_timezone_noedit).clock_vardef::
                         "/etc/timezone"
                                 edit_defaults => empty_backup,
                                 edit_line => EditDebianTimezone("$(linux_timezone)"),
-                                classes => class_trigger("repaired_debiantz", "not_repaired_debiantz", "debiantz_kept");
+                                classes => kept_if_else("debiantz_kept", "repaired_debiantz", "not_repaired_debiantz");
 
 	reports:
 
