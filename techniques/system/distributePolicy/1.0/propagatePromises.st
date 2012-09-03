@@ -62,10 +62,11 @@ bundle agent propagatePromises {
           		classes => cf2_if_else("license_copied", "could_not_copy_license");
           		
 	reports:
-		(tools_propagated|tools_propagated.promises_propagated.masterfiles_propagated.license_copied).!(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license)::
+		# Success if files are updated or not changed (kept or repaired).
+		# root server have only tools to be updated and others have tools,
+		# promises, masterfiles folder and licenses to be updated.
+		((root_server.tools_propagated)|(!root_server.tools_propagated.promises_propagated.masterfiles_propagated.license_copied)).!(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license)::
 			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#All files have been propagated";
-		!((tools_propagated|tools_propagated.promises_propagated.masterfiles_propagated.license_copied).(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license))::
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#No file need to be propagated";
 		could_not_propagate_promise::
 			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@$(g.execRun)##$(g.uuid)@#Cannot propagate policy files";
 
