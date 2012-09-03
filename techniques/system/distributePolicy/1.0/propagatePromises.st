@@ -32,7 +32,7 @@ bundle agent propagatePromises {
     files:
 	root_server::
 		"${g.rudder_dependencies}" 
-            		copy_from    => copy("${g.rudder_base}/share/tools"),
+           		copy_from    => copy("${g.rudder_base}/share/tools"),
           		depth_search => recurse_visible("inf"),
           		comment => "Fetching the tools for the promises execution",
           		classes => cf2_if_else("tools_propagated", "could_not_propagate_tools");
