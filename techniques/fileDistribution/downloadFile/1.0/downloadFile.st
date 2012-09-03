@@ -47,7 +47,7 @@ files:
 		"&DOWNLOADFILE_DESTINATION&"
 			pathtype => "literal", 	# force literal interpretation
 			perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
-			classes => kept_if_else("file_download_idle", "file_perms_ok", "file_perms_fail");
+			classes => kept_if_else("file_perms_idle", "file_perms_ok", "file_perms_fail");
 
 reports:
 
