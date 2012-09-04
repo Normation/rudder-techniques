@@ -73,7 +73,7 @@ bundle common va {
      };
 
       "inputs_list" slist => {
-        @(va.common_inputs), "common/1.0/cf-served.cf","distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf"
+        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf"
      };
 
     !policy_server::
@@ -88,7 +88,7 @@ bundle common va {
 	"end" slist => { "endExecution" };
 
     "common_inputs" slist => {
-        "common/1.0/cfengine_stdlib.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
+        "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
      };
 
 # definition of the machine roles
