@@ -53,3 +53,13 @@ do
 		exit 4
 	fi
 done
+
+# Check that the deprecated body 'class_trigger' is never used
+find ${REPOSITORY_PATH} -type f -name "*.st" | while read filename
+do
+	if egrep -rHn 'classes\s+=>\s+class_trigger\s*\(' "$filename" > /dev/null
+	then
+		echo "Reason: deprecated body 'class_trigger' found in $filename. Use kept_if_else instead"
+		exit 5
+	fi
+done
