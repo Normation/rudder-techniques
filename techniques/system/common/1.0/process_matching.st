@@ -35,7 +35,7 @@ vars:
 
 classes:
 
-  "restart_cf" expression => "Hr05.Min00_05";
+  "restart_cf" expression => "Hr05.Min00_05.!disable_agent";
 
 
 processes:
@@ -98,14 +98,19 @@ reports:
 bundle edit_line cron_add
 {
 
+# Remove old lines to replace them with new version
+delete_lines:
+        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ `ps -efww | grep cf-execd | grep \"/var/cfengine/bin/cf-execd\" | grep -v grep | wc -l` -eq 0 ]; then /var/cfengine/bin/cf-execd; fi";
+        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ `ps -efww | grep cf-execd | grep \"/var/rudder/cfengine-community/bin/cf-execd\" | grep -v grep | wc -l` -eq 0 ]; then /var/rudder/cfengine-community/bin/cf-execd; fi";
+
 insert_lines:
 
     nova_edition::
 
-        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ `ps -efww | grep cf-execd | grep \"/var/cfengine/bin/cf-execd\" | grep -v grep | wc -l` -eq 0 ]; then /var/cfengine/bin/cf-execd; fi";
+        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ ! -e /opt/rudder/etc/disable-agent -a `ps -efww | grep cf-execd | grep \"/var/cfengine/bin/cf-execd\" | grep -v grep | wc -l` -eq 0 ]; then /var/cfengine/bin/cf-execd; fi";
 
     community_edition::
 
-        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ `ps -efww | grep cf-execd | grep \"/var/rudder/cfengine-community/bin/cf-execd\" | grep -v grep | wc -l` -eq 0 ]; then /var/rudder/cfengine-community/bin/cf-execd; fi";
+        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ ! -e /opt/rudder/etc/disable-agent -a `ps -efww | grep cf-execd | grep \"/var/rudder/cfengine-community/bin/cf-execd\" | grep -v grep | wc -l` -eq 0 ]; then /var/rudder/cfengine-community/bin/cf-execd; fi";
 
 }

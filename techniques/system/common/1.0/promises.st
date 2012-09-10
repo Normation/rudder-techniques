@@ -61,6 +61,9 @@ bundle common rudder_roles {
 	classes:
 		# Abort if no uuid is defined
 		"should_not_continue" not => fileexists("${g.uuid_file}");
+
+		"disable_agent" expression => fileexists("/opt/rudder/etc/disable-agent");
+
 		# Policy Server is a machine which delivers promises
 		"policy_server" expression => strcmp("root","$(g.uuid)");
 		# Root Server is the top policy server machine
@@ -219,12 +222,12 @@ processes:
 
 commands:
 
-	start_server::
+	start_server.!disable_agent::
 		"$(sys.cf_serverd)"
 			action => u_ifwin_bg,
 			classes => outcome("server");
 	
-	start_executor::
+	start_executor.!disable_agent::
 		"$(sys.cf_execd)"
 			action => u_ifwin_bg,
 			classes => outcome("executor");
@@ -242,6 +245,9 @@ reports:
 	execd_has_gone_really_wild::
 
 		"@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#ALERT: more than 5 cf-execd processes were detected. Killing processes that do not respect graceful termination signals.";
+
+	disable_agent::
+		"@@Common@@log_info@@hasPolicyServer-root@@common-root@@2@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#The disable-agent configuration file is present, no CFEngine processes will be started";
 
 }
 
