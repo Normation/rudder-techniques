@@ -51,7 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>COPYFILE_DESTINATION</NAME>
         <DESCRIPTION>Destination of the file</DESCRIPTION>
-		<LONGDESCRIPTION>This is the absolut path of the file/folder on the managed node</LONGDESCRIPTION>
+		<LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node</LONGDESCRIPTION>
       </INPUT>
 		<SELECT1>
 			<NAME>COPYFILE_RECURSION</NAME>
