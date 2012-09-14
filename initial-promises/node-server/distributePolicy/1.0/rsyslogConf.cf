@@ -62,10 +62,10 @@ bundle agent install_rsyslogd {
 
 	vars:
 			ubuntu_12_4::
-				"rsyslog_port"     string => "rudder.conf";
+				"rsyslog_port"     string => "5514";
 
 			!ubuntu_12_4::
-				"rsyslog_port"     string => "rudder.conf.ubuntu";
+				"rsyslog_port"     string => "514";
 
 	packages:
 
