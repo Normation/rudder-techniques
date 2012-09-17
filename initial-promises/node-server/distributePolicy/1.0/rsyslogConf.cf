@@ -61,11 +61,7 @@ bundle agent setup_debian_backports {
 bundle agent install_rsyslogd {
 
 	vars:
-			ubuntu_12_4::
-				"rsyslog_port"     string => "5514";
-
-			!ubuntu_12_4::
-				"rsyslog_port"     string => "514";
+		"rsyslog_port"     string => readfile("$(g.rudder_base)/etc/rudder-web.properties",5);
 
 	packages:
 
