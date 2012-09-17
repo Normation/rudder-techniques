@@ -125,6 +125,21 @@ bundle agent fusionAgent {
 	    "${g.rudder_var_reports}\."
 		create => "true";
 
+        packages:
+            xen.(redhat|centos|SuSE)::
+            "xen"
+                package_policy => "add",
+                package_method => generic,
+                classes => cf2_if_else("xen_installed", "cant_install_xen"),
+                comment => "Installing xen package for extended data";
+
+            xen.debian::
+            "xenstore-utils"
+                package_policy => "add",
+                package_method => generic,
+                classes => cf2_if_else("xen_installed", "cant_install_xen"),
+                comment => "Installing xen package for extended data";
+
 	commands:
 	    linux.inventoryfoldercreated::
 			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs",
@@ -150,7 +165,13 @@ bundle agent fusionAgent {
 			
 		cant_install_ocs::
 			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install ocs";
-			
+
+                cant_install_xen::
+                        "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
+
+                xen_installed::
+                        "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
+
 		curl_installed::
 			"@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
 			
@@ -285,13 +306,32 @@ bundle agent addInformationsToInventory {
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
-	linux::
+        xen.SuSE::
+                "VMRUDDERUUID" string => execresult("/bin/xenstore-read vm","noshell");
+
+        xen.!SuSE::
+                "VMRUDDERUUID" string => execresult("/usr/sbin/xenstore-read vm","noshell");
+
+	xen.xenrudderuuid::
+		"RUDDERUUID" string => "$(vmarray[1])";
+
+
+	linux.!xen::
 		"RUDDERUUID" string => execresult("/usr/sbin/dmidecode -s system-uuid","noshell");
+	linux::
 		"CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
 		"USER" string => execresult("/usr/bin/whoami", "noshell");		
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
 		"usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
 		"users" slist => getindices("userslist");
+
+
+  classes:
+	xen::
+		"xenrudderuuid" expression => regextract("/vm/(.*)", "$(VMRUDDERUUID)", "vmarray");
+
+	any::
+		"uuiddefined" expression => isvariable("RUDDERUUID");
 
   files:
 	windows::
@@ -307,7 +347,7 @@ bundle agent addInformationsToInventory {
 			edit_defaults => def_no_backup,
 			pathtype => "regex";
 	
-	linux::
+	linux.uuiddefined::
 		"${g.rudder_var_tmp}/inventory/.*.ocs"
 			edit_line => add_information_to_inventory($(RUDDERUUID), $(CFKEY), $(USER), $(polserv_uuid)),
 			edit_defaults => def_no_backup;
