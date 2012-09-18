@@ -59,9 +59,15 @@ bundle agent setup_debian_backports {
 
 
 bundle agent install_rsyslogd {
+	classes:
+		"rsyslog_port_not_found" expression => strcmp("${test.rsyslog_port_defined}","0");
+		"rsyslog_port_too_many"  expression => isgreaterthan("${test.rsyslog_port_defined}","1");
 
 	vars:
 		"rsyslog_port_defined"     int => getfields("rudder.syslog.port=[0-9]+","/opt/rudder/etc/rudder-web.properties","=","rsyslog_port");
+		#Use standart rsyslog port number by default if not set in rudder-web.properties
+		rsyslog_port_not_found::
+			"rsyslog_port[2]"    string => "514"
 
 	packages:
 
@@ -141,6 +147,12 @@ bundle agent install_rsyslogd {
 
 		rsyslog_restarted::
 			"Info : Restarted rsyslog";
+
+		rsyslog_port_not_found::
+			"Error: rsyslog port number is not set in /opt/rudder/etc/rudder-web.properties"
+
+		rsyslog_port_too_many::
+			"Warning: rsyslog port number has been set several times in /opt/rudder/etc/rudder-web.properties"
 
 }
 
