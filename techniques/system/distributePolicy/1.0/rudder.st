@@ -20,11 +20,11 @@
 
 # Provides TCP syslog reception
 $ModLoad imtcp
-$InputTCPServerRun 514
+$InputTCPServerRun &SYSLOGPORT&
 
 # Provide udp for snare and compatibility with older syslog
 $ModLoad imudp
-$UDPServerRun 514
+$UDPServerRun &SYSLOGPORT&
 
 # Load postgres module
 $ModLoad ompgsql

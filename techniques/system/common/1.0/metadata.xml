@@ -50,6 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>SHARED_FILES_FOLDER</NAME>
     <NAME>DAVUSER</NAME>
     <NAME>DAVPASSWORD</NAME>
+    <NAME>SYSLOGPORT</NAME>
   </SYSTEMVARS>  
 
   <SECTIONS>

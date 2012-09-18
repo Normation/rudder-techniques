@@ -59,6 +59,10 @@ bundle agent setup_debian_backports {
 
 
 bundle agent install_rsyslogd {
+
+	vars:
+		"rsyslog_port_defined"     int => getfields("rudder.syslog.port=[0-9]+","/opt/rudder/etc/rudder-web.properties","=","rsyslog_port");
+
 	packages:
 
                 policy_server.debian_5.!SuSE::
