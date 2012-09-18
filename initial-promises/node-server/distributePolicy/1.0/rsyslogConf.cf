@@ -59,15 +59,19 @@ bundle agent setup_debian_backports {
 
 
 bundle agent install_rsyslogd {
-	classes:
-		"rsyslog_port_not_found" expression => strcmp("${test.rsyslog_port_defined}","0");
-		"rsyslog_port_too_many"  expression => isgreaterthan("${test.rsyslog_port_defined}","1");
-
 	vars:
-		"rsyslog_port_defined"     int => getfields("rudder.syslog.port=[0-9]+","/opt/rudder/etc/rudder-web.properties","=","rsyslog_port");
-		#Use standart rsyslog port number by default if not set in rudder-web.properties
+		# This will only read the first line if several match
+		"rsyslog_port_defined"     int => getfields("rudder.syslog.port\s*=\s*[0-9]+\s*","/opt/rudder/etc/rudder-web.properties","=","rsyslog_port");
+
+		# Use standard rsyslog port number by default if not set in rudder-web.properties
 		rsyslog_port_not_found::
-			"rsyslog_port[2]"    string => "514"
+			"rsyslog_port[2]"    string => "514";
+
+	classes:
+		# There is no "equals" function for ints in CFEngine (currently, at least) so we compare strings
+		"rsyslog_port_not_found" expression => strcmp("${rsyslog_port_defined}","0");
+
+		"rsyslog_port_too_many"  expression => isgreaterthan("${rsyslog_port_defined}","1");
 
 	packages:
 
@@ -149,10 +153,10 @@ bundle agent install_rsyslogd {
 			"Info : Restarted rsyslog";
 
 		rsyslog_port_not_found::
-			"Error: rsyslog port number is not set in /opt/rudder/etc/rudder-web.properties"
+			"Error: rsyslog port number is not set in /opt/rudder/etc/rudder-web.properties";
 
 		rsyslog_port_too_many::
-			"Warning: rsyslog port number has been set several times in /opt/rudder/etc/rudder-web.properties"
+			"Warning: rsyslog port number has been set several times in /opt/rudder/etc/rudder-web.properties";
 
 }
 
