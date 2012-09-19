@@ -224,7 +224,7 @@ bundle agent root_password_check_dav {
 
 	classes:
 
-		"dav_cant_connect" not => returnszero("/usr/bin/curl -f -u $(g.davuser):$(g.davpw) -T /etc/motd http://localhost/inventory-updates/motd","noshell");
+		"dav_cant_connect" not => returnszero("/usr/bin/curl -s -f -u $(g.davuser):$(g.davpw) -T /etc/motd http://localhost/inventory-updates/motd","noshell");
 
 
 	files:
