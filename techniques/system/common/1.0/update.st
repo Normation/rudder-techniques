@@ -91,6 +91,11 @@ bundle agent update {
             action => immediate,
             classes => success("config", "no_update", "config_ok");
 
+			# Every time we update inputs successfully, touch a file to let other promises know we are doing ok
+			"${sys.workdir}/last_successful_inputs_update"
+				touch      => "true",
+				ifvarclass => "config|config_ok.!no_update";
+
         !root_server.(!windows|cygwin)::
 		  "${g.rudder_dependencies}"
 			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
