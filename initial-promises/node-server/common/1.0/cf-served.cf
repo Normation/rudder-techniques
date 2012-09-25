@@ -39,15 +39,15 @@ bundle server access_rules {
 			admit   => {  @(def.acl)  };
 
         	"/var/rudder/share/root/"
-    			maproot => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  },
-    			admit   => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  };
+				maproot => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  },
+				admit   => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  };
 
 
 
 			# the policy server must have access to the cfengine folder
 			"$(sys.workdir)"
-    			maproot => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  },
-    			admit   => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  };
+				maproot => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  },
+				admit   => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  };
 
      roles:
   		# Allow user root to set any class
@@ -81,11 +81,11 @@ body server control {
     trustkeysfrom     => {
         "127.0.0.0/8" , "::1",
         @(def.acl) ,
-          host2ip("%%POLICY_SERVER_HOSTNAME%%"), "%%POLICY_SERVER_HOSTNAME%%"
+          host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
 	}; #trustkey allows the exchange of keys
     allowconnects     => {
     	 @(def.acl) ,
-          host2ip("%%POLICY_SERVER_HOSTNAME%%"), "%%POLICY_SERVER_HOSTNAME%%"
+          host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
 	};
 
     maxconnections    => "1000";
@@ -99,18 +99,4 @@ body server control {
 	community_edition::
     	port => "5309";
  
-}
-
-#######################################################
-
-body runagent control
-{
-	hosts => {
-          "%%POLICY_SERVER_HOSTNAME%%",
-    };
-
-	max_children => "25";
-
-	community_edition::
-  	port => "5309";
 }
