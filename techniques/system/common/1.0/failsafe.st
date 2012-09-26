@@ -106,7 +106,7 @@ bundle agent init_files {
 # This bundle will check the "last successful inputs update", and if it is older
 # than 1 hour, remove cf_lock.db (and only this DB), to give CFEngine a chance
 # to run properly again.
-bundle agent check_lock_db_problem {
+bundle agent check_lock_db_problem{
 	files:
 		# The aim of this promise is to create a class when this file is older
 		# than one hour. The class can not be created without touching but in
@@ -115,7 +115,7 @@ bundle agent check_lock_db_problem {
 			file_select => over_an_hour,
 			touch       => "true",
 			action      => warn_only,
-			classes     => success("last_successful_inputs_update_too_old", "last_successful_inputs_update_check_error", "last_successful_inputs_update_ok")
+			classes     => success("last_successful_inputs_update_too_old", "last_successful_inputs_update_check_error", "last_successful_inputs_update_ok");
 
 		"${sys.workdir}/state/cf_lock.db"
 			delete     => tidy,
