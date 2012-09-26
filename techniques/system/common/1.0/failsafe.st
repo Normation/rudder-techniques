@@ -23,7 +23,7 @@
 body common control
 
 {
-bundlesequence => { "init_files", "update" };
+bundlesequence => { "check_lock_db_problem", "init_files", "update" };
 
 inputs => { "common/1.0/update.cf" };
 output_prefix => "rudder";
