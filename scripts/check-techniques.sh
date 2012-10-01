@@ -3,7 +3,7 @@
 set -e
 
 #Set variables
-REPOSITORY_PATH=${REPOSITORY_PATH:=$(cd .. && echo $PWD)}
+#REPOSITORY_PATH=${REPOSITORY_PATH:=$(cd .. && echo $PWD)}
 
 trap on_exit EXIT
 
@@ -62,4 +62,15 @@ do
 		echo "Reason: deprecated body 'class_trigger' found in $filename. Use kept_if_else instead"
 		exit 5
 	fi
+done
+
+# Check that there is no use of '&&' in the techniques causing trouble with CFEngine promise generation
+find ${REPOSITORY_PATH}/techniques -type f -name "*.st" | while read filename
+do
+	CHECK_AMPERSAND=`egrep '((\\\&&)|([^\\\]&\\\&))|(\s+&&\s+)' "$filename" | wc -l`
+    if [ ${CHECK_AMPERSAND} -ne 0 ]
+    then
+        echo "Reason: found presence of double ampersand which could prevent Rudder to generate CFEngine promises properly"
+        exit 6
+    fi
 done
