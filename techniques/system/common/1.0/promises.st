@@ -308,7 +308,7 @@ bundle agent check_log_system {
 
 	linux.syslogd.!policy_server::
 		"/etc/syslog.conf"
-			edit_line => fix_syslogd("@$(server_info.cfserved):&SYSLOGPORT&"),
+			edit_line => fix_syslogd("@$(server_info.cfserved)"),
 			classes => kept_if_else("syslogd_kept", "syslogd_repaired" , "syslogd_failed");
 			#Probably, we want to do something if it is repaired ?
 

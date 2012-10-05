@@ -50,43 +50,43 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Lowest hour the command should be run at</DESCRIPTION>
 		<ITEM>
 			<LABEL>0:00</LABEL>
-			<VALUE>0</VALUE>
+			<VALUE>00</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>1:00</LABEL>
-			<VALUE>1</VALUE>
+			<VALUE>01</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>2:00</LABEL>
-			<VALUE>2</VALUE>
+			<VALUE>02</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>3:00</LABEL>
-			<VALUE>3</VALUE>
+			<VALUE>03</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>4:00</LABEL>
-			<VALUE>4</VALUE>
+			<VALUE>04</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>5:00</LABEL>
-			<VALUE>5</VALUE>
+			<VALUE>05</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>6:00</LABEL>
-			<VALUE>6</VALUE>
+			<VALUE>06</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>7:00</LABEL>
-			<VALUE>7</VALUE>
+			<VALUE>07</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>8:00</LABEL>
-			<VALUE>8</VALUE>
+			<VALUE>08</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>9:00</LABEL>
-			<VALUE>9</VALUE>
+			<VALUE>09</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>10:00</LABEL>
@@ -145,7 +145,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<VALUE>23</VALUE>
 		</ITEM>
         <CONSTRAINT>
-          <DEFAULT>8</DEFAULT>
+          <DEFAULT>08</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
       <SELECT1>
@@ -153,39 +153,39 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Highest hour the command should be run at</DESCRIPTION>
 		<ITEM>
 			<LABEL>1:00</LABEL>
-			<VALUE>1</VALUE>
+			<VALUE>01</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>2:00</LABEL>
-			<VALUE>2</VALUE>
+			<VALUE>02</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>3:00</LABEL>
-			<VALUE>3</VALUE>
+			<VALUE>03</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>4:00</LABEL>
-			<VALUE>4</VALUE>
+			<VALUE>04</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>5:00</LABEL>
-			<VALUE>5</VALUE>
+			<VALUE>05</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>6:00</LABEL>
-			<VALUE>6</VALUE>
+			<VALUE>06</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>7:00</LABEL>
-			<VALUE>7</VALUE>
+			<VALUE>07</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>8:00</LABEL>
-			<VALUE>8</VALUE>
+			<VALUE>08</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>9:00</LABEL>
-			<VALUE>9</VALUE>
+			<VALUE>09</VALUE>
 		</ITEM>
 		<ITEM>
 			<LABEL>10:00</LABEL>
