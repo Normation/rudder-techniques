@@ -70,17 +70,18 @@ body package_method apt_nobulk(apt_pkg_timeout) {
 
 debian::
  package_changes => "individual";
- package_list_command => "/usr/bin/dpkg -l";
- package_list_name_regex    => "ii\s+([^\s]+).*";
- package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
- package_installed_regex => ".*"; # all reported are installed
- package_name_convention => "$(name)";
  package_list_update_ifelapsed => "$(apt_pkg_timeout)";
+
+ package_list_command => "/usr/bin/dpkg -l";
+ package_list_name_regex    => ".i\s+([^\s]+).*";
+ package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
+ package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
+ package_name_convention => "$(name)";
 
 debian.have_aptitude::
    package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
    package_list_update_command => "/usr/bin/aptitude update";
-   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes -q remove";
+   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes remove";
    package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
    package_verify_command =>  "/usr/bin/aptitude show";
    package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
@@ -88,7 +89,7 @@ debian.have_aptitude::
 debian.!have_aptitude::
    package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
    package_list_update_command => "/usr/bin/apt-get update";
-   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes -q remove";
+   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes remove";
    package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
    package_verify_command => "/usr/bin/dpkg -s";
    package_noverify_returncode => "1";
