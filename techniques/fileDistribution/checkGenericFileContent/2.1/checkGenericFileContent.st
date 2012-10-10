@@ -48,6 +48,8 @@ bundle agent check_generic_file_content {
 }&
 			&GENERIC_FILE_CONTENT_DELETION_REGEXP:{delreg |"generic_file_content_deletion_regexp[&i&]" string => "&delreg&";
 }&
+			&GENERIC_FILE_CONTENT_CREATE_BOOLEAN:{createfile |"generic_file_content_creation[&i&]" string => "&createfile&";
+}&
 			&GENERIC_FILE_CONTENT_MODIFICATION_REGEXP:{delreg |"generic_file_content_modification_regexp[&i&]" string => "&delreg&";
 }&
 			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
@@ -81,27 +83,27 @@ classes:
 			"$(generic_file_content_path[$(index)])"
 				edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])",
 														"$(generic_file_content_enforced[$(index)])"),
-				create => "true",
+				create => "$(generic_file_content_creation[$(index)])",
 				edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
 				classes => kept_if_else("content_$(index)_kept", "content_$(index)_modified", "content_$(index)_failed"),
 				comment => "Editing $(generic_file_content_path[$(index)])...";
 
 			"$(generic_file_content_path[$(index)])"
 			        edit_line => delete_lines_matching("$(generic_file_content_deletion_regexp[$(index)])"),
-			        create => "true",
+			        create => "$(generic_file_content_creation[$(index)])",
 			        classes => kept_if_else("content_deletion_kept_$(index)", "content_deletion_modified_$(index)", "content_deletion_failed_$(index)"),
 			        ifvarclass => "delete_lines_$(index)",
 			        comment => "Deleting lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
 			"$(generic_file_content_path[$(index)])"
 			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])"),
-			        create => "true",
+			        create => "$(generic_file_content_creation[$(index)])",
 			        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
 			        ifvarclass => "modify_lines_$(index)",
 			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
 			  "$(generic_file_content_path[$(index)])"
-				  create => "true",
+				  create => "$(generic_file_content_creation[$(index)])",
 				  perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
 				  classes => kept_if_else("perms_$(index)_kept", "perms_$(index)_modified", "perms_$(index)_failed"),
 				  ifvarclass => "adjust_permissions_$(index)",
