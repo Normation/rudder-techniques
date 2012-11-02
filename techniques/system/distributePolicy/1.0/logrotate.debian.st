@@ -3,7 +3,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
 		notifempty
 		create 640 root adm
         sharedscripts
@@ -23,7 +22,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
         notifempty
 		create 640 root adm
 }
@@ -33,7 +31,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
         notifempty
 		create 640 root adm
 }
@@ -43,7 +40,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
         notifempty
 		create 640 root adm
 }
