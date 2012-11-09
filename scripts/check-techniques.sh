@@ -3,7 +3,7 @@
 set -e
 
 #Set variables
-#REPOSITORY_PATH=${REPOSITORY_PATH:=$(cd .. && echo $PWD)}
+REPOSITORY_PATH=${REPOSITORY_PATH:=$(cd .. && echo $PWD)}
 
 trap on_exit EXIT
 
