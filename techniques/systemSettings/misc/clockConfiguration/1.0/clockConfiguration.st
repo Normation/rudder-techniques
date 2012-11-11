@@ -168,7 +168,7 @@ bundle agent check_clock_configuration {
 		redhat::
 			"ntp"
 				package_policy => "add",
-				package_method => yum,
+				package_method => generic,
 				classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
 				comment => "Installing ntp using yum";
 
