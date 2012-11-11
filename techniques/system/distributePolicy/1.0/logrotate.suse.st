@@ -3,7 +3,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
 		notifempty
 		create 640 root root
         sharedscripts
@@ -17,7 +16,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
         notifempty
 		create 640 root root
 }
@@ -27,7 +25,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
         notifempty
 		create 640 root root
 }
@@ -37,7 +34,6 @@
         missingok
         rotate 30
         compress
-        delaycompress
         notifempty
         create 640 root root
 }
