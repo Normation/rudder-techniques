@@ -46,13 +46,15 @@ bundle common g
 	   "rudder_base" string  => "$(sys.winprogdir)\Rudder";
 	   "rudder_sbin" string  => "$(rudder_base)\sbin";
 	   "rudder_dependencies" string => "$(rudder_sbin)";
+           "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 
 	 linux|cygwin::
 	    "rudder_base" string => "/opt/rudder";
 	    "rudder_sbin" string  => "$(rudder_base)/sbin";
 	    "rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
 	    "rudder_dependencies" string => "/var/rudder/tools";
- 	
+            "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
+
 
 # definition of the node roles
 	&NODEROLE&
