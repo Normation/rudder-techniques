@@ -60,7 +60,7 @@ bundle common e2sCommon {
 bundle agent e2sGet {
 
   files:
-
+    windows::
         "${g.rudder_sbin}/centreon_e2s.exe"
         copy_from    => scp("${e2sCommon.e2s_exe}", "${server_info.cfserved}","digest","true","true","false"),             
         perms => m("0700"),
@@ -95,7 +95,7 @@ bundle agent e2sInstall {
       
   commands:
 
-    !e2s_ok::
+    windows.!e2s_ok::
 
       "\"${g.rudder_sbin}\centreon-e2s.exe\""
         args => "/S",
