@@ -64,6 +64,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   </CONSTRAINT>
                 </INPUT>
                 <INPUT>
+                  <NAME>GENERIC_FILE_CONTENT_CREATE_BOOLEAN</NAME>
+                  <DESCRIPTION>Enable the creation of the file if it doesn't exist</DESCRIPTION>
+                  <CONSTRAINT>
+                    <TYPE>boolean</TYPE>
+                    <DEFAULT>true</DEFAULT>
+                  </CONSTRAINT>
+                </INPUT>
+                <INPUT>
                   <NAME>GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN</NAME>
                   <DESCRIPTION>Enable the replacement of lines using a regexp</DESCRIPTION>
                   <CONSTRAINT>
