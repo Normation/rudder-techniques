@@ -54,12 +54,8 @@ bundle agent check_generic_file_content {
 }&
 			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
 }&
-			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{ destination |"generic_file_content_modification_destination_defined_&i&" not => strcmp("&destination&", "");
-}&
 	                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
 }&
-			"edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
-
 			"index" slist => getindices("generic_file_content_path");
 
 			"file_edit_go" string => "go";
@@ -75,6 +71,12 @@ classes:
 }&
 			&GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN:{modification |"modify_lines_&i&" expression => strcmp("&modification&", "true");
 }&
+			# Workaround for #3014: no value = empty value
+			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{ destination |"generic_file_content_modification_destination_defined_&i&" not => strcmp("&destination&", "");
+}&
+			# Check that value has been set before to edit the file
+			"edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
+
 			"tier1" expression => "any";
 
 			"tier2" expression => isvariable("file_edit_go");
@@ -83,6 +85,7 @@ classes:
 
 		tier2::
 
+			# Add content to the file only if the content has been set
 			"$(generic_file_content_path[$(index)])"
 				edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])",
 														"$(generic_file_content_enforced[$(index)])"),
@@ -99,6 +102,8 @@ classes:
 			        ifvarclass => "delete_lines_$(index)",
 			        comment => "Deleting lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
+			# Replace the matching line(s) of the file by values of replacement
+			# if replacement has been set
 			"$(generic_file_content_path[$(index)])"
 			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])"),
 			        create => "$(generic_file_content_creation[$(index)])",
@@ -106,6 +111,8 @@ classes:
 					ifvarclass => "modify_lines_$(index).generic_file_content_modification_destination_defined_$(index)",
 			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
+			# Replace the matching line(s) of the file by an empty line
+			# if replacement is not set
 			"$(generic_file_content_path[$(index)])"
 			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", ""),
 			        create => "$(generic_file_content_creation[$(index)])",
