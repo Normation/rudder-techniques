@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<TECHNIQUE name="Enforce a file content">
+<POLICY name="Enforce a file content">
   <DESCRIPTION>Checks if a file matches a given content and if not, updates it</DESCRIPTION>
 
   <!--  <CONFIGURATIONPOLICY>false</CONFIGURATIONPOLICY> -->
@@ -61,6 +61,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                   <CONSTRAINT>
                     <TYPE>boolean</TYPE>
                     <DEFAULT>false</DEFAULT>
+                  </CONSTRAINT>
+                </INPUT>
+                <INPUT>
+                  <NAME>GENERIC_FILE_CONTENT_CREATE_BOOLEAN</NAME>
+                  <DESCRIPTION>Enable the creation of the file if it doesn't exist</DESCRIPTION>
+                  <CONSTRAINT>
+                    <TYPE>boolean</TYPE>
+                    <DEFAULT>true</DEFAULT>
                   </CONSTRAINT>
                 </INPUT>
                 <INPUT>
@@ -160,4 +168,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	</SECTION>
 	
   </SECTIONS>
-</TECHNIQUE>
+</POLICY>
