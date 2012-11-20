@@ -54,8 +54,11 @@ bundle agent check_generic_file_content {
 }&
 			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
 }&
+			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{ destination |"generic_file_content_modification_destination_defined_&i&" not => strcmp("&destination&", "");
+}&
 	                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
 }&
+			"edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
 
 			"index" slist => getindices("generic_file_content_path");
 
@@ -86,6 +89,7 @@ classes:
 				create => "$(generic_file_content_creation[$(index)])",
 				edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
 				classes => kept_if_else("content_$(index)_kept", "content_$(index)_modified", "content_$(index)_failed"),
+				ifvarclass => "edit_content_$(index)",
 				comment => "Editing $(generic_file_content_path[$(index)])...";
 
 			"$(generic_file_content_path[$(index)])"
@@ -99,7 +103,14 @@ classes:
 			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])"),
 			        create => "$(generic_file_content_creation[$(index)])",
 			        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
-			        ifvarclass => "modify_lines_$(index)",
+					ifvarclass => "modify_lines_$(index).generic_file_content_modification_destination_defined_$(index)",
+			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
+
+			"$(generic_file_content_path[$(index)])"
+			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", ""),
+			        create => "$(generic_file_content_creation[$(index)])",
+			        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
+					ifvarclass => "modify_lines_$(index).!generic_file_content_modification_destination_defined_$(index)",
 			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
 			  "$(generic_file_content_path[$(index)])"
@@ -149,13 +160,13 @@ classes:
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line replacement"
                         ifvarclass => "!modify_lines_$(index)";
 
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the deletion policy"
+                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the replacement policy"
                         ifvarclass => "content_modification_kept_$(index).!content_modification_modified_$(index).!content_modification_failed_$(index)";
 
-                "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the deletion policy"
+                "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the replacement policy"
                         ifvarclass => "content_modification_modified_$(index)";
 
-                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the deletion policy"
+                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the replacement policy"
                         ifvarclass => "content_modification_failed_$(index)";
 
 			# Permissions edition
