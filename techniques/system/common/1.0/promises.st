@@ -477,8 +477,8 @@ body agent control {
 	default_repository => "/var/rudder/modified-files";
 
 &if(NOVA)&
-    windows::
-	default_repository => "c:\Program Files\Rudder\modified-files";
+#    windows::
+#	default_repository => "c:\Program Files\Rudder\modified-files";
 &endif&
 }
 
