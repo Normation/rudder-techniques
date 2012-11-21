@@ -88,8 +88,8 @@ It then adds ssh to the boot init scripts if not already set to start on boot.
           <VALUE>inet6</VALUE>
         </ITEM>
         <ITEM>
-          <LABEL>dontchange</LABEL>
-          <VALUE>Don't change</VALUE>
+          <LABEL>Don't change</LABEL>
+          <VALUE>dontchange</VALUE>
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>any</DEFAULT>
