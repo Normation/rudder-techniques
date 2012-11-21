@@ -72,8 +72,11 @@ classes:
 			&GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN:{modification |"modify_lines_&i&" expression => strcmp("&modification&", "true");
 }&
 			# Workaround for #3014: no value = empty value
-			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{ destination |"generic_file_content_modification_destination_defined_&i&" not => strcmp("&destination&", "");
-}&
+			# In some conditions, the value of replacement is
+			# considerered as null instead of empty.
+			# This class will ensure that no variable (=null) will be considered
+			# as an empty variable.
+			"generic_file_content_modification_destination_defined_$(index)" expression => isvariable("generic_file_content_modification_destination[$(index)]");
 			# Check that value has been set before to edit the file
 			"edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
 
