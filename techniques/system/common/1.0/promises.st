@@ -305,7 +305,7 @@ bundle agent check_log_system {
 	"syslog_ng_conf_suffix" string => "\" port (&SYSLOGPORT&));};log {source(src);filter(f_local_rudder);destination(loghost);";
 	"syslog_ng_conf_final"  string => "flags(final);};";
 	"syslog_ng_conf"        string => concat("$(syslog_conf_comment)", "$(syslog_ng_conf_prefix)", "$(server_info.cfserved)", "$(syslog_ng_conf_suffix)", "$(syslog_ng_conf_final)");
-	"syslog_ng_conf_regex"  string => concat(escape("$(syslog_ng_conf_prefix)"), "[^\"]+", escape("$(syslog_ng_conf_suffix)"), escape("};"));
+	"syslog_ng_conf_regex"  string => concat(escape("$(syslog_ng_conf_prefix)"), "[^\"]+", escape("$(syslog_ng_conf_suffix)"), ".*");
 
   classes:
 
