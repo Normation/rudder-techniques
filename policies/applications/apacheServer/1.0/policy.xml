@@ -54,9 +54,11 @@ It then adds apache to the boot init scripts if not already set to start on boot
     
   <SECTIONS>
     <SECTION name="Apache2 installation" component="true" />
+    <SECTION name="Apache bootstart" component="true" />
     <SECTION name="SELinux context" component="true" />
     <SECTION name="Port settings edition" component="true" />
     <SECTION name="Security settings edition" component="true" />
+
     <!-- general Section , index 1 -->
     <SECTION name="General settings">
       <INPUT>
@@ -159,7 +161,7 @@ It then adds apache to the boot init scripts if not already set to start on boot
 
 
     <!-- modules Section , index 10 -->
-    <SECTION name="Module settings" multivalued="true">
+    <SECTION name="Module settings" multivalued="true" component="true" componentKey="APACHE_MODULES">
       <INPUT>
         <NAME>APACHE_MODULES</NAME>
         <DESCRIPTION>Which custom modules do you want to enable</DESCRIPTION>
