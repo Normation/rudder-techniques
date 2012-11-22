@@ -24,7 +24,7 @@ bundle agent check_apache_installation {
 
 	packages:
 
-		debian.SuSE_11::
+		debian|SuSE_11::
 
 			"apache2"
 				package_policy  => "add",
