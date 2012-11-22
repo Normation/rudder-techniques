@@ -48,10 +48,10 @@ bundle agent check_apache_installation {
 				comment => "Installing apache using generic interface";
 
 	reports:
-		apache_here::
+		apache_here.!apache_installed.!cant_install_apache::
 			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache already installed";
 
-		apache_installed::
+		apache_installed.!cant_install_apache::
 			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache installed";
 
 		cant_install_apache::
