@@ -24,7 +24,7 @@ bundle agent check_apache_installation {
 
 	packages:
 
-		debian.SuSE_11::
+		debian|SuSE_11::
 
 			"apache2"
 				package_policy  => "add",
@@ -48,12 +48,12 @@ bundle agent check_apache_installation {
 				comment => "Installing apache using generic interface";
 
 	reports:
-		#apache_here::
-		#	"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache already installed";
+		apache_here.!apache_installed.!cant_install_apache::
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache already installed";
 
-		apache_installed::
-			"@@apacheServerConfiguration@@log_repaired@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache installed";
+		apache_installed.!cant_install_apache::
+			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache installed";
 
 		cant_install_apache::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Can't install Apache";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Can't install Apache";
 }
