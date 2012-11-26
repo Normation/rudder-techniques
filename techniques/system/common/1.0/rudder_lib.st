@@ -466,13 +466,3 @@ insert_lines:
 		location => start;
 
 }
-
-###################################################
-# process_select rudder_minutes_older_than
-###################################################
-
-body process_select rudder_minutes_older_than(m)
-{
-	stime_range    => irange(ago(0,0,0,0,"$(m)",0),now);
-	process_result => "stime";
-}

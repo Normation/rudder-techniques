@@ -202,7 +202,6 @@ processes:
 
 		"$(sys.workdir)/bin/cf-$(binaries)"
 			process_count => check_range("$(binaries)", "0","$(process_term[$(binaries)])"),
-			process_select => rudder_minutes_older_than("5"),
 			signals => { "term" },
 			classes => if_repaired("$(binaries)_has_gone_wild"),
 			comment => "Checking if cf-$(binaries) has gone wild";
@@ -219,7 +218,6 @@ processes:
 
 		"$(sys.workdir)/bin/cf-$(binaries)"
 			process_count => check_range("$(binaries)", "0","$(process_kill[$(binaries)])"),
-			process_select => rudder_minutes_older_than("5"),
 			signals => { "kill" },
 			classes => if_repaired("$(binaries)_has_gone_really_wild"),
 			comment => "Checking if cf-$(binaries) has gone really wild";
@@ -230,7 +228,6 @@ processes:
 
 		"cf-$(binaries)"
 			process_count => check_range("$(binaries)", "0","$(process_term[$(binaries)])"),
-			process_select => rudder_minutes_older_than("5"),
 			signals => { "term" },
 			classes => if_repaired("$(binaries)_has_gone_wild"),
 			comment => "Checking if cf-$(binaries) has gone wild";
