@@ -327,7 +327,7 @@ bundle agent check_apache_configuration {
 		apache_modules_toUpdate.!debian::
                         "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Module settings@@$(apache_modules)@@$(g.execRun)##$(g.uuid)@#The Apache module can only be configured on Debian systems !";
 
-		debian::
+		debian.apache_module_list_defined::
 
 			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Module settings@@$(apache_modules)@@$(g.execRun)##$(g.uuid)@#The Apache module $(apache_modules) was successfully enabled"
 				ifvarclass => canonify("apache_module_$(apache_modules)_enabled");
