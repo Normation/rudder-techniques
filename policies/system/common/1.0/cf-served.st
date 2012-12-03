@@ -116,6 +116,14 @@ body server control {
 &endif&
     };
 
+    allowallconnects  => {
+         @(def.acl) ,
+        &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+&if(CLIENTSLIST)&
+        &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+&endif&
+    };
+
     maxconnections    => "1000";
     logallconnections => "true";    
 
