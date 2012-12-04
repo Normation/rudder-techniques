@@ -110,6 +110,13 @@ bundle agent endExecution {
   reports:
    linux|windows::
        "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@EndRun@@$(g.execRun)##$(g.uuid)@#End execution";
+
+   no_update::
+	"*********************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
+* This can be caused by a network issue, an unavailable server, or if this      *
+* node has not yet been accepted in the Rudder root server.                     *
+*********************************************************************************";
 }
 
 ##########################################################
