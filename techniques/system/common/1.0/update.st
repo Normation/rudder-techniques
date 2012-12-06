@@ -172,6 +172,15 @@ bundle agent update {
 
 			policy_server::
 				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy server doesn't need to be updated";
+
+
+                        no_update::
+				"*********************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
+* This can be caused by a network issue, an unavailable server, or if this      *
+* node was deleted from the Rudder root server.                                 *
+* Any existing configuration policy will continue to be applied without change. *
+*********************************************************************************";
 }
 
 
