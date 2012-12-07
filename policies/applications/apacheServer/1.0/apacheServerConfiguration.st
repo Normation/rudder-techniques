@@ -342,19 +342,19 @@ bundle agent check_apache_configuration {
 		!apache_selinux_adjust::
 			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#No SELinux context definition required for $(apache_vhost_root[$(apache_vhost_index)])";
 
-		apache_ports_kept::
+		apache_ports_kept.!apache_ports_repaired.!apache_ports_failed::
 			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Port settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings OK";
 
-		apache_ports_repaired::
+		apache_ports_repaired.!apache_ports_failed::
 			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Port settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings reset";
 
 		apache_ports_failed::
 			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Port settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD port settings could not be set !";
 
-		apache_security_kept::
+		apache_security_kept.!apache_security_repaired.!apache_security_failed::
 			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Security settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings OK";
 
-		apache_security_repaired::
+		apache_security_repaired.!apache_security_failed::
 			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Security settings edition@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD security settings reset";
 
 		apache_security_failed::
@@ -362,25 +362,29 @@ bundle agent check_apache_configuration {
 
 		linux::
 			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) already set"
-				ifvarclass => canonify("apache_vhost_$(apache_vhost_index)_kept");
+				ifvarclass => "apache_vhost_$(apache_vhost_index)_kept.!apache_vhost_$(apache_vhost_index)_repaired.!apache_vhost_$(apache_vhost_index)_failed";
 
-			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) reset"
-				ifvarclass => canonify("apache_vhost_$(apache_vhost_index)_repaired");
+			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) reset"
+				ifvarclass => "apache_vhost_$(apache_vhost_index)_repaired.!apache_vhost_$(apache_vhost_index)_failed";
 
 			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#Apache HTTPD virtualhost $(apache_vhost_fqdn[$(apache_vhost_index)]) could not be set !"
-				ifvarclass => canonify("apache_vhost_$(apache_vhost_index)_failed");
+				ifvarclass => "apache_vhost_$(apache_vhost_index)_failed";
 
 			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#The root directory $(apache_vhost_root[$(apache_vhost_index)]) was created"
 				ifvarclass => canonify("root_$(apache_vhost_root[$(apache_vhost_index)])_created");
 
-		apache_autostart.apache_bootstarted_ok::
-			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is now starting on boot";
+                apache_autostart.apache_bootstarted.!apache_unboostarted::
+                        "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is correctly set to start on boot";
 
-		apache_autostart.apache_still_unbootstarted::
+		apache_autostart.apache_unboostarted.apache_bootstarted_ok.!apache_still_unbootstarted::
+			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is now starting on boot";
+
+		apache_autostart.apache_still_unbootstarted.apache_still_unbootstarted::
 			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD could not be set to start on boot";
 
-		apache_autostart.apache_bootstarted::
-			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD already set to start on boot";
+		!apache_autostart::
+                        "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Don't have to check if Apache HTTPD should be started automatically";
+
 
 		apache_restarted::
 			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD restarted";
@@ -389,7 +393,7 @@ bundle agent check_apache_configuration {
 			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Could not restart Apache HTTPD";
 
 		!apache_bin_present::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache binary is not present. Something is wrong (installation failure ?)";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache binary is not present. Something is wrong (installation failure ?)";
 
 }
 
