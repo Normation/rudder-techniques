@@ -155,19 +155,19 @@ bundle agent check_apache_configuration {
 				classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
 				comment => "restarting apache";
 
-		(debian.apache_unbootstarted).apache_bin_present::
+		(debian.apache_unbootstarted.apache_autostart).apache_bin_present::
 			"/usr/sbin/update-rc.d"
 				args => "apache2 defaults",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
 				comment => "adding apache to the startup scripts";
 
-		(redhat.apache_unbootstarted).apache_bin_present::
+		(redhat.apache_unbootstarted.apache_autostart).apache_bin_present::
 			"/sbin/chkconfig"
 				args => "--add httpd",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
 				comment => "adding apache to the startup scripts";
 
-		(SuSE.apache_unbootstarted).apache_bin_present::
+		(SuSE.apache_unbootstarted.apache_autostart).apache_bin_present::
 			"/sbin/chkconfig"
 				args => "--add apache2",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
@@ -373,14 +373,18 @@ bundle agent check_apache_configuration {
 			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[$(apache_vhost_index)])@@$(g.execRun)##$(g.uuid)@#The root directory $(apache_vhost_root[$(apache_vhost_index)]) was created"
 				ifvarclass => canonify("root_$(apache_vhost_root[$(apache_vhost_index)])_created");
 
-		apache_autostart.apache_bootstarted_ok::
-			"@@apacheServerConfiguration@@Repaired@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is now starting on boot";
+                apache_autostart.apache_bootstarted.!apache_unboostarted::
+                        "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is correctly set to start on boot";
 
-		apache_autostart.apache_still_unbootstarted::
+		apache_autostart.apache_unboostarted.apache_bootstarted_ok.!apache_still_unbootstarted::
+			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD is now starting on boot";
+
+		apache_autostart.apache_still_unbootstarted.apache_still_unbootstarted::
 			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD could not be set to start on boot";
 
-		apache_autostart.apache_bootstarted::
-			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD already set to start on boot";
+		!apache_autostart::
+                        "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache bootstart@@None@@$(g.execRun)##$(g.uuid)@#Don't have to check if Apache HTTPD should be started automatically";
+
 
 		apache_restarted::
 			"@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache HTTPD restarted";
@@ -389,7 +393,7 @@ bundle agent check_apache_configuration {
 			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Could not restart Apache HTTPD";
 
 		!apache_bin_present::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Apache binary is not present. Something is wrong (installation failure ?)";
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache binary is not present. Something is wrong (installation failure ?)";
 
 }
 
