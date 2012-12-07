@@ -160,7 +160,7 @@ It then adds apache to the boot init scripts if not already set to start on boot
 
 
     <!-- modules Section , index 10 -->
-    <SECTION name="Module settings" multivalued="true">
+    <SECTION name="Module settings" multivalued="true" component="true" componentKey="APACHE_MODULES">
       <INPUT>
         <NAME>APACHE_MODULES</NAME>
         <DESCRIPTION>Which custom modules do you want to enable</DESCRIPTION>
