@@ -47,10 +47,9 @@ bundle agent check_apache_configuration {
 			"selinux_bin_present" expression => fileexists("/usr/bin/chcon");
 
 			# Is the modules list empty ?
-			"apache_modules_ignore" expression => strcmp("&APACHE_MODULES&","none");
-			"apache_modules_toUpdate" not => strcmp("&APACHE_MODULES&","none");
+			"apache_modules_nok" expression => strcmp("&APACHE_MODULES&","none");
+			"apache_modules_ok" not => strcmp("&APACHE_MODULES&","none");
 
-			"apache_module_list_defined" expression => isvariable("apache_modules_to_set");
 	vars:
 
 			# Ports
@@ -92,15 +91,16 @@ bundle agent check_apache_configuration {
 
 			"apache_vhost_index" slist => getindices("apache_vhost_fqdn");
 
-
-		apache_modules_toUpdate::
+		apache_modules_nok::
 
 			# Modules
-			"apache_modules" slist =>  { &APACHE_MODULES: {"&it&"};separator=", "& };
+			"apache_modules" slist => { "expires", "alias" };
 
-		apache_modules_toUpdate|apache_modules_ignore::
-			"apache_modules_to_set" slist => { "expires", "alias", "@(apache_modules)" },
-						policy => "ifdefined";
+		apache_modules_ok::
+
+			# Modules
+			"apache_modules" slist => {&APACHE_MODULES: { "expires", "alias", "&it&" };separator=", "&};
+
 	processes:
 	
 		debian.apache_autostart::
@@ -129,11 +129,11 @@ bundle agent check_apache_configuration {
 
 	commands:
 
-		debian.apache_module_list_defined::
+		debian.(apache_modules_ok|apache_modules_nok)::
 
 			"/usr/sbin/a2enmod"
-				args => "$(apache_modules_to_set)",
-				classes => cf2_if_else("apache_module_$(apache_modules_to_set)_enabled", "apache_module_$(apache_modules_to_set)_not_enabled"),
+				args => "$(apache_modules)",
+				classes => cf2_if_else("apache_module_$(apache_modules)_enabled", "apache_module_$(apache_vhost_index)_not_apache_modules"),
 				comment => "Enable Apache modules on Debian";
 
 		apache_selinux_adjust.selinux_bin_present::
@@ -155,19 +155,19 @@ bundle agent check_apache_configuration {
 				classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
 				comment => "restarting apache";
 
-		(debian.apache_unbootstarted.apache_autostart).apache_bin_present::
+		(debian.apache_unbootstarted).apache_bin_present::
 			"/usr/sbin/update-rc.d"
 				args => "apache2 defaults",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
 				comment => "adding apache to the startup scripts";
 
-		(redhat.apache_unbootstartedi.apache_autostart).apache_bin_present::
+		(redhat.apache_unbootstarted).apache_bin_present::
 			"/sbin/chkconfig"
 				args => "--add httpd",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
 				comment => "adding apache to the startup scripts";
 
-		(SuSE.apache_unbootstarted.apache_autostart).apache_bin_present::
+		(SuSE.apache_unbootstarted).apache_bin_present::
 			"/sbin/chkconfig"
 				args => "--add apache2",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
@@ -320,19 +320,11 @@ bundle agent check_apache_configuration {
 				comment => "Make sure the root directory exists";
 	
 	reports:
-
-		apache_modules_ignore::
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Module settings@@none@@$(g.execRun)##$(g.uuid)@#There is nothing to do for the Apache module configuration";
-
-		apache_modules_toUpdate.!debian::
-                        "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Module settings@@$(apache_modules)@@$(g.execRun)##$(g.uuid)@#The Apache module can only be configured on Debian systems !";
-
-		debian.apache_module_list_defined::
-
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Module settings@@$(apache_modules)@@$(g.execRun)##$(g.uuid)@#The Apache module $(apache_modules) was successfully enabled"
+		debian::
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#The Apache module $(apache_modules) was successfully enabled"
 				ifvarclass => canonify("apache_module_$(apache_modules)_enabled");
 
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Module settings@@$(apache_modules)@@$(g.execRun)##$(g.uuid)@#Could not enable apache module $(apache_modules) !"
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Could not enable apache module $(apache_modules) !"
 				ifvarclass => canonify("apache_module_$(apache_modules)_not_enabled");
 
 		apache_selinux_adjust.selinux_bin_present::
