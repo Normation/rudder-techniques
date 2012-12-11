@@ -269,10 +269,10 @@ bundle agent check_ssh_configuration {
 		ssh_down::
 			"@@sshConfiguration@@log_repaired@@&TRACKINGKEY&@@SSH process@@None@@$(g.execRun)##$(g.uuid)@#SSH service was not running, trying to restart...";
 
-		!ssh_down::
+		!ssh_down.!ssh_restarted.!cant_restart_ssh::
 			"@@sshConfiguration@@result_success@@&TRACKINGKEY&@@SSH process@@None@@$(g.execRun)##$(g.uuid)@#SSH service is running";
 
-		ssh_restarted::
+		ssh_restarted.!cant_restart_ssh::
 			"@@sshConfiguration@@result_repaired@@&TRACKINGKEY&@@SSH process@@None@@$(g.execRun)##$(g.uuid)@#Restarted SSH service";
 
 		cant_restart_ssh::
