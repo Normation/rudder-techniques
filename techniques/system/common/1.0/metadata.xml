@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="cf-served"/>
     <TML name="cfengine_stdlib" />
     <TML name="rudder_lib" />
+    <TML name="rudder_stdlib" />
     <TML name="process_matching" />
     <TML name="internal_security" />
     <TML name="e2s_activation"/>
