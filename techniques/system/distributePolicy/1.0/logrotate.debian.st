@@ -47,7 +47,7 @@
 /var/log/rudder/compliance/non-compliant-reports.log {
         daily
         missingok
-        rotate 30
+        rotate 365
         compress
         notifempty
         create 640 root adm
