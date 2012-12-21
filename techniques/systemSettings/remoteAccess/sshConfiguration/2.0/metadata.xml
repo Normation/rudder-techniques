@@ -44,6 +44,7 @@ Technique development best practices.
   </COMPATIBLE>
 
   <TMLS>
+    <TML name="main"/>
     <TML name="installation"/>
     <TML name="configuration"/>
     <TML name="bodies"/>
