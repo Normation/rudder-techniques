@@ -1956,7 +1956,7 @@ body package_method generic
 {
 SuSE::
  package_changes => "bulk";
- package_list_command => "/usr/bin/zypper packages";
+ package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
  package_patch_list_command => "/usr/bin/zypper patches";
  package_installed_regex => "i.*";
  package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
