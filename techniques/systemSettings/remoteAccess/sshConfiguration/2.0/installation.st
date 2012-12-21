@@ -22,7 +22,6 @@
 
 bundle agent rudder_openssh_server_installation
 {
-
   packages:
 
     # Install OpenSSH if needed, using generic installation.
@@ -30,16 +29,12 @@ bundle agent rudder_openssh_server_installation
       "openssh-server"
         package_policy  => "add",
         package_method  => generic,
-        classes         => rudder_common_setclass("rudder_openssh_server_package"),
+        classes         => rudder_common_classes("rudder_openssh_server_package"),
         comment         => "Installing OpenSSH using the generic package manager method";
+}
 
-  reports:
-
-    rudder_openssh_server_package_kept.!rudder_openssh_server_package_repaired.!rudder_openssh_server_package_error::
-      "@@sshConfiguration@@result_success@@&TRACKINGKEY&@@SSH installation@@None@@${g.execRun}##${g.uuid}@#The SSH package was already installed";
-    rudder_openssh_server_package_repaired.!rudder_openssh_server_package_error::
-        "@@sshConfiguration@@result_repaired@@&TRACKINGKEY&@@SSH installation@@None@@${g.execRun}##${g.uuid}@#The SSH package was installed";
-    rudder_openssh_server_package_error::
-        "@@sshConfiguration@@result_error@@&TRACKINGKEY&@@SSH installation@@None@@${g.execRun}##${g.uuid}@#Can't install the SSH package";
-
+bundle agent rudder_openssh_server_installation_reporting
+{
+  methods:
+    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_package", "&TRACKINGKEY&", "SSH installation", "None", "The OpenSSH package installation");
 }

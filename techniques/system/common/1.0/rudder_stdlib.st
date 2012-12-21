@@ -40,6 +40,28 @@ body classes rudder_common_classes(prefix)
 }
 
 
+##################################################
+# files bundles
+##################################################
+
+#
+# Insert the standard Rudder disclaimer into a file
+#
+bundle edit_line rudder_common_disclaimer
+{
+  insert_lines:
+    "#############################################################
+### This file is protected by your Rudder infrastructure. ###
+### Manually editing the file might lead your Rudder      ###
+### infrastructure to change back the server’s            ###
+### configuration and/or to raise a compliance alert.     ###
+#############################################################
+"
+      location => start,
+      insert_type => "preserve_block";
+}
+
+
 ################################################
 # Reporting bundles
 ################################################
@@ -96,3 +118,4 @@ bundle agent rudder_common_reports_generic(technique_name, class_prefix, identif
       usebundle  => rudder_common_report(technique_name, "result_error", identifier, component_name, component_key, "${message_prefix} could not be repaired"),
       ifvarclass => "${class_prefix}_error";
 }
+

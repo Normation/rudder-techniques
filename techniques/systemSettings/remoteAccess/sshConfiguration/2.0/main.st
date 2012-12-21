@@ -22,10 +22,8 @@
 
 bundle agent rudder_openssh_server
 {
-
   methods:
-
     "any" usebundle => rudder_openssh_server_installation;
+    "any" usebundle => rudder_openssh_server_installation_reporting;
     "any" usebundle => rudder_openssh_server_configuration;
-
 }
