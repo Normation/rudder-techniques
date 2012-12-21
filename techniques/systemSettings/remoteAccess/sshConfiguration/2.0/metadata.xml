@@ -61,6 +61,7 @@ Technique development best practices.
   <SECTIONS>
     <!-- Sections for reporting only, variables are separate below -->
     <SECTION name="SSH installation" component="true" />
+    <SECTION name="SSH port configuration" component="true" />
     <SECTION name="SSH configuration" component="true" />
     <SECTION name="SSH process" component="true" />
     <SECTION name="SSH start at boot" component="true" />
@@ -107,7 +108,7 @@ Technique development best practices.
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
-      <SECTION name="ssh ports" multivalued="true">
+      <SECTION name="SSH ports" multivalued="true">
         <INPUT>
           <NAME>OPENSSH_SERVER_PORTS</NAME>
           <DESCRIPTION>Port number that SSH listens on</DESCRIPTION>
