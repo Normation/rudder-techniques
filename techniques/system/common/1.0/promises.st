@@ -573,6 +573,8 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove) {
 
 	delete_lines:
 		"$(pattern_to_remove)";
+                "\$\(syslog_ng_conf\)";
+
 
 	insert_lines:
 		"$(line_to_add)"
