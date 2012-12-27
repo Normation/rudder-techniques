@@ -30,13 +30,12 @@ bundle agent check_ssh_installation {
 				classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
 				comment => "Installing ssh using generic interface";
 
-		# Zypper seems to hang on this, moreover sshd is part of the basesystem, so this is only here for reference
-		#SuSE::
-		#	"openssh"
-		#		package_policy  => "add",
-		#		package_method  => generic,
-		#		classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
-		#		comment => "Installing ssh using generic interface";
+		SuSE::
+			"openssh"
+				package_policy  => "add",
+				package_method  => generic,
+				classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
+				comment => "Installing ssh using generic interface";
 
 	reports:
 		ssh_here::
