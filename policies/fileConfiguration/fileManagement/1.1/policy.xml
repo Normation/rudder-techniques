@@ -84,13 +84,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		<SELECT1>
 			<NAME>FILE_AND_FOLDER_MANAGEMENT_SYMLINK_ENFORCE</NAME>
 			<DESCRIPTION>Force symlink to be created</DESCRIPTION>
+			<LONGDESCRIPTION>By default, the symlink won't be created if it replaces a file or folder with the same name. With this option, you can force Rudder to create the symlink to replace existing files or folders</LONGDESCRIPTION>
 			<ITEM>
 				<VALUE>false</VALUE>
-				<LABEL>No, keep Rudder to create a symlink if a file or folder already exists</LABEL>
+				<LABEL>No, don't create the symlink if a file or folder with the same name already exists</LABEL>
 			</ITEM>
 			<ITEM>
 				<VALUE>true</VALUE>
-				<LABEL>Yes, force Rudder to create a symlink if a file or folder already exists</LABEL>
+				<LABEL>Yes, force the creation of the symlink. </LABEL>
 			</ITEM>
 			<CONSTRAINT>
 				<DEFAULT>false</DEFAULT>
