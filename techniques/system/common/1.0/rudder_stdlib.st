@@ -107,15 +107,15 @@ bundle agent rudder_common_reports_generic(technique_name, class_prefix, identif
 {
   methods:
     "success"
-      usebundle  => rudder_common_report(technique_name, "result_success", identifier, component_name, component_key, "${message_prefix} was correct"),
+      usebundle  => rudder_common_report("${technique_name}", "result_success", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct"),
       ifvarclass => "${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
 
     "repaired"
-      usebundle  => rudder_common_report(technique_name, "result_repaired", identifier, component_name, component_key, "${message_prefix} was repaired"),
+      usebundle  => rudder_common_report("${technique_name}", "result_repaired", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired"),
       ifvarclass => "${class_prefix}_repaired.!${class_prefix}_error";
 
     "error"
-      usebundle  => rudder_common_report(technique_name, "result_error", identifier, component_name, component_key, "${message_prefix} could not be repaired"),
+      usebundle  => rudder_common_report("${technique_name}", "result_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} could not be repaired"),
       ifvarclass => "${class_prefix}_error";
 }
 
