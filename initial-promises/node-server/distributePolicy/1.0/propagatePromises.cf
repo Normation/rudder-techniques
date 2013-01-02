@@ -35,31 +35,31 @@ bundle agent propagatePromises {
             		copy_from    => copy("${g.rudder_base}/share/tools"),
           		depth_search => recurse_visible("inf"),
           		comment => "Fetching the tools for the promises execution",
-          		classes => cf2_if_else("tools_propagated", "could_not_propagate_tools");
+          		classes => if_else("tools_propagated", "could_not_propagate_tools");
         !root_server::
             "${client_data}"  #that's a loop on each files in client_inputs
             	copy_from    => remote("${server_info.cfserved}","${server_data}"),
           		depth_search => recurse_visible("inf"),
           		comment => "Fetching the promises to propagate",
-          		classes => cf2_if_else("promises_propagated", "could_not_propagate_promise");
+          		classes => if_else("promises_propagated", "could_not_propagate_promise");
             
             "${g.rudder_dependencies}" 
             	copy_from    => remote("${server_info.cfserved}","${g.rudder_dependencies}"),
           		depth_search => recurse_visible("inf"),
           		comment => "Fetching the tools for the promises execution",
-          		classes => cf2_if_else("tools_propagated", "could_not_propagate_tools");
+          		classes => if_else("tools_propagated", "could_not_propagate_tools");
           		
           	"$(sys.workdir)/masterfiles"
           		copy_from    => remote("${server_info.cfserved}","$(sys.workdir)/masterfiles"),
           		depth_search => recurse_visible("inf"),
           		file_select => no_license_dat, #We don't want to propagate a wrong license.dat
           		comment => "Fetching the bootstrap promises",
-          		classes => cf2_if_else("masterfiles_propagated", "could_not_propagate_masterfiles");
+          		classes => if_else("masterfiles_propagated", "could_not_propagate_masterfiles");
           		
           	"$(sys.workdir)/masterfiles/license.dat"
           		copy_from    => local_cp("$(sys.workdir)/inputs/license.dat"),
           		comment => "Putting the right license in the bootstrap",
-          		classes => cf2_if_else("license_copied", "could_not_copy_license");
+          		classes => if_else("license_copied", "could_not_copy_license");
           		
 	reports:
 		could_not_propagate_promise::
@@ -86,14 +86,14 @@ bundle agent sendInventoryToCmdb {
 				transformer => "$(g.rudder_dependencies)/send-clean.sh http://localhost:8080/endpoint/upload/ $(this.promiser) ${g.rudder_inventories}/received/",
 				depth_search => recurse_visible(1),
 				file_select => all_files,
-				classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
+				classes => if_else("inventory_sent", "cant_send_inventory"),
 				comment => "Sending the inventory to the cmdb";
 
 			"${g.rudder_inventories}/accepted-nodes-updates"
 				transformer => "$(g.rudder_dependencies)/send-clean.sh http://localhost:8080/endpoint/upload/ $(this.promiser) ${g.rudder_inventories}/received/",
 				depth_search => recurse_visible(1),
 				file_select => all_files,
-				classes => cf2_if_else("inventory_sent", "cant_send_inventory"),
+				classes => if_else("inventory_sent", "cant_send_inventory"),
 				comment => "Sending the inventory to the cmdb";
 
 
