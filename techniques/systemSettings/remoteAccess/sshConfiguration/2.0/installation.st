@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2012 Normation SAS
+# Copyright 2011-2013 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -20,26 +20,30 @@
 # Installs SSH, and checks wether it is started on boot or not.
 ###############################################################
 
-bundle agent rudder_openssh_server_installation
+bundle agent rudder_openssh_server_installation(service_name)
 {
+  vars:
+    (debian|redhat)::
+      "rudder_openssh_server_package_name"
+        string => "openssh-server";
+    SuSE::
+      "rudder_openssh_server_package_name"
+        string => "openssh";
+
   packages:
     # Install OpenSSH if needed, using generic installation.
-    (debian|redhat)::
-      "openssh-server"
+    (debian|redhat|SuSE)::
+      "${rudder_openssh_server_package_name}"
         package_policy  => "add",
         package_method  => generic,
         classes         => rudder_common_classes("rudder_openssh_server_package"),
-        comment         => "Installing OpenSSH on RedHat or Debian using the generic package manager method";
-    SuSE::
-      "openssh"
-        package_policy  => "add",
-        package_method  => generic,
-        classes         => rudder_common_classes("rudder_openssh_server_package"),
-        comment         => "Installing OpenSSH on SuSE using the generic package manager method";
+        comment         => "Installing OpenSSH using the generic package manager method";
 }
 
-bundle agent rudder_openssh_server_installation_reporting
+# The reporting is made on separate bundles to abstract the complexity
+# inherent to the normal ordering.
+bundle agent rudder_openssh_server_installation_reporting(service_name)
 {
   methods:
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_package", "&TRACKINGKEY&", "SSH installation", "None", "The OpenSSH package installation");
+    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_package", "&TRACKINGKEY&", "SSH installation", "None", "${service_name} package installation");
 }

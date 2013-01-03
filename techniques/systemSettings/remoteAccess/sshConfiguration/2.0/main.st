@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2012 Normation SAS
+# Copyright 2011-2013 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -19,12 +19,20 @@
 #####################################################################################
 # This Technique installs and configures OpenSSH. See metadata.xml for more details.
 #####################################################################################
+# Note:
+# The reporting is made on separate bundles to abstract the complexity
+# inherent to the normal ordering.
+#####################################################################################
 
 bundle agent rudder_openssh_server
 {
+  vars:
+    "rudder_openssh_server_service_name"
+      string => "the OpenSSH service";
+
   methods:
-    "any" usebundle => rudder_openssh_server_installation;
-    "any" usebundle => rudder_openssh_server_installation_reporting;
-    "any" usebundle => rudder_openssh_server_configuration;
-    "any" usebundle => rudder_openssh_server_configuration_reporting;
+    "any" usebundle => rudder_openssh_server_installation("${rudder_openssh_server_service_name}");
+    "any" usebundle => rudder_openssh_server_installation_reporting("${rudder_openssh_server_service_name}");
+    "any" usebundle => rudder_openssh_server_configuration("${rudder_openssh_server_service_name}");
+    "any" usebundle => rudder_openssh_server_configuration_reporting("${rudder_openssh_server_service_name}");
 }

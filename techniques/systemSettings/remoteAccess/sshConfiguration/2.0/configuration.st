@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2011-2013 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -27,10 +27,11 @@
 # dontchange is a generic value to prohibit the edition of the value
 #####################################################################################
 
-bundle agent rudder_openssh_server_configuration {
+bundle agent rudder_openssh_server_configuration(service_name) {
 
   vars:
 
+      # Generic variables
       # This is the file to edit
       "rudder_openssh_server_config"
         string => "&OPENSSH_SERVER_CONFFILE&";
@@ -38,6 +39,25 @@ bundle agent rudder_openssh_server_configuration {
       "sshPorts"
         slist => {&OPENSSH_SERVER_PORTS: { "&it&" };separator=", "&};
 
+    # OS Specific parameters
+    debian::
+      "rudder_openssh_server_startup_init_name"
+        string => "/etc/init.d/ssh";
+      "rudder_openssh_server_startup_init_activation_command"
+        string => "/usr/sbin/update-rc.d ssh remove \&\& /usr/sbin/update-rc.d ssh defaults";
+    SuSE::
+      "rudder_openssh_server_startup_script_regex"
+        string => "/etc/init.d/rc3.d/S.*ssh.*";
+    (debian|redhat)::
+      "rudder_openssh_server_startup_script_regex"
+        string => "/etc/rc2.d/S.*ssh.*";
+    (SuSE|redhat)::
+      "rudder_openssh_server_startup_init_name"
+        string => "/etc/init.d/sshd";
+      "rudder_openssh_server_startup_init_activation_command"
+        string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
+
+    # Class specific parameters
     rudder_openssh_server_address_family_edit::
       "sshd[AddressFamily]"
         string => "&OPENSSH_SERVER_ADDRESSFAMILY&";
@@ -229,16 +249,10 @@ bundle agent rudder_openssh_server_configuration {
         edit_line => rudder_common_disclaimer,
         comment   => "Insert the standard Rudder disclaimer in the OpenSSHd configuration file";
 
-    SuSE::
+    (debian|redhat|SuSE)::
       # This promise will detect if there is a startup script for OpenSSH enabled on the system,
       # and set a class if there is one indeed.
-      "/etc/init.d/rc3.d/S.*ssh.*"
-        create  => "true",
-        action  => WarnOnly,
-        classes => if_else("rudder_openssh_server_activated_on_boot_kept", "rudder_openssh_server_activation_detection_failed");
-
-    (debian|redhat)::
-      "/etc/rc2.d/S.*ssh.*"
+      "${rudder_openssh_server_startup_script_regex}"
         create  => "true",
         action  => WarnOnly,
         classes => if_else("rudder_openssh_server_activated_on_boot_kept", "rudder_openssh_server_activation_detection_failed");
@@ -257,20 +271,19 @@ bundle agent rudder_openssh_server_configuration {
 
   methods:
     # Here, we will define reports for elements which only have a local visibility (like the sshd binary detection).
-    # rudder_common_report(technique_name, status, identifier, component_name, component_key, message)
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "result_error", "&TRACKINGKEY&", "SSH installation", "None", "OpenSSH is not installed, although it should have been"),
+      usebundle  => rudder_common_report("OpenSSH server", "result_error", "&TRACKINGKEY&", "SSH installation", "None", "${service_name} is not installed, although it should have been"),
       ifvarclass => "!rudder_openssh_server_binary_present";
 
     # Warn about features that are not implemented on all platforms
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "SSH agent forwarding isn't implemented on Red Hat/CentOS/SuSE"),
+      usebundle  => rudder_common_report("OpenSSH server", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "${service_name} parameter \"agent forwarding\" isn't implemented on Red Hat/CentOS/SuSE"),
       ifvarclass => "rudder_openssh_server_allow_agent_forwarding_edit.(redhat|SuSE)";
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "SSH max sessions isn't implemented on Red Hat/CentOS/SuSE"),
+      usebundle  => rudder_common_report("OpenSSH server", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "${service_name} parameter \"max sessions\" isn't implemented on Red Hat/CentOS/SuSE"),
       ifvarclass => "rudder_openssh_server_max_sessions_edit.(redhat|SuSE)";
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "SSH permit tunnel isn't implemented on SuSE"),
+      usebundle  => rudder_common_report("OpenSSH server", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "${service_name} parameter \"permit tunnel\" isn't implemented on SuSE"),
       ifvarclass => "rudder_openssh_server_permit_tunnel_edit.(redhat|SuSE)";
 
   processes:
@@ -280,57 +293,45 @@ bundle agent rudder_openssh_server_configuration {
         comment       => "Checking whether OpenSSH is up or not";
 
   commands:
-    debian.(rudder_openssh_server_ports_repaired|rudder_openssh_server_configuration_repaired|rudder_openssh_server_down)::
-      "/etc/init.d/ssh"
+    (debian|redhat|SuSE).(rudder_openssh_server_ports_repaired|rudder_openssh_server_configuration_repaired|rudder_openssh_server_down)::
+      "${rudder_openssh_server_startup_init_name}"
         args    => "restart",
         classes => cf2_if_else("rudder_openssh_server_daemon_restart_repaired", "rudder_openssh_server_daemon_restart_error"),
         comment => "Restarting the OpenSSH server daemon";
 
-    (redhat|SuSE).(rudder_openssh_server_ports_repaired|rudder_openssh_server_configuration_repaired|rudder_openssh_server_down)::
-      "/etc/init.d/sshd"
-        args    => "restart",
-        classes => cf2_if_else("rudder_openssh_server_daemon_restart_repaired", "rudder_openssh_server_daemon_restart_error"),
-        comment => "Restarting the OpenSSH server daemon";
-
-    debian.!rudder_openssh_server_activated_on_boot_kept.rudder_openssh_server_binary_present::
-      "/usr/sbin/update-rc.d ssh remove \&\& /usr/sbin/update-rc.d ssh defaults"
-        contain => in_shell,
-        classes => cf2_if_else("rudder_openssh_server_activated_on_boot_repaired", "rudder_openssh_server_activated_on_boot_error"),
-        comment => "Adding the OpenSSH daemon to the startup scripts";
-
-    (redhat|SuSE).!rudder_openssh_server_activated_on_boot_kept.rudder_openssh_server_binary_present::
-      "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd"
+    (debian|redhat|SuSE).!rudder_openssh_server_activated_on_boot_kept.rudder_openssh_server_binary_present::
+      "${rudder_openssh_server_startup_init_activation_command}"
         contain => in_shell,
         classes => cf2_if_else("rudder_openssh_server_activated_on_boot_repaired", "rudder_openssh_server_activated_on_boot_error"),
         comment => "Adding the OpenSSH daemon to the startup scripts";
 }
 
-bundle agent rudder_openssh_server_configuration_reporting
+bundle agent rudder_openssh_server_configuration_reporting(service_name)
 {
   methods:
     # SSH configuration file
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_ports", "&TRACKINGKEY&", "SSH port configuration", "None", "The OpenSSH port configuration");
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_configuration", "&TRACKINGKEY&", "SSH configuration", "None", "The OpenSSH configuration");
+    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_ports", "&TRACKINGKEY&", "SSH port configuration", "None", "${service_name} port configuration");
+    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_configuration", "&TRACKINGKEY&", "SSH configuration", "None", "${service_name} configuration");
     # SSH start on boot
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_activated_on_boot", "&TRACKINGKEY&", "SSH start at boot", "None", "The OpenSSH boot starting configuration");
+    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_activated_on_boot", "&TRACKINGKEY&", "SSH start at boot", "None", "${service_name} boot starting configuration");
 
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "log_repaired", "&TRACKINGKEY&", "SSH process", "None", "SSH service was not running, trying to restart..."),
+      usebundle  => rudder_common_report("OpenSSH server", "log_repaired", "&TRACKINGKEY&", "SSH process", "None", "${service_name} was not running, trying to restart..."),
       ifvarclass => "rudder_openssh_server_down";
 
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "result_success", "&TRACKINGKEY&", "SSH process", "None", "OpenSSH service is running"),
+      usebundle  => rudder_common_report("OpenSSH server", "result_success", "&TRACKINGKEY&", "SSH process", "None", "${service_name} service is running"),
       ifvarclass => "!rudder_openssh_server_down.!rudder_openssh_server_daemon_restart_repaired.!rudder_openssh_server_daemon_restart_error";
 
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "result_repaired", "&TRACKINGKEY&", "SSH process", "None", "Restarted OpenSSH service"),
+      usebundle  => rudder_common_report("OpenSSH server", "result_repaired", "&TRACKINGKEY&", "SSH process", "None", "Restarted ${service_name}"),
       ifvarclass => "rudder_openssh_server_daemon_restart_repaired.!rudder_openssh_server_daemon_restart_error";
 
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "result_error", "&TRACKINGKEY&", "SSH process", "None", "Could not restart the OpenSSH service"),
+      usebundle  => rudder_common_report("OpenSSH server", "result_error", "&TRACKINGKEY&", "SSH process", "None", "Could not restart ${service_name}"),
       ifvarclass => "rudder_openssh_server_daemon_restart_error";
 
     "any"
-      usebundle  => rudder_common_report("OpenSSH server", "log_info", "&TRACKINGKEY&", "SSH start at boot", "None", "Error checking if SSH is set to be started on boot"),
+      usebundle  => rudder_common_report("OpenSSH server", "log_info", "&TRACKINGKEY&", "SSH start at boot", "None", "Error checking if ${service_name} is set to be started on boot"),
       ifvarclass => "rudder_openssh_server_activation_detection_failed";      
 }
