@@ -66,7 +66,7 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 {
   reports:
     linux|!linux::
-      "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@$(g.execRun)##$(g.uuid)@#${message}";
+      "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}";
 }
 
 
