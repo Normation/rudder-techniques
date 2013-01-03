@@ -214,7 +214,7 @@ Technique development best practices.
       <SELECT1>
         <NAME>OPENSSH_SERVER_PERMITEMPTYPASSWORDS</NAME>
         <DESCRIPTION>Allow empty passwords for password authentication</DESCRIPTION>
-        <LONGDESCRIPTION>When password authentication is allowed, this specifies whether the server allows login to accounts with empty password strings.</LONGDESCRIPTION>
+        <LONGDESCRIPTION>When password authentication is allowed, this specifies whether the server allows login to accounts with empty password strings. CAUTION: It will break logins on SuSE machines, and maybe others, due to PAM refusing this option.</LONGDESCRIPTION>
         <ITEM>
           <VALUE>yes</VALUE>
           <LABEL>Yes</LABEL>
