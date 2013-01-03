@@ -70,12 +70,14 @@ classes:
 }&
 			&GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN:{modification |"modify_lines_&i&" expression => strcmp("&modification&", "true");
 }&
-
-                        # In some conditions, the value of replacement is
-                        # considerered as null instead of empty.
-                        # This class will ensure that no variable (=null) will be considered
-                        # as an empty variable.
-                        "generic_file_content_modification_destination_defined_$(index)" expression => isvariable("generic_file_content_modification_destination[$(index)]");
+			# Workaround for #3014: no value = empty value
+			# In some conditions, the value of replacement is
+			# considerered as null instead of empty.
+			# This class will ensure that no variable (=null) will be considered
+			# as an empty variable.
+			"generic_file_content_modification_destination_defined_$(index)" expression => isvariable("generic_file_content_modification_destination[$(index)]");
+			# Check that value has been set before to edit the file
+			"edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
 
 			"tier1" expression => "any";
 
@@ -85,12 +87,14 @@ classes:
 
 		tier2::
 
+			# Add content to the file only if the content has been set
 			"$(generic_file_content_path[$(index)])"
 				edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])",
 														"$(generic_file_content_enforced[$(index)])"),
 				create => "true",
 				edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
 				classes => kept_if_else("content_$(index)_kept", "content_$(index)_modified", "content_$(index)_failed"),
+				ifvarclass => "edit_content_$(index)",
 				comment => "Editing $(generic_file_content_path[$(index)])...";
 
 			"$(generic_file_content_path[$(index)])"
