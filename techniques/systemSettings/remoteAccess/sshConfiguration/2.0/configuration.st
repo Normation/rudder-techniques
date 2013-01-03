@@ -251,7 +251,7 @@ bundle agent rudder_openssh_server_configuration {
 
     (debian|redhat|SuSE)::
       "${rudder_openssh_server_config}"
-        edit_line => set_config_values("check_rudder_openssh_server_configuration.sshd"),
+        edit_line => set_config_values("rudder_openssh_server_configuration.sshd"),
         classes   => rudder_common_classes("rudder_openssh_server_configuration"),
         comment   => "Edit the OpenSSH configuration file";
 

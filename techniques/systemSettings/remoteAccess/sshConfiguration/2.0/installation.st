@@ -23,14 +23,19 @@
 bundle agent rudder_openssh_server_installation
 {
   packages:
-
     # Install OpenSSH if needed, using generic installation.
     (debian|redhat)::
       "openssh-server"
         package_policy  => "add",
         package_method  => generic,
         classes         => rudder_common_classes("rudder_openssh_server_package"),
-        comment         => "Installing OpenSSH using the generic package manager method";
+        comment         => "Installing OpenSSH on RedHat or Debian using the generic package manager method";
+    SuSE::
+      "openssh"
+        package_policy  => "add",
+        package_method  => generic,
+        classes         => rudder_common_classes("rudder_openssh_server_package"),
+        comment         => "Installing OpenSSH on SuSE using the generic package manager method";
 }
 
 bundle agent rudder_openssh_server_installation_reporting
