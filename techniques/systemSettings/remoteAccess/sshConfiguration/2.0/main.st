@@ -19,18 +19,17 @@
 #####################################################################################
 # This Technique installs and configures OpenSSH. See metadata.xml for more details.
 #####################################################################################
-# Note:
-# The reporting is made on separate bundles to abstract the complexity
-# inherent to the normal ordering.
-#####################################################################################
 
 bundle agent rudder_openssh_server
 {
   vars:
     "rudder_openssh_server_service_name"
-      string => "the OpenSSH service";
+      string => "OpenSSH server";
 
   methods:
+    # Note:
+    # The reporting is made on separate bundles to abstract the complexity
+    # inherent to the normal ordering.
     "any" usebundle => rudder_openssh_server_installation("${rudder_openssh_server_service_name}");
     "any" usebundle => rudder_openssh_server_installation_reporting("${rudder_openssh_server_service_name}");
     "any" usebundle => rudder_openssh_server_configuration("${rudder_openssh_server_service_name}");

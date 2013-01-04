@@ -45,5 +45,5 @@ bundle agent rudder_openssh_server_installation(service_name)
 bundle agent rudder_openssh_server_installation_reporting(service_name)
 {
   methods:
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_package", "&TRACKINGKEY&", "SSH installation", "None", "${service_name} package installation");
+    "any" usebundle => rudder_common_reports_generic("${service_name}", "rudder_openssh_server_package", "&TRACKINGKEY&", "SSH installation", "None", "The ${service_name} package installation");
 }
