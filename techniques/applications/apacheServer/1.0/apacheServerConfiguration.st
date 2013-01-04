@@ -18,37 +18,6 @@
 
 bundle agent check_apache_configuration {
 
-	classes:
-
-		debian::
-
-			# Security : if not there, Apache too, so don't bother anymore
-			"apache_bin_present" expression => fileexists("/usr/sbin/apache2");
-
-		redhat::
-
-			"apache_bin_present" expression => fileexists("/usr/sbin/httpd");
-
-		SuSE::
-
-			"apache_bin_worker" expression => fileexists("/usr/sbin/httpd2-worker");
-			"apache_bin_prefork" expression => fileexists("/usr/sbin/httpd2-prefork");
-			"apache_bin_present" expression => "apache_bin_prefork|apache_bin_worker";
-
-		any::
-
-			# Autostart ?
-			"apache_autostart" expression => strcmp("&APACHE_AUTOSTART&","true");
-
-			# Adjust SELinux ?
-			"apache_selinux_adjust" expression => strcmp("&APACHE_SELINUX&","true");
-
-			# Is the SELinux binary "chcon" present ?
-			"selinux_bin_present" expression => fileexists("/usr/bin/chcon");
-
-			# Is the modules list empty ?
-			"apache_modules_nok" expression => strcmp("&APACHE_MODULES&","none");
-			"apache_modules_ok" not => strcmp("&APACHE_MODULES&","none");
 
 	vars:
 
@@ -91,15 +60,48 @@ bundle agent check_apache_configuration {
 
 			"apache_vhost_index" slist => getindices("apache_vhost_fqdn");
 
-		apache_modules_nok::
+			# For reporting reason, we need to have the exact list of specified modules to check
+			"apache_modules_defined" slist => { &APACHE_MODULES: { "&it&" };separator=", "& };
 
-			# Modules
-			"apache_modules" slist => { "expires", "alias" };
 
-		apache_modules_ok::
+			# Modules that are installed by default
+			"apache_modules" slist => { "expires", "alias", @(apache_modules_defined) },
+					policy => "ifdefined";
 
-			# Modules
-			"apache_modules" slist => {&APACHE_MODULES: { "expires", "alias", "&it&" };separator=", "&};
+	classes:
+
+		debian::
+
+			# Security : if not there, Apache too, so don't bother anymore
+			"apache_bin_present" expression => fileexists("/usr/sbin/apache2");
+
+		redhat::
+
+			"apache_bin_present" expression => fileexists("/usr/sbin/httpd");
+
+		SuSE::
+
+			"apache_bin_worker" expression => fileexists("/usr/sbin/httpd2-worker");
+			"apache_bin_prefork" expression => fileexists("/usr/sbin/httpd2-prefork");
+			"apache_bin_present" expression => "apache_bin_prefork|apache_bin_worker";
+
+		any::
+
+			# Autostart ?
+			"apache_autostart" expression => strcmp("&APACHE_AUTOSTART&","true");
+
+			# Adjust SELinux ?
+			"apache_selinux_adjust" expression => strcmp("&APACHE_SELINUX&","true");
+
+			# Is the SELinux binary "chcon" present ?
+			"selinux_bin_present" expression => fileexists("/usr/bin/chcon");
+
+			# Define if the list of module to verify has been specified by the user
+			"apache_modules_nok" expression => strcmp("&APACHE_MODULES&","none");
+			"apache_modules_ok" not => strcmp("&APACHE_MODULES&","none");
+
+			# Check if the variable apache_modules is defined so that they can be managed
+			"apache_module_list_defined" expression => isvariable("apache_modules");
 
 	processes:
 	
@@ -129,7 +131,7 @@ bundle agent check_apache_configuration {
 
 	commands:
 
-		debian.(apache_modules_ok|apache_modules_nok)::
+		debian.apache_module_list_defined::
 
 			"/usr/sbin/a2enmod"
 				args => "$(apache_modules)",
@@ -320,12 +322,21 @@ bundle agent check_apache_configuration {
 				comment => "Make sure the root directory exists";
 	
 	reports:
-		debian::
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#The Apache module $(apache_modules) was successfully enabled"
-				ifvarclass => canonify("apache_module_$(apache_modules)_enabled");
+		# if the list is not defined, there is nothing to report !
+		apache_modules_nok::
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Module settings@@none@@$(g.execRun)##$(g.uuid)@#No Apache modules configured to be enabled, no changes made";
 
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Could not enable apache module $(apache_modules) !"
-				ifvarclass => canonify("apache_module_$(apache_modules)_not_enabled");
+		# if the list if defined by the user, we report on each element of this list
+		debian.apache_module_list_defined.apache_modules_ok::
+			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Module settings@@$(apache_modules_defined)@@$(g.execRun)##$(g.uuid)@#The Apache module $(apache_modules_defined) was successfully enabled"
+				ifvarclass => canonify("apache_module_$(apache_modules_defined)_enabled");
+
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Module settings@@$(apache_modules_defined)@@$(g.execRun)##$(g.uuid)@#Could not enable apache module $(apache_modules_defined) !"
+				ifvarclass => canonify("apache_module_$(apache_modules_defined)_not_enabled");
+
+		!debian.apache_modules_ok::
+			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Module settings@@$(apache_modules_defined)@@$(g.execRun)##$(g.uuid)@#The module verification only applies on Debian systems !";
+
 
 		apache_selinux_adjust.selinux_bin_present::
 
