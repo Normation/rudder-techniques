@@ -48,7 +48,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
 		    <DESCRIPTION>Content of the file</DESCRIPTION>
+<<<<<<< HEAD:techniques/fileDistribution/checkGenericFileContent/2.1/metadata.xml
 		    <LONGDESCRIPTION>Be careful to escape double quotes in the text you are entering, as this Technique does not support automatic escaping yet. Example: use \"hello\" instead of "hello"</LONGDESCRIPTION>
+=======
+		    <LONGDESCRIPTION>Be careful to escape double quotes in the text you are entering, as this Policy Template does not support automatic escaping yet. Example: use \"hello\" instead of "hello"</LONGDESCRIPTION>
+>>>>>>> branches/rudder/2.3:policies/fileDistribution/checkGenericFileContent/2.1/policy.xml
 		    <CONSTRAINT>
 		        <TYPE>textarea</TYPE>
 		    </CONSTRAINT>

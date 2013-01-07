@@ -179,9 +179,6 @@ bundle agent manageFilesAndFolders {
 
         (linux|windows)::
 
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The element $(file[$(index)][path]) was not set to be created"
-				ifvarclass => "!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index).!manageFilesAndFolders_createsymlink_$(index)";
-
 			# Reporting for directory creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) already exists"
 				ifvarclass => "manageFolders_$(index)_kept.!manageFolders_$(index)_modified.manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_islink_$(index)";
@@ -213,7 +210,7 @@ bundle agent manageFilesAndFolders {
 				ifvarclass => "manageSyms_$(index)_failed";
 
 			# Reporting for no change
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#No action on $(file[$(index)][path])"
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#No file creation action specified for $(file[$(index)][path])"
                                 ifvarclass => "manageFilesAndFolders_nocreate_$(index)";
 			
 			# Reporting for the permissions
