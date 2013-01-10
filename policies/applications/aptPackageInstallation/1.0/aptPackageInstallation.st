@@ -64,6 +64,9 @@ bundle agent check_apt_package_installation {
                         "@@packageInstallation@@result_success@@$(apt_policy_instance_uuid[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)])"
                                 ifvarclass => canonify("debian_install_kept_$(apt_package[$(index_aptpkg)])");
 
+                !debian::
+                        "@@packageInstallation@@result_error@@$(apt_policy_instance_uuid[$(index_aptpkg)])@@Debian/Ubuntu packages@@$(apt_package[$(index_aptpkg)])@@$(g.execRun)##$(g.uuid)@#Cannot take action for deb package $(apt_package[$(index_aptpkg)]) with policy: $(apt_action[$(index_aptpkg)]) on a non debian-based system";
+
 }
 
 body package_method apt_nobulk(apt_pkg_timeout) {
