@@ -31,8 +31,8 @@ It then adds apache to the boot init scripts if not already set to start on boot
   Configuration will create a rudder vhost file.
   </DESCRIPTION>
   <COMPATIBLE>
-    <OS version=">= 4 (Etch)">Debian</OS>
-    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 5 (Lenny)">Debian</OS>
+    <OS version=">= 5 (Tikanga)">RHEL / CentOS</OS>
     <OS version=">= 11 SP1 (Celadon)">SuSE LES / DES / OpenSuSE</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
