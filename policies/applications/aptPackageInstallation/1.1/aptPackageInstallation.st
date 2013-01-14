@@ -34,6 +34,9 @@ bundle agent check_apt_package_installation {
 		&APT_PACKAGE_DEBACTION:{action |"apt_action[&i&]" string => "&action&";
 		}&
 
+		&APT_PACKAGE_VERSION_DEFINITION:{definition |"apt_version_definition[&i&]" string => "&definition&";
+		}&
+
 		&APT_PACKAGE_VERSION_CRITERION:{version_criterion |"apt_version_criterion[&i&]" string => "&version_criterion&";
 		}&
 
@@ -49,7 +52,7 @@ bundle agent check_apt_package_installation {
 
 	classes:
 
-		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_action[$(index_rpmpkg)])", "default");
+		"$(index_aptpkg)_package_version_defined" not => strcmp("$(apt_version_definition[$(index_aptpkg)])", "default");
 
 	packages:
 

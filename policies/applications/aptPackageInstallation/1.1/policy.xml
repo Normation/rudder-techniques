@@ -73,44 +73,61 @@ presence of a package, and if not met to enforce them.
           <DEFAULT>add</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
-      <INPUT>
-        <NAME>APT_PACKAGE_VERSION</NAME>
-        <DESCRIPTION>Package version</DESCRIPTION>
-        <CONSTRAINT>
-          <DEFAULT>default</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <SELECT1>
-        <NAME>APT_PACKAGE_VERSION_CRITERION</NAME>
-        <DESCRIPTION>If needed, which package version policy should be applied</DESCRIPTION>
-        <ITEM>
-          <LABEL>Strict equality (this version only)</LABEL>
-          <VALUE><![CDATA[==]]></VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Strict inequality (anything but this version)</LABEL>
-          <VALUE><![CDATA[!=]]></VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Equals or superior (This version and latter ones)</LABEL>
-          <VALUE><![CDATA[>=]]></VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Equals or inferior (This version and previous ones)</LABEL>
-          <VALUE><![CDATA[>=]]></VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Strict superiority (Latter versions only)</LABEL>
-          <VALUE><![CDATA[>]]></VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Strict inferiority (Previous versions only)</LABEL>
-          <VALUE><![CDATA[<]]></VALUE>
-        </ITEM>
-        <CONSTRAINT>
-          <DEFAULT>==</DEFAULT>
-        </CONSTRAINT>
-      </SELECT1>
+      <SECTION name="Package version" component="false">
+        <SELECT1>
+          <NAME>APT_PACKAGE_VERSION_DEFINITION</NAME>
+          <DESCRIPTION>Define package version to install</DESCRIPTION>
+          <ITEM>
+            <LABEL>Use package manager default version</LABEL>
+            <VALUE>default</VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL>Define version criteria below</LABEL>
+            <VALUE>specific</VALUE>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>default</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_PACKAGE_VERSION_CRITERION</NAME>
+          <DESCRIPTION>Package version match</DESCRIPTION>
+          <ITEM>
+            <LABEL><![CDATA[==]]> This exact version only</LABEL>
+            <VALUE><![CDATA[==]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[!=]]> Anything but this version</LABEL>
+            <VALUE><![CDATA[!=]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[>=]]> This version or any later one</LABEL>
+            <VALUE><![CDATA[>=]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[>=]]> This version or any earlier one</LABEL>
+            <VALUE><![CDATA[>=]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[>]]> Any later version</LABEL>
+            <VALUE><![CDATA[>]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[<]]> Any earlier version</LABEL>
+            <VALUE><![CDATA[<]]></VALUE>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>==</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
+        <INPUT>
+          <NAME>APT_PACKAGE_VERSION</NAME>
+          <DESCRIPTION>Package version number</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
     </SECTION>
   </SECTIONS>
 

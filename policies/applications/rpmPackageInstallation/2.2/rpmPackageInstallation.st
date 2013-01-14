@@ -36,6 +36,9 @@ bundle agent check_rpm_package_installation {
 		&RPM_PACKAGE_REDACTION:{action |"rpm_action[&i&]" string => "&action&";
 		}&
 
+		&RPM_PACKAGE_VERSION_DEFINITION:{definition |"rpm_version_definition[&i&]" string => "&definition&";
+		}&
+
 		&RPM_PACKAGE_VERSION_CRITERION:{version_criterion |"rpm_version_criterion[&i&]" string => "&version_criterion&";
 		}&
 
@@ -49,7 +52,7 @@ bundle agent check_rpm_package_installation {
 
 	classes:
 
-		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_action[$(index_rpmpkg)])", "default");
+		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_version_definition[$(index_rpmpkg)])", "default");
 
 	processes:
 
