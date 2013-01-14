@@ -36,6 +36,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>promises.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="cron_community">
+      <OUTPATH>common/cron/cron_community</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="cron_nova">
+      <OUTPATH>common/cron/cron_nova</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
       
   <SYSTEMVARS>
