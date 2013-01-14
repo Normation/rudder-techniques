@@ -157,19 +157,19 @@ bundle agent check_apache_configuration {
 				classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
 				comment => "restarting apache";
 
-		(debian.apache_unbootstarted).apache_bin_present::
+		(debian.apache_unbootstarted.apache_autostart).apache_bin_present::
 			"/usr/sbin/update-rc.d"
 				args => "apache2 defaults",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
 				comment => "adding apache to the startup scripts";
 
-		(redhat.apache_unbootstarted).apache_bin_present::
+		(redhat.apache_unbootstarted.apache_autostart).apache_bin_present::
 			"/sbin/chkconfig"
 				args => "--add httpd",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
 				comment => "adding apache to the startup scripts";
 
-		(SuSE.apache_unbootstarted).apache_bin_present::
+		(SuSE.apache_unbootstarted.apache_autostart).apache_bin_present::
 			"/sbin/chkconfig"
 				args => "--add apache2",
 				classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
