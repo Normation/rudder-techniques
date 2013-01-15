@@ -72,6 +72,7 @@ bundle agent check_rpm_package_installation {
 
 	packages:
 
+		redhat|SuSE::
 			"$(rpm_package[$(index_rpmpkg)])"
 				package_policy  => "$(rpm_action[$(index_rpmpkg)])",
 				package_method  => generic_nobulk("30"),
@@ -138,7 +139,7 @@ redhat::
 	package_delete_command => "/bin/rpm -e";
 	package_verify_command => "/bin/rpm -V";
 
-SuSE_10::
+SuSE_11::
 	package_changes => "individual";
 
 	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
@@ -153,7 +154,7 @@ SuSE_10::
 	package_update_command => "/usr/bin/zypper --non-interactive update";
 	package_verify_command => "/usr/bin/zypper --non-interactive verify$";
 
-SuSE_11::
+SuSE_10::
 	package_changes => "individual";
 
 	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
