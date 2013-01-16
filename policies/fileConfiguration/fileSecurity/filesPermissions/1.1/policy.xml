@@ -14,8 +14,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<POLICY name="Set the permissions of files">
-  <DESCRIPTION>Set the permissions of files</DESCRIPTION>
+<POLICY name="Set File Permissions">
+  <DESCRIPTION>Set permissions on files</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <BUNDLES>
@@ -56,42 +56,42 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_EDITUSER</NAME>
-        <DESCRIPTION>Should the owner of the file be modified ?</DESCRIPTION>
+        <DESCRIPTION>Set file owner?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_USER</NAME>
-        <DESCRIPTION>Owner of the file</DESCRIPTION>
+        <DESCRIPTION>File owner</DESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_EDITGROUP</NAME>
-        <DESCRIPTION>Should the group of the file be modified ?</DESCRIPTION>
+        <DESCRIPTION>Set file group?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_GROUP</NAME>
-        <DESCRIPTION>Group of the file</DESCRIPTION>
+        <DESCRIPTION>File group</DESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_EDITMODE</NAME>
-        <DESCRIPTION>Should the permissions of the file be modified ?</DESCRIPTION>
+        <DESCRIPTION>Set file permissions?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_MODE</NAME>
-        <DESCRIPTION>Permissions of the file</DESCRIPTION>
+        <DESCRIPTION>File permissions</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>perm</TYPE>
           <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -99,15 +99,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_SUID</NAME>
-        <DESCRIPTION>Should the SetUID bit be enabled ?</DESCRIPTION>
+        <DESCRIPTION>Set SetUID bit?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_SGID</NAME>
-        <DESCRIPTION>Should the SetGID bit be enabled ?</DESCRIPTION>
-        <LONGDESCRIPTION>Note: The SetUID / SetGID bits will not be applied recursively, for obvious security reasons !</LONGDESCRIPTION>
+        <DESCRIPTION>Set SetGID bit?</DESCRIPTION>
+        <LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
