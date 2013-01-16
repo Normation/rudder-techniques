@@ -58,8 +58,8 @@ bundle agent check_generic_file_content {
 }&
 			"index" slist => getindices("generic_file_content_path");
 
-      "generic_file_content_creation[&i&]"
-        string => "true"
+      "generic_file_content_creation[${index}]"
+        string => "true",
         ifvarclass => "enforce_at_creation_only_${index}";
 
 			"file_edit_go" string => "go";
