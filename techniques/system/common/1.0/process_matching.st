@@ -86,7 +86,19 @@ files:
         "$(g.crontab)"
 
             create  => "true",
-            edit_line => cron_add;
+            edit_line => cron_cleanup;
+
+    community_edition::
+
+        "/etc/cron.d/rudder-community"
+            perms => mog("644", "root", "root"),
+            copy_from => copy_digest("${sys.workdir}/inputs/common/cron/cron_community");
+
+    nova_edition::
+
+        "/etc/cron.d/rudder-nova"
+            perms => mog("644", "root", "root"),
+            copy_from => copy_digest("${sys.workdir}/inputs/common/cron/cron_nova");
 
 reports:
 
@@ -95,26 +107,19 @@ reports:
 
 }
 
-bundle edit_line cron_add
+bundle edit_line cron_cleanup
 {
 
 # Remove old lines to replace them with new version
 delete_lines:
+
         "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ \`ps -efww \| grep cf-execd \| grep \"/var/cfengine/bin/cf-execd\" \| grep -v grep \| wc -l\` -eq 0 \]; then /var/cfengine/bin/cf-execd; fi";
         "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ \`ps -efww \| grep cf-execd \| grep \"/var/rudder/cfengine-community/bin/cf-execd\" \| grep -v grep \| wc -l\` -eq 0 \]; then /var/rudder/cfengine-community/bin/cf-execd; fi";
         "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ ! -e /opt/rudder/etc/disable-agent -a \`ps -efww \| grep cf-execd \| grep \"/var/rudder/cfengine-community/bin/cf-execd\" \| grep -v grep \| wc -l\` -eq 0 \]; then /var/rudder/cfengine-community/bin/cf-execd; fi";
         "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ ! -e /opt/rudder/etc/disable-agent -a \`ps -efww \| grep cf-execd \| grep \"/var/cfengine/bin/cf-execd\" \| grep -v grep \| wc -l\` -eq 0 \]; then /var/cfengine/bin/cf-execd; fi";
         "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ ! -e /opt/rudder/etc/disable-agent -a \`ps -efww \| grep cf-execd \| grep \"/var/cfengine/bin/cf-execd\" \| grep -v grep \| wc -l\` -eq 0 \]; then /var/cfengine/bin/cf-agent -f failsafe.cf \&\& /var/cfengine/bin/cf-agent; fi";
         "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ ! -e /opt/rudder/etc/disable-agent -a \`ps -efww \| grep cf-execd \| grep \"/var/rudder/cfengine-community/bin/cf-execd\" \| grep -v grep \| wc -l\` -eq 0 \]; then /var/rudder/cfengine-community/bin/cf-agent -f failsafe.cf \&\& /var/rudder/cfengine-community/bin/cf-agent; fi";
-
-insert_lines:
-
-    nova_edition::
-
-        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ ! -e /opt/rudder/etc/disable-agent -a `ps -efww | grep -E \"(cf-execd|cf-agent)\" | grep -E \"/var/cfengine/bin/(cf-execd|cf-agent))\" | grep -v grep | wc -l` -eq 0 ]; then /var/cfengine/bin/cf-agent -f failsafe.cf \&\& /var/cfengine/bin/cf-agent; fi";
-	
-    community_edition::
-
-        "0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ ! -e /opt/rudder/etc/disable-agent -a `ps -efww | grep -E \"(cf-execd|cf-agent)\" | grep -E \"/var/rudder/cfengine-community/bin/(cf-execd|cf-agent)\" | grep -v grep | wc -l` -eq 0 ]; then /var/rudder/cfengine-community/bin/cf-agent -f failsafe.cf \&\& /var/rudder/cfengine-community/bin/cf-agent; fi";
+        "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ ! -e /opt/rudder/etc/disable-agent -a \`ps -efww \| grep -E \"\(cf-execd\|cf-agent\)\" \| grep -E \"/var/cfengine/bin/\(cf-execd\|cf-agent\)\" \| grep -v grep \| wc -l\` -eq 0 ]; then /var/cfengine/bin/cf-agent -f failsafe.cf \&\& /var/cfengine/bin/cf-agent; fi";
+        "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ ! -e /opt/rudder/etc/disable-agent -a \`ps -efww \| grep -E \"\(cf-execd\|cf-agent\)\" \| grep -E \"/var/rudder/cfengine-community/bin/\(cf-execd\|cf-agent\)\" \| grep -v grep \| wc -l\` -eq 0 ]; then /var/rudder/cfengine-community/bin/cf-agent -f failsafe.cf \&\& /var/rudder/cfengine-community/bin/cf-agent; fi";
 
 }
