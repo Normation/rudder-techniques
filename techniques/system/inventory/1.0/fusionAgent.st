@@ -50,7 +50,7 @@ bundle agent doInventory {
                 "splaying" expression => splayclass("$(sys.host)$(sys.ipv4)","hourly");
 
 		# The force_inventory class may be specified by the user at runtime, or defined here
-		"force_inventory" expression => fileexists("/opt/rudder/etc/force_inventory");
+		"force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory");
 
 	  uuid_succesfully_downloaded::
 		"uuid_valid" expression => regcmp("[a-z0-9-]+","$(policy_server_uuid)");
@@ -549,7 +549,7 @@ file_result => "mtime";
 bundle agent cleanForceInventoryFlagFile {
 
 	files:
-		"/opt/rudder/etc/force_inventory"
+		"${g.rudder_base}/etc/force_inventory"
 			delete     => tidy,
 			ifvarclass => "inventory_sent"; # if the force inventory file was present, and we successfully sent an inventory, clean up the flag file
 
