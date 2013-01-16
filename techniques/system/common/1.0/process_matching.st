@@ -83,22 +83,26 @@ files:
 
     linux::
 
+        # This is to cleanup /etc/crontab from pre-2.5 usage
+        # It can be removed before 2.6
         "$(g.crontab)"
-
-            create  => "true",
             edit_line => cron_cleanup;
 
     community_edition::
 
-        "/etc/cron.d/rudder-community"
-            perms => mog("644", "root", "root"),
-            copy_from => copy_digest("${sys.workdir}/inputs/common/cron/cron_community");
+        "/etc/cron.d/rudder-agent"
+            create    => "true",
+            perms     => mog("644", "root", "root"),
+            edit_line => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
+&if(NOVA)&
 
     nova_edition::
 
-        "/etc/cron.d/rudder-nova"
-            perms => mog("644", "root", "root"),
-            copy_from => copy_digest("${sys.workdir}/inputs/common/cron/cron_nova");
+        "/etc/cron.d/rudder-agent-nova"
+            create    => "true",
+            perms     => mog("644", "root", "root"),
+            edit_line => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
+&endif&
 
 reports:
 
@@ -107,6 +111,8 @@ reports:
 
 }
 
+# This is to cleanup /etc/crontab from pre-2.5 usage
+# It can be removed before 2.6
 bundle edit_line cron_cleanup
 {
 

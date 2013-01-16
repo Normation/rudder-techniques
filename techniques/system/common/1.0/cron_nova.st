@@ -1,1 +1,0 @@
-0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ ! -e /opt/rudder/etc/disable-agent -a `ps -efww | grep -E "(cf-execd|cf-agent)" | grep -E "/var/cfengine/bin/(cf-execd|cf-agent))" | grep -v grep | wc -l` -eq 0 ]; then /var/cfengine/bin/cf-agent -f failsafe.cf \&\& /var/cfengine/bin/cf-agent; fi
