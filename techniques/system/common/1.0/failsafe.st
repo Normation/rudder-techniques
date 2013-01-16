@@ -44,12 +44,14 @@ bundle common g
 
 	 windows::
 	   "rudder_base" string  => "$(sys.winprogdir)\Rudder";
+           "rudder_var" string  => "$(sys.winprogdir)\Rudder\var";
 	   "rudder_sbin" string  => "$(rudder_base)\sbin";
 	   "rudder_dependencies" string => "$(rudder_sbin)";
            "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 
 	 linux|cygwin::
 	    "rudder_base" string => "/opt/rudder";
+            "rudder_var"  string => "/var/rudder";
 	    "rudder_sbin" string  => "$(rudder_base)/sbin";
 	    "rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
 	    "rudder_dependencies" string => "/var/rudder/tools";

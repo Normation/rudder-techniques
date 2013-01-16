@@ -62,7 +62,7 @@ bundle common rudder_roles {
 		# Abort if no uuid is defined
 		"should_not_continue" not => fileexists("${g.uuid_file}");
 
-		"disable_agent" expression => fileexists("/opt/rudder/etc/disable-agent");
+		"disable_agent" expression => fileexists("${g.rudder_base}/etc/disable-agent");
 
 		# Policy Server is a machine which delivers promises
 		"policy_server" expression => strcmp("root","$(g.uuid)");
@@ -107,7 +107,7 @@ bundle agent clean_red_button() {
  			
   files:
     safe.policy_server::
-	"/var/rudder/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
+	"${g.rudder_var}/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
 		delete => tidy,
 		comment => "Deleting the stop file on clients promises, cfengine is good to go";
              
@@ -124,7 +124,7 @@ bundle agent clean_red_button() {
 bundle agent set_red_button() {
   classes:
 	policy_server::
-		"danger" expression => fileexists("/var/rudder/share/root/stopFile");
+		"danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
   methods:
   	danger::
   		"any" usebundle => setStopFile;
@@ -139,7 +139,7 @@ bundle agent setStopFile {
         "${sys.workdir}/inputs/stopFile" 
             create => "true";
     danger.policy_server::
-        "/var/rudder/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
+        "${g.rudder_var}/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
         create => "true";
 
 
@@ -155,7 +155,7 @@ bundle agent setStopFile {
 bundle agent stopClients {
  classes:
 	policy_server::
-		"danger" expression => fileexists("/var/rudder/share/root/stopFile");
+		"danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
 
  commands:
  	danger.policy_server::
@@ -511,7 +511,7 @@ body agent control {
 
 	# Repository where to put the copy of modified files
     linux::
-	default_repository => "/var/rudder/modified-files";
+	default_repository => "${g.rudder_var}/modified-files";
 
 &if(NOVA)&
 #    windows::
