@@ -36,13 +36,13 @@ bundle agent check_openvpn_installation {
 	commands:
 		SuSE.!openvpn_present.64_bit::
 			"/bin/rpm"
-				args => "-Uvh /var/rudder/tools/openvpn-2.2.1-1.x86_64.rpm",
+				args => "-Uvh ${g.rudder_var}/tools/openvpn-2.2.1-1.x86_64.rpm",
 				classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
 				comment => "Installing openvpn using plain RPM";
 
 		SuSE.!openvpn_present.32_bit::
 			"/bin/rpm"
-				args => "-Uvh /var/rudder/tools/openvpn-2.2.1-1.i686.rpm",
+				args => "-Uvh ${g.rudder_var}/tools/openvpn-2.2.1-1.i686.rpm",
 				classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
 				comment => "Installing openvpn using plain RPM";
 
