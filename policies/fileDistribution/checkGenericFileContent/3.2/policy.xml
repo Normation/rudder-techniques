@@ -74,7 +74,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
                 <INPUT>
                   <NAME>GENERIC_FILE_CONTENT_ENFORCE_CREATE_ONLY_BOOLEAN</NAME>
                   <DESCRIPTION>Enforce the content of the file only at creation</DESCRIPTION>
-                  <LONGDESCRIPTION>If true, the file will exactly contains what is in the "Content of the file" field at its creation. If the file already exists, it will be left untouched.
+                  <LONGDESCRIPTION>If true, the file will be created if it doesn't exist, and only then. If the file already exists, it will be left untouched.
                   </LONGDESCRIPTION>
                   <CONSTRAINT>
                     <TYPE>boolean</TYPE>
