@@ -106,14 +106,14 @@ classes:
 
 files:
 
-	can_edit_suid_sgid.file_exists.edit_owner.!user_absent.!edit_recurse.!is_symlink::
+	file_exists.edit_owner.!user_absent.!edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => owner("${user}"),
 			comment => "Setting the file owner",
 			classes => kept_if_else("$(identifier)_owner_ok", "$(identifier)_owner_repaired", "$(identifier)_owner_not_repaired");
 
-	can_edit_suid_sgid.file_exists.edit_group.!group_absent.!edit_recurse.!is_symlink::
+	file_exists.edit_group.!group_absent.!edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => group("${group}"),
@@ -127,7 +127,7 @@ files:
 			comment => "Setting the file mode",
 			classes => kept_if_else("$(identifier)_mode_ok", "$(identifier)_mode_repaired", "$(identifier)_mode_not_repaired");
 
-	can_edit_suid_sgid.file_exists.edit_owner.!user_absent.edit_recurse.!is_symlink::
+	file_exists.edit_owner.!user_absent.edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => owner("${user}"),
@@ -135,7 +135,7 @@ files:
 			comment => "Setting the file owner",
 			classes => kept_if_else("$(identifier)_owner_ok", "$(identifier)_owner_repaired", "$(identifier)_owner_not_repaired");
 
-	can_edit_suid_sgid.file_exists.edit_group.!group_absent.edit_recurse.!is_symlink::
+	file_exists.edit_group.!group_absent.edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => group("${group}"),
@@ -143,7 +143,7 @@ files:
 			comment => "Setting the file group",
 			classes => kept_if_else("$(identifier)_group_ok", "$(identifier)_group_repaired", "$(identifier)_group_not_repaired");
 
-	can_edit_suid_sgid.file_exists.edit_mode.edit_recurse.!is_symlink::
+	file_exists.edit_mode.edit_recurse.!is_symlink::
 
 		"${fileName}"
 			perms => m("${mode}"),
