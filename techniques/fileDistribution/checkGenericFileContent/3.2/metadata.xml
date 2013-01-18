@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<POLICY name="Enforce a file content">
+<TECHNIQUE name="Enforce a file content">
   <DESCRIPTION>Checks if a file matches a given content and if not, updates it</DESCRIPTION>
 
   <!--  <CONFIGURATIONPOLICY>false</CONFIGURATIONPOLICY> -->
@@ -94,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
 		    <DESCRIPTION>Content of the file</DESCRIPTION>
-		    <LONGDESCRIPTION>Be careful to escape double quotes in the text you are entering, as this Policy Template does not support automatic escaping yet. Example: use \"hello\" instead of "hello"</LONGDESCRIPTION>
+		    <LONGDESCRIPTION>Be careful to escape double quotes in the text you are entering, as this Technique does not support automatic escaping yet. Example: use \"hello\" instead of "hello"</LONGDESCRIPTION>
 		    <CONSTRAINT>
 		        <TYPE>textarea</TYPE>
 		        <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -179,4 +179,4 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 	</SECTION>
 	
   </SECTIONS>
-</POLICY>
+</TECHNIQUE>
