@@ -91,17 +91,19 @@ files:
     community_edition::
 
         "/etc/cron.d/rudder-agent"
-            create    => "true",
-            perms     => mog("644", "root", "root"),
-            edit_line => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
+            create        => "true",
+            perms         => mog("644", "root", "root"),
+            edit_defaults => empty,
+            edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 &if(NOVA)&
 
     nova_edition::
 
         "/etc/cron.d/rudder-agent-nova"
-            create    => "true",
-            perms     => mog("644", "root", "root"),
-            edit_line => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
+            create        => "true",
+            perms         => mog("644", "root", "root"),
+            edit_defaults => empty,
+            edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
 &endif&
 
 reports:
