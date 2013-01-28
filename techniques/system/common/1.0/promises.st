@@ -26,6 +26,9 @@ body common control {
   any::
 	output_prefix => "rudder"; 
 
+	syslog_host => "$(server_info.cfserved)";
+	syslog_port => "&SYSLOGPORT&";
+
     inputs => {       
         &INPUTLIST&
     };
