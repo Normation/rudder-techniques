@@ -40,7 +40,7 @@ bundle agent doInventory {
                         classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
 
 	vars:
-	  linux.uuid_succesfully_downloaded::
+	  (linux|android).uuid_succesfully_downloaded::
 		"policy_server_uuid" string => readfile("$(g.rudder_var_tmp)/uuid.txt", 50);
 
 	  windows.uuid_succesfully_downloaded::
@@ -110,7 +110,7 @@ bundle common inventory {
 bundle agent fusionAgent {
 
 	files:
-	linux|cygwin::
+	(linux|android)|cygwin::
 	    "${g.rudder_var_tmp}/inventory/."
 		create => "true",
 		comment => "Creating inventory directory",
@@ -400,7 +400,7 @@ bundle agent moveInventoryToFinalDestination {
 # Send the file to the promises server
 bundle agent sendInventory {
   files:
-    linux::
+    (linux|android)::
     "${g.rudder_inventories}" 
 		transformer => "$(g.rudder_curl) -f -s --user $(g.davuser):$(g.davpw) -T $(this.promiser)  http://${server_info.cfserved}/inventory-updates/",
 		depth_search => recurse_visible(1),
@@ -409,7 +409,7 @@ bundle agent sendInventory {
 		comment => "Sending the inventory to the server";
 
 	# Once we've successfully sent all inventories, remove them
-	linux.inventory_sent.!cant_send_inventory::
+	(linux|android).inventory_sent.!cant_send_inventory::
 	"${g.rudder_inventories}" 
 		transformer  => "/bin/rm -f $(this.promiser)",
 		depth_search => recurse_visible(1),
@@ -552,7 +552,7 @@ body replace_with xmled(attribute) {
 # (for some reason, ocs duplicated files over time)
 body file_select inventory_files {
 
-	(windows|linux)::
+	(windows|linux|android)::
 		leaf_name => { ".*.ocs" };
 		file_result => "leaf_name";
 
