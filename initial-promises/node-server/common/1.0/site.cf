@@ -56,6 +56,7 @@ vars:
     "rudder_curl" string => "/usr/bin/curl";
     # The time at which the execution started
     "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
+    "rudder_rm" string => "/bin/rm";
 
  android::
     "rudder_base" string => "/data/rudder";
@@ -68,6 +69,7 @@ vars:
     "rudder_dependencies" string => "$(rudder_var)/tools";
     "crontab" string => "/etc/crontab";
     "rudder_curl" string => "/system/bin/curl";
+    "rudder_rm" string => "/system/xbin/rm";
 
     # The time at which the execution started
     # "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\"", "noshell"); <= Problem with the timezone (missing semicolon)
