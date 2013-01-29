@@ -1,0 +1,143 @@
+<!--
+Copyright 2011-2013 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the Android system Technique
+    Compatibility : Android
+-->
+<TECHNIQUE name="Android system management">
+
+  <DESCRIPTION>This technique configures the Android terminal parameters (language, keyboard layout, timezone...)</DESCRIPTION>
+  <COMPATIBLE>
+    <OS version=">= 4.1.1 (JellyBean)">Android</OS>
+    <AGENT version=">= 3.4.2">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <TMLS>
+    <TML name="main"/>
+    <TML name="configuration"/>
+  </TMLS>
+
+  <BUNDLES>
+    <NAME>rudder_android_system</NAME>
+  </BUNDLES>
+
+  <TRACKINGVARIABLE/>
+    
+  <SECTIONS>
+    <SECTION name="User interface" component="true">
+      <SELECT1>
+        <NAME>ANDROID_SYSTEM_LANGUAGE</NAME>
+        <DESCRIPTION>System language</DESCRIPTION>
+        <LONGDESCRIPTION>Set the langage used in the Android user interface</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>English</LABEL>
+          <VALUE>en</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Fran&#xE7;ais</LABEL>
+          <VALUE>fr</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Portugu&#xEA;s</LABEL>
+          <VALUE>pt</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>en</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+    <SECTION name="Keyboard settings" component="true">
+      <SELECT1>
+        <NAME>ANDROID_SYSTEM_KEYBOARD_LAYOUT</NAME>
+        <DESCRIPTION>System keyboard layout</DESCRIPTION>
+        <LONGDESCRIPTION>Set the virtual keyboard layout to be used during text input</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>US (QWERTY)</LABEL>
+          <VALUE>us</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>French (AZERTY)</LABEL>
+          <VALUE>fr</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Portuguese (QWERTY)</LABEL>
+          <VALUE>pt</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>us</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+    <SECTION name="Screen resolution" component="true">
+      <SELECT1>
+        <NAME>ANDROID_SYSTEM_SCREEN_RESOLUTION</NAME>
+        <DESCRIPTION>Screen resolution</DESCRIPTION>
+        <LONGDESCRIPTION>Set the Android system screen resolution</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>480x800</LABEL>
+          <VALUE>480x800-16</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>720x1280</LABEL>
+          <VALUE>720x1280-16</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>960x540</LABEL>
+          <VALUE>960x540-16</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>480x800-16</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+    <SECTION name="Time settings" component="true">
+      <SELECT1>
+        <NAME>ANDROID_SYSTEM_TIME_ZONE</NAME>
+        <DESCRIPTION>System time zone</DESCRIPTION>
+        <LONGDESCRIPTION>Set the time zone to be used as a reference for the system</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Europe/Paris</LABEL>
+          <VALUE>Europe/Paris</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>US/Pacific</LABEL>
+          <VALUE>US/Pacific</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>US/Mountain</LABEL>
+          <VALUE>US/Mountain</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>US/Central</LABEL>
+          <VALUE>US/Central</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>US/Eastern</LABEL>
+          <VALUE>US/Eastern</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Europe/Lisbon</LABEL>
+          <VALUE>Europe/Lisbon</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>US/Eastern</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

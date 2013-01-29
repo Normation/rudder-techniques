@@ -1,0 +1,88 @@
+<?xml version="1.0"?>
+<!--
+Copyright 2011-2013 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<TECHNIQUE name="Package management for Android systems">
+  <DESCRIPTION>This technique operates on individual packages.
+
+  It will ensure that the defined packages are installed, up-to-date or removed using the RPM package manager.</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version="&gt;= 4.1.1 (JellyBean)">Android</OS>
+    <AGENT version="&gt;= 3.4.2">cfengine-community</AGENT>
+  </COMPATIBLE>
+  <BUNDLES>
+    <NAME>android_rpm_pkg_installation</NAME>
+  </BUNDLES>
+  <TMLS>
+    <TML name="androidRpmPackageInstallation"/>
+  </TMLS>
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>ANDROID_RPM_PACKAGE_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+  <SECTIONS>
+    <SECTION name="RPM packages" multivalued="true" component="true" componentKey="ANDROID_RPM_PACKAGE_NAME">
+      <INPUT>
+        <NAME>ANDROID_RPM_PACKAGE_NAME</NAME>
+        <DESCRIPTION>Package name</DESCRIPTION>
+        <LONGDESCRIPTION>Package file name to install, as found in the path specified below</LONGDESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>ANDROID_RPM_PACKAGE_PATH</NAME>
+        <DESCRIPTION>Package path</DESCRIPTION>
+        <LONGDESCRIPTION>Base path to search for packages in</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/data/RPMS</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>ANDROID_RPM_PACKAGE_ACTION</NAME>
+        <DESCRIPTION>Action to perform on this package</DESCRIPTION>
+        <ITEM>
+          <LABEL>Install only (don't update)</LABEL>
+          <VALUE>add</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Update only (don't install)</LABEL>
+          <VALUE>update</VALUE>
+        </ITEM>
+        <!--<ITEM> # CURRENTLY BROKEN IN CFENGINE #
+          <LABEL>Install and update automatically</LABEL>
+          <VALUE>addupdate</VALUE>
+		</ITEM>-->
+        <ITEM>
+          <LABEL>Remove</LABEL>
+          <VALUE>delete</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>add</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SECTION name="Package parameters" component="false">
+        <INPUT>
+          <NAME>ANDROID_RPM_PACKAGE_VERSION</NAME>
+          <DESCRIPTION>Package version number</DESCRIPTION>
+        </INPUT>
+        <INPUT>
+          <NAME>ANDROID_RPM_PACKAGE_ARCHITECTURE</NAME>
+          <DESCRIPTION>Package architecture</DESCRIPTION>
+          <CONSTRAINT>
+            <DEFAULT>i686</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+    </SECTION>
+  </SECTIONS>
+</TECHNIQUE>
