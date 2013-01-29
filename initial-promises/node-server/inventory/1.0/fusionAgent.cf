@@ -27,7 +27,7 @@
 
 bundle agent doInventory {
         commands:
-          linux::
+          (linux|android)::
                 "$(g.rudder_curl)"
                         args => "-s -f -o \"$(g.rudder_var_tmp)/uuid.txt\" http://${server_info.cfserved}/uuid",
                         comment => "Getting the uuid from the server",
