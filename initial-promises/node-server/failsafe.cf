@@ -103,6 +103,9 @@ bundle agent init_files {
 # to run properly again.
 bundle agent check_lock_db_problem{
     files:
+
+      !cfengine_3_4::
+
         # The aim of this promise is to create a class when this file is older
         # than one hour. The class can not be created without touching but in
         # order to not modifing the mtime we use warn_only.
@@ -123,15 +126,16 @@ bundle agent check_lock_db_problem{
 
         cf_lock_error_removing::
             "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Promises have not been updated for over an hour, this could indicate a broken lockfile, but an error occured when trying to remove it";
+
+        cfengine_3_4::
+            "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#This is a CFEngine 3.4 host. Not checking if the BDB database is correct";
 }
 
 body file_select over_an_hour()
 {
     # Select file which are older than one hour
-    # Use of positive mtime instead of negative one
-    # In order to avoid corner effects
-    mtime       => irange(2147483647, ago(0,0,0,1,0,0));
-    file_result => "mtime";
+    mtime       => irange(ago(0,0,0,1,0,0), now);
+    file_result => "!mtime";
 }
 
 body depth_search recurse(d)

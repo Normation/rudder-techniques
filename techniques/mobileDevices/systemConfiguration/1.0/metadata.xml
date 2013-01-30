@@ -67,7 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <LONGDESCRIPTION>Set the virtual keyboard layout to be used during text input</LONGDESCRIPTION>
         <ITEM>
           <LABEL>US (QWERTY)</LABEL>
-          <VALUE>us</VALUE>
+          <VALUE>en_US</VALUE>
         </ITEM>
         <ITEM>
           <LABEL>French (AZERTY)</LABEL>
@@ -78,7 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <VALUE>pt</VALUE>
         </ITEM>
         <CONSTRAINT>
-          <DEFAULT>us</DEFAULT>
+          <DEFAULT>en_US</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
     </SECTION>
@@ -132,6 +132,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <ITEM>
           <LABEL>Europe/Lisbon</LABEL>
           <VALUE>Europe/Lisbon</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>America/Sao_Paulo</LABEL>
+          <VALUE>America/Sao_Paulo</VALUE>
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>US/Eastern</DEFAULT>
