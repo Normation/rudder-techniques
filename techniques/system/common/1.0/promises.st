@@ -489,6 +489,8 @@ bundle agent check_binaries_freshness {
 
 	files:
 
+	    !android::
+
 		"${sys.workdir}/bin/${components}"
 			perms => u_p("700"),
 			copy_from => cp("${g.rudder_sbin}/${components}", "localhost"),
@@ -506,6 +508,9 @@ bundle agent check_binaries_freshness {
 
         binaries_missing::
             "@@Common@@result_error@@&TRACKINGKEY&@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
+
+        android::
+            "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@$(g.execRun)##$(g.uuid)@#This is an android machine: no CFEngine binaries update needed";
 
 }
 
