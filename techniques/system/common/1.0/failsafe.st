@@ -54,8 +54,16 @@ bundle common g
             "rudder_var"  string => "/var/rudder";
 	    "rudder_sbin" string  => "$(rudder_base)/sbin";
 	    "rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
-	    "rudder_dependencies" string => "/var/rudder/tools";
+	    "rudder_dependencies" string => "$(rudder_var)/tools";
             "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
+
+	 android::
+	    "rudder_base" string => "/data/rudder";
+            "rudder_var"  string => "/data/rudder";
+	    "rudder_sbin" string  => "$(rudder_base)/sbin";
+	    "rudder_base_sbin" string  => "$(rudder_base)/sbin"; #folder where tools are installed
+	    "rudder_dependencies" string => "$(rudder_var)/tools";
+            "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
 
 
 # definition of the node roles
@@ -113,6 +121,7 @@ bundle agent init_files {
 bundle agent check_lock_db_problem{
 	files:
 
+	    # CFE 3.4 uses TokyoCabinet, so this is useless on it.
 	    !cfengine_3_4::
 
 		# The aim of this promise is to create a class when this file is older
@@ -135,9 +144,6 @@ bundle agent check_lock_db_problem{
 
 		cf_lock_error_removing::
 			"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Promises have not been updated for over an hour, this could indicate a broken lockfile, but an error occured when trying to remove it";
-
-		cfengine_3_4::
-			"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#This is a CFEngine 3.4 host. Not checking if the BDB database is correct";
 
 }
 
