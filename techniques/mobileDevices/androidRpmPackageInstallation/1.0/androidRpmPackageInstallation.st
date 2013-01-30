@@ -31,7 +31,7 @@ bundle agent android_rpm_pkg_installation {
 		&ANDROID_RPM_PACKAGE_VERSION:{version |"rpm_version[&i&]" string => "&version&";
 		}&
 
-		&ANDROID_RPM_PACKAGE_ARCH:{arch |"rpm_arch[&i&]" string => "&arch&";
+		&ANDROID_RPM_PACKAGE_ARCHITECTURE:{arch |"rpm_arch[&i&]" string => "&arch&";
 		}&
 
 		&TRACKINGKEY:{piuuid |"rpm_policy_instance_uuid[&i&]" string => "&piuuid&";
@@ -43,7 +43,7 @@ bundle agent android_rpm_pkg_installation {
 
 		android::
 
-			"$(rpm_path[$(index_rpmpkg)])/$(rpm_package[$(index_rpmpkg)])"
+			"$(rpm_package[$(index_rpmpkg)])"
 				package_policy         => "$(rpm_action[$(index_rpmpkg)])",
 				package_version        => "$(rpm_version[$(index_rpmpkg)])",
 				package_architectures  => { "$(rpm_arch[$(index_rpmpkg)])" },
@@ -90,30 +90,27 @@ body package_method android_rpm_filebased(path, rpm_binary)
 
 {
   package_file_repositories => { "$(path)" };
-  # the above is an addition to Trond's yum_rpm body
-  
-  package_add_command => "$(rpm_binary) -ihv ";
-  # The above is a change from Trond's yum_rpm body, this makes the commands rpm only.
-  # The reason I changed the install command from yum to rpm is yum will be default
-  # refuse to install the epel-release RPM as it does not have the EPEL GPG key,
-  # but rpm goes ahead and installs the epel-release RPM and the EPEL GPG key.
-  
+    
   package_name_convention => "$(name)-$(version).$(arch).rpm";
   # The above is a change from Tron's yum_rpm body. When package_file_repositories is in play,
   # package_name_convention has to match the file name, not the package name, per the
   # CFEngine 3 Reference Manual
+
+  # set it to "0" to avoid caching of list during upgrade. Default is 240.
+  package_list_update_ifelapsed => "0";
   
   # The rest is unchanged from Trond's yum_rpm body
-  package_changes => "bulk";
-  package_list_command => "$(rpm_binary) -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
-  
+  package_changes => "individual";
+  package_list_command => "/system/bin/rpm --nosignature --nodigest -qa --qf '%{name} %{version}-%{release} %{arch}\n' | /system/xbin/grep -v 'Option\|type:\|rpmcli\|rpmQVS\|my_value \|Last option\|Got opt\|config files\| 0 0\|List\|poptG\|_progname\|bigMode ='";
+
   package_list_name_regex => "^(\S+?)\s\S+?\s\S+$";
   package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
   package_list_arch_regex => "^\S+?\s\S+?\s(\S+)$";
   
   package_installed_regex => ".*";
   
-
-  package_delete_command => "$(rpm_binary) -e --allmatches";
-  package_verify_command => "$(rpm_binary) -V";
+  package_add_command => "/system/sbin/rpm -ihv ";
+  package_update_command => "/system/sbin/rpm -Uhv ";
+  package_delete_command => "/system/sbin/rpm -e --allmatches";
+  package_verify_command => "/system/sbin/rpm -V";
 }

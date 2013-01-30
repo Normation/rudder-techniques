@@ -21,7 +21,7 @@ bundle agent rudder_android_system_configuration(technique_name) {
   classes:
     android::
       "rudder_android_system_language_set" not => strcmp("&ANDROID_SYSTEM_LANGUAGE&", execresult("/system/bin/cf-droid language get", "noshell"));
-      "rudder_android_system_keyboard_layout_set" not => strcmp("&ANDROID_SYSTEM_KEYBOARD_LAYOUT&", "fr");
+      "rudder_android_system_keyboard_layout_set" not => strcmp("&ANDROID_SYSTEM_KEYBOARD_LAYOUT&", execresult("/system/bin/cf-droid layout get", "noshell"));
       "rudder_android_system_screen_resolution_set" not => strcmp("&ANDROID_SYSTEM_SCREEN_RESOLUTION&", execresult("/system/bin/androVM-prop get vbox_graph_mode", "noshell"));
       "rudder_android_system_time_zone_set" not => strcmp("&ANDROID_SYSTEM_TIME_ZONE&", execresult("/system/bin/cf-droid timezone get", "noshell"));
 

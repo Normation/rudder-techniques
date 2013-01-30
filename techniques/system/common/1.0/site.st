@@ -72,8 +72,7 @@ vars:
     "rudder_rm" string => "/system/xbin/rm";
 
     # The time at which the execution started
-    # "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\"", "noshell"); <= Problem with the timezone (missing semicolon)
-    "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
+    "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
 
 
  any::
