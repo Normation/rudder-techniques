@@ -78,13 +78,13 @@ bundle common rudder_roles {
 #########################################################
 bundle agent startExecution {
   reports:
-	linux|windows::
+	android|linux|windows::
 		"@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@$(g.execRun)##$(g.uuid)@#Start execution";
 }
 
 bundle agent endExecution {
   reports:
-	linux|windows::
+	android|linux|windows::
 		"@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@$(g.execRun)##$(g.uuid)@#End execution";
 
 	no_update::
@@ -203,7 +203,7 @@ vars:
 
 processes:
 
-	linux::
+	(android|linux)::
 
 		"$(sys.workdir)/bin/cf-serverd"  restart_class => "start_server";
 		"$(sys.workdir)/bin/cf-execd"    restart_class => "start_executor";
@@ -260,7 +260,7 @@ commands:
 
 reports:
 
-	(linux|windows)::
+	(android|linux|windows)::
 
 		"@@Common@@result_success@@&TRACKINGKEY&@@Process checking@@None@@$(g.execRun)##$(g.uuid)@#There is an acceptable number of CFEngine processes running on the machine"
 			# Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
@@ -440,7 +440,7 @@ bundle agent check_cron_daemon {
         crond_restarted::
             "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon has been successfully restarted";
 
-        !restart_crond.!crond_restarted.!crond_failed::
+        !restart_crond.!crond_restarted.!crond_failed.!android::
             "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@$(g.execRun)##$(g.uuid)@#The CRON daemon is running";
 
         android::
@@ -523,7 +523,7 @@ body agent control {
 	agentfacility => "LOG_LOCAL6";
 
 	# Repository where to put the copy of modified files
-    linux::
+    (android|linux)::
 	default_repository => "${g.rudder_var}/modified-files";
 
 &if(NOVA)&

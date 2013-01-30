@@ -110,7 +110,7 @@ bundle common inventory {
 bundle agent fusionAgent {
 
 	files:
-	(linux|android)|cygwin::
+	android|linux|cygwin::
 	    "${g.rudder_var_tmp}/inventory/."
 		create => "true",
 		comment => "Creating inventory directory",

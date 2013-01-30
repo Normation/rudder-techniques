@@ -42,7 +42,7 @@ bundle agent rudder_android_system_configuration(technique_name) {
         comment => "Setting the Android system language";
 
     android.rudder_android_system_time_zone_set::
-      "/system/bin/cf-droid language set &ANDROID_SYSTEM_TIME_ZONE&"
+      "/system/bin/cf-droid timezone set &ANDROID_SYSTEM_TIME_ZONE&"
         classes   => rudder_common_classes("rudder_android_system_time_zone"),
         comment => "Setting the Android system time zone";
 
