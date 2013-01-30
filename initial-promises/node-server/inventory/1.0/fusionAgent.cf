@@ -298,7 +298,10 @@ bundle agent addInformationsToInventory {
         xen.SuSE::
                 "VMRUDDERUUID" string => execresult("/bin/xenstore-read vm","noshell");
 
-        xen.!SuSE::
+        xen.(centos|redhat)::
+                "VMRUDDERUUID" string => execresult("/usr/bin/xenstore-read vm","noshell");
+
+        xen.(!SuSE.!centos.!redhat)::
                 "VMRUDDERUUID" string => execresult("/usr/sbin/xenstore-read vm","noshell");
 
         xen.xenrudderuuid::

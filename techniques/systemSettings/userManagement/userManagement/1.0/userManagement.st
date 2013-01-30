@@ -96,12 +96,13 @@ bundle agent check_usergroup_user_parameters {
 
 		"usermanagement_user_pershome_$(usergroup_user_index)" not => strcmp("$(usergroup_user_home_perso[$(usergroup_user_index)])","true");
 
+                "usermanagement_user_custom_home_defined_$(usergroup_user_index)" expression => isvariable("usergroup_user_home[$(usergroup_user_index)]");
+
 		"usermanagement_user_exists_$(usergroup_user_index)" expression => userexists("$(usergroup_user_login[$(usergroup_user_index)])");
 
 		"usermanagement_user_pwoneshot_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_password_policy[$(usergroup_user_index)])","oneshot");
 
 		"usermanagement_user_pweverytime_$(usergroup_user_index)" expression => strcmp("$(usergroup_user_password_policy[$(usergroup_user_index)])","everytime");
-
 		"usermanagement_user_pwempty_$(usergroup_user_index)" not => isvariable("usergroup_user_password[$(usergroup_user_index)]");
 		
 		"usermanagement_user_nameempty_$(usergroup_user_index)" not => isvariable("usergroup_user_fullname[$(usergroup_user_index)]");
@@ -144,7 +145,7 @@ bundle agent check_usergroup_user_parameters {
 				args => "-m $(nameopt[$(usergroup_user_index)]) -s $(usergroup_user_shell[$(usergroup_user_index)]) -d $(usergroup_user_home[$(usergroup_user_index)]) $(usergroup_user_login[$(usergroup_user_index)])",
 				classes => cf2_if_else("usermanagement_login_add_$(usergroup_user_index)_repaired", "usermanagement_login_add_$(usergroup_user_index)_error"),
 				comment => "Create the user",
-				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_user_pershome_$(usergroup_user_index)";
+				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_user_pershome_$(usergroup_user_index).usermanagement_user_custom_home_defined_$(usergroup_user_index)";
 
 			# Define password only at user creation
 			"/bin/echo -e \"$(usergroup_user_password[$(usergroup_user_index)])\n$(usergroup_user_password[$(usergroup_user_index)])\" | /usr/bin/passwd $(usergroup_user_login[$(usergroup_user_index)])"
@@ -195,6 +196,10 @@ bundle agent check_usergroup_user_parameters {
 			## Error
 			"@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be added to the system"
 				ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_login_add_$(usergroup_user_index)_error";
+
+			## Could not be added, for the default path was not selected, but the custom one was not defined
+                        "@@userGroupManagement@@result_error@@$(usergroup_policy_instance_uuid[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be added to the system because the default home directory was not selected, but the custom path was not specified"
+                                ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_user_pershome_$(usergroup_user_index).!usermanagement_user_custom_home_defined_$(usergroup_user_index)";
 
 			# Remove user
 			## Does not exist (Success)
