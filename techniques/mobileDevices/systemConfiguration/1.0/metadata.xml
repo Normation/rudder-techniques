@@ -75,7 +75,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </ITEM>
         <ITEM>
           <LABEL>Portuguese (QWERTY)</LABEL>
-          <VALUE>pt</VALUE>
+          <VALUE>pt_BR@qwerty</VALUE>
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>en_US</DEFAULT>

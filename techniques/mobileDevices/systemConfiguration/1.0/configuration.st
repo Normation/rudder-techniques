@@ -28,22 +28,23 @@ bundle agent rudder_android_system_configuration(technique_name) {
   commands:
     android.rudder_android_system_language_set::
       "/system/bin/cf-droid language set &ANDROID_SYSTEM_LANGUAGE&"
-        classes   => rudder_common_classes("rudder_android_system_language"),
+        classes => rudder_common_classes("rudder_android_system_language"),
         comment => "Setting the Android system language";
 
     android.rudder_android_system_keyboard_layout_set::
       "/system/bin/cf-droid layout set &ANDROID_SYSTEM_KEYBOARD_LAYOUT&"
-        classes   => rudder_common_classes("rudder_android_system_keyboard_layout"),
+        classes => rudder_common_classes("rudder_android_system_keyboard_layout"),
         comment => "Setting the Android system keyboard layout";
 
     android.rudder_android_system_screen_resolution_set::
-      "/system/bin/androVM-prop set vbox_graph_mode &ANDROID_SYSTEM_SCREEN_RESOLUTION&"
-        classes   => rudder_common_classes("rudder_android_system_screen_resolution"),
+      "/system/bin/androVM-prop set vbox_graph_mode &ANDROID_SYSTEM_SCREEN_RESOLUTION& \&\& /system/bin/reboot"
+        contain => in_shell,
+        classes => rudder_common_classes("rudder_android_system_screen_resolution"),
         comment => "Setting the Android system language";
 
     android.rudder_android_system_time_zone_set::
       "/system/bin/cf-droid timezone set &ANDROID_SYSTEM_TIME_ZONE&"
-        classes   => rudder_common_classes("rudder_android_system_time_zone"),
+        classes => rudder_common_classes("rudder_android_system_time_zone"),
         comment => "Setting the Android system time zone";
 
   methods:
