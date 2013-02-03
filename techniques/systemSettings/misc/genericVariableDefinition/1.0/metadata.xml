@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="genericVariableDefinition"/>
   </TMLS>
-  
+
   <SECTIONS>
     <!-- general Section -->
     <SECTION name="Variable definition" multivalued="true">

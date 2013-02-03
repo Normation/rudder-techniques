@@ -25,98 +25,98 @@
 bundle server access_rules {
 &if(CLIENTSLIST)&
 # Access rules are only defined on a policy server. Standard nodes should not share any files.
-    access:
-    
+  access:
+
     policy_server::
     &if(NOVA)&
-			"&UUID&"
-				handle => "policy_server_uuid",
-				resource_type => "literal",
-				admit => {".*"};
+      "&UUID&"
+        handle => "policy_server_uuid",
+        resource_type => "literal",
+        admit => {".*"};
     &endif&
-    
-    	"$(def.dir_masterfiles)"
-		handle => "grant_access_policy",
-    		comment => "Grant access to the policy updates",
-    		maproot => {  @(def.acl)  },
-    		admit   => {  @(def.acl)  };
 
-		"${g.rudder_dependencies}"
-			maproot => {  @(def.acl)  },
-			admit   => {  @(def.acl)  };
+      "${def.dir_masterfiles}"
+        handle => "grant_access_policy",
+        comment => "Grant access to the policy updates",
+        maproot => {  @(def.acl)  },
+        admit   => {  @(def.acl)  };
+
+      "${g.rudder_dependencies}"
+        maproot => {  @(def.acl)  },
+        admit   => {  @(def.acl)  };
 
     &if(SHARED_FILES_FOLDER)&
-	"&SHARED_FILES_FOLDER&"
-    		comment => "Grant access to the share files",
-    		maproot => {  @(def.acl)  },
-    		admit   => {  @(def.acl)  };
+      "&SHARED_FILES_FOLDER&"
+        comment => "Grant access to the share files",
+        maproot => {  @(def.acl)  },
+        admit   => {  @(def.acl)  };
 
     &endif&
 
-    	
-    any::	
-    &POLICYCHILDREN, CHILDRENID : {host, uuid | 
-    	"/var/rudder/share/&uuid&/"
-			maproot => { host2ip("&host&"), escape("&host&")  },
-			admit   => { host2ip("&host&"), escape("&host&")  };
-    
+
+    any::
+    &POLICYCHILDREN, CHILDRENID : {host, uuid |
+      "/var/rudder/share/&uuid&/"
+        maproot => { host2ip("&host&"), escape("&host&")  },
+        admit   => { host2ip("&host&"), escape("&host&")  };
+
      } &
 
-	
-			# the policy server must have access to the cfengine folder
-			"$(sys.workdir)"
-				maproot => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  },
-				admit   => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  };
+
+      # the policy server must have access to the cfengine folder
+      "${sys.workdir}"
+        maproot => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  },
+        admit   => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  };
 &endif&
 
-     roles:
-  		# Allow user root to set any class
-  		".*"  authorize => { "root" }; 
+  roles:
+      # Allow user root to set any class
+      ".*"  authorize => { "root" };
 }
 
 bundle common def {
   vars:
-	"policy_server_file" string => translatepath("$(sys.workdir)/policy_server.dat"),
-                      comment => "Path to file containing address to policy server";
+      "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
+        comment => "Path to file containing address to policy server";
 
-	"policy_server"      string => readfile("$(policy_server_file)", 40),
-                      comment => "IP address to locate your policy host.";
-                      
-	"dir_masterfiles" string => translatepath("$(sys.workdir)/masterfiles");
- 
- 	# List here the IP masks that we grant access to on the server
-	
+      "policy_server"      string => readfile("${policy_server_file}", 40),
+        comment => "IP address to locate your policy host.";
+
+      "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
+
+   # List here the IP masks that we grant access to on the server
+
 &if(CLIENTSLIST)&
-	policy_server::
-		"acl" slist => { 
-			&ALLOWEDNETWORK:{net|"&net&",}&
-		};
+    policy_server::
+      "acl" slist => {
+      &ALLOWEDNETWORK:{net|"&net&",}&
+    };
 &endif&
-	!policy_server::
-		"acl" slist => { 
-			"$(def.policy_server)"
-		};
+    !policy_server::
+      "acl" slist => {
+      "${def.policy_server}"
+    };
 }
 
 
 body server control {
-    trustkeysfrom     => { 
-        "127.0.0.0/8" , "::1", 
+        trustkeysfrom     => {
+      "127.0.0.0/8" , "::1",
         @(def.acl) ,
          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
 &if(CLIENTSLIST)&
          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
 &endif&
     }; #trustkey allows the exchange of keys
-    allowconnects     => {
-    	 @(def.acl) ,
+        allowconnects     => {
+       @(def.acl) ,
         &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
 &if(CLIENTSLIST)&
         &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
 &endif&
     };
 
-    allowallconnects  => {
+        allowallconnects  => {
          @(def.acl) ,
         &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
 &if(CLIENTSLIST)&
@@ -124,21 +124,21 @@ body server control {
 &endif&
     };
 
-    maxconnections    => "1000";
-    logallconnections => "true";    
+        maxconnections    => "1000";
+        logallconnections => "true";
 
-    cfruncommand      => "$(sys.workdir)/bin/cf-agent -f failsafe.cf \&\& $(sys.workdir)/bin/cf-agent";
-    allowusers        => { "&POLICYSERVER_ADMIN&",
+        cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf \&\& ${sys.workdir}/bin/cf-agent";
+        allowusers        => { "&POLICYSERVER_ADMIN&",
 &if(CLIENTSLIST)&
-    											 &ADMIN : {admin | "&admin&" };separator=", "& 
+                           &ADMIN : {admin | "&admin&" };separator=", "&
 &endif&
-    										}; 
-    
-    skipverify            => { "127.0.0.0/8" , "::1",  @(def.acl)  };
+                        };
 
-	community_edition::
-    	port => "&COMMUNITYPORT&";
- 
+        skipverify            => { "127.0.0.0/8" , "::1",  @(def.acl)  };
+
+    community_edition::
+        port => "&COMMUNITYPORT&";
+
 }
 
 #######################################################
@@ -146,14 +146,14 @@ body server control {
 &if(CLIENTSLIST)&
 body runagent control
 {
-	hosts => { 
+        hosts => {
          &CLIENTSLIST: { "&it&",}&
     };
 
-	max_children => "25";
-	
-	community_edition::
-  	port => "&COMMUNITYPORT&";
+        max_children => "25";
+
+    community_edition::
+        port => "&COMMUNITYPORT&";
 }
 &endif&
 

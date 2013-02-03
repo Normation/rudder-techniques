@@ -22,28 +22,28 @@
 
 bundle agent check_ssh_installation {
 
-	packages:
-		(debian|redhat)::
-			"openssh-server"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
-				comment => "Installing ssh using generic interface";
+  packages:
+    (debian|redhat)::
+      "openssh-server"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
+        comment => "Installing ssh using generic interface";
 
-		SuSE::
-			"openssh"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
-				comment => "Installing ssh using generic interface";
+    SuSE::
+      "openssh"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
+        comment => "Installing ssh using generic interface";
 
-	reports:
-		ssh_here::
-			"@@sshConfiguration@@result_success@@&TRACKINGKEY&@@SSH installation@@None@@$(g.execRun)##$(g.uuid)@#The SSH package was already installed";
+  reports:
+    ssh_here::
+      "@@sshConfiguration@@result_success@@&TRACKINGKEY&@@SSH installation@@None@@${g.execRun}##${g.uuid}@#The SSH package was already installed";
 
-		ssh_installed::
-			"@@sshConfiguration@@result_repaired@@&TRACKINGKEY&@@SSH installation@@None@@$(g.execRun)##$(g.uuid)@#The SSH package was installed";
+    ssh_installed::
+      "@@sshConfiguration@@result_repaired@@&TRACKINGKEY&@@SSH installation@@None@@${g.execRun}##${g.uuid}@#The SSH package was installed";
 
-		cant_install_ssh::
-			"@@sshConfiguration@@result_error@@&TRACKINGKEY&@@SSH installation@@None@@$(g.execRun)##$(g.uuid)@#Can't install the SSH package";
+    cant_install_ssh::
+      "@@sshConfiguration@@result_error@@&TRACKINGKEY&@@SSH installation@@None@@${g.execRun}##${g.uuid}@#Can't install the SSH package";
 }

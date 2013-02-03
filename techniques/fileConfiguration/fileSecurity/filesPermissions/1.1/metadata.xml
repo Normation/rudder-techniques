@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <BUNDLES>
     <NAME>files_permissions</NAME>
   </BUNDLES>
-  
+
   <TMLS>
     <TML name="filesPermissions"/>
     <TML name="permlist">
@@ -29,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>filesPermissions/permlist</OUTPATH>
     </TML>
   </TMLS>
-  
+
   <COMPATIBLE>
     <OS version=">= 5">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>

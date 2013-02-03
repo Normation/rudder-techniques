@@ -52,13 +52,13 @@ It then adds ssh to the boot init scripts if not already set to start on boot.
   <TRACKINGVARIABLE>
     <SAMESIZEAS>SSHD_CONFFILE</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
-	  <!-- Sections for reporting only, variables are separate below -->
-	  <SECTION name="SSH installation" component="true" />
-	  <SECTION name="SSH configuration" component="true" />
-	  <SECTION name="SSH process" component="true" />
-	  <SECTION name="SSH start at boot" component="true" />
+    <!-- Sections for reporting only, variables are separate below -->
+    <SECTION name="SSH installation" component="true" />
+    <SECTION name="SSH configuration" component="true" />
+    <SECTION name="SSH process" component="true" />
+    <SECTION name="SSH start at boot" component="true" />
 
     <!-- General Section , index 1-->
     <SECTION name="General">

@@ -38,12 +38,12 @@ It is intended to check if all the required SSH keys are installed.
   <TMLS>
     <TML name="sshKeyDistribution"/>
   </TMLS>
-  
+
   <!-- Policy Instance Settings -->
   <TRACKINGVARIABLE>
     <SAMESIZEAS>SSH_KEY_DISTRIBUTION_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="SSH key" multivalued="true" component="true" componentKey="SSH_KEY_DISTRIBUTION_NAME">
       <INPUT>

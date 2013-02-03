@@ -35,14 +35,14 @@ necessary and kill undesired processes.
     <TML name="processManagement"/>
     <TML name="proclist">
       <INCLUDED>false</INCLUDED>
-	  <OUTPATH>processManagement/proclist</OUTPATH>
+    <OUTPATH>processManagement/proclist</OUTPATH>
     </TML>
   </TMLS>
 
   <TRACKINGVARIABLE>
     <SAMESIZEAS>PROCESS_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="Process" multivalued="true" component="true" componentKey="PROCESS_NAME">
       <INPUT>
@@ -73,7 +73,7 @@ necessary and kill undesired processes.
       </INPUT>
     </SECTION>
 <!--
-	<SECTION name="Blacklisted process" multivalued="true" component="true" componentKey="PROCESS_BLACKLIST">
+  <SECTION name="Blacklisted process" multivalued="true" component="true" componentKey="PROCESS_BLACKLIST">
       <INPUT>
         <NAME>PROCESS_BLACKLIST</NAME>
         <DESCRIPTION>Process name to ban. If present, kill them (accepts regular expressions)</DESCRIPTION>
@@ -81,5 +81,5 @@ necessary and kill undesired processes.
     </SECTION>
 -->
   </SECTIONS>
-  
+
 </TECHNIQUE>

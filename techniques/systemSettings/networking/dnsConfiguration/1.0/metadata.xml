@@ -33,11 +33,11 @@ It is intended to check if the required DNS entries are set.
   <BUNDLES>
     <NAME>check_dns_configuration</NAME>
   </BUNDLES>
-  
+
   <TMLS>
     <TML name="check_dns_configuration"/>
   </TMLS>
-  
+
   <SECTIONS>
     <!-- resolver settings , index 1-->
     <SECTION name="Nameserver settings">
@@ -58,7 +58,7 @@ It is intended to check if the required DNS entries are set.
             <TYPE>string</TYPE>
             <REGEX error="You must enter a valid IP">^\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b$</REGEX>
             <DEFAULT>192.168.1.1</DEFAULT>
-			<MAYBEEMPTY>true</MAYBEEMPTY>
+      <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
         </INPUT>
       </SECTION>
@@ -83,7 +83,7 @@ It is intended to check if the required DNS entries are set.
             <TYPE>string</TYPE>
             <REGEX error="You must enter a valid host name">^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$</REGEX>
             <DEFAULT>example.com</DEFAULT>
-			<MAYBEEMPTY>true</MAYBEEMPTY>
+      <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
         </INPUT>
       </SECTION>

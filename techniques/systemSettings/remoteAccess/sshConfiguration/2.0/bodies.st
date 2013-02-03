@@ -23,8 +23,8 @@
 bundle edit_line rudder_openssh_server_port_configuration(portlist)
 {
   delete_lines:
-    "Port.*";
+      "Port.*";
 
   insert_lines:
-    "Port $(portlist)";
+      "Port ${portlist}";
 }

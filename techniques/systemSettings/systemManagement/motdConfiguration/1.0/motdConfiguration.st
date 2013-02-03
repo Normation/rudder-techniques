@@ -21,58 +21,58 @@
 bundle agent check_motd_configuration
 {
 
-classes:
+  classes:
 
-		"motd_absent" not => fileexists("/etc/motd");
+      "motd_absent" not => fileexists("/etc/motd");
 
-vars:
+  vars:
 
-		"motd" string => "&MOTD&";
+      "motd" string => "&MOTD&";
 
-		"motd_empty" string => "&MOTD_EMPTY&";
+      "motd_empty" string => "&MOTD_EMPTY&";
 
-		"motd_uuid" string => "&TRACKINGKEY&";
+      "motd_uuid" string => "&TRACKINGKEY&";
 
-	debian::
+    debian::
 
-		"motd_file" slist => { "/etc/motd", "/etc/motd.tail" };
+      "motd_file" slist => { "/etc/motd", "/etc/motd.tail" };
 
-	!debian::
+    !debian::
 
-		"motd_file" slist => { "/etc/motd" };
+      "motd_file" slist => { "/etc/motd" };
 
-files:
+  files:
 
-	!windows::
+    !windows::
 
-		"$(motd_file)"
+      "${motd_file}"
 
-			create => "true",
-			edit_defaults => rudder_empty_select("$(motd_empty)"),
-			perms  => mog("644", "root", "root"),
-			edit_line => insert_lines("$(motd)"),
-			classes => kept_if_else("motd_file_kept", "motd_file_edited", "motd_file_failed");
+        create => "true",
+        edit_defaults => rudder_empty_select("${motd_empty}"),
+        perms  => mog("644", "root", "root"),
+        edit_line => insert_lines("${motd}"),
+        classes => kept_if_else("motd_file_kept", "motd_file_edited", "motd_file_failed");
 
-reports:
+  reports:
 
-	motd_file_kept.!motd_file_edited::
+    motd_file_kept.!motd_file_edited::
 
-		"@@motdConfiguration@@result_success@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The MOTD is in conformance with the policy";
+      "@@motdConfiguration@@result_success@@${motd_uuid}@@motdConfiguration@@None@@${g.execRun}##${g.uuid}@#The MOTD is in conformance with the policy";
 
-	motd_file_edited::
+    motd_file_edited::
 
-		"@@motdConfiguration@@result_repaired@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The MOTD was successfully edited to match the policy";
+      "@@motdConfiguration@@result_repaired@@${motd_uuid}@@motdConfiguration@@None@@${g.execRun}##${g.uuid}@#The MOTD was successfully edited to match the policy";
 
-	motd_file_failed::
+    motd_file_failed::
 
-		"@@motdConfiguration@@result_error@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Could not edit the MOTD";
+      "@@motdConfiguration@@result_error@@${motd_uuid}@@motdConfiguration@@None@@${g.execRun}##${g.uuid}@#Could not edit the MOTD";
 
-	!windows.motd_absent::
+    !windows.motd_absent::
 
-		"@@motdConfiguration@@log_repaired@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The MOTD file was absent, I will create it";
+      "@@motdConfiguration@@log_repaired@@${motd_uuid}@@motdConfiguration@@None@@${g.execRun}##${g.uuid}@#The MOTD file was absent, I will create it";
 
-	windows::
+    windows::
 
-		"@@motdConfiguration@@result_error@@$(motd_uuid)@@motdConfiguration@@None@@$(g.execRun)##$(g.uuid)@#This is a Windows machine. This Technique currently incompatible with it";
+      "@@motdConfiguration@@result_error@@${motd_uuid}@@motdConfiguration@@None@@${g.execRun}##${g.uuid}@#This is a Windows machine. This Technique currently incompatible with it";
 
 }
