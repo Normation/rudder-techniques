@@ -32,21 +32,21 @@ It is intended to check if the required motd is installed.
   <BUNDLES>
     <NAME>check_motd_configuration</NAME>
   </BUNDLES>
-  
+
   <TMLS>
     <TML name="motdConfiguration"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <!--<SAMESIZEAS>MOTD</SAMESIZEAS>-->
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="MOTD entry" multivalued="false">
       <INPUT>
         <NAME>MOTD</NAME>
         <DESCRIPTION>Message of the day (MOTD) to display</DESCRIPTION>
-	<REGEX error="Please enter a valid motd, without quotes"><![CDATA[ ([^"]|(?<=\\)")* ]]></REGEX>
+          <REGEX error="Please enter a valid motd, without quotes"><![CDATA[ ([^"]|(?<=\\)")* ]]></REGEX>
         <CONSTRAINT>
           <TYPE>textarea</TYPE>
         </CONSTRAINT>

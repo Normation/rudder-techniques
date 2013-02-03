@@ -23,78 +23,78 @@
 #######################################################
 
 bundle server access_rules {
-    access:
-    
+  access:
+
     policy_server::
-			"root"
-				handle => "policy_server_uuid",
-				resource_type => "literal",
-				admit => {".*"};
-    
-    	"$(def.dir_masterfiles)"
-			handle => "grant_access_policy",
-    		comment => "Grant access to the policy updates",
-    		maproot => {  @(def.acl)  },
-    		admit   => {  @(def.acl)  };
+      "root"
+        handle => "policy_server_uuid",
+        resource_type => "literal",
+        admit => {".*"};
 
-		"${g.rudder_dependencies}"
-			maproot => {  @(def.acl)  },
-			admit   => {  @(def.acl)  };
+      "${def.dir_masterfiles}"
+        handle => "grant_access_policy",
+        comment => "Grant access to the policy updates",
+        maproot => {  @(def.acl)  },
+        admit   => {  @(def.acl)  };
 
-
-    any::	
-
-			# the policy server must have access to the cfengine folder
-			"$(sys.workdir)"
-				maproot => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  },
-				admit   => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  };
+      "${g.rudder_dependencies}"
+        maproot => {  @(def.acl)  },
+        admit   => {  @(def.acl)  };
 
 
-     roles:
-  		# Allow user root to set any class
-  		".*"  authorize => { "root" }; 
+    any::
+
+      # the policy server must have access to the cfengine folder
+      "${sys.workdir}"
+        maproot => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  },
+        admit   => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  };
+
+
+  roles:
+      # Allow user root to set any class
+      ".*"  authorize => { "root" };
 }
 
 bundle common def {
   vars:
-	"policy_server"      string => "%%POLICY_SERVER_HOSTNAME%%";
-                      
-	"dir_masterfiles" string => translatepath("$(sys.workdir)/masterfiles");
- 
- 	# List here the IP masks that we grant access to on the server
-	
-	policy_server::
-		"acl" slist => { 
-			"%%POLICY_SERVER_ALLOWED_NETWORKS%%"
-		};
-	!policy_server::
-		"acl" slist => { 
-			"$(def.policy_server)"
-		};
+      "policy_server"      string => "%%POLICY_SERVER_HOSTNAME%%";
+
+      "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
+
+   # List here the IP masks that we grant access to on the server
+
+    policy_server::
+      "acl" slist => {
+      "%%POLICY_SERVER_ALLOWED_NETWORKS%%"
+    };
+    !policy_server::
+      "acl" slist => {
+      "${def.policy_server}"
+    };
 }
 
 
 body server control {
-    trustkeysfrom     => { 
-        "127.0.0.0/8" , "::1", 
+        trustkeysfrom     => {
+      "127.0.0.0/8" , "::1",
         @(def.acl) ,
           host2ip("%%POLICY_SERVER_HOSTNAME%%"), "%%POLICY_SERVER_HOSTNAME%%"
     }; #trustkey allows the exchange of keys
-    allowconnects     => {
-    	 @(def.acl) ,
+        allowconnects     => {
+       @(def.acl) ,
          host2ip("%%POLICY_SERVER_HOSTNAME%%"), "%%POLICY_SERVER_HOSTNAME%%"
     };
 
-    maxconnections    => "1000";
-    logallconnections => "true";    
+        maxconnections    => "1000";
+        logallconnections => "true";
 
-    cfruncommand      => "$(sys.workdir)/bin/cf-agent -f failsafe.cf && $(sys.workdir)/bin/cf-agent";
-    allowusers        => { "root" }; 
-    
-    skipverify            => { "127.0.0.0/8" , "::1",  @(def.acl)  };
+        cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf && ${sys.workdir}/bin/cf-agent";
+        allowusers        => { "root" };
 
-	community_edition::
-    	port => "5309";
- 
+        skipverify            => { "127.0.0.0/8" , "::1",  @(def.acl)  };
+
+    community_edition::
+        port => "5309";
+
 }
 

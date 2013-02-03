@@ -39,11 +39,11 @@ It is intended to configure the /etc/sudoers file.
   <TMLS>
     <TML name="sudoParameters"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>SUDO_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
 
     <SECTION name="Install" component="true" />

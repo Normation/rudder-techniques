@@ -44,108 +44,108 @@ necessary and kill undesired processes.
   <TRACKINGVARIABLE>
     <SAMESIZEAS>SERVICE_MANAGED_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="Service to manage" multivalued="true" >
-		<INPUT>
-		    <NAME>SERVICE_MANAGED_NAME</NAME>
-		    <DESCRIPTION>Service name (as seen in init.d)</DESCRIPTION>
-		</INPUT>
-		<SECTION name="Process"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
-		  <INPUT>
-		    <NAME>PROCESS_MANAGED_NAME</NAME>
-		    <DESCRIPTION>Process name  (full path to the executable, to be check in 'ps' output)</DESCRIPTION>
-			<LONGDESCRIPTION>Accepts regular expression, not necessarily the full path)</LONGDESCRIPTION>
-		    <CONSTRAINT>
-		      <MAYBEEMPTY>true</MAYBEEMPTY>
-		    </CONSTRAINT>
-		  </INPUT>
-		  <SELECT1>
-		    <NAME>PROCESS_MANAGED_RUNNING</NAME>
-		    <DESCRIPTION>This process should be</DESCRIPTION>
-		    <ITEM>
-		      <LABEL>Running</LABEL>
-		      <VALUE>true</VALUE>
-		    </ITEM>
-		    <ITEM>
-		      <LABEL>Stopped</LABEL>
-		      <VALUE>false</VALUE>
-		    </ITEM>
-		    <ITEM>
-		      <LABEL>Don't change</LABEL>
-		      <VALUE>ignore</VALUE>
-		    </ITEM>
-		    <CONSTRAINT>
-		      <DEFAULT>ignore</DEFAULT>
-		    </CONSTRAINT>
-		  </SELECT1>
-		</SECTION>
-		<SECTION name="Service starting parameters"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
-		  <SELECT1>
-		    <NAME>PROCESS_MANAGED_BOOTSTART</NAME>
-		    <DESCRIPTION>This service should be set to start on boot</DESCRIPTION>
-		    <ITEM>
-		      <LABEL>Yes</LABEL>
-		      <VALUE>true</VALUE>
-		    </ITEM>
-		    <ITEM>
-		      <LABEL>No</LABEL>
-		      <VALUE>false</VALUE>
-		    </ITEM>
-		    <ITEM>
-		      <LABEL>Don't change</LABEL>
-		      <VALUE>ignore</VALUE>
-		    </ITEM>
-		    <CONSTRAINT>
-		      <DEFAULT>true</DEFAULT>
-		    </CONSTRAINT>
-		  </SELECT1>
-		</SECTION>
-		<SECTION name="Advanced options"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
-		  <SELECT1>
-		    <NAME>PROCESS_MANAGED_KILLING_METHOD</NAME>
-		    <DESCRIPTION>When stopping this process</DESCRIPTION>
-		    <ITEM>
-		      <LABEL>Stop gracefully (/etc/init.d/xxx stop)</LABEL>
-		      <VALUE>graceful</VALUE>
-		    </ITEM>
-		    <ITEM>
-		      <LABEL>Kill (SIGTERM)</LABEL>
-		      <VALUE>term</VALUE>
-		    </ITEM>
-		    <ITEM>
-		      <LABEL>Kill (SIGKILL)</LABEL>
-		      <VALUE>kill</VALUE>
-		    </ITEM>
-		    <CONSTRAINT>
-		      <DEFAULT>graceful</DEFAULT>
-		    </CONSTRAINT>
-		  </SELECT1>
+    <INPUT>
+        <NAME>SERVICE_MANAGED_NAME</NAME>
+        <DESCRIPTION>Service name (as seen in init.d)</DESCRIPTION>
+    </INPUT>
+    <SECTION name="Process"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
+      <INPUT>
+        <NAME>PROCESS_MANAGED_NAME</NAME>
+        <DESCRIPTION>Process name  (full path to the executable, to be check in 'ps' output)</DESCRIPTION>
+      <LONGDESCRIPTION>Accepts regular expression, not necessarily the full path)</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>PROCESS_MANAGED_RUNNING</NAME>
+        <DESCRIPTION>This process should be</DESCRIPTION>
+        <ITEM>
+          <LABEL>Running</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Stopped</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Don't change</LABEL>
+          <VALUE>ignore</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>ignore</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+    <SECTION name="Service starting parameters"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
+      <SELECT1>
+        <NAME>PROCESS_MANAGED_BOOTSTART</NAME>
+        <DESCRIPTION>This service should be set to start on boot</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Don't change</LABEL>
+          <VALUE>ignore</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+    <SECTION name="Advanced options"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
+      <SELECT1>
+        <NAME>PROCESS_MANAGED_KILLING_METHOD</NAME>
+        <DESCRIPTION>When stopping this process</DESCRIPTION>
+        <ITEM>
+          <LABEL>Stop gracefully (/etc/init.d/xxx stop)</LABEL>
+          <VALUE>graceful</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Kill (SIGTERM)</LABEL>
+          <VALUE>term</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Kill (SIGKILL)</LABEL>
+          <VALUE>kill</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>graceful</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
 
-		  <INPUT>
-				  <NAME>PROCESS_MANAGED_CHECK_RANGE</NAME>
-				  <DESCRIPTION>Check range of process instances number ?</DESCRIPTION>
-				  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
-		  </INPUT>
-		  <INPUT>
-		    <NAME>PROCESS_MANAGED_MIN_INSTANCES</NAME>
-		    <DESCRIPTION>Restart this service if the number of process instances is less than :</DESCRIPTION>
-		    <CONSTRAINT>
-		      <TYPE>integer</TYPE>
-			  <MAYBEEMPTY>true</MAYBEEMPTY>
-		    </CONSTRAINT>
-		  </INPUT>
-		  <INPUT>
-		    <NAME>PROCESS_MANAGED_MAX_INSTANCES</NAME>
-		    <DESCRIPTION>Restart this service if the number of process instances is more than :</DESCRIPTION>
-		    <CONSTRAINT>
-		      <TYPE>integer</TYPE>
-			  <MAYBEEMPTY>true</MAYBEEMPTY>
-		    </CONSTRAINT>
-		  </INPUT>
-		</SECTION> 
-	</SECTION>
+      <INPUT>
+          <NAME>PROCESS_MANAGED_CHECK_RANGE</NAME>
+          <DESCRIPTION>Check range of process instances number ?</DESCRIPTION>
+          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>PROCESS_MANAGED_MIN_INSTANCES</NAME>
+        <DESCRIPTION>Restart this service if the number of process instances is less than :</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>integer</TYPE>
+        <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>PROCESS_MANAGED_MAX_INSTANCES</NAME>
+        <DESCRIPTION>Restart this service if the number of process instances is more than :</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>integer</TYPE>
+        <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTION>
 
   </SECTIONS>
-  
+
 </TECHNIQUE>

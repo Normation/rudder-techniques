@@ -17,7 +17,7 @@
 #####################################################################################
 
 #####################################################################################
-# Configure the OpenSSH server 
+# Configure the OpenSSH server
 #####################################################################################
 # If ssh is not installed, install it (linux)
 # Change the server configuration, and restart the daemon
@@ -148,100 +148,100 @@ bundle agent rudder_openssh_server_configuration(service_name) {
 
   classes:
     # Security : if not there, SSH too, so don't bother anymore
-    "rudder_openssh_server_binary_present"
-      expression => fileexists("/usr/sbin/sshd");
+      "rudder_openssh_server_binary_present"
+        expression => fileexists("/usr/sbin/sshd");
 
     # AddressFamily edition ?
-    "rudder_openssh_server_address_family_edit"
-      not => strcmp("&OPENSSH_SERVER_ADDRESSFAMILY&","dontchange");
+      "rudder_openssh_server_address_family_edit"
+        not => strcmp("&OPENSSH_SERVER_ADDRESSFAMILY&","dontchange");
 
     # Ports edition ?
-    "rudder_openssh_server_ports_edit"
-      not => strcmp("&OPENSSH_SERVER_PORTSEDIT&","false");
+      "rudder_openssh_server_ports_edit"
+        not => strcmp("&OPENSSH_SERVER_PORTSEDIT&","false");
 
     # Protocol edition ?
-    "rudder_openssh_server_protocol_edit"
-      not => strcmp("&OPENSSH_SERVER_PROTOCOL&","dontchange");
+      "rudder_openssh_server_protocol_edit"
+        not => strcmp("&OPENSSH_SERVER_PROTOCOL&","dontchange");
 
     # MaxSessions edition ?
-    "rudder_openssh_server_max_sessions_edit"
-      not => strcmp("&OPENSSH_SERVER_MAXSESSIONS&","dontchange");
+      "rudder_openssh_server_max_sessions_edit"
+        not => strcmp("&OPENSSH_SERVER_MAXSESSIONS&","dontchange");
 
     # ChallengeResponseAuthentication edition ?
-    "rudder_openssh_server_challenge_response_authentication_edit"
-      not => strcmp("&OPENSSH_SERVER_CHALLENGERESPONSEAUTHENTICATION&","dontchange");
+      "rudder_openssh_server_challenge_response_authentication_edit"
+        not => strcmp("&OPENSSH_SERVER_CHALLENGERESPONSEAUTHENTICATION&","dontchange");
 
     #  PasswordAuthentication edition ?
-    "rudder_openssh_server_password_authentication_edit"
-      not => strcmp("&OPENSSH_SERVER_PASSWORDAUTHENTICATION&","dontchange");
+      "rudder_openssh_server_password_authentication_edit"
+        not => strcmp("&OPENSSH_SERVER_PASSWORDAUTHENTICATION&","dontchange");
 
     # PubkeyAuthentication edition ?
-    "rudder_openssh_server_pubkey_authentication_edit"
-      not => strcmp("&OPENSSH_SERVER_PUBKEYAUTHENTICATION&","dontchange");
+      "rudder_openssh_server_pubkey_authentication_edit"
+        not => strcmp("&OPENSSH_SERVER_PUBKEYAUTHENTICATION&","dontchange");
 
     # PermitEmptyPasswords edition ?
-    "rudder_openssh_server_permit_empty_passwords_edit"
-      not => strcmp("&OPENSSH_SERVER_PERMITEMPTYPASSWORDS&","dontchange");
+      "rudder_openssh_server_permit_empty_passwords_edit"
+        not => strcmp("&OPENSSH_SERVER_PERMITEMPTYPASSWORDS&","dontchange");
 
     # PermitRootLogin edition ?
-    "rudder_openssh_server_permit_root_login_edit"
-      not => strcmp("&OPENSSH_SERVER_PERMITROOTLOGIN&","dontchange");
+      "rudder_openssh_server_permit_root_login_edit"
+        not => strcmp("&OPENSSH_SERVER_PERMITROOTLOGIN&","dontchange");
 
     # MaxAuthTries edition ?
-    "rudder_openssh_server_max_auth_tries_edit"
-      not => strcmp("&OPENSSH_SERVER_MAXAUTHTRIES&","dontchange");
+      "rudder_openssh_server_max_auth_tries_edit"
+        not => strcmp("&OPENSSH_SERVER_MAXAUTHTRIES&","dontchange");
 
     # LoginGraceTime edition ?
-    "rudder_openssh_server_login_grace_time_edit"
-      not => strcmp("&OPENSSH_SERVER_LOGINGRACETIME&","dontchange");
+      "rudder_openssh_server_login_grace_time_edit"
+        not => strcmp("&OPENSSH_SERVER_LOGINGRACETIME&","dontchange");
 
     # UsePrivilegeSeparation edition ?
-    "rudder_openssh_server_use_privilege_separation_edit"
-      not => strcmp("&OPENSSH_SERVER_USEPRIVILEGESEPARATION&","dontchange");
+      "rudder_openssh_server_use_privilege_separation_edit"
+        not => strcmp("&OPENSSH_SERVER_USEPRIVILEGESEPARATION&","dontchange");
 
     # StrictModes edition ?
-    "rudder_openssh_server_strict_modes_edit"
-      not => strcmp("&OPENSSH_SERVER_STRICTMODES&","dontchange");
+      "rudder_openssh_server_strict_modes_edit"
+        not => strcmp("&OPENSSH_SERVER_STRICTMODES&","dontchange");
 
     # AllowAgentForwarding edition ?
-    "rudder_openssh_server_allow_agent_forwarding_edit"
-      not => strcmp("&OPENSSH_SERVER_ALLOWAGENTFORWARDING&","dontchange");
+      "rudder_openssh_server_allow_agent_forwarding_edit"
+        not => strcmp("&OPENSSH_SERVER_ALLOWAGENTFORWARDING&","dontchange");
 
     # AllowTcpForwarding edition ?
-    "rudder_openssh_server_allow_tcp_forwarding_edit"
-      not => strcmp("&OPENSSH_SERVER_ALLOWTCPFORWARDING&","dontchange");
+      "rudder_openssh_server_allow_tcp_forwarding_edit"
+        not => strcmp("&OPENSSH_SERVER_ALLOWTCPFORWARDING&","dontchange");
 
     # PermitTunnel edition ?
-    "rudder_openssh_server_permit_tunnel_edit"
-      not => strcmp("&OPENSSH_SERVER_PERMITTUNNEL&","dontchange");
+      "rudder_openssh_server_permit_tunnel_edit"
+        not => strcmp("&OPENSSH_SERVER_PERMITTUNNEL&","dontchange");
 
     # PermitUserEnvironment edition ?
-    "rudder_openssh_server_permit_user_environment_edit"
-      not => strcmp("&OPENSSH_SERVER_PERMITUSERENVIRONMENT&","dontchange");
+      "rudder_openssh_server_permit_user_environment_edit"
+        not => strcmp("&OPENSSH_SERVER_PERMITUSERENVIRONMENT&","dontchange");
 
     # X11Forwarding edition ?
-    "rudder_openssh_server_x11_forwarding_edit"
-      not => strcmp("&OPENSSH_SERVER_X11FORWARDING&","dontchange");
+      "rudder_openssh_server_x11_forwarding_edit"
+        not => strcmp("&OPENSSH_SERVER_X11FORWARDING&","dontchange");
 
     # PrintLastLog edition ?
-    "rudder_openssh_server_print_lastlog_edit"
-      not => strcmp("&OPENSSH_SERVER_PRINTLASTLOG&","dontchange");
+      "rudder_openssh_server_print_lastlog_edit"
+        not => strcmp("&OPENSSH_SERVER_PRINTLASTLOG&","dontchange");
 
     # PrintMotd edition ?
-    "rudder_openssh_server_printmotd_edit"
-      not => strcmp("&OPENSSH_SERVER_PRINTMOTD&","dontchange");
+      "rudder_openssh_server_printmotd_edit"
+        not => strcmp("&OPENSSH_SERVER_PRINTMOTD&","dontchange");
 
     # TCPKeepAlive edition ?
-    "rudder_openssh_server_tcp_keepalive_edit"
-      not => strcmp("&OPENSSH_SERVER_TCPKEEPALIVE&","dontchange");
+      "rudder_openssh_server_tcp_keepalive_edit"
+        not => strcmp("&OPENSSH_SERVER_TCPKEEPALIVE&","dontchange");
 
     # LogLevel edition ?
-    "rudder_openssh_server_log_level_edit"
-      not => strcmp("&OPENSSH_SERVER_LOGLEVEL&","dontchange");
+      "rudder_openssh_server_log_level_edit"
+        not => strcmp("&OPENSSH_SERVER_LOGLEVEL&","dontchange");
 
     # SyslogFacility edition ?
-    "rudder_openssh_server_syslog_facility_edit"
-      not => strcmp("&OPENSSH_SERVER_SYSLOGFACILITY&","dontchange");
+      "rudder_openssh_server_syslog_facility_edit"
+        not => strcmp("&OPENSSH_SERVER_SYSLOGFACILITY&","dontchange");
 
   files:
     linux::
@@ -271,20 +271,20 @@ bundle agent rudder_openssh_server_configuration(service_name) {
 
   methods:
     # Here, we will define reports for elements which only have a local visibility (like the sshd binary detection).
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "result_error", "&TRACKINGKEY&", "SSH installation", "None", "The ${service_name} is not installed, although it should have been"),
-      ifvarclass => "!rudder_openssh_server_binary_present";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_error", "&TRACKINGKEY&", "SSH installation", "None", "The ${service_name} is not installed, although it should have been"),
+        ifvarclass => "!rudder_openssh_server_binary_present";
 
     # Warn about features that are not implemented on all platforms
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"agent forwarding\" isn't implemented on Red Hat/CentOS/SuSE"),
-      ifvarclass => "rudder_openssh_server_allow_agent_forwarding_edit.(redhat|SuSE)";
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"max sessions\" isn't implemented on Red Hat/CentOS/SuSE"),
-      ifvarclass => "rudder_openssh_server_max_sessions_edit.(redhat|SuSE)";
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"permit tunnel\" isn't implemented on SuSE"),
-      ifvarclass => "rudder_openssh_server_permit_tunnel_edit.(redhat|SuSE)";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"agent forwarding\" isn't implemented on Red Hat/CentOS/SuSE"),
+        ifvarclass => "rudder_openssh_server_allow_agent_forwarding_edit.(redhat|SuSE)";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"max sessions\" isn't implemented on Red Hat/CentOS/SuSE"),
+        ifvarclass => "rudder_openssh_server_max_sessions_edit.(redhat|SuSE)";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"permit tunnel\" isn't implemented on SuSE"),
+        ifvarclass => "rudder_openssh_server_permit_tunnel_edit.(redhat|SuSE)";
 
   processes:
     (debian|redhat|SuSE)::
@@ -310,28 +310,28 @@ bundle agent rudder_openssh_server_configuration_reporting(service_name)
 {
   methods:
     # SSH configuration file
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_ports", "&TRACKINGKEY&", "SSH port configuration", "None", "The ${service_name} port configuration");
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_configuration", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} configuration");
+      "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_ports", "&TRACKINGKEY&", "SSH port configuration", "None", "The ${service_name} port configuration");
+      "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_configuration", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} configuration");
     # SSH start on boot
-    "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_activated_on_boot", "&TRACKINGKEY&", "SSH start at boot", "None", "The ${service_name} boot starting configuration");
+      "any" usebundle => rudder_common_reports_generic("OpenSSH server", "rudder_openssh_server_activated_on_boot", "&TRACKINGKEY&", "SSH start at boot", "None", "The ${service_name} boot starting configuration");
 
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "log_repaired", "&TRACKINGKEY&", "SSH process", "None", "The ${service_name} was not running, trying to restart..."),
-      ifvarclass => "rudder_openssh_server_down";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_repaired", "&TRACKINGKEY&", "SSH process", "None", "The ${service_name} was not running, trying to restart..."),
+        ifvarclass => "rudder_openssh_server_down";
 
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "result_success", "&TRACKINGKEY&", "SSH process", "None", "The ${service_name} service is running"),
-      ifvarclass => "!rudder_openssh_server_down.!rudder_openssh_server_daemon_restart_repaired.!rudder_openssh_server_daemon_restart_error";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_success", "&TRACKINGKEY&", "SSH process", "None", "The ${service_name} service is running"),
+        ifvarclass => "!rudder_openssh_server_down.!rudder_openssh_server_daemon_restart_repaired.!rudder_openssh_server_daemon_restart_error";
 
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "result_repaired", "&TRACKINGKEY&", "SSH process", "None", "Restarted the ${service_name}"),
-      ifvarclass => "rudder_openssh_server_daemon_restart_repaired.!rudder_openssh_server_daemon_restart_error";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_repaired", "&TRACKINGKEY&", "SSH process", "None", "Restarted the ${service_name}"),
+        ifvarclass => "rudder_openssh_server_daemon_restart_repaired.!rudder_openssh_server_daemon_restart_error";
 
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "result_error", "&TRACKINGKEY&", "SSH process", "None", "Could not restart the ${service_name}"),
-      ifvarclass => "rudder_openssh_server_daemon_restart_error";
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_error", "&TRACKINGKEY&", "SSH process", "None", "Could not restart the ${service_name}"),
+        ifvarclass => "rudder_openssh_server_daemon_restart_error";
 
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "log_info", "&TRACKINGKEY&", "SSH start at boot", "None", "Error checking if the ${service_name} is set to be started on boot"),
-      ifvarclass => "rudder_openssh_server_activation_detection_failed";      
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_info", "&TRACKINGKEY&", "SSH start at boot", "None", "Error checking if the ${service_name} is set to be started on boot"),
+        ifvarclass => "rudder_openssh_server_activation_detection_failed";
 }

@@ -18,47 +18,47 @@
 
 bundle agent root_networks_check {
 
-	vars:
+  vars:
 
-			"networks" string => join("$(const.n)Allow from ","def.acl");
-			"file_path" string => "/opt/rudder/etc/rudder-networks.conf";
+      "networks" string => join("${const.n}Allow from ","def.acl");
+      "file_path" string => "/opt/rudder/etc/rudder-networks.conf";
 
-	files:
+  files:
 
-			"$(file_path)"
-				create => "true",
-				perms => mog("644", "root", "root"),
-				edit_defaults => empty,
-				edit_line => insert_lines("Allow from 127.0.0.0/8$(const.n)Allow from $(networks)"),
-				classes => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
-			        comment => "Copying rudder apache configuration";
+      "${file_path}"
+        create => "true",
+        perms => mog("644", "root", "root"),
+        edit_defaults => empty,
+        edit_line => insert_lines("Allow from 127.0.0.0/8${const.n}Allow from ${networks}"),
+        classes => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
+        comment => "Copying rudder apache configuration";
 
 
-	commands:
+  commands:
 
-		rudder_networks_repaired::
+    rudder_networks_repaired::
 
-			"/etc/init.d/apache2"
-				args => "reload",
-				classes => if_else("apache_restarted", "apache_restart_failed");
+      "/etc/init.d/apache2"
+        args => "reload",
+        classes => if_else("apache_restarted", "apache_restart_failed");
 
-	reports:
+  reports:
 
-		linux::
+    linux::
 
-			"@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file is OK"
-				ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";
+      "@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file is OK"
+        ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";
 
-			"@@DistributePolicy@@result_repaired@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file has been corrected"
-				ifvarclass => "rudder_networks_repaired.!rudder_networks_failed";
+      "@@DistributePolicy@@result_repaired@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file has been corrected"
+        ifvarclass => "rudder_networks_repaired.!rudder_networks_failed";
 
-			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The $(file_path) apache configuration file was NOT edited because of an error"
-				ifvarclass => "rudder_networks_failed";
+      "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file was NOT edited because of an error"
+        ifvarclass => "rudder_networks_failed";
 
-			"@@DistributePolicy@@log_info@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd has been reloaded successfully"
-				ifvarclass => "apache_restarted.!apache_restart_failed";
+      "@@DistributePolicy@@log_info@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd has been reloaded successfully"
+        ifvarclass => "apache_restarted.!apache_restart_failed";
 
-			"@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Apache HTTPd failed to restart"
-				ifvarclass => "apache_restart_failed";
+      "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd failed to restart"
+        ifvarclass => "apache_restart_failed";
 
 }

@@ -18,26 +18,26 @@
 
 bundle common generic_variable_definition {
 
-	vars:
+  vars:
 
-		&GENERIC_VARIABLE_NAME, GENERIC_VARIABLE_CONTENT:{name, content |"&name&" string => "&content&";
+    &GENERIC_VARIABLE_NAME, GENERIC_VARIABLE_CONTENT:{name, content |"&name&" string => "&content&";
 }&
-		
+
 }
 
 bundle agent generic_variable_def_report {
-	vars:
+  vars:
                 &TRACKINGKEY:{directiveId |"generic_name_uuid[&i&]" string => "&directiveId&";
-}& 
+}&
                 &GENERIC_VARIABLE_NAME:{name |"generic_variable_name[&i&]" string => "&name&";
 }&
 
-		"generic_variable_name_index" slist => getindices("generic_name_uuid");
+      "generic_variable_name_index" slist => getindices("generic_name_uuid");
 
-	reports:
+  reports:
 
-		(linux|!linux)::
+    (linux|!linux)::
 
-			"@@genericVariableDefinition@@result_success@@$(generic_name_uuid[$(generic_variable_name_index)])@@Variable definition@@$(generic_variable_name[$(generic_variable_name_index)])@@$(g.execRun)##$(g.uuid)@#A generic variable definition is set for variable $(generic_variable_name[$(generic_variable_name_index)])";
+      "@@genericVariableDefinition@@result_success@@$(generic_name_uuid[${generic_variable_name_index}])@@Variable definition@@$(generic_variable_name[${generic_variable_name_index}])@@${g.execRun}##${g.uuid}@#A generic variable definition is set for variable $(generic_variable_name[${generic_variable_name_index}])";
 
 }

@@ -18,18 +18,18 @@
 
 bundle common generic_variable_definition {
 
-	vars:
+  vars:
 
-		&GENERIC_VARIABLE_NAME, GENERIC_VARIABLE_CONTENT:{name, content |"&name&" string => "&content&";
+    &GENERIC_VARIABLE_NAME, GENERIC_VARIABLE_CONTENT:{name, content |"&name&" string => "&content&";
 }&
 }
 
 bundle agent generic_variable_definition_report {
 
-	reports:
+  reports:
 
-		(linux|!linux)::
+    (linux|!linux)::
 
-			"@@genericVariableDefinition@@result_success@@&TRACKINGKEY&@@genericVariableDefinition@@None@@$(g.execRun)##$(g.uuid)@#A generic variable definition Policy Instance is active";
+      "@@genericVariableDefinition@@result_success@@&TRACKINGKEY&@@genericVariableDefinition@@None@@${g.execRun}##${g.uuid}@#A generic variable definition Policy Instance is active";
 
 }

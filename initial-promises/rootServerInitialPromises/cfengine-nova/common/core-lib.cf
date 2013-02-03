@@ -16,7 +16,7 @@
 #
 #####################################################################################
 
-# This our core-library of common 
+# This our core-library of common
 # function. That's our knowledge !
 #
 # Just bodies and editbundles here
@@ -26,51 +26,51 @@
 
 
 body depth_search recurse_visible(d) {
-    depth        => "$(d)";
-    exclude_dirs => { "\..*" };
+        depth        => "${d}";
+        exclude_dirs => { "\..*" };
 }
 
 #perms validation
 body perms u_p(p) {
-  mode  => "$(p)";
+        mode  => "${p}";
 }
 
 #########################################################
 #server may be a list
 body copy_from cp(from,server) {
-  servers     => { "${server}" };
-  source      => "$(from)";
-  compare     => "digest";
-community_edition::
- 	portnumber => "5309";
-  
+        servers     => { "${server}" };
+        source      => "${from}";
+        compare     => "digest";
+    community_edition::
+        portnumber => "5309";
+
 }
 
 body copy_from scp(from, server,trustkey,preserve,purge) {
-  servers  => { "${server}" };
-  source   => "$(from)";
-  compare  => "digest";
-  encrypt  => "true";
-  verify   => "true";
-  trustkey => "${trustkey}";
-  preserve => "${preserve}"; #preserver permissions
-  purge    => "${purge}";
-community_edition::
- 	portnumber => "5309";
+        servers  => { "${server}" };
+        source   => "${from}";
+        compare  => "digest";
+        encrypt  => "true";
+        verify   => "true";
+        trustkey => "${trustkey}";
+        preserve => "${preserve}"; #preserver permissions
+        purge    => "${purge}";
+    community_edition::
+        portnumber => "5309";
 }
 
 body copy_from copy(from) {
-	source => "$(from)";
-	copy_backup => "false";
-community_edition::
- 	portnumber => "5309";
+        source => "${from}";
+        copy_backup => "false";
+    community_edition::
+        portnumber => "5309";
 
 }
 
 
 body copy_from copy_digest(from) {
-        source => "$(from)";
+        source => "${from}";
         copy_backup => "false";
         preserve => "true";
-	compare => "digest";
+        compare => "digest";
 }

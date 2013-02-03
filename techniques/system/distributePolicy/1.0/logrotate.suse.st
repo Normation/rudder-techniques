@@ -3,12 +3,12 @@
         missingok
         rotate 30
         compress
-		notifempty
-		create 640 root root
+    notifempty
+    create 640 root root
         sharedscripts
         postrotate
-			/etc/init.d/apache2 reload > /dev/null
-		endscript
+      /etc/init.d/apache2 reload > /dev/null
+    endscript
 }
 
 /var/log/rudder/ldap/slapd.log {
@@ -17,7 +17,7 @@
         rotate 30
         compress
         notifempty
-		create 640 root root
+    create 640 root root
 }
 
 /var/log/rudder/reports/*.log {
@@ -26,7 +26,7 @@
         rotate 30
         compress
         notifempty
-		create 640 root root
+    create 640 root root
 }
 
 /var/log/rudder/core/*.log {

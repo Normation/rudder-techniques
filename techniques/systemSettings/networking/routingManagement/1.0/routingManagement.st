@@ -25,106 +25,106 @@
 
 bundle agent check_routing_parameters {
 
-	vars:
+  vars:
 
-		&ROUTING_FOUR_DESTINATION:{destination |"route[&i&]" string => "&destination&";
+    &ROUTING_FOUR_DESTINATION:{destination |"route[&i&]" string => "&destination&";
 }&
 
-		&ROUTING_FOUR_GATEWAY:{gateway |"gateway[&i&]" string => "&gateway&";
+    &ROUTING_FOUR_GATEWAY:{gateway |"gateway[&i&]" string => "&gateway&";
 }&
 
-		&ROUTING_FOUR_NETMASK:{netmask |"mask[&i&]" string => "&netmask&";
+    &ROUTING_FOUR_NETMASK:{netmask |"mask[&i&]" string => "&netmask&";
 }&
 
-		&ROUTING_FOUR_ACTION:{action |"action[&i&]" string => "&action&";
+    &ROUTING_FOUR_ACTION:{action |"action[&i&]" string => "&action&";
 }&
 
-		&TRACKINGKEY:{directiveId |"routing_directive_id[&i&]" string => "&directiveId&";
+    &TRACKINGKEY:{directiveId |"routing_directive_id[&i&]" string => "&directiveId&";
 }&
 
-		"routing_index" slist => getindices("route");
+      "routing_index" slist => getindices("route");
 
-		"displayName[$(routing_index)]" string => "$(route[$(routing_index)]) / $(mask[$(routing_index)]) to $(gateway[$(routing_index)])";
+      "displayName[${routing_index}]" string => "$(route[${routing_index}]) / $(mask[${routing_index}]) to $(gateway[${routing_index}])";
 
-	classes:
+  classes:
 
-		"checkroute_present" expression => fileexists("${g.rudder_dependencies}/checkroute.pl");
+      "checkroute_present" expression => fileexists("${g.rudder_dependencies}/checkroute.pl");
 
-	commands:
+  commands:
 
-		linux.checkroute_present::
+    linux.checkroute_present::
 
-			"${g.rudder_dependencies}/checkroute.pl $(route[$(routing_index)]) $(mask[$(routing_index)]) $(gateway[$(routing_index)]) $(routing_index) $(action[$(routing_index)]) linux"
-				contain => in_shell,
-				module => "true",
-				comment => "Analysing routes";
+      "${g.rudder_dependencies}/checkroute.pl $(route[${routing_index}]) $(mask[${routing_index}]) $(gateway[${routing_index}]) ${routing_index} $(action[${routing_index}]) linux"
+        contain => in_shell,
+        module => "true",
+        comment => "Analysing routes";
 
-			"/sbin/route add -net $(route[$(routing_index)]) netmask $(mask[$(routing_index)]) gw $(gateway[$(routing_index)])"
-				contain => in_shell,
-				ifvarclass => canonify("route_$(routing_index)_add"),
-				classes => cf2_if_else("route_$(routing_index)_added", "route_$(routing_index)_add_failed");
+      "/sbin/route add -net $(route[${routing_index}]) netmask $(mask[${routing_index}]) gw $(gateway[${routing_index}])"
+        contain => in_shell,
+        ifvarclass => canonify("route_${routing_index}_add"),
+        classes => cf2_if_else("route_${routing_index}_added", "route_${routing_index}_add_failed");
 
-			"/sbin/route del -net $(route[$(routing_index)]) netmask $(mask[$(routing_index)]) gw $(gateway[$(routing_index)])"
-				contain => in_shell,
-				ifvarclass => canonify("route_$(routing_index)_delete"),
-				classes => cf2_if_else("route_$(routing_index)_deleted", "route_$(routing_index)_delete_failed");
+      "/sbin/route del -net $(route[${routing_index}]) netmask $(mask[${routing_index}]) gw $(gateway[${routing_index}])"
+        contain => in_shell,
+        ifvarclass => canonify("route_${routing_index}_delete"),
+        classes => cf2_if_else("route_${routing_index}_deleted", "route_${routing_index}_delete_failed");
 
 
-		windows.checkroute_present::
+    windows.checkroute_present::
 
-			"\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
-				args => "\"${g.rudder_dependencies}\checkroute.pl\" $(route[$(routing_index)]) $(mask[$(routing_index)]) $(gateway[$(routing_index)]) $(routing_index) $(action[$(routing_index)]) windows",
-				contain => in_shell,
-				module => "true",
-				comment => "Analysing routes";
+      "\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
+        args => "\"${g.rudder_dependencies}\checkroute.pl\" $(route[${routing_index}]) $(mask[${routing_index}]) $(gateway[${routing_index}]) ${routing_index} $(action[${routing_index}]) windows",
+        contain => in_shell,
+        module => "true",
+        comment => "Analysing routes";
 
-			"\"${sys.winsysdir}\route.exe\""
-				args => "ADD $(route[$(routing_index)]) MASK $(mask[$(routing_index)]) $(gateway[$(routing_index)])",
-				contain => in_shell,
-				ifvarclass => canonify("route_$(routing_index)_add"),
-				classes => cf2_if_else("route_$(routing_index)_added", "route_$(routing_index)_add_failed");
+      "\"${sys.winsysdir}\route.exe\""
+        args => "ADD $(route[${routing_index}]) MASK $(mask[${routing_index}]) $(gateway[${routing_index}])",
+        contain => in_shell,
+        ifvarclass => canonify("route_${routing_index}_add"),
+        classes => cf2_if_else("route_${routing_index}_added", "route_${routing_index}_add_failed");
 
-			"\"${sys.winsysdir}\route.exe\""
-				args => "DELETE $(route[$(routing_index)])",
-				contain => in_shell,
-				ifvarclass => canonify("route_$(routing_index)_delete"),
-				classes => cf2_if_else("route_$(routing_index)_deleted", "route_$(routing_index)_delete_failed");
+      "\"${sys.winsysdir}\route.exe\""
+        args => "DELETE $(route[${routing_index}])",
+        contain => in_shell,
+        ifvarclass => canonify("route_${routing_index}_delete"),
+        classes => cf2_if_else("route_${routing_index}_deleted", "route_${routing_index}_delete_failed");
 
-	reports:
+  reports:
 
-		(windows|linux).checkroute_present::
-			
-			"@@routingManagement@@result_success@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) found, as expected."
-				ifvarclass => canonify("route_$(routing_index)_found");
+    (windows|linux).checkroute_present::
 
-			# This should be a log_warn, when it's supported
-			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) found, and policy is: Check absence!"
-				ifvarclass => canonify("route_$(routing_index)_found_warn");
+      "@@routingManagement@@result_success@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Route $(displayName[${routing_index}]) found, as expected."
+        ifvarclass => canonify("route_${routing_index}_found");
 
-			"@@routingManagement@@result_success@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found, as expected"
-				ifvarclass => canonify("route_$(routing_index)_notfound");
+      # This should be a log_warn, when it's supported
+      "@@routingManagement@@result_error@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Route $(displayName[${routing_index}]) found, and policy is: Check absence!"
+        ifvarclass => canonify("route_${routing_index}_found_warn");
 
-			# This should be a log_warn, when it's supported
-			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found , and policy is: Check presence!"
-				ifvarclass => canonify("route_$(routing_index)_notfound_warn");
+      "@@routingManagement@@result_success@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Route $(displayName[${routing_index}]) not found, as expected"
+        ifvarclass => canonify("route_${routing_index}_notfound");
 
-			"@@routingManagement@@log_info@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) not found, attempting to add route..."
-				ifvarclass => canonify("route_$(routing_index)_add");
+      # This should be a log_warn, when it's supported
+      "@@routingManagement@@result_error@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Route $(displayName[${routing_index}]) not found , and policy is: Check presence!"
+        ifvarclass => canonify("route_${routing_index}_notfound_warn");
 
-			"@@routingManagement@@result_repaired@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) added successfully!"
-				ifvarclass => canonify("route_$(routing_index)_added");
+      "@@routingManagement@@log_info@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Route $(displayName[${routing_index}]) not found, attempting to add route..."
+        ifvarclass => canonify("route_${routing_index}_add");
 
-			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not add route $(displayName[$(routing_index)])!"
-				ifvarclass => canonify("route_$(routing_index)_add_failed");
+      "@@routingManagement@@result_repaired@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Route $(displayName[${routing_index}]) added successfully!"
+        ifvarclass => canonify("route_${routing_index}_added");
 
-			"@@routingManagement@@result_repaired@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Route $(displayName[$(routing_index)]) deleted successfully!"
-				ifvarclass => canonify("route_$(routing_index)_deleted");
+      "@@routingManagement@@result_error@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Could not add route $(displayName[${routing_index}])!"
+        ifvarclass => canonify("route_${routing_index}_add_failed");
 
-			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not delete route $(displayName[$(routing_index)])!"
-				ifvarclass => canonify("route_$(routing_index)_delete_failed");
+      "@@routingManagement@@result_repaired@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Route $(displayName[${routing_index}]) deleted successfully!"
+        ifvarclass => canonify("route_${routing_index}_deleted");
 
-		(windows|linux).!checkroute_present::
+      "@@routingManagement@@result_error@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Could not delete route $(displayName[${routing_index}])!"
+        ifvarclass => canonify("route_${routing_index}_delete_failed");
 
-			"@@routingManagement@@result_error@@$(routing_directive_id[$(routing_index)])@@IPv4 routing parameters@@$(route[$(routing_index)])@@$(g.execRun)##$(g.uuid)@#Could not add route $(displayName[$(routing_index)]): helper program checkroute.pl not found!";
+    (windows|linux).!checkroute_present::
+
+      "@@routingManagement@@result_error@@$(routing_directive_id[${routing_index}])@@IPv4 routing parameters@@$(route[${routing_index}])@@${g.execRun}##${g.uuid}@#Could not add route $(displayName[${routing_index}]): helper program checkroute.pl not found!";
 
 }

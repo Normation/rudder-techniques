@@ -23,15 +23,15 @@
 bundle agent rudder_openssh_server
 {
   vars:
-    "rudder_openssh_server_service_name"
-      string => "OpenSSH server";
+      "rudder_openssh_server_service_name"
+        string => "OpenSSH server";
 
   methods:
     # Note:
     # The reporting is made on separate bundles to abstract the complexity
     # inherent to the normal ordering.
-    "any" usebundle => rudder_openssh_server_installation("${rudder_openssh_server_service_name}");
-    "any" usebundle => rudder_openssh_server_installation_reporting("${rudder_openssh_server_service_name}");
-    "any" usebundle => rudder_openssh_server_configuration("${rudder_openssh_server_service_name}");
-    "any" usebundle => rudder_openssh_server_configuration_reporting("${rudder_openssh_server_service_name}");
+      "any" usebundle => rudder_openssh_server_installation("${rudder_openssh_server_service_name}");
+      "any" usebundle => rudder_openssh_server_installation_reporting("${rudder_openssh_server_service_name}");
+      "any" usebundle => rudder_openssh_server_configuration("${rudder_openssh_server_service_name}");
+      "any" usebundle => rudder_openssh_server_configuration_reporting("${rudder_openssh_server_service_name}");
 }

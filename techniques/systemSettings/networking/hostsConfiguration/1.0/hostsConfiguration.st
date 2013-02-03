@@ -25,94 +25,94 @@
 
 bundle agent check_hosts_configuration {
 
-	vars:
+  vars:
 
-		&HOSTS_HOST:{host |"hosts_host[&i&]" string => "&host&";
+    &HOSTS_HOST:{host |"hosts_host[&i&]" string => "&host&";
 }&
 
-		&HOSTS_IP:{ip |"hosts_ip[&i&]" string => "&ip&";
+    &HOSTS_IP:{ip |"hosts_ip[&i&]" string => "&ip&";
 }&
 
-	files:
+  files:
 
-		linux::
+    linux::
 
-			"/etc/hosts"
+      "/etc/hosts"
 
-				create => "true",
-				perms => m("644"),
+        create => "true",
+        perms => m("644"),
 &if (HOSTS_ENFORCE)&
-				edit_defaults => empty_backup,
+        edit_defaults => empty_backup,
 &else&
-				edit_defaults => noempty_backup,
+        edit_defaults => noempty_backup,
 &endif&
 
-				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
-				classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
+        edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
+        classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
 
-		windows::
+    windows::
 
-			"$(sys.winsysdir)\drivers\etc\hosts"
+      "${sys.winsysdir}\drivers\etc\hosts"
 
-				create => "true",
-				# perms => m("644"),
+        create => "true",
+        # perms => m("644"),
 &if (HOSTS_ENFORCE)&
-				edit_defaults => empty_backup,
+        edit_defaults => empty_backup,
 &else&
-				edit_defaults => noempty_backup,
+        edit_defaults => noempty_backup,
 &endif&
 
-				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
-				classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
+        edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
+        classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
 
 
-	reports:
+  reports:
 
-		(linux|windows)::
+    (linux|windows)::
 &if (HOSTS_ENFORCE)&
-			"@@hostsConfiguration@@log_debug@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file content enforcement requested";
+      "@@hostsConfiguration@@log_debug@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file content enforcement requested";
 &endif&
 
-		hosts_edition_done::
-			"@@hostsConfiguration@@result_repaired@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file was updated";
+    hosts_edition_done::
+      "@@hostsConfiguration@@result_repaired@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file was updated";
 
-		hosts_edition_kept.!hosts_edition_done::
-			"@@hostsConfiguration@@result_success@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file already OK";
+    hosts_edition_kept.!hosts_edition_done::
+      "@@hostsConfiguration@@result_success@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file already OK";
 
-		hosts_edition_failed::
-			"@@hostsConfiguration@@result_error@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file could not be edited";
+    hosts_edition_failed::
+      "@@hostsConfiguration@@result_error@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file could not be edited";
 
 
 }
 
 bundle edit_line set_hosts_values(hosts, ips) {
 
-vars:
+  vars:
 
-	"hosts_index" slist => getindices("$(hosts)");
+      "hosts_index" slist => getindices("${hosts}");
 
-delete_lines:
+  delete_lines:
 
-	"$($(ips)[$(hosts_index)]).*";
+      "$(${ips}[${hosts_index}]).*";
 
-insert_lines:
+  insert_lines:
 
 &if (HOSTS_ENFORCE)&
-	"127.0.0.1	localhost";
-	"127.0.1.1	$(sys.host)";
-	"##";
-	"# The following lines are desirable for IPv6 capable hosts";
-	"::1     localhost ip6-localhost ip6-loopback";
-	"fe00::0 ip6-localnet";
-	"ff00::0 ip6-mcastprefix";
-	"ff02::1 ip6-allnodes";
-	"ff02::2 ip6-allrouters";
-	"ff02::3 ip6-allhosts";
-	"###";
-	"## Here follows all the rudder defined hosts :";
+      "127.0.0.1	localhost";
+      "127.0.1.1	${sys.host}";
+      "##";
+      "# The following lines are desirable for IPv6 capable hosts";
+      "::1     localhost ip6-localhost ip6-loopback";
+      "fe00::0 ip6-localnet";
+      "ff00::0 ip6-mcastprefix";
+      "ff02::1 ip6-allnodes";
+      "ff02::2 ip6-allrouters";
+      "ff02::3 ip6-allhosts";
+      "###";
+      "## Here follows all the rudder defined hosts :";
 &endif&
 
-	"$($(ips)[$(hosts_index)])	$($(hosts)[$(hosts_index)])";
+      "$(${ips}[${hosts_index}])	$(${hosts}[${hosts_index}])";
 
 }
 

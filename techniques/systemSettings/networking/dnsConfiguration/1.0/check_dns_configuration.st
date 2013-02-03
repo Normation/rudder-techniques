@@ -20,94 +20,94 @@
 #CAUTION : the loop for windows does not work well, a bug is opened (#82)
 
 bundle agent check_dns_configuration {
-classes:
+  classes:
 
-        	        # DNS Resolver edition ?
-	                "dns_resolver_edit" not => strcmp("&DNS_RESOLVERS_EDIT&","false");
+                  # DNS Resolver edition ?
+      "dns_resolver_edit" not => strcmp("&DNS_RESOLVERS_EDIT&","false");
 
-        	        # DNS Search suffix edition ?
-	                "dns_searchlist_edit" not => strcmp("&DNS_SEARCHLIST_EDIT&","false");
+                  # DNS Search suffix edition ?
+      "dns_searchlist_edit" not => strcmp("&DNS_SEARCHLIST_EDIT&","false");
 
-	vars:
+  vars:
 
-			"resolvers" slist => {&DNS_RESOLVERS: { "&it&" };separator=", "&};
+      "resolvers" slist => {&DNS_RESOLVERS: { "&it&" };separator=", "&};
 
-			"searchlist"  slist => {&DNS_SEARCHLIST: { "&it&" };separator=", "&};
+      "searchlist"  slist => {&DNS_SEARCHLIST: { "&it&" };separator=", "&};
 
-			"spaced_searchlist" string => join(" ", "searchlist");
+      "spaced_searchlist" string => join(" ", "searchlist");
 
-		windows::
-			"searchkey" string => join("\,", searchlist);
-			"resolvkey" string => join("\,", resolvers); 
-			"adapters" string => execresult("\"${g.rudder_sbin}\registrydns.bat\"", "noshell"),
-				comment => "Fetching all the adapter";
-			"adapterslist" slist => splitstring("$(adapters)", ";", "15");
+    windows::
+      "searchkey" string => join("\,", searchlist);
+      "resolvkey" string => join("\,", resolvers);
+      "adapters" string => execresult("\"${g.rudder_sbin}\registrydns.bat\"", "noshell"),
+        comment => "Fetching all the adapter";
+      "adapterslist" slist => splitstring("${adapters}", ";", "15");
 
-	files:
+  files:
 
-                linux::
+    linux::
 
-                        "$(sys.resolv)"
-                                create        => "true",
-                                edit_line     => resolv_edition("$(this.spaced_searchlist)",  "@(this.resolvers)"),
-                                classes => kept_if_else("dns_kept", "dns_repaired", "cant_repair_dns");
+      "${sys.resolv}"
+        create        => "true",
+        edit_line     => resolv_edition("${this.spaced_searchlist}",  "@(this.resolvers)"),
+        classes => kept_if_else("dns_kept", "dns_repaired", "cant_repair_dns");
 
 
 &if(NOVA)&
-	methods:
-		windows.dns_resolver_edit::
-			"any" usebundle => checkDNS($(adapterslist), $(resolvkey));
+  methods:
+    windows.dns_resolver_edit::
+      "any" usebundle => checkDNS(${adapterslist}, ${resolvkey});
 
-	databases:
+  databases:
 
-		windows.dns_resolver_edit::
-			"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
-				database_operation => "verify",
-				database_type => "ms_registry",
-				database_rows => { "NameServer,REG_SZ,$(resolvkey)"},
-				comment => "Set the top level resolver",
-				classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
+    windows.dns_resolver_edit::
+      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+        database_operation => "verify",
+        database_type => "ms_registry",
+        database_rows => { "NameServer,REG_SZ,${resolvkey}"},
+        comment => "Set the top level resolver",
+        classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
 
-		windows.dns_searchlist_edit::
-			"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
-				database_operation => "verify",
-				database_type => "ms_registry",
-				database_rows => { "SearchList,REG_SZ,$(searchkey)"},
-				comment => "Set the search list",
-				classes => if_else("dns_repaired_searchlist", "cant_repair_dns_searchlist", "dns_searchlist_kept");
+    windows.dns_searchlist_edit::
+      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
+        database_operation => "verify",
+        database_type => "ms_registry",
+        database_rows => { "SearchList,REG_SZ,${searchkey}"},
+        comment => "Set the search list",
+        classes => if_else("dns_repaired_searchlist", "cant_repair_dns_searchlist", "dns_searchlist_kept");
 &endif&
-	
-	reports:
 
-                dns_resolver_edit::
-                        "@@ConfigureDNS@@log_debug@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Settings are to edit DNS resolvers";
+  reports:
 
-                dns_searchlist_edit::
-                        "@@ConfigureDNS@@log_debug@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Settings are to edit DNS searchlist";
+    dns_resolver_edit::
+      "@@ConfigureDNS@@log_debug@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Settings are to edit DNS resolvers";
 
-                (linux.dns_repaired)|(windows.dns_repaired_resolver.!cant_repair_dns_resolver.dns_repaired_searchlist.!cant_repair_dns_searchlist)::
-                        "@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#DNS settings were updated";
-                        
-                cant_repair_dns::
-                        "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Could not edit the $(sys.resolv) configuration file";
+    dns_searchlist_edit::
+      "@@ConfigureDNS@@log_debug@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Settings are to edit DNS searchlist";
 
-                cant_repair_dns_searchlist::
-                        "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Could not set DNS search list in the Windows registry";
+    (linux.dns_repaired)|(windows.dns_repaired_resolver.!cant_repair_dns_resolver.dns_repaired_searchlist.!cant_repair_dns_searchlist)::
+      "@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#DNS settings were updated";
 
-                cant_repair_dns_resolver::
-                        "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Could not set DNS resolver list in the Windows registry";
+    cant_repair_dns::
+      "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Could not edit the ${sys.resolv} configuration file";
 
-				linux.dns_kept.!dns_repaired.!cant_repair_dns::
-                        "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The DNS is correctly configured";
+    cant_repair_dns_searchlist::
+      "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Could not set DNS search list in the Windows registry";
 
-				#windows and something to do
-				windows.((dns_resolver_edit.dns_resolver_kept.!dns_repaired_resolver)|!dns_resolver_edit).((dns_searchlist_edit.dns_searchlist_kept.!dns_repaired_searchlist)|!dns_searchlist_edit)::
-					"@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The DNS is correctly configured";
+    cant_repair_dns_resolver::
+      "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Could not set DNS resolver list in the Windows registry";
+
+    linux.dns_kept.!dns_repaired.!cant_repair_dns::
+      "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#The DNS is correctly configured";
+
+        #windows and something to do
+    windows.((dns_resolver_edit.dns_resolver_kept.!dns_repaired_resolver)|!dns_resolver_edit).((dns_searchlist_edit.dns_searchlist_kept.!dns_repaired_searchlist)|!dns_searchlist_edit)::
+      "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#The DNS is correctly configured";
 
 &if(COMMUNITY)&
-		windows::
-			"@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Can't repair the dns configuration on a Windows with community edition";
-&endif&	
+    windows::
+      "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Can't repair the dns configuration on a Windows with community edition";
+&endif&
 }
 
 &if(NOVA)&
@@ -116,18 +116,18 @@ classes:
 # NameServer, regKey
 ######################################################
 bundle agent checkDNS(adapter, regKey) {
-	classes:
-		"valid" expression => regcmp("{.*","$(adapter)"),
-			comment => "A valid adapter starts with {";
+  classes:
+      "valid" expression => regcmp("{.*","${adapter}"),
+        comment => "A valid adapter starts with {";
 
 
-	databases:
-		valid::
-			"HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\$(adapter)"
-				database_operation => "verify",
-				database_type => "ms_registry",
-				database_rows => { "NameServer,REG_SZ,$(regKey)"},
-				classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
+  databases:
+    valid::
+      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\${adapter}"
+        database_operation => "verify",
+        database_type => "ms_registry",
+        database_rows => { "NameServer,REG_SZ,${regKey}"},
+        classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
 
 }
 &endif&
@@ -136,23 +136,23 @@ bundle agent checkDNS(adapter, regKey) {
 # Add lines in the file, formated for resolv.conf file
 bundle edit_line resolv_edition(search, list) {
 
-        classes:
+  classes:
 
                         # DNS Resolver edition ?
-                        "dns_resolver_edit" not => strcmp("&DNS_RESOLVERS_EDIT&","false");
+      "dns_resolver_edit" not => strcmp("&DNS_RESOLVERS_EDIT&","false");
 
                         # DNS Search suffix edition ?
-                        "dns_searchlist_edit" not => strcmp("&DNS_SEARCHLIST_EDIT&","false");
+      "dns_searchlist_edit" not => strcmp("&DNS_SEARCHLIST_EDIT&","false");
 
-        delete_lines:
+  delete_lines:
 
-                dns_searchlist_edit::
-                        "search.*";
+    dns_searchlist_edit::
+      "search.*";
 
-                dns_resolver_edit::
-                        "nameserver.*";
+    dns_resolver_edit::
+      "nameserver.*";
 
-        insert_lines:
+  insert_lines:
 
 "#############################################################
 ### This file is protected by your Rudder infrastructure. ###
@@ -161,13 +161,13 @@ bundle edit_line resolv_edition(search, list) {
 ### configuration and/or to raise a compliance alert.     ###
 #############################################################
 "
-                location => start,
-                insert_type => "preserve_block";
+        location => start,
+        insert_type => "preserve_block";
 
-		dns_searchlist_edit::
-			"search $(search)";
+    dns_searchlist_edit::
+      "search ${search}";
 
-		dns_resolver_edit::
-			"nameserver $(list)";
+    dns_resolver_edit::
+      "nameserver ${list}";
 
 }
