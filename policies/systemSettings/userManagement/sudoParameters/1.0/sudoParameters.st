@@ -184,9 +184,16 @@ classes:
 
 	"all_lines_defined"    expression => isvariable("all_lines");
 
+replace_patterns:
+	"^(?!Defaults	env_reset$)Defaults\s+env_reset$"
+		comment => "Normalize env_reset setting",
+		replace_with => value("Defaults	env_reset"),
+		classes => always("replace_attempted_env_reset");
+
 insert_lines:
 
-		"Defaults	env_reset";
+		"Defaults	env_reset"
+			ifvarclass => "replace_attempted_env_reset";
 
 	check_sudo_parameters_sudo_add_line_vars_defined::
 		"$(lines[$(index)])"
