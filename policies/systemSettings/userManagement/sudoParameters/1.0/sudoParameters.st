@@ -139,10 +139,10 @@ vars:
         "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) ALL",
 			ifvarclass => "(sudo_$(index)_isgroup.sudo_$(index)_alldo.!sudo_$(index)_nopasswd).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
 
-        "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) NOPASSWD:$(command)",
+        "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) NOPASSWD:$($(command)[$(index)])",
 			ifvarclass => "(sudo_$(index)_isgroup.sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
 
-        "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) $(command)",
+        "lines[$(index)]" string => "%$($(name)[$(index)])	ALL=(ALL) $($(command)[$(index)])",
 			ifvarclass => "(sudo_$(index)_isgroup.!sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
 
         "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) NOPASSWD:ALL",
@@ -151,10 +151,10 @@ vars:
         "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) ALL",
 			ifvarclass => "(sudo_$(index)_isuser.sudo_$(index)_alldo.!sudo_$(index)_nopasswd).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
 
-        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) NOPASSWD:$(command)",
+        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) NOPASSWD:$($(command)[$(index)])",
 			ifvarclass => "(sudo_$(index)_isuser.sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
 
-        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) $(command)",
+        "lines[$(index)]" string => "$($(name)[$(index)])	ALL=(ALL) $($(command)[$(index)])",
 			ifvarclass => "(sudo_$(index)_isuser.!sudo_$(index)_nopasswd.!sudo_$(index)_alldo).(sudo_$(index)_command_notempty|sudo_$(index)_alldo)";
 
 	"all_lines" slist => getvalues("lines");
