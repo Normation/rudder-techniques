@@ -20,7 +20,7 @@
 # Installs SSH, and checks wether it is started on boot or not.
 ###############################################################
 
-bundle agent rudder_openssh_server_installation(service_name)
+bundle agent rudder_openssh_server_installation(class_prefix, service_name, params)
 {
   vars:
     (debian|redhat)::
@@ -36,14 +36,9 @@ bundle agent rudder_openssh_server_installation(service_name)
       "${rudder_openssh_server_package_name}"
         package_policy  => "add",
         package_method  => generic,
-        classes         => rudder_common_classes("rudder_openssh_server_package"),
-        comment         => "Installing OpenSSH using the generic package manager method";
-}
+        classes         => rudder_common_classes("${class_prefix}_package"),
+        comment         => "Installing ${service_name} using the generic package manager method";
 
-# The reporting is made on separate bundles to abstract the complexity
-# inherent to the normal ordering.
-bundle agent rudder_openssh_server_installation_reporting(service_name)
-{
   methods:
-      "any" usebundle => rudder_common_reports_generic("${service_name}", "rudder_openssh_server_package", "&TRACKINGKEY&", "SSH installation", "None", "The ${service_name} package installation");
+      "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_package", "${${params}[report]}", "SSH installation", "None", "The ${service_name} package installation");
 }
