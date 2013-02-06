@@ -31,12 +31,12 @@ bundle server access_rules {
       "${def.dir_masterfiles}"
         handle => "grant_access_policy",
         comment => "Grant access to the policy updates",
-        maproot => {  @(def.acl)  },
-        admit   => {  @(def.acl)  };
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
 
       "${g.rudder_dependencies}"
-        maproot => {  @(def.acl)  },
-        admit   => {  @(def.acl)  };
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
 
       "/var/rudder/share/root/"
         maproot => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  },
@@ -80,11 +80,11 @@ bundle common def {
 body server control {
         trustkeysfrom     => {
       "127.0.0.0/8" , "::1",
-        @(def.acl) ,
+        @{def.acl} ,
           host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
   }; #trustkey allows the exchange of keys
         allowconnects     => {
-       @(def.acl) ,
+       @{def.acl} ,
           host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
   };
 
@@ -94,7 +94,7 @@ body server control {
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf && ${sys.workdir}/bin/cf-agent";
         allowusers        => { "root" };
 
-        skipverify            => { "127.0.0.0/8" , "::1",  @(def.acl)  };
+        skipverify            => { "127.0.0.0/8" , "::1",  @{def.acl}  };
 
     community_edition::
         port => "5309";

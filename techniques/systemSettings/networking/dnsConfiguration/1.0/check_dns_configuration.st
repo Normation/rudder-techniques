@@ -49,7 +49,7 @@ bundle agent check_dns_configuration {
 
       "${sys.resolv}"
         create        => "true",
-        edit_line     => resolv_edition("${this.spaced_searchlist}",  "@(this.resolvers)"),
+        edit_line     => resolv_edition("${this.spaced_searchlist}",  "@{this.resolvers}"),
         classes => kept_if_else("dns_kept", "dns_repaired", "cant_repair_dns");
 
 

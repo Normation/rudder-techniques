@@ -30,7 +30,7 @@ body common control {
         &INPUTLIST&
     };
 
-        bundlesequence => { @(va.bs) &BUNDLELIST& , @(va.end)};
+        bundlesequence => { @{va.bs} &BUNDLELIST& , @{va.end}};
 
 &if(NOVA)&
         host_licenses_paid => "&LICENSESPAID&";

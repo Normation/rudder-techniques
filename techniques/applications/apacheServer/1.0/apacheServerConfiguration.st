@@ -65,7 +65,7 @@ bundle agent check_apache_configuration {
 
 
       # Modules that are installed by default
-      "apache_modules" slist => { "expires", "alias", @(apache_modules_defined) },
+      "apache_modules" slist => { "expires", "alias", @{apache_modules_defined} },
         policy => "ifdefined";
 
   classes:
@@ -190,7 +190,7 @@ bundle agent check_apache_configuration {
         create => "true",
         perms => m("644"),
         edit_defaults => noempty_backup,
-        edit_line => set_apache_config_ports("@(check_apache_configuration.apache_ports)"),
+        edit_line => set_apache_config_ports("@{check_apache_configuration.apache_ports}"),
         classes => kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
       "/etc/apache2/conf.d/security"
@@ -203,7 +203,7 @@ bundle agent check_apache_configuration {
       "/etc/httpd/sites-enabled"
         delete => tidy,
         classes => if_repaired("apache_change"),
-        file_select => ex_list("@(vhosts_files)"),
+        file_select => ex_list("@{vhosts_files}"),
         depth_search => recurse("inf");
 
       "/etc/apache2/sites-enabled/vhost-$(apache_vhost_fqdn[${apache_vhost_index}]).conf"
@@ -225,7 +225,7 @@ bundle agent check_apache_configuration {
       "/etc/httpd/rudder.conf.d"
         delete => tidy,
         classes => if_repaired("apache_change"),
-        file_select => ex_list("@(vhosts_files)"),
+        file_select => ex_list("@{vhosts_files}"),
         depth_search => recurse("inf");
 
       "/etc/httpd/conf.d/welcome.conf"
@@ -248,7 +248,7 @@ bundle agent check_apache_configuration {
         create => "true",
         perms => m("644"),
         edit_defaults => noempty_backup,
-        edit_line => set_apache_config_ports("@(check_apache_configuration.apache_ports)"),
+        edit_line => set_apache_config_ports("@{check_apache_configuration.apache_ports}"),
         classes => kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
       "/etc/httpd/rudder.conf.d/security.conf"
@@ -277,7 +277,7 @@ bundle agent check_apache_configuration {
       "/etc/apache2/rudder.conf.d"
         delete => tidy,
         classes => if_repaired("apache_change"),
-        file_select => ex_list("@(vhosts_files)"),
+        file_select => ex_list("@{vhosts_files}"),
         depth_search => recurse("inf");
 
       "/etc/apache2/httpd.conf"
@@ -296,7 +296,7 @@ bundle agent check_apache_configuration {
         create => "true",
         perms => m("644"),
         edit_defaults => noempty_backup,
-        edit_line => set_apache_config_ports("@(check_apache_configuration.apache_ports)"),
+        edit_line => set_apache_config_ports("@{check_apache_configuration.apache_ports}"),
         classes => kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
       "/etc/apache2/rudder.conf.d/security.conf"

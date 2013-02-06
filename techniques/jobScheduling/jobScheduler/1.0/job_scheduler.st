@@ -49,7 +49,7 @@ bundle agent job_scheduler {
       "test_${all_hours}_${iterator}"          or  => { "test_${all_hours}_enclosed_${iterator}", strcmp("$(job_scheduler_time_min[${iterator}])", "${all_hours}") };
 
     nos2::
-      "run_time_${iterator}" select_class => { "@(test_hours_list_${iterator})" };
+      "run_time_${iterator}" select_class => { "@{test_hours_list_${iterator}}" };
 
     any::
       "nos2" expression => "nos";
@@ -66,9 +66,9 @@ bundle agent job_scheduler {
       "$(job_scheduler_canon_name[${iterator}])_repaired",
       "$(job_scheduler_canon_name[${iterator}])_failed",
       "1440", # Persist the reporting classes for 24 hours, this PT deals with daily jobs (for now anyway)
-      "@(job_scheduler.kept_returncodes_${iterator})",
-      "@(job_scheduler.repaired_returncodes_${iterator})",
-      "@(job_scheduler.error_returncodes_${iterator})");
+      "@{job_scheduler.kept_returncodes_${iterator}}",
+      "@{job_scheduler.repaired_returncodes_${iterator}}",
+      "@{job_scheduler.error_returncodes_${iterator}}");
 
   reports:
     (linux|windows).nos2::
@@ -91,9 +91,9 @@ bundle agent job_scheduler {
 
 body classes kept_if_else_exclusive_persist(kept, repaired, failed, persist, keptcodes, repairedcodes, errorcodes) {
 
-        kept_returncodes => { "@(keptcodes)" };
-        repaired_returncodes => { "@(repairedcodes)" };
-        failed_returncodes => { "@(errorcodes)" };
+        kept_returncodes => { "@{keptcodes}" };
+        repaired_returncodes => { "@{repairedcodes}" };
+        failed_returncodes => { "@{errorcodes}" };
 
         promise_kept     => { "${kept}" };
         cancel_kept      => { "${repaired}", "${failed}" };
