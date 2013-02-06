@@ -24,7 +24,8 @@
 # Caution : a missing feature in cfe prevents from adding ,0x1 at the end of the domain name
 # so it's only safe to use with ips for now
 
-bundle agent check_clock_configuration {
+bundle agent check_clock_configuration
+{
 
   vars:
       "ntpServers" slist => {&CLOCK_NTPSERVERS: { "&it&"};separator=", "&};
@@ -384,7 +385,8 @@ bundle agent check_clock_configuration {
 }
 
 
-bundle edit_line setNtpServer(serverlist) {
+bundle edit_line setNtpServer(serverlist)
+{
   delete_lines:
       "server.*";
 

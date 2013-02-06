@@ -22,19 +22,22 @@
 #
 #####################################################################################
 
-body depth_search recurse_visible(d) {
+body depth_search recurse_visible(d)
+{
         depth        => "${d}";
         exclude_dirs => { "\..*" };
 }
 
 #perms validation
-body perms u_p(p) {
+body perms u_p(p)
+{
         mode  => "${p}";
 }
 
 #########################################################
 #server may be a list
-body copy_from cp(from,server) {
+body copy_from cp(from,server)
+{
         servers     => { "${server}" };
         source      => "${from}";
         compare     => "digest";
@@ -43,7 +46,8 @@ body copy_from cp(from,server) {
 
 }
 
-body copy_from scp(from, server,compare,trustkey,preserve,purge) {
+body copy_from scp(from, server,compare,trustkey,preserve,purge)
+{
         servers  => { "${server}" };
         source   => "${from}";
         compare  => "${compare}";
@@ -57,13 +61,15 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge) {
 }
 
 
-body copy_from copy(from) {
+body copy_from copy(from)
+{
         source => "${from}";
         copy_backup => "false";
         preserve => "true";
 }
 
-body copy_from copy_digest(from) {
+body copy_from copy_digest(from)
+{
         source => "${from}";
         copy_backup => "false";
         preserve => "true";
@@ -104,14 +110,16 @@ body package_method yum_remi
 }
 
 #perms validation
-body perms p(user,mode) {
+body perms p(user,mode)
+{
         owners => { "${user}" };
         mode   => "${mode}";
 }
 
 ############################################
 
-body file_select cf3_files {
+body file_select cf3_files
+{
         leaf_name => { "cf-.*" };
         file_result => "leaf_name";
 }
@@ -119,7 +127,8 @@ body file_select cf3_files {
 
 #########################################################
 
-body changes lay_trip_wire {
+body changes lay_trip_wire
+{
         hash           => "best";
         report_changes => "content";
         update_hashes  => "yes";
@@ -127,7 +136,8 @@ body changes lay_trip_wire {
 
 ########################################################
 
-body action longjob {
+body action longjob
+{
         ifelapsed => "240"; # run only every 4 hours
 }
 
@@ -162,7 +172,8 @@ body edit_defaults def_no_backup
 
 ########################################################
 
-bundle edit_line DeleteLinesMatching(regex) {
+bundle edit_line DeleteLinesMatching(regex)
+{
   delete_lines:
 
       "${regex}",
@@ -172,7 +183,8 @@ bundle edit_line DeleteLinesMatching(regex) {
 
 ########################################################
 
-body action WarnOnly {
+body action WarnOnly
+{
         action_policy => "warn";
 }
 
@@ -211,7 +223,8 @@ no_output=> "false";
 ################################
 # Process is launched ?
 ################################
-body process_count islaunched(class) {
+body process_count islaunched(class)
+{
         match_range => irange("1", "500");
         in_range_define => { "${class}"};
         out_of_range_define => {"no_${class}"};
@@ -223,7 +236,8 @@ body process_count islaunched(class) {
 # If the promise is repaired, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes persistant_class(repaired, failed, length) {
+body classes persistant_class(repaired, failed, length)
+{
         promise_repaired => { "${repaired}" };
         repair_failed    => { "${failed}" };
         repair_denied    => { "${failed}" };
@@ -242,7 +256,8 @@ body classes persistant_class(repaired, failed, length) {
 # If the promise is repaired/kept, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes set_persist_classes(repaired, failed, length) {
+body classes set_persist_classes(repaired, failed, length)
+{
         promise_kept 	   => { "${repaired}" };
         promise_repaired => { "${repaired}" };
         repair_failed    => { "${failed}" };
@@ -374,7 +389,8 @@ body file_select date_pattern(age, pattern)
 ########################################################################
 # Install a package using rug                                          #
 ########################################################################
-body package_method rudder_rug {
+body package_method rudder_rug
+{
 
         package_changes => "individual";
 

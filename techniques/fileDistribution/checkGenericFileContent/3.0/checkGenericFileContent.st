@@ -20,7 +20,8 @@
 # Checks if a file matches a given content. If not, updates it. #
 #################################################################
 
-bundle agent check_generic_file_content {
+bundle agent check_generic_file_content
+{
 
   vars:
 

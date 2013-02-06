@@ -27,7 +27,8 @@
 #                                                                        #
 ##########################################################################
 
-bundle agent check_rpm_package_installation {
+bundle agent check_rpm_package_installation
+{
 
   vars:
     &RPM_PACKAGE_REDLIST:{name |"rpm_package[&i&]" string => "&name&";
@@ -118,7 +119,8 @@ bundle agent check_rpm_package_installation {
 
 }
 
-body package_method generic_nobulk(rpm_pkg_timeout) {
+body package_method generic_nobulk(rpm_pkg_timeout)
+{
 
     redhat::
         package_changes => "individual";

@@ -23,7 +23,8 @@
 #
 
 #simple copy method
-body copy_from remote(server, path) {
+body copy_from remote(server, path)
+{
 
         servers => {
       "${server}"
@@ -42,7 +43,8 @@ body copy_from remote(server, path) {
 }
 
 #simple copy method, unencrypted
-body copy_from remote_unsecured(server, path) {
+body copy_from remote_unsecured(server, path)
+{
 
         servers => {
       "${server}"
@@ -60,7 +62,8 @@ body copy_from remote_unsecured(server, path) {
 
 }
 
-bundle common server_info {
+bundle common server_info
+{
   vars:
     any::
       "policy_files" string  => "/var/rudder/share/${g.uuid}";   #directory where to look for promises in the server for that client
@@ -74,7 +77,8 @@ bundle common server_info {
       "cfserved" string =>  readfile("${policy_server_file}", 40);            #server IP
 }
 
-bundle agent update {
+bundle agent update
+{
   vars:
       "client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
     nova_edition::

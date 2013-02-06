@@ -20,7 +20,8 @@
 # Installs OpenVPN #
 ####################
 
-bundle agent check_openvpn_installation {
+bundle agent check_openvpn_installation
+{
 
   classes:
       "openvpn_present" expression => fileexists("/etc/init.d/openvpn");

@@ -20,7 +20,8 @@
 # Installs Apache  #
 ####################
 
-bundle agent check_apache_installation {
+bundle agent check_apache_installation
+{
 
   packages:
 

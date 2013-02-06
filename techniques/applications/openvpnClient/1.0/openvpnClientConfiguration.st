@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent check_openvpn_client_configuration {
+bundle agent check_openvpn_client_configuration
+{
 
   classes:
 
@@ -209,7 +210,8 @@ bundle agent check_openvpn_client_configuration {
 
 }
 
-bundle edit_line set_openvpn_config_values_tier1(remotes) {
+bundle edit_line set_openvpn_config_values_tier1(remotes)
+{
 
   vars:
 
@@ -271,7 +273,8 @@ bundle edit_line set_openvpn_config_values_tier2(tab)
 
 }
 
-bundle edit_line set_openvpn_config_values_keyring(user, pass) {
+bundle edit_line set_openvpn_config_values_keyring(user, pass)
+{
 
   insert_lines:
 

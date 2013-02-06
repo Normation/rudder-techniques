@@ -18,7 +18,8 @@
 
 # Enforce the defined process parameters
 
-bundle agent process_management {
+bundle agent process_management
+{
   vars:
 
       "dim_array" int =>  readstringarray("file","${sys.workdir}/inputs/processManagement/proclist","#[^\n]*",",",15,4000);
@@ -55,7 +56,8 @@ bundle agent process_management {
 
 }
 
-bundle agent check_process(directiveId, name, maxInst, minInst, command, args) {
+bundle agent check_process(directiveId, name, maxInst, minInst, command, args)
+{
 
   classes:
 

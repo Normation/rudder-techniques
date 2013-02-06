@@ -22,7 +22,8 @@
 # Objective : Apply user/group policies on the target host               #
 ##########################################################################
 
-bundle agent check_usergroup_user_parameters {
+bundle agent check_usergroup_user_parameters
+{
 
   vars:
 

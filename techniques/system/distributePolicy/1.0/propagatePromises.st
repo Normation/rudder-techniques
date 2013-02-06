@@ -22,7 +22,8 @@
 # Must not do it on the RootServer though...
 
 
-bundle agent propagatePromises {
+bundle agent propagatePromises
+{
 
   vars:
     any::
@@ -81,7 +82,8 @@ bundle agent propagatePromises {
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
-bundle agent sendInventoryToCmdb {
+bundle agent sendInventoryToCmdb
+{
 
   files:
 
@@ -114,13 +116,15 @@ bundle agent sendInventoryToCmdb {
 }
 
 
-body file_select all_files {
+body file_select all_files
+{
         leaf_name => { ".*\..*" };
         file_result => "leaf_name";
 }
 
 
-body file_select no_license_dat {
+body file_select no_license_dat
+{
         leaf_name => { "license\.dat" };
         file_result => "!leaf_name";
 }

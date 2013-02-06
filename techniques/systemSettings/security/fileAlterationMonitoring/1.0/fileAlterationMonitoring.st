@@ -17,7 +17,8 @@
 #####################################################################################
 
 
-bundle agent file_alteration_monitor {
+bundle agent file_alteration_monitor
+{
 
   vars:
 

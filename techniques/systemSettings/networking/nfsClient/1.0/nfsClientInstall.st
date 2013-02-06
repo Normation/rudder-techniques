@@ -20,7 +20,8 @@
 # Installs the NFS client
 
 
-bundle agent check_nfs_client_installation {
+bundle agent check_nfs_client_installation
+{
 
   packages:
 

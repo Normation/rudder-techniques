@@ -20,7 +20,8 @@
 # Configures the APT Package Manager                 #
 ######################################################
 
-bundle agent check_apt_settings {
+bundle agent check_apt_settings
+{
 
   classes:
 

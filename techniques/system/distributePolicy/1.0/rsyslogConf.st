@@ -23,7 +23,8 @@
 #       - default apt_preferences to upgrade packages installed from backports
 #       - a package_method to install packages from backports via cfengine
 
-bundle agent setup_debian_backports {
+bundle agent setup_debian_backports
+{
   vars:
       "apt_source_line"       slist => { "deb http://backports.debian.org/debian-backports lenny-backports" };
       "apt_components"        slist => { "main" };
@@ -58,7 +59,8 @@ bundle agent setup_debian_backports {
 }
 
 
-bundle agent install_rsyslogd {
+bundle agent install_rsyslogd
+{
   packages:
 
     policy_server.debian_5.!SuSE::
@@ -141,7 +143,8 @@ bundle agent install_rsyslogd {
 }
 
 # Package method to install packages from debian-backports
-body package_method debian_backports {
+body package_method debian_backports
+{
 
     debian::
         package_changes => "bulk";
@@ -170,7 +173,8 @@ body package_method debian_backports {
 
 }
 
-bundle edit_line comment_all() {
+bundle edit_line comment_all()
+{
   replace_patterns:
   # comment all lines
       "^[^#](.*)"

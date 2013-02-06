@@ -20,7 +20,8 @@
 # Manage files and folders, enforcing their existence           #
 #################################################################
 
-bundle agent manageFilesAndFolders {
+bundle agent manageFilesAndFolders
+{
 
   vars:
 

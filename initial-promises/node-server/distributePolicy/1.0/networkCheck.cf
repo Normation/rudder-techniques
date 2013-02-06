@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_networks_check {
+bundle agent root_networks_check
+{
 
   vars:
 

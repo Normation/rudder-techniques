@@ -51,6 +51,7 @@ bundle agent files_permissions
 bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_user, edit_group, edit_mode, suid, sgid, recursion)
 {
 
+
   vars:
 
       "identifier" string => canonify("${directiveId}${fileName}");

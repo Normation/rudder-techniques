@@ -25,7 +25,8 @@
 # Then the inventory file is improved with external informations (UUID, cf-key, VMs)
 
 
-bundle agent doInventory {
+bundle agent doInventory
+{
   commands:
     linux::
       "/usr/bin/curl"
@@ -96,7 +97,8 @@ bundle agent doInventory {
 
 }
 
-bundle common inventory {
+bundle common inventory
+{
   vars:
     windows::
     # Files names
@@ -107,7 +109,8 @@ bundle common inventory {
       "CPUIDFile" string => "${g.rudder_var_tmp}/cpuid.arc";
 }
 
-bundle agent fusionAgent {
+bundle agent fusionAgent
+{
 
 
   files:
@@ -183,7 +186,8 @@ bundle agent fusionAgent {
 
 # List all installed VM on the machine (based on VirtualBox)
 # CAUTION : Issue with path containing a whitespace, it's not working with windows
-bundle agent listInstalledVM {
+bundle agent listInstalledVM
+{
   commands:
     linux.VirtualBoxInstalled::
       "/usr/bin/VBoxManage"
@@ -237,7 +241,8 @@ bundle agent listInstalledVM {
       "@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not list installed VirtualBox machines";
 }
 
-bundle agent generateExtraInformations {
+bundle agent generateExtraInformations
+{
   commands:
     windows::
       "\"${g.rudder_dependencies}\userlist.bat\""
@@ -273,7 +278,8 @@ bundle agent generateExtraInformations {
       "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not generate the cpuid";
 }
 
-bundle agent turnUsersToUnicode {
+bundle agent turnUsersToUnicode
+{
 
   commands:
     windows::
@@ -293,7 +299,8 @@ bundle agent turnUsersToUnicode {
 # adding data to the inventory :
 # UUID and CFKey in <DEVICEID>,
 # list of VM in <CONTENT>
-bundle agent addInformationsToInventory {
+bundle agent addInformationsToInventory
+{
   vars:
     windows.!cygwin::
       "CFKEY" string => execresult("${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"", "noshell");
@@ -367,7 +374,8 @@ bundle agent addInformationsToInventory {
 
 
 # Move the inventory file in the shared directory
-bundle agent moveInventoryToFinalDestination {
+bundle agent moveInventoryToFinalDestination
+{
   files:
       "${g.rudder_inventories}"
         copy_from => copy("${g.rudder_var_tmp}/inventory"),
@@ -380,7 +388,8 @@ bundle agent moveInventoryToFinalDestination {
 
 
 # Send the file to the promises server
-bundle agent sendInventory {
+bundle agent sendInventory
+{
   files:
     linux::
       "${g.rudder_inventories}"
@@ -477,25 +486,30 @@ bundle edit_line add_users_information_to_inventory(userlist)
 }
 
 #Locators
-body location after_location(pos) {
+body location after_location(pos)
+{
         select_line_matching => ".*${pos}.*";
         before_after => "after";
 }
 
-body location after_deviceid {
+body location after_deviceid
+{
         select_line_matching => ".*<DEVICEID>.*";
         before_after => "after";
 }
 
-body location after_content {
+body location after_content
+{
         select_line_matching => ".*<CONTENT>.*";
         before_after => "after";
 }
-body location after_vm {
+body location after_vm
+{
         select_line_matching => ".*<VMS>.*";
         before_after => "after";
 }
-body location after_users {
+body location after_users
+{
         select_line_matching => ".*<USERSLIST>.*";
         before_after => "after";
 }
@@ -504,14 +518,16 @@ body location after_users {
 # Editors
 ##############
 # Convert a simple list in <VM TYPe="vmtype"><NAME>machine_name</NAME><UUID>value<UUID></VM>
-bundle edit_line xmlify(ATTR) {
+bundle edit_line xmlify(ATTR)
+{
   replace_patterns:
       "\"(.*)\" \{(.*)\}"
       replace_with=> xmled(${ATTR});
 
 }
 
-body replace_with xmled(attribute) {
+body replace_with xmled(attribute)
+{
         replace_value => "<VM TYPE=\"${attribute}\"><NAME>$(match.1)</NAME><UUID>$(match.2)</UUID></VM>";
 }
 
@@ -519,7 +535,8 @@ body replace_with xmled(attribute) {
 # select the inventory files that has the right extension
 #I'd like to select also those older than 4 hours (ctime => irange(ago(0,0,0,4,0,0),now);) not working...
 # (for some reason, ocs duplicated files over time)
-body file_select inventory_files {
+body file_select inventory_files
+{
 
     (windows|linux)::
         leaf_name => { ".*.ocs" };
@@ -549,7 +566,8 @@ body file_select one_day_age
         file_result => "mtime";
 }
 
-bundle agent cleanForceInventoryFlagFile {
+bundle agent cleanForceInventoryFlagFile
+{
 
   files:
       "${g.rudder_base}/etc/force_inventory"

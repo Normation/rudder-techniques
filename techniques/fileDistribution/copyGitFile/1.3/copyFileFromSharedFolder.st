@@ -17,7 +17,8 @@
 #####################################################################################
 
 
-bundle agent download_from_shared_folder {
+bundle agent download_from_shared_folder
+{
 
   vars:
 

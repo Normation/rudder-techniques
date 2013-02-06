@@ -20,7 +20,8 @@
 # Configures the RUG/YaST Package Managers using ZMD #
 ######################################################
 
-bundle agent check_zmd_settings {
+bundle agent check_zmd_settings
+{
 
   vars:
 
@@ -177,7 +178,8 @@ bundle agent check_zmd_settings {
 }
 
 
-bundle edit_line set_advanced_zmd_config_values(tab, sectionName) {
+bundle edit_line set_advanced_zmd_config_values(tab, sectionName)
+{
  # Sets the RHS of configuration items in the file of the form
  # LHS=RHS
  # If the line is commented out with #, it gets uncommented first.

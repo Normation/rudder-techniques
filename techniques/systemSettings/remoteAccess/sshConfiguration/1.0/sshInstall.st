@@ -20,7 +20,8 @@
 # Installs SSH, and checks wether it is started on boot or not.
 
 
-bundle agent check_ssh_installation {
+bundle agent check_ssh_installation
+{
 
   packages:
     (debian|redhat)::

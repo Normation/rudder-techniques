@@ -18,7 +18,8 @@
 
 # Enforce the defined services parameters
 
-bundle agent services_management {
+bundle agent services_management
+{
   vars:
 
     &SERVICE_MANAGED_NAME:{name |"service[&i&][name]" string => "&name&";

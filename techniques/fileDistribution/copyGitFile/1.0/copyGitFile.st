@@ -20,7 +20,8 @@
 # Checks if a file matches a given content from GIT and if not, updates it. #
 #############################################################################
 
-bundle agent download_file_from_git {
+bundle agent download_file_from_git
+{
 
   vars:
 
@@ -61,7 +62,8 @@ bundle agent download_file_from_git {
 
 }
 
-bundle agent download_file_from_git_unit(name, repo, branch, ruddername, owner, group, perms, dest, uuid) {
+bundle agent download_file_from_git_unit(name, repo, branch, ruddername, owner, group, perms, dest, uuid)
+{
 
   classes:
 
@@ -119,7 +121,8 @@ bundle agent download_file_from_git_unit(name, repo, branch, ruddername, owner, 
 
 }
 
-bundle agent check_git_installation(directiveId) {
+bundle agent check_git_installation(directiveId)
+{
 
   packages:
 

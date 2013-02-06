@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent check_apache_configuration {
+bundle agent check_apache_configuration
+{
 
 
   vars:

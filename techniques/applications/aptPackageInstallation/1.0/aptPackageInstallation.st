@@ -25,7 +25,8 @@
 #                                                                        #
 ##########################################################################
 
-bundle agent check_apt_package_installation {
+bundle agent check_apt_package_installation
+{
 
   vars:
     &APT_PACKAGE_DEBLIST:{name |"apt_package[&i&]" string => "&name&";
@@ -69,7 +70,8 @@ bundle agent check_apt_package_installation {
 
 }
 
-body package_method apt_nobulk(apt_pkg_timeout) {
+body package_method apt_nobulk(apt_pkg_timeout)
+{
 
     debian::
         package_changes => "individual";

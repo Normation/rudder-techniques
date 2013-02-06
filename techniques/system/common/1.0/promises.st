@@ -21,7 +21,8 @@
 # promises.cf
 #
 #######################################################
-body common control {
+body common control
+{
 
     any::
         output_prefix => "rudder";
@@ -38,7 +39,8 @@ body common control {
 &endif&
 }
 
-bundle common va {
+bundle common va
+{
   vars:
     policy_server::
       "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "e2s_enable"
@@ -56,7 +58,8 @@ bundle common va {
 &NODEROLE&
 }
 
-bundle common rudder_roles {
+bundle common rudder_roles
+{
 
   classes:
     # Abort if no uuid is defined
@@ -73,13 +76,15 @@ bundle common rudder_roles {
 #########################################################
 # Control execution
 #########################################################
-bundle agent startExecution {
+bundle agent startExecution
+{
   reports:
     linux|windows::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution";
 }
 
-bundle agent endExecution {
+bundle agent endExecution
+{
   reports:
     linux|windows::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution";
@@ -98,7 +103,8 @@ bundle agent endExecution {
 # When the file ${sys.workdir}/inputs/stop exists, we must stop the
 # execution of the agent on all client machines
 ##########################################################
-bundle agent clean_red_button() {
+bundle agent clean_red_button()
+{
   commands:
     safe.policy_server::
       "${sys.workdir}/bin/cf-runagent"
@@ -121,7 +127,8 @@ bundle agent clean_red_button() {
       "@@Common@@result_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Authorizing Cfengine to restart";
 }
 
-bundle agent set_red_button() {
+bundle agent set_red_button()
+{
   classes:
     policy_server::
       "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
@@ -133,7 +140,8 @@ bundle agent set_red_button() {
       "any" usebundle => stopClients;
 }
 
-bundle agent setStopFile {
+bundle agent setStopFile
+{
   files:
     danger.!policy_server::
       "${sys.workdir}/inputs/stopFile"
@@ -152,7 +160,8 @@ bundle agent setStopFile {
 
 }
 
-bundle agent stopClients {
+bundle agent stopClients
+{
   classes:
     policy_server::
       "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
@@ -169,7 +178,8 @@ bundle agent stopClients {
 
 }
 
-bundle agent check_red_button_status() {
+bundle agent check_red_button_status()
+{
   classes:
     !policy_server::
       "should_not_continue" expression => fileexists("${sys.workdir}/inputs/stopFile");
@@ -183,7 +193,8 @@ bundle agent check_red_button_status() {
 ###################################################
 # Check that CFengine services are up
 ###################################################
-bundle agent check_cf_processes {
+bundle agent check_cf_processes
+{
   vars:
 
   # process_term defines how many maximum instances of this
@@ -277,7 +288,8 @@ bundle agent check_cf_processes {
 #######################################################
 # UUID file enforcing
 
-bundle agent check_uuid {
+bundle agent check_uuid
+{
   files:
       "${g.uuid_file}"
         create    => "true",
@@ -293,7 +305,8 @@ bundle agent check_uuid {
 # Check the log system, and configure it accordingly
 # This only works with unix flavoured system
 
-bundle agent check_log_system {
+bundle agent check_log_system
+{
 
   vars:
     debian::
@@ -394,7 +407,8 @@ bundle agent check_log_system {
 # Check if the cron daemon is running
 # This only works with unix flavoured systems too
 
-bundle agent check_cron_daemon {
+bundle agent check_cron_daemon
+{
 
   vars:
 
@@ -462,7 +476,8 @@ bundle agent garbage_collection
 # Copy the CFengine binaries from the /opt repository
 # to the CFengine working directory
 
-bundle agent check_binaries_freshness {
+bundle agent check_binaries_freshness
+{
 
   vars:
 
@@ -498,7 +513,8 @@ bundle agent check_binaries_freshness {
 
 #######################################################
 
-body agent control {
+body agent control
+{
     # if default runtime is 5 mins we need this for long jobs
         ifelapsed => "1";
 
@@ -521,7 +537,8 @@ body agent control {
 
 #######################################################
 
-body executor control {
+body executor control
+{
         splaytime => "1";
 
         exec_command => "${sys.cf_agent} -f failsafe.cf \&\& ${sys.cf_agent}";
@@ -532,7 +549,8 @@ body executor control {
 ########################################################
 
 #Enforce that the file only contains this information
-bundle edit_line enforce_content(str) {
+bundle edit_line enforce_content(str)
+{
 
   delete_lines:
       "${str}" not_matching => "true";
@@ -557,7 +575,8 @@ bundle edit_line fix_syslogd(syslogd)
 }
 
 
-bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove) {
+bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove)
+{
 
   delete_lines:
       "${pattern_to_remove}";
@@ -570,7 +589,8 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove) {
 
 }
 
-body location syslogng_log_part {
+body location syslogng_log_part
+{
 
         select_line_matching => "^\s*log\s*\{.*";
         before_after => "before";
