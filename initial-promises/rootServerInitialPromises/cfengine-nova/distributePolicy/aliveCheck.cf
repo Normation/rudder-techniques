@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_alive_check {
+bundle agent root_alive_check
+{
 
   vars:
 
@@ -28,7 +29,8 @@ bundle agent root_alive_check {
 
 }
 
-bundle agent generic_alive_check(site_to_check) {
+bundle agent generic_alive_check(site_to_check)
+{
 
   vars:
 
@@ -80,7 +82,8 @@ bundle agent generic_alive_check(site_to_check) {
 
 }
 
-body classes set_persist_classes_alivecheck(repaired, failed, cancelifok, length) {
+body classes set_persist_classes_alivecheck(repaired, failed, cancelifok, length)
+{
         promise_kept     => { "${repaired}" };
         promise_repaired => { "${repaired}" };
         repair_failed    => { "${failed}" };

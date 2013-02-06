@@ -18,7 +18,8 @@
 
 # (C) Normation 2011
 
-bundle agent check_nfs_client_configuration {
+bundle agent check_nfs_client_configuration
+{
 
   classes:
 

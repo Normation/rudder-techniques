@@ -22,7 +22,8 @@
 #
 #######################################################
 
-bundle server access_rules {
+bundle server access_rules
+{
   access:
 
     policy_server::
@@ -55,7 +56,8 @@ bundle server access_rules {
       ".*"  authorize => { "root" };
 }
 
-bundle common def {
+bundle common def
+{
   vars:
       "policy_server"      string => "%%POLICY_SERVER_HOSTNAME%%";
 
@@ -74,7 +76,8 @@ bundle common def {
 }
 
 
-body server control {
+body server control
+{
         trustkeysfrom     => {
       "127.0.0.0/8" , "::1",
         @{def.acl} ,

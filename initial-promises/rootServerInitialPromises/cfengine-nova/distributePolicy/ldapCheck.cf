@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_ldap_check {
+bundle agent root_ldap_check
+{
 
   vars:
 

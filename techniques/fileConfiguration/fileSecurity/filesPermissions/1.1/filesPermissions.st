@@ -24,7 +24,8 @@
 # according to user set parameters.                  #
 ######################################################
 
-bundle agent files_permissions {
+bundle agent files_permissions
+{
   vars:
 
       "dim_array" int =>  readstringarrayidx("file","${sys.workdir}/inputs/filesPermissions/permlist","#[^\n]*",":",15,4000);
@@ -47,7 +48,8 @@ bundle agent files_permissions {
 
 }
 
-bundle agent check_permissions(policyInstanceId, fileName, user, group, mode, edit_user, edit_group, edit_mode, suid, sgid, recursion) {
+bundle agent check_permissions(policyInstanceId, fileName, user, group, mode, edit_user, edit_group, edit_mode, suid, sgid, recursion)
+{
 
 
   vars:

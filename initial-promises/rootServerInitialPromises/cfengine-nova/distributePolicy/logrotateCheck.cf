@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_logrotate_check {
+bundle agent root_logrotate_check
+{
 
   files:
 

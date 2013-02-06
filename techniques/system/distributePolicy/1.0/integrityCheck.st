@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_integrity_check {
+bundle agent root_integrity_check
+{
 
   files:
 

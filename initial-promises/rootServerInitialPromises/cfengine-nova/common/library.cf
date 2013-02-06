@@ -21,14 +21,16 @@
 #
 ############################################
 #perms validation
-body perms p(user,mode) {
+body perms p(user,mode)
+{
         owners => { "${user}" };
         mode   => "${mode}";
 }
 
 ############################################
 
-body file_select cf3_files {
+body file_select cf3_files
+{
         leaf_name => { "cf-.*" };
         file_result => "leaf_name";
 }
@@ -37,7 +39,8 @@ body file_select cf3_files {
 
 #########################################################
 
-body changes lay_trip_wire {
+body changes lay_trip_wire
+{
         hash           => "best";
         report_changes => "content";
         update_hashes  => "yes";
@@ -45,7 +48,8 @@ body changes lay_trip_wire {
 
 ########################################################
 
-body action longjob {
+body action longjob
+{
         ifelapsed => "240"; # run only every 4 hours
 }
 
@@ -81,7 +85,8 @@ body edit_defaults def_no_backup
 
 ########################################################
 
-bundle edit_line DeleteLinesMatching(regex) {
+bundle edit_line DeleteLinesMatching(regex)
+{
   delete_lines:
 
       "${regex}",
@@ -91,7 +96,8 @@ bundle edit_line DeleteLinesMatching(regex) {
 
 ########################################################
 
-body action WarnOnly {
+body action WarnOnly
+{
         action_policy => "warn";
         ifelapsed => "60";
 }
@@ -122,7 +128,8 @@ no_output=> "false";
 ################################
 # Process is launched ?
 ################################
-body process_count islaunched(class) {
+body process_count islaunched(class)
+{
         match_range => irange("1", "500");
         in_range_define => { "${class}"};
         out_of_range_define => {"no_${class}"};
@@ -134,7 +141,8 @@ body process_count islaunched(class) {
 # If the promise is repaired, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes persistant_class(repaired, failed, length) {
+body classes persistant_class(repaired, failed, length)
+{
         promise_repaired => { "${repaired}" };
         repair_failed    => { "${failed}" };
         repair_denied    => { "${failed}" };
@@ -153,7 +161,8 @@ body classes persistant_class(repaired, failed, length) {
 # If the promise is repaired/kept, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes set_persist_classes(repaired, failed, length) {
+body classes set_persist_classes(repaired, failed, length)
+{
         promise_kept 	   => { "${repaired}" };
         promise_repaired => { "${repaired}" };
         repair_failed    => { "${failed}" };

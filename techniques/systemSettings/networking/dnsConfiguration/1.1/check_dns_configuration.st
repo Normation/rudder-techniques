@@ -19,7 +19,8 @@
 #Check the dns configuration, and correct it if required
 #CAUTION : the loop for windows does not work well, a bug is opened (#82)
 
-bundle agent check_dns_configuration {
+bundle agent check_dns_configuration
+{
   classes:
 
                   # DNS Resolver edition ?
@@ -125,7 +126,8 @@ bundle agent check_dns_configuration {
 # For each adapter passed in arguement, add the value
 # NameServer, regKey
 ######################################################
-bundle agent checkDNS(adapter, regKey) {
+bundle agent checkDNS(adapter, regKey)
+{
   classes:
       "valid" expression => regcmp("{.*","${adapter}"),
         comment => "A valid adapter starts with {";
@@ -144,7 +146,8 @@ bundle agent checkDNS(adapter, regKey) {
 
 #######################################################
 # Add lines in the file, formated for resolv.conf file
-bundle edit_line resolv_edition(search, list, options) {
+bundle edit_line resolv_edition(search, list, options)
+{
 
   classes:
 

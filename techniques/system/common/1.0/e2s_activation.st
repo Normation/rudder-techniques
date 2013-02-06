@@ -26,7 +26,8 @@
 # Warning : This obviously is Windows specific
 
 
-bundle agent e2s_enable {
+bundle agent e2s_enable
+{
 
   methods:
 
@@ -48,7 +49,8 @@ bundle agent e2s_enable {
 
 }
 
-bundle common e2sCommon {
+bundle common e2sCommon
+{
 
   vars:
     windows::
@@ -57,7 +59,8 @@ bundle common e2sCommon {
 
 }
 
-bundle agent e2sGet {
+bundle agent e2sGet
+{
 
   files:
     windows::
@@ -83,7 +86,8 @@ bundle agent e2sGet {
 
 }
 
-bundle agent e2sInstall {
+bundle agent e2sInstall
+{
 
   classes:
 
@@ -112,7 +116,8 @@ bundle agent e2sInstall {
 
 }
 
-bundle agent e2sConfigure {
+bundle agent e2sConfigure
+{
 
   vars:
     !x86_64::
@@ -137,7 +142,8 @@ bundle agent e2sConfigure {
 }
 
 &if(NOVA)&
-bundle agent e2sLaunch {
+bundle agent e2sLaunch
+{
 
   services:
 

@@ -21,7 +21,8 @@
 # promises.cf
 #
 #######################################################
-body common control {
+body common control
+{
 
         inputs => {
       "common/site.cf", "common/update.cf", "common/process_matching.cf", "common/cfengine_stdlib.cf",  "common/rudder_stdlib.cf", "common/cf-served.cf","common/library.cf","common/core-lib.cf", "distributePolicy/propagatePromises.cf", "distributePolicy/rsyslogConf.cf", "distributePolicy/initCheck.cf", "distributePolicy/postgresCheck.cf", "distributePolicy/logrotateCheck.cf", "distributePolicy/integrityCheck.cf", "distributePolicy/apacheCheck.cf", "distributePolicy/ldapCheck.cf", "distributePolicy/aliveCheck.cf"
@@ -35,7 +36,8 @@ body common control {
 
 }
 
-bundle common va {
+bundle common va
+{
   vars:
       "bs" slist => { "clean_red_button", "set_red_button", "update", "process_matching", "check_cf_processes", "check_uuid"
     #,  "executor"
@@ -53,7 +55,8 @@ bundle common va {
 # When the file ${sys.workdir}/inputs/stop exists, we must stop the
 # execution of the agent on all client machines
 ##########################################################
-bundle agent clean_red_button() {
+bundle agent clean_red_button()
+{
   commands:
     safe.policy_server::
       "${sys.workdir}/bin/cf-runagent"
@@ -76,7 +79,8 @@ bundle agent clean_red_button() {
       "@@Common@@Inform@@hasPolicyServer-root#@common-root##${g.uuid}@#Authorizing Cfengine to restart";
 }
 
-bundle agent set_red_button() {
+bundle agent set_red_button()
+{
   classes:
     policy_server::
       "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
@@ -88,7 +92,8 @@ bundle agent set_red_button() {
       "any" usebundle => stopClients;
 }
 
-bundle agent setStopFile {
+bundle agent setStopFile
+{
 
   files:
     danger.!policy_server::
@@ -108,7 +113,8 @@ bundle agent setStopFile {
 
 }
 
-bundle agent stopClients {
+bundle agent stopClients
+{
   classes:
     policy_server::
       "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
@@ -125,7 +131,8 @@ bundle agent stopClients {
 
 }
 
-bundle agent check_red_button_status() {
+bundle agent check_red_button_status()
+{
   classes:
     !policy_server::
       "should_not_continue" expression => fileexists("${sys.workdir}/inputs/stopFile");
@@ -135,7 +142,8 @@ bundle agent check_red_button_status() {
 ###################################################
 # Check that CFengine services are up
 ###################################################
-bundle agent check_cf_processes {
+bundle agent check_cf_processes
+{
 
   processes:
 
@@ -159,7 +167,8 @@ bundle agent check_cf_processes {
 #######################################################
 # UUID file enforcing
 
-bundle agent check_uuid {
+bundle agent check_uuid
+{
   files:
       "${g.uuid_file}"
         create    => "true",
@@ -172,7 +181,8 @@ bundle agent check_uuid {
 
 #######################################################
 
-body agent control {
+body agent control
+{
     # if default runtime is 5 mins we need this for long jobs
         ifelapsed => "1";
 
@@ -185,7 +195,8 @@ body agent control {
 
 #######################################################
 
-body executor control {
+body executor control
+{
         splaytime => "1";
 
         exec_command => "${sys.workdir}/bin/cf-agent -f failsafe.cf && ${sys.workdir}/bin/cf-agent";
@@ -194,7 +205,8 @@ body executor control {
 }
 
 # Not currently used
-bundle agent executor {
+bundle agent executor
+{
 #    processes:
 #        linux.!nova_edition::
 #            "cf-execd"
@@ -214,7 +226,8 @@ bundle agent executor {
 
 
 # Not currently used
-bundle edit_line upgrade_cfexecd {
+bundle edit_line upgrade_cfexecd
+{
   classes:
       "exec_fix" not => regline(".*cf-execd.*","${edit.filename}");
 
@@ -230,7 +243,8 @@ bundle edit_line upgrade_cfexecd {
 
 #######################################################
 
-body reporter control {
+body reporter control
+{
         reports => { "classes", "audit", "all_locks", "hashes", "performance", "last_seen", "monitor_history" };
         build_directory => "${sys.workdir}/reports";
         report_output => "xml";
@@ -240,7 +254,8 @@ body reporter control {
 
 
 #Enforce that the file only contains this information
-bundle edit_line enforce_content(str) {
+bundle edit_line enforce_content(str)
+{
 
   delete_lines:
       "${str}" not_matching => "true";

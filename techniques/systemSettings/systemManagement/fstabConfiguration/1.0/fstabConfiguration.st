@@ -22,7 +22,8 @@
 # Objective : Configure /etc/fstab according to the given parameters     #
 ##########################################################################
 
-bundle agent check_fstab_configuration {
+bundle agent check_fstab_configuration
+{
 
   vars:
 
@@ -120,7 +121,8 @@ bundle agent check_fstab_configuration {
 
 }
 
-bundle edit_line fstab_add_line(data_array, fields, alteronly) {
+bundle edit_line fstab_add_line(data_array, fields, alteronly)
+{
 
   vars:
 

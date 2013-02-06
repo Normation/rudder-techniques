@@ -62,7 +62,8 @@ bundle common g
   &NODEROLE&
 }
 
-bundle common rudder_roles {
+bundle common rudder_roles
+{
 
   classes:
         # Abort if no uuid is defined
@@ -76,7 +77,8 @@ bundle common rudder_roles {
 ############################################
 
 #generate a key if not present
-bundle agent init_files {
+bundle agent init_files
+{
   vars:
       "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
 
@@ -149,12 +151,14 @@ body depth_search recurse(d)
 }
 
 #perms validation
-body perms u_p(p) {
+body perms u_p(p)
+{
         mode  => "${p}";
 }
 
 #server may be a list
-body copy_from cp(from,server) {
+body copy_from cp(from,server)
+{
         servers     => { "${server}" };
         source      => "${from}";
         compare     => "digest";

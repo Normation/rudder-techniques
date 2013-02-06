@@ -25,7 +25,8 @@
 # This promise restarts sshd if not there, which could be done by processManagement too.
 # dontchange is a generic value to prohibit the edition of the value
 
-bundle agent check_ssh_configuration {
+bundle agent check_ssh_configuration
+{
 
   classes:
 

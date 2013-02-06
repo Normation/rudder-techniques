@@ -20,7 +20,8 @@
 # Installs the NFS server
 
 
-bundle agent check_nfs_server_installation {
+bundle agent check_nfs_server_installation
+{
 
   packages:
 

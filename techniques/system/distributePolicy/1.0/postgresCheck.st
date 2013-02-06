@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_postgres_check {
+bundle agent root_postgres_check
+{
 
   vars:
 

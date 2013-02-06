@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_apache_webdav_check {
+bundle agent root_apache_webdav_check
+{
 
   vars:
 

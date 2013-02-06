@@ -19,7 +19,8 @@
 # Definition of variables and classes usefull for all the VM part
 # Detect the existence of installed VM containenr on the computer
 
-bundle common virtualMachines {
+bundle common virtualMachines
+{
   vars:
     # Files names for the installed VM lists
       "VBoxListFile" string => "${g.rudder_var_tmp}/VBoxList.list";

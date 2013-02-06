@@ -23,7 +23,8 @@
 ##########################################################################
 
 # I was forced to truncate brutally the name, as on CF3 3.1.4 more than 32 chars on the bundle name leads to arrays corruption
-bundle agent check_usergroup_grp_parameters {
+bundle agent check_usergroup_grp_parameters
+{
 
   vars:
     &USERGROUP_GROUP_NAME:{name |"usergroup_group_name[&i&]" string => "&name&";
@@ -48,7 +49,8 @@ bundle agent check_usergroup_grp_parameters {
 
 }
 
-bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, directiveId) {
+bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, directiveId)
+{
 
   classes:
 

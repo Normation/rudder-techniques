@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle common generic_variable_definition {
+bundle common generic_variable_definition
+{
 
   vars:
 
@@ -25,7 +26,8 @@ bundle common generic_variable_definition {
 
 }
 
-bundle agent generic_variable_def_report {
+bundle agent generic_variable_def_report
+{
   vars:
                 &TRACKINGKEY:{directiveId |"generic_name_uuid[&i&]" string => "&directiveId&";
 }&

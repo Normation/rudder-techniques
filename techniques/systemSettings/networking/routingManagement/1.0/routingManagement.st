@@ -23,7 +23,8 @@
 # and take the required actions (check or require)                       #
 ##########################################################################
 
-bundle agent check_routing_parameters {
+bundle agent check_routing_parameters
+{
 
   vars:
 

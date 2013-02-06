@@ -20,7 +20,8 @@
 # Configures the Zypper Package Manager              #
 ######################################################
 
-bundle agent check_zypper_settings {
+bundle agent check_zypper_settings
+{
 
   vars:
 
@@ -208,7 +209,8 @@ bundle edit_line set_zypper_repos_BROKEN(zypper_name, zypper_url, zypper_enabled
 
 }
 
-bundle edit_line set_advanced_zypper_config_values(tab, sectionName) {
+bundle edit_line set_advanced_zypper_config_values(tab, sectionName)
+{
  # Sets the RHS of configuration items in the file of the form
  # LHS=RHS
  # If the line is commented out with #, it gets uncommented first.

@@ -22,7 +22,8 @@
 # Objective : Configure /etc/sudoers according to the given parameters   #
 ##########################################################################
 
-bundle agent check_sudo_parameters {
+bundle agent check_sudo_parameters
+{
 
   classes:
 
@@ -124,7 +125,8 @@ bundle agent check_sudo_parameters {
 
 }
 
-bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId, force) {
+bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId, force)
+{
 
   vars:
 
@@ -223,7 +225,8 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
 
 }
 
-bundle agent check_sudo_installation(directiveId) {
+bundle agent check_sudo_installation(directiveId)
+{
 
   packages:
     linux::

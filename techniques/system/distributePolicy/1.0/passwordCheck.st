@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle common p {
+bundle common p
+{
 
   vars:
 
@@ -28,7 +29,8 @@ bundle common p {
 
 }
 
-bundle agent root_password_check_disclaimer {
+bundle agent root_password_check_disclaimer
+{
 
   vars:
 
@@ -42,7 +44,8 @@ bundle agent root_password_check_disclaimer {
 
 }
 
-bundle agent root_password_check_file {
+bundle agent root_password_check_file
+{
 
   vars:
 
@@ -77,7 +80,8 @@ bundle agent root_password_check_file {
 
 }
 
-bundle agent root_password_check_ldap {
+bundle agent root_password_check_ldap
+{
 
   vars:
 
@@ -136,7 +140,8 @@ bundle agent root_password_check_ldap {
 
 }
 
-bundle agent root_password_check_psql {
+bundle agent root_password_check_psql
+{
 
   vars:
 
@@ -188,7 +193,8 @@ bundle agent root_password_check_psql {
 
 }
 
-bundle agent root_password_restart_jetty {
+bundle agent root_password_restart_jetty
+{
 
   commands:
 
@@ -206,7 +212,8 @@ bundle agent root_password_restart_jetty {
 
 }
 
-bundle agent root_password_check_dav {
+bundle agent root_password_check_dav
+{
 
   vars:
 
@@ -258,7 +265,8 @@ bundle agent root_password_check_dav {
 
 }
 
-bundle edit_line update_slapd(tab) {
+bundle edit_line update_slapd(tab)
+{
 
   vars:
 

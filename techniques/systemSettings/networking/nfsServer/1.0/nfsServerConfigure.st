@@ -18,7 +18,8 @@
 
 # (C) Normation 2011
 
-bundle agent check_nfs_server_configuration {
+bundle agent check_nfs_server_configuration
+{
 
   vars:
 
@@ -126,7 +127,8 @@ bundle agent check_nfs_server_configuration {
 
 }
 
-bundle edit_line set_nfs_server_values(export, network, options) {
+bundle edit_line set_nfs_server_values(export, network, options)
+{
 
   delete_lines:
 

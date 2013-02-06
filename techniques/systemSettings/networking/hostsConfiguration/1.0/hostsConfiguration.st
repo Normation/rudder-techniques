@@ -23,7 +23,8 @@
 # aware of this if a file creation is reported !
 #
 
-bundle agent check_hosts_configuration {
+bundle agent check_hosts_configuration
+{
 
   vars:
 
@@ -85,7 +86,8 @@ bundle agent check_hosts_configuration {
 
 }
 
-bundle edit_line set_hosts_values(hosts, ips) {
+bundle edit_line set_hosts_values(hosts, ips)
+{
 
   vars:
 

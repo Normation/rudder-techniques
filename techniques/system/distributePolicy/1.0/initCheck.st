@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle agent root_init_check() {
+bundle agent root_init_check()
+{
 
   vars:
 
@@ -41,7 +42,8 @@ bundle agent root_init_check() {
 
 }
 
-bundle agent generic_process_check_process(binary, initscript, force_restart) {
+bundle agent generic_process_check_process(binary, initscript, force_restart)
+{
 
   vars:
 
@@ -86,7 +88,8 @@ bundle agent generic_process_check_process(binary, initscript, force_restart) {
 
 }
 
-bundle agent generic_process_check_bootstart(binary, initscript) {
+bundle agent generic_process_check_bootstart(binary, initscript)
+{
 
   vars:
 

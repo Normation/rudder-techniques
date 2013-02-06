@@ -20,7 +20,8 @@
 # Fetch PERL and Curl
 ############################################################
 
-bundle agent fetchFusionTools {
+bundle agent fetchFusionTools
+{
 
   packages:
 

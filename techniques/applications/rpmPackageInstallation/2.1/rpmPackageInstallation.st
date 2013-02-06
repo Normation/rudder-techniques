@@ -25,7 +25,8 @@
 #                                                                        #
 ##########################################################################
 
-bundle agent check_rpm_package_installation {
+bundle agent check_rpm_package_installation
+{
 
   vars:
     &RPM_PACKAGE_REDLIST:{name |"rpm_package[&i&]" string => "&name&";
@@ -110,7 +111,8 @@ bundle agent check_rpm_package_installation {
 
 }
 
-body package_method yum_nobulk(rpm_pkg_timeout) {
+body package_method yum_nobulk(rpm_pkg_timeout)
+{
 
     redhat::
         package_changes => "individual";
@@ -132,7 +134,8 @@ body package_method yum_nobulk(rpm_pkg_timeout) {
 
 }
 
-body package_method zypper_nobulk(rpm_pkg_timeout) {
+body package_method zypper_nobulk(rpm_pkg_timeout)
+{
 
     SuSE::
         package_changes => "individual";
@@ -149,7 +152,8 @@ body package_method zypper_nobulk(rpm_pkg_timeout) {
         package_verify_command => "/usr/bin/zypper --non-interactive verify$";
 }
 
-body package_method rug_nobulk(rpm_pkg_timeout) {
+body package_method rug_nobulk(rpm_pkg_timeout)
+{
 
         package_changes => "individual";
 

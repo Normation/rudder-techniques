@@ -27,7 +27,8 @@
 # dontchange is a generic value to prohibit the edition of the value
 #####################################################################################
 
-bundle agent rudder_openssh_server_configuration(service_name) {
+bundle agent rudder_openssh_server_configuration(service_name)
+{
 
   vars:
 

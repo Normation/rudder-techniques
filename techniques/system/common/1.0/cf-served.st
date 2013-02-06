@@ -22,7 +22,8 @@
 #
 #######################################################
 
-bundle server access_rules {
+bundle server access_rules
+{
 &if(CLIENTSLIST)&
 # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
@@ -74,7 +75,8 @@ bundle server access_rules {
       ".*"  authorize => { "root" };
 }
 
-bundle common def {
+bundle common def
+{
   vars:
       "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
@@ -99,7 +101,8 @@ bundle common def {
 }
 
 
-body server control {
+body server control
+{
         trustkeysfrom     => {
       "127.0.0.0/8" , "::1",
         @{def.acl} ,

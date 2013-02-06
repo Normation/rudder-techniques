@@ -16,7 +16,8 @@
 #
 #####################################################################################
 
-bundle common generic_variable_definition {
+bundle common generic_variable_definition
+{
 
   vars:
 
@@ -24,7 +25,8 @@ bundle common generic_variable_definition {
 }&
 }
 
-bundle agent generic_variable_definition_report {
+bundle agent generic_variable_definition_report
+{
 
   reports:
 
