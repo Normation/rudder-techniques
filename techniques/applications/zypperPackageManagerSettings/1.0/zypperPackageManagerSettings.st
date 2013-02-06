@@ -80,7 +80,7 @@ bundle agent check_zypper_settings {
 
       "/etc/zypp/repos.d/.*"
         delete => tidy,
-        file_select => ex_list("@(zypper_files)"),
+        file_select => ex_list("@{zypper_files}"),
         depth_search => recurse("inf"),
         classes => kept_if_else("repos_disabled_kept", "repos_disabled_ok", "repos_disabled_fail"),
         comment => "Delete the unwanted repos as requested";

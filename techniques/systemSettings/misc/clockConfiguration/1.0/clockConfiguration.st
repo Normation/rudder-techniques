@@ -239,7 +239,7 @@ bundle agent check_clock_configuration {
     # Adjust ntp.conf (Add the servers)
     (debian|redhat|SuSE)::
       "/etc/ntp.conf"
-        edit_line => setNtpServer("@(this.ntpServers)"),
+        edit_line => setNtpServer("@{this.ntpServers}"),
         classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
     # Copy the correct localtime file (distro independant)

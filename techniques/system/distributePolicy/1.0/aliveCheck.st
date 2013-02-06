@@ -63,7 +63,7 @@ bundle agent generic_alive_check(app) {
 
       "/usr/bin/curl -s ${site_to_check} |/bin/grep -q OK"
         contain => in_shell_silent,
-        classes => set_persist_classes_alivecheck("site_ok", "${failed_result_class}", "@(generic_alive_check.cleanup_failed_classes)", "${site_failure_persist_time}"),
+        classes => set_persist_classes_alivecheck("site_ok", "${failed_result_class}", "@{generic_alive_check.cleanup_failed_classes}", "${site_failure_persist_time}"),
         comment => "Checking if ${site_to_check} is alive";
 
   reports:
@@ -88,8 +88,8 @@ body classes set_persist_classes_alivecheck(repaired, failed, cancelifok, length
         repair_denied    => { "${failed}" };
         repair_timeout   => { "${failed}" };
 
-        cancel_kept => {"@(cancelifok)"};
-        cancel_repaired => {"@(cancelifok)"};
+        cancel_kept => {"@{cancelifok}"};
+        cancel_repaired => {"@{cancelifok}"};
         cancel_notkept => {"${repaired}"};
 
         persist_time => "${length}";

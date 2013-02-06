@@ -99,7 +99,7 @@ bundle agent update {
       "${g.rudder_dependencies}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
       #depth_search => recurse("inf"),
-        depth_search => recurse_ignore("inf", @(g.excludedreps)),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action => immediate,
         classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
@@ -107,7 +107,7 @@ bundle agent update {
       "${g.rudder_sbin}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
       #depth_search => recurse("inf"),
-        depth_search => recurse_ignore("inf", @(g.excludedreps)),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action => immediate,
         classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 

@@ -608,7 +608,7 @@ bundle edit_line append_user_field(group,field,allusers)
 {
   vars:
 
-      "val" slist => { @(allusers) };
+      "val" slist => { @{allusers} };
 
   field_edits:
 
@@ -1311,7 +1311,7 @@ body acl access_generic(acl)
 # applicable for both files and directories on all platforms
 {
         acl_method => "overwrite";
-        aces => { "@(acl)" };
+        aces => { "@{acl}" };
 
     windows::
         acl_type => "ntfs";
@@ -1326,7 +1326,7 @@ body acl ntfs(acl)
 {
         acl_type => "ntfs";
         acl_method => "overwrite";
-        aces => { "@(acl)" };
+        aces => { "@{acl}" };
 }
 
 ##
@@ -1359,7 +1359,7 @@ body depth_search recurse(d)
 body depth_search recurse_ignore(d,list)
 {
         depth => "$(d)";
-        exclude_dirs => { @(list) };
+        exclude_dirs => { @{list} };
 }
 
 ##
@@ -1456,7 +1456,7 @@ body file_select dirs
 
 body file_select by_name(names)
 {
-        leaf_name  => { @(names)};
+        leaf_name  => { @{names}};
         file_result => "leaf_name";
 }
 
@@ -1464,7 +1464,7 @@ body file_select by_name(names)
 
 body file_select ex_list(names)
 {
-        leaf_name  => { @(names)};
+        leaf_name  => { @{names}};
         file_result => "!leaf_name";
 }
 

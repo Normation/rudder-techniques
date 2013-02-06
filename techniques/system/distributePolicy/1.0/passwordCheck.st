@@ -24,7 +24,7 @@ bundle common p {
       "no2" int => getfields("RUDDER_OPENLDAP_BIND_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","ldap_password");
 
       "properties_files" slist => { "${g.rudder_base}/etc/rudder-web.properties", "${g.rudder_base}/etc/inventory-web.properties" };
-      "managed_files" slist => { "@(properties_files)", "/root/.pgpass", "${g.rudder_base}/etc/openldap/slapd.conf" };
+      "managed_files" slist => { "@{properties_files}", "/root/.pgpass", "${g.rudder_base}/etc/openldap/slapd.conf" };
 
 }
 
@@ -32,7 +32,7 @@ bundle agent root_password_check_disclaimer {
 
   vars:
 
-      "disclaim" slist => { "@(p.managed_files)" };
+      "disclaim" slist => { "@{p.managed_files}" };
 
   files:
 
@@ -87,7 +87,7 @@ bundle agent root_password_check_ldap {
 
       "slapd[rootpw]" string => "$(p.ldap_password[2])"; # Looks like a bug, I can not use execresult("/opt/rudder/sbin/slappasswd -s $(p.ldap_password[2])","noshell");
 
-      "prop_edit" slist => { "@(p.properties_files)" };
+      "prop_edit" slist => { "@{p.properties_files}" };
 
   files:
 

@@ -171,7 +171,7 @@ body action immediate
 body depth_search recurse_ignore(d,list)
 {
         depth => "${d}";
-        exclude_dirs => { @(list) };
+        exclude_dirs => { @{list} };
 }
 
 body delete tidy

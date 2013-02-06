@@ -253,7 +253,7 @@ bundle agent check_ssh_configuration {
     (debian|redhat|SuSE).ssh_ports_edit::
 
       "${sshdconfig}"
-        edit_line => set_ssh_config_values_tier1("@(this.sshPorts)"),
+        edit_line => set_ssh_config_values_tier1("@{this.sshPorts}"),
         classes => kept_if_else("ssh_tier1_kept", "ssh_tier1_validated", "ssh_tier1_failed");
 
     (debian|redhat|SuSE)::

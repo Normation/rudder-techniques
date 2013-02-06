@@ -247,5 +247,5 @@ bundle agent check_sudo_installation(directiveId) {
 
 body delete_select sudo_select_nomatch(s)
 {
-        delete_if_not_match_from_list => { "Defaults	env_reset", @(s) };
+        delete_if_not_match_from_list => { "Defaults	env_reset", @{s} };
 }

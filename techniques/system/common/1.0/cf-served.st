@@ -38,18 +38,18 @@ bundle server access_rules {
       "${def.dir_masterfiles}"
         handle => "grant_access_policy",
         comment => "Grant access to the policy updates",
-        maproot => {  @(def.acl)  },
-        admit   => {  @(def.acl)  };
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
 
       "${g.rudder_dependencies}"
-        maproot => {  @(def.acl)  },
-        admit   => {  @(def.acl)  };
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
 
     &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
         comment => "Grant access to the share files",
-        maproot => {  @(def.acl)  },
-        admit   => {  @(def.acl)  };
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
 
     &endif&
 
@@ -102,14 +102,14 @@ bundle common def {
 body server control {
         trustkeysfrom     => {
       "127.0.0.0/8" , "::1",
-        @(def.acl) ,
+        @{def.acl} ,
          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
 &if(CLIENTSLIST)&
          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
 &endif&
     }; #trustkey allows the exchange of keys
         allowconnects     => {
-       @(def.acl) ,
+       @{def.acl} ,
         &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
 &if(CLIENTSLIST)&
         &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
@@ -117,7 +117,7 @@ body server control {
     };
 
         allowallconnects  => {
-         @(def.acl) ,
+         @{def.acl} ,
         &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
 &if(CLIENTSLIST)&
         &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
@@ -134,7 +134,7 @@ body server control {
 &endif&
                         };
 
-        skipverify            => { "127.0.0.0/8" , "::1",  @(def.acl)  };
+        skipverify            => { "127.0.0.0/8" , "::1",  @{def.acl}  };
 
     community_edition::
         port => "&COMMUNITYPORT&";
