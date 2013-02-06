@@ -57,7 +57,7 @@ bundle edit_line rudder_common_disclaimer
 ### configuration and/or to raise a compliance alert.     ###
 #############################################################
 "
-        location => start,
+        location    => start,
         insert_type => "preserve_block";
 }
 

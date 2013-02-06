@@ -27,44 +27,44 @@ bundle common g
   vars:
 
     windows::
-      "rudder_base" string  => "${sys.winprogdir}\Rudder";
-      "rudder_sbin" string  => "${rudder_base}\sbin";
-      "rudder_var" string  => "${sys.winprogdir}\Rudder\var";
-      "rudder_var_tmp" string  => "${rudder_var}\tmp"; # tmp generated data
-      "rudder_base_sbin" string  => "${rudder_base}\sbin"; #folder where tools are installed
-      "rudder_inventories"  string => "${rudder_var}\inventories";
-      "rudder_base_sbin_arg" string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
-      "rudder_dependencies" string => "${rudder_sbin}";
-      "escaped_workdir" string => escape("${sys.workdir}");
+      "rudder_base"                string => "${sys.winprogdir}\Rudder";
+      "rudder_sbin"                string => "${rudder_base}\sbin";
+      "rudder_var"                 string => "${sys.winprogdir}\Rudder\var";
+      "rudder_var_tmp"             string => "${rudder_var}\tmp"; # tmp generated data
+      "rudder_base_sbin"           string => "${rudder_base}\sbin"; #folder where tools are installed
+      "rudder_inventories"         string => "${rudder_var}\inventories";
+      "rudder_base_sbin_arg"       string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
+      "rudder_dependencies"        string => "${rudder_sbin}";
+      "escaped_workdir"            string => escape("${sys.workdir}");
 
-   # The time at which the execution started
-      "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+      # The time at which the execution started
+      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 
     windows.!cygwin::
-      "uuid_file" string => "${rudder_base}\etc\uuid.hive";
+      "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
 
     linux|cygwin::
-      "rudder_base" string => "/opt/rudder";
-      "rudder_var"  string => "/var/rudder";
-      "rudder_sbin" string  => "${rudder_base}/sbin";
-      "rudder_var_tmp" string  => "${rudder_var}/tmp"; # tmp generated data
-      "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_inventories" string  => "${rudder_var}/inventories";
-      "uuid_file" string => "${rudder_base}/etc/uuid.hive";
-      "rudder_dependencies" string => "/var/rudder/tools";
-      "crontab" string => "/etc/crontab";
+      "rudder_base"                string => "/opt/rudder";
+      "rudder_var"                 string => "/var/rudder";
+      "rudder_sbin"                string => "${rudder_base}/sbin";
+      "rudder_var_tmp"             string => "${rudder_var}/tmp"; # tmp generated data
+      "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_inventories"         string => "${rudder_var}/inventories";
+      "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
+      "rudder_dependencies"        string => "/var/rudder/tools";
+      "crontab"                    string => "/etc/crontab";
 
-    # The time at which the execution started
-      "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
+      # The time at which the execution started
+      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
 
 
     any::
-      "uuid" string => readfile("${g.uuid_file}", 60);
-      "server_shares_folder" string  => "/var/rudder/share/${uuid}/promises/shares";
-      "rudder_var_reports" string => "${rudder_var}/reports";
-      "davuser" string => "&DAVUSER&";
-      "davpw" string => "&DAVPASSWORD&";
-      "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "uuid"                       string => readfile("${g.uuid_file}", 60);
+      "server_shares_folder"       string => "/var/rudder/share/${uuid}/promises/shares";
+      "rudder_var_reports"         string => "${rudder_var}/reports";
+      "davuser"                    string => "&DAVUSER&";
+      "davpw"                      string => "&DAVPASSWORD&";
+      "excludedreps"               slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_dependencies_origin" string => "/var/rudder/tools";
 
 }

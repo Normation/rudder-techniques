@@ -28,10 +28,10 @@ body common control
         output_prefix => "rudder";
 
         inputs => {
-        &INPUTLIST&
-    };
+          &INPUTLIST&
+        };
 
-        bundlesequence => { @{va.bs} &BUNDLELIST& , @{va.end}};
+        bundlesequence => { @{va.bs} &BUNDLELIST& , @{va.end} };
 
 &if(NOVA)&
         host_licenses_paid => "&LICENSESPAID&";
@@ -43,12 +43,40 @@ bundle common va
 {
   vars:
     policy_server::
-      "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "e2s_enable"
-     };
+      "bs" slist => {
+        "startExecution",
+        "clean_red_button",
+        "update",
+        "set_red_button",
+        "internal_security",
+        "check_red_button_status",
+        "process_matching",
+        "check_cf_processes",
+        "check_uuid",
+        "check_log_system",
+        "check_cron_daemon",
+        "garbage_collection",
+        "check_binaries_freshness",
+        "e2s_enable"
+      };
 
     !policy_server::
-      "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "check_log_system", "e2s_enable", "check_uuid"
-     };
+      "bs" slist => {
+        "startExecution",
+        "clean_red_button",
+        "update",
+        "set_red_button",
+        "internal_security",
+        "check_red_button_status",
+        "process_matching",
+        "check_cf_processes",
+        "check_cron_daemon",
+        "garbage_collection",
+        "check_binaries_freshness",
+        "check_log_system",
+        "e2s_enable",
+        "check_uuid"
+      };
 
     any::
       "end" slist => { "endExecution" };
@@ -62,14 +90,14 @@ bundle common rudder_roles
 {
 
   classes:
-    # Abort if no uuid is defined
+      # Abort if no uuid is defined
       "should_not_continue" not => fileexists("${g.uuid_file}");
 
       "disable_agent" expression => fileexists("${g.rudder_base}/etc/disable-agent");
 
-    # Policy Server is a machine which delivers promises
+      # Policy Server is a machine which delivers promises
       "policy_server" expression => strcmp("root","${g.uuid}");
-    # Root Server is the top policy server machine
+      # Root Server is the top policy server machine
       "root_server" expression => strcmp("root","${g.uuid}");
 }
 
@@ -197,9 +225,9 @@ bundle agent check_cf_processes
 {
   vars:
 
-  # process_term defines how many maximum instances of this
-  # binary should be running before attempting to SIGTERM them.
-  # process_kill is the same for SIGKILL.
+      # process_term defines how many maximum instances of this
+      # binary should be running before attempting to SIGTERM them.
+      # process_kill is the same for SIGKILL.
 
       "process_term[execd]" string => "2";
       "process_kill[execd]" string => "5";
@@ -207,7 +235,7 @@ bundle agent check_cf_processes
       "process_term[agent]" string => "5";
       "process_kill[agent]" string => "8";
 
-      "binaries" slist => getindices("process_term");
+      "binaries"            slist  => getindices("process_term");
 
   processes:
 
@@ -216,54 +244,56 @@ bundle agent check_cf_processes
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
 
-    # If there are more than 2 cf-execd's, it means cf-execd is starting to
-    # go crazy, so we ask politely to these processes to shut down.
+      # If there are more than 2 cf-execd's, it means cf-execd is starting to
+      # go crazy, so we ask politely to these processes to shut down.
 
       "${sys.workdir}/bin/cf-${binaries}"
         process_count => check_range("${binaries}", "0","$(process_term[${binaries}])"),
-        signals => { "term" },
-        classes => if_repaired("${binaries}_has_gone_wild"),
-        comment => "Checking if cf-${binaries} has gone wild";
+        signals       => { "term" },
+        classes       => if_repaired("${binaries}_has_gone_wild"),
+        comment       => "Checking if cf-${binaries} has gone wild";
 
-    # If there are too much cf-execd's/cf-agents running, it means that they are really
-    # going crazy. Let's be a bit less polite and more violent about killing them.
-    #
-    # These two promises overlap, because when you go past the 2/5-limit treshold,
-    # you still leave a chance for them to die with SIGTERM before the SIGKILL.
-    #
-    # Reason: The backend databases that stores the classes and some runtime
-    # parameters do really not appreciate beeing killed violently and may prevent
-    # the agent from operating properly.
+      # If there are too much cf-execd's/cf-agents running, it means that they are really
+      # going crazy. Let's be a bit less polite and more violent about killing them.
+      #
+      # These two promises overlap, because when you go past the 2/5-limit treshold,
+      # you still leave a chance for them to die with SIGTERM before the SIGKILL.
+      #
+      # Reason: The backend databases that stores the classes and some runtime
+      # parameters do really not appreciate beeing killed violently and may prevent
+      # the agent from operating properly.
 
       "${sys.workdir}/bin/cf-${binaries}"
         process_count => check_range("${binaries}", "0","$(process_kill[${binaries}])"),
-        signals => { "kill" },
-        classes => if_repaired("${binaries}_has_gone_really_wild"),
-        comment => "Checking if cf-${binaries} has gone really wild";
+        signals       => { "kill" },
+        classes       => if_repaired("${binaries}_has_gone_really_wild"),
+        comment       => "Checking if cf-${binaries} has gone really wild";
 
     windows::
 
-    # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
+      # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
 
       "cf-${binaries}"
         process_count => check_range("${binaries}", "0","$(process_term[${binaries}])"),
-        signals => { "term" },
-        classes => if_repaired("${binaries}_has_gone_wild"),
-        comment => "Checking if cf-${binaries} has gone wild";
+        signals       => { "term" },
+        classes       => if_repaired("${binaries}_has_gone_wild"),
+        comment       => "Checking if cf-${binaries} has gone wild";
 
-      "${g.escaped_workdir}\/bin\/cf-serverd"  restart_class => "start_server";
-      "cf-execd"    restart_class => "start_executor";
+      "${g.escaped_workdir}\/bin\/cf-serverd"
+        restart_class => "start_server";
+      "cf-execd"
+        restart_class => "start_executor";
 
   commands:
 
     start_server.!disable_agent::
       "${sys.cf_serverd}"
-        action => u_ifwin_bg,
+        action  => u_ifwin_bg,
         classes => outcome("server");
 
     start_executor.!disable_agent::
       "${sys.cf_execd}"
-        action => u_ifwin_bg,
+        action  => u_ifwin_bg,
         classes => outcome("executor");
 
   reports:
@@ -292,12 +322,11 @@ bundle agent check_uuid
 {
   files:
       "${g.uuid_file}"
-        create    => "true",
-        edit_line => enforce_content("${g.uuid}"),
+        create        => "true",
+        edit_line     => enforce_content("${g.uuid}"),
         edit_defaults => noempty_backup,
-        perms => m("644"),
-        comment => "Setting the uuid variable in a machine";
-
+        perms         => m("644"),
+        comment       => "Setting the uuid variable in a machine";
 }
 
 

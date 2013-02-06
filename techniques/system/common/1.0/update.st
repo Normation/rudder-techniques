@@ -26,17 +26,17 @@
 body copy_from remote(server, path)
 {
 
-        servers => {
-      "${server}"
-    };
-        encrypt  => "true";
-        trustkey => "true";
-        source   => "${path}";
-        compare  => "digest";
-        preserve => "false"; #preserver permissions
-        verify   => "true";
-        purge    => "true";
-        owners   => {"&OWNER&"};
+        servers    => {
+          "${server}"
+        };
+        encrypt    => "true";
+        trustkey   => "true";
+        source     => "${path}";
+        compare    => "digest";
+        preserve   => "false"; #preserver permissions
+        verify     => "true";
+        purge      => "true";
+        owners     => {"&OWNER&"};
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 
@@ -46,17 +46,17 @@ body copy_from remote(server, path)
 body copy_from remote_unsecured(server, path)
 {
 
-        servers => {
-      "${server}"
-    };
-        encrypt  => "false";
-        trustkey => "true";
-        source   => "${path}";
-        compare  => "mtime";
-        preserve => "true"; #preserver permissions
-        verify   => "true";
-        purge    => "true";
-        owners   => {"&OWNER&"};
+        servers    => {
+          "${server}"
+        };
+        encrypt    => "false";
+        trustkey   => "true";
+        source     => "${path}";
+        compare    => "mtime";
+        preserve   => "true"; #preserver permissions
+        verify     => "true";
+        purge      => "true";
+        owners     => {"&OWNER&"};
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 
@@ -66,15 +66,16 @@ bundle common server_info
 {
   vars:
     any::
-      "policy_files" string  => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
+      "policy_files" string => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
 
     policy_server::
-      "cfserved" string => "&POLICYSERVER&";
+      "cfserved"     string => "&POLICYSERVER&";
 
     !policy_server::
-      "policy_server_file" string  => translatepath("${sys.workdir}/policy_server.dat"),
+      "policy_server_file"
+        string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
-      "cfserved" string =>  readfile("${policy_server_file}", 40);            #server IP
+      "cfserved"     string =>  readfile("${policy_server_file}", 40);            #server IP
 }
 
 bundle agent update
@@ -92,8 +93,8 @@ bundle agent update
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
         depth_search => recurse("inf"),
-        action => immediate,
-        classes => success("config", "no_update", "config_ok");
+        action       => immediate,
+        classes      => success("config", "no_update", "config_ok");
 
       # Every time we update inputs successfully, touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
@@ -103,41 +104,41 @@ bundle agent update
     !root_server.(!windows|cygwin)::
       "${g.rudder_dependencies}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-      #depth_search => recurse("inf"),
+        #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action => immediate,
-        classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+        action       => immediate,
+        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
     !root_server.(windows.!cygwin)::
       "${g.rudder_sbin}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-      #depth_search => recurse("inf"),
+        #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action => immediate,
-        classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+        action       => immediate,
+        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
 
   processes:
     config.!windows::
-      "cf-serverd"  restart_class => "start_server";
+      "cf-serverd" restart_class => "start_server";
 
     config.!windows::
-      "cf-execd" restart_class => "start_exec";
+      "cf-execd"   restart_class => "start_exec";
 
   commands:
     start_exec.!windows::
       "${sys.cf_execd}",
-        action => u_ifwin_bg,
+        action  => u_ifwin_bg,
         classes => outcome("executor");
 
     start_exec.cygwin::
       "${sys.cf_execd}",
-        action => u_ifwin_bg,
+        action  => u_ifwin_bg,
         classes => outcome("executor");
 
     start_server::
       "${sys.cf_serverd}",
-        action => u_ifwin_bg,
+        action  => u_ifwin_bg,
         classes => outcome("server");
 
 #########################################################
@@ -147,8 +148,8 @@ bundle agent update
       "CfengineNovaExec"
         service_policy => "start",
         service_method => u_bootstart,
-        classes => outcome("executor"),
-        comment => "Start the executor windows service now and at boot time";
+        classes        => outcome("executor"),
+        comment        => "Start the executor windows service now and at boot time";
 &endif&
 
   reports:
@@ -201,11 +202,11 @@ body action u_background
 ############################################
 body classes success(if, else, kept)
 {
-        promise_kept => { "${kept}" };
-        promise_repaired => {"${if}"};
-        repair_failed => { "${else}" };
-        repair_denied => { "${else}" };
-        repair_timeout => { "${else}" };
+        promise_kept     => { "${kept}" };
+        promise_repaired => { "${if}" };
+        repair_failed    => { "${else}" };
+        repair_denied    => { "${else}" };
+        repair_timeout   => { "${else}" };
 }
 
 ############################################

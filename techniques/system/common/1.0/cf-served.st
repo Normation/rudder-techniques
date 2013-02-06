@@ -25,19 +25,19 @@
 bundle server access_rules
 {
 &if(CLIENTSLIST)&
-# Access rules are only defined on a policy server. Standard nodes should not share any files.
+  # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
     policy_server::
-    &if(NOVA)&
+      &if(NOVA)&
       "&UUID&"
-        handle => "policy_server_uuid",
+        handle        => "policy_server_uuid",
         resource_type => "literal",
-        admit => {".*"};
-    &endif&
+        admit         => {".*"};
+      &endif&
 
       "${def.dir_masterfiles}"
-        handle => "grant_access_policy",
+        handle  => "grant_access_policy",
         comment => "Grant access to the policy updates",
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
@@ -46,13 +46,13 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-    &if(SHARED_FILES_FOLDER)&
+      &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
         comment => "Grant access to the share files",
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-    &endif&
+      &endif&
 
 
     any::
@@ -78,10 +78,12 @@ bundle server access_rules
 bundle common def
 {
   vars:
-      "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
+      "policy_server_file"
+        string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-      "policy_server"      string => readfile("${policy_server_file}", 40),
+      "policy_server"
+        string  => readfile("${policy_server_file}", 40),
         comment => "IP address to locate your policy host.";
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
@@ -104,40 +106,42 @@ bundle common def
 body server control
 {
         trustkeysfrom     => {
-      "127.0.0.0/8" , "::1",
-        @{def.acl} ,
-         &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
-&if(CLIENTSLIST)&
-         &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
-&endif&
-    }; #trustkey allows the exchange of keys
+          "127.0.0.0/8" , "::1",
+          @{def.acl} ,
+          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+          &if(CLIENTSLIST)&
+          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &endif&
+        }; #trustkey allows the exchange of keys
+
         allowconnects     => {
-       @{def.acl} ,
-        &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
-&if(CLIENTSLIST)&
-        &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
-&endif&
-    };
+          @{def.acl} ,
+          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+          &if(CLIENTSLIST)&
+          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &endif&
+        };
 
         allowallconnects  => {
-         @{def.acl} ,
-        &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
-&if(CLIENTSLIST)&
-        &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
-&endif&
-    };
+          @{def.acl} ,
+          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+          &if(CLIENTSLIST)&
+          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &endif&
+        };
 
         maxconnections    => "1000";
         logallconnections => "true";
 
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf \&\& ${sys.workdir}/bin/cf-agent";
-        allowusers        => { "&POLICYSERVER_ADMIN&",
+        allowusers        => {
+          "&POLICYSERVER_ADMIN&",
 &if(CLIENTSLIST)&
-                           &ADMIN : {admin | "&admin&" };separator=", "&
+          &ADMIN : {admin | "&admin&" };separator=", "&
 &endif&
-                        };
+        };
 
-        skipverify            => { "127.0.0.0/8" , "::1",  @{def.acl}  };
+        skipverify        => { "127.0.0.0/8" , "::1",  @{def.acl}  };
 
     community_edition::
         port => "&COMMUNITYPORT&";
@@ -150,8 +154,8 @@ body server control
 body runagent control
 {
         hosts => {
-         &CLIENTSLIST: { "&it&",}&
-    };
+          &CLIENTSLIST: { "&it&",}&
+        };
 
         max_children => "25";
 
