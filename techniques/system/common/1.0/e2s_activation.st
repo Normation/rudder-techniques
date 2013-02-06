@@ -65,16 +65,16 @@ bundle agent e2sGet
   files:
     windows::
       "${g.rudder_sbin}/centreon_e2s.exe"
-        copy_from    => scp("${e2sCommon.e2s_exe}", "${server_info.cfserved}","digest","true","true","false"),
-        perms => m("0700"),
-        classes => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
-        comment => "Copying tool for e2s installation";
+        copy_from => scp("${e2sCommon.e2s_exe}", "${server_info.cfserved}","digest","true","true","false"),
+        perms     => m("0700"),
+        classes   => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
+        comment   => "Copying tool for e2s installation";
 
       "${g.rudder_sbin}/e2s.tpl"
-        copy_from    => scp("${e2sCommon.e2s_tpl}", "${server_info.cfserved}","digest","true","true","false"),
-        perms => m("0700"),
-        classes => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
-        comment => "Copying tool for e2s conversion";
+        copy_from => scp("${e2sCommon.e2s_tpl}", "${server_info.cfserved}","digest","true","true","false"),
+        perms     => m("0700"),
+        classes   => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
+        comment   => "Copying tool for e2s conversion";
 
   reports:
 
@@ -102,7 +102,7 @@ bundle agent e2sInstall
     windows.!e2s_ok::
 
       "\"${g.rudder_sbin}\centreon-e2s.exe\""
-        args => "/S",
+        args    => "/S",
         contain => outputable_dir("${g.rudder_sbin}"),
         classes => cf2_if_else("e2s_installed", "e2s_install_failed"),
         comment => "Installing Centreon E2S";
@@ -128,9 +128,9 @@ bundle agent e2sConfigure
   files:
 
       "$(e2s_config_file)"
-        create    => "true",
-        classes   => kept_if_else("e2s_configure_kept", "e2s_configure_repaired", "e2s_configure_error"),
-        edit_line => e2s_parameters("${server_info.cfserved}", "&SYSLOGPORT&", "TCP", "${e2sCommon.e2s_tpl}"),
+        create        => "true",
+        classes       => kept_if_else("e2s_configure_kept", "e2s_configure_repaired", "e2s_configure_error"),
+        edit_line     => e2s_parameters("${server_info.cfserved}", "&SYSLOGPORT&", "TCP", "${e2sCommon.e2s_tpl}"),
         edit_defaults => empty_backup;
 
   reports:
@@ -168,7 +168,7 @@ bundle edit_line e2s_parameters(server, port, protocol, template)
   insert_lines:
 
       "${template}"
-        insert_type => "file",
+        insert_type    => "file",
         expand_scalars => "true";
 
 }

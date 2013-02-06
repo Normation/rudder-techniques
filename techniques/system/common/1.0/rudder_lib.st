@@ -60,20 +60,19 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge)
         portnumber => "&COMMUNITYPORT&";
 }
 
-
 body copy_from copy(from)
 {
-        source => "${from}";
+        source      => "${from}";
         copy_backup => "false";
-        preserve => "true";
+        preserve    => "true";
 }
 
 body copy_from copy_digest(from)
 {
-        source => "${from}";
+        source      => "${from}";
         copy_backup => "false";
-        preserve => "true";
-        compare => "digest";
+        preserve    => "true";
+        compare     => "digest";
 }
 
 #########################################################
@@ -81,9 +80,9 @@ body copy_from copy_digest(from)
 #########################################################
 body classes class_trigger(if,else,kept)
 {
-        promise_kept => { "${kept}" };
+        promise_kept     => { "${kept}" };
         promise_repaired => { "${if}" };
-        repair_failed => { "${else}" };
+        repair_failed    => { "${else}" };
         repair_denied    => { "${else}" };
         repair_timeout   => { "${else}" };
 }
@@ -97,16 +96,16 @@ body location append
 #########################################################
 body package_method yum_remi
 {
-        package_changes => "bulk";
-        package_list_command => "/usr/bin/yum list installed";
+        package_changes            => "bulk";
+        package_list_command       => "/usr/bin/yum list installed";
         package_list_name_regex    => "([^.]+).*";
         package_list_version_regex => "[^\s]\s+([^\s]+).*";
         package_list_arch_regex    => "[^.]+\.([^\s]+).*";
-        package_installed_regex => ".*installed.*";
-        package_name_convention => "${name}.${arch}";
-        package_add_command => "/usr/bin/yum --enablerepo=remi -y install";
-        package_delete_command => "/bin/rpm -e";
-        package_verify_command => "/bin/rpm -V";
+        package_installed_regex    => ".*installed.*";
+        package_name_convention    => "${name}.${arch}";
+        package_add_command        => "/usr/bin/yum --enablerepo=remi -y install";
+        package_delete_command     => "/bin/rpm -e";
+        package_verify_command     => "/bin/rpm -V";
 }
 
 #perms validation
@@ -120,7 +119,7 @@ body perms p(user,mode)
 
 body file_select cf3_files
 {
-        leaf_name => { "cf-.*" };
+        leaf_name   => { "cf-.*" };
         file_result => "leaf_name";
 }
 
@@ -148,23 +147,23 @@ body action longjob
 body edit_defaults noempty_backup
 {
         empty_file_before_editing => "false";
-        edit_backup => "timestamp";  # we want to keep a track of everything
-        max_file_size => "300000";
+        edit_backup               => "timestamp";  # we want to keep a track of everything
+        max_file_size             => "300000";
 }
 
 body edit_defaults empty_backup
 {
         empty_file_before_editing => "true";
-        edit_backup => "timestamp";
-        max_file_size => "300000";
+        edit_backup               => "timestamp";
+        max_file_size             => "300000";
 }
 
 
 body edit_defaults def_no_backup
 {
         empty_file_before_editing => "false";
-        edit_backup => "false";
-        max_file_size => "1024000";
+        edit_backup               => "false";
+        max_file_size             => "1024000";
 }
 ########################################################
 
@@ -196,7 +195,7 @@ body replace_with With(x)
 
 {
         replace_value => "${x}";
-        occurrences => "all";
+        occurrences   => "all";
 }
 
 ########################################
@@ -206,8 +205,8 @@ body replace_with With(x)
 ################################
 body contain outputable
 {
-        useshell => "true";
-no_output=> "false";
+        useshell  => "true";
+        no_output => "false";
 }
 
 ################################
@@ -215,9 +214,9 @@ no_output=> "false";
 ################################
 body contain outputable_dir(dir)
 {
-        useshell => "true";
-no_output=> "false";
-        chdir => "${dir}";
+        useshell  => "true";
+        no_output => "false";
+        chdir     => "${dir}";
 }
 
 ################################
@@ -225,8 +224,8 @@ no_output=> "false";
 ################################
 body process_count islaunched(class)
 {
-        match_range => irange("1", "500");
-        in_range_define => { "${class}"};
+        match_range         => irange("1", "500");
+        in_range_define     => { "${class}"};
         out_of_range_define => {"no_${class}"};
 }
 
@@ -243,10 +242,10 @@ body classes persistant_class(repaired, failed, length)
         repair_denied    => { "${failed}" };
         repair_timeout   => { "${failed}" };
 
-        cancel_repaired => {"${failed}"};
-        cancel_notkept => {"${repaired}"};
+        cancel_repaired  => {"${failed}"};
+        cancel_notkept   => {"${repaired}"};
 
-        persist_time => "${length}";
+        persist_time     => "${length}";
 }
 
 
@@ -264,11 +263,11 @@ body classes set_persist_classes(repaired, failed, length)
         repair_denied    => { "${failed}" };
         repair_timeout   => { "${failed}" };
 
-        cancel_kept => {"${failed}"};
-        cancel_repaired => {"${failed}"};
-        cancel_notkept => {"${repaired}"};
+        cancel_kept      => {"${failed}"};
+        cancel_repaired  => {"${failed}"};
+        cancel_notkept   => {"${repaired}"};
 
-        persist_time => "${length}";
+        persist_time     => "${length}";
 }
 
 ################################################
@@ -330,9 +329,9 @@ body perms group(group)
 body depth_search recurse_with_current(d)
 
 {
-        depth => "${d}";
+        depth           => "${d}";
         include_basedir => "true";
-        xdev  => "false";
+        xdev            => "false";
 }
 
 ########################################################################
@@ -340,10 +339,10 @@ body depth_search recurse_with_current(d)
 ########################################################################
 body mount rudder_nfs(server,source,type,persistence)
 {
-        mount_type => "${type}";
+        mount_type   => "${type}";
         mount_source => "${source}";
         mount_server => "${server}";
-        edit_fstab => "${persistence}";
+        edit_fstab   => "${persistence}";
 }
 
 ########################################################################
@@ -352,8 +351,8 @@ body mount rudder_nfs(server,source,type,persistence)
 body edit_defaults rudder_empty_select(select)
 {
         empty_file_before_editing => "${select}";
-        max_file_size => "300000";
-        edit_backup => "timestamp";
+        max_file_size             => "300000";
+        edit_backup               => "timestamp";
 }
 
 ########################################################################
@@ -361,8 +360,8 @@ body edit_defaults rudder_empty_select(select)
 ########################################################################
 body depth_search recurse_withroot(d)
 {
-        depth => "${d}";
-# xdev  => "true";
+        depth           => "${d}";
+        # xdev            => "true";
         include_basedir => "true";
 }
 
@@ -394,26 +393,26 @@ body package_method rudder_rug
 
         package_changes => "individual";
 
-        package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
-        package_patch_list_command => "/usr/bin/rug patches";
+        package_list_command          => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+        package_patch_list_command    => "/usr/bin/rug patches";
         package_list_update_ifelapsed => "240";
-        package_installed_regex => "i.*";
-        package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
-        package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
-        package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_installed_regex       => "i.*";
+        package_list_name_regex       => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_list_version_regex    => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_list_arch_regex       => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
 
         package_patch_installed_regex => ".*Installed.*|.*Not Applicable.*";
-        package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
-        package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_patch_name_regex      => "[^|]+\|\s+([^\s]+).*";
+        package_patch_version_regex   => "[^|]+\|[^|]+\|\s+([^\s]+).*";
 
-        package_name_convention => "${name}";
-        package_add_command => "/usr/bin/rug install -y";
-        package_delete_command => "/usr/bin/rug remove -y";
-        package_update_command => "/usr/bin/rug update -y";
+        package_name_convention       => "${name}";
+        package_add_command           => "/usr/bin/rug install -y";
+        package_delete_command        => "/usr/bin/rug remove -y";
+        package_update_command        => "/usr/bin/rug update -y";
 
-#Unsure about the behavior of this command ...
-#package_patch_command => "/usr/bin/rug patch-info";
-        package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+        #Unsure about the behavior of this command ...
+        #package_patch_command         => "/usr/bin/rug patch-info";
+        package_verify_command        => "/usr/bin/rug verify -y$"; # $ means no args
 }
 
 ###################################################
@@ -425,7 +424,7 @@ bundle edit_line prepend(lines)
   insert_lines:
 
       "${lines}"
-        comment => "Prepending line : ${lines}",
+        comment  => "Prepending line: ${lines}",
         location => start;
 
 }
@@ -440,7 +439,7 @@ bundle edit_line replace_line(regex,replacement)
 
       "${regex}"
         replace_with => With("${replacement}"),
-        comment => "Replace every occurence of ${regex} with ${replacement}";
+        comment      => "Replace every occurence of ${regex} with ${replacement}";
 
 }
 
@@ -456,7 +455,7 @@ bundle edit_line from_to(from,to)
 
   insert_lines:
 
-      "${to}" comment => "Add ${to}";
+      "${to}"   comment => "Add ${to}";
 
 }
 
@@ -466,7 +465,7 @@ bundle edit_line from_to(from,to)
 
 body contain in_shell_silent
 {
-        useshell => "true";
+        useshell  => "true";
         no_output => "true";
 }
 

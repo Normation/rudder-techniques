@@ -20,43 +20,47 @@ bundle agent process_matching
 {
   vars:
 
- # This deliberately excludes cf-execd which is handled separately below
-      "cf_components"       slist => { "cf-key", "cf-know",
-                                  # "cf-monitord", Disabled
-      "cf-promises", "cf-report",
-      "cf-runagent", "cf-serverd" };
+      # This deliberately excludes cf-execd which is handled separately below
+      "cf_components" slist => {
+        "cf-key",
+        "cf-know",
+        # "cf-monitord", Disabled
+        "cf-promises",
+        "cf-report",
+        "cf-runagent",
+        "cf-serverd"
+      };
 
     windows::
-      "stop_signal"              string => "kill";
+      "stop_signal" string => "kill";
 
     !windows::
-      "stop_signal"              string => "term";
+      "stop_signal" string => "term";
 
 
   classes:
 
       "restart_cf" expression => "Hr05.Min00_05.!disable_agent";
 
-
   processes:
 
     windows::
-  # Always stop cf-monitord
-      "${g.escaped_workdir}\/bin\/cf-monitord"  signals => { "${stop_signal}" };
+      # Always stop cf-monitord
+      "${g.escaped_workdir}\/bin\/cf-monitord" signals => { "${stop_signal}" };
 
     linux::
-  # Always stop cf-monitord
-      "${sys.workdir}/bin/cf-monitord"  signals => { "${stop_signal}" };
+      # Always stop cf-monitord
+      "${sys.workdir}/bin/cf-monitord"         signals => { "${stop_signal}" };
 
     restart_cf.!policy_server::
       "${cf_components}" signals => { "${stop_signal}" };
 
-  # Policy servers have both Nova and Community, don't blindly kill the wrong processes
+    # Policy servers have both Nova and Community, don't blindly kill the wrong processes
     restart_cf.policy_server::
       "${sys.workdir}/bin/${cf_components}" signals => { "${stop_signal}" };
 
     restart_cf.!windows::
-      "${sys.workdir}/bin/cf-execd"  signals => { "${stop_signal}" };
+      "${sys.workdir}/bin/cf-execd"         signals => { "${stop_signal}" };
 
   commands:
 
@@ -71,11 +75,11 @@ bundle agent process_matching
     restart_cf.windows::
       "CfengineNovaExec"
         service_policy => "stop",
-        comment => "Stop the executor service, part of scheduled restart";
+        comment        => "Stop the executor service, part of scheduled restart";
 
       "CfengineNovaExec"
         service_policy => "start",
-        comment => "Start the executor service, part of scheduled restart";
+        comment        => "Start the executor service, part of scheduled restart";
 
 &endif&
 
@@ -83,8 +87,8 @@ bundle agent process_matching
 
     linux::
 
-        # This is to cleanup /etc/crontab from pre-2.5 usage
-        # It can be removed before 2.6
+      # This is to cleanup /etc/crontab from pre-2.5 usage
+      # It can be removed before 2.6
       "${g.crontab}"
         edit_line => cron_cleanup;
 

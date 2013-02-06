@@ -21,12 +21,11 @@
 #
 
 body common control
-
 {
-        bundlesequence => { "check_lock_db_problem", "init_files", "update" };
+        bundlesequence     => { "check_lock_db_problem", "init_files", "update" };
 
-        inputs => { "common/1.0/update.cf" };
-        output_prefix => "rudder";
+        inputs             => { "common/1.0/update.cf" };
+        output_prefix      => "rudder";
 
 &if(NOVA)&
         host_licenses_paid => "&LICENSESPAID&";
@@ -38,24 +37,24 @@ bundle common g
 {
   vars:
     any::
-      "uuid" string => "&UUID&";
-      "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "uuid"                       string => "&UUID&";
+      "excludedreps"               slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_dependencies_origin" string => "/var/rudder/tools";
 
     windows::
-      "rudder_base" string  => "${sys.winprogdir}\Rudder";
-      "rudder_var" string  => "${sys.winprogdir}\Rudder\var";
-      "rudder_sbin" string  => "${rudder_base}\sbin";
-      "rudder_dependencies" string => "${rudder_sbin}";
-      "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+      "rudder_base"                string => "${sys.winprogdir}\Rudder";
+      "rudder_var"                 string => "${sys.winprogdir}\Rudder\var";
+      "rudder_sbin"                string => "${rudder_base}\sbin";
+      "rudder_dependencies"        string => "${rudder_sbin}";
+      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 
     linux|cygwin::
-      "rudder_base" string => "/opt/rudder";
-      "rudder_var"  string => "/var/rudder";
-      "rudder_sbin" string  => "${rudder_base}/sbin";
-      "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_dependencies" string => "/var/rudder/tools";
-      "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
+      "rudder_base"                string => "/opt/rudder";
+      "rudder_var"                 string => "/var/rudder";
+      "rudder_sbin"                string => "${rudder_base}/sbin";
+      "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_dependencies"        string => "/var/rudder/tools";
+      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
 
 
 # definition of the node roles
@@ -64,14 +63,13 @@ bundle common g
 
 bundle common rudder_roles
 {
-
   classes:
-        # Abort if no uuid is defined
-      "should_not_continue" not => fileexists("${g.uuid_file}");
-        # Policy Server is a machine which delivers promises
-      "policy_server" expression => strcmp("root","${g.uuid}");
-        # Root Server is the top policy server machine
-      "root_server" expression => strcmp("root","${g.uuid}");
+      # Abort if no uuid is defined
+      "should_not_continue" not        => fileexists("${g.uuid_file}");
+      # Policy Server is a machine which delivers promises
+      "policy_server"       expression => strcmp("root","${g.uuid}");
+      # Root Server is the top policy server machine
+      "root_server"         expression => strcmp("root","${g.uuid}");
 }
 
 ############################################
@@ -80,7 +78,7 @@ bundle common rudder_roles
 bundle agent init_files
 {
   vars:
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
 
     nova_edition::
       "cfengine_install_path" string => "/usr/local";
@@ -93,9 +91,9 @@ bundle agent init_files
   files:
     cfengine_community.(linux|cygwin)::
       "${sys.workdir}/bin/${components}"
-        perms => u_p("700"),
+        perms     => u_p("700"),
         copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),
-        action => immediate;
+        action    => immediate;
 
 
   commands:
@@ -114,9 +112,9 @@ bundle agent init_files
 # to run properly again.
 bundle agent check_lock_db_problem{
   files:
-    # The aim of this promise is to create a class when this file is older
-    # than one hour. The class can not be created without touching but in
-    # order to not modifing the mtime we use warn_only.
+      # The aim of this promise is to create a class when this file is older
+      # than one hour. The class can not be created without touching but in
+      # order to not modifing the mtime we use warn_only.
       "${sys.workdir}/last_successful_inputs_update"
         file_select => over_an_hour,
         touch       => "true",
@@ -138,9 +136,9 @@ bundle agent check_lock_db_problem{
 
 body file_select over_an_hour()
 {
-  # Select file which are older than one hour
-  # Use of positive mtime instead of negative one
-  # In order to avoid corner effects
+        # Select file which are older than one hour
+        # Use of positive mtime instead of negative one
+        # In order to avoid corner effects
         mtime       => irange(2147483647, ago(0,0,0,1,0,0));
         file_result => "mtime";
 }
