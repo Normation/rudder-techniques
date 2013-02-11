@@ -27,7 +27,7 @@
 bundle agent files_permissions {
 vars:
 
-"dim_array" int =>  readstringarrayidx("file","${sys.workdir}/inputs/filesPermissions/permlist","#[^\n]*",":",15,4000);
+"dim_array" int =>  readstringarrayidx("file","${sys.workdir}/inputs/filesPermissions/permlist","#[^\n]*",":",32,16384);
 
 "filePerms" slist => getindices("file");
 
