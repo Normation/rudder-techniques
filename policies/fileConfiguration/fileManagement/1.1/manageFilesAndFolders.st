@@ -180,10 +180,6 @@ bundle agent manageFilesAndFolders {
         (linux|windows)::
 
 			# Reporting for creation
-			## Skip if no creation are requested
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file or folder $(file[$(index)][path]) was not requested to be created. Skipping..."
-				ifvarclass => "manageFilesAndFolders_clean_$(index)";
-
 			## Reporting for directory creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) already exists"
 				ifvarclass => "manageFolders_$(index)_kept.!manageFolders_$(index)_modified.manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_islink_$(index)";
@@ -240,6 +236,9 @@ bundle agent manageFilesAndFolders {
 				ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_recursive_$(index)";
 
 			# Reporting for the deletion
+			## Report in the general component of the file
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#File cleaning was requested for $(file[$(index)][path]). Check specific reporting in the 'File cleaning options' component."
+				ifvarclass => "manageFilesAndFolders_clean_$(index)";
 			## Success if not set
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was not requested to be deleted"
 				ifvarclass => "!manageFilesAndFolders_clean_$(index)";
