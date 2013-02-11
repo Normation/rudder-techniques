@@ -176,7 +176,8 @@ bundle agent manageFilesAndFolders {
 
         (linux|windows)::
 
-			# Reporting for directory creation
+			# Reporting for creation
+			## Reporting for directory creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) already exists"
 				ifvarclass => "manageFolders_$(index)_kept.!manageFolders_$(index)_modified.manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_islink_$(index)";
 
@@ -186,7 +187,7 @@ bundle agent manageFilesAndFolders {
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) could not be created"
 				ifvarclass => "manageFolders_$(index)_failed|manageFolders_$(index)_kept.(manageFilesAndFolders_isfile_$(index)|manageFilesAndFolders_islink_$(index))";
 
-			# Reporting for file creation
+			## Reporting for file creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) already exists"
 				ifvarclass => "manageFiles_$(index)_kept.!manageFiles_$(index)_modified.manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_islink_$(index)";
 
@@ -196,7 +197,7 @@ bundle agent manageFilesAndFolders {
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) could not be created"
 				ifvarclass => "manageFiles_$(index)_failed|manageFiles_$(index)_kept.(manageFilesAndFolders_isdir_$(index)|manageFilesAndFolders_islink_$(index))";
 
-			# Reporting for symlink creation
+			## Reporting for symlink creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) already exists"
 				ifvarclass => "manageSyms_$(index)_kept.!manageSyms_$(index)_modified";
 
@@ -206,7 +207,7 @@ bundle agent manageFilesAndFolders {
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) could not be created"
 				ifvarclass => "manageSyms_$(index)_failed";
 
-			# Reporting for no change
+			## Reporting for no change
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#No file creation action specified for $(file[$(index)][path])"
                                 ifvarclass => "manageFilesAndFolders_nocreate_$(index)";
 			
@@ -232,6 +233,9 @@ bundle agent manageFilesAndFolders {
 				ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_recursive_$(index)";
 
 			# Reporting for the deletion
+			## Report in the general component of the file
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#File cleaning was requested for $(file[$(index)][path]). Check specific reporting in the 'File cleaning options' component."
+				ifvarclass => "manageFilesAndFolders_clean_$(index)";
 			## Success if not set
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was not requested to be deleted"
 				ifvarclass => "!manageFilesAndFolders_clean_$(index)";
