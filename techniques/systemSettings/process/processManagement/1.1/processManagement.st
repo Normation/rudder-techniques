@@ -44,18 +44,18 @@ methods:
 			"$(file[$(procList)][5])");
 
 #reports:
-#		"@@ProcessManagement@@result_error@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process could not be killed"
+#		"@@ProcessManagement@@result_error@@$(directiveId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process could not be killed"
 #			ifvarclass => canonify("$(blacklist)_kill_failed");
 
-#		"@@ProcessManagement@@result_repaired@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process has been killed (as requested)"
+#		"@@ProcessManagement@@result_repaired@@$(directiveId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process has been killed (as requested)"
 #			ifvarclass => canonify("$(blacklist)_killed");
 
-#		"@@ProcessManagement@@result_success@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process is not running (as requested)"
+#		"@@ProcessManagement@@result_success@@$(directiveId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process is not running (as requested)"
 #			ifvarclass => canonify("$(blacklist)_ok");
 
 }
 
-bundle agent check_process(policyInstanceId, name, maxInst, minInst, command, args) {
+bundle agent check_process(directiveId, name, maxInst, minInst, command, args) {
 
 classes:
 
@@ -90,22 +90,22 @@ reports:
   		
   	(linux|!linux)::
 
-  		"@@ProcessManagement@@result_error@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process count could't be checked"
+  		"@@ProcessManagement@@result_error@@$(directiveId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process count could't be checked"
 			ifvarclass => canonify("$(name)_error");
 
-		"@@ProcessManagement@@log_info@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process instance count is out of the permitted range"
+		"@@ProcessManagement@@log_info@@$(directiveId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process instance count is out of the permitted range"
 			ifvarclass => canonify("$(name)_anomaly");
 
-		"@@ProcessManagement@@log_info@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process will be restarted"
+		"@@ProcessManagement@@log_info@@$(directiveId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process will be restarted"
 			ifvarclass => canonify("$(name)_restart");
 
-		"@@ProcessManagement@@result_success@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process was in range ($(minInst)-$(maxInst))"
+		"@@ProcessManagement@@result_success@@$(directiveId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process was in range ($(minInst)-$(maxInst))"
 			ifvarclass => canonify("$(name)_ok");
 
-		"@@ProcessManagement@@result_repaired@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process has been restarted"
+		"@@ProcessManagement@@result_repaired@@$(directiveId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process has been restarted"
 			ifvarclass => canonify("$(name)_restart_ok");
 
-		"@@ProcessManagement@@result_error@@$(policyInstanceId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process could not be restarted"
+		"@@ProcessManagement@@result_error@@$(directiveId)@@Process@@$(name)@@$(g.execRun)##$(g.uuid)@#${name}: the process could not be restarted"
 			ifvarclass => canonify("$(name)_restart_error");
 
 
