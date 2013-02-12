@@ -49,14 +49,11 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
 
       # Copy the list of Ports in the local bundle
+      # This is mandatory because we cannot use remote slist in CFEngine 3.2
       "rudder_openssh_server_config_ports"
         slist => { "@{${params}[sshd_config_ports]}" };
 
   classes:
-      # Security : if not there, SSH too, so do not bother anymore
-      "rudder_openssh_server_binary_present"
-        expression => fileexists("/usr/sbin/sshd");
-
       "rudder_openssh_server_ports_edit"
         not => strcmp("${${params}[edit_ports]}","false");
 
@@ -86,12 +83,6 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         edit_line => set_config_values("${params}[config]"),
         classes   => rudder_common_classes("${class_prefix}_configuration"),
         comment   => "Edit the OpenSSH configuration file";
-
-  methods:
-    # Here, we will define reports for elements which only have a local visibility (like the sshd binary detection).
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "result_error", "${${params}[report]}", "SSH installation", "None", "The ${service_name} is not installed, although it should have been"),
-      ifvarclass => "!rudder_openssh_server_binary_present";
 
   processes:
     (debian|redhat|SuSE)::

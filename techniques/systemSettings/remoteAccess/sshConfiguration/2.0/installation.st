@@ -38,7 +38,27 @@ bundle agent rudder_openssh_server_installation(class_prefix, service_name, para
         package_method  => generic,
         classes         => rudder_common_classes("${class_prefix}_package"),
         comment         => "Installing ${service_name} using the generic package manager method";
+}
 
+bundle agent rudder_openssh_server_installation_reporting(class_prefix, service_name, params)
+{
   methods:
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_package", "${${params}[report]}", "SSH installation", "None", "The ${service_name} package installation");
 }
+
+# This bundle is common because it defines a class that we reuse in the configuration part,
+# when configuring the service, to not configure the service if the binary is not there
+bundle common rudder_openssh_server_check_ssh_installation(class_prefix, service_name, params)
+{
+  classes:
+      # Security : if not there, SSH too, so do not bother anymore
+      "${class_prefix}_binary_present"
+        expression => fileexists("/usr/sbin/sshd");
+
+  methods:
+    # Make a report about the lack of proper sshd binary
+    "any"
+      usebundle  => rudder_common_report("${service_name}", "result_error", "${${params}[report]}", "SSH installation", "None", "The ${service_name} is not installed, although it should have been"),
+      ifvarclass => "!${class_prefix}_binary_present";
+}
+
