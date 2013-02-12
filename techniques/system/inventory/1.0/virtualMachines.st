@@ -19,39 +19,40 @@
 # Definition of variables and classes usefull for all the VM part
 # Detect the existence of installed VM containenr on the computer
 
-bundle common virtualMachines {
-	vars:
-		# Files names for the installed VM lists
-		"VBoxListFile" string => "${g.rudder_var_tmp}/VBoxList.list";
-		"VMWareListFile" string => "${g.rudder_var_tmp}/VMWareList.list";
-		"VMWareScript_ServerLocation" string => "$(g.rudder_dependencies)/vmware_info.sh";
-								
-		# Attribut name for the VM tag in the inventory file
-		"VBoxAttr" string => "VBox";
-		"VMWareAttr" string => "VMWare";
+bundle common virtualMachines
+{
+  vars:
+    # Files names for the installed VM lists
+      "VBoxListFile" string => "${g.rudder_var_tmp}/VBoxList.list";
+      "VMWareListFile" string => "${g.rudder_var_tmp}/VMWareList.list";
+      "VMWareScript_ServerLocation" string => "${g.rudder_dependencies}/vmware_info.sh";
 
-		# Tools for fetching data
-		"VMWareScript" string => "${g.inventory_directory}/vmware_info.sh";
+    # Attribut name for the VM tag in the inventory file
+      "VBoxAttr" string => "VBox";
+      "VMWareAttr" string => "VMWare";
 
-		windows.!cygwin::
-			"virtual_box_install_path" string => execresult("${sys.winsysdir}\cmd.exe /c \"echo %VBOX_INSTALL_PATH%\"", "noshell"),
-				comment => "Looking for VirtualBox environment variables";
+    # Tools for fetching data
+      "VMWareScript" string => "${g.inventory_directory}/vmware_info.sh";
 
-
-		cygwin::
-			"virtual_box_install_path" string => execresult("/usr/bin/echo $VBOX_INSTALL_PATH | /usr/bin/sed ''s/\\\/\//g'' ", "useshell"),
-				comment => "Looking for VirtualBox environment variables";
+    windows.!cygwin::
+      "virtual_box_install_path" string => execresult("${sys.winsysdir}\cmd.exe /c \"echo %VBOX_INSTALL_PATH%\"", "noshell"),
+        comment => "Looking for VirtualBox environment variables";
 
 
-	classes:
-		linux::
-			"VirtualBoxInstalled" expression => fileexists("/usr/bin/VBoxManage"),
-				comment => "Checking installation of VirtualBox";
+    cygwin::
+      "virtual_box_install_path" string => execresult("/usr/bin/echo $VBOX_INSTALL_PATH | /usr/bin/sed ''s/\\\/\//g'' ", "useshell"),
+        comment => "Looking for VirtualBox environment variables";
 
-			"VMWareInstalled" expression => fileexists("/usr/bin/wmrun"),
-				comment => "Checking installation of VMWare";
 
-		windows::
-			"VirtualBoxInstalled" not => regcmp("", "$(virtual_box_install_path)");
+  classes:
+    linux::
+      "VirtualBoxInstalled" expression => fileexists("/usr/bin/VBoxManage"),
+        comment => "Checking installation of VirtualBox";
+
+      "VMWareInstalled" expression => fileexists("/usr/bin/wmrun"),
+        comment => "Checking installation of VMWare";
+
+    windows::
+      "VirtualBoxInstalled" not => regcmp("", "${virtual_box_install_path}");
 }
 

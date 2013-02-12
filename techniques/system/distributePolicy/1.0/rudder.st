@@ -30,15 +30,15 @@ $UDPServerRun &SYSLOGPORT&
 $ModLoad ompgsql
 
 # for Snare client
-$EscapeControlCharactersOnReceive off  
+$EscapeControlCharactersOnReceive off
 
-# Log everything 
+# Log everything
 #*.*	/var/log/all.log
 *.*	/var/log/rudder/reports/all.log
 
 # Direct to DB
 $ActionQueueType Direct
-$ActionQueueSaveOnShutdown on 
+$ActionQueueSaveOnShutdown on
 
 # The RudderReportsFormat, for the manipulation with the application
 # nodeId : the node id

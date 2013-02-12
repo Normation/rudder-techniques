@@ -35,16 +35,16 @@ required mount points are set with the right options.
     <NAME>check_nfs_server_installation</NAME>
     <NAME>check_nfs_server_configuration</NAME>
   </BUNDLES>
-  
+
   <TMLS>
     <TML name="nfsServerConfigure"/>
     <TML name="nfsServerInstall"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>NFS_SERVER_PATH</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="NFS server package install" component="true"/>
     <!-- NFS client settings , index 1-->

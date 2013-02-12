@@ -30,11 +30,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="zypperPackageManagerSettings"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>ZYPPER_URL</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <!-- General settings Section , index 1-->
     <SECTION name="General settings">
@@ -92,17 +92,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <INPUT>
           <NAME>ZYPPER_NAME</NAME>
           <DESCRIPTION>Repository name</DESCRIPTION>
-	  <CONSTRAINT>
-	    <MAYBEEMPTY>true</MAYBEEMPTY>
-	  </CONSTRAINT>
-	</INPUT>
+    <CONSTRAINT>
+      <MAYBEEMPTY>true</MAYBEEMPTY>
+    </CONSTRAINT>
+  </INPUT>
         <INPUT>
           <NAME>ZYPPER_URL</NAME>
           <DESCRIPTION>Repository URL</DESCRIPTION>
-	  <CONSTRAINT>
-	    <MAYBEEMPTY>true</MAYBEEMPTY>
-	  </CONSTRAINT>
-	</INPUT>
+    <CONSTRAINT>
+      <MAYBEEMPTY>true</MAYBEEMPTY>
+    </CONSTRAINT>
+  </INPUT>
         <INPUT>
           <NAME>ZYPPER_TYPE</NAME>
           <DESCRIPTION>Repository type</DESCRIPTION>
@@ -115,10 +115,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <VALUE>yast2</VALUE>
             <LABEL>Yast 2</LABEL>
           </ITEM>
-	  <CONSTRAINT>
-	    <DEFAULT>yast2</DEFAULT>
-	  </CONSTRAINT>
-	</INPUT>
+    <CONSTRAINT>
+      <DEFAULT>yast2</DEFAULT>
+    </CONSTRAINT>
+  </INPUT>
         <SELECT1>
           <NAME>ZYPPER_ENABLED</NAME>
           <DESCRIPTION>Enabled</DESCRIPTION>
@@ -130,10 +130,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <VALUE>1</VALUE>
             <LABEL>Yes</LABEL>
           </ITEM>
-	    <CONSTRAINT>
-	      <DEFAULT>1</DEFAULT>
-	    </CONSTRAINT>
-	</SELECT1>
+      <CONSTRAINT>
+        <DEFAULT>1</DEFAULT>
+      </CONSTRAINT>
+  </SELECT1>
       </SECTION>
       <INPUT>
         <NAME>ZYPPER_DISABLEREPOSITORIES</NAME>

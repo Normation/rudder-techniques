@@ -36,11 +36,11 @@ the given destination.
   <TMLS>
     <TML name="downloadFile"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>DOWNLOADFILE_SOURCE</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <!-- First Section , index 1 -->
     <SECTION name="Download a file">

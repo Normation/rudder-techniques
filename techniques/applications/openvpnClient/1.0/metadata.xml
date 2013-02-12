@@ -37,19 +37,19 @@ It then adds openvpn to the boot init scripts if not already set to start on boo
     <NAME>check_openvpn_installation</NAME>
     <NAME>check_openvpn_client_configuration</NAME>
   </BUNDLES>
-  
+
   <TMLS>
     <TML name="openvpnClientConfiguration"/>
     <TML name="openvpnInstall"/>
   </TMLS>
-    
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>OVPN_CLIENT_REMOTE_SERVER</SAMESIZEAS>
   </TRACKINGVARIABLE>
 
   <SECTIONS>
-	<SECTION name="OpenVPN install" component="true" />
-	<SECTION name="OpenVPN configuration" component="true" />
+  <SECTION name="OpenVPN install" component="true" />
+  <SECTION name="OpenVPN configuration" component="true" />
 
     <!-- general Section , index 1-->
     <SECTION name="General settings">
@@ -229,7 +229,7 @@ It then adds openvpn to the boot init scripts if not already set to start on boo
         </ITEM>
         <ITEM>
           <VALUE>4</VALUE>
-          <LABEL>4</LABEL>      
+          <LABEL>4</LABEL>
         </ITEM>
         <ITEM>
           <VALUE>5</VALUE>

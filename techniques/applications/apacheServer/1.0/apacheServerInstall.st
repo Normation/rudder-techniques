@@ -20,40 +20,41 @@
 # Installs Apache  #
 ####################
 
-bundle agent check_apache_installation {
+bundle agent check_apache_installation
+{
 
-	packages:
+  packages:
 
-		debian|SuSE_11::
+    debian|SuSE_11::
 
-			"apache2"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
-				comment => "Installing apache using generic interface";
+      "apache2"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
+        comment => "Installing apache using generic interface";
 
-		SuSE_10::
+    SuSE_10::
 
-			"apache2"
-				package_policy  => "add",
-				package_method  => rudder_rug,
-				classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
-				comment => "Installing apache using the rug interface";
-		redhat::
+      "apache2"
+        package_policy  => "add",
+        package_method  => rudder_rug,
+        classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
+        comment => "Installing apache using the rug interface";
+    redhat::
 
-			"httpd"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
-				comment => "Installing apache using generic interface";
+      "httpd"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
+        comment => "Installing apache using generic interface";
 
-	reports:
-		apache_here.!apache_installed.!cant_install_apache::
-			"@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache already installed";
+  reports:
+    apache_here.!apache_installed.!cant_install_apache::
+      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Apache already installed";
 
-		apache_installed.!cant_install_apache::
-			"@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Apache installed";
+    apache_installed.!cant_install_apache::
+      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Apache installed";
 
-		cant_install_apache::
-			"@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@$(g.execRun)##$(g.uuid)@#Can't install Apache";
+    cant_install_apache::
+      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Can't install Apache";
 }

@@ -34,11 +34,11 @@ It is intended to check the group parameters on the target host.
   <TMLS>
     <TML name="groupManagement"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>USERGROUP_GROUP_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <!-- groups section , index 1 -->
     <SECTION name="Groups" multivalued="true" component="true" componentKey="USERGROUP_GROUP_NAME">

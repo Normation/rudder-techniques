@@ -21,32 +21,36 @@
 #
 ############################################
 #perms validation
-body perms p(user,mode) {
-  owners => { "$(user)" };
-  mode   => "$(mode)";
+body perms p(user,mode)
+{
+        owners => { "${user}" };
+        mode   => "${mode}";
 }
 
 ############################################
 
-body file_select cf3_files {
-  leaf_name => { "cf-.*" };
-  file_result => "leaf_name";
+body file_select cf3_files
+{
+        leaf_name => { "cf-.*" };
+        file_result => "leaf_name";
 }
 
 
 
 #########################################################
 
-body changes lay_trip_wire {
-  hash           => "best";
-  report_changes => "content";
-  update_hashes  => "yes";
+body changes lay_trip_wire
+{
+        hash           => "best";
+        report_changes => "content";
+        update_hashes  => "yes";
 }
 
 ########################################################
 
-body action longjob {
-ifelapsed => "240"; # run only every 4 hours
+body action longjob
+{
+        ifelapsed => "240"; # run only every 4 hours
 }
 
 #######################################################
@@ -55,24 +59,24 @@ ifelapsed => "240"; # run only every 4 hours
 
 body edit_defaults noempty_backup
 {
-empty_file_before_editing => "false";
-edit_backup => "timestamp";  # we want to keep a track of everything
-max_file_size => "300000";
+        empty_file_before_editing => "false";
+        edit_backup => "timestamp";  # we want to keep a track of everything
+        max_file_size => "300000";
 }
 
 body edit_defaults empty_backup
 {
-empty_file_before_editing => "true";
-edit_backup => "timestamp";
-max_file_size => "300000";
+        empty_file_before_editing => "true";
+        edit_backup => "timestamp";
+        max_file_size => "300000";
 }
 
 
 body edit_defaults def_no_backup
 {
-empty_file_before_editing => "false";
-edit_backup => "false";
-max_file_size => "1024000";
+        empty_file_before_editing => "false";
+        edit_backup => "false";
+        max_file_size => "1024000";
 }
 
 ########################################################
@@ -81,19 +85,21 @@ max_file_size => "1024000";
 
 ########################################################
 
-bundle edit_line DeleteLinesMatching(regex) {
+bundle edit_line DeleteLinesMatching(regex)
+{
   delete_lines:
 
-    "$(regex)",
-  action => WarnOnly;
+      "${regex}",
+        action => WarnOnly;
 
 }
 
 ########################################################
 
-body action WarnOnly {
-  action_policy => "warn";
-  ifelapsed => "60";
+body action WarnOnly
+{
+        action_policy => "warn";
+        ifelapsed => "60";
 }
 
 ########################################
@@ -103,8 +109,8 @@ body action WarnOnly {
 body replace_with With(x)
 
 {
-replace_value => "$(x)";
-occurrences => "all";
+        replace_value => "${x}";
+        occurrences => "all";
 }
 
 ########################################
@@ -114,7 +120,7 @@ occurrences => "all";
 ################################
 body contain outputable
 {
-useshell => "true";
+        useshell => "true";
 no_output=> "false";
 }
 
@@ -122,10 +128,11 @@ no_output=> "false";
 ################################
 # Process is launched ?
 ################################
-body process_count islaunched(class) {
-  match_range => irange("1", "500");
-  in_range_define => { "$(class)"};
-  out_of_range_define => {"no_$(class)"};
+body process_count islaunched(class)
+{
+        match_range => irange("1", "500");
+        in_range_define => { "${class}"};
+        out_of_range_define => {"no_${class}"};
 }
 
 
@@ -134,16 +141,17 @@ body process_count islaunched(class) {
 # If the promise is repaired, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes persistant_class(repaired, failed, length) {
-  promise_repaired => { "$(repaired)" };
-  repair_failed    => { "$(failed)" };
-  repair_denied    => { "$(failed)" };
-  repair_timeout   => { "$(failed)" };
-  
-  cancel_repaired => {"$(failed)"};
-  cancel_notkept => {"$(repaired)"};
-  
-  persist_time => "$(length)";
+body classes persistant_class(repaired, failed, length)
+{
+        promise_repaired => { "${repaired}" };
+        repair_failed    => { "${failed}" };
+        repair_denied    => { "${failed}" };
+        repair_timeout   => { "${failed}" };
+
+        cancel_repaired => {"${failed}"};
+        cancel_notkept => {"${repaired}"};
+
+        persist_time => "${length}";
 }
 
 
@@ -153,18 +161,19 @@ body classes persistant_class(repaired, failed, length) {
 # If the promise is repaired/kept, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes set_persist_classes(repaired, failed, length) {
-  promise_kept 	   => { "$(repaired)" };
-  promise_repaired => { "$(repaired)" };
-  repair_failed    => { "$(failed)" };
-  repair_denied    => { "$(failed)" };
-  repair_timeout   => { "$(failed)" };
-  
-  cancel_kept => {"$(failed)"};
-  cancel_repaired => {"$(failed)"};
-  cancel_notkept => {"$(repaired)"};
-   
-  persist_time => "$(length)";
+body classes set_persist_classes(repaired, failed, length)
+{
+        promise_kept 	   => { "${repaired}" };
+        promise_repaired => { "${repaired}" };
+        repair_failed    => { "${failed}" };
+        repair_denied    => { "${failed}" };
+        repair_timeout   => { "${failed}" };
+
+        cancel_kept => {"${failed}"};
+        cancel_repaired => {"${failed}"};
+        cancel_notkept => {"${repaired}"};
+
+        persist_time => "${length}";
 }
 
 
@@ -177,9 +186,9 @@ body classes set_persist_classes(repaired, failed, length) {
 body classes kept_if_else(kept, yes,no)
 
 {
-promise_kept     => { "$(kept)" };
-promise_repaired => { "$(yes)" };
-repair_failed    => { "$(no)" };
-repair_denied    => { "$(no)" };
-repair_timeout   => { "$(no)" };
+        promise_kept     => { "${kept}" };
+        promise_repaired => { "${yes}" };
+        repair_failed    => { "${no}" };
+        repair_denied    => { "${no}" };
+        repair_timeout   => { "${no}" };
 }

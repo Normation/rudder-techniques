@@ -32,13 +32,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="copyFileFromSharedFolder"/>
   </TMLS>
-    
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>COPYFILE_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
 
   <SYSTEMVARS>
-	<NAME>SHARED_FILES_FOLDER</NAME>
+  <NAME>SHARED_FILES_FOLDER</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
@@ -46,36 +46,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>COPYFILE_NAME</NAME>
         <DESCRIPTION>Path of the file to be copied</DESCRIPTION>
-		<LONGDESCRIPTION>This is the relative path of the file/folder to be copied, on the Rudder policy server</LONGDESCRIPTION>
+    <LONGDESCRIPTION>This is the relative path of the file/folder to be copied, on the Rudder policy server</LONGDESCRIPTION>
       </INPUT>
       <INPUT>
         <NAME>COPYFILE_DESTINATION</NAME>
         <DESCRIPTION>Destination of the file</DESCRIPTION>
-		<LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node</LONGDESCRIPTION>
+    <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node</LONGDESCRIPTION>
       </INPUT>
-		<SELECT1>
-			<NAME>COPYFILE_RECURSION</NAME>
-			<DESCRIPTION>What should be the recursion level of the copy</DESCRIPTION>
-			<ITEM>
-				<VALUE>0</VALUE>
-				<LABEL>Only this file</LABEL>
-			</ITEM>
-			<ITEM>
-				<VALUE>1</VALUE>
-				<LABEL>The whole content of the folder</LABEL>
-			</ITEM>
-			<ITEM>
-				<VALUE>inf</VALUE>
-				<LABEL>The folder, its content, and all the subfolders</LABEL>
-			</ITEM>
-			<CONSTRAINT>
-				<DEFAULT>0</DEFAULT>
-			</CONSTRAINT>
-		</SELECT1>
-		<SELECT1>
-			<NAME>COPYFILE_COMPARE_METHOD</NAME>
-			<DESCRIPTION>Compare method</DESCRIPTION>
-			<LONGDESCRIPTION>This is the method to use for comparison between source and destination files.
+    <SELECT1>
+      <NAME>COPYFILE_RECURSION</NAME>
+      <DESCRIPTION>What should be the recursion level of the copy</DESCRIPTION>
+      <ITEM>
+        <VALUE>0</VALUE>
+        <LABEL>Only this file</LABEL>
+      </ITEM>
+      <ITEM>
+        <VALUE>1</VALUE>
+        <LABEL>The whole content of the folder</LABEL>
+      </ITEM>
+      <ITEM>
+        <VALUE>inf</VALUE>
+        <LABEL>The folder, its content, and all the subfolders</LABEL>
+      </ITEM>
+      <CONSTRAINT>
+        <DEFAULT>0</DEFAULT>
+      </CONSTRAINT>
+    </SELECT1>
+    <SELECT1>
+      <NAME>COPYFILE_COMPARE_METHOD</NAME>
+      <DESCRIPTION>Compare method</DESCRIPTION>
+      <LONGDESCRIPTION>This is the method to use for comparison between source and destination files.
 - "mtime" copies the file if the modification time of the source file is more recent than that of the promised file.
 - "ctime" CFEngine copies the file if the creation time of the source file is more recent than that of the promised file.
 - "atime" CFEngine copies the file if the modification time or creation time of the source file is more recent than that of the promised file. If the times are equal, a byte-for-byte comparison is done on the files to determine if it needs to be copied.
@@ -83,27 +83,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 - "binary" copies the file if they are both plain files and a byte-for-byte comparison determines that they are different. If both are not plain files, CFEngine reverts to comparing the mtime and ctime of the files. If the source file is on a different machine (i.e., network copy), then hash is used instead to reduce network bandwidth.
 - "digest" copies the file if they are both plain files and a MD5 message digest comparison indicates that the files are different.
 The "mtime" option is set by default but "digest" is highly recommended for critical files such as shadow.</LONGDESCRIPTION>
-			<ITEM>
-				<VALUE>mtime</VALUE>
-				<LABEL>mtime</LABEL>
-			</ITEM>
-			<ITEM>
-				<VALUE>atime</VALUE>
-				<LABEL>atime</LABEL>
-			</ITEM>
-			<ITEM>
-				<VALUE>ctime</VALUE>
-				<LABEL>ctime</LABEL>
-			</ITEM>
-			<ITEM>
-				<VALUE>digest</VALUE>
-				<LABEL>digest</LABEL>
-			</ITEM>
-			<ITEM>
-				<VALUE>exists</VALUE>
-				<LABEL>exists</LABEL>
-			</ITEM>
-		</SELECT1>
+      <ITEM>
+        <VALUE>mtime</VALUE>
+        <LABEL>mtime</LABEL>
+      </ITEM>
+      <ITEM>
+        <VALUE>atime</VALUE>
+        <LABEL>atime</LABEL>
+      </ITEM>
+      <ITEM>
+        <VALUE>ctime</VALUE>
+        <LABEL>ctime</LABEL>
+      </ITEM>
+      <ITEM>
+        <VALUE>digest</VALUE>
+        <LABEL>digest</LABEL>
+      </ITEM>
+      <ITEM>
+        <VALUE>exists</VALUE>
+        <LABEL>exists</LABEL>
+      </ITEM>
+    </SELECT1>
 
       <INPUT>
         <NAME>COPYFILE_OWNER</NAME>

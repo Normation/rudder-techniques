@@ -16,11 +16,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <TECHNIQUE name="Make an inventory of the node">
   <DESCRIPTION>Inventory of the computer</DESCRIPTION>
-  
+
   <SYSTEM>true</SYSTEM>
 
   <MULTIINSTANCE>false</MULTIINSTANCE>
-  
+
   <BUNDLES>
     <NAME>fetchFusionTools</NAME>
     <NAME>virtualMachines</NAME>
