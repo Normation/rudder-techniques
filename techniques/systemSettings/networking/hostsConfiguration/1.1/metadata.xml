@@ -33,11 +33,11 @@ It is intended to check if the required hosts entries are set.
   <BUNDLES>
     <NAME>check_hosts_configuration</NAME>
   </BUNDLES>
-  
+
   <TMLS>
     <TML name="hostsConfiguration"/>
   </TMLS>
-  
+
   <SECTIONS>
     <SECTION name="Enforce the content of the host file">
       <INPUT>

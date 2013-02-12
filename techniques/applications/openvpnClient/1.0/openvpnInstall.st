@@ -20,40 +20,41 @@
 # Installs OpenVPN #
 ####################
 
-bundle agent check_openvpn_installation {
+bundle agent check_openvpn_installation
+{
 
-	classes:
-		"openvpn_present" expression => fileexists("/etc/init.d/openvpn");
+  classes:
+      "openvpn_present" expression => fileexists("/etc/init.d/openvpn");
 
-	packages:
-		(debian|redhat)::
-			"openvpn"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
-				comment => "Installing openvpn using generic interface";
+  packages:
+    (debian|redhat)::
+      "openvpn"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
+        comment => "Installing openvpn using generic interface";
 
-	commands:
-		SuSE.!openvpn_present.64_bit::
-			"/bin/rpm"
-				args => "-Uvh ${g.rudder_var}/tools/openvpn-2.2.1-1.x86_64.rpm",
-				classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
-				comment => "Installing openvpn using plain RPM";
+  commands:
+    SuSE.!openvpn_present.64_bit::
+      "/bin/rpm"
+        args => "-Uvh ${g.rudder_var}/tools/openvpn-2.2.1-1.x86_64.rpm",
+        classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
+        comment => "Installing openvpn using plain RPM";
 
-		SuSE.!openvpn_present.32_bit::
-			"/bin/rpm"
-				args => "-Uvh ${g.rudder_var}/tools/openvpn-2.2.1-1.i686.rpm",
-				classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
-				comment => "Installing openvpn using plain RPM";
+    SuSE.!openvpn_present.32_bit::
+      "/bin/rpm"
+        args => "-Uvh ${g.rudder_var}/tools/openvpn-2.2.1-1.i686.rpm",
+        classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
+        comment => "Installing openvpn using plain RPM";
 
-	reports:
-		(openvpn_here|openvpn_present)::
-			"@@openvpnConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN install@@None@@$(g.execRun)##$(g.uuid)@#openvpn already installed";
+  reports:
+    (openvpn_here|openvpn_present)::
+      "@@openvpnConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#openvpn already installed";
 
-		openvpn_installed::
-			"@@openvpnConfiguration@@result_repaired@@&TRACKINGKEY&@@OpenVPN install@@None@@$(g.execRun)##$(g.uuid)@#openvpn installed";
+    openvpn_installed::
+      "@@openvpnConfiguration@@result_repaired@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#openvpn installed";
 
-		cant_install_openvpn::
-			"@@openvpnConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN install@@None@@$(g.execRun)##$(g.uuid)@#Can't install openvpn";
+    cant_install_openvpn::
+      "@@openvpnConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#Can't install openvpn";
 
 }

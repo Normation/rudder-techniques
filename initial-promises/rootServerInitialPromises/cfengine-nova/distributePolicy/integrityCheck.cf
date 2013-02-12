@@ -16,23 +16,24 @@
 #
 #####################################################################################
 
-bundle agent root_integrity_check {
+bundle agent root_integrity_check
+{
 
-	files:
+  files:
 
-                        "$(g.rudder_var)/configuration-repository"
-                                create => "true",
-                                action => WarnOnly,
-                                classes => if_else("rudder_integrity_ok", "rudder_integrity_failed");
+      "${g.rudder_var}/configuration-repository"
+        create => "true",
+        action => WarnOnly,
+        classes => if_else("rudder_integrity_ok", "rudder_integrity_failed");
 
-	reports:
+  reports:
 
-		linux::
+    linux::
 
-			"@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##$(g.uuid)@#The $(g.rudder_var)/configuration-repository directory is present"
-				ifvarclass => "rudder_integrity_ok.!rudder_integrity_failed";
+      "@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##${g.uuid}@#The ${g.rudder_var}/configuration-repository directory is present"
+        ifvarclass => "rudder_integrity_ok.!rudder_integrity_failed";
 
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#EMERGENCY: THE $(g.rudder_var)/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY."
-				ifvarclass => "!rudder_integrity_ok|rudder_integrity_failed";
+      "@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##${g.uuid}@#EMERGENCY: THE ${g.rudder_var}/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY."
+        ifvarclass => "!rudder_integrity_ok|rudder_integrity_failed";
 
 }

@@ -20,38 +20,39 @@
 # Installs the NFS client
 
 
-bundle agent check_nfs_client_installation {
+bundle agent check_nfs_client_installation
+{
 
-	packages:
+  packages:
 
-		debian::
-			"nfs-common"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
-				comment => "Installing NFS client using generic interface";
+    debian::
+      "nfs-common"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
+        comment => "Installing NFS client using generic interface";
 
-		redhat::
-			"nfs-utils"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
-				comment => "Installing NFS client using generic interface";
+    redhat::
+      "nfs-utils"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
+        comment => "Installing NFS client using generic interface";
 
-		SuSE::
-			"nfs-client"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
-				comment => "Installing NFS client using generic interface";
+    SuSE::
+      "nfs-client"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
+        comment => "Installing NFS client using generic interface";
 
-	reports:
-		nfs_client_here::
-			"@@nfsClient@@result_success@@&TRACKINGKEY&@@NFS Client package install@@None@@$(g.execRun)##$(g.uuid)@#NFS client already installed";
+  reports:
+    nfs_client_here::
+      "@@nfsClient@@result_success@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#NFS client already installed";
 
-		nfs_client_installed::
-			"@@nfsClient@@result_repaired@@&TRACKINGKEY&@@NFS Client package install@@None@@$(g.execRun)##$(g.uuid)@#NFS client installed";
+    nfs_client_installed::
+      "@@nfsClient@@result_repaired@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#NFS client installed";
 
-		cant_install_nfs_client::
-			"@@nfsClient@@result_error@@&TRACKINGKEY&@@NFS Client package install@@None@@$(g.execRun)##$(g.uuid)@#Can't install the NFS client package";
+    cant_install_nfs_client::
+      "@@nfsClient@@result_error@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#Can't install the NFS client package";
 }

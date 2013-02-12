@@ -16,93 +16,94 @@
 #
 #####################################################################################
 
-bundle agent root_ldap_check {
+bundle agent root_ldap_check
+{
 
-	vars:
+  vars:
 
-			"ldap_rudder_user" string => "rudder";
+      "ldap_rudder_user" string => "rudder";
 
-			"ldap_rudder_cleartext_password" string => "secret";
+      "ldap_rudder_cleartext_password" string => "secret";
 
-			# We'd like to generate the password but a strange convergeance bug prevents this. You have to generate the hashed string manually if required.
-			# "ldap_rudder_hashed_password" string => execresult("/opt/rudder/sbin/slappasswd -s $(ldap_rudder_cleartext_password)", "noshell");
+      # We'd like to generate the password but a strange convergeance bug prevents this. You have to generate the hashed string manually if required.
+      # "ldap_rudder_hashed_password" string => execresult("/opt/rudder/sbin/slappasswd -s ${ldap_rudder_cleartext_password}", "noshell");
 
-			"ldap_rudder_hashed_password" string => "{SSHA}UK0Ut/7QsceF3ZHJl6nXotlEvh8ECzZx";
+      "ldap_rudder_hashed_password" string => "{SSHA}UK0Ut/7QsceF3ZHJl6nXotlEvh8ECzZx";
 
-			"ldap_dot_properties" slist => { "$(g.rudder_base)/etc/inventory-web.properties", "$(g.rudder_base)/etc/rudder-web.properties" };
+      "ldap_dot_properties" slist => { "${g.rudder_base}/etc/inventory-web.properties", "${g.rudder_base}/etc/rudder-web.properties" };
 
-	files:
+  files:
 
-			"$(g.rudder_base)/etc/openldap/slapd.conf"
-				edit_line => ldap_password_slapd("$(ldap_rudder_hashed_password)"),
-				perms => mog("600", "root", "root"),
-        			classes => kept_if_else("rudder_ldap_slapd_password_ok", "rudder_ldap_slapd_password_changed", "rudder_ldap_slapd_password_failed"),
-			        comment => "Verifying the Rudder LDAP password in slapd.conf";
+      "${g.rudder_base}/etc/openldap/slapd.conf"
+        edit_line => ldap_password_slapd("${ldap_rudder_hashed_password}"),
+        perms => mog("600", "root", "root"),
+        classes => kept_if_else("rudder_ldap_slapd_password_ok", "rudder_ldap_slapd_password_changed", "rudder_ldap_slapd_password_failed"),
+        comment => "Verifying the Rudder LDAP password in slapd.conf";
 
-			"$(ldap_dot_properties)"
-				edit_line => ldap_password_properties("$(ldap_rudder_cleartext_password)"),
-				perms => mog("600", "root", "root"),
-        			classes => kept_if_else("rudder_ldap_prop_password_ok", "rudder_ldap_prop_password_changed", "rudder_ldap_prop_password_failed"),
-			        comment => "Verifying the Rudder LDAP password in the properties files";
+      "${ldap_dot_properties}"
+        edit_line => ldap_password_properties("${ldap_rudder_cleartext_password}"),
+        perms => mog("600", "root", "root"),
+        classes => kept_if_else("rudder_ldap_prop_password_ok", "rudder_ldap_prop_password_changed", "rudder_ldap_prop_password_failed"),
+        comment => "Verifying the Rudder LDAP password in the properties files";
 
-	methods:
+  methods:
 
-			"any" usebundle => generic_process_check_process("/opt/rudder/libexec/slapd", "slapd", "true"),
-				ifvarclass => "rudder_ldap_slapd_password_changed";
+      "any" usebundle => generic_process_check_process("/opt/rudder/libexec/slapd", "slapd", "true"),
+        ifvarclass => "rudder_ldap_slapd_password_changed";
 
-			"any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "true"),
-				ifvarclass => "rudder_ldap_prop_password_changed";
+      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "true"),
+        ifvarclass => "rudder_ldap_prop_password_changed";
 
-	reports:
+  reports:
 
-		linux::
+    linux::
 
-			# slapd configuration
-			"@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##$(g.uuid)@#The Rudder OpenLDAP daemon password is OK"
-				ifvarclass => "rudder_ldap_slapd_password_ok.!rudder_ldap_slapd_password_changed.!rudder_ldap_slapd_password_failed";
+      # slapd configuration
+      "@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder OpenLDAP daemon password is OK"
+        ifvarclass => "rudder_ldap_slapd_password_ok.!rudder_ldap_slapd_password_changed.!rudder_ldap_slapd_password_failed";
 
-			"@@DistributePolicy@@Repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#The Rudder OpenLDAP daemon password has been updated"
-				ifvarclass => "rudder_ldap_slapd_password_changed.!rudder_ldap_slapd_password_failed";
+      "@@DistributePolicy@@Repaired@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder OpenLDAP daemon password has been updated"
+        ifvarclass => "rudder_ldap_slapd_password_changed.!rudder_ldap_slapd_password_failed";
 
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#The Rudder OpenLDAP daemon password failed to update"
-				ifvarclass => "rudder_ldap_slapd_password_failed";
+      "@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder OpenLDAP daemon password failed to update"
+        ifvarclass => "rudder_ldap_slapd_password_failed";
 
-			# properties configuration
-			"@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##$(g.uuid)@#The Rudder LDAP properties files passwords are OK"
-				ifvarclass => "rudder_ldap_prop_password_ok.!rudder_ldap_prop_password_changed.!rudder_ldap_prop_password_failed";
+      # properties configuration
+      "@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder LDAP properties files passwords are OK"
+        ifvarclass => "rudder_ldap_prop_password_ok.!rudder_ldap_prop_password_changed.!rudder_ldap_prop_password_failed";
 
-			"@@DistributePolicy@@Repaired@@root-DP#@root-distributePolicy##$(g.uuid)@#The Rudder LDAP properties files passwords were updated"
-				ifvarclass => "rudder_ldap_prop_password_changed.!rudder_ldap_prop_password_failed";
+      "@@DistributePolicy@@Repaired@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder LDAP properties files passwords were updated"
+        ifvarclass => "rudder_ldap_prop_password_changed.!rudder_ldap_prop_password_failed";
 
-			"@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##$(g.uuid)@#The Rudder LDAP properties files passwords failed to update"
-				ifvarclass => "rudder_ldap_prop_password_failed";
+      "@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder LDAP properties files passwords failed to update"
+        ifvarclass => "rudder_ldap_prop_password_failed";
 
 }
 
 bundle edit_line ldap_password_slapd(password)
 {
 
-	delete_lines:
+  delete_lines:
 
-	        "rootpw.*";
+      "rootpw.*";
 
-	insert_lines:
+  insert_lines:
 
-	        "rootpw          $(password)"
-			location => after("rootdn.*");
+      "rootpw          ${password}"
+        location => after("rootdn.*");
 
 }
 
 bundle edit_line ldap_password_properties(password)
 {
 
-	delete_lines:
+  delete_lines:
 
-	        "ldap.authpw.*";
+      "ldap.authpw.*";
 
-	insert_lines:
+  insert_lines:
 
-	        "ldap.authpw=$(password)"
-			location => after("ldap.authdn.*");
+      "ldap.authpw=${password}"
+        location => after("ldap.authdn.*");
 
 }

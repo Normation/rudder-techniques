@@ -23,159 +23,164 @@
 #
 
 #simple copy method
-body copy_from remote(server, path) {
+body copy_from remote(server, path)
+{
 
-    servers => {
-        "${server}"
-    };
-    encrypt  => "true";
-    trustkey => "true";
-    source   => "${path}";
-    compare  => "digest";
-    preserve => "false"; #preserver permissions
-    verify   => "true";
-    purge    => "true";
-    owners   => {"&OWNER&"};
-community_edition::
-                portnumber => "&COMMUNITYPORT&";
+        servers    => {
+          "${server}"
+        };
+        encrypt    => "true";
+        trustkey   => "true";
+        source     => "${path}";
+        compare    => "digest";
+        preserve   => "false"; #preserver permissions
+        verify     => "true";
+        purge      => "true";
+        owners     => {"&OWNER&"};
+    community_edition::
+        portnumber => "&COMMUNITYPORT&";
 
 }
 
 #simple copy method, unencrypted
-body copy_from remote_unsecured(server, path) {
+body copy_from remote_unsecured(server, path)
+{
 
-    servers => {
-        "${server}"
-    };
-    encrypt  => "false";
-    trustkey => "true";
-    source   => "${path}";
-    compare  => "mtime";
-    preserve => "true"; #preserver permissions
-    verify   => "true";
-    purge    => "true";
-    owners   => {"&OWNER&"};
-community_edition::
-                portnumber => "&COMMUNITYPORT&";
+        servers    => {
+          "${server}"
+        };
+        encrypt    => "false";
+        trustkey   => "true";
+        source     => "${path}";
+        compare    => "mtime";
+        preserve   => "true"; #preserver permissions
+        verify     => "true";
+        purge      => "true";
+        owners     => {"&OWNER&"};
+    community_edition::
+        portnumber => "&COMMUNITYPORT&";
 
 }
 
-bundle common server_info {
+bundle common server_info
+{
   vars:
-        any::
-            "policy_files" string  => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
+    any::
+      "policy_files" string => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
 
-        policy_server::
-            "cfserved" string => "&POLICYSERVER&";
+    policy_server::
+      "cfserved"     string => "&POLICYSERVER&";
 
-        !policy_server::
-            "policy_server_file" string  => translatepath("$(sys.workdir)/policy_server.dat"),
-                                 comment => "Path to file containing address to policy server";
-            "cfserved" string =>  readfile("$(policy_server_file)", 40);            #server IP
+    !policy_server::
+      "policy_server_file"
+        string  => translatepath("${sys.workdir}/policy_server.dat"),
+        comment => "Path to file containing address to policy server";
+      "cfserved"     string =>  readfile("${policy_server_file}", 40);            #server IP
 }
 
-bundle agent update {
-	vars:
-		"client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
-		nova_edition::
-            "server_inputs" string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
-		community_edition::
-            "server_inputs" string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
+bundle agent update
+{
+  vars:
+      "client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
+    nova_edition::
+      "server_inputs" string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
+    community_edition::
+      "server_inputs" string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
 
 
-    files:
-	!root_server::
-          "${client_inputs}" 
-            copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
-            depth_search => recurse("inf"),
-            action => immediate,
-            classes => success("config", "no_update", "config_ok");
+  files:
+    !root_server::
+      "${client_inputs}"
+        copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
+        depth_search => recurse("inf"),
+        action       => immediate,
+        classes      => success("config", "no_update", "config_ok");
 
-			# Every time we update inputs successfully, touch a file to let other promises know we are doing ok
-			"${sys.workdir}/last_successful_inputs_update"
-				touch      => "true",
-				ifvarclass => "(config|config_ok).!no_update";
+      # Every time we update inputs successfully, touch a file to let other promises know we are doing ok
+      "${sys.workdir}/last_successful_inputs_update"
+        touch      => "true",
+        ifvarclass => "(config|config_ok).!no_update";
 
-        !root_server.(!windows|cygwin)::
-		  "${g.rudder_dependencies}"
-			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-			#depth_search => recurse("inf"),
-			depth_search => recurse_ignore("inf", @(g.excludedreps)),
-			action => immediate,
-			classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+    !root_server.(!windows|cygwin)::
+      "${g.rudder_dependencies}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+        #depth_search => recurse("inf"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
-        !root_server.(windows.!cygwin)::
-		  "${g.rudder_sbin}"
-			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-			#depth_search => recurse("inf"),
-			depth_search => recurse_ignore("inf", @(g.excludedreps)),
-			action => immediate,
-			classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+    !root_server.(windows.!cygwin)::
+      "${g.rudder_sbin}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+        #depth_search => recurse("inf"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
 
-	processes:
-		config.!windows::
-			"cf-serverd"  restart_class => "start_server";
+  processes:
+    config.!windows::
+      "cf-serverd" restart_class => "start_server";
 
-		config.!windows::
-			"cf-execd" restart_class => "start_exec";
+    config.!windows::
+      "cf-execd"   restart_class => "start_exec";
 
-		commands:
-			start_exec.!windows::
-				"$(sys.cf_execd)",
-				action => u_ifwin_bg,
-				classes => outcome("executor");
+  commands:
+    start_exec.!windows::
+      "${sys.cf_execd}",
+        action  => u_ifwin_bg,
+        classes => outcome("executor");
 
-			start_exec.cygwin::
-				"$(sys.cf_execd)",
-				action => u_ifwin_bg,
-				classes => outcome("executor");
+    start_exec.cygwin::
+      "${sys.cf_execd}",
+        action  => u_ifwin_bg,
+        classes => outcome("executor");
 
-			start_server::
-				"$(sys.cf_serverd)",
-				action => u_ifwin_bg,
-				classes => outcome("server");
-	
+    start_server::
+      "${sys.cf_serverd}",
+        action  => u_ifwin_bg,
+        classes => outcome("server");
+
 #########################################################
 &if(NOVA)&
-	services:
-		windows::
-  			"CfengineNovaExec"
-     			service_policy => "start",
-     			service_method => u_bootstart,
-     			classes => outcome("executor"),
-            	comment => "Start the executor windows service now and at boot time";
+  services:
+    windows::
+      "CfengineNovaExec"
+        service_policy => "start",
+        service_method => u_bootstart,
+        classes        => outcome("executor"),
+        comment        => "Start the executor windows service now and at boot time";
 &endif&
 
-	reports:
-  			server_ok::
- 				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the server (cf-serverd)";
-  			executor_ok::
-  			    "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the scheduler (cf-execd)";
-  			    
-  			no_update::
-  				"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update node's policy (CFEngine promises)";
-			rudder_dependencies_update_error::
-				"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
+  reports:
+    server_ok::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";
+    executor_ok::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the scheduler (cf-execd)";
 
-			rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update::
-				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
+    no_update::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
+    rudder_dependencies_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
 
-			rudder_dependencies_updated::
-				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Dependencies updated";
+    rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
 
-			config::
-				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Node's policy (CFEngine promises) updated";
+    rudder_dependencies_updated::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Dependencies updated";
 
-			config|rudder_dependencies_updated|server_ok|executor_ok::
-				"@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
+    config::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
 
-			policy_server::
-				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy server doesn't need to be updated";
+    config|rudder_dependencies_updated|server_ok|executor_ok::
+      "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy or dependencies were updated or CFEngine service restarted";
+
+    policy_server::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy server doesn't need to be updated";
 
 
-                        no_update::
-				"*********************************************************************************
+    no_update::
+        "*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by a network issue, an unavailable server, or if this      *
 * node was deleted from the Rudder root server.                                 *
@@ -187,33 +192,33 @@ bundle agent update {
 ############################################
 body classes outcome(x)
 {
-promise_repaired => {"$(x)_ok"};
+        promise_repaired => {"${x}_ok"};
 }
 ############################################
 body action u_background
 {
-background => "true";
+        background => "true";
 }
 ############################################
 body classes success(if, else, kept)
 {
-promise_kept => { "$(kept)" };
-promise_repaired => {"$(if)"};
-repair_failed => { "$(else)" };
-repair_denied => { "$(else)" };
-repair_timeout => { "$(else)" };
+        promise_kept     => { "${kept}" };
+        promise_repaired => { "${if}" };
+        repair_failed    => { "${else}" };
+        repair_denied    => { "${else}" };
+        repair_timeout   => { "${else}" };
 }
 
 ############################################
 body action u_ifwin_bg
 {
-	windows::
-		background => "true";
+    windows::
+        background => "true";
 }
 
 &if(NOVA)&
 body service_method u_bootstart
 {
-service_autostart_policy => "boot_time";
+        service_autostart_policy => "boot_time";
 }
 &endif&

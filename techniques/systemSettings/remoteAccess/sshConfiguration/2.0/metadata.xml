@@ -56,7 +56,7 @@ This implemenation is intended as a reference for Technique development best pra
   <TRACKINGVARIABLE>
     <SAMESIZEAS>OPENSSH_SERVER_CONFFILE</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <!-- Sections for reporting only, variables are separate below -->
     <SECTION name="SSH installation" component="true" />

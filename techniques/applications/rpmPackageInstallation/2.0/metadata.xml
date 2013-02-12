@@ -27,7 +27,7 @@ presence of a package, and if not met to enforce them.
   <DESCRIPTION>This technique operates on individual packages.
 
   It will ensure that the defined packages are installed, up-to-date or removed using the yum/zypper package manager.</DESCRIPTION>
-  
+
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
@@ -46,7 +46,7 @@ presence of a package, and if not met to enforce them.
   <TRACKINGVARIABLE>
     <SAMESIZEAS>RPM_PACKAGE_REDLIST</SAMESIZEAS>
   </TRACKINGVARIABLE>
-  
+
   <SECTIONS>
     <SECTION name="RHEL/CentOS/SuSE packages" multivalued="true" component="true" componentKey="RPM_PACKAGE_REDLIST">
       <!-- Redhat like related Section , index 1-->
@@ -68,7 +68,7 @@ presence of a package, and if not met to enforce them.
         <!--<ITEM> # CURRENTLY BROKEN IN CFENGINE #
           <LABEL>Install and update automatically</LABEL>
           <VALUE>addupdate</VALUE>
-		</ITEM>-->
+    </ITEM>-->
         <ITEM>
           <LABEL>Remove</LABEL>
           <VALUE>delete</VALUE>

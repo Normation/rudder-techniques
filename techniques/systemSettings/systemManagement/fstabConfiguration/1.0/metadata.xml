@@ -35,12 +35,12 @@ given parameters.
 
   <TMLS>
     <TML name="fstabConfiguration"/>
-  </TMLS>  
-  
+  </TMLS>
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>FSTAB_DESTINATION</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="Mountpoint" multivalued="true">
       <SELECT1>

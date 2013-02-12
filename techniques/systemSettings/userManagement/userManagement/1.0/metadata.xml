@@ -39,11 +39,11 @@ It is intended to check the user parameters on the target host.
   <TMLS>
     <TML name="userManagement"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>USERGROUP_USER_LOGIN</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <!-- users section , index 1 -->
     <SECTION name="Users" multivalued="true" component="true" componentKey="USERGROUP_USER_LOGIN">

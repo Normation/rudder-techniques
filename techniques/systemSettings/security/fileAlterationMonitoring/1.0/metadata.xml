@@ -31,7 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="fileAlterationMonitoring"/>
   </TMLS>
-    
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>MONITOR_ENTITY_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>

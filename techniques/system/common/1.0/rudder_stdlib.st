@@ -32,11 +32,11 @@
 #
 body classes rudder_common_classes(prefix)
 {
-  promise_kept     => { "${prefix}_kept" };
-  promise_repaired => { "${prefix}_repaired" };
-  repair_failed    => { "${prefix}_failed" , "${prefix}_error" };
-  repair_denied    => { "${prefix}_denied" , "${prefix}_error" };
-  repair_timeout   => { "${prefix}_timeout", "${prefix}_error" };
+        promise_kept     => { "${prefix}_kept" };
+        promise_repaired => { "${prefix}_repaired" };
+        repair_failed    => { "${prefix}_failed" , "${prefix}_error" };
+        repair_denied    => { "${prefix}_denied" , "${prefix}_error" };
+        repair_timeout   => { "${prefix}_timeout", "${prefix}_error" };
 }
 
 
@@ -57,8 +57,8 @@ bundle edit_line rudder_common_disclaimer
 ### configuration and/or to raise a compliance alert.     ###
 #############################################################
 "
-      location => start,
-      insert_type => "preserve_block";
+        location    => start,
+        insert_type => "preserve_block";
 }
 
 
@@ -93,7 +93,7 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 
 
 #
-# Automatically create reports based on existing classes starting by 
+# Automatically create reports based on existing classes starting by
 # class_prefix (as defined by the body classes rudder_common_classes)
 # Takes 6 parameters
 # technique_name : the name of the technique, human readable
@@ -106,16 +106,16 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 bundle agent rudder_common_reports_generic(technique_name, class_prefix, identifier, component_name, component_key, message_prefix)
 {
   methods:
-    "success"
-      usebundle  => rudder_common_report("${technique_name}", "result_success", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct"),
-      ifvarclass => "${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
+      "success"
+        usebundle  => rudder_common_report("${technique_name}", "result_success", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct"),
+        ifvarclass => "${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
 
-    "repaired"
-      usebundle  => rudder_common_report("${technique_name}", "result_repaired", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired"),
-      ifvarclass => "${class_prefix}_repaired.!${class_prefix}_error";
+      "repaired"
+        usebundle  => rudder_common_report("${technique_name}", "result_repaired", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired"),
+        ifvarclass => "${class_prefix}_repaired.!${class_prefix}_error";
 
-    "error"
-      usebundle  => rudder_common_report("${technique_name}", "result_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} could not be repaired"),
-      ifvarclass => "${class_prefix}_error";
+      "error"
+        usebundle  => rudder_common_report("${technique_name}", "result_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} could not be repaired"),
+        ifvarclass => "${class_prefix}_error";
 }
 
