@@ -85,7 +85,7 @@ bundle agent manageFilesAndFolders
       "manageFilesAndFolders_isdir_${index}" expression => isdir("$(file[${index}][path])");
       "manageFilesAndFolders_isfile_${index}" expression => isplain("$(file[${index}][path])");
       "manageFilesAndFolders_islink_${index}" expression => islink("$(file[${index}][path])");
- 
+
   files:
 
     # Directory
@@ -148,7 +148,7 @@ bundle agent manageFilesAndFolders
         ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}";
 
     # This will not delete the parent
-      "$(file[${index}][path])" 
+      "$(file[${index}][path])"
         delete => tidy,
         file_select => date_pattern("$(file[${index}][ttl])", "$(file[${index}][pattern])"),
         ifvarclass => "manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
@@ -156,7 +156,7 @@ bundle agent manageFilesAndFolders
         classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
 
     # This will not delete the parent
-      "$(file[${index}][path])" 
+      "$(file[${index}][path])"
         delete => tidy,
         file_select => date_pattern("$(file[${index}][ttl])", "$(file[${index}][pattern])"),
         depth_search => recurse("inf"),
@@ -164,7 +164,7 @@ bundle agent manageFilesAndFolders
         classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
 
     # This WILL delete the parent
-      "$(file[${index}][path])" 
+      "$(file[${index}][path])"
         delete => tidy,
         file_select => date_pattern("$(file[${index}][ttl])", "$(file[${index}][pattern])"),
         ifvarclass => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",

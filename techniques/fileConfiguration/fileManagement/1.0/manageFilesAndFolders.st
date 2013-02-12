@@ -100,9 +100,9 @@ bundle agent manageFilesAndFolders
         comment => "Enforcing the existance of file $(file[${index}][path])",
         ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_createsymlink_${index}";
 
-      # Symlink
+    # Symlink
       "$(file[${index}][path])"
-        # create => "true",
+      # create => "true",
         link_from => ln_s("$(file[${index}][symlink_source])"),
         classes => kept_if_else("manageSyms_${index}_kept", "manageSyms_${index}_modified", "manageSyms_${index}_failed"),
         ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.!manageFilesAndFolders_createfile_${index}).manageFilesAndFolders_createsymlink_${index}",
