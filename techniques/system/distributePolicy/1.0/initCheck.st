@@ -29,8 +29,17 @@ bundle agent root_init_check() {
 		"service[3][binary]" string => "postgres: writer process";
 		"service[3][initscript]" string => "postgresql";
 
-		"service[5][binary]" string => "apache2";
-		"service[5][initscript]" string => "apache2";
+	    !redhat::
+
+		"service[4][binary]" string => "apache2";
+		"service[4][initscript]" string => "apache2";
+
+	    redhat::
+
+		"service[4][binary]" string => "httpd";
+		"service[4][initscript]" string => "httpd";
+
+	    any::
 
 		"index" slist => getindices("service");
 
@@ -94,15 +103,31 @@ bundle agent generic_process_check_bootstart(binary, initscript) {
 
 	commands:
 
-	(SuSE|redhat)::
+	SuSE::
 
 			"/sbin/chkconfig"
 				args => "--check $(initscript)",
+				contain => in_shell_silent,
 				classes => if_else("service_bootstarted_$(canoname)", "service_unbootstarted_$(canoname)"),
 				comment => "Check if the service $(initscript) is started on boot";
 
 			"/sbin/insserv"
 				args => "-d $(initscript)",
+				classes => if_else("service_bootstarted_ok_$(canoname)", "service_bootstarted_fail_$(canoname)"),
+				ifvarclass => "service_unbootstarted_$(canoname)",
+				comment => "Set the service $(initscript) to start on boot";
+
+	redhat::
+
+			"/sbin/chkconfig"
+				args => "--list $(initscript) | grep -q on",
+				contain => in_shell_silent,
+				classes => if_else("service_bootstarted_$(canoname)", "service_unbootstarted_$(canoname)"),
+				comment => "Check if the service $(initscript) is started on boot";
+
+
+			"/sbin/chkconfig"
+				args => "$(initscript) on",
 				classes => if_else("service_bootstarted_ok_$(canoname)", "service_bootstarted_fail_$(canoname)"),
 				ifvarclass => "service_unbootstarted_$(canoname)",
 				comment => "Set the service $(initscript) to start on boot";
