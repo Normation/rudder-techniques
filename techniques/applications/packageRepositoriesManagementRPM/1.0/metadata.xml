@@ -1,0 +1,99 @@
+<!--
+Copyright 2013 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<TECHNIQUE name="Package repositories management (RPM)">
+  <DESCRIPTION>This technique configure the repositories of the package manager in RPM based systems.</DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <COMPATIBLE>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_pkg_manager_repositories</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="packageRepositoriesManagementRPM"/>
+  </TMLS>
+  
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>PKG_MGR_URL</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+    <!-- Repository settings Section , index 20 -->
+    <SECTION name="Repository settings">
+      <SECTION name="Repository" multivalued="true" component="true" componentKey="PKG_MGR_NAME">
+        <INPUT>
+          <NAME>PKG_MGR_NAME</NAME>
+          <DESCRIPTION>Repository name</DESCRIPTION>
+	  <CONSTRAINT>
+	    <MAYBEEMPTY>false</MAYBEEMPTY>
+	  </CONSTRAINT>
+	</INPUT>
+        <INPUT>
+          <NAME>PKG_MGR_URL</NAME>
+          <DESCRIPTION>Repository URL</DESCRIPTION>
+	  <CONSTRAINT>
+	    <MAYBEEMPTY>false</MAYBEEMPTY>
+	  </CONSTRAINT>
+	</INPUT>
+        <INPUT>
+          <NAME>PKG_MGR_TYPE</NAME>
+          <DESCRIPTION>Repository type</DESCRIPTION>
+          <LONGDESCRIPTION>You should not modify this entry, do it only if you know what you are doing</LONGDESCRIPTION>
+          <ITEM>
+            <VALUE>rpm-md</VALUE>
+            <LABEL>RPM MD</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>yast2</VALUE>
+            <LABEL>Yast 2</LABEL>
+          </ITEM>
+	  <CONSTRAINT>
+	    <DEFAULT>yast2</DEFAULT>
+	  </CONSTRAINT>
+	</INPUT>
+        <SELECT1>
+          <NAME>PKG_MGR_ENABLED</NAME>
+          <DESCRIPTION>Enabled</DESCRIPTION>
+          <ITEM>
+            <VALUE>0</VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>1</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+	    <CONSTRAINT>
+	      <DEFAULT>1</DEFAULT>
+	    </CONSTRAINT>
+        </SELECT1>
+      </SECTION>
+      <INPUT>
+        <NAME>PKG_MGR_DISABLEREPOSITORIES</NAME>
+        <DESCRIPTION>Delete all other repositories than these (potentially dangerous)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
