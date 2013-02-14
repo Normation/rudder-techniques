@@ -20,7 +20,7 @@
 # Installs SSH, and checks wether it is started on boot or not.
 ###############################################################
 
-bundle agent rudder_openssh_server_installation(class_prefix, service_name, params)
+bundle agent rudder_openssh_server_installation(service_name)
 {
   vars:
     (debian|redhat)::
@@ -36,29 +36,14 @@ bundle agent rudder_openssh_server_installation(class_prefix, service_name, para
       "${rudder_openssh_server_package_name}"
         package_policy  => "add",
         package_method  => generic,
-        classes         => rudder_common_classes("${class_prefix}_package"),
-        comment         => "Installing ${service_name} using the generic package manager method";
+        classes         => rudder_common_classes("rudder_openssh_server_package"),
+        comment         => "Installing OpenSSH using the generic package manager method";
 }
 
-bundle agent rudder_openssh_server_installation_reporting(class_prefix, service_name, params)
+# The reporting is made on separate bundles to abstract the complexity
+# inherent to the normal ordering.
+bundle agent rudder_openssh_server_installation_reporting(service_name)
 {
   methods:
-      "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_package", "${${params}[report]}", "SSH installation", "None", "The ${service_name} package installation");
+      "any" usebundle => rudder_common_reports_generic("${service_name}", "rudder_openssh_server_package", "&TRACKINGKEY&", "SSH installation", "None", "The ${service_name} package installation");
 }
-
-# This bundle is common because it defines a class that we reuse in the configuration part,
-# when configuring the service, to not configure the service if the binary is not there
-bundle common rudder_openssh_server_check_ssh_installation(class_prefix, service_name, params)
-{
-  classes:
-      # Security : if not there, SSH too, so do not bother anymore
-      "${class_prefix}_binary_present"
-        expression => fileexists("/usr/sbin/sshd");
-
-  methods:
-    # Make a report about the lack of proper sshd binary
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "result_error", "${${params}[report]}", "SSH installation", "None", "The ${service_name} is not installed, although it should have been"),
-      ifvarclass => "!${class_prefix}_binary_present";
-}
-

@@ -45,7 +45,7 @@ This implemenation is intended as a reference for Technique development best pra
   <TMLS>
     <TML name="main"/>
     <TML name="installation"/>
-    <TML name="configuration"/>
+    <TML name="config"/>
     <TML name="bodies"/>
   </TMLS>
 
