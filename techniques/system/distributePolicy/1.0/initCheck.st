@@ -108,13 +108,11 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
     SuSE::
 
-      "chkconfig_check_command"
-        string => "/sbin/chkconfig --check $(initscript)";
+      "chkconfig_check_command"    string => "/sbin/chkconfig --check $(initscript)";
 
     redhat::
 
-      "chkconfig_check_command"
-        string => "/sbin/chkconfig --list $(initscript) | grep -q on";
+      "chkconfig_check_command"    string => "/sbin/chkconfig --list $(initscript) | grep -q on";
 
 	commands:
 
