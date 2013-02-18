@@ -41,7 +41,7 @@ bundle agent root_logrotate_check
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check logrotate configuration@@None@@${g.execRun}##${g.uuid}@#The logrotate configuration is correct"
         ifvarclass => "rudder_logrotate_conf_ok.!rudder_logrotate_conf_copied.!cannot_copy_rudder_logrotate_conf";

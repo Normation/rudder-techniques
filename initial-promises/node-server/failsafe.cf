@@ -47,13 +47,9 @@ bundle common g
       "rudder_sbin"              string => "${rudder_base}\sbin";
       "rudder_tools"             string => "${rudder_sbin}";
       "rudder_ncf"               string => "${rudder_var}\ncf";
-
-    windows.!cygwin::
       "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
 
-    linux|cygwin::
-      "rudder_base"              string => "/opt/rudder";
-      "rudder_var"               string => "/var/rudder";
+    !windows::
       "rudder_bin"               string => "${rudder_base}/bin";
       "rudder_sbin"              string => "${rudder_base}/sbin";
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
@@ -61,14 +57,18 @@ bundle common g
       "rudder_ncf"               string => "${rudder_var}/ncf";
       "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
 
+    !windows.!android::
+      "rudder_base"              string => "/opt/rudder";
+
     android::
       "rudder_base"              string => "/data/rudder";
       "rudder_var"               string => "/data/rudder";
-      "rudder_sbin"              string => "${rudder_base}/sbin";
-      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools"             string => "${rudder_var}/tools";
-      "rudder_ncf"               string => "${rudder_var}/ncf";
-      "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
+
+    solaris::
+      "rudder_var"               string => "/opt/rudder/var";
+
+    !windows.!solaris.!android::
+      "rudder_var"               string => "/var/rudder";
 
     any::
       "uuid"                     string => readfile("${g.uuid_file}", 60);
@@ -102,13 +102,13 @@ bundle agent init_files
     nova_edition::
       "cfengine_install_path" string => "/usr/local";
     community_edition::
-      "cfengine_install_path" string => "/opt/rudder";
+      "cfengine_install_path" string => "${g.rudder_base}";
 
   classes:
       "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
   files:
-    cfengine_community.(linux|cygwin)::
+    cfengine_community.!windows::
       "${sys.workdir}/bin/${components}"
         perms => u_p("700"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
@@ -122,7 +122,7 @@ bundle agent init_files
     windows.missing_key.!cygwin::
       "\"${sys.workdir}\bin\cf-key\"";
 
-    linux.missing_key::
+    !windows.!cygwin.missing_key::
       "${sys.workdir}/bin/cf-key";
 }
 

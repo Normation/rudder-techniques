@@ -60,24 +60,33 @@ bundle common g
       "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
 
-    linux|cygwin::
-      "rudder_base"              string => "/opt/rudder";
-      "rudder_var"               string => "/var/rudder";
+    !windows::
       "rudder_bin"               string => "${rudder_base}/bin";
       "rudder_sbin"              string => "${rudder_base}/sbin";
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools"             string => "/var/rudder/tools";
+      "rudder_tools"             string => "${rudder_var}/tools";
       "rudder_ncf"               string => "${rudder_var}/ncf";
-      "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
 
     android::
       "rudder_base"              string => "/data/rudder";
       "rudder_var"               string => "/data/rudder";
-      "rudder_sbin"              string  => "${rudder_base}/sbin";
-      "rudder_base_sbin"         string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools"             string => "${rudder_var}/tools";
-      "rudder_ncf"               string => "${rudder_var}/ncf";
+
+    solaris::
+      "rudder_var"               string => "/opt/rudder/var";
+
+    !windows.!android.!solaris::
+      "rudder_var"               string => "/var/rudder";
+
+    !windows.!android::
+      "rudder_base"              string => "/opt/rudder";
+
+    # The time at which the execution started
+    linux|cygwin::
+      "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
+    android::
       "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
+    !linux.!cygwin.!windows.!android::
+      "execRun"                  string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
 # definition of the node roles
   &NODEROLE&
@@ -108,13 +117,13 @@ bundle agent init_files
     nova_edition::
       "cfengine_install_path" string => "/usr/local";
     community_edition::
-      "cfengine_install_path" string => "/opt/rudder";
+      "cfengine_install_path" string => "${g.rudder_base}";
 
   classes:
       "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
   files:
-    cfengine_community.(linux|cygwin)::
+    cfengine_community.!windows::
       "${sys.workdir}/bin/${components}"
         perms     => u_p("700"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
@@ -130,7 +139,7 @@ bundle agent init_files
       "\"${sys.workdir}\bin\cf-key\"";
 &endif&
 
-    linux.missing_key::
+    !windows.!cygwin.missing_key::
       "${sys.workdir}/bin/cf-key";
 }
 

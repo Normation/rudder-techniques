@@ -72,7 +72,7 @@ bundle agent generic_process_check_process(binary, initscript, force_restart)
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${initscript} process is already running"
         ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
@@ -129,7 +129,7 @@ bundle agent generic_process_check_bootstart(binary, initscript)
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#${initscript} is started on boot as required"
         ifvarclass => "service_bootstarted_${canoname}";

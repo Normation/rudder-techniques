@@ -26,9 +26,8 @@ bundle agent propagatePromises
 {
 
   vars:
-    any::
       "server_data" string => "${server_info.policy_files}/share"; #actual directory with data to propagate
-      "client_data" string => "/var/rudder/share/";  #where to put the files on the client when downloaded
+      "client_data" string => "${g.rudder_var}/share/";  #where to put the files on the client when downloaded
 
   files:
     root_server::

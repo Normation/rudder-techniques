@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2012 Normation SAS
+# Copyright 2012-2013 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -51,7 +51,7 @@ bundle agent root_networks_check
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file is OK"
         ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";

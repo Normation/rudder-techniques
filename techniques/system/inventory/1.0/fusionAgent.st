@@ -109,7 +109,14 @@ bundle common inventory
     # Files names
       "UserListFile_cp" string => "${g.rudder_var_tmp}\UserList.tmp";
       "UserListFile" string => "${g.rudder_var_tmp}\UserList.list";
+      "cpuid_tool"      string => "\"${g.rudder_tools}\cpuid-windows-V1.0.vbs\"";
 &endif&
+
+    android::
+      "cpuid_tool"      string => "${g.rudder_tools}/cpuid-android-V1.0.sh";
+
+    !windows.!android::
+      "cpuid_tool"      string => "${g.rudder_tools}/cpuid-linux-V1.0.sh";
 
     any::
       "CPUIDFile" string => "${g.rudder_var_tmp}/cpuid.arc";
@@ -118,13 +125,11 @@ bundle common inventory
 
     windows::
 
-      "rudder_inventory_cpuid_tool_present"    expression => fileexists("\"${g.rudder_tools}\cpuid-windows-V1.0.vbs\"");
-
       "rudder_inventory_userlist_tool_present" expression => fileexists("\"${g.rudder_tools}\userlist.bat\"");
 
-    !windows::
+    any::
 
-      "rudder_inventory_cpuid_tool_present"    expression => fileexists("${g.rudder_tools}/cpuid-linux-V1.0.sh");
+      "rudder_inventory_cpuid_tool_present"    expression => fileexists("${cpuid_tool}");
 
 }
 
@@ -137,7 +142,7 @@ bundle agent fusionAgent
       "xen_tools_package" string => "xen-tools-domU";
     debian::
       "xen_tools_package" string => "xenstore-utils";
-    (redhat|centos)::
+    !debian.!SuSE::
       "xen_tools_package" string => "xen";
 
 
@@ -214,7 +219,7 @@ bundle agent fusionAgent
 bundle agent listInstalledVM
 {
   commands:
-    linux.VirtualBoxInstalled::
+    !windows.VirtualBoxInstalled::
       "/usr/bin/VBoxManage"
         args => "-q list vms > ${virtualMachines.VBoxListFile}",
         contain => outputable,
@@ -230,7 +235,7 @@ bundle agent listInstalledVM
         comment => "Generating file with list of VM";
 &endif&
 
-    linux.VMWareInstalled::
+    !windows.VMWareInstalled::
       "${virtualMachines.VMWareScript}"
         contain => outputable,
         args => " > ${virtualMachines.VMWareListFile}",
@@ -289,20 +294,12 @@ bundle agent generateExtraInformations
         comment => "Generating file with CPUID information";
 &endif&
 
-    linux.linux.rudder_inventory_cpuid_tool_present::
-      "${g.rudder_tools}/cpuid-linux-V1.0.sh"
+    !windows.rudder_inventory_cpuid_tool_present::
+      "${inventory.cpuid_tool}"
         args => " > ${inventory.CPUIDFile}",
         contain => outputable,
         classes => cf2_if_else("cpuid", "cpuid_fail"),
         comment => "Generating file with CPUID information";
-
-    android::
-      "${g.rudder_tools}/cpuid-android-V1.0.sh"
-        args => " > ${inventory.CPUIDFile}",
-        contain => outputable,
-        classes => cf2_if_else("cpuid", "cpuid_fail"),
-        comment => "Generating file with CPUID information";
-
 
   reports:
     userlist::
@@ -407,7 +404,7 @@ bundle agent addInformationsToInventory
       "android_fullname"      string => "Android ${android_version}";
       "logdate"               string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
 
-    linux::
+    !windows.!android::
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";

@@ -405,14 +405,14 @@ bundle agent check_log_system
       "syslogd" expression => fileexists("/etc/syslog.conf");
 
   files:
-    linux.rsyslogd::
+    !windows.rsyslogd::
       "/etc/rsyslog.conf"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
         edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
-    linux.rsyslogd.!policy_server::
+    !windows.rsyslogd.!policy_server::
       "/etc/rsyslog.d/rudder-agent.conf"
         edit_line => append_if_no_lines("#Rudder log system${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then @@${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~"),
         create => "true",
@@ -426,13 +426,13 @@ bundle agent check_log_system
         edit_defaults => noempty_backup,
 				classes   => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
-    linux.syslogng.!policy_server::
+    !windows.syslogng.!policy_server::
       "/etc/syslog-ng/syslog-ng.conf"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
         edit_defaults => noempty_backup,
         classes => kept_if_else("syslog_ng_kept", "syslog_ng_repaired" , "syslog_ng_failed");
 
-    linux.syslogd.!policy_server::
+    !windows.syslogd.!policy_server::
       "/etc/syslog.conf"
         edit_line => fix_syslogd("@${server_info.cfserved}"),
         edit_defaults => noempty_backup,
@@ -464,6 +464,9 @@ bundle agent check_log_system
       "/etc/init.d/syslog"
         args => "restart",
         comment => "Restarting rsyslog after it's been updated";
+
+    solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
+      "svcadm refresh svc:/system/system-log:default";
 
 
   reports:
