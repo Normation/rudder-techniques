@@ -108,33 +108,25 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
     SuSE::
 
-      "chkconfig_check_command"    string => "/sbin/chkconfig --check $(initscript)";
+      "check_command"     string => "/sbin/chkconfig --check $(initscript)";
+      "bootstart_command" string => "/sbin/insserv -d $(initscript)";
 
     redhat::
 
-      "chkconfig_check_command"    string => "/sbin/chkconfig --list $(initscript) | grep -q on";
+      "check_command"     string => "/sbin/chkconfig --list $(initscript) | grep -q on";
+      "bootstart_command" string => "/sbin/chkconfig $(initscript) on";
 
 	commands:
 
 	(SuSE|redhat)::
 
-			"${chkconfig_check_command}"
+			"${check_command}"
 				contain => in_shell_silent,
 				classes => if_else("service_bootstarted_$(canoname)", "service_unbootstarted_$(canoname)"),
 				comment => "Check if the service $(name) is started on boot";
 
-	SuSE::
 
-			"/sbin/insserv"
-				args => "-d $(initscript)",
-				classes => if_else("service_bootstarted_ok_$(canoname)", "service_bootstarted_fail_$(canoname)"),
-				ifvarclass => "service_unbootstarted_$(canoname)",
-				comment => "Set the service $(name) to start on boot";
-
-	redhat::
-
-			"/sbin/chkconfig"
-				args => "$(initscript) on",
+			"${bootstart_command}"
 				classes => if_else("service_bootstarted_ok_$(canoname)", "service_bootstarted_fail_$(canoname)"),
 				ifvarclass => "service_unbootstarted_$(canoname)",
 				comment => "Set the service $(name) to start on boot";
