@@ -238,7 +238,7 @@ bundle agent rudder_openssh_server
       # inherent to the normal ordering.
       "any" usebundle => rudder_openssh_server_installation("${rudder_class_prefix}", "${rudder_openssh_server_service_name}", "rudder_openssh_server.rudder_openssh_server_config");
       "any" usebundle => rudder_openssh_server_installation_reporting("${rudder_class_prefix}", "${rudder_openssh_server_service_name}", "rudder_openssh_server.rudder_openssh_server_config");
-      "any" usebundle => rudder_openssh_server_check_ssh_installation("${rudder_class_prefix}", "${rudder_openssh_server_service_name}", "rudder_openssh_server.rudder_openssh_server_config");
+      "any" usebundle => rudder_openssh_server_check_ssh_installation();
       "any" usebundle => rudder_openssh_server_check_ssh_installation_reporting("${rudder_class_prefix}", "${rudder_openssh_server_service_name}", "rudder_openssh_server.rudder_openssh_server_config");
 
 

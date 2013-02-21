@@ -48,7 +48,7 @@ bundle agent rudder_openssh_server_installation_reporting(class_prefix, service_
 
 # This bundle is common because it defines a class that we reuse in the configuration part,
 # when configuring the service, to not configure the service if the binary is not there
-bundle common rudder_openssh_server_check_ssh_installation(class_prefix, service_name, params)
+bundle common rudder_openssh_server_check_ssh_installation
 {
   classes:
       # Security : if not there, SSH too, so do not bother anymore
