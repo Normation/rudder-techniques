@@ -66,25 +66,21 @@ bundle agent check_pkg_manager_repositories {
 		# Zypper repositories desactivation
 
                 pkg_mgr_disablerepositories.!repos_disabled_ok.!repos_disabled_fail::
-                        "@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were already disabled";
+                        "@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were already disabled";
 
                 pkg_mgr_disablerepositories.repos_disabled_ok::
-                        "@@Package repositories management RPM@@result_repaired@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were disabled";
+                        "@@Package repositories management RPM@@result_repaired@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were disabled";
 
                 pkg_mgr_disablerepositories.repos_disabled_fail::
-                        "@@Package repositories management RPM@@result_error@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Could not disable the other repositories!";
+                        "@@Package repositories management RPM@@result_error@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Could not disable the other repositories!";
 
                 !pkg_mgr_disablerepositories::
-                        "@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#The repository desactivation has not been requested. Skipping...";
+                        "@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#The repository desactivation has not been requested. Skipping...";
 
 		# Ignore non-SuSE OSes
 
 		!SuSE::
-			"@@Package repositories management RPM@@result_error@@&TRACKINGKEY&@@zypperPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#ZYPPER cannot be configured on non SuSE OSes";
-
-		!pkg_mgr_repositories_edit::
-
-			"@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@Repository@@$(pkg_mgr_name[$(pkg_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The source $(pkg_mgr_name[$(pkg_mgr_index)]) will NOT be added as the repository addition parameter is off in the Policy Instance. Skipping...";
+			"@@Package repositories management RPM@@result_error@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#ZYPPER cannot be configured on none SuSE OSes";
 
 		SuSE::
 

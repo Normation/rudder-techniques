@@ -42,16 +42,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <INPUT>
           <NAME>PKG_MGR_NAME</NAME>
           <DESCRIPTION>Repository name</DESCRIPTION>
-	  <CONSTRAINT>
-	    <MAYBEEMPTY>false</MAYBEEMPTY>
-	  </CONSTRAINT>
 	</INPUT>
         <INPUT>
           <NAME>PKG_MGR_URL</NAME>
           <DESCRIPTION>Repository URL</DESCRIPTION>
-	  <CONSTRAINT>
-	    <MAYBEEMPTY>false</MAYBEEMPTY>
-	  </CONSTRAINT>
 	</INPUT>
         <INPUT>
           <NAME>PKG_MGR_TYPE</NAME>

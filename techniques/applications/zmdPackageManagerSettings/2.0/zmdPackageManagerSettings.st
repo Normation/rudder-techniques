@@ -74,8 +74,7 @@ bundle agent check_zmd_settings {
 						"proxy_edit_password",
 						"security_level_edit",
 						"remote_enabled_edit",
-						"syslog_level_edit",
-						"settings_edition"
+						"syslog_level_edit"
 						};
 
 		"class_ok" expression => strcmp("true", "true");
@@ -130,7 +129,7 @@ bundle agent check_zmd_settings {
 		# Ignore non-SuSE OSes
 
 		!SuSE::
-			"@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@zmdPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
+			"@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
 
 		SuSE::
 

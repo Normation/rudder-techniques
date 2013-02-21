@@ -35,7 +35,7 @@ bundle agent check_rug_mgr_repositories {
 	classes:
 
 		# Is the checkzmd script present ?
-		"checkrug_mgr_present" expression => fileexists("${g.rudder_dependencies}/checkzmd.pl");
+		"checkzmd_present" expression => fileexists("${g.rudder_dependencies}/checkzmd.pl");
 
 		"class_ok" expression => strcmp("true", "true");
 
@@ -50,7 +50,7 @@ bundle agent check_rug_mgr_repositories {
 				module => "true",
 				comment => "Analyzing ZMD's output";
 
-		showtime.SuSE.rug_mgr_repositories_edit::
+		showtime.SuSE::
 
 			"/usr/bin/rug"
 				args => "sa --type=zypp \"$(rug_mgr_url[$(rug_mgr_index)])\" \"$(rug_mgr_name[$(rug_mgr_index)])\"",
@@ -73,9 +73,6 @@ bundle agent check_rug_mgr_repositories {
 		SuSE::
 
 			# Repositories
-
-			"@@Package repositories management Rug@@result_success@@&TRACKINGKEY&@@Repository@@$(rug_mgr_url[$(rug_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(rug_mgr_name[$(rug_mgr_index)]) is not here but no edition required. Skipping..."
-				ifvarclass => "index_$(rug_mgr_index)_not_matched.!rug_mgr_repositories_edit";
 
 			"@@Package repositories management Rug@@result_success@@&TRACKINGKEY&@@Repository@@$(rug_mgr_url[$(rug_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(rug_mgr_name[$(rug_mgr_index)]) was already here. Skipping..."
 				ifvarclass => "index_$(rug_mgr_index)_matched.!source_$(rug_mgr_index)_subscribed";

@@ -42,13 +42,16 @@ bundle agent check_zypper_settings {
 
 	reports:
 
+		!SuSE::
+			"@@zypperPackageManagerSettings@@result_error@@${zypper_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
+
 		# ZYPPER settings edition
 
 		zypper_conf_kept::
 			"@@zypperPackageManagerSettings@@result_success@@${zypper_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Zypper settings were all already correct";
 
 		zypper_conf_validated::
-			"@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Some Zypper settings were reset";
+			"@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Some Zypper settings were reset";
 
 		zypper_conf_failed::
 			"@@zypperPackageManagerSettings@@result_error@@${zypper_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Zypper repositories could not be edited";
