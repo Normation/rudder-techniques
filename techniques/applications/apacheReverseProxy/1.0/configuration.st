@@ -121,13 +121,13 @@ reports:
     "@@apacheReverseProxy@@result_error@@&TRACKINGKEY&@@Apache reverse proxy SELinux configuration@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} SELinux proxy related configuration has NOT been edited !";
 
   reverse_proxy_file_ok::
-    "@@apacheReverseProxy@@result_success@@&TRACKINGKEY&@@Reverse Proxy Settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration is correct";
+    "@@apacheReverseProxy@@result_success@@&TRACKINGKEY&@@Apache reverse proxy settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration is correct";
 
   reverse_proxy_file_edited::
-    "@@apacheReverseProxy@@result_repaired@@&TRACKINGKEY&@@Reverse Proxy Settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration has been edited";
+    "@@apacheReverseProxy@@result_repaired@@&TRACKINGKEY&@@Apache reverse proxy settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration has been edited";
 
   reverse_proxy_file_not_edited::
-    "@@apacheReverseProxy@@result_error@@&TRACKINGKEY&@@Reverse Proxy Settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration could NOT be edited !";
+    "@@apacheReverseProxy@@result_error@@&TRACKINGKEY&@@Apache reverse proxy settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration could NOT be edited !";
 
   apache_restarted::
     "@@apacheReverseProxy@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#${service_name} restarted";
