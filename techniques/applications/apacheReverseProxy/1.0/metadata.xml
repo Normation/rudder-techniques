@@ -15,18 +15,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <!--
-    This is the Apache installation PT.
+    This is the Apache reverse proxy installation Technique.
     Compatibility : Linux Red Hat like, Debian like
 
-It is intended to check if Apache is installed and install it if not,
-then check if it is started on boot.
--
-It then adds apache to the boot init scripts if not already set to start on boot.
+It is intended to set up Apache as a reverse proxy server, for example to expose
+application server data to the outside or to centralize HTTP ressources in one point.
 -->
-<TECHNIQUE name="Apache 2 reverse proxy">
+<TECHNIQUE name="Reverse Proxy (Apache)">
   <DESCRIPTION>This technique will configure the Apache HTTP server as a reverse proxy.
 
-  It will ensure the "apache2" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.
+  It will ensure the Apache HTTPd package is installed (via the appropriate packaging tool for each OS), ensure the service is running and configure it to act as a reverse proxy server.
   </DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 5 (Lenny)">Debian</OS>
@@ -35,21 +33,20 @@ It then adds apache to the boot init scripts if not already set to start on boot
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
-
   <BUNDLES>
-    <NAME>check_apache_reverse_proxy_installation</NAME>
-    <NAME>check_apache_reverse_proxy_configuration</NAME>
+    <NAME>rudder_reverse_proxy_apache</NAME>
   </BUNDLES>
 
   <TMLS>
-    <TML name="apacheReverseProxyConfiguration"/>
-    <TML name="apacheReverseProxyInstall"/>
+    <TML name="main"/>
+    <TML name="bodies"/>
+    <TML name="installation"/>
+    <TML name="configuration"/>
   </TMLS>
   
   <TRACKINGVARIABLE>
     <SAMESIZEAS>APACHE_REVERSE_PROXY_URL_SRC</SAMESIZEAS>
   </TRACKINGVARIABLE>
-
     
   <SECTIONS>
     <SECTION name="Apache reverse proxy installation" component="true" />
