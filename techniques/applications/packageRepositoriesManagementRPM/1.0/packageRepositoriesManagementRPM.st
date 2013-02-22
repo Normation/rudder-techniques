@@ -32,6 +32,8 @@ bundle agent check_pkg_manager_repositories
 }&
       &PKG_MGR_ENABLED:{pkg_mgr_enabled |"pkg_mgr_enabled[&i&]" string => "&pkg_mgr_enabled&";
 }&
+      &TRACKINGKEY:{directiveId |"pkg_mgr_uuid[&i&]" string => "&directiveId&";
+}&
 
       # List of all the files to permit on the vhost directory
       "pkg_mgr_files" slist => { &PKG_MGR_NAME: { "rudder-&it&.repo" };separator=", "&};
@@ -71,30 +73,30 @@ bundle agent check_pkg_manager_repositories
       # Zypper repositories desactivation
 
     pkg_mgr_disablerepositories.!repos_disabled_ok.!repos_disabled_fail::
-      "@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were already disabled";
+      "@@Package repositories management RPM@@result_success@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were already disabled";
 
     pkg_mgr_disablerepositories.repos_disabled_ok::
-      "@@Package repositories management RPM@@result_repaired@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were disabled";
+      "@@Package repositories management RPM@@result_repaired@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Every repository other than the defined ones were disabled";
 
     pkg_mgr_disablerepositories.repos_disabled_fail::
-      "@@Package repositories management RPM@@result_error@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Could not disable the other repositories!";
+      "@@Package repositories management RPM@@result_error@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@None@@$(g.execRun)##$(g.uuid)@#Could not disable the other repositories!";
 
     !pkg_mgr_disablerepositories::
-      "@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#The repository desactivation has not been requested. Skipping...";
+      "@@Package repositories management RPM@@result_success@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@None@@$(g.execRun)##$(g.uuid)@#The repository desactivation has not been requested. Skipping...";
 
     # Ignore non-SuSE OSes
     !SuSE::
-      "@@Package repositories management RPM@@result_error@@&TRACKINGKEY&@@Repository@@None@@$(g.execRun)##$(g.uuid)@#ZYPPER cannot be configured on none SuSE OSes";
+      "@@Package repositories management RPM@@result_error@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@None@@$(g.execRun)##$(g.uuid)@#ZYPPER cannot be configured on none SuSE OSes";
 
     SuSE::
     # Repositories
-      "@@Package repositories management RPM@@result_success@@&TRACKINGKEY&@@Repository@@$(pkg_mgr_name[$(pkg_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The Zypper source $(pkg_mgr_name[$(pkg_mgr_index)]) was already here. Skipping..."
+      "@@Package repositories management RPM@@result_success@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@$(pkg_mgr_name[$(pkg_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The Zypper source $(pkg_mgr_name[$(pkg_mgr_index)]) was already here. Skipping..."
         ifvarclass => "pkg_mgr_$(pkg_mgr_index)_kept.!pkg_mgr_$(pkg_mgr_index)_validated";
 
-      "@@Package repositories management RPM@@result_repaired@@&TRACKINGKEY&@@Repository@@$(pkg_mgr_name[$(pkg_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The Zypper source $(pkg_mgr_name[$(pkg_mgr_index)]) has been successfully added"
+      "@@Package repositories management RPM@@result_repaired@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@$(pkg_mgr_name[$(pkg_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The Zypper source $(pkg_mgr_name[$(pkg_mgr_index)]) has been successfully added"
         ifvarclass => "pkg_mgr_$(pkg_mgr_index)_validated";
 
-      "@@Package repositories management RPM@@result_error@@&TRACKINGKEY&@@Repository@@$(pkg_mgr_name[$(pkg_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The Zypper source $(pkg_mgr_name[$(pkg_mgr_index)]) was NOT added!"
+      "@@Package repositories management RPM@@result_error@@${pkg_mgr_uuid[${pkg_mgr_index}]}@@Repository@@$(pkg_mgr_name[$(pkg_mgr_index)])@@$(g.execRun)##$(g.uuid)@#The Zypper source $(pkg_mgr_name[$(pkg_mgr_index)]) was NOT added!"
         ifvarclass => "pkg_mgr_$(pkg_mgr_index)_error";
 }
 

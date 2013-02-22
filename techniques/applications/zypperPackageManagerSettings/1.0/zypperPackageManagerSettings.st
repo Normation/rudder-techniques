@@ -32,6 +32,8 @@ bundle agent check_zypper_settings
 }&
       &ZYPPER_ENABLED:{zypper_enabled |"zypper_enabled[&i&]" string => "&zypper_enabled&";
 }&
+      &TRACKINGKEY:{directiveId |"zypper_uuid[&i&]" string => "&directiveId&";
+}&
 
       # List of all the files to permit on the vhost directory
       "zypper_files"                       slist => { &ZYPPER_NAME: { "rudder-&it&.repo" };separator=", "&};
@@ -93,43 +95,43 @@ bundle agent check_zypper_settings
 
     # ZYPPER settings edition
     zypper_conf_kept::
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#Zypper settings were all already correct";
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Zypper settings were all already correct";
 
     zypper_conf_validated::
-      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#Some Zypper settings were reset";
+      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Some Zypper settings were reset";
 
     zypper_conf_failed::
-      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#Zypper repositories could not be edited";
+      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Zypper repositories could not be edited";
 
     # Zypper repositories desactivation
     zypper_disablerepositories.!repos_disabled_ok.!repos_disabled_fail::
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were already disabled";
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were already disabled";
 
     zypper_disablerepositories.repos_disabled_ok::
-      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were disabled";
+      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were disabled";
 
     zypper_disablerepositories.repos_disabled_fail::
-      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#Could not disable the other repositories!";
+      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Could not disable the other repositories!";
 
     !zypper_disablerepositories::
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#The repository desactivation has not been requested. Skipping...";
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#The repository desactivation has not been requested. Skipping...";
 
     # Ignore non-SuSE OSes
     !SuSE::
-      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@zypperPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#ZYPPER cannot be configured on non SuSE OSes";
+      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zmd_index}]}@@zypperPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#ZYPPER cannot be configured on non SuSE OSes";
 
     !zypper_repositories_edit::
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The source $(zypper_name[${zypper_index}]) will NOT be added as the repository addition parameter is off in the Policy Instance. Skipping...";
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zmd_index}]}@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The source $(zypper_name[${zypper_index}]) will NOT be added as the repository addition parameter is off in the Policy Instance. Skipping...";
 
     SuSE::
       # Repositories
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) was already here. Skipping..."
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zmd_index}]}@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) was already here. Skipping..."
         ifvarclass => "zypper_${zypper_index}_kept.!zypper_${zypper_index}_validated";
 
-      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) has been successfully added"
+      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zmd_index}]}@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) has been successfully added"
         ifvarclass => "zypper_${zypper_index}_validated";
 
-      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) was NOT added!"
+      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zmd_index}]}@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) was NOT added!"
         ifvarclass => "zypper_${zypper_index}_error";
 }
 
@@ -192,13 +194,13 @@ bundle edit_line set_zypper_repos_BROKEN(zypper_name, zypper_url, zypper_enabled
   reports:
 
   # Repositories
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) was already here. Skipping..."
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zmd_index}]}@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) was already here. Skipping..."
         ifvarclass => "source_${zypper_index}_kept.!source_${zypper_index}_ok";
 
-      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) has been successfully added"
+      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zmd_index}]}@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) has been successfully added"
         ifvarclass => "source_${zypper_index}_ok";
 
-      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) was NOT added!"
+      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zmd_index}]}@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) was NOT added!"
         ifvarclass => "source_${zypper_index}_failed";
 
 }

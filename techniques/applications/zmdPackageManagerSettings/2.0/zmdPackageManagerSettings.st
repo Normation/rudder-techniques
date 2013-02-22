@@ -34,8 +34,7 @@ bundle agent check_zmd_settings
       "zmdconf[Network][proxy-password]" string => "&ZMD_PROXY_PASSWORD&";
 
     class_ok::
-      &TRACKINGKEY:{directiveId |"zmdconf_uuid[&i&]" string => "&directiveId&";
-}&
+      "zmdconf_uuid[&i&]"                string => "&TRACKINGKEY&";
 
 &if(ZMD_SET_REFRESH_INTERVAL)&
       "zmdconf[Server][refresh-interval]" string => "&ZMD_REFRESH_INTERVAL&";
@@ -47,7 +46,6 @@ bundle agent check_zmd_settings
       "zmdconf[Debug][syslog-level]"      string => "&ZMD_SYSLOG_LEVEL&";
 
       "zmd_sections"                      slist  => getindices("zmdconf");
-      "zmd_index"                         slist  => getindices("zmdconf_uuid");
 
   classes:
 
@@ -107,30 +105,30 @@ bundle agent check_zmd_settings
 
     # ZMD settings edition
     !settings_edition::
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#No ZMD settings were specified. Skipping...";
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#No ZMD settings were specified. Skipping...";
 
     zmd_conf_kept::
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD settings were all already correct";
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD settings were all already correct";
 
     zmd_conf_validated::
-      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Some ZMD settings were reset";
+      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Some ZMD settings were reset";
 
     zmd_conf_failed::
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD repositories could not be edited";
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD repositories could not be edited";
 
     # Ignore non-SuSE OSes
     !SuSE::
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
 
     SuSE::
     # ZMD Process presence related reports
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
         ifvarclass => "!zmd_restart";
 
-      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
+      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
         ifvarclass => "zmd_restarted";
 
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
         ifvarclass => "could_not_restart_zmd";
 
 }
