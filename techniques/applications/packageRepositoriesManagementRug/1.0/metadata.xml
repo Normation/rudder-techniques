@@ -1,0 +1,56 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<TECHNIQUE name="Package repositories management (Rug)">
+  <DESCRIPTION>This technique configure the repositories of the package manager in RPM based systems (Rug especially).</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_rug_mgr_repositories</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="packageRepositoriesManagementRug"/>
+  </TMLS>
+  
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>RUG_MGR_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+    <!-- Repository settings Section -->
+      <SECTION name="Repository" multivalued="true" component="true" componentKey="RUG_MGR_NAME">
+        <INPUT>
+          <NAME>RUG_MGR_NAME</NAME>
+          <DESCRIPTION>Repository local name</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>false</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+	<INPUT>
+          <NAME>RUG_MGR_URL</NAME>
+          <DESCRIPTION>Repository URL</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>false</MAYBEEMPTY>
+          </CONSTRAINT>
+	</INPUT>
+      </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
