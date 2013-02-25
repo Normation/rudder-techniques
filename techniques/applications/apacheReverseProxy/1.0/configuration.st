@@ -20,119 +20,101 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name) {
 
   vars:
 
-    "proxies"                            string => "&APACHE_REVERSE_PROXY_URL_SRC,APACHE_REVERSE_PROXY_URL_DST,APACHE_REVERSE_PROXY_TIMEOUT:{src, dst, timeout|ProxyPass &src& &dst& connectiontimeout=5 timeout=&timeout&$(const.n)ProxyPassReverse &src& &dst&
+    "proxies"                                          string => "&APACHE_REVERSE_PROXY_URL_SRC,APACHE_REVERSE_PROXY_URL_DST,APACHE_REVERSE_PROXY_TIMEOUT:{src, dst, timeout|ProxyPass &src& &dst& connectiontimeout=5 timeout=&timeout&$(const.n)ProxyPassReverse &src& &dst&
 }&";
-    (debian|SuSE)::
-
-      "reverse_proxy_configuration_file" string => "/etc/apache2/conf.d/rudder-reverse-proxy.conf";
-      "apache_binary_name"               string => "apache2";
-
     debian::
 
-      "debian_modules"                   string => "proxy proxy_http";
+      "rudder_reverse_proxy_apache_debian_modules"     string => "proxy proxy_http";
+      "rudder_reverse_proxy_apache_binary_name"        string => "/usr/sbin/apache2";
+
+    SuSE::
+
+      "rudder_reverse_proxy_apache_binary_name"        string => "/usr/sbin/httpd2-(prefork|worker)";
 
     redhat::
 
-      "reverse_proxy_configuration_file" string => "/etc/httpd/conf.d/rudder-reverse-proxy.conf";
-      "apache_binary_name"               string => "httpd";
+      "reverse_proxy_configuration_file"               string => "/etc/httpd/conf.d/rudder-reverse-proxy.conf";
+      "rudder_reverse_proxy_apache_binary_name"        string => "/usr/sbin/httpd";
+      "rudder_reverse_proxy_apache_restart_command"    string => "/etc/init.d/httpd restart";
+
+    !redhat::
+
+      "reverse_proxy_configuration_file"               string => "/etc/apache2/conf.d/rudder-reverse-proxy.conf";
+      "rudder_reverse_proxy_apache_restart_command"    string => "/etc/init.d/apache2 restart";
 
   classes:
 
     # Adjust SELinux ?
-    "apache_selinux_adjust"              expression => strcmp("&APACHE_REVERSE_PROXY_ADJUST_SELINUX&","true");
+    "rudder_reverse_proxy_apache_selinux_adjust"       expression => strcmp("&APACHE_REVERSE_PROXY_ADJUST_SELINUX&","true");
 
-    SuSE::
+    # Are the SELinux utilities installed ?
+    "rudder_reverse_proxy_apache_selinux_presence"     expression => fileexists("/usr/sbin/getsebool");
 
-      # You can't have both of them, they are mutually exclusive.
-      "apache_bin_worker"                expression => fileexists("/usr/sbin/httpd2-worker");
-      "apache_bin_prefork"               expression => fileexists("/usr/sbin/httpd2-prefork");
+    # What is the current SELinux http proxying policy ?
+    "rudder_reverse_proxy_apache_selinux_proxy_policy" expression => returnszero("/usr/sbin/getsebool httpd_can_network_relay | grep -q on", "useshell");
 
   processes:
 	
-    (debian|redhat)::
-	
-      "/usr/sbin/${apache_binary_name}"
-      restart_class => "apache_down",
-      comment => "Ensuring apache is up on Redhat or Debian machines";
-
-    # Using a variable on this case is counter intuitive, as is forces us to bypass the regular
-    # normal ordering model (vars before classes), as it would require that variables are defined
-    # conditionnally with classes.
-    SuSE::
-
-      "/usr/sbin/httpd2-prefork"
-        restart_class => "apache_down",
-        ifvarclass    => "apache_bin_prefork",
-        comment       => "Ensuring apache is up on SuSE (prefork model)";
-
-      "/usr/sbin/httpd2-worker"
-        restart_class => "apache_down",
-        ifvarclass    => "apache_bin_worker",
-        comment       => "Ensuring apache is up on SuSE (worker model)";
+      "${rudder_reverse_proxy_apache_binary_name}"
+        restart_class => "rudder_reverse_proxy_apache_process_down",
+        comment       => "Ensuring apache is up";
 
   commands:
 
     debian::
-
       "/usr/sbin/a2enmod"
-        args    => "$(debian_modules)",
-        classes => cf2_if_else("apache_modules_enabled", "apache_modules_not_enabled"),
+        args    => "$(rudder_reverse_proxy_apache_debian_modules)",
+        classes => rudder_common_classes("rudder_reverse_proxy_apache_modules"),
         comment => "Enable Apache modules on Debian";
 
-    apache_selinux_adjust::
-
+    rudder_reverse_proxy_apache_selinux_adjust.!rudder_reverse_proxy_apache_selinux_proxy_policy::
       "/usr/sbin/setsebool"
         args    => "httpd_can_network_relay on",
-        classes => cf2_if_else("apache_selinux_adjusted", "apache_selinux_not_adjusted"),
+        classes => rudder_common_classes("rudder_reverse_proxy_apache_selinux"),
         comment => "Enable SELinux Apache entry to let Apache proxy entries";
 
-    (apache_down|reverse_proxy_file_edited)::
-      "/etc/init.d/${apache_binary_name}"
+    (rudder_reverse_proxy_apache_process_down|reverse_proxy_file_edited)::
+      "/etc/init.d/${rudder_reverse_proxy_apache_binary_name}"
         args    => "restart",
-        classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
+        classes => cf2_if_else("rudder_reverse_proxy_apache_restarted", "rudder_reverse_proxy_apache_restart_error"),
         comment => "restarting apache";
 
   files:
-
-    (debian|redhat|SuSE)::
 
       "$(reverse_proxy_configuration_file)"
         create        => "true",
         edit_defaults => empty,
         edit_line     => insert_proxy_entries("$(proxies)"),
-        classes       => kept_if_else("reverse_proxy_file_ok", "reverse_proxy_file_edited", "reverse_proxy_file_edition_failed"),
+        classes       => rudder_common_classes("rudder_reverse_proxy_apache_configuration"),
         comment       => "Edit the Apache reverse proxy file";
 
-reports:
+}
 
-  (redhat|SuSE)::
-    "@@apacheReverseProxy@@result_success@@&TRACKINGKEY&@@Apache reverse proxy modules@@None@@$(g.execRun)##$(g.uuid)@#No ${service_name} modules edition needed on this OS";
+# The reporting is made on separate bundles to abstract the complexity
+# inherent to the normal ordering.
+bundle agent rudder_reverse_proxy_apache_configuration_reporting(service_name)
+{
+  methods:
+    # Modules edition
+    "any"
+      usebundle  => rudder_common_report("${service_name}", "result_success", "&TRACKINGKEY&", "Apache reverse proxy modules", "None", "No ${service_name} modules edition needed on this OS"),
+      ifvarclass => "!debian";
+    "any" usebundle => rudder_common_reports_generic("${service_name}", "rudder_reverse_proxy_apache_modules", "&TRACKINGKEY&", "Apache reverse proxy modules", "None", "The ${service_name} modules");
 
-  apache_modules_enabled::
-    "@@apacheReverseProxy@@result_success@@&TRACKINGKEY&@@Apache reverse proxy modules@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} proxy related modules Apache have been successfully enabled";
+    # SELinux edition
+    "any"
+      usebundle  => rudder_common_report("${service_name}", "result_success", "&TRACKINGKEY&", "Apache reverse proxy SELinux configuration", "None", "No ${service_name} SELinux modification needed"),
+      ifvarclass => "!rudder_reverse_proxy_apache_selinux_adjust|rudder_reverse_proxy_apache_selinux_proxy_policy";
+    "any" usebundle => rudder_common_reports_generic("${service_name}", "rudder_reverse_proxy_apache_selinux", "&TRACKINGKEY&", "Apache reverse proxy SELinux configuration", "None", "The ${service_name} SELinux configuration");
 
-  apache_modules_not_enabled.!apache_modules_enabled::
-    "@@apacheReverseProxy@@result_success@@&TRACKINGKEY&@@Apache reverse proxy modules@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} proxy related modules Apache were NOT enabled.";
+    # Apache configuration
+    "any" usebundle => rudder_common_reports_generic("${service_name}", "rudder_reverse_proxy_apache_configuration", "&TRACKINGKEY&", "Apache reverse proxy settings", "None", "The ${service_name} reverse proxy configuration");
 
-  apache_selinux_adjust.apache_selinux_adjusted::
-    "@@apacheReverseProxy@@result_success@@&TRACKINGKEY&@@Apache reverse proxy SELinux configuration@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} SELinux proxy related configuration has been edited";
-
-  apache_selinux_adjust.apache_selinux_not_adjusted::
-    "@@apacheReverseProxy@@result_error@@&TRACKINGKEY&@@Apache reverse proxy SELinux configuration@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} SELinux proxy related configuration has NOT been edited !";
-
-  reverse_proxy_file_ok::
-    "@@apacheReverseProxy@@result_success@@&TRACKINGKEY&@@Apache reverse proxy settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration is correct";
-
-  reverse_proxy_file_edited::
-    "@@apacheReverseProxy@@result_repaired@@&TRACKINGKEY&@@Apache reverse proxy settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration has been edited";
-
-  reverse_proxy_file_not_edited::
-    "@@apacheReverseProxy@@result_error@@&TRACKINGKEY&@@Apache reverse proxy settings@@None@@$(g.execRun)##$(g.uuid)@#The ${service_name} reverse proxy configuration could NOT be edited !";
-
-  apache_restarted::
-    "@@apacheReverseProxy@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#${service_name} restarted";
-
-  cant_restart_apache::
-    "@@apacheReverseProxy@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@$(g.execRun)##$(g.uuid)@#Could not restart ${service_name}";
-
+    # Apache restart
+    "any"
+      usebundle  => rudder_common_report("${service_name}", "log_info", "&TRACKINGKEY&", "Apache reverse proxy modules", "None", "${service_name} has been restarted"),
+      ifvarclass => "rudder_reverse_proxy_apache_restarted";
+    "any"
+      usebundle  => rudder_common_report("${service_name}", "result_error", "&TRACKINGKEY&", "Apache reverse proxy modules", "None", "Unable to restart ${service_name}"),
+      ifvarclass => "rudder_reverse_proxy_apache_restart_error";
 }

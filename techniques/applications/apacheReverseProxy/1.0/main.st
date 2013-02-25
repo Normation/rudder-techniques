@@ -28,6 +28,11 @@ bundle agent rudder_reverse_proxy_apache
       string => "Apache (as a reverse proxy)";
 
   methods:
+    # Note:
+    # The reporting is made on separate bundles to abstract the complexity
+    # inherent to the normal ordering.
     "any" usebundle => rudder_reverse_proxy_apache_installation("${rudder_reverse_proxy_apache_service_name}");
+    "any" usebundle => rudder_reverse_proxy_apache_installation_reporting("${rudder_reverse_proxy_apache_service_name}");
     "any" usebundle => rudder_reverse_proxy_apache_configuration("${rudder_reverse_proxy_apache_service_name}");
+    "any" usebundle => rudder_reverse_proxy_apache_configuration_reporting("${rudder_reverse_proxy_apache_service_name}");
 }

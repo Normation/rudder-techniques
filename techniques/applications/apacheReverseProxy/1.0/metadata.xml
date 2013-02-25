@@ -1,5 +1,5 @@
 <!--
-Copyright 2011-2013 Normation SAS
+Copyright 2011 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -13,13 +13,17 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
+
 <!--
-This is the Apache reverse proxy installation Technique.
+USELESS COMMENT
+
+    This is the Apache reverse proxy installation Technique.
+    Compatibility : Linux Red Hat like, Debian like
 
 It is intended to set up Apache as a reverse proxy server, for example to expose
 application server data to the outside or to centralize HTTP ressources in one point.
 -->
-<TECHNIQUE name="Reverse Proxy (Apache)">
+<TECHNIQUE name="HTTP Reverse Proxy (Apache)">
   <DESCRIPTION>This technique will configure the Apache HTTP server as a reverse proxy.
 
   It will ensure the Apache HTTPd package is installed (via the appropriate packaging tool for each OS), ensure the service is running and configure it to act as a reverse proxy server.
@@ -69,7 +73,7 @@ application server data to the outside or to centralize HTTP ressources in one p
           <DEFAULT>true</DEFAULT>
         </CONSTRAINT>
       </INPUT>
-      <SECTION name="Reverse Proxy Settings" multivalued="true">
+      <SECTION name="Reverse Proxy settings" multivalued="true">
         <INPUT>
           <NAME>APACHE_REVERSE_PROXY_URL_SRC</NAME>
           <DESCRIPTION>URL to listen to incoming requests on</DESCRIPTION>
