@@ -29,12 +29,12 @@ bundle agent rudder_reverse_proxy_apache_installation(service_name) {
 
   classes:
 
-    "install_apache" expression => strcmp("&APACHE_REVERSE_PROXY_INSTALL&", "true");
+    "rudder_reverse_proxy_apache_install_package" expression => strcmp("&APACHE_REVERSE_PROXY_INSTALL&", "true");
 
   packages:
 
     # Too bad SuSE 10 uses a different bundle, things would be so simple if it was not the case...
-    SuSE_10.install_apache::
+    SuSE_10.rudder_reverse_proxy_apache_install_package::
 
       "${apache_package_name}"
         package_policy  => "add",
@@ -42,7 +42,7 @@ bundle agent rudder_reverse_proxy_apache_installation(service_name) {
         classes         => rudder_common_classes("rudder_reverse_proxy_apache_package"),
         comment         => "Installing apache using the rug interface";
 
-    !SuSE_10.install_apache::
+    !SuSE_10.rudder_reverse_proxy_apache_install_package::
 
       "${apache_package_name}"
         package_policy  => "add",
@@ -50,15 +50,19 @@ bundle agent rudder_reverse_proxy_apache_installation(service_name) {
         classes         => rudder_common_classes("rudder_reverse_proxy_apache_package"),
         comment         => "Installing apache using generic interface";
 
+  methods:
+
+    # Class local visibility prevents a "normal" usage of this bundle.
+    "any"
+      usebundle  => rudder_common_report("${internal_name}", "result_success", "&TRACKINGKEY&", "Installation parameters", "None", "${service_name} installation is not required. Skipping..."),
+      ifvarclass => "!rudder_reverse_proxy_apache_install_package";
+
 }
 
 # The reporting is made on separate bundles to abstract the complexity
 # inherent to the normal ordering.
-bundle agent rudder_reverse_proxy_apache_installation_reporting(service_name)
+bundle agent rudder_reverse_proxy_apache_installation_reporting(service_name, internal_name)
 {
   methods:
-    "any" usebundle => rudder_common_reports_generic("${service_name}", "rudder_reverse_proxy_apache_package", "&TRACKINGKEY&", "Apache reverse proxy installation", "None", "The ${service_name} package installation");
-    "any"
-      usebundle  => rudder_common_report("${service_name}", "result_success", "&TRACKINGKEY&", "Apache reverse proxy installation", "None", "${service_name} installation is not required. Skipping..."),
-      ifvarclass => "rudder_openssh_server_down";
+    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_package", "&TRACKINGKEY&", "Installation parameters", "None", "The ${service_name} package installation");
 }
