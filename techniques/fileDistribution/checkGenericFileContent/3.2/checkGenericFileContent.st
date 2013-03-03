@@ -146,7 +146,7 @@ classes:
 			"$(generic_file_content_posthook[$(index)])"
 				classes => if_else("generic_file_content_posthook_$(index)_command_run_ok", "generic_file_content_posthook_$(index)_command_run_failed"),
 				contain => in_shell,
-				ifvarclass => "content_$(index)_modified.execute_command_$(index).!content_$(index)_failed";
+				ifvarclass => "execute_command_$(index).!(content_$(index)_failed|content_deletion_failed_$(index)|content_modification_failed_$(index)).(content_$(index)_modified|content_deletion_modified_$(index)|content_modification_modified_$(index))";
 
 	reports:
 
