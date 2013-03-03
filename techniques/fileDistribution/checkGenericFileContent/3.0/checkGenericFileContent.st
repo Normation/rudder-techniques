@@ -49,8 +49,6 @@ bundle agent check_generic_file_content
 }&
       &GENERIC_FILE_CONTENT_DELETION_REGEXP:{delreg |"generic_file_content_deletion_regexp[&i&]" string => "&delreg&";
 }&
-                        &GENERIC_FILE_CONTENT_CREATE_BOOLEAN:{createfile |"generic_file_content_creation[&i&]" string => "&createfile&";
-}&
       &GENERIC_FILE_CONTENT_MODIFICATION_REGEXP:{delreg |"generic_file_content_modification_regexp[&i&]" string => "&delreg&";
 }&
       &GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
@@ -73,6 +71,16 @@ bundle agent check_generic_file_content
 }&
       &GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN:{modification |"modify_lines_&i&" expression => strcmp("&modification&", "true");
 }&
+
+      # Workaround for #3014: no value = empty value
+      # In some conditions, the value of replacement is
+      # considerered as null instead of empty.
+      # This class will ensure that no variable (=null) will be considered
+      # as an empty variable.
+      "generic_file_content_modification_destination_defined_${index}" expression => isvariable("generic_file_content_modification_destination[${index}]");
+      # Check that value has been set before to edit the file
+      "edit_content_${index}" expression => isvariable("generic_file_content_payload[${index}]");
+
       "tier1" expression => "any";
 
       "tier2" expression => isvariable("file_edit_go");
@@ -83,32 +91,44 @@ bundle agent check_generic_file_content
 
       "$(generic_file_content_path[${index}])"
         edit_line => set_arbitrary_file_content("$(generic_file_content_payload[${index}])",
-      "$(generic_file_content_enforced[${index}])"),
-        create => "$(generic_file_content_creation[${index}])",
+                                                "$(generic_file_content_enforced[${index}])"),
+        create => "true",
         edit_defaults => rudder_empty_select("$(generic_file_content_enforced[${index}])"),
         classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),
+        ifvarclass => "edit_content_$(index)",
         comment => "Editing $(generic_file_content_path[${index}])...";
 
       "$(generic_file_content_path[${index}])"
         edit_line => delete_lines_matching("$(generic_file_content_deletion_regexp[${index}])"),
-        create => "$(generic_file_content_creation[${index}])",
+        create => "true",
         classes => kept_if_else("content_deletion_kept_${index}", "content_deletion_modified_${index}", "content_deletion_failed_${index}"),
         ifvarclass => "delete_lines_${index}",
         comment => "Deleting lines in $(generic_file_content_path[${index}]) using the given regexps...";
 
       "$(generic_file_content_path[${index}])"
         edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[${index}])", "$(generic_file_content_modification_destination[${index}])"),
-        create => "$(generic_file_content_creation[${index}])",
+        create => "true",
         classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_${index}"),
-        ifvarclass => "modify_lines_${index}",
+        ifvarclass => "modify_lines_${index}.generic_file_content_modification_destination_defined_${index}",
         comment => "Replacing lines in $(generic_file_content_path[${index}]) using the given regexps...";
 
+      # Replace the matching line(s) of the file by an empty line
+      # if replacement is not set
+      $(generic_file_content_path[${index}])"
+        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[${index}])", ""),
+        create => "true",
+        classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_$(index)"),
+        ifvarclass => "modify_lines_${index}.!generic_file_content_modification_destination_defined_${index}",
+        comment => "Replacing lines in $(generic_file_content_path[${index}]) using the given regexps...";
+
+
       "$(generic_file_content_path[${index}])"
-        create => "$(generic_file_content_creation[${index}])",
+        create => "true",
         perms => mog("$(generic_file_content_perms[${index}])", "$(generic_file_content_owner[${index}])", "$(generic_file_content_group[${index}])"),
         classes => kept_if_else("perms_${index}_kept", "perms_${index}_modified", "perms_${index}_failed"),
         ifvarclass => "adjust_permissions_${index}",
         comment => "Setting $(generic_file_content_path[${index}]) permissions...";
+
 
   commands:
 
@@ -117,7 +137,7 @@ bundle agent check_generic_file_content
       "$(generic_file_content_posthook[${index}])"
         classes => if_else("generic_file_content_posthook_${index}_command_run_ok", "generic_file_content_posthook_${index}_command_run_failed"),
         contain => in_shell,
-        ifvarclass => "content_${index}_modified.execute_command_${index}.!content_${index}_failed";
+        ifvarclass => "execute_command_${index}.!(content_${index}_failed|content_deletion_failed_${index}|content_modification_failed_${index}).(content_${index}_modified|content_deletion_modified_${index}|content_modification_modified_${index})";
 
   reports:
 
@@ -132,6 +152,9 @@ bundle agent check_generic_file_content
 
       "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[${index}])@@File@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) could not be updated"
         ifvarclass => "content_${index}_failed";
+
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No content was given to check file $(generic_file_content_path[$(index)]), skipping"
+        ifvarclass => "!edit_content_$(index)";
 
                         # Files edition - deletion
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[${index}])@@Line deletion regular expressions@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) was not set for any line deletion"

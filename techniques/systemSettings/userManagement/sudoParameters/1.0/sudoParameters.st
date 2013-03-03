@@ -141,11 +141,12 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) ALL",
         ifvarclass => "(sudo_${index}_isgroup.sudo_${index}_alldo.!sudo_${index}_nopasswd).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) NOPASSWD:${command}",
+      "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) NOPASSWD:$($(command)[${index}])",
         ifvarclass => "(sudo_${index}_isgroup.sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) ${command}",
+      "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) $($(command)[${index}])",
         ifvarclass => "(sudo_${index}_isgroup.!sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
+
 
       "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) NOPASSWD:ALL",
         ifvarclass => "(sudo_${index}_isuser.sudo_${index}_alldo.sudo_${index}_nopasswd).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
@@ -153,10 +154,10 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) ALL",
         ifvarclass => "(sudo_${index}_isuser.sudo_${index}_alldo.!sudo_${index}_nopasswd).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) NOPASSWD:${command}",
+      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) NOPASSWD:$($(command)[${index}])",
         ifvarclass => "(sudo_${index}_isuser.sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) ${command}",
+      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) $($(command)[${index}])",
         ifvarclass => "(sudo_${index}_isuser.!sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
       "all_lines" slist => getvalues("lines");
@@ -186,9 +187,16 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
 
       "all_lines_defined"    expression => isvariable("all_lines");
 
-  insert_lines:
 
-      "Defaults	env_reset";
+  replace_patterns:
+	"^(?!Defaults	env_reset$)Defaults\s+env_reset$"
+		comment => "Normalize env_reset setting",
+		replace_with => value("Defaults	env_reset"),
+		classes => always("replace_attempted_env_reset");
+
+  insert_lines:
+		"Defaults	env_reset"
+			ifvarclass => "replace_attempted_env_reset";
 
     check_sudo_parameters_sudo_add_line_vars_defined::
       "$(lines[${index}])"

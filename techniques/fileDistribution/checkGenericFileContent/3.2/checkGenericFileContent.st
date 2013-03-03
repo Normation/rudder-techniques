@@ -147,7 +147,7 @@ bundle agent check_generic_file_content
       "$(generic_file_content_posthook[${index}])"
         classes => if_else("generic_file_content_posthook_${index}_command_run_ok", "generic_file_content_posthook_${index}_command_run_failed"),
         contain => in_shell,
-        ifvarclass => "content_${index}_modified.execute_command_${index}.!content_${index}_failed";
+        ifvarclass => "execute_command_${index}.!(content_${index}_failed|content_deletion_failed_${index}|content_modification_failed_${index}).(content_${index}_modified|content_deletion_modified_${index}|content_modification_modified_${index})";
 
   reports:
 
@@ -162,6 +162,7 @@ bundle agent check_generic_file_content
 
       "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[${index}])@@File@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) could not be updated"
         ifvarclass => "content_${index}_failed";
+
 
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No content was given to check file $(generic_file_content_path[$(index)]), skipping"
                         ifvarclass => "!edit_content_$(index)";
