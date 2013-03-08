@@ -101,7 +101,7 @@ bundle agent install_rsyslogd {
 				comment => "Add the rsyslog.conf.d include if not already present",
 				classes => cf2_if_else("rsyslog_inc_ok" , "rsyslog_inc_failed");
 
-		policy_server.!SuSE::
+		policy_server.debian::
 			"/etc/rsyslog.d/pgsql.conf"
 				edit_line => comment_all(),
 				classes => cf2_if_else("rudder_rsyslog_pgsql", "cannot_update_rudder_rsyslog_pgsql"),
