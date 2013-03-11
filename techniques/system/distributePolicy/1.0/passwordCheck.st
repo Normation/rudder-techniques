@@ -220,7 +220,10 @@ bundle agent root_password_check_dav
     debian::
       "webdav_check_wwwgroup" string => "www-data";
 
-    !debian::
+    redhat::
+      "webdav_check_wwwgroup" string => "apache";
+
+    !debian.!redhat::
       "webdav_check_wwwgroup" string => "www";
 
     SuSE::
