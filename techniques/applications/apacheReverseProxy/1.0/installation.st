@@ -16,7 +16,7 @@
 #
 #####################################################################################
 
-bundle agent rudder_reverse_proxy_apache_installation(service_name) {
+bundle agent rudder_reverse_proxy_apache_installation(service_name, internal_name) {
   vars:
 
     redhat::

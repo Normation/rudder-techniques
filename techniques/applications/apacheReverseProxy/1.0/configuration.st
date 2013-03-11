@@ -16,12 +16,12 @@
 #
 #####################################################################################
 
-bundle agent rudder_reverse_proxy_apache_configuration(service_name) {
+bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_name, params) {
 
   vars:
 
-    "proxies"                                           string => "&APACHE_REVERSE_PROXY_URL_SRC,APACHE_REVERSE_PROXY_URL_DST,APACHE_REVERSE_PROXY_TIMEOUT:{src, dst, timeout|ProxyPass &src& &dst& connectiontimeout=5 timeout=&timeout&$(const.n)ProxyPassReverse &src& &dst&
-}&";
+    "rudder_reverse_proxy_apache_proxies"               string => "${${params}[proxies]}";
+
     debian::
 
       "rudder_reverse_proxy_apache_debian_modules"      string => "proxy proxy_http";
@@ -45,7 +45,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name) {
   classes:
 
     # Adjust SELinux ?
-    "rudder_reverse_proxy_apache_selinux_adjust"        expression => strcmp("&APACHE_REVERSE_PROXY_ADJUST_SELINUX&","true");
+    "rudder_reverse_proxy_apache_selinux_adjust"        expression => strcmp("${${params}[selinux]}","true");
 
     # Are the SELinux utilities installed ?
     "rudder_reverse_proxy_apache_selinux_presence"      expression => fileexists("/usr/sbin/getsebool");
@@ -90,7 +90,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name) {
       "$(reverse_proxy_configuration_file)"
         create        => "true",
         edit_defaults => empty,
-        edit_line     => insert_proxy_entries("$(proxies)"),
+        edit_line     => insert_proxy_entries("$(rudder_reverse_proxy_apache_proxies)"),
         classes       => rudder_common_classes("rudder_reverse_proxy_apache_configuration"),
         comment       => "Edit the Apache reverse proxy file";
 
