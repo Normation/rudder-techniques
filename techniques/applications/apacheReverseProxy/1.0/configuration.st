@@ -24,7 +24,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
     debian::
 
-      "rudder_reverse_proxy_apache_debian_modules"      string => "proxy proxy_http";
+      "rudder_reverse_proxy_apache_debian_modules"      slist  => { "proxy", "proxy_http" };
       "rudder_reverse_proxy_apache_binary_name"         string => "/usr/sbin/apache2";
 
     SuSE::
@@ -35,12 +35,12 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
       "reverse_proxy_configuration_file"                string => "/etc/httpd/conf.d/rudder-reverse-proxy.conf";
       "rudder_reverse_proxy_apache_binary_name"         string => "/usr/sbin/httpd";
-      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/httpd restart";
+      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/httpd";
 
     !redhat::
 
       "reverse_proxy_configuration_file"                string => "/etc/apache2/conf.d/rudder-reverse-proxy.conf";
-      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/apache2 restart";
+      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/apache2";
 
   classes:
 
@@ -53,9 +53,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
     # What is the current SELinux http proxying policy ?
     "rudder_reverse_proxy_apache_selinux_proxy_policy"  expression => returnszero("/usr/sbin/getsebool httpd_can_network_relay | grep -q on", "useshell");
 
-    "rudder_reverse_proxy_apache_mod_proxy_loaded"      expression => fileexists("/etc/apache2/mods-enabled/proxy.load");
-
-    "rudder_reverse_proxy_apache_mod_proxy_http_loaded" expression => fileexists("/etc/apache2/mods-enabled/proxy_http.load");
+    "rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded" expression => fileexists("/etc/apache2/mods-enabled/${rudder_reverse_proxy_apache_debian_modules}.load");
 
   processes:
 	
@@ -65,10 +63,11 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
   commands:
 
-    debian.(!rudder_reverse_proxy_apache_mod_proxy_loaded.!rudder_reverse_proxy_apache_mod_proxy_http_loaded)::
+    debian::
       "/usr/sbin/a2enmod ${rudder_reverse_proxy_apache_debian_modules}"
-        classes => rudder_common_classes("rudder_reverse_proxy_apache_modules"),
-        comment => "Enable Apache modules on Debian";
+        classes    => rudder_common_classes("rudder_reverse_proxy_apache_modules"),
+        ifvarclass => "rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded",
+        comment    => "Enable Apache modules on Debian";
 
     rudder_reverse_proxy_apache_selinux_adjust.!rudder_reverse_proxy_apache_selinux_proxy_policy::
       "/usr/sbin/setsebool httpd_can_network_relay on"
