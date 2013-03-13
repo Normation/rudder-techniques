@@ -56,9 +56,9 @@ bundle agent download_file_from_git
 
   methods:
 
-      "any" usebundle => check_git_installation("$(copyfile_git_uuid[${index}])");
+      "any" usebundle => check_git_installation("${copyfile_git_uuid[${index}]}");
 
-      "any" usebundle => download_file_from_git_unit("$(copyfile_git_name[${index}])", "$(copyfile_git_repo[${index}])", "$(copyfile_git_branch[${index}])", "$(copyfile_git_ruddername[${index}])", "$(copyfile_git_owner[${index}])", "$(copyfile_git_group[${index}])", "$(copyfile_git_perms[${index}])", "$(copyfile_git_dest[${index}])", "$(copyfile_git_uuid[${index}])");
+      "any" usebundle => download_file_from_git_unit("${copyfile_git_name[${index}]}", "${copyfile_git_repo[${index}]}", "${copyfile_git_branch[${index}]}", "${copyfile_git_ruddername[${index}]}", "${copyfile_git_owner[${index}]}", "${copyfile_git_group[${index}]}", "${copyfile_git_perms[${index}]}", "${copyfile_git_dest[${index}]}", "${copyfile_git_uuid[${index}]}");
 
 }
 

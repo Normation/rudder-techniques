@@ -70,10 +70,10 @@ bundle agent check_zypper_settings
                         #        edit_defaults => empty_backup,
                         #        classes =>  kept_if_else("zypper_tier1_kept", "zypper_tier1_validated", "zypper_tier1_failed");
 
-      "/etc/zypp/repos.d/rudder-$(zypper_name[${zypper_index}]).repo"
+      "/etc/zypp/repos.d/rudder-${zypper_name[${zypper_index}]}.repo"
         create => "true",
         perms => m("644"),
-        edit_line => set_zypper_repos("$(zypper_name[${zypper_index}])", "$(zypper_url[${zypper_index}])", "$(zypper_enabled[${zypper_index}])", "$(zypper_type[${zypper_index}])", "${g.rudder_dependencies}/zypper-repo.tpl"),
+        edit_line => set_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${g.rudder_dependencies}/zypper-repo.tpl"),
         edit_defaults => empty_backup,
         classes => kept_if_else("zypper_${zypper_index}_kept", "zypper_${zypper_index}_validated", "zypper_${zypper_index}_failed");
 
@@ -120,19 +120,19 @@ bundle agent check_zypper_settings
 
     !zypper_repositories_edit::
 
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The source $(zypper_name[${zypper_index}]) will NOT be added as the repository addition parameter is off in the Policy Instance. Skipping...";
+      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The source ${zypper_name[${zypper_index}]} will NOT be added as the repository addition parameter is off in the Policy Instance. Skipping...";
 
     SuSE::
 
                 # Repositories
 
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) was already here. Skipping..."
+      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The Zypper source ${zypper_name[${zypper_index}]} was already here. Skipping..."
         ifvarclass => "zypper_${zypper_index}_kept.!zypper_${zypper_index}_validated";
 
-      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) has been successfully added"
+      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The Zypper source ${zypper_name[${zypper_index}]} has been successfully added"
         ifvarclass => "zypper_${zypper_index}_validated";
 
-      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zypper_name[${zypper_index}])@@${g.execRun}##${g.uuid}@#The Zypper source $(zypper_name[${zypper_index}]) was NOT added!"
+      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The Zypper source ${zypper_name[${zypper_index}]} was NOT added!"
         ifvarclass => "zypper_${zypper_index}_error";
 
 
@@ -168,43 +168,43 @@ bundle edit_line set_zypper_repos_BROKEN(zypper_name, zypper_url, zypper_enabled
         location => start,
         insert_type => "preserve_block";
 
-      "[$(${zypper_name}[${zypper_index}])]"
+      "[${${zypper_name}[${zypper_index}]}]"
         classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
 
-      "name=$(${zypper_name}[${zypper_index}])"
-        select_region => INI_section("$(${zypper_name}[${zypper_index}])"),
+      "name=${${zypper_name}[${zypper_index}]}"
+        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
         classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
 
-      "enabled=$(${zypper_enabled}[${zypper_index}])"
-        select_region => INI_section("$(${zypper_name}[${zypper_index}])"),
+      "enabled=${${zypper_enabled}[${zypper_index}]}"
+        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
         classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
 
       "autorefresh=0"
-        select_region => INI_section("$(${zypper_name}[${zypper_index}])"),
+        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
         classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
 
-      "baseurl=$(${zypper_url}[${zypper_index}])"
-        select_region => INI_section("$(${zypper_name}[${zypper_index}])"),
+      "baseurl=${${zypper_url}[${zypper_index}]}"
+        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
         classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
 
-      "type=$(${zypper_type}[${zypper_index}])"
-        select_region => INI_section("$(${zypper_name}[${zypper_index}])"),
+      "type=${${zypper_type}[${zypper_index}]}"
+        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
         classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
 
       "keeppackages=0"
-        select_region => INI_section("$(${zypper_name}[${zypper_index}])"),
+        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
         classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
 
   reports:
 
   # Repositories
-      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) was already here. Skipping..."
+      "@@zypperPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} was already here. Skipping..."
         ifvarclass => "source_${zypper_index}_kept.!source_${zypper_index}_ok";
 
-      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) has been successfully added"
+      "@@zypperPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} has been successfully added"
         ifvarclass => "source_${zypper_index}_ok";
 
-      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) was NOT added!"
+      "@@zypperPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} was NOT added!"
         ifvarclass => "source_${zypper_index}_failed";
 
 }
@@ -231,7 +231,7 @@ bundle edit_line set_advanced_zypper_config_values(tab, sectionName)
       "cindex[${index}]" string => canonify("${index}");
 
   classes:
-      "edit_$(cindex[${index}])" not => strcmp("$(${tab}[${sectionName}][${index}])","dontchange");
+      "edit_${cindex[${index}]}" not => strcmp("${${tab}[${sectionName}][${index}]}","dontchange");
 
   field_edits:
 
@@ -239,19 +239,19 @@ bundle edit_line set_advanced_zypper_config_values(tab, sectionName)
       "#+${index}=.*"
         select_region => INI_section("${sectionName}"),
         edit_field => col("=","1","${index}","set"),
-        ifvarclass => "edit_$(cindex[${index}])";
+        ifvarclass => "edit_${cindex[${index}]}";
 
   # match a line starting like the key something
       "${index}=.*"
-        edit_field => col("=","2","$(${tab}[${sectionName}][${index}])","set"),
+        edit_field => col("=","2","${${tab}[${sectionName}][${index}]}","set"),
         select_region => INI_section("${sectionName}"),
-        classes => if_ok("not_$(cindex[${index}])"),
-        ifvarclass => "edit_$(cindex[${index}])";
+        classes => if_ok("not_${cindex[${index}]}"),
+        ifvarclass => "edit_${cindex[${index}]}";
 
   insert_lines:
-      "${index}=$(${tab}[${sectionName}][${index}])",
+      "${index}=${${tab}[${sectionName}][${index}]}",
         select_region => INI_section("${sectionName}"),
-        ifvarclass => "!not_$(cindex[${index}]).edit_$(cindex[${index}])";
+        ifvarclass => "!not_${cindex[${index}]}.edit_${cindex[${index}]}";
 
 }
 

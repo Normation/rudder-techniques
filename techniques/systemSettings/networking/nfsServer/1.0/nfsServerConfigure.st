@@ -103,26 +103,26 @@ bundle agent check_nfs_server_configuration
         create => "true",
         perms => m("644"),
         edit_defaults => noempty_backup,
-        edit_line => set_nfs_server_values("$(nfs_server_path[${nfs_server_index}])", "$(nfs_server_network[${nfs_server_index}])", "$(nfs_server_options[${nfs_server_index}])"),
+        edit_line => set_nfs_server_values("${nfs_server_path[${nfs_server_index}]}", "${nfs_server_network[${nfs_server_index}]}", "${nfs_server_options[${nfs_server_index}]}"),
         classes => kept_if_else("nfs_server_${nfs_server_index}_kept", "nfs_server_${nfs_server_index}_done", "nfs_server_${nfs_server_index}_failed");
 
   reports:
 
     (debian|redhat|SuSE)::
 
-      "@@nfsServer@@result_repaired@@$(nfs_server_uuid[${nfs_server_index}])@@NFS server settings@@$(nfs_server_path[${nfs_server_index}])@@${g.execRun}##${g.uuid}@#The export $(nfs_server_path[${nfs_server_index}]) was successfully added"
+      "@@nfsServer@@result_repaired@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#The export ${nfs_server_path[${nfs_server_index}]} was successfully added"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_done");
 
-      "@@nfsServer@@result_success@@$(nfs_server_uuid[${nfs_server_index}])@@NFS server settings@@$(nfs_server_path[${nfs_server_index}])@@${g.execRun}##${g.uuid}@#The export $(nfs_server_path[${nfs_server_index}]) is already present"
+      "@@nfsServer@@result_success@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#The export ${nfs_server_path[${nfs_server_index}]} is already present"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_kept");
 
-      "@@nfsServer@@result_error@@$(nfs_server_uuid[${nfs_server_index}])@@NFS server settings@@$(nfs_server_path[${nfs_server_index}])@@${g.execRun}##${g.uuid}@#The export $(nfs_server_path[${nfs_server_index}]) could not be added"
+      "@@nfsServer@@result_error@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#The export ${nfs_server_path[${nfs_server_index}]} could not be added"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_failed");
 
-      "@@nfsServer@@log_repaired@@$(nfs_server_uuid[${nfs_server_index}])@@NFS server settings@@$(nfs_server_path[${nfs_server_index}])@@${g.execRun}##${g.uuid}@#Restarted the NFS server because of the export $(nfs_server_path[${nfs_server_index}])"
+      "@@nfsServer@@log_repaired@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#Restarted the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_restarted");
 
-      "@@nfsServer@@result_error@@$(nfs_server_uuid[${nfs_server_index}])@@NFS server settings@@$(nfs_server_path[${nfs_server_index}])@@${g.execRun}##${g.uuid}@#Could not restart the NFS server because of the export $(nfs_server_path[${nfs_server_index}])"
+      "@@nfsServer@@result_error@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#Could not restart the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_not_restarted");
 
 }

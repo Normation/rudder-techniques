@@ -89,7 +89,7 @@ bundle agent check_zmd_settings
 
     showtime.SuSE.checkzmd_present::
 
-      "${g.rudder_dependencies}/checkzmd.pl \"$(zmd_name[${zmd_index}])\" \"$(zmd_url[${zmd_index}])\" ${zmd_index}"
+      "${g.rudder_dependencies}/checkzmd.pl \"${zmd_name[${zmd_index}]}\" \"${zmd_url[${zmd_index}]}\" ${zmd_index}"
         contain => in_shell,
         module => "true",
         comment => "Analyzing ZMD's output";
@@ -97,13 +97,13 @@ bundle agent check_zmd_settings
     showtime.SuSE.zmd_repositories_edit::
 
       "/usr/bin/rug"
-        args => "sa --type=zypp \"$(zmd_url[${zmd_index}])\" \"$(zmd_name[${zmd_index}])\"",
+        args => "sa --type=zypp \"${zmd_url[${zmd_index}]}\" \"${zmd_name[${zmd_index}]}\"",
         ifvarclass => "index_${zmd_index}_not_matched",
         classes => kept_if_else("source_${zmd_index}_kept", "source_${zmd_index}_added", "source_${zmd_index}_failed"),
         comment => "Add the ${zmd_index} as a new source";
 
       "/usr/bin/rug"
-        args => "subscribe \"$(zmd_name[${zmd_index}])\"",
+        args => "subscribe \"${zmd_name[${zmd_index}]}\"",
         ifvarclass => "source_${zmd_index}_added",
         classes => kept_if_else("source_${zmd_index}_subkept", "source_${zmd_index}_subscribed", "source_${zmd_index}_subfailed"),
         comment => "Subscribe ${zmd_index} as a new source";
@@ -148,19 +148,19 @@ bundle agent check_zmd_settings
 
       # Repositories
 
-      "@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[${zmd_index}])@@${g.execRun}##${g.uuid}@#The ZMD source $(zmd_name[${zmd_index}]) is not here but no edition required. Skipping..."
+      "@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} is not here but no edition required. Skipping..."
         ifvarclass => "index_${zmd_index}_not_matched.!zmd_repositories_edit";
 
-      "@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[${zmd_index}])@@${g.execRun}##${g.uuid}@#The ZMD source $(zmd_name[${zmd_index}]) was already here. Skipping..."
+      "@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was already here. Skipping..."
         ifvarclass => "index_${zmd_index}_matched.!source_${zmd_index}_subscribed";
 
-      "@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@$(zmd_url[${zmd_index}])@@${g.execRun}##${g.uuid}@#The ZMD source $(zmd_name[${zmd_index}]) has been successfully added"
+      "@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} has been successfully added"
         ifvarclass => "index_${zmd_index}_not_matched.source_${zmd_index}_subscribed";
 
-      "@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zmd_url[${zmd_index}])@@${g.execRun}##${g.uuid}@#The ZMD source $(zmd_name[${zmd_index}]) was NOT added : Could not register the source !"
+      "@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not register the source !"
         ifvarclass => "source_${zmd_index}_failed";
 
-      "@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zmd_url[${zmd_index}])@@${g.execRun}##${g.uuid}@#The ZMD source $(zmd_name[${zmd_index}]) was NOT added : Could not subscribe to the source !"
+      "@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not subscribe to the source !"
         ifvarclass => "source_${zmd_index}_subfailed";
 
 
@@ -200,7 +200,7 @@ bundle edit_line set_advanced_zmd_config_values(tab, sectionName)
       "cindex[${index}]" string => canonify("${index}");
 
   classes:
-      "edit_$(cindex[${index}])" not => strcmp("$(${tab}[${sectionName}][${index}])","dontchange");
+      "edit_${cindex[${index}]}" not => strcmp("${${tab}[${sectionName}][${index}]}","dontchange");
 
   field_edits:
 
@@ -208,22 +208,22 @@ bundle edit_line set_advanced_zmd_config_values(tab, sectionName)
       "#+${index}=.*"
         select_region => INI_section("${sectionName}"),
         edit_field => col("=","1","${index}","set"),
-        ifvarclass => "edit_$(cindex[${index}])";
+        ifvarclass => "edit_${cindex[${index}]}";
 
   # match a line starting like the key something
       "${index}=.*"
-        edit_field => col("=","2","$(${tab}[${sectionName}][${index}])","set"),
+        edit_field => col("=","2","${${tab}[${sectionName}][${index}]}","set"),
         select_region => INI_section("${sectionName}"),
-        classes => if_ok("not_$(cindex[${index}])"),
-        ifvarclass => "edit_$(cindex[${index}])";
+        classes => if_ok("not_${cindex[${index}]}"),
+        ifvarclass => "edit_${cindex[${index}]}";
 
   insert_lines:
       "[${sectionName}]"
         location => start;
 
-      "${index}=$(${tab}[${sectionName}][${index}])",
+      "${index}=${${tab}[${sectionName}][${index}]}",
         select_region => INI_section("${sectionName}"),
-        ifvarclass => "!not_$(cindex[${index}]).edit_$(cindex[${index}])";
+        ifvarclass => "!not_${cindex[${index}]}.edit_${cindex[${index}]}";
 
 }
 

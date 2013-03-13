@@ -61,23 +61,23 @@ bundle agent check_generic_file_content
 
   files:
 
-      "$(generic_file_content_path[${index}])"
-        edit_line => set_arbitrary_file_content("$(generic_file_content_payload[${index}])",
-      "$(generic_file_content_enforced[${index}])"),
+      "${generic_file_content_path[${index}]}"
+        edit_line => set_arbitrary_file_content("${generic_file_content_payload[${index}]}",
+      "${generic_file_content_enforced[${index}]}"),
         create => "true",
-        edit_defaults => rudder_empty_select("$(generic_file_content_enforced[${index}])"),
+        edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
         classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),
-        comment => "Editing $(generic_file_content_path[${index}])...";
+        comment => "Editing ${generic_file_content_path[${index}]}...";
 
-      "$(generic_file_content_path[${index}])"
+      "${generic_file_content_path[${index}]}"
         create => "true",
-        perms => mog("$(generic_file_content_perms[${index}])", "$(generic_file_content_owner[${index}])", "$(generic_file_content_group[${index}])"),
+        perms => mog("${generic_file_content_perms[${index}]}", "${generic_file_content_owner[${index}]}", "${generic_file_content_group[${index}]}"),
         classes => kept_if_else("perms_${index}_kept", "perms_${index}_modified", "perms_${index}_failed"),
         ifvarclass => "adjust_permissions_${index}",
-        comment => "Setting $(generic_file_content_path[${index}]) permissions...";
+        comment => "Setting ${generic_file_content_path[${index}]} permissions...";
 
   commands:
-      "$(generic_file_content_posthook[${index}])"
+      "${generic_file_content_posthook[${index}]}"
         classes => if_else("generic_file_content_posthook_${index}_command_run_ok", "generic_file_content_posthook_${index}_command_run_failed"),
         contain => in_shell,
         ifvarclass => "content_${index}_modified.execute_command_${index}.!content_${index}_failed";
@@ -86,39 +86,39 @@ bundle agent check_generic_file_content
     (linux|windows)::
 
       # Files edition
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[${index}])@@File@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) was already in accordance with the policy"
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the policy"
         ifvarclass => "content_${index}_kept.!content_${index}_modified";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[${index}])@@File@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) was successfully updated"
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated"
         ifvarclass => "content_${index}_modified";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[${index}])@@File@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) could not be updated"
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated"
         ifvarclass => "content_${index}_failed";
 
       # Permissions edition
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[${index}])@@Permission adjustment@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) uses default permissions"
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} uses default permissions"
         ifvarclass => "!adjust_permissions_${index}";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[${index}])@@Permission adjustment@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) permissions are OK"
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions are OK"
         ifvarclass => "perms_${index}_kept";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[${index}])@@Permission adjustment@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) permissions were adjusted"
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions were adjusted"
         ifvarclass => "perms_${index}_modified";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[${index}])@@Permission adjustment@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The file $(generic_file_content_path[${index}]) permissions could not be adjusted"
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions could not be adjusted"
         ifvarclass => "perms_${index}_failed";
 
     # Posthook report
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[${index}])@@Post-modification hook@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#No command for $(generic_file_content_path[${index}]) was to be executed"
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#No command for ${generic_file_content_path[${index}]} was to be executed"
         ifvarclass => "!execute_command_${index}";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[${index}])@@Post-modification hook@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#$(generic_file_content_path[${index}]) was in the proper state, so no command to execute"
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#${generic_file_content_path[${index}]} was in the proper state, so no command to execute"
         ifvarclass => "execute_command_${index}.content_${index}_kept.!content_${index}_modified";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[${index}])@@Post-modification hook@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The command for $(generic_file_content_path[${index}]) was correctly executed"
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The command for ${generic_file_content_path[${index}]} was correctly executed"
         ifvarclass => "generic_file_content_posthook_${index}_command_run_ok";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[${index}])@@Post-modification hook@@$(generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#The command for $(generic_file_content_path[${index}]) could not to be executed"
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The command for ${generic_file_content_path[${index}]} could not to be executed"
         ifvarclass => "generic_file_content_posthook_${index}_command_run_failed";
 
 }

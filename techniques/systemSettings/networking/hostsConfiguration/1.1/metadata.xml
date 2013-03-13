@@ -55,7 +55,7 @@ It is intended to check if the required hosts entries are set.
         <CONSTRAINT>
           <TYPE>textarea</TYPE>
           <DEFAULT>127.0.0.1    localhost
-127.0.1.1    $(sys.host)
+127.0.1.1    ${sys.host}
 ##
 # The following lines are desirable for IPv6 capable hosts
 ::1     localhost ip6-localhost ip6-loopback

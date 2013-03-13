@@ -142,7 +142,7 @@ bundle agent check_apache_configuration
     apache_selinux_adjust.selinux_bin_present::
 
       "/usr/bin/chcon"
-        args => "-R --type=httpd_sys_content_t \"$(apache_vhost_root[${apache_vhost_index}])\"",
+        args => "-R --type=httpd_sys_content_t \"${apache_vhost_root[${apache_vhost_index}]}\"",
         classes => cf2_if_else("apache_selinux_${apache_vhost_index}_adjusted", "apache_selinux_${apache_vhost_index}_not_adjusted"),
         comment => "Set SELinux context for Apache VHosts";
 
@@ -207,11 +207,11 @@ bundle agent check_apache_configuration
         file_select => ex_list("@{vhosts_files}"),
         depth_search => recurse("inf");
 
-      "/etc/apache2/sites-enabled/vhost-$(apache_vhost_fqdn[${apache_vhost_index}]).conf"
+      "/etc/apache2/sites-enabled/vhost-${apache_vhost_fqdn[${apache_vhost_index}]}.conf"
         create => "true",
         perms => m("644"),
         edit_defaults => empty_backup,
-        edit_line => set_apache_config_vhost("$(apache_vhost_fqdn[${apache_vhost_index}])", "$(apache_vhost_port[${apache_vhost_index}])", "$(apache_vhost_root[${apache_vhost_index}])", "$(apache_vhost_expires[${apache_vhost_index}])", "$(apache_vhost_expires_ttl[${apache_vhost_index}])", "$(apache_vhost_alias_one_src[${apache_vhost_index}])", "$(apache_vhost_alias_one_dst[${apache_vhost_index}])", "$(apache_vhost_alias_two_src[${apache_vhost_index}])", "$(apache_vhost_alias_two_dst[${apache_vhost_index}])", "$(apache_vhost_alias_three_src[${apache_vhost_index}])", "$(apache_vhost_alias_three_dst[${apache_vhost_index}])", "${g.rudder_dependencies}/apache-vhost.tpl"),
+        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_dependencies}/apache-vhost.tpl"),
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     redhat::
@@ -259,11 +259,11 @@ bundle agent check_apache_configuration
         edit_line => set_apache_config_security("check_apache_configuration.apache_security"),
         classes => kept_if_else_hook("apache_security_kept", "apache_security_repaired", "apache_security_failed", "apache_change");
 
-      "/etc/httpd/rudder.conf.d/vhost-$(apache_vhost_fqdn[${apache_vhost_index}]).conf"
+      "/etc/httpd/rudder.conf.d/vhost-${apache_vhost_fqdn[${apache_vhost_index}]}.conf"
         create => "true",
         perms => m("644"),
         edit_defaults => empty_backup,
-        edit_line => set_apache_config_vhost("$(apache_vhost_fqdn[${apache_vhost_index}])", "$(apache_vhost_port[${apache_vhost_index}])", "$(apache_vhost_root[${apache_vhost_index}])", "$(apache_vhost_expires[${apache_vhost_index}])", "$(apache_vhost_expires_ttl[${apache_vhost_index}])", "$(apache_vhost_alias_one_src[${apache_vhost_index}])", "$(apache_vhost_alias_one_dst[${apache_vhost_index}])", "$(apache_vhost_alias_two_src[${apache_vhost_index}])", "$(apache_vhost_alias_two_dst[${apache_vhost_index}])", "$(apache_vhost_alias_three_src[${apache_vhost_index}])", "$(apache_vhost_alias_three_dst[${apache_vhost_index}])", "${g.rudder_dependencies}/apache-vhost.tpl"),
+        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_dependencies}/apache-vhost.tpl"),
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     SuSE::
@@ -307,19 +307,19 @@ bundle agent check_apache_configuration
         edit_line => set_apache_config_security("check_apache_configuration.apache_security"),
         classes => kept_if_else_hook("apache_security_kept", "apache_security_repaired", "apache_security_failed", "apache_change");
 
-      "/etc/apache2/rudder.conf.d/vhost-$(apache_vhost_fqdn[${apache_vhost_index}]).conf"
+      "/etc/apache2/rudder.conf.d/vhost-${apache_vhost_fqdn[${apache_vhost_index}]}.conf"
         create => "true",
         perms => m("644"),
         edit_defaults => empty_backup,
-        edit_line => set_apache_config_vhost("$(apache_vhost_fqdn[${apache_vhost_index}])", "$(apache_vhost_port[${apache_vhost_index}])", "$(apache_vhost_root[${apache_vhost_index}])", "$(apache_vhost_expires[${apache_vhost_index}])", "$(apache_vhost_expires_ttl[${apache_vhost_index}])", "$(apache_vhost_alias_one_src[${apache_vhost_index}])", "$(apache_vhost_alias_one_dst[${apache_vhost_index}])", "$(apache_vhost_alias_two_src[${apache_vhost_index}])", "$(apache_vhost_alias_two_dst[${apache_vhost_index}])", "$(apache_vhost_alias_three_src[${apache_vhost_index}])", "$(apache_vhost_alias_three_dst[${apache_vhost_index}])", "${g.rudder_dependencies}/apache-vhost.tpl"),
+        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_dependencies}/apache-vhost.tpl"),
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     linux::
 
-      "$(apache_vhost_root[${apache_vhost_index}])/."
+      "${apache_vhost_root[${apache_vhost_index}]}/."
         perms => mog("755", "root", "root"),
         create => "true",
-        classes => if_repaired("root_$(apache_vhost_root[${apache_vhost_index}])_created"),
+        classes => if_repaired("root_${apache_vhost_root[${apache_vhost_index}]}_created"),
         comment => "Make sure the root directory exists";
 
   reports:
@@ -341,18 +341,18 @@ bundle agent check_apache_configuration
 
     apache_selinux_adjust.selinux_bin_present::
 
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#The SELinux context definition was successful for directory $(apache_vhost_root[${apache_vhost_index}])"
+      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The SELinux context definition was successful for directory ${apache_vhost_root[${apache_vhost_index}]}"
         ifvarclass => canonify("apache_selinux_${apache_vhost_index}_adjusted");
 
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#The SELinux context definition for directory $(apache_vhost_root[${apache_vhost_index}]) has failed !"
+      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The SELinux context definition for directory ${apache_vhost_root[${apache_vhost_index}]} has failed !"
         ifvarclass => canonify("apache_selinux_${apache_vhost_index}_not_adjusted");
 
     apache_selinux_adjust.!selinux_bin_present::
 
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#The automatic SELinux context definition was enabled but SELinux binaries";
+      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The automatic SELinux context definition was enabled but SELinux binaries";
 
     !apache_selinux_adjust::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#No SELinux context definition required for $(apache_vhost_root[${apache_vhost_index}])";
+      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#No SELinux context definition required for ${apache_vhost_root[${apache_vhost_index}]}";
 
     apache_ports_kept.!apache_ports_repaired.!apache_ports_failed::
       "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Port settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD port settings OK";
@@ -373,17 +373,17 @@ bundle agent check_apache_configuration
       "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Security settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD security settings could not be set !";
 
     linux::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost $(apache_vhost_fqdn[${apache_vhost_index}]) already set"
+      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} already set"
         ifvarclass => "apache_vhost_${apache_vhost_index}_kept.!apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
 
-      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost $(apache_vhost_fqdn[${apache_vhost_index}]) reset"
+      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} reset"
         ifvarclass => "apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
 
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost $(apache_vhost_fqdn[${apache_vhost_index}]) could not be set !"
+      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} could not be set !"
         ifvarclass => "apache_vhost_${apache_vhost_index}_failed";
 
-      "@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Virtual host settings@@$(apache_vhost_fqdn[${apache_vhost_index}])@@${g.execRun}##${g.uuid}@#The root directory $(apache_vhost_root[${apache_vhost_index}]) was created"
-        ifvarclass => canonify("root_$(apache_vhost_root[${apache_vhost_index}])_created");
+      "@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The root directory ${apache_vhost_root[${apache_vhost_index}]} was created"
+        ifvarclass => canonify("root_${apache_vhost_root[${apache_vhost_index}]}_created");
 
     apache_autostart.apache_bootstarted.!apache_unboostarted::
       "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache bootstart@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD is correctly set to start on boot";
@@ -483,8 +483,8 @@ bundle edit_line set_apache_config_security(tab)
 
   # match a line starting like the key something
       "${index}\s+.*"
-        edit_field => col("\s+","2","$(${tab}[${index}])","set"),
-        classes => if_ok("not_$(cindex[${index}])");
+        edit_field => col("\s+","2","${${tab}[${index}]}","set"),
+        classes => if_ok("not_${cindex[${index}]}");
 
   delete_lines:
 
@@ -492,8 +492,8 @@ bundle edit_line set_apache_config_security(tab)
 
   insert_lines:
 
-      "${index} $(${tab}[${index}])",
-        ifvarclass => "!not_$(cindex[${index}])";
+      "${index} ${${tab}[${index}]}",
+        ifvarclass => "!not_${cindex[${index}]}";
 
 }
 

@@ -66,12 +66,12 @@ bundle agent check_usergroup_user_parameters
 
       ## On UNIX
       "nameopt[${usergroup_user_index}]"
-        string => "-c \"$(usergroup_user_fullname[${usergroup_user_index}])\"",
+        string => "-c \"${usergroup_user_fullname[${usergroup_user_index}]}\"",
         ifvarclass => "!usermanagement_user_nameempty_${usergroup_user_index}.!windows";
 
       ## On Windows
       "nameopt[${usergroup_user_index}]"
-        string => "/FULLNAME:\"$(usergroup_user_fullname[${usergroup_user_index}])\"",
+        string => "/FULLNAME:\"${usergroup_user_fullname[${usergroup_user_index}]}\"",
         ifvarclass => "!usermanagement_user_nameempty_${usergroup_user_index}.windows";
 
       ## Part of reports to return whether Fullname is defined or not
@@ -80,30 +80,30 @@ bundle agent check_usergroup_user_parameters
         ifvarclass => "usermanagement_user_nameempty_${usergroup_user_index}";
 
       "repname[${usergroup_user_index}]"
-        string => "$(usergroup_user_fullname[${usergroup_user_index}])",
+        string => "${usergroup_user_fullname[${usergroup_user_index}]}",
         ifvarclass => "!usermanagement_user_nameempty_${usergroup_user_index}";
 
   classes:
 
     # Actions
 
-      "usermanagement_user_update_${usergroup_user_index}" expression => strcmp("$(usergroup_user_action[${usergroup_user_index}])","add");
+      "usermanagement_user_update_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","add");
 
-      "usermanagement_user_remove_${usergroup_user_index}" expression => strcmp("$(usergroup_user_action[${usergroup_user_index}])","remove");
+      "usermanagement_user_remove_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","remove");
 
-      "usermanagement_user_checkpres_${usergroup_user_index}" expression => strcmp("$(usergroup_user_action[${usergroup_user_index}])","checkhere");
+      "usermanagement_user_checkpres_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","checkhere");
 
-      "usermanagement_user_checkabs_${usergroup_user_index}" expression => strcmp("$(usergroup_user_action[${usergroup_user_index}])","checknothere");
+      "usermanagement_user_checkabs_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","checknothere");
 
-      "usermanagement_user_pershome_${usergroup_user_index}" not => strcmp("$(usergroup_user_home_perso[${usergroup_user_index}])","true");
+      "usermanagement_user_pershome_${usergroup_user_index}" not => strcmp("${usergroup_user_home_perso[${usergroup_user_index}]}","true");
 
-      "usermanagement_user_custom_home_defined_$(usergroup_user_index)" expression => isvariable("usergroup_user_home[$(usergroup_user_index)]");
+      "usermanagement_user_custom_home_defined_${usergroup_user_index}" expression => isvariable("usergroup_user_home[${usergroup_user_index}]");
 
-      "usermanagement_user_exists_$(usergroup_user_index)" expression => userexists("$(usergroup_user_login[$(usergroup_user_index)])");
+      "usermanagement_user_exists_${usergroup_user_index}" expression => userexists("${usergroup_user_login[${usergroup_user_index}]}");
 
-      "usermanagement_user_pwoneshot_${usergroup_user_index}" expression => strcmp("$(usergroup_user_password_policy[${usergroup_user_index}])","oneshot");
+      "usermanagement_user_pwoneshot_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","oneshot");
 
-      "usermanagement_user_pweverytime_${usergroup_user_index}" expression => strcmp("$(usergroup_user_password_policy[${usergroup_user_index}])","everytime");
+      "usermanagement_user_pweverytime_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","everytime");
 
       "usermanagement_user_pwempty_${usergroup_user_index}" not => isvariable("usergroup_user_password[${usergroup_user_index}]");
 
@@ -120,61 +120,61 @@ bundle agent check_usergroup_user_parameters
     windows.showtime::
 
       "\"${sys.winsysdir}\net.exe\""
-        args => "USER $(usergroup_user_login[${usergroup_user_index}]) $(usergroup_user_password[${usergroup_user_index}]) /ADD $(nameopt[${usergroup_user_index}])",
+        args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]} /ADD ${nameopt[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
-        comment => "Create the user $(usergroup_user_login[${usergroup_user_index}])",
+        comment => "Create the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}";
 
       "\"${sys.winsysdir}\net.exe\""
-        args => "USER $(usergroup_user_login[${usergroup_user_index}]) /DELETE",
+        args => "USER ${usergroup_user_login[${usergroup_user_index}]} /DELETE",
         classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
-        comment => "Delete the user $(usergroup_user_login[${usergroup_user_index}])",
+        comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
 
       "\"${sys.winsysdir}\net.exe\""
-        args => "USER $(usergroup_user_login[${usergroup_user_index}]) $(usergroup_user_password[${usergroup_user_index}])",
+        args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]}",
         ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
     linux.showtime::
 
       "/usr/sbin/useradd"
-        args => "-m $(nameopt[$(usergroup_user_index)]) -s $(usergroup_user_shell[$(usergroup_user_index)]) -d $(usergroup_user_home[$(usergroup_user_index)]) $(usergroup_user_login[$(usergroup_user_index)])",
-        classes => cf2_if_else("usermanagement_login_add_$(usergroup_user_index)_repaired", "usermanagement_login_add_$(usergroup_user_index)_error"),
+        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_user_pershome_$(usergroup_user_index).usermanagement_user_custom_home_defined_$(usergroup_user_index)";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
       "/usr/sbin/useradd"
-        args => "-m $(nameopt[${usergroup_user_index}]) -s $(usergroup_user_shell[${usergroup_user_index}]) -d $(usergroup_user_home[${usergroup_user_index}]) $(usergroup_user_login[${usergroup_user_index}])",
+        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}";
 
       # Define password only at user creation
-      "/bin/echo -e \"$(usergroup_user_password[${usergroup_user_index}])\n$(usergroup_user_password[${usergroup_user_index}])\" | /usr/bin/passwd $(usergroup_user_login[${usergroup_user_index}])"
+      "/bin/echo -e \"${usergroup_user_password[${usergroup_user_index}]}\n${usergroup_user_password[${usergroup_user_index}]}\" | /usr/bin/passwd ${usergroup_user_login[${usergroup_user_index}]}"
         contain => in_shell,
         ifvarclass => "usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
 
       # Define password when user has already been created
-      "/bin/echo -e \"$(usergroup_user_password[${usergroup_user_index}])\n$(usergroup_user_password[${usergroup_user_index}])\" | /usr/bin/passwd $(usergroup_user_login[${usergroup_user_index}])"
+      "/bin/echo -e \"${usergroup_user_password[${usergroup_user_index}]}\n${usergroup_user_password[${usergroup_user_index}]}\" | /usr/bin/passwd ${usergroup_user_login[${usergroup_user_index}]}"
         contain => in_shell,
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
 
       "/usr/sbin/userdel"
-        args => "$(usergroup_user_login[${usergroup_user_index}])",
+        args => "${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
-        comment => "Delete the user $(usergroup_user_login[${usergroup_user_index}])",
+        comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
 
   files:
 
       "/etc/passwd"
         create => "false",
-        edit_line => set_user_fullname("$(usergroup_user_login[${usergroup_user_index}])","${usergroup_user_index}","$(usergroup_user_fullname[${usergroup_user_index}])"),
+        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
       "/etc/passwd"
         create => "false",
-        edit_line => set_user_fullname("$(usergroup_user_login[${usergroup_user_index}])","${usergroup_user_index}","$(usergroup_user_fullname[${usergroup_user_index}])"),
+        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
         action => warn_only,
         ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
@@ -184,58 +184,58 @@ bundle agent check_usergroup_user_parameters
 
       # Add user
       ## Does exist (Success)
-      "@@userGroupManagement@@result_success@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) is already present on the system"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system"
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept)";
 
       ## Seems to exist with a wrong Full Name (Repaired)
-      "@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) had a wrong fullname"
+      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) had a wrong fullname"
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_repaired|usermanagement_fullname_edit_${usergroup_user_index}_error)";
 
       ## Added (Repaired)
-      "@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) has been added to the system"
+      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) has been added to the system"
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_login_add_${usergroup_user_index}_repaired";
 
       ## Error
-      "@@userGroupManagement@@result_error@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) could not be added to the system"
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system"
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_login_add_${usergroup_user_index}_error";
 
       ## Could not be added, for the default path was not selected, but the custom one was not defined
-      "@@userGroupManagement@@result_error@@$(usergroup_directive_id[$(usergroup_user_index)])@@Users@@$(usergroup_user_login[$(usergroup_user_index)])@@$(g.execRun)##$(g.uuid)@#The user $(usergroup_user_login[$(usergroup_user_index)]) ( $(repname[$(usergroup_user_index)]) ) could not be added to the system because the default home directory was not selected, but the custom path was not specified"
-        ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_user_pershome_$(usergroup_user_index).!usermanagement_user_custom_home_defined_$(usergroup_user_index)";
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the default home directory was not selected, but the custom path was not specified"
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
       # Remove user
       ## Does not exist (Success)
-      "@@userGroupManagement@@result_success@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) does not exist, as required"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) does not exist, as required"
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
 
       ## Removed (Repaired)
-      "@@userGroupManagement@@result_repaired@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) has been removed from the system"
+      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) has been removed from the system"
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}.usermanagement_login_remove_${usergroup_user_index}_repaired";
 
       ## Error
-      "@@userGroupManagement@@result_error@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) could not be removed from the system"
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be removed from the system"
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}.usermanagement_login_remove_${usergroup_user_index}_error";
 
       # Check user not exists
       ## Does not exist (Success)
-      "@@userGroupManagement@@result_success@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) is not present on the system, which is in accordance with the non presence policy"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is not present on the system, which is in accordance with the non presence policy"
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkabs_${usergroup_user_index}";
 
       ## Does exist (Error)
-      "@@userGroupManagement@@result_error@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) is present on the system, which violates the non presence policy"
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, which violates the non presence policy"
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkabs_${usergroup_user_index}";
 
       # Check user exists
       ## Does exist (Success)
-      "@@userGroupManagement@@result_success@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) is present on the system, which is in conformance with the presence policy"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, which is in conformance with the presence policy"
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept)";
 
       ## Seems to exist with a wrong Full Name (Error)
-      "@@userGroupManagement@@result_error@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) is present on the system, but does not have the right fullname"
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, but does not have the right fullname"
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_repaired|usermanagement_fullname_edit_${usergroup_user_index}_error)";
 
       ## Does not exist (Error)
-      "@@userGroupManagement@@result_error@@$(usergroup_directive_id[${usergroup_user_index}])@@Users@@$(usergroup_user_login[${usergroup_user_index}])@@${g.execRun}##${g.uuid}@#The user $(usergroup_user_login[${usergroup_user_index}]) ( $(repname[${usergroup_user_index}]) ) is not present on the system, which violates the presence policy"
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is not present on the system, which violates the presence policy"
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
 }

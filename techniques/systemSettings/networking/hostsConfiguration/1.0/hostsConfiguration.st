@@ -95,7 +95,7 @@ bundle edit_line set_hosts_values(hosts, ips)
 
   delete_lines:
 
-      "$(${ips}[${hosts_index}]).*";
+      "${${ips}[${hosts_index}]}.*";
 
   insert_lines:
 
@@ -114,7 +114,7 @@ bundle edit_line set_hosts_values(hosts, ips)
       "## Here follows all the rudder defined hosts :";
 &endif&
 
-      "$(${ips}[${hosts_index}])	$(${hosts}[${hosts_index}])";
+      "${${ips}[${hosts_index}]}	${${hosts}[${hosts_index}]}";
 
 }
 
