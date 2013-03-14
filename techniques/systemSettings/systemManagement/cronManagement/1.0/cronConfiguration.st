@@ -29,7 +29,7 @@ bundle agent check_cron_configuration
 
     normalorderingtwist::
 
-      "${cron_index}_manual" expression => strcmp("$(cron_frequency[${cron_index}])", "d");
+      "${cron_index}_manual" expression => strcmp("${cron_frequency[${cron_index}]}", "d");
 
       "showtime" expression => strcmp("true", "true");
 
@@ -66,19 +66,19 @@ bundle agent check_cron_configuration
 
     showtime::
 
-      "/etc/cron.d/$(cron_name[${cron_index}])"
+      "/etc/cron.d/${cron_name[${cron_index}]}"
         create => "true",
         edit_defaults => empty_backup,
         perms  => mog("644", "root", "root"),
-        edit_line => insert_lines("$(cron_manual[${cron_index}]) $(cron_user[${cron_index}]) $(cron_command[${cron_index}])"),
+        edit_line => insert_lines("${cron_manual[${cron_index}]} ${cron_user[${cron_index}]} ${cron_command[${cron_index}]}"),
         ifvarclass => "${cron_index}_manual",
         classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
 
-      "/etc/cron.$(cron_frequency[${cron_index}])/$(cron_name[${cron_index}])"
+      "/etc/cron.${cron_frequency[${cron_index}]}/${cron_name[${cron_index}]}"
         create => "true",
         edit_defaults => empty_backup,
         perms  => mog("755", "root", "root"),
-        edit_line => insert_lines("$(cron_command[${cron_index}])"),
+        edit_line => insert_lines("${cron_command[${cron_index}]}"),
         ifvarclass => "!${cron_index}_manual",
         classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
 
@@ -96,32 +96,32 @@ bundle agent check_cron_configuration
 
     # Reports about the creation of the cron entries
 
-      "@@cronConfiguration@@result_success@@$(cron_uuid[${cron_index}])@@Cron entry@@$(cron_name[${cron_index}])@@${g.execRun}##${g.uuid}@#The cron file $(cron_name[${cron_index}]) was present. Skipping..."
+      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron entry@@${cron_name[${cron_index}]}@@${g.execRun}##${g.uuid}@#The cron file ${cron_name[${cron_index}]} was present. Skipping..."
         ifvarclass => "cron_file_${cron_index}_kept.!cron_file_${cron_index}_edited";
 
-      "@@cronConfiguration@@result_repaired@@$(cron_uuid[${cron_index}])@@Cron entry@@$(cron_name[${cron_index}])@@${g.execRun}##${g.uuid}@#The cron file $(cron_name[${cron_index}]) was created successfully"
+      "@@cronConfiguration@@result_repaired@@${cron_uuid[${cron_index}]}@@Cron entry@@${cron_name[${cron_index}]}@@${g.execRun}##${g.uuid}@#The cron file ${cron_name[${cron_index}]} was created successfully"
         ifvarclass => "cron_file_${cron_index}_edited";
 
-      "@@cronConfiguration@@result_error@@$(cron_uuid[${cron_index}])@@Cron entry@@$(cron_name[${cron_index}])@@${g.execRun}##${g.uuid}@#Could not create the cron file $(cron_name[${cron_index}])"
+      "@@cronConfiguration@@result_error@@${cron_uuid[${cron_index}]}@@Cron entry@@${cron_name[${cron_index}]}@@${g.execRun}##${g.uuid}@#Could not create the cron file ${cron_name[${cron_index}]}"
         ifvarclass => "cron_file_${cron_index}_failed";
 
     # Reports about the cron process presence
 
-      "@@cronConfiguration@@result_success@@$(cron_uuid[${cron_index}])@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process is running. Skipping..."
+      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process is running. Skipping..."
         ifvarclass => "!cron_restart";
 
-      "@@cronConfiguration@@result_repaired@@$(cron_uuid[${cron_index}])@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process has been restarted"
+      "@@cronConfiguration@@result_repaired@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process has been restarted"
         ifvarclass => "cron_restarted";
 
-      "@@cronConfiguration@@result_success@@$(cron_uuid[${cron_index}])@@Cron process@@None@@${g.execRun}##${g.uuid}@#Could not restart the cron process!"
+      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#Could not restart the cron process!"
         ifvarclass => "could_not_restart_cron";
 
     !windows.cron_absent::
 
-      "@@cronConfiguration@@log_warn@@$(cron_uuid[${cron_index}])@@cronConfiguration@@None@@${g.execRun}##${g.uuid}@#The crontab is absent";
+      "@@cronConfiguration@@log_warn@@${cron_uuid[${cron_index}]}@@cronConfiguration@@None@@${g.execRun}##${g.uuid}@#The crontab is absent";
 
     windows::
 
-      "@@cronConfiguration@@result_error@@$(cron_uuid[${cron_index}])@@cronConfiguration@@None@@${g.execRun}##${g.uuid}@#This is a Windows machine. This Technique currently incompatible with it";
+      "@@cronConfiguration@@result_error@@${cron_uuid[${cron_index}]}@@cronConfiguration@@None@@${g.execRun}##${g.uuid}@#This is a Windows machine. This Technique currently incompatible with it";
 
 }

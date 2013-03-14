@@ -16,7 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <!-- This technique sets generalist clock parameters like NTP servers and timezones -->
 <TECHNIQUE name="Generic CFEngine variable definition">
-  <DESCRIPTION>Configures a generic CFEngine variable in a common bundle, to be used in another Technique. This Technique does nothing by itself, you must reuse the variable(s) you will create here in another Technique with the form: $(generic_variable_definition.variablename)</DESCRIPTION>
+  <DESCRIPTION>Configures a generic CFEngine variable in a common bundle, to be used in another Technique. This Technique does nothing by itself, you must reuse the variable(s) you will create here in another Technique with the form: ${generic_variable_definition.variablename}</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>

@@ -27,7 +27,7 @@ bundle agent check_ssh_key_distribution
 
     begin_evaluation::
 
-      "index_${sshkey_distribution_index}_exists" expression => userexists("$(sshkey_distribution_name[${sshkey_distribution_index}])");
+      "index_${sshkey_distribution_index}_exists" expression => userexists("${sshkey_distribution_name[${sshkey_distribution_index}]}");
 
   vars:
 
@@ -41,7 +41,7 @@ bundle agent check_ssh_key_distribution
 }&
       "sshkey_distribution_index" slist => getindices("sshkey_distribution_name");
 
-      "userdata_${sshkey_distribution_index}" string => execresult("/usr/bin/getent passwd $(sshkey_distribution_name[${sshkey_distribution_index}])", "noshell");
+      "userdata_${sshkey_distribution_index}" string => execresult("/usr/bin/getent passwd ${sshkey_distribution_name[${sshkey_distribution_index}]}", "noshell");
       "no_${sshkey_distribution_index}" int => parsestringarray(
       "userarray_${sshkey_distribution_index}",
       "${userdata_${sshkey_distribution_index}}",
@@ -55,31 +55,31 @@ bundle agent check_ssh_key_distribution
 
     linux.!SuSE::
 
-      "$(userarray_${sshkey_distribution_index}[$(sshkey_distribution_name[${sshkey_distribution_index}])][5])/.ssh/."
+      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/."
         create => "true",
         ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        perms  => mog("700", "$(sshkey_distribution_name[${sshkey_distribution_index}])", "$(userarray_${sshkey_distribution_index}[$(sshkey_distribution_name[${sshkey_distribution_index}])][3])");
+        perms  => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}");
 
-      "$(userarray_${sshkey_distribution_index}[$(sshkey_distribution_name[${sshkey_distribution_index}])][5])/.ssh/authorized_keys"
+      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/authorized_keys"
         create => "true",
-        edit_defaults => rudder_empty_select("$(sshkey_distribution_edit_type[${sshkey_distribution_index}])"),
-        perms  => mog("600", "$(sshkey_distribution_name[${sshkey_distribution_index}])", "$(userarray_${sshkey_distribution_index}[$(sshkey_distribution_name[${sshkey_distribution_index}])][3])"),
-        edit_line => insert_lines("$(sshkey_distribution_key[${sshkey_distribution_index}])"),
+        edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
+        perms  => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}"),
+        edit_line => insert_lines("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
         ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
         classes => kept_if_else("line_${sshkey_distribution_index}_ok","line_${sshkey_distribution_index}_added","line_${sshkey_distribution_index}_failed");
 
     SuSE::
 
-      "$(userarray_${sshkey_distribution_index}[$(sshkey_distribution_name[${sshkey_distribution_index}])][5])/.ssh/."
+      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/."
         create => "true",
         ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        perms  => mog("700", "$(sshkey_distribution_name[${sshkey_distribution_index}])", "users");
+        perms  => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "users");
 
-      "$(userarray_${sshkey_distribution_index}[$(sshkey_distribution_name[${sshkey_distribution_index}])][5])/.ssh/authorized_keys"
+      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/authorized_keys"
         create => "true",
-        edit_defaults => rudder_empty_select("$(sshkey_distribution_edit_type[${sshkey_distribution_index}])"),
-        perms  => mog("600", "$(sshkey_distribution_name[${sshkey_distribution_index}])", "users"),
-        edit_line => insert_lines("$(sshkey_distribution_key[${sshkey_distribution_index}])"),
+        edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
+        perms  => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "users"),
+        edit_line => insert_lines("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
         ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
         classes => kept_if_else("line_${sshkey_distribution_index}_ok","line_${sshkey_distribution_index}_added","line_${sshkey_distribution_index}_failed");
 
@@ -87,16 +87,16 @@ bundle agent check_ssh_key_distribution
 
     linux::
 
-      "@@sshKeyDistribution@@result_repaired@@$(sshkey_distribution_uuid[${sshkey_distribution_index}])@@SSH key@@$(sshkey_distribution_name[${sshkey_distribution_index}])@@${g.execRun}##${g.uuid}@#SSH key for user $(sshkey_distribution_name[${sshkey_distribution_index}]) was put in place"
+      "@@sshKeyDistribution@@result_repaired@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#SSH key for user ${sshkey_distribution_name[${sshkey_distribution_index}]} was put in place"
         ifvarclass => "line_${sshkey_distribution_index}_added";
 
-      "@@sshKeyDistribution@@result_success@@$(sshkey_distribution_uuid[${sshkey_distribution_index}])@@SSH key@@$(sshkey_distribution_name[${sshkey_distribution_index}])@@${g.execRun}##${g.uuid}@#SSH key for user $(sshkey_distribution_name[${sshkey_distribution_index}]) was already present"
+      "@@sshKeyDistribution@@result_success@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#SSH key for user ${sshkey_distribution_name[${sshkey_distribution_index}]} was already present"
         ifvarclass => "line_${sshkey_distribution_index}_ok.!line_${sshkey_distribution_index}_added";
 
-      "@@sshKeyDistribution@@result_error@@$(sshkey_distribution_uuid[${sshkey_distribution_index}])@@SSH key@@$(sshkey_distribution_name[${sshkey_distribution_index}])@@${g.execRun}##${g.uuid}@#SSH key for user $(sshkey_distribution_name[${sshkey_distribution_index}]) could not be added"
+      "@@sshKeyDistribution@@result_error@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#SSH key for user ${sshkey_distribution_name[${sshkey_distribution_index}]} could not be added"
         ifvarclass => "line_${sshkey_distribution_index}_failed";
 
-      "@@sshKeyDistribution@@result_error@@$(sshkey_distribution_uuid[${sshkey_distribution_index}])@@SSH key@@$(sshkey_distribution_name[${sshkey_distribution_index}])@@${g.execRun}##${g.uuid}@#The user $(sshkey_distribution_name[${sshkey_distribution_index}]) does NOT exist on this machine, not adding SSH key"
+      "@@sshKeyDistribution@@result_error@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, not adding SSH key"
         ifvarclass => "!index_${sshkey_distribution_index}_exists";
 
 }

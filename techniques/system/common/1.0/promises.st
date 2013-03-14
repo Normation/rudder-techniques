@@ -248,7 +248,7 @@ bundle agent check_cf_processes
       # go crazy, so we ask politely to these processes to shut down.
 
       "${sys.workdir}/bin/cf-${binaries}"
-        process_count => check_range("${binaries}", "0","$(process_term[${binaries}])"),
+        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
         signals       => { "term" },
         classes       => if_repaired("${binaries}_has_gone_wild"),
         comment       => "Checking if cf-${binaries} has gone wild";
@@ -264,7 +264,7 @@ bundle agent check_cf_processes
       # the agent from operating properly.
 
       "${sys.workdir}/bin/cf-${binaries}"
-        process_count => check_range("${binaries}", "0","$(process_kill[${binaries}])"),
+        process_count => check_range("${binaries}", "0","${process_kill[${binaries}]}"),
         signals       => { "kill" },
         classes       => if_repaired("${binaries}_has_gone_really_wild"),
         comment       => "Checking if cf-${binaries} has gone really wild";
@@ -274,7 +274,7 @@ bundle agent check_cf_processes
       # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
 
       "cf-${binaries}"
-        process_count => check_range("${binaries}", "0","$(process_term[${binaries}])"),
+        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
         signals       => { "term" },
         classes       => if_repaired("${binaries}_has_gone_wild"),
         comment       => "Checking if cf-${binaries} has gone wild";
@@ -304,10 +304,10 @@ bundle agent check_cf_processes
       # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
         ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
 
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than $(process_term[${binaries}]) cf-${binaries} processes were detected. They have been sent a graceful termination signal."
+      "@@Common@@result_repaired@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."
         ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
 
-      "@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than $(process_term[${binaries}]) cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."
+      "@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."
         ifvarclass => "${binaries}_has_gone_really_wild";
 
     disable_agent::

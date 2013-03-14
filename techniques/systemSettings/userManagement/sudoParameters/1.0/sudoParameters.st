@@ -55,7 +55,7 @@ bundle agent check_sudo_parameters
 
       "any"
 
-        usebundle => check_sudo_installation("$(sudo_directive_id[${sudo_index}])");
+        usebundle => check_sudo_installation("${sudo_directive_id[${sudo_index}]}");
 
   commands:
 
@@ -110,18 +110,18 @@ bundle agent check_sudo_parameters
 
     sudoconfiguration_sudoers_copy_kept.!sudoconfiguration_sudoers_copy_repaired::
 
-      "@@sudoParameters@@result_success@@$(sudo_directive_id[1])@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file did not require any modification";
+      "@@sudoParameters@@result_success@@${sudo_directive_id[1]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file did not require any modification";
 
     sudoconfiguration_sudoers_copy_repaired::
 
-      "@@sudoParameters@@result_repaired@@$(sudo_directive_id[1])@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file was fixed and successfully updated";
+      "@@sudoParameters@@result_repaired@@${sudo_directive_id[1]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file was fixed and successfully updated";
 
     sudoconfiguration_sudoers_tmp_edit_error|sudoconfiguration_sudoers_copy_error|sudoconfiguration_sudoers_tmp_copy_error::
 
-      "@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file could NOT be edited!";
+      "@@sudoParameters@@result_error@@${sudo_directive_id[1]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file could NOT be edited!";
 
     sudoconfiguration_sudoers_invalid::
-      "@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
+      "@@sudoParameters@@result_error@@${sudo_directive_id[1]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
 
 }
 
@@ -135,29 +135,29 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
     check_sudo_parameters_sudo_add_line_classes_defined::
 
       "lines[${index}]"
-        string => "%$(${name}[${index}])	ALL=(ALL) NOPASSWD:ALL",
+        string => "%${${name}[${index}]}	ALL=(ALL) NOPASSWD:ALL",
         ifvarclass => "(sudo_${index}_isgroup.sudo_${index}_alldo.sudo_${index}_nopasswd).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) ALL",
+      "lines[${index}]" string => "%${${name}[${index}]}	ALL=(ALL) ALL",
         ifvarclass => "(sudo_${index}_isgroup.sudo_${index}_alldo.!sudo_${index}_nopasswd).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) NOPASSWD:$($(command)[${index}])",
+      "lines[${index}]" string => "%${${name}[${index}]}	ALL=(ALL) NOPASSWD:${${command}[${index}]}",
         ifvarclass => "(sudo_${index}_isgroup.sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "%$(${name}[${index}])	ALL=(ALL) $($(command)[${index}])",
+      "lines[${index}]" string => "%${${name}[${index}]}	ALL=(ALL) ${${command}[${index}]}",
         ifvarclass => "(sudo_${index}_isgroup.!sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
 
-      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) NOPASSWD:ALL",
+      "lines[${index}]" string => "${${name}[${index}]}	ALL=(ALL) NOPASSWD:ALL",
         ifvarclass => "(sudo_${index}_isuser.sudo_${index}_alldo.sudo_${index}_nopasswd).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) ALL",
+      "lines[${index}]" string => "${${name}[${index}]}	ALL=(ALL) ALL",
         ifvarclass => "(sudo_${index}_isuser.sudo_${index}_alldo.!sudo_${index}_nopasswd).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) NOPASSWD:$($(command)[${index}])",
+      "lines[${index}]" string => "${${name}[${index}]}	ALL=(ALL) NOPASSWD:${${command}[${index}]}",
         ifvarclass => "(sudo_${index}_isuser.sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
-      "lines[${index}]" string => "$(${name}[${index}])	ALL=(ALL) $($(command)[${index}])",
+      "lines[${index}]" string => "${${name}[${index}]}	ALL=(ALL) ${${command}[${index}]}",
         ifvarclass => "(sudo_${index}_isuser.!sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
       "all_lines" slist => getvalues("lines");
@@ -167,19 +167,19 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "sudo_force_content" expression => strcmp("true", "${force}");
 
   # Is it a group ?
-      "sudo_${index}_isgroup" expression => strcmp("$(${type}[${index}])","group");
+      "sudo_${index}_isgroup" expression => strcmp("${${type}[${index}]}","group");
 
   # Is it a user ?
-      "sudo_${index}_isuser" expression => strcmp("$(${type}[${index}])","user");
+      "sudo_${index}_isuser" expression => strcmp("${${type}[${index}]}","user");
 
   # Disable password asking ?
-      "sudo_${index}_nopasswd" expression => strcmp("$(${nopasswd}[${index}])","true");
+      "sudo_${index}_nopasswd" expression => strcmp("${${nopasswd}[${index}]}","true");
 
   # Should we enable ALL as command ?
-      "sudo_${index}_alldo" expression => strcmp("$(${alldo}[${index}])","true");
+      "sudo_${index}_alldo" expression => strcmp("${${alldo}[${index}]}","true");
 
   # Is command empty ?
-      "sudo_${index}_command_notempty" not => strcmp("$(${command}[${index}])","");
+      "sudo_${index}_command_notempty" not => strcmp("${${command}[${index}]}","");
 
       "check_sudo_parameters_sudo_add_line_classes_defined" expression => "any";
 
@@ -199,7 +199,7 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
 			ifvarclass => "replace_attempted_env_reset";
 
     check_sudo_parameters_sudo_add_line_vars_defined::
-      "$(lines[${index}])"
+      "${lines[${index}]}"
         classes => kept_if_else("line_${index}_kept", "line_${index}_added", "line_${index}_add_failed");
 
   delete_lines:
@@ -214,16 +214,16 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
 
     all_lines_defined::
 
-      "@@sudoParameters@@log_warn@@$(${directiveId}[${index}])@@Permissions@@$(${name}[${index}])@@${g.execRun}##${g.uuid}@#Entry for $(${type}[${index}]) $(${name}[${index}]) is invalid (no command given), and has been ignored"
+      "@@sudoParameters@@log_warn@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#Entry for ${${type}[${index}]} ${${name}[${index}]} is invalid (no command given), and has been ignored"
         ifvarclass => "!sudo_${index}_command_notempty.!sudo_${index}_alldo";
 
-      "@@sudoParameters@@result_repaired@@$(${directiveId}[${index}])@@Permissions@@$(${name}[${index}])@@${g.execRun}##${g.uuid}@#The $(${type}[${index}]) $(${name}[${index}]) has been handled"
+      "@@sudoParameters@@result_repaired@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} has been handled"
         ifvarclass => canonify("line_${index}_added");
 
-      "@@sudoParameters@@result_success@@$(${directiveId}[${index}])@@Permissions@@$(${name}[${index}])@@${g.execRun}##${g.uuid}@#The $(${type}[${index}]) $(${name}[${index}]) is already present"
+      "@@sudoParameters@@result_success@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} is already present"
         ifvarclass => canonify("line_${index}_kept");
 
-      "@@sudoParameters@@result_error@@$(${directiveId}[${index}])@@Permissions@@$(${name}[${index}])@@${g.execRun}##${g.uuid}@#The $(${type}[${index}]) $(${name}[${index}]) could not be handled"
+      "@@sudoParameters@@result_error@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} could not be handled"
         ifvarclass => canonify("line_${index}_add_failed");
 
     all_lines_defined.force::
