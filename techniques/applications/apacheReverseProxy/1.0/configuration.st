@@ -20,12 +20,11 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
   vars:
 
-    "rudder_reverse_proxy_apache_proxies"               string => "${${params}[proxies]}";
+      "rudder_reverse_proxy_apache_proxies"               string => "${${params}[proxies]}";
 
     debian::
 
       "rudder_reverse_proxy_apache_debian_modules"      slist  => { "proxy", "proxy_http" };
-      "rudder_reverse_proxy_apache_binary_name"         string => "/usr/sbin/apache2";
 
     SuSE::
 
@@ -41,6 +40,10 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
       "reverse_proxy_configuration_file"                string => "/etc/apache2/conf.d/rudder-reverse-proxy.conf";
       "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/apache2";
+
+    !SuSE.!redhat::
+
+      "rudder_reverse_proxy_apache_binary_name"         string => "/usr/sbin/apache2";
 
   classes:
 
@@ -66,7 +69,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
     debian::
       "/usr/sbin/a2enmod ${rudder_reverse_proxy_apache_debian_modules}"
         classes    => rudder_common_classes("rudder_reverse_proxy_apache_modules"),
-        ifvarclass => "rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded",
+        ifvarclass => "!rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded",
         comment    => "Enable Apache modules on Debian";
 
     rudder_reverse_proxy_apache_selinux_adjust.!rudder_reverse_proxy_apache_selinux_proxy_policy::
