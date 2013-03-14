@@ -312,7 +312,7 @@ bundle agent addInformationsToInventory
       "VMRUDDERUUID" string => execresult("/usr/sbin/xenstore-read vm","noshell");
 
     xen.xenrudderuuid::
-      "RUDDERUUID" string => "$(vmarray[1])";
+      "RUDDERUUID" string => "${vmarray[1]}";
 
     linux.!xen::
       "RUDDERUUID" string => execresult("/usr/sbin/dmidecode -s system-uuid","noshell");
@@ -512,7 +512,7 @@ bundle edit_line xmlify(ATTR)
 
 body replace_with xmled(attribute)
 {
-        replace_value => "<VM TYPE=\"${attribute}\"><NAME>$(match.1)</NAME><UUID>$(match.2)</UUID></VM>";
+        replace_value => "<VM TYPE=\"${attribute}\"><NAME>${match.1}</NAME><UUID>${match.2}</UUID></VM>";
 }
 
 

@@ -181,7 +181,7 @@ bundle edit_line comment_all()
 
 body replace_with comments
 {
-        replace_value => "#$(match.1)"; # backreference 0
+        replace_value => "#${match.1}"; # backreference 0
         occurrences => "all";  # first, last all
 }
 
