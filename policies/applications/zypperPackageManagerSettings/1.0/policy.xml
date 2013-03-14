@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     
   <SECTIONS>
     <!-- General settings Section , index 1-->
-    <SECTION name="General settings">
+    <SECTION name="General settings" component="true">
       <SELECT1>
         <NAME>ZYPPER_INSTALLRECOMMENDS</NAME>
         <DESCRIPTION>Install 'recommended' packages automatically</DESCRIPTION>
