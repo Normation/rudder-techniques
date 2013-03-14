@@ -24,6 +24,8 @@ bundle agent check_zmd_settings {
 
 	vars:
 
+        &TRACKINGKEY:{policyInstanceId |"zmdconf_uuid[&i&]" string => "&policyInstanceId&";
+}&
 		proxy_edit::
 
 			"zmdconf[Network][proxy-url]" string => "&ZMD_PROXY_URL&";
@@ -130,48 +132,48 @@ bundle agent check_zmd_settings {
 		# ZMD settings edition
 
 		zmd_conf_kept::
-			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD settings were all already correct";
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD settings were all already correct";
 
 		zmd_conf_validated::
-			"@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Some ZMD settings were reset";
+      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Some ZMD settings were reset";
 
 		zmd_conf_failed::
-			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD repositories could not be edited";
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD repositories could not be edited";
 
 		# Ignore non-SuSE OSes
 
 		!SuSE::
-			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@zmdPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@zmdPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
 
 		SuSE::
 
 			# Repositories
 
-			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) is not here but no edition required. Skipping..."
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) is not here but no edition required. Skipping..."
 				ifvarclass => "index_$(zmd_index)_not_matched.!zmd_repositories_edit";
 
-			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was already here. Skipping..."
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was already here. Skipping..."
 				ifvarclass => "index_$(zmd_index)_matched.!source_$(zmd_index)_subscribed";
 
-			"@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) has been successfully added"
+      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) has been successfully added"
 				ifvarclass => "index_$(zmd_index)_not_matched.source_$(zmd_index)_subscribed";
 
-			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was NOT added : Could not register the source !"
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was NOT added : Could not register the source !"
 				ifvarclass => "source_$(zmd_index)_failed";
 
-			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was NOT added : Could not subscribe to the source !"
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was NOT added : Could not subscribe to the source !"
 				ifvarclass => "source_$(zmd_index)_subfailed";
 
 
 			# ZMD Process presence related reports
 
-			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
 				ifvarclass => "!zmd_restart";
 
-			"@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
+      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
 				ifvarclass => "zmd_restarted";
 
-			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
 				ifvarclass => "could_not_restart_zmd";
 
 }
