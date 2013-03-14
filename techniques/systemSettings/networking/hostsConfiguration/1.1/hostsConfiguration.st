@@ -97,7 +97,7 @@ bundle edit_line set_hosts_values(hosts, ips, base_tmpl)
 
   delete_lines:
 
-      "$(${ips}[${hosts_index}]).*";
+      "${${ips}[${hosts_index}]}.*";
 
   insert_lines:
 
@@ -108,7 +108,7 @@ bundle edit_line set_hosts_values(hosts, ips, base_tmpl)
 
 &endif&
 
-      "$(${ips}[${hosts_index}])	$(${hosts}[${hosts_index}])";
+      "${${ips}[${hosts_index}]}	${${hosts}[${hosts_index}]}";
 
 }
 

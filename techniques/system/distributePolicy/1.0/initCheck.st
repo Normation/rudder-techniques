@@ -51,8 +51,8 @@ bundle agent root_init_check()
 
   methods:
 
-    "any" usebundle => generic_process_check_process("$(service[$(index)][binary])", "$(service[$(index)][initscript])", "$(service[$(index)][name])", "false");
-    "any" usebundle => generic_process_check_bootstart("$(service[$(index)][binary])", "$(service[$(index)][initscript])", "$(service[$(index)][name])");
+    "any" usebundle => generic_process_check_process("${service[${index}][binary]}", "${service[${index}][initscript]}", "${service[${index}][name]}", "false");
+    "any" usebundle => generic_process_check_bootstart("${service[${index}][binary]}", "${service[${index}][initscript]}", "${service[${index}][name]}");
 
 }
 
@@ -87,17 +87,17 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
     linux::
 
-		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check $(name) process@@None@@$(g.execRun)##$(g.uuid)@#The $(name) process is already running"
-			ifvarclass => "!process_restart_$(canoname).!forced_trigger_$(canoname)";
+		"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process is already running"
+			ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
 
-		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check $(name) process@@None@@$(g.execRun)##$(g.uuid)@#The $(name) process was not running and has been restarted"
-			ifvarclass => "process_restart_$(canoname).process_restart_ok_$(canoname).!forced_trigger_$(canoname)";
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process was not running and has been restarted"
+			ifvarclass => "process_restart_${canoname}.process_restart_ok_${canoname}.!forced_trigger_${canoname}";
 
-		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check $(name) process@@None@@$(g.execRun)##$(g.uuid)@#The $(name) process has been restarted"
-			ifvarclass => "process_restart_ok_$(canoname).forced_trigger_$(canoname)";
+		"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process has been restarted"
+			ifvarclass => "process_restart_ok_${canoname}.forced_trigger_${canoname}";
 
-		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check $(name) process@@None@@$(g.execRun)##$(g.uuid)@#The $(name) process couldn't be restarted"
-			ifvarclass => "process_restart_error_$(canoname)";
+		"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process couldn't be restarted"
+			ifvarclass => "process_restart_error_${canoname}";
 
 }
 
@@ -109,13 +109,13 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
     SuSE::
 
-      "check_command"     string => "/sbin/chkconfig --check $(initscript)";
-      "bootstart_command" string => "/sbin/insserv -d $(initscript)";
+      "check_command"     string => "/sbin/chkconfig --check ${initscript}";
+      "bootstart_command" string => "/sbin/insserv -d ${initscript}";
 
     redhat::
 
-      "check_command"     string => "/sbin/chkconfig --list $(initscript) | grep -q on";
-      "bootstart_command" string => "/sbin/chkconfig $(initscript) on";
+      "check_command"     string => "/sbin/chkconfig --list ${initscript} | grep -q on";
+      "bootstart_command" string => "/sbin/chkconfig ${initscript} on";
 
 	commands:
 
@@ -123,22 +123,22 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
       "${check_command}"
         contain => in_shell_silent,
-        classes => if_else("service_bootstarted_$(canoname)", "service_unbootstarted_$(canoname)"),
-        comment => "Check if the service $(name) is started on boot";
+        classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}"),
+        comment => "Check if the service ${name} is started on boot";
 
 
       "${bootstart_command}"
-        classes => if_else("service_bootstarted_ok_$(canoname)", "service_bootstarted_fail_$(canoname)"),
-        ifvarclass => "service_unbootstarted_$(canoname)",
-        comment => "Set the service $(name) to start on boot";
+        classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
+        ifvarclass => "service_unbootstarted_${canoname}",
+        comment => "Set the service ${name} to start on boot";
 
     debian::
 
-      "/usr/sbin/update-rc.d $(initscript) remove \&\& /usr/sbin/update-rc.d $(initscript) defaults"
+      "/usr/sbin/update-rc.d ${initscript} remove \&\& /usr/sbin/update-rc.d ${initscript} defaults"
         contain => in_shell,
-        classes => if_else("service_bootstarted_ok_$(canoname)", "service_bootstarted_fail_$(canoname)"),
-        ifvarclass => "service_unbootstarted_$(canoname)",
-        comment => "Set the service $(name) to start on boot";
+        classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
+        ifvarclass => "service_unbootstarted_${canoname}",
+        comment => "Set the service ${name} to start on boot";
 
   files:
 
@@ -153,13 +153,13 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
     linux::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check $(name) boot script@@None@@$(g.execRun)##$(g.uuid)@#$(name) is started on boot as required"
-        ifvarclass => "service_bootstarted_$(canoname)";
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} is started on boot as required"
+        ifvarclass => "service_bootstarted_${canoname}";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check $(name) boot script@@None@@$(g.execRun)##$(g.uuid)@#$(name) has been set to start on boot"
-        ifvarclass => "!service_bootstarted_$(canoname).service_bootstarted_ok_$(canoname)";
+      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} has been set to start on boot"
+        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_ok_${canoname}";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check $(name) boot script@@None@@$(g.execRun)##$(g.uuid)@#Could not set $(name) to start on boot!"
-        ifvarclass => "!service_bootstarted_$(canoname).service_bootstarted_fail_$(canoname)";
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#Could not set ${name} to start on boot!"
+        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_fail_${canoname}";
 
 }

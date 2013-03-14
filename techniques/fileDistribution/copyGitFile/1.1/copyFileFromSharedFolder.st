@@ -49,29 +49,29 @@ bundle agent download_from_shared_folder
   classes:
       "is_valid" not => strcmp("&SHARED_FILES_FOLDER&", "");
 
-      "is_file_${index}" not => isdir("$(copyfile[${index}][destination])");
-      "exist_${index}" expression => fileexists("$(copyfile[${index}][destination])");
+      "is_file_${index}" not => isdir("${copyfile[${index}][destination]}");
+      "exist_${index}" expression => fileexists("${copyfile[${index}][destination]}");
 
   files:
     is_valid::
 
-      "$(copyfile[${index}][destination])"
-        copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[${index}][name])", "${server_info.cfserved}", "digest", "false", "false", "false"),
-        depth_search => recurse("$(copyfile[${index}][recursion])"),
-        perms => mog("$(copyfile[${index}][perm])"
-             , "$(copyfile[${index}][owner])"
-             , "$(copyfile[${index}][group])"),
-        comment => "Enforce content of $(copyfile[${index}][destination]) based on the content on the Rudder server",
+      "${copyfile[${index}][destination]}"
+        copy_from => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "digest", "false", "false", "false"),
+        depth_search => recurse("${copyfile[${index}][recursion]}"),
+        perms => mog("${copyfile[${index}][perm]}"
+             , "${copyfile[${index}][owner]}"
+             , "${copyfile[${index}][group]}"),
+        comment => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server",
         classes => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
         ifvarclass => "!exist_${index}|!is_file_${index}";
 
     # If it's a file, the depth_search prevents from enforcing the file content
-      "$(copyfile[${index}][destination])"
-        copy_from => scp("&SHARED_FILES_FOLDER&/$(copyfile[${index}][name])", "${server_info.cfserved}", "digest", "false", "false", "false"),
-        perms => mog("$(copyfile[${index}][perm])"
-             , "$(copyfile[${index}][owner])"
-             , "$(copyfile[${index}][group])"),
-        comment => "Enforce content of file $(copyfile[${index}][destination]) based on the content on the Rudder server",
+      "${copyfile[${index}][destination]}"
+        copy_from => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "digest", "false", "false", "false"),
+        perms => mog("${copyfile[${index}][perm]}"
+             , "${copyfile[${index}][owner]}"
+             , "${copyfile[${index}][group]}"),
+        comment => "Enforce content of file ${copyfile[${index}][destination]} based on the content on the Rudder server",
         classes => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
         ifvarclass => "exist_${index}.is_file_${index}";
 
@@ -79,15 +79,15 @@ bundle agent download_from_shared_folder
 
   reports:
     linux|windows::
-      "@@copyFile@@result_error@@$(copyfile[${index}][uuid])@@Copy file@@$(copyfile[${index}][name])@@${g.execRun}##${g.uuid}@#There is no shared folder on the Rudder Server, so it's not possible to copy a file from it"
+      "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#There is no shared folder on the Rudder Server, so it's not possible to copy a file from it"
         ifvarclass => "!is_valid";
 
-      "@@copyFile@@result_success@@$(copyfile[${index}][uuid])@@Copy file@@$(copyfile[${index}][name])@@${g.execRun}##${g.uuid}@#The content of the file(s) is valid"
+      "@@copyFile@@result_success@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The content of the file(s) is valid"
         ifvarclass => "copy_file_${index}_kept.!copy_file_${index}_modified";
 
-      "@@copyFile@@result_repaired@@$(copyfile[${index}][uuid])@@Copy file@@$(copyfile[${index}][name])@@${g.execRun}##${g.uuid}@#The content or permissions of the file(s) has been repaired"
+      "@@copyFile@@result_repaired@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The content or permissions of the file(s) has been repaired"
         ifvarclass => "copy_file_${index}_modified";
 
-      "@@copyFile@@result_error@@$(copyfile[${index}][uuid])@@Copy file@@$(copyfile[${index}][name])@@${g.execRun}##${g.uuid}@#The content or permissions of the file(s) could not have been repaired for some reason"
+      "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The content or permissions of the file(s) could not have been repaired for some reason"
         ifvarclass => "copy_file_${index}_failed";
 }

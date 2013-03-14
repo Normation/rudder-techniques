@@ -48,7 +48,7 @@ bundle agent doInventory
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
   classes:
-      "splaying" expression => splayclass("${sys.host}$(sys.ipv4)","hourly");
+      "splaying" expression => splayclass("${sys.host}${sys.ipv4}","hourly");
 
     # The force_inventory class may be specified by the user at runtime, or defined here
       "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory");
@@ -327,7 +327,7 @@ bundle agent addInformationsToInventory
       "VMRUDDERUUID" string => execresult("/usr/sbin/xenstore-read vm","noshell");
 
     xen.xenrudderuuid::
-      "RUDDERUUID" string => "$(vmarray[1])";
+      "RUDDERUUID" string => "${vmarray[1]}";
 
 
     linux.!xen::
@@ -528,7 +528,7 @@ bundle edit_line xmlify(ATTR)
 
 body replace_with xmled(attribute)
 {
-        replace_value => "<VM TYPE=\"${attribute}\"><NAME>$(match.1)</NAME><UUID>$(match.2)</UUID></VM>";
+        replace_value => "<VM TYPE=\"${attribute}\"><NAME>${match.1}</NAME><UUID>${match.2}</UUID></VM>";
 }
 
 

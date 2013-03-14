@@ -40,8 +40,8 @@ bundle agent root_init_check()
 
   methods:
 
-      "any" usebundle => generic_process_check_process("$(service[${index}][binary])", "$(service[${index}][initscript])", "false");
-      "any" usebundle => generic_process_check_bootstart("$(service[${index}][binary])", "$(service[${index}][initscript])");
+      "any" usebundle => generic_process_check_process("${service[${index}][binary]}", "${service[${index}][initscript]}", "false");
+      "any" usebundle => generic_process_check_bootstart("${service[${index}][binary]}", "${service[${index}][initscript]}");
 
 }
 

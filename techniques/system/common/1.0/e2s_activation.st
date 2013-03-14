@@ -95,7 +95,7 @@ bundle agent e2sInstall
       "e2s_ok" expression => fileexists("${sys.winprogdir}\Centreon\Centreon E2S\Centreon-EventLog-2-Syslog.exe");
 
     x86_64::
-      "e2s_ok" expression => fileexists("$(sys.winprogdir86)\Centreon\Centreon E2S\Centreon-EventLog-2-Syslog.exe");
+      "e2s_ok" expression => fileexists("${sys.winprogdir86}\Centreon\Centreon E2S\Centreon-EventLog-2-Syslog.exe");
 
   commands:
 
@@ -123,11 +123,11 @@ bundle agent e2sConfigure
     !x86_64::
       "e2s_config_file" string => "${sys.winprogdir}\Centreon\Centreon E2S\Configuration.xml";
     x86_64::
-      "e2s_config_file" string => "$(sys.winprogdir86)\Centreon\Centreon E2S\Configuration.xml";
+      "e2s_config_file" string => "${sys.winprogdir86}\Centreon\Centreon E2S\Configuration.xml";
 
   files:
 
-      "$(e2s_config_file)"
+      "${e2s_config_file}"
         create        => "true",
         classes       => kept_if_else("e2s_configure_kept", "e2s_configure_repaired", "e2s_configure_error"),
         edit_line     => e2s_parameters("${server_info.cfserved}", "&SYSLOGPORT&", "TCP", "${e2sCommon.e2s_tpl}"),

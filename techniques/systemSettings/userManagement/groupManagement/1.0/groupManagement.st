@@ -45,7 +45,7 @@ bundle agent check_usergroup_grp_parameters
 
       "any"
 
-        usebundle => check_usergroup_group_parameters_grouphandle("$(usergroup_group_name[${usergroup_group_index}])", "$(usergroup_group_content[${usergroup_group_index}])", "${usergroup_group_index}", "$(usergroup_group_directive_id[${usergroup_group_index}])");
+        usebundle => check_usergroup_group_parameters_grouphandle("${usergroup_group_name[${usergroup_group_index}]}", "${usergroup_group_content[${usergroup_group_index}]}", "${usergroup_group_index}", "${usergroup_group_directive_id[${usergroup_group_index}]}");
 
 }
 

@@ -37,12 +37,12 @@ bundle agent process_management
 
   methods:
 
-      "any" usebundle => check_process("$(file[${procList}][0])",
-      "$(file[${procList}][1])",
-      "$(file[${procList}][2])",
-      "$(file[${procList}][3])",
-      "$(file[${procList}][4])",
-      "$(file[${procList}][5])");
+      "any" usebundle => check_process("${file[${procList}][0]}",
+      "${file[${procList}][1]}",
+      "${file[${procList}][2]}",
+      "${file[${procList}][3]}",
+      "${file[${procList}][4]}",
+      "${file[${procList}][5]}");
 
 #reports:
 #		"@@ProcessManagement@@result_error@@${directiveId}@@Blacklisted process@@${blacklist}@@${g.execRun}##${g.uuid}@#${blacklist}: the process could not be killed"

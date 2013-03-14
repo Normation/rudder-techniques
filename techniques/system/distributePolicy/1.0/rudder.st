@@ -67,7 +67,7 @@ $template RudderReportsFormat,"insert into RudderSysEvents (executionDate, nodeI
 if $programname startswith 'rudder' and $msg startswith '  R: @@' then /var/log/rudder/reports/extLinuxReport.log
 
 # Enforce the content of the line with a regular expression
-:msg, ereregex, "R: @@[ a-zA-Z0-9\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:localhost,rudder,rudder,$(p.psql_password[2]);RudderReportsFormat
+:msg, ereregex, "R: @@[ a-zA-Z0-9\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:localhost,rudder,rudder,${p.psql_password[2]};RudderReportsFormat
 
 
 # We shouldn't have any rudder message here left

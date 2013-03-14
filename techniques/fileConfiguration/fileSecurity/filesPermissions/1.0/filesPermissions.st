@@ -34,15 +34,15 @@ bundle agent files_permissions
 
   methods:
 
-      "any" usebundle => check_permissions("$(file[${filePerms}][0])",
-      "$(file[${filePerms}][1])",
-      "$(file[${filePerms}][2])",
-      "$(file[${filePerms}][3])",
-      "$(file[${filePerms}][4])",
-      "$(file[${filePerms}][5])",
-      "$(file[${filePerms}][6])",
-      "$(file[${filePerms}][7])",
-      "$(file[${filePerms}][8])");
+      "any" usebundle => check_permissions("${file[${filePerms}][0]}",
+      "${file[${filePerms}][1]}",
+      "${file[${filePerms}][2]}",
+      "${file[${filePerms}][3]}",
+      "${file[${filePerms}][4]}",
+      "${file[${filePerms}][5]}",
+      "${file[${filePerms}][6]}",
+      "${file[${filePerms}][7]}",
+      "${file[${filePerms}][8]}");
 
 }
 

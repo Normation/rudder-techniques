@@ -375,8 +375,8 @@ bundle edit_line set_ssh_config_values_tier2(tab)
 
   # match a line starting like the key something
       "${index}\s+.*"
-        edit_field => col("\s+","2","$(${tab}[${index}])","set"),
-        classes => if_ok("not_$(cindex[${index}])");
+        edit_field => col("\s+","2","${${tab}[${index}]}","set"),
+        classes => if_ok("not_${cindex[${index}]}");
 
   insert_lines:
 
@@ -390,7 +390,7 @@ bundle edit_line set_ssh_config_values_tier2(tab)
         location => start,
         insert_type => "preserve_block";
 
-      "${index} $(${tab}[${index}])",
-        ifvarclass => "!not_$(cindex[${index}])";
+      "${index} ${${tab}[${index}]}",
+        ifvarclass => "!not_${cindex[${index}]}";
 
 }
