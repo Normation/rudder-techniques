@@ -89,10 +89,10 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
   files:
 
-      "$(reverse_proxy_configuration_file)"
+      "${reverse_proxy_configuration_file}"
         create        => "true",
         edit_defaults => empty,
-        edit_line     => insert_proxy_entries("$(rudder_reverse_proxy_apache_proxies)"),
+        edit_line     => insert_proxy_entries("${rudder_reverse_proxy_apache_proxies}"),
         classes       => rudder_common_classes("rudder_reverse_proxy_apache_configuration"),
         comment       => "Edit the Apache reverse proxy file";
 
@@ -101,34 +101,34 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
     # Modules edition
     "any"
-      usebundle  => rudder_common_report("${internal_name}", "result_success", "&TRACKINGKEY&", "Module parameters", "None", "No ${service_name} modules edition needed"),
+      usebundle  => rudder_common_report("${internal_name}", "result_success", "${${params}[tracking_key]}", "Module parameters", "None", "No ${service_name} modules edition needed"),
       ifvarclass => "!debian|(rudder_reverse_proxy_apache_mod_proxy_loaded.rudder_reverse_proxy_apache_mod_proxy_http_loaded)";
 
     # SELinux edition
     "any"
-      usebundle  => rudder_common_report("${internal_name}", "result_success", "&TRACKINGKEY&", "SELinux parameters", "None", "No ${service_name} SELinux modification needed"),
+      usebundle  => rudder_common_report("${internal_name}", "result_success", "${${params}[tracking_key]}", "SELinux parameters", "None", "No ${service_name} SELinux modification needed"),
       ifvarclass => "!rudder_reverse_proxy_apache_selinux_adjust|rudder_reverse_proxy_apache_selinux_proxy_policy";
 
     # Apache restart/reload
     "any"
-      usebundle  => rudder_common_report("${internal_name}", "log_info", "&TRACKINGKEY&", "Demon status", "None", "${service_name} has been restarted or reloaded"),
+      usebundle  => rudder_common_report("${internal_name}", "log_info", "${${params}[tracking_key]}", "Demon status", "None", "${service_name} has been restarted or reloaded"),
       ifvarclass => "rudder_reverse_proxy_apache_restart_repaired|rudder_reverse_proxy_apache_reload_repaired";
     "any"
-      usebundle  => rudder_common_report("${internal_name}", "result_error", "&TRACKINGKEY&", "Demon status", "None", "Unable to restart or reload ${service_name}"),
+      usebundle  => rudder_common_report("${internal_name}", "result_error", "${${params}[tracking_key]}", "Demon status", "None", "Unable to restart or reload ${service_name}"),
       ifvarclass => "rudder_reverse_proxy_apache_restart_error|rudder_reverse_proxy_apache_reload_error";
 }
 
 # The reporting is made on separate bundles to abstract the complexity
 # inherent to the normal ordering.
-bundle agent rudder_reverse_proxy_apache_configuration_reporting(service_name, internal_name)
+bundle agent rudder_reverse_proxy_apache_configuration_reporting(service_name, internal_name, params)
 {
   methods:
     # Modules edition
-    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_modules", "&TRACKINGKEY&", "Module parameters", "None", "The ${service_name} modules");
+    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_modules", "${${params}[tracking_key]}", "Module parameters", "None", "The ${service_name} modules");
 
     # SELinux edition
-    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_selinux", "&TRACKINGKEY&", "SELinux parameters", "None", "The ${service_name} SELinux configuration");
+    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_selinux", "${${params}[tracking_key]}", "SELinux parameters", "None", "The ${service_name} SELinux configuration");
 
     # Apache configuration
-    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_configuration", "&TRACKINGKEY&", "Reverse proxy parameters", "None", "The ${service_name} reverse proxy configuration");
+    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_configuration", "${${params}[tracking_key]}", "Reverse proxy parameters", "None", "The ${service_name} reverse proxy configuration");
 }

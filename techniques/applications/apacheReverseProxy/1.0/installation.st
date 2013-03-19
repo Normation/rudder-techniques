@@ -16,7 +16,7 @@
 #
 #####################################################################################
 
-bundle agent rudder_reverse_proxy_apache_installation(service_name, internal_name) {
+bundle agent rudder_reverse_proxy_apache_installation(service_name, internal_name, params) {
   vars:
 
     redhat::
@@ -29,7 +29,7 @@ bundle agent rudder_reverse_proxy_apache_installation(service_name, internal_nam
 
   classes:
 
-    "rudder_reverse_proxy_apache_install_package" expression => strcmp("&APACHE_REVERSE_PROXY_INSTALL&", "true");
+    "rudder_reverse_proxy_apache_install_package" expression => strcmp("${${params}[package_install]}", "true");
 
   packages:
 
@@ -50,19 +50,21 @@ bundle agent rudder_reverse_proxy_apache_installation(service_name, internal_nam
         classes         => rudder_common_classes("rudder_reverse_proxy_apache_package"),
         comment         => "Installing apache using generic interface";
 
-  methods:
-
-    # Class local visibility prevents a "normal" usage of this bundle.
-    "any"
-      usebundle  => rudder_common_report("${internal_name}", "result_success", "&TRACKINGKEY&", "Installation parameters", "None", "${service_name} installation is not required. Skipping..."),
-      ifvarclass => "!rudder_reverse_proxy_apache_install_package";
-
 }
 
 # The reporting is made on separate bundles to abstract the complexity
 # inherent to the normal ordering.
-bundle agent rudder_reverse_proxy_apache_installation_reporting(service_name, internal_name)
-{
+bundle agent rudder_reverse_proxy_apache_installation_reporting(service_name, internal_name, params) {
+  classes:
+
+    "rudder_reverse_proxy_apache_install_package" expression => strcmp("${${params}[package_install]}", "true");
+
   methods:
-    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_package", "&TRACKINGKEY&", "Installation parameters", "None", "The ${service_name} package installation");
+    "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_package", "${${params}[tracking_key]}", "Installation parameters", "None", "The ${service_name} package installation");
+
+    # Special case if no installation is needed
+    "any"
+      usebundle  => rudder_common_report("${internal_name}", "result_success", "${${params}[tracking_key]}", "Installation parameters", "None", "${service_name} installation is not required. Skipping..."),
+      ifvarclass => "!rudder_reverse_proxy_apache_install_package";
+
 }
