@@ -135,10 +135,8 @@ bundle agent check_lock_db_problem{
 body file_select over_an_hour()
 {
 	# Select file which are older than one hour
-	# Use of positive mtime instead of negative one
-	# In order to avoid corner effects
 	mtime       => irange(ago(0,0,0,1,0,0), now);
-	file_result => "mtime";
+	file_result => "!mtime";
 }
 
 body depth_search recurse(d)
