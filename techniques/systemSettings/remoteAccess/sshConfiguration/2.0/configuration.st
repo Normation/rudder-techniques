@@ -44,7 +44,7 @@ bundle agent rudder_openssh_server_configuration(service_name) {
       "rudder_openssh_server_startup_init_name"
         string => "/etc/init.d/ssh";
       "rudder_openssh_server_startup_init_activation_command"
-        string => "/usr/sbin/update-rc.d ssh remove \&\& /usr/sbin/update-rc.d ssh defaults";
+        string => "/usr/sbin/update-rc.d -f ssh remove \&\& /usr/sbin/update-rc.d ssh defaults";
     SuSE::
       "rudder_openssh_server_startup_script_regex"
         string => "/etc/init.d/rc3.d/S.*ssh.*";
