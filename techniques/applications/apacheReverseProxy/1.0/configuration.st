@@ -50,9 +50,6 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
     # Adjust SELinux ?
     "rudder_reverse_proxy_apache_selinux_adjust"        expression => strcmp("${${params}[selinux]}","true");
 
-    # Are the SELinux utilities installed ?
-    "rudder_reverse_proxy_apache_selinux_presence"      expression => fileexists("/usr/sbin/getsebool");
-
     # What is the current SELinux http proxying policy ?
     "rudder_reverse_proxy_apache_selinux_proxy_policy"  expression => returnszero("/usr/sbin/getsebool httpd_can_network_relay | grep -q on", "useshell");
 
@@ -111,10 +108,10 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
     # Apache restart/reload
     "any"
-      usebundle  => rudder_common_report("${internal_name}", "log_info", "${${params}[tracking_key]}", "Demon status", "None", "${service_name} has been restarted or reloaded"),
+      usebundle  => rudder_common_report("${internal_name}", "log_info", "${${params}[tracking_key]}", "Daemon status", "None", "${service_name} has been restarted or reloaded"),
       ifvarclass => "rudder_reverse_proxy_apache_restart_repaired|rudder_reverse_proxy_apache_reload_repaired";
     "any"
-      usebundle  => rudder_common_report("${internal_name}", "result_error", "${${params}[tracking_key]}", "Demon status", "None", "Unable to restart or reload ${service_name}"),
+      usebundle  => rudder_common_report("${internal_name}", "result_error", "${${params}[tracking_key]}", "Daemon status", "None", "Unable to restart or reload ${service_name}"),
       ifvarclass => "rudder_reverse_proxy_apache_restart_error|rudder_reverse_proxy_apache_reload_error";
 }
 
