@@ -16,28 +16,28 @@
 #
 #####################################################################################
 
-bundle common generic_command_variable_definition {
+bundle common generic_cmd_var_def {
 
 	vars:
 
-		&GENERIC_COMMAND_VARIABLE_NAME, GENERIC_COMMAND_VARIABLE_BINARY:{name, binary |"&name&" string => execresult("&binary&", "noshell");
+		&GENERIC_COMMAND_VARIABLE_NAME, GENERIC_COMMAND_VARIABLE_BINARY, GENERIC_COMMAND_VARIABLE_SHELL:{name, binary, shell |"&name&" string => execresult("&binary&", "&shell&");
 }&
 		
 }
 
-bundle agent generic_command_variable_def_report {
+bundle agent generic_cmd_var_def_report {
 	vars:
                 &TRACKINGKEY:{directiveId |"generic_command_name_uuid[&i&]" string => "&directiveId&";
 }& 
-                &GENERIC_COMMAND_VARIABLE_NAME:{name |"generic_command_variable_name[&i&]" string => "&name&";
+                &GENERIC_COMMAND_VARIABLE_NAME:{name |"generic_cmd_variable_name[&i&]" string => "&name&";
 }&
 
-		"generic_command_variable_name_index" slist => getindices("generic_command_name_uuid");
+		"generic_cmd_variable_name_index" slist => getindices("generic_command_name_uuid");
 
 	reports:
 
 		(linux|!linux)::
 
-			"@@genericCommandVariableDefinition@@result_success@@$(generic_command_name_uuid[$(generic_command_variable_name_index)])@@Variable definition@@$(generic_command_variable_name[$(generic_command_variable_name_index)])@@$(g.execRun)##$(g.uuid)@#A generic command variable definition is set for variable $(generic_command_variable_name[$(generic_command_variable_name_index)])";
+			"@@genericCommandVariableDefinition@@result_success@@$(generic_command_name_uuid[$(generic_cmd_variable_name_index)])@@Variable command definition@@$(generic_cmd_variable_name[$(generic_cmd_variable_name_index)])@@$(g.execRun)##$(g.uuid)@#A generic command variable definition is set for variable $(generic_cmd_variable_name[$(generic_cmd_variable_name_index)])";
 
 }
