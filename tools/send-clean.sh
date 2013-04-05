@@ -26,7 +26,7 @@ fi
 SERVER=$1
 FILENAME=$2
 ARCHIVEDIR=$3
-SEND_COMMAND="curl -f -F file=@${FILENAME} ${SERVER}"
+SEND_COMMAND="curl --proxy '' -f -F file=@${FILENAME} ${SERVER}"
 
 # Attempt to send the file
 ${SEND_COMMAND}

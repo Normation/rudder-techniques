@@ -29,13 +29,13 @@ bundle agent doInventory {
         commands:
           linux::
                 "/usr/bin/curl"
-                        args => "-s -f -o \"$(g.rudder_var_tmp)/uuid.txt\" http://${server_info.cfserved}/uuid",
+                        args => "-s -f --proxy '' -o \"$(g.rudder_var_tmp)/uuid.txt\" http://${server_info.cfserved}/uuid",
                         comment => "Getting the uuid from the server",
                         classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
 
 	  windows::
                 "\"${g.rudder_base_sbin}\curl\curl.exe\""
-                        args => "-s -f -o \"$(g.rudder_var_tmp)\uuid.txt\" http://${server_info.cfserved}/uuid",
+                        args => "-s -f --proxy '' -o \"$(g.rudder_var_tmp)\uuid.txt\" http://${server_info.cfserved}/uuid",
                         comment => "Getting the uuid from the server",
                         classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
 
@@ -384,7 +384,7 @@ bundle agent sendInventory {
   files:
     linux::
     "${g.rudder_inventories}" 
-		transformer => "/usr/bin/curl -f -s --user $(g.davuser):$(g.davpw) -T $(this.promiser)  http://${server_info.cfserved}/inventory-updates/",
+		transformer => "/usr/bin/curl -f -s --proxy '' --user $(g.davuser):$(g.davpw) -T $(this.promiser)  http://${server_info.cfserved}/inventory-updates/",
 		depth_search => recurse_visible(1),
 		file_select => inventory_files,
 		classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
@@ -409,7 +409,7 @@ bundle agent sendInventory {
 	# TODO: we should find some way to have an equivalent behaviour to send-clean.sh above on Windows
 	windows::
 	 "${g.rudder_inventories}" 
-		transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --user $(g.davuser):$(g.davpw) -T \"$(this.promiser)\"  http://${server_info.cfserved}/inventory-updates/",
+		transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --proxy '' --user $(g.davuser):$(g.davpw) -T \"$(this.promiser)\"  http://${server_info.cfserved}/inventory-updates/",
 		depth_search => recurse_visible(1),
 		file_select => inventory_files,
 		classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
