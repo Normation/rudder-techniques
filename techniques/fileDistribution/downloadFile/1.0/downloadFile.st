@@ -31,13 +31,13 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
 
     linux.file_not_found::
       "/usr/bin/curl"
-        args => "-f -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
         comment => "Getting the file from the server",
         classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
     windows.file_not_found::
       "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-f -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
         comment => "Getting the file from the server",
         classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 

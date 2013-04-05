@@ -28,12 +28,12 @@ bundle agent fusion_getuuid
 
     linux::
       "/usr/bin/curl"
-        args => "-f -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
+        args => "-f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
         comment => "Getting the uuid from the server";
 
     windows::
       "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-f -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
+        args => "-f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
         comment => "Getting the uuid from the server";
 
 }
