@@ -26,10 +26,10 @@ fi
 SERVER=$1
 FILENAME=$2
 ARCHIVEDIR=$3
-SEND_COMMAND="curl --proxy '' -f -F file=@${FILENAME} ${SERVER}"
+CURL_BINARY="/usr/bin/curl"
 
 # Attempt to send the file
-${SEND_COMMAND}
+${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} ${SERVER}
 SEND_COMMAND_RET=$?
 
 # Abort if sending failed
