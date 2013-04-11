@@ -21,7 +21,7 @@ bundle agent process_matching
   vars:
 
  # This deliberately excludes cf-execd which is handled separately below
-      "cf_components"       slist => { "cf-key", "cf-know",
+      "cf_components"       slist => { "cf-key",
                                   # "cf-monitord", Disabled
       "cf-promises", "cf-report",
       "cf-runagent", "cf-serverd" };
