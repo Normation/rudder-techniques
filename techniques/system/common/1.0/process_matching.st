@@ -23,7 +23,6 @@ bundle agent process_matching
       # This deliberately excludes cf-execd which is handled separately below
       "cf_components" slist => {
         "cf-key",
-        "cf-know",
         # "cf-monitord", Disabled
         "cf-promises",
         "cf-report",

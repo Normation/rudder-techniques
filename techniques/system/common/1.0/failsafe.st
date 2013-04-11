@@ -44,6 +44,7 @@ bundle common g
     windows::
       "rudder_base"                string => "${sys.winprogdir}\Rudder";
       "rudder_var"                 string => "${sys.winprogdir}\Rudder\var";
+      "rudder_bin"                 string => "${rudder_base}\bin";
       "rudder_sbin"                string => "${rudder_base}\sbin";
       "rudder_dependencies"        string => "${rudder_sbin}";
       "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
@@ -51,6 +52,7 @@ bundle common g
     linux|cygwin::
       "rudder_base"                string => "/opt/rudder";
       "rudder_var"                 string => "/var/rudder";
+      "rudder_bin"                 string => "${rudder_base}/bin";
       "rudder_sbin"                string => "${rudder_base}/sbin";
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_dependencies"        string => "/var/rudder/tools";
@@ -78,7 +80,7 @@ bundle common rudder_roles
 bundle agent init_files
 {
   vars:
-      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-know", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
 
     nova_edition::
       "cfengine_install_path" string => "/usr/local";
@@ -92,7 +94,7 @@ bundle agent init_files
     cfengine_community.(linux|cygwin)::
       "${sys.workdir}/bin/${components}"
         perms     => u_p("700"),
-        copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),
+        copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
         action    => immediate;
 
 
