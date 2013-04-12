@@ -59,8 +59,15 @@ vars:
 
 processes:
 
-	"/usr/sbin/cron"
-		restart_class => "cron_restart";
+	ubuntu::
+
+		"cron"
+			restart_class => "cron_restart";
+
+	!ubuntu::
+
+		"/usr/sbin/cron"
+			restart_class => "cron_restart";
 
 files:
 
