@@ -29,30 +29,14 @@
 
 bundle agent check_rpm_package_installation {
 
-	vars:
-		&RPM_PACKAGE_REDLIST:{name |"rpm_package[&i&]" string => "&name&";
-		}&
+  vars:
+      "package_number" int => readstringarray("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/3.0/rpmPackageInstallationData", "#[^\n]*",";",9000,1600000);
 
-		&RPM_PACKAGE_REDACTION:{action |"rpm_action[&i&]" string => "&action&";
-		}&
+      "index_rpmpkg" slist => getindices("rpm_data");
 
-		&RPM_PACKAGE_VERSION_DEFINITION:{definition |"rpm_version_definition[&i&]" string => "&definition&";
-		}&
+  classes:
 
-		&RPM_PACKAGE_VERSION_CRITERION:{version_criterion |"rpm_version_criterion[&i&]" string => "&version_criterion&";
-		}&
-
-		&RPM_PACKAGE_VERSION:{version |"rpm_version[&i&]" string => "&version&";
-		}&
-
-		&TRACKINGKEY:{piuuid |"rpm_policy_instance_uuid[&i&]" string => "&piuuid&";
-		}&
-
-		"index_rpmpkg" slist => getindices("rpm_package");
-
-	classes:
-
-		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_version_definition[$(index_rpmpkg)])", "default");
+      "$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][2])", "default");
 
 	processes:
 
@@ -70,51 +54,50 @@ bundle agent check_rpm_package_installation {
 				classes => kept_if_else("zmd_kept", "zmd_restarted", "could_not_restart_zmd"),
 				comment => "Restart the ZMD daemon";
 
-	packages:
+  packages:
 
-		redhat|SuSE::
-			"$(rpm_package[$(index_rpmpkg)])"
-				package_policy  => "$(rpm_action[$(index_rpmpkg)])",
-				package_method  => generic_nobulk("30"),
-				classes => class_trigger_rpm_retcodes("rpm_package_installed_$(rpm_package[$(index_rpmpkg)])", "rpm_package_install_failed_$(rpm_package[$(index_rpmpkg)])", "rpm_package_install_kept_$(rpm_package[$(index_rpmpkg)])"),
-				ifvarclass => "!$(index_rpmpkg)_package_version_defined",
-				comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_action[$(index_rpmpkg)])";
+    redhat|SuSE::
+      "${rpm_data[${index_rpmpkg}][0]}"
+        package_policy  => "${rpm_data[${index_rpmpkg}][1]}",
+        package_method  => generic_nobulk("30"),
+        classes => class_trigger_rpm_retcodes("rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "rpm_package_install_kept_${index_rpmpkg}"),
+        ifvarclass => "!${index_rpmpkg}_package_version_defined",
+        comment => "Handling ${index_rpmpkg} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][1]}";
 
-			"$(rpm_package[$(index_rpmpkg)])"
-				package_policy   => "$(rpm_action[$(index_rpmpkg)])",
-				package_method   => generic_nobulk("30"),
-				package_select   => "$(rpm_version_criterion[$(index_rpmpkg)])",
-				package_version  => "$(rpm_version[$(index_rpmpkg)])",
-				classes => class_trigger_rpm_retcodes("rpm_package_installed_$(rpm_package[$(index_rpmpkg)])", "rpm_package_install_failed_$(rpm_package[$(index_rpmpkg)])", "rpm_package_install_kept_$(rpm_package[$(index_rpmpkg)])"),
-				ifvarclass => "$(index_rpmpkg)_package_version_defined",
-				comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_action[$(index_rpmpkg)])";
+      "${rpm_data[${index_rpmpkg}][0]}"
+        package_policy   => "${rpm_data[${index_rpmpkg}][1]}",
+        package_method   => generic_nobulk("30"),
+        package_select   => "${rpm_data[${index_rpmpkg}][3]}",
+        package_version  => "${rpm_data[${index_rpmpkg}][2]}",
+        classes => class_trigger_rpm_retcodes("rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "rpm_package_install_kept_${index_rpmpkg}"),
+        ifvarclass => "${index_rpmpkg}_package_version_defined",
+        comment => "Handling ${index_rpmpkg} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][1]}";
 
-	reports:
+  reports:
 
-		redhat|SuSE::
+    redhat|SuSE::
+      "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${index_rpmpkg}@@${g.execRun}##${g.uuid}@#Performed repair action for RPM package ${index_rpmpkg} to comply with policy: ${rpm_data[${index_rpmpkg}][1]}"
+        ifvarclass => canonify("rpm_package_installed_${index_rpmpkg}");
 
-			"@@packageInstallation@@result_repaired@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Performed repair action for RPM package $(rpm_package[$(index_rpmpkg)]) to comply with policy: $(rpm_action[$(index_rpmpkg)])"
-				ifvarclass => canonify("rpm_package_installed_$(rpm_package[$(index_rpmpkg)])");
+      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${index_rpmpkg}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${index_rpmpkg} with policy: ${rpm_data[${index_rpmpkg}][1]}"
+        ifvarclass => canonify("rpm_package_install_failed_${index_rpmpkg}");
 
-			"@@packageInstallation@@result_error@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Error taking action for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_action[$(index_rpmpkg)])"
-				ifvarclass => canonify("rpm_package_install_failed_$(rpm_package[$(index_rpmpkg)])");
-
-			"@@packageInstallation@@result_success@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_action[$(index_rpmpkg)])"
-				ifvarclass => canonify("rpm_package_install_kept_$(rpm_package[$(index_rpmpkg)])");
+      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${index_rpmpkg}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${index_rpmpkg} with policy: ${rpm_data[${index_rpmpkg}][1]}"
+        ifvarclass => canonify("rpm_package_install_kept_${index_rpmpkg}");
 
 			# ZMD Process presence related reports
     (redhat|SuSE).!SuSE_10::
-			"@@packageInstallation@@result_success@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#ZMD process presence verification not necessary. Skipping ...";
+      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][5]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#ZMD process presence verification not necessary. Skipping ...";
 
 
     SuSE_10.!zmd_restart::
-			"@@packageInstallation@@result_success@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
+      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][5]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ...";
 
     SuSE_10.zmd_restarted::
-			"@@packageInstallation@@result_repaired@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted";
+      "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][5]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted";
 
     SuSE_10.could_not_restart_zmd::
-			"@@packageInstallation@@result_error@@$(rpm_policy_instance_uuid[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart";
+      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][5]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart";
 
 }
 
