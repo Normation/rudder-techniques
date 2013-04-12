@@ -312,6 +312,7 @@ bundle agent addInformationsToInventory {
 		"RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"","noshell");
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "33" );
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",50,4000) };
+&endif&
 		
 	cygwin::
 		"mywinpath" string => execresult("/usr/bin/echo $WINDIR ", "useshell");
@@ -320,7 +321,6 @@ bundle agent addInformationsToInventory {
 		"RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs","noshell");
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
-&endif&
 
         xen.SuSE::
                 "VMRUDDERUUID" string => execresult("/bin/xenstore-read vm","noshell");
