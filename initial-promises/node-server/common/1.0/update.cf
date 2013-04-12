@@ -162,9 +162,9 @@ bundle agent update
       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
 
     rudder_promises_generated_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
 
-    rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)::
+    (rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)::
       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
 
     rudder_dependencies_updated::
