@@ -411,7 +411,6 @@ bundle agent sendInventory
 {
   files:
     linux::
-<<<<<<< HEAD
       "${g.rudder_inventories}"
         transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
