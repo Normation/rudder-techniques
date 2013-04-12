@@ -44,10 +44,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>common/cron/rudder_agent_nova_cron</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="cf_promises_generated">
-      <OUTPATH>cf_promises_generated</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
   </TMLS>
 
   <SYSTEMVARS>
