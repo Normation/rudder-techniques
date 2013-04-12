@@ -76,7 +76,8 @@ bundle common server_info {
 
 bundle agent update {
 	vars:
-		"client_inputs" string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
+      "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded 
+      "file_to_check_update" string => "rudder_promises_generated";
 		nova_edition::
             "server_inputs" string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
 		community_edition::
@@ -85,18 +86,27 @@ bundle agent update {
 
     files:
 	!root_server::
-          "${client_inputs}" 
+          "${client_inputs}"
+      "${client_inputs}/${file_to_check_update}"
+        copy_from    => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
+        action       => immediate,
+        classes      => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
+
+    rudder_promises_generated_repaired.!root_server:: 
+          "${client_inputs}"
             copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
             depth_search => recurse("inf"),
             action => immediate,
             classes => success("config", "no_update", "config_ok");
 
-			# Every time we update inputs successfully, touch a file to let other promises know we are doing ok
+    (rudder_promises_generated_ok|rudder_promises_generated_repaired).!root_server::
+      # Every time we check update inputs successfully (already up to date or
+      # updated), touch a file to let other promises know we are doing ok 
 			"${sys.workdir}/last_successful_inputs_update"
 				touch      => "true",
 				ifvarclass => "(config|config_ok).!no_update";
 
-        !root_server.(!windows|cygwin)::
+        rudder_promises_generated_repaired.(!windows|cygwin)::
 		  "${g.rudder_dependencies}"
 			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
 			#depth_search => recurse("inf"),
@@ -104,7 +114,7 @@ bundle agent update {
 			action => immediate,
 			classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
-        !root_server.(windows.!cygwin)::
+        rudder_promises_generated_repaired.(windows.!cygwin)::
 		  "${g.rudder_sbin}"
 			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
 			#depth_search => recurse("inf"),
@@ -158,7 +168,11 @@ bundle agent update {
 			rudder_dependencies_update_error::
 				"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
 
-			rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update::
+
+    rudder_promises_generated_error::
+      "@@Common@@result_error@@hasPolicyServer-root@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
+
+    (rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update):: 
 				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
 
 			rudder_dependencies_updated::
@@ -167,7 +181,7 @@ bundle agent update {
 			config::
 				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Node's policy (CFEngine promises) updated";
 
-			config|rudder_dependencies_updated|server_ok|executor_ok::
+    rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok::
 				"@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
 
 			policy_server::
