@@ -164,10 +164,12 @@ processes:
 		"$(sys.workdir)/bin/cf-serverd"  restart_class => "start_server";
 		"$(sys.workdir)/bin/cf-execd"    restart_class => "start_executor";
 
+&if(NOVA)&
 	windows::
 
 		"$(escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
 		"cf-execd"    restart_class => "start_executor";
+&endif&
 
 commands:
 

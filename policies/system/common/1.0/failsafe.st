@@ -37,11 +37,13 @@ output_prefix => "rudder";
 bundle common g
 {
 	vars:
+&if(NOVA)&
 	 windows::
 	   "rudder_base" string  => "$(sys.winprogdir)\Rudder";
 	   "rudder_sbin" string  => "$(rudder_base)\sbin";
 	   "rudder_dependencies" string => "$(rudder_sbin)";
 	   "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+&endif&
 
 	 linux|cygwin::
 	    "rudder_base" string => "/opt/rudder";
@@ -86,9 +88,11 @@ bundle agent init_files {
 		cygwin.missing_key::
 			"${sys.workdir}/bin/cf-key.exe";
 
+&if(NOVA)&
 		windows.missing_key.!cygwin::
 			"\"$(sys.workdir)\bin\cf-key\"";
-   
+&endif&
+
 		linux.missing_key::
 			"${sys.workdir}/bin/cf-key";
 }
