@@ -81,7 +81,7 @@ bundle agent update
 {
   vars:
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
-      "file_to_check_update" string => "system/common/1.0/cf_promises_generated.st";
+      "file_to_check_update" string => "cf_promises_generated";
     nova_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
     community_edition::
@@ -101,7 +101,7 @@ bundle agent update
         action => immediate,
         classes => success("config", "no_update", "config_ok");
 
-    (cf_promises_generated_repaired|cf_promises_generated_repaired).!root_server::
+    (cf_promises_generated_ok|cf_promises_generated_repaired).!root_server::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
