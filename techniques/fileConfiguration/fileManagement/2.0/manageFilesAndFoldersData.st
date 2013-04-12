@@ -18,6 +18,6 @@
 # List of files to manage
 # Format of the file
 # path:perm:owner:group:symlink_enforced:recursive:ttl:uuid
-&FILE_AND_FOLDER_MANAGEMENT_PATH,FILE_AND_FOLDER_MANAGEMENT_PERM,FILE_AND_FOLDER_MANAGEMENT_OWNER,FILE_AND_FOLDER_MANAGEMENT_GROUP,FILE_AND_FOLDER_MANAGEMENT_SYMLINK_ENFORCE,FILE_AND_FOLDER_MANAGEMENT_RECURSIVE,FILE_AND_FOLDER_DELETION_DAYS,&TRACKINGKEY:{path,perm,owner,group,symlink_enforced,recursive,ttl,trackingkey|{&path&:&perm&:&owner&:&group&:&symlink_enforced&:&recursive&:&ttl&:&trackingkey&
+&FILE_AND_FOLDER_MANAGEMENT_PATH,FILE_AND_FOLDER_MANAGEMENT_PERM,FILE_AND_FOLDER_MANAGEMENT_OWNER,FILE_AND_FOLDER_MANAGEMENT_GROUP,FILE_AND_FOLDER_MANAGEMENT_SYMLINK_ENFORCE,FILE_AND_FOLDER_MANAGEMENT_RECURSIVE,FILE_AND_FOLDER_DELETION_DAYS,TRACKINGKEY:{path,perm,owner,group,symlink_enforced,recursive,ttl,trackingkey|{&path&:&perm&:&owner&:&group&:&symlink_enforced&:&recursive&:&ttl&:&trackingkey&
 }&
 
