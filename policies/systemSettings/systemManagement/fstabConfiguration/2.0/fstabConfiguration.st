@@ -114,9 +114,11 @@ bundle agent check_fstab_configuration {
 
 			"@@fstabConfiguration@@log_warn@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstab file could NOT be edited by at least one instance of this policy template!";
 
+&if(NOVA)&
                 windows::
 
 			"@@fstabConfiguration@@result_error@@$(fstab[$(fstab_index)][uuid])@@fstabConfiguration@@None@@$(g.execRun)##$(g.uuid)@#The fstabConfiguration Policy Template is not intended to be run on windows. Skipping.";
+&endif&
 
 }
 
