@@ -35,7 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="manageFilesAndFoldersData">
       <OUTPATH>fileManagement/2.0/manageFilesAndFoldersData</OUTPATH>
       <INCLUDED>false</INCLUDED>
-    </TMP>
+    </TML>
   </TMLS>
 
   <TRACKINGVARIABLE>
