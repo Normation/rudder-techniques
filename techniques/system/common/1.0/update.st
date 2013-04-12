@@ -94,23 +94,23 @@ bundle agent update
       "${client_inputs}/${file_to_check_update}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
         action       => immediate,
-        classes      => success("cf_promises_generated_repaired", "cf_promises_generated_error", "cf_promises_generated_ok");
+        classes      => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
 
-    cf_promises_generated_repaired.!root_server::
+    rudder_promises_generated_repaired.!root_server::
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
         depth_search => recurse("inf"),
         action       => immediate,
         classes      => success("config", "no_update", "config_ok");
 
-    (cf_promises_generated_ok|cf_promises_generated_repaired).!root_server::
+    (rudder_promises_generated_ok|rudder_promises_generated_repaired).!root_server::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true",
         ifvarclass => "(config|config_ok).!no_update";
 
-    cf_promises_generated_repaired.!root_server.(!windows|cygwin)::
+    rudder_promises_generated_repaired.!root_server.(!windows|cygwin)::
       "${g.rudder_dependencies}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
         #depth_search => recurse("inf"),
@@ -118,7 +118,7 @@ bundle agent update
         action       => immediate,
         classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
-    cf_promises_generated_repaired.!root_server.(windows.!cygwin)::
+    rudder_promises_generated_repaired.!root_server.(windows.!cygwin)::
       "${g.rudder_sbin}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
         #depth_search => recurse("inf"),
@@ -172,7 +172,7 @@ bundle agent update
     rudder_dependencies_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
 
-    cf_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok).!(rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)::
+    rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok).!(rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)::
       "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
 
     rudder_dependencies_updated::
