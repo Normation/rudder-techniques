@@ -37,12 +37,11 @@ bundle common virtualMachines {
 		windows.!cygwin::
 			"virtual_box_install_path" string => execresult("${sys.winsysdir}\cmd.exe /c \"echo %VBOX_INSTALL_PATH%\"", "noshell"),
 				comment => "Looking for VirtualBox environment variables";
-
+&endif&
 
 		cygwin::
 			"virtual_box_install_path" string => execresult("/usr/bin/echo $VBOX_INSTALL_PATH | /usr/bin/sed ''s/\\\/\//g'' ", "useshell"),
 				comment => "Looking for VirtualBox environment variables";
-&endif&
 
 	classes:
 		linux::

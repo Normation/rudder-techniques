@@ -41,13 +41,9 @@ bundle agent doInventory {
 &endif&
 
 	vars:
-	  linux.uuid_succesfully_downloaded::
-		"policy_server_uuid" string => readfile("$(g.rudder_var_tmp)/uuid.txt", 50);
 
-&if(NOVA)&
-	  windows.uuid_succesfully_downloaded::
+	  uuid_succesfully_downloaded::
 		"policy_server_uuid" string => readfile("$(g.rudder_var_tmp)/uuid.txt", 50);
-&endif&
 
         classes:
                 "splaying" expression => splayclass("$(sys.host)$(sys.ipv4)","hourly");
