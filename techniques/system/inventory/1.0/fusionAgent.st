@@ -32,18 +32,17 @@ bundle agent doInventory {
                         args => "-s -f --proxy '' -o \"$(g.rudder_var_tmp)/uuid.txt\" http://${server_info.cfserved}/uuid",
                         comment => "Getting the uuid from the server",
                         classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
+&if(NOVA)&
 	  windows::
                 "\"${g.rudder_base_sbin}\curl\curl.exe\""
                         args => "-s -f --proxy '' -o \"$(g.rudder_var_tmp)\uuid.txt\" http://${server_info.cfserved}/uuid",
                         comment => "Getting the uuid from the server",
                         classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+&endif&
 
 	vars:
-	  linux.uuid_succesfully_downloaded::
-		"policy_server_uuid" string => readfile("$(g.rudder_var_tmp)/uuid.txt", 50);
 
-	  windows.uuid_succesfully_downloaded::
+	  uuid_succesfully_downloaded::
 		"policy_server_uuid" string => readfile("$(g.rudder_var_tmp)/uuid.txt", 50);
 
         classes:
@@ -98,11 +97,13 @@ bundle agent doInventory {
 
 bundle common inventory {
 	vars:
+&if(NOVA)&
 	  windows::
 		# Files names
 		"UserListFile_cp" string => "${g.rudder_var_tmp}\UserList.tmp";
 		"UserListFile" string => "${g.rudder_var_tmp}\UserList.list";
-		
+&endif&		
+
 	  any::
 	  	"CPUIDFile" string => "${g.rudder_var_tmp}/cpuid.arc";
 }
@@ -120,6 +121,7 @@ bundle agent fusionAgent {
 	    "${g.rudder_var_reports}/."
 		create => "true";
 
+&if(NOVA)&
 	windows.!cygwin::
 	    "${g.rudder_var_tmp}\inventory\."
 		create => "true",
@@ -128,6 +130,7 @@ bundle agent fusionAgent {
 
 	    "${g.rudder_var_reports}\."
 		create => "true";
+&endif&
 
         packages:
             xen.(redhat|centos|SuSE)::
@@ -150,12 +153,14 @@ bundle agent fusionAgent {
 			classes => cf2_if_else("run_inventory", "inventory_failed"),
 			comment => "Generating inventory, in the temporary folder";
 
+&if(NOVA)&
 	    windows::	    
 			"\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
 				        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
 				        contain => in_shell,
 				        classes => cf2_if_else("run_inventory", "inventory_failed"),
 			 			comment => "Generating inventory";
+&endif&
 			 			
 	reports:
 		run_inventory::
@@ -192,13 +197,14 @@ bundle agent listInstalledVM {
 				classes => cf2_if_else("vb_listed", "cant_list_vb"),
 				comment => "Generating file with list of VM";
 
-
+&if(NOVA)&
 		windows.VirtualBoxInstalled::
 			"\"${virtualMachines.virtual_box_install_path}VBoxManage.exe\""
 				args => "-q list vms > ${virtualMachines.VBoxListFile}",
 				contain => outputable,
 				classes => cf2_if_else("vb_listed", "cant_list_vb"),
 				comment => "Generating file with list of VM";
+&endif&
 
 		linux.VMWareInstalled::
 			"${virtualMachines.VMWareScript}"
@@ -207,13 +213,14 @@ bundle agent listInstalledVM {
 				classes => cf2_if_else("vm_listed", "cant_list_vm"),
 				comment => "Generating file with list of VM";
 
-
+&if(NOVA)&
 		windows.VMWareInstalled::
 			"${virtualMachines.VMWareScript}"
 				contain => outputable,
 				args => " > ${virtualMachines.VMWareListFile}",
 				classes => cf2_if_else("vm_listed", "cant_list_vm"),
 				comment => "Generating file with list of VM";
+&endif&
 
 	files:
 		VirtualBoxInstalled::
@@ -239,6 +246,7 @@ bundle agent listInstalledVM {
 
 bundle agent generateExtraInformations {
   commands:
+&if(NOVA)&
     windows::
 		"\"${g.rudder_dependencies}\userlist.bat\""
 			args => " > \"${inventory.UserListFile_cp}\" ",
@@ -251,6 +259,7 @@ bundle agent generateExtraInformations {
 			contain => outputable,
 			classes => cf2_if_else("cpuid", "cpuid_fail"),
 			comment => "Generating file with CPUID information";
+&endif&
 			
 	linux::
 		"${g.rudder_dependencies}/cpuid-linux-V1.0.sh"
@@ -275,6 +284,7 @@ bundle agent generateExtraInformations {
 
 bundle agent turnUsersToUnicode {
 
+&if(NOVA)&
   commands:
     windows::
 		"\"${g.rudder_dependencies}\iconv.exe\""
@@ -283,18 +293,19 @@ bundle agent turnUsersToUnicode {
 			classes => cf2_if_else("userlist", "userlist_fail"),
 			comment => "Generating file with list of users in UTF";
 		
+&endif&
  reports:
 	
 		windows::
 			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#This is a windows machine. User list has been converted to Unicode";
 }
 
-
 # adding data to the inventory :
 # UUID and CFKey in <DEVICEID>, 
 # list of VM in <CONTENT>
 bundle agent addInformationsToInventory {
   vars:
+&if(NOVA)&
 	windows.!cygwin::
 		"CFKEY" string => execresult("${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"", "noshell");
 		"USER" string => getenv("USERNAME", 40);
@@ -309,6 +320,7 @@ bundle agent addInformationsToInventory {
 		"RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs","noshell");
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
+&endif&
 
         xen.SuSE::
                 "VMRUDDERUUID" string => execresult("/bin/xenstore-read vm","noshell");
@@ -341,6 +353,7 @@ bundle agent addInformationsToInventory {
 		"uuiddefined" expression => isvariable("RUDDERUUID");
 
   files:
+&if(NOVA)&
 	windows::
 		"C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
 		#"${g.esc_rudder_var_tmp}\\inventory\\.*.ocs"
@@ -353,6 +366,7 @@ bundle agent addInformationsToInventory {
 			edit_line => add_users_information_to_inventory($(users)),
 			edit_defaults => def_no_backup,
 			pathtype => "regex";
+&endif&
 	
 	linux.uuiddefined::
 		"${g.rudder_var_tmp}/inventory/.*.ocs"
@@ -406,6 +420,7 @@ bundle agent sendInventory {
 		classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
 		comment      => "Cleaning up inventory files already sent to the server";
 
+&if(NOVA)&
 	# TODO: we should find some way to have an equivalent behaviour to send-clean.sh above on Windows
 	windows::
 	 "${g.rudder_inventories}" 
@@ -414,6 +429,7 @@ bundle agent sendInventory {
 		file_select => inventory_files,
 		classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
 		comment => "Sending the inventory to the server";
+&endif&
 		
 	reports:
 		inventory_sent::
@@ -525,9 +541,11 @@ body file_select inventory_files {
 		leaf_name => { ".*.ocs" };
 		file_result => "leaf_name";
 
+&if(NOVA)&
 	#windows::
 	#	leaf_name => { ".*.xml" };
 	#	file_result => "leaf_name";
+&endif&
 
 }
 

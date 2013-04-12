@@ -229,6 +229,7 @@ processes:
 			classes => if_repaired("agent_has_gone_really_wild"),
 			comment => "Checking if cf-agent has gone really wild";
 
+&if(NOVA)&
 	windows::
 
 		"$(g.escaped_workdir)\/bin\/cf-serverd"  restart_class => "start_server";
@@ -246,6 +247,7 @@ processes:
 			signals => { "term" },
 			classes => if_repaired("agent_has_gone_wild"),
 			comment => "Checking if cf-agent has gone wild";
+&endif&
 
 commands:
 
