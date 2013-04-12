@@ -82,7 +82,7 @@ bundle agent update
 {
   vars:
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
-      "file_to_check_update" string => "cf_promises_generated";
+      "file_to_check_update" string => "rudder_promises_generated";
     nova_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
     community_edition::
