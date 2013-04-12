@@ -38,6 +38,7 @@ bundle agent fetchFusionTools
         classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
         comment => "Installing curl using yum";
 
+&if(NOVA)&
   files:
 
     windows::
@@ -50,6 +51,7 @@ bundle agent fetchFusionTools
         action => if_elapsed("2880"),
         classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
         comment => "Copying PERL userland";
+&endif&
 
   reports:
     fusion_tools_copied::

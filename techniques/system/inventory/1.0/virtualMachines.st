@@ -34,9 +34,11 @@ bundle common virtualMachines
     # Tools for fetching data
       "VMWareScript" string => "${g.inventory_directory}/vmware_info.sh";
 
+&if(NOVA)&
     windows.!cygwin::
       "virtual_box_install_path" string => execresult("${sys.winsysdir}\cmd.exe /c \"echo %VBOX_INSTALL_PATH%\"", "noshell"),
         comment => "Looking for VirtualBox environment variables";
+&endif&
 
 
     cygwin::
@@ -52,7 +54,9 @@ bundle common virtualMachines
       "VMWareInstalled" expression => fileexists("/usr/bin/wmrun"),
         comment => "Checking installation of VMWare";
 
+&if(NOVA)&
     windows::
       "VirtualBoxInstalled" not => regcmp("", "${virtual_box_install_path}");
+&endif&
 }
 

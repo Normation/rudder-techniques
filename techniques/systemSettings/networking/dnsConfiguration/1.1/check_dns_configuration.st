@@ -44,12 +44,14 @@ bundle agent check_dns_configuration
 
       "spaced_options" string => join(" ", "options");
 
+&if(NOVA)&
     windows::
       "searchkey" string => join("\,", searchlist);
       "resolvkey" string => join("\,", resolvers);
       "adapters" string => execresult("\"${g.rudder_sbin}\registrydns.bat\"", "noshell"),
         comment => "Fetching all the adapter";
       "adapterslist" slist => splitstring("${adapters}", ";", "15");
+&endif&
 
   files:
 
@@ -111,9 +113,11 @@ bundle agent check_dns_configuration
     linux.dns_kept.!dns_repaired.!cant_repair_dns::
       "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#The DNS is correctly configured";
 
+&if(NOVA)&
     #windows and something to do
     windows.((dns_resolver_edit.dns_resolver_kept.!dns_repaired_resolver)|!dns_resolver_edit).((dns_searchlist_edit.dns_searchlist_kept.!dns_repaired_searchlist)|!dns_searchlist_edit)::
       "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#The DNS is correctly configured";
+&endif&
 
 &if(COMMUNITY)&
     windows::

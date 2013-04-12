@@ -117,6 +117,7 @@ bundle agent check_usergroup_user_parameters
 
   commands:
 
+&if(NOVA)&
     windows.showtime::
 
       "\"${sys.winsysdir}\net.exe\""
@@ -134,6 +135,7 @@ bundle agent check_usergroup_user_parameters
       "\"${sys.winsysdir}\net.exe\""
         args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]}",
         ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+&endif&
 
     linux.showtime::
 

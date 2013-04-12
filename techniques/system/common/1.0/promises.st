@@ -269,6 +269,7 @@ bundle agent check_cf_processes
         classes       => if_repaired("${binaries}_has_gone_really_wild"),
         comment       => "Checking if cf-${binaries} has gone really wild";
 
+&if(NOVA)&
     windows::
 
       # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
@@ -283,6 +284,7 @@ bundle agent check_cf_processes
         restart_class => "start_server";
       "cf-execd"
         restart_class => "start_executor";
+&endif&
 
   commands:
 
