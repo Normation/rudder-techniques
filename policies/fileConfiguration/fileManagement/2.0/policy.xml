@@ -32,6 +32,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <TMLS>
     <TML name="manageFilesAndFolders"/>
+    <TML name="manageFilesAndFoldersData">
+      <OUTPATH>fileManagement/2.0/manageFilesAndFoldersData</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
     
   <TRACKINGVARIABLE>
