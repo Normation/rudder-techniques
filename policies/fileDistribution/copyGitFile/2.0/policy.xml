@@ -31,6 +31,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <TMLS>
     <TML name="copyFileFromSharedFolder"/>
+    <TML name="copyFileFromSharedFolderData">
+      <OUTPATH>copyGitFile/2.0/copyFileFromSharedFolderData</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML> 
   </TMLS>
     
   <TRACKINGVARIABLE>
