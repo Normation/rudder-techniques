@@ -86,7 +86,6 @@ bundle agent update {
 
     files:
 	!root_server::
-          "${client_inputs}"
       "${client_inputs}/${file_to_check_update}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
         action       => immediate,
