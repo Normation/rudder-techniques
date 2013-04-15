@@ -30,7 +30,7 @@
 bundle agent check_rpm_package_installation {
 
   vars:
-      "package_number" int => readstringarray("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/3.0/rpmPackageInstallationData", "#[^\n]*",";",9000,1600000);
+      "package_number" int => readstringarrayidx("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/3.0/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
 
       "index_rpmpkg" slist => getindices("rpm_data");
 
@@ -62,7 +62,7 @@ bundle agent check_rpm_package_installation {
         package_method  => generic_nobulk("30"),
         classes => class_trigger_rpm_retcodes("rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "rpm_package_install_kept_${index_rpmpkg}"),
         ifvarclass => "!${index_rpmpkg}_package_version_defined",
-        comment => "Handling ${index_rpmpkg} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][1]}";
+        comment => "Handling ${rpm_data[${index_rpmpkg}][0]} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][1]}";
 
       "${rpm_data[${index_rpmpkg}][0]}"
         package_policy   => "${rpm_data[${index_rpmpkg}][1]}",
@@ -71,22 +71,22 @@ bundle agent check_rpm_package_installation {
         package_version  => "${rpm_data[${index_rpmpkg}][2]}",
         classes => class_trigger_rpm_retcodes("rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "rpm_package_install_kept_${index_rpmpkg}"),
         ifvarclass => "${index_rpmpkg}_package_version_defined",
-        comment => "Handling ${index_rpmpkg} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][1]}";
+        comment => "Handling ${rpm_data[${index_rpmpkg}][0]} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][1]}";
 
   reports:
 
     redhat|SuSE::
-      "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${index_rpmpkg}@@${g.execRun}##${g.uuid}@#Performed repair action for RPM package ${index_rpmpkg} to comply with policy: ${rpm_data[${index_rpmpkg}][1]}"
+      "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${rpm_data[${index_rpmpkg}][0]}@@${g.execRun}##${g.uuid}@#Performed repair action for RPM package ${rpm_data[${index_rpmpkg}][0]} to comply with policy: ${rpm_data[${index_rpmpkg}][1]}"
         ifvarclass => canonify("rpm_package_installed_${index_rpmpkg}");
 
-      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${index_rpmpkg}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${index_rpmpkg} with policy: ${rpm_data[${index_rpmpkg}][1]}"
+      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${rpm_data[${index_rpmpkg}][0]}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${rpm_data[${index_rpmpkg}][0]} with policy: ${rpm_data[${index_rpmpkg}][1]}"
         ifvarclass => canonify("rpm_package_install_failed_${index_rpmpkg}");
 
-      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${index_rpmpkg}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${index_rpmpkg} with policy: ${rpm_data[${index_rpmpkg}][1]}"
+      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][5]}@@RHEL/CentOS/SuSE packages@@${rpm_data[${index_rpmpkg}][0]}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${rpm_data[${index_rpmpkg}][0]} with policy: ${rpm_data[${index_rpmpkg}][1]}"
         ifvarclass => canonify("rpm_package_install_kept_${index_rpmpkg}");
 
 			# ZMD Process presence related reports
-    (redhat|SuSE).!SuSE_10::
+    !SuSE_10::
       "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][5]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#ZMD process presence verification not necessary. Skipping ...";
 
 
