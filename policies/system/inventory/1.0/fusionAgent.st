@@ -282,7 +282,7 @@ bundle agent addInformationsToInventory {
   vars:
 &if(NOVA)&
 	windows.!cygwin::
-        "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\""
+        "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"";
 		"USER" string => getenv("USERNAME", 40);
         "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "33" );
@@ -306,14 +306,11 @@ bundle agent addInformationsToInventory {
 		"users" slist => getindices("userslist");
 
     any::
-      "CFKEY"
-        string => execresult("${CFKEY_cmd}", "noshell");
+      "CFKEY"      string => execresult("${CFKEY_cmd}", "noshell");
 
-      "USER"
-        string => execresult("${USER_cmd}", "noshell");
+      "USER"       string => execresult("${USER_cmd}", "noshell");
 
-      "RUDDERUUID"
-        string => execresult("${RUDDERUUID_cmd}", "noshell");
+      "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
 
   files:
 &if(NOVA)&
