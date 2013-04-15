@@ -85,6 +85,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <LONGDESCRIPTION>This should be the password used to connect to the proxy, if required</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
+          <TYPE>password</TYPE>
+          <PASSWORDHASH>plain</PASSWORDHASH>
         </CONSTRAINT>
       </INPUT>
     </SECTION>
