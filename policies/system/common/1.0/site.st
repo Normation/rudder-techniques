@@ -58,10 +58,6 @@ vars:
     # The time at which the execution started
     "execRun_cmd" string => "/bin/date --rfc-3339=second";
 
- execrun_cmd_defined::
-    # The time at which the execution started
-    "execRun" string => execresult("${execRun_cmd}", "noshell");
-
  any::
    "uuid" string => readfile("$(g.uuid_file)", 60);
    "server_shares_folder" string  => "/var/rudder/share/${uuid}/promises/shares";
@@ -70,9 +66,7 @@ vars:
    "davpw" string => "rudder";
    "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
    "rudder_dependencies_origin" string => "/var/rudder/tools";
-
-
-classes:
-    "execrun_cmd_defined" expression => isvariable("execRun_cmd");
+   # The time at which the execution started
+   "execRun" string => execresult("${execRun_cmd}", "noshell");
 
 }

@@ -307,23 +307,13 @@ bundle agent addInformationsToInventory {
 
     any::
       "CFKEY"
-        string => execresult("${CFKEY_cmd}", "noshell"),
-        ifvarclass => "cfkey_cmd_defined";
+        string => execresult("${CFKEY_cmd}", "noshell");
 
       "USER"
-        string => execresult("${USER_cmd}", "noshell"),
-        ifvarclass => "user_cmd_defined";
+        string => execresult("${USER_cmd}", "noshell");
 
       "RUDDERUUID"
-        string => execresult("${RUDDERUUID_cmd}", "noshell"),
-        ifvarclass => "rudderuuid_cmd_defined";
-
-  classes:
-      "uuiddefined" expression => isvariable("RUDDERUUID");
-
-      "cfkey_cmd_defined" expression => isvariable("CFKEY_cmd");
-      "user_cmd_defined" expression => isvariable("USER_cmd");
-      "rudderuuid_cmd_defined" expression => isvariable("RUDDERUUID_cmd");
+        string => execresult("${RUDDERUUID_cmd}", "noshell");
 
   files:
 &if(NOVA)&
