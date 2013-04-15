@@ -38,7 +38,8 @@ vars:
    "escaped_workdir" string => escape("$(sys.workdir)");
 
    # The time at which the execution started
-   "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+   "execRun_cmd" string => "\"${g.rudder_sbin}\getDate.bat\"";
+
 
  windows.!cygwin::
    "uuid_file" string => "${rudder_base}\etc\uuid.hive";
@@ -55,8 +56,7 @@ vars:
     "crontab" string => "/etc/crontab";
 
     # The time at which the execution started
-    "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
-
+    "execRun_cmd" string => "/bin/date --rfc-3339=second";
 
  any::
    "uuid" string => readfile("$(g.uuid_file)", 60);
@@ -66,5 +66,7 @@ vars:
    "davpw" string => "rudder";
    "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
    "rudder_dependencies_origin" string => "/var/rudder/tools";
+   # The time at which the execution started
+   "execRun" string => execresult("${execRun_cmd}", "noshell");
 
 }
