@@ -83,10 +83,9 @@ files:
 			classes => kept_if_else("cron_file_$(cron_index)_kept", "cron_file_$(cron_index)_edited", "cron_file_$(cron_index)_failed");
 
 commands:
-
+    cron_restart::
 		"/etc/init.d/cron"
 			args => "restart",
-			ifvarclass => "cron_restart",
 			classes => kept_if_else("cron_kept", "cron_restarted", "could_not_restart_cron"),
 			comment => "Restart the cron daemon";
 
@@ -106,15 +105,14 @@ reports:
 			ifvarclass => "cron_file_$(cron_index)_failed";
 
 		# Reports about the cron process presence
+    !cron_restart::
+		"@@cronConfiguration@@result_success@@$(cron_uuid[$(cron_index)])@@Cron process@@None@@$(g.execRun)##$(g.uuid)@#The cron process is running. Skipping...";
 
-		"@@cronConfiguration@@result_success@@$(cron_uuid[$(cron_index)])@@Cron process@@None@@$(g.execRun)##$(g.uuid)@#The cron process is running. Skipping..."
-			ifvarclass => "!cron_restart";
+    cron_restarted::
+		"@@cronConfiguration@@result_repaired@@$(cron_uuid[$(cron_index)])@@Cron process@@None@@$(g.execRun)##$(g.uuid)@#The cron process has been restarted";
 
-		"@@cronConfiguration@@result_repaired@@$(cron_uuid[$(cron_index)])@@Cron process@@None@@$(g.execRun)##$(g.uuid)@#The cron process has been restarted"
-			ifvarclass => "cron_restarted";
-
-		"@@cronConfiguration@@result_success@@$(cron_uuid[$(cron_index)])@@Cron process@@None@@$(g.execRun)##$(g.uuid)@#Could not restart the cron process!"
-			ifvarclass => "could_not_restart_cron";
+    could_not_restart_cron::
+		"@@cronConfiguration@@result_success@@$(cron_uuid[$(cron_index)])@@Cron process@@None@@$(g.execRun)##$(g.uuid)@#Could not restart the cron process!";
 
 	!windows.cron_absent::
 
