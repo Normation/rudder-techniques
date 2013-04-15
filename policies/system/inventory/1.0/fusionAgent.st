@@ -282,28 +282,48 @@ bundle agent addInformationsToInventory {
   vars:
 &if(NOVA)&
 	windows.!cygwin::
-		"CFKEY" string => execresult("${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"", "noshell");
+        "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\""
 		"USER" string => getenv("USERNAME", 40);
-		"RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"","noshell");
+        "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "33" );
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",50,4000) };
 &endif&
 		
 	cygwin::
 		"mywinpath" string => execresult("/usr/bin/echo $WINDIR ", "useshell");
-		"CFKEY" string => execresult("/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
-		"USER" string => execresult("/usr/bin/whoami", "noshell");
-		"RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs","noshell");
+        "CFKEY_cmd"         string => "/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
+        "USER_cmd"          string => "/usr/bin/whoami";
+        "RUDDERUUID_cmd"    string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs";
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
 	linux::
-		"RUDDERUUID" string => execresult("/usr/sbin/dmidecode -s system-uuid","noshell");
-		"CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
-		"USER" string => execresult("/usr/bin/whoami", "noshell");		
+        "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
+        "CFKEY_cmd"  string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
+        "USER_cmd"   string => "/usr/bin/whoami";
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
 		"usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
 		"users" slist => getindices("userslist");
+
+    any::
+      "CFKEY"
+        string => execresult("${CFKEY_cmd}", "noshell"),
+        ifvarclass => "cfkey_cmd_defined";
+
+      "USER"
+        string => execresult("${USER_cmd}", "noshell"),
+        ifvarclass => "user_cmd_defined";
+
+      "RUDDERUUID"
+        string => execresult("${RUDDERUUID_cmd}", "noshell"),
+        ifvarclass => "rudderuuid_cmd_defined";
+
+  classes:
+      "uuiddefined" expression => isvariable("RUDDERUUID");
+
+      "cfkey_cmd_defined" expression => isvariable("CFKEY_cmd");
+      "user_cmd_defined" expression => isvariable("USER_cmd");
+      "rudderuuid_cmd_defined" expression => isvariable("RUDDERUUID_cmd");
 
   files:
 &if(NOVA)&
