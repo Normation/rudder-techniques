@@ -95,19 +95,17 @@ bundle agent check_rpm_package_installation {
 				ifvarclass => canonify("rpm_package_install_kept_$(rpm_package[$(index_rpmpkg)])");
 
 			# ZMD Process presence related reports
+    !SuSE10::
+			"@@packageInstallation@@result_success@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#ZMD process presence verification not necessary. Skipping ...";
 
-			"@@packageInstallation@@result_success@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#ZMD process presence verification not necessary (SLES 10 only). Skipping ..."
-				ifvarclass => "!SuSE_10";
+    SuSE_10.!zmd_restart::
+			"@@packageInstallation@@result_success@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is running. Skipping ...";
 
-			"@@packageInstallation@@result_success@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is running. Skipping ..."
-				ifvarclass => "SuSE_10.!zmd_restart";
+    SuSE_10.zmd_restarted::
+			"@@packageInstallation@@result_repaired@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was not running but was successfully restarted";
 
-			"@@packageInstallation@@result_repaired@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was not running but was successfully restarted"
-				ifvarclass => "SuSE_10.zmd_restarted";
-
-			"@@packageInstallation@@result_error@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon is not running and failed to restart"
-				ifvarclass => "SuSE_10.could_not_restart_zmd";
-
+    SuSE_10.could_not_restart_zmd::
+			"@@packageInstallation@@result_error@@$(rpm_directive_id[$(index_rpmpkg)])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon is not running and failed to restart";
 }
 
 body package_method yum_nobulk(rpm_pkg_timeout) {

@@ -166,15 +166,14 @@ bundle agent check_zmd_settings {
 
 
 			# ZMD Process presence related reports
+    SuSE.!zmd_restart::
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ...";
 
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
-				ifvarclass => "!zmd_restart";
+    SuSE.zmd_restarted::
+      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted";
 
-      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
-				ifvarclass => "zmd_restarted";
-
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
-				ifvarclass => "could_not_restart_zmd";
+    SuSE.could_not_restart_zmd::
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart";
 
 }
 

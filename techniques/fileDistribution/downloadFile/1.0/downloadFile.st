@@ -73,12 +73,10 @@ reports:
 		file_download_ok|file_perms_ok::
 			"@@downloadFile@@result_repaired@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& is now compliant";
 
-		!file_not_found.file_perms_idle::
-			"@@downloadFile@@result_success@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& already present with correct permissions"
-				ifvarclass => "linux";
+		linux.!file_not_found.file_perms_idle::
+			"@@downloadFile@@result_success@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& already present with correct permissions";
 
-		!file_not_found::
-			"@@downloadFile@@result_success@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& already present with correct permissions"
-				ifvarclass => "windows";
+		windows.!file_not_found::
+			"@@downloadFile@@result_success@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& already present with correct permissions";
 
 }

@@ -55,23 +55,22 @@ vars:
 	"identifier" string => canonify("$(directiveId)$(fileName)");
 
 	# See the explication below, before the "classes_defined" class definition
-	classes_defined::
-
+    classes_defined.enable_suid.!enable_sgid::
 		"extended_modes"
-			string     => "4",
-			ifvarclass => "enable_suid.!enable_sgid";
+			string     => "4";
 
+    classes_defined.!enable_suid.enable_sgid::
 		"extended_modes"
-			string     => "2",
-			ifvarclass => "!enable_suid.enable_sgid";
+			string     => "2";
 
+    classes_defined.enable_suid.enable_sgid::
 		"extended_modes"
-			string     => "6",
-			ifvarclass => "enable_suid.enable_sgid";
+			string     => "6";
 
+    classes_defined.!enable_suid.!enable_sgid::
 		"extended_modes"
-			string     => "0",
-			ifvarclass => "!enable_suid.!enable_sgid";
+			string     => "0";
+
 
 classes:
 
