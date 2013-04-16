@@ -140,32 +140,32 @@ bundle agent check_usergroup_user_parameters
     linux.showtime::
 
       "/usr/sbin/useradd"
-        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        args => "-m $(nameopt[$(usergroup_user_index)]) -s $(usergroup_user_shell[$(usergroup_user_index)]) $(usergroup_user_login[$(usergroup_user_index)])",
+        classes => cf2_if_else("usermanagement_login_add_$(usergroup_user_index)_repaired", "usermanagement_login_add_$(usergroup_user_index)_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).!usermanagement_user_pershome_$(usergroup_user_index)";
 
       "/usr/sbin/useradd"
-        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        args => "-m $(nameopt[$(usergroup_user_index)]) -s $(usergroup_user_shell[$(usergroup_user_index)]) -d $(usergroup_user_home[$(usergroup_user_index)]) $(usergroup_user_login[$(usergroup_user_index)])",
+        classes => cf2_if_else("usermanagement_login_add_$(usergroup_user_index)_repaired", "usermanagement_login_add_$(usergroup_user_index)_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_update_$(usergroup_user_index).usermanagement_user_pershome_$(usergroup_user_index).usermanagement_user_custom_home_defined_$(usergroup_user_index)";
 
       # Define password only at user creation
-      "/bin/echo -e \"${usergroup_user_password[${usergroup_user_index}]}\n${usergroup_user_password[${usergroup_user_index}]}\" | /usr/bin/passwd ${usergroup_user_login[${usergroup_user_index}]}"
+      "/bin/echo -e \"$(usergroup_user_password[$(usergroup_user_index)])\n$(usergroup_user_password[$(usergroup_user_index)])\" | /usr/bin/passwd $(usergroup_user_login[$(usergroup_user_index)])"
         contain => in_shell,
-        ifvarclass => "usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
+        ifvarclass => "usermanagement_login_add_$(usergroup_user_index)_repaired.usermanagement_user_pwoneshot_$(usergroup_user_index).!usermanagement_user_pwempty_$(usergroup_user_index)";
 
       # Define password when user has already been created
-      "/bin/echo -e \"${usergroup_user_password[${usergroup_user_index}]}\n${usergroup_user_password[${usergroup_user_index}]}\" | /usr/bin/passwd ${usergroup_user_login[${usergroup_user_index}]}"
+      "/bin/echo -e \"$(usergroup_user_password[$(usergroup_user_index)])\n$(usergroup_user_password[$(usergroup_user_index)])\" | /usr/bin/passwd $(usergroup_user_login[$(usergroup_user_index)])"
         contain => in_shell,
-        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
+        ifvarclass => "usermanagement_user_update_$(usergroup_user_index).usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_pweverytime_$(usergroup_user_index).!usermanagement_user_pwempty_$(usergroup_user_index)";
 
       "/usr/sbin/userdel"
-        args => "${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
-        comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
+        args => "$(usergroup_user_login[$(usergroup_user_index)])",
+        classes => cf2_if_else("usermanagement_login_remove_$(usergroup_user_index)_repaired", "usermanagement_login_remove_$(usergroup_user_index)_error"),
+        comment => "Delete the user $(usergroup_user_login[$(usergroup_user_index)])",
+        ifvarclass => "usermanagement_user_exists_$(usergroup_user_index).usermanagement_user_remove_$(usergroup_user_index)";
 
   files:
 
