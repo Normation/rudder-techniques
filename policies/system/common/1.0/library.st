@@ -196,8 +196,9 @@ repair_timeout   => { "$(no)" };
 #########################################
 body copy_from digest_cp(from)
 {
-source      => "$(from)";
-compare     => "digest";
+source            => "$(from)";
+compare           => "digest";
+copylink_patterns => { ".*" };
 }
 
 ################################################
