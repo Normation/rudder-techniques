@@ -41,6 +41,10 @@ presence of a package, and if not met to enforce them.
 
   <TMLS>
     <TML name="rpmPackageInstallation"/>
+    <TML name="rpmPackageInstallationData">
+      <OUTPATH>rpmPackageInstallation/3.0/rpmPackageInstallationData</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
 
   <TRACKINGVARIABLE>
