@@ -84,7 +84,7 @@ bundle agent endExecution {
 	linux|windows::
 		"@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@$(g.execRun)##$(g.uuid)@#End execution";
 
-	no_update::
+    rudder_promises_generated_error|no_update::
 		"*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by a network issue, an unavailable server, or if this      *
