@@ -30,8 +30,8 @@
 bundle agent check_rpm_package_installation {
 
 	vars:
-        &RPM_PACKAGE_CHECK_INTERVAL:{check_interval |"rpm_package_check_interval" string => "&check_interval&";
-        }&
+      &RPM_PACKAGE_CHECK_INTERVAL:{check_interval |"rpm_package_check_interval" string => "&check_interval&";
+      }&
 
       "package_number" int => readstringarrayidx("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/3.0/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
 &! We need to use the i0 notation to have indexes starting at 0, as in readstringarrayidx !&
@@ -48,13 +48,30 @@ bundle agent check_rpm_package_installation {
 
 		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
 
-      rudder_promises_generated_repaired::
-        "rpm_kept_classes_purged"     classes => cancel_all_rpm_classes("rpm_package_install_kept_$(index_rpmpkg)");
-        "rpm_repaired_classes_purged" classes => cancel_all_rpm_classes("rpm_package_installed_$(index_rpmpkg)");
-        "rpm_error_classes_purged"    classes => cancel_all_rpm_classes("rpm_package_install_failed_$(index_rpmpkg)");
-        "zmd_kept_classes_purged"     classes => cancel_all_rpm_classes("zmd_kept");
-        "zmd_repaired_classes_purged" classes => cancel_all_rpm_classes("zmd_restarted");
-        "zmd_error_classes_purged"    classes => cancel_all_rpm_classes("could_not_restart_zmd");
+    rudder_promises_generated_repaired::
+      "rpm_kept_classes_purged"
+        expression => "any",
+        classes => cancel_all_classes("rpm_package_install_kept_$(index_rpmpkg)");
+
+      "rpm_repaired_classes_purged"
+        expression => "any",
+        classes => cancel_all_classes("rpm_package_installed_$(index_rpmpkg)");
+
+      "rpm_error_classes_purged"
+        expression => "any",
+        classes => cancel_all_classes("rpm_package_install_failed_$(index_rpmpkg)");
+
+      "zmd_kept_classes_purged"
+        expression => "any",
+        classes => cancel_all_classes("zmd_kept");
+
+      "zmd_repaired_classes_purged"
+        expression => "any",
+        classes => cancel_all_classes("zmd_restarted");
+
+      "zmd_error_classes_purged"
+        expression => "any",
+        classes => cancel_all_classes("could_not_restart_zmd");
         
 
 	processes:
@@ -70,8 +87,8 @@ bundle agent check_rpm_package_installation {
 
 			"/etc/init.d/novell-zmd"
 				args       => "restart",
-				classes    => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
-                ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd)",
+        classes    => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
+        ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd)",
 				comment    => "Restart the ZMD daemon";
 
 	packages:
@@ -80,8 +97,8 @@ bundle agent check_rpm_package_installation {
 			"$(rpm_package[$(index_rpmpkg)])"
 				package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
 				package_method  => generic_nobulk("30"),
-				classes => class_trigger_rpm_retcodes("rpm_package_installed_$(index_rpmpkg))", "rpm_package_install_failed_$(index_rpmpkg)", "rpm_package_install_kept_$(index_rpmpkg)", "${rpm_package_check_interval}"),
-				ifvarclass => "!$(index_rpmpkg)_package_version_defined.!(rpm_package_installed_$(index_rpmpkg)|rpm_package_install_failed_$(index_rpmpkg)|rpm_package_install_kept_$(index_rpmpkg))",
+        classes => class_trigger_rpm_retcodes("rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "rpm_package_install_kept_${index_rpmpkg}", "${rpm_package_check_interval}"),
+        ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installed_${index_rpmpkg}|rpm_package_install_failed_${index_rpmpkg}|rpm_package_install_kept_${index_rpmpkg})",
 				comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
 			"$(rpm_package[$(index_rpmpkg)])"
@@ -89,8 +106,8 @@ bundle agent check_rpm_package_installation {
 				package_method   => generic_nobulk("30"),
 				package_select   => "$(rpm_data[$(index_rpmpkg)][2])",
 				package_version  => "$(rpm_version[$(index_rpmpkg)])",
-				classes => class_trigger_rpm_retcodes("rpm_package_installed_$(index_rpmpkg)", "rpm_package_install_failed_$(index_rpmpkg)", "rpm_package_install_kept_$(index_rpmpkg)", "${rpm_package_check_interval}"),
-				ifvarclass => "$(index_rpmpkg)_package_version_defined.!(rpm_package_installed_$(index_rpmpkg)|rpm_package_install_failed_$(index_rpmpkg)|rpm_package_install_kept_$(index_rpmpkg))",
+        classes => class_trigger_rpm_retcodes("rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "rpm_package_install_kept_${index_rpmpkg}", "${rpm_package_check_interval}"),
+        ifvarclass => "${index_rpmpkg}_package_version_defined.!(rpm_package_installed_${index_rpmpkg}|rpm_package_install_failed_${index_rpmpkg}|rpm_package_install_kept_${index_rpmpkg})",
 				comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
 	reports:
@@ -98,13 +115,13 @@ bundle agent check_rpm_package_installation {
 		redhat|SuSE::
 
 			"@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Performed repair action for RPM package $(rpm_package[$(index_rpmpkg)]) to comply with policy: $(rpm_data[$(index_rpmpkg)][0])"
-				ifvarclass => canonify("rpm_package_installed_$(index_rpmpkg)");
+        ifvarclass => canonify("rpm_package_installed_${index_rpmpkg}");
 
 			"@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Error taking action for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_data[$(index_rpmpkg)][0])"
-				ifvarclass => canonify("rpm_package_install_failed_$(index_rpmpkg)");
+        ifvarclass => canonify("rpm_package_install_failed_${index_rpmpkg}");
 
 			"@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_data[$(index_rpmpkg)][0])"
-				ifvarclass => canonify("rpm_package_install_kept_$(index_rpmpkg)");
+        ifvarclass => canonify("rpm_package_install_kept_${index_rpmpkg}");
 
 			# ZMD Process presence related reports
 
@@ -195,28 +212,5 @@ body classes class_trigger_rpm_retcodes(if,else,kept, persist)
 	kept_returncodes => { "0" };
 	failed_returncodes => { "1" };
 
-    persist_time       => "$(persist)";
-}
-
-body classes kept_if_else_persist(kept, repaired, failed, persist) {
-
-        promise_kept     => { "$(kept)" };
-        cancel_kept      => { "$(repaired)", "$(failed)" };
-
-        promise_repaired => { "$(repaired)" };
-        cancel_repaired  => { "$(kept)", "$(failed)" };
-
-        repair_failed    => { "$(failed)" };
-        repair_denied    => { "$(failed)" };
-        repair_timeout   => { "$(failed)" };
-        cancel_notkept   => { "$(kept)", "$(repaired)" };
-
-        persist_time     => "$(persist)";
-
-}
-
-body classes cancel_all_rpm_classes(class_to_cancel) {
-        cancel_kept     => { "${class_to_cancel}" };
-        cancel_repaired => { "${class_to_cancel}" };
-        cancel_notkept  => { "${class_to_cancel}" };
+  persist_time       => "${persist}";
 }

@@ -53,6 +53,13 @@ presence of a package, and if not met to enforce them.
   
   <SECTIONS>
     <SECTION name="ZMD process" component="true" />
+    <SECTION name="Check interval" component="false">
+      <INPUT>
+        <NAME>RPM_PACKAGE_CHECK_INTERVAL</NAME>
+        <DESCRIPTION>Interval of time in minutes between each check of packages management</DESCRIPTION>
+        <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
+      </INPUT>
+    </SECTION>
     <SECTION name="RHEL/CentOS/SuSE packages" multivalued="true" component="true" componentKey="RPM_PACKAGE_REDLIST">
       <!-- Redhat like related Section , index 1-->
       <INPUT>
