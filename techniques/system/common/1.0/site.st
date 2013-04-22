@@ -39,7 +39,7 @@ bundle common g
       "escaped_workdir"            string => escape("${sys.workdir}");
 
       # The time at which the execution started
-      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+      "execRun_cmd" string => "\"${g.rudder_sbin}\getDate.bat\"";
 
     windows.!cygwin::
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
@@ -56,17 +56,18 @@ bundle common g
       "rudder_dependencies"        string => "/var/rudder/tools";
       "crontab"                    string => "/etc/crontab";
 
-      # The time at which the execution started
-      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
+    # The time at which the execution started
+    "execRun_cmd" string => "/bin/date --rfc-3339=second";
 
-
-    any::
-      "uuid"                       string => readfile("${g.uuid_file}", 60);
-      "server_shares_folder"       string => "/var/rudder/share/${uuid}/promises/shares";
-      "rudder_var_reports"         string => "${rudder_var}/reports";
-      "davuser"                    string => "&DAVUSER&";
-      "davpw"                      string => "&DAVPASSWORD&";
-      "excludedreps"               slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_dependencies_origin" string => "/var/rudder/tools";
+   any::
+     "uuid"                        string => readfile("$(g.uuid_file)", 60);
+     "server_shares_folder"        string  => "/var/rudder/share/${uuid}/promises/shares";
+     "rudder_var_reports"          string => "$(rudder_var)/reports";
+     "davuser"                     string => "&DAVUSER&";
+     "davpw"                       string => "&DAVPASSWORD&";
+     "excludedreps"                slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+     "rudder_dependencies_origin"  string => "/var/rudder/tools";
+     # The time at which the execution started
+     "execRun"                     string => execresult("${execRun_cmd}", "noshell");
 
 }

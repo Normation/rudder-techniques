@@ -195,8 +195,8 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
 		classes => always("replace_attempted_env_reset");
 
   insert_lines:
-		"Defaults	env_reset"
-			ifvarclass => "replace_attempted_env_reset";
+    replace_attempted_env_reset::
+      "Defaults	env_reset";
 
     check_sudo_parameters_sudo_add_line_vars_defined::
       "${lines[${index}]}"
@@ -226,10 +226,9 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "@@sudoParameters@@result_error@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} could not be handled"
         ifvarclass => canonify("line_${index}_add_failed");
 
-    all_lines_defined.force::
+    all_lines_defined.force.line_deleted::
 
-      "@@sudoParameters@@result_repaired@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt"
-        ifvarclass => canonify("line_deleted");
+      "@@sudoParameters@@result_repaired@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt";
 
 }
 

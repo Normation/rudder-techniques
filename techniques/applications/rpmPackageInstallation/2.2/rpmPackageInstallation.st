@@ -105,17 +105,21 @@ bundle agent check_rpm_package_installation
 
       # ZMD Process presence related reports
 
-      "@@packageInstallation@@result_success@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#ZMD process presence verification not necessary. Skipping ..."
-        ifvarclass => "!SuSE_10";
+    !SuSE_10::
 
-      "@@packageInstallation@@result_success@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ..."
-        ifvarclass => "SuSE_10.!zmd_restart";
+      "@@packageInstallation@@result_success@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#ZMD process presence verification not necessary. Skipping ...";
 
-      "@@packageInstallation@@result_repaired@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted"
-        ifvarclass => "SuSE_10.zmd_restarted";
+    SuSE_10.!zmd_restart::
 
-      "@@packageInstallation@@result_error@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart"
-        ifvarclass => "SuSE_10.could_not_restart_zmd";
+      "@@packageInstallation@@result_success@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ...";
+
+    SuSE_10.zmd_restarted::
+
+      "@@packageInstallation@@result_repaired@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted";
+
+    SuSE_10.could_not_restart_zmd::
+
+      "@@packageInstallation@@result_error@@${rpm_policy_instance_uuid[${index_rpmpkg}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart";
 
 }
 

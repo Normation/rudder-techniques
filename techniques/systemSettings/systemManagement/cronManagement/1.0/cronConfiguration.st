@@ -84,6 +84,8 @@ bundle agent check_cron_configuration
 
   commands:
 
+    cron_restart::
+
       "/etc/init.d/cron"
         args => "restart",
         ifvarclass => "cron_restart",
@@ -107,14 +109,14 @@ bundle agent check_cron_configuration
 
     # Reports about the cron process presence
 
-      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process is running. Skipping..."
-        ifvarclass => "!cron_restart";
+    !cron_restart::
+      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process is running. Skipping...";
 
-      "@@cronConfiguration@@result_repaired@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process has been restarted"
-        ifvarclass => "cron_restarted";
+    cron_restarted::
+      "@@cronConfiguration@@result_repaired@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process has been restarted";
 
-      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#Could not restart the cron process!"
-        ifvarclass => "could_not_restart_cron";
+    could_not_restart_cron::
+      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#Could not restart the cron process!";
 
     !windows.cron_absent::
 

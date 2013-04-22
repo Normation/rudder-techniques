@@ -163,21 +163,19 @@ bundle agent check_zmd_settings
       "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not register the source !"
         ifvarclass => "source_${zmd_index}_failed";
 
-
       "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not subscribe to the source !"
         ifvarclass => "source_${zmd_index}_subfailed";
 
-
       # ZMD Process presence related reports
 
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ..."
-        ifvarclass => "!zmd_restart";
+    SuSE.!zmd_restart::
+      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ...";
 
-      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted"
-        ifvarclass => "zmd_restarted";
+    SuSE.zmd_restarted::
+      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted";
 
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart"
-        ifvarclass => "could_not_restart_zmd";
+    SuSE.could_not_restart_zmd::
+      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart";
 
 }
 
