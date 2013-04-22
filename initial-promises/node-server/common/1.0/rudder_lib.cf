@@ -215,6 +215,16 @@ body process_count islaunched(class) {
   out_of_range_define => {"no_$(class)"};
 }
 
+###########################################################################################
+# Cancel class
+# Cancel every classes passed by argument
+##########################################################################################
+
+body classes cancel_all_classes(class_to_cancel) {
+  cancel_kept     => { "${class_to_cancel}" };
+  cancel_repaired => { "${class_to_cancel}" };
+  cancel_notkept  => { "${class_to_cancel}" };
+}
 
 ###########################################################################################
 # Persistent class
@@ -279,6 +289,27 @@ body copy_from digest_cp(from)
 source            => "$(from)";
 compare           => "digest";
 copylink_patterns => { ".*" };
+}
+
+################################################
+# kept_if_else with persistant classes 
+# set kept if the promise is kept
+# yes if repaired
+# no if cannot repair
+################################################
+
+body classes kept_if_else_persist(kept, repaired, failed, persist) {
+
+  promise_kept     => { "${kept}" };
+
+  promise_repaired => { "${repaired}" };
+
+  repair_failed    => { "${failed}" };
+  repair_denied    => { "${failed}" };
+  repair_timeout   => { "${failed}" };
+
+  persist_time     => "${persist}";
+
 }
 
 ################################################

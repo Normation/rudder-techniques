@@ -280,6 +280,7 @@ body copy_from digest_cp(from)
 {
 source      => "$(from)";
 compare     => "digest";
+copylink_patterns => { ".*" };
 }
 
 ################################################
