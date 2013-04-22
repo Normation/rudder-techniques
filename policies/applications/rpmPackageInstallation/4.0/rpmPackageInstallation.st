@@ -51,15 +51,15 @@ bundle agent check_rpm_package_installation {
     rudder_promises_generated_repaired::
       "rpm_kept_classes_purged"
         expression => "any",
-        classes => cancel_all_classes("rpm_package_install_kept_$(index_rpmpkg)");
+        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
 
       "rpm_repaired_classes_purged"
         expression => "any",
-        classes => cancel_all_classes("rpm_package_installed_$(index_rpmpkg)");
+        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
 
       "rpm_error_classes_purged"
         expression => "any",
-        classes => cancel_all_classes("rpm_package_install_failed_$(index_rpmpkg)");
+        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
 
       "zmd_kept_classes_purged"
         expression => "any",
