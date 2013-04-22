@@ -142,6 +142,8 @@ It then adds openvpn to the boot init scripts if not already set to start on boo
         <DESCRIPTION>Remote password</DESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
+          <TYPE>password</TYPE>
+          <PASSWORDHASH>plain</PASSWORDHASH>
         </CONSTRAINT>
       </INPUT>
       <SELECT1>
