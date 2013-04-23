@@ -531,6 +531,10 @@ body agent control {
     (android|linux)::
 	default_repository => "${g.rudder_var}/modified-files";
 
+    # we can not depend on DNS for mobile devices
+    android::
+        skipidentify => "true";
+
 &if(NOVA)&
 #    windows::
 #	default_repository => "c:\Program Files\Rudder\modified-files";
