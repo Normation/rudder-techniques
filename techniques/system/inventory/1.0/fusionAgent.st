@@ -495,7 +495,7 @@ insert_lines:
 	android::
 
 		"<OPERATINGSYSTEM>$(const.n)<FULL_NAME>$(fullname)</FULL_NAME>$(const.n)<KERNEL_NAME>$(kernelname)</KERNEL_NAME>$(const.n)<KERNEL_VERSION>$(kernelversion)</KERNEL_VERSION>$(const.n)<NAME>$(name)</NAME>$(const.n)<VERSION>$(version)</VERSION>$(const.n)</OPERATINGSYSTEM>"
-			location => after_location("<CONTENTS>"),
+			location => after_location("<CONTENT>"),
 			comment => "Adding the list of OPERATINGSYSTEM part";
 
 }
