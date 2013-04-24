@@ -57,9 +57,21 @@ vars:
 
 		"normalorderingtwist" string => "done";
 
+	redhat::
+		"cron_bin" string => "^crond$";
+		"cron_restartcmd" string => "/etc/init.d/crond restart";
+
+	ubuntu::
+		"cron_bin" string => "^cron$";
+		"cron_restartcmd" string => "/etc/init.d/cron restart";
+
+	!(redhat.ubuntu)::
+		"cron_bin" string => "^/usr/sbin/cron$";
+		"cron_restartcmd" string => "/etc/init.d/cron restart";
+
 processes:
 
-	"/usr/sbin/cron"
+	"${cron_bin}"
 		restart_class => "cron_restart";
 
 files:
@@ -84,7 +96,7 @@ files:
 
 commands:
     cron_restart::
-		"/etc/init.d/cron"
+		"${cron_restartcmd}"
 			args => "restart",
 			classes => kept_if_else("cron_kept", "cron_restarted", "could_not_restart_cron"),
 			comment => "Restart the cron daemon";
