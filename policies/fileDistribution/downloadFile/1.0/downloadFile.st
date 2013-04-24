@@ -23,60 +23,55 @@
 bundle agent execute_file_download # WARNING : If there is many instance, isn't there a risk of a bundle name collision ???
 {
 
-classes:
+  classes:
 
-	"file_not_found" not => fileexists("&DOWNLOADFILE_DESTINATION&");
+      "file_not_found" not => fileexists("&DOWNLOADFILE_DESTINATION&");
 
-commands:
+  commands:
 
     linux.file_not_found::
-		"/usr/bin/curl"
-			args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
-			comment => "Getting the file from the server",
-			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
+      "/usr/bin/curl"
+        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+        comment => "Getting the file from the server",
+        classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
     windows.file_not_found::
-		"\"${g.rudder_base_sbin}\curl\curl.exe\""
-			args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
-			comment => "Getting the file from the server",
-			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
+      "\"${g.rudder_base_sbin}\curl\curl.exe\""
+        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+        comment => "Getting the file from the server",
+        classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
-files:
+  files:
 
-	linux::
-		"&DOWNLOADFILE_DESTINATION&"
-			pathtype => "literal", 	# force literal interpretation
-			perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
-			classes => class_trigger("file_perms_ok", "file_perms_fail", "file_perms_idle");
+    linux::
+      "&DOWNLOADFILE_DESTINATION&"
+        pathtype => "literal", 	# force literal interpretation
+        perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
+        classes => kept_if_else("file_perms_idle", "file_perms_ok", "file_perms_fail");
 
-reports:
+  reports:
 
+    # File downloading part
+    !file_not_found.!file_download_ok.!file_download_fail::
+      "@@downloadFile@@result_success@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#The file &DOWNLOADFILE_SOURCE& already present";
 
-		file_download_ok::
-			"@@downloadFile@@log_repaired@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#The file &DOWNLOADFILE_SOURCE& has been successfully downloaded";
+    file_download_ok.!file_download_fail::
+      "@@downloadFile@@result_repaired@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The file &DOWNLOADFILE_SOURCE& has been successfully downloaded";
 
-		file_download_fail::
-			"@@downloadFile@@result_error@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#The file &DOWNLOADFILE_SOURCE& was could not be downloaded";
+    file_download_fail::
+      "@@downloadFile@@result_error@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The file &DOWNLOADFILE_SOURCE& was could not be downloaded";
 
-		!file_not_found::
-			"@@downloadFile@@log_info@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#The file &DOWNLOADFILE_SOURCE& was already there. Skipping ...";
+    # File permissions part
+    !windows.file_perms_idle.!file_perms_ok.!file_perms_fail::
+      "@@downloadFile@@result_success@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The permissions on file &DOWNLOADFILE_SOURCE& are ok. Skipping ...";
 
-		file_perms_ok::
-			"@@downloadFile@@log_repaired@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#The permissions on file &DOWNLOADFILE_SOURCE& were successfully fixed";
+    !windows.file_perms_ok.!file_perms_fail::
+      "@@downloadFile@@result_repaired@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The permissions on file &DOWNLOADFILE_SOURCE& were successfully fixed";
 
-		file_perms_fail::
-			"@@downloadFile@@result_error@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#The permissions on file &DOWNLOADFILE_SOURCE& were could not be fixed";
+    !windows.file_perms_fail::
+      "@@downloadFile@@result_error@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The permissions on file &DOWNLOADFILE_SOURCE& were could not be fixed";
 
-		file_perms_idle::
-			"@@downloadFile@@log_info@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#The permissions on file &DOWNLOADFILE_SOURCE& are ok. Skipping ...";
-
-		file_download_ok|file_perms_ok::
-			"@@downloadFile@@result_repaired@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& is now compliant";
-
-		linux.!file_not_found.file_perms_idle::
-			"@@downloadFile@@result_success@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& already present with correct permissions";
-
-		windows.!file_not_found::
-			"@@downloadFile@@result_success@@&TRACKINGKEY&@@downloadFile@@None@@$(g.execRun)##$(g.uuid)@#File &DOWNLOADFILE_SOURCE& already present with correct permissions";
+    windows::
+      "@@downloadFile@@result_success@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#This is a windows machine. The &DOWNLOADFILE_SOURCE& file permissions will not be altered.";
 
 }
