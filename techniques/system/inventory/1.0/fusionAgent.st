@@ -144,7 +144,7 @@ bundle agent fusionAgent {
                 comment => "Installing xen package for extended data";
 
 	commands:
-	    !android.linux.inventoryfoldercreated::
+	    (android|linux).inventoryfoldercreated::
 			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs",
 			classes => cf2_if_else("run_inventory", "inventory_failed"),
 			comment => "Generating inventory, in the temporary folder";
