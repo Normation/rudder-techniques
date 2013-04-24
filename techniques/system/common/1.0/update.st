@@ -91,7 +91,9 @@ bundle agent update {
         action       => immediate,
         classes      => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
 
-    rudder_promises_generated_repaired.!root_server:: 
+    # The defined class are persistent, so if they are already set, promises has already been updated
+    # a short while ago
+    rudder_promises_generated_repaired.!config.!config_ok.!root_server:: 
           "${client_inputs}"
             copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
             depth_search => recurse("inf"),
@@ -105,7 +107,8 @@ bundle agent update {
 				touch      => "true",
 				ifvarclass => "(config|config_ok).!no_update";
 
-        rudder_promises_generated_repaired.(!windows|cygwin)::
+     # same here, if the dependencies have been updated, we can skup this part 
+        rudder_promises_generated_repaired.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
 		  "${g.rudder_dependencies}"
 			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
 			#depth_search => recurse("inf"),
@@ -113,7 +116,7 @@ bundle agent update {
 			action => immediate,
 			classes => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
-        rudder_promises_generated_repaired.(windows.!cygwin)::
+        rudder_promises_generated_repaired.(windows.!cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
 		  "${g.rudder_sbin}"
 			copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
 			#depth_search => recurse("inf"),
@@ -187,7 +190,7 @@ bundle agent update {
 				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy server doesn't need to be updated";
 
 
-                        no_update::
+                        rudder_promises_generated_error|no_update::
 				"*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by a network issue, an unavailable server, or if this      *
@@ -210,11 +213,14 @@ background => "true";
 ############################################
 body classes success(if, else, kept)
 {
-promise_kept => { "$(kept)" };
+promise_kept     => { "$(kept)" };
 promise_repaired => {"$(if)"};
-repair_failed => { "$(else)" };
-repair_denied => { "$(else)" };
-repair_timeout => { "$(else)" };
+repair_failed    => { "$(else)" };
+repair_denied    => { "$(else)" };
+repair_timeout   => { "$(else)" };
+# persist for 4 minutes so that it wont overlap with the next
+# execution in 5 minutes
+persist_time     => "4"; 
 }
 
 ############################################
