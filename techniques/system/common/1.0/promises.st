@@ -443,15 +443,17 @@ bundle agent check_cron_daemon
 
   vars:
 
-    (debian|SuSE)::
+    redhat::
+      "cron_bin" string => "^crond$";
+      "cron_restartcmd" string => "/etc/init.d/crond restart";
 
-      "cron_bin" string => "/usr/sbin/cron";
+    ubuntu::
+      "cron_bin" string => "^cron$";
       "cron_restartcmd" string => "/etc/init.d/cron restart";
 
-    redhat::
-
-      "cron_bin" string => "crond";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
+    !(redhat.ubuntu)::
+      "cron_bin" string => "^/usr/sbin/cron$";
+      "cron_restartcmd" string => "/etc/init.d/cron restart";
 
   processes:
 
