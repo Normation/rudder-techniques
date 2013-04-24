@@ -1585,6 +1585,7 @@ body package_method apt
         package_list_update_command => "/usr/bin/aptitude update";
         package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes -q remove";
         package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
+        package_patch_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
         package_verify_command => "/usr/bin/aptitude show";
         package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
 
@@ -1593,6 +1594,7 @@ body package_method apt
         package_list_update_command => "/usr/bin/apt-get update";
         package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes -q remove";
         package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
+        package_patch_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
         package_verify_command => "/usr/bin/dpkg -s";
         package_noverify_returncode => "1";
 }
@@ -1624,6 +1626,7 @@ body package_method dpkg_version(repo)
         package_add_command => "/usr/bin/dpkg --install";
         package_delete_command => "/usr/bin/dpkg --purge";
         package_update_command => "/usr/bin/dpkg --install";
+        package_patch_command =>  "/usr/bin/dpkg --install";
 }
 
 ##
@@ -1649,6 +1652,7 @@ body package_method rpm_version(repo)
 
         package_add_command => "/bin/rpm -ivh ";
         package_update_command => "/bin/rpm -Uvh ";
+        package_patch_command => "/bin/rpm -Uvh ";
         package_delete_command => "/bin/rpm -e --nodeps";
         package_noverify_regex => ".*[^\s].*";
 }
@@ -1740,6 +1744,7 @@ body package_method yum
 
         package_add_command => "/usr/bin/yum -y install";
         package_update_command => "/usr/bin/yum -y update";
+        package_patch_command => "/usr/bin/yum -y update";
         package_delete_command => "/bin/rpm -e --nodeps";
         package_verify_command => "/bin/rpm -V";
 }
@@ -1776,6 +1781,7 @@ body package_method yum_rpm
 
         package_add_command    => "/usr/bin/yum -y install";
         package_update_command => "/usr/bin/yum -y update";
+        package_patch_command => "/usr/bin/yum -y update";
         package_delete_command => "/bin/rpm -e --nodeps --allmatches";
         package_verify_command => "/bin/rpm -V";
 }
@@ -1849,6 +1855,7 @@ body package_method ips {
         package_list_update_command => "/usr/bin/pkg refresh --full";
         package_delete_command => "/usr/bin/pkg uninstall";
         package_update_command => "/usr/bin/pkg install --accept";
+        package_patch_command =>  "/usr/bin/pkg install --accept";
         package_verify_command => "/usr/bin/pkg list -a -v --no-refresh";
         package_noverify_regex => "(.*---|pkg list: no packages matching .* installed)";
 }
@@ -1944,6 +1951,7 @@ body package_method emerge
         package_add_command => "/usr/bin/emerge -q --quiet-build";
         package_delete_command => "/usr/bin/emerge --depclean";
         package_update_command => "/usr/bin/emerge --update";
+        package_patch_command => "/usr/bin/emerge --update";
         package_verify_command => "/usr/bin/emerge -s";
         package_noverify_regex => ".*(Not Installed|Applications found : 0).*";
 }
@@ -1988,6 +1996,7 @@ body package_method generic
         package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
         package_add_command    => "/usr/bin/yum -y install";
         package_update_command => "/usr/bin/yum -y update";
+        package_patch_command => "/usr/bin/yum -y update";
         package_delete_command => "/bin/rpm -e --nodeps --allmatches";
         package_verify_command => "/bin/rpm -V";
 
@@ -2022,6 +2031,7 @@ body package_method generic
         package_list_update_command => "/usr/bin/aptitude update";
         package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes remove";
         package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
+        package_patch_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
         package_verify_command => "/usr/bin/aptitude show";
         package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
 
@@ -2030,6 +2040,7 @@ body package_method generic
         package_list_update_command => "/usr/bin/apt-get update";
         package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes remove";
         package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
+        package_patch_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
         package_verify_command => "/usr/bin/dpkg -s";
         package_noverify_returncode => "1";
 
@@ -2059,6 +2070,7 @@ body package_method generic
         package_add_command => "/usr/bin/emerge -q --quiet-build";
         package_delete_command => "/usr/bin/emerge --depclean";
         package_update_command => "/usr/bin/emerge --update";
+        package_patch_command => "/usr/bin/emerge --update";
         package_verify_command => "/usr/bin/emerge -s";
         package_noverify_regex => ".*(Not Installed|Applications found : 0).*";
 }
