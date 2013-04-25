@@ -23,35 +23,35 @@
 bundle agent execute_file_download # WARNING : If there is many instance, isn't there a risk of a bundle name collision ???
 {
 
-  classes:
+classes:
 
-      "file_not_found" not => fileexists("&DOWNLOADFILE_DESTINATION&");
+	"file_not_found" not => fileexists("&DOWNLOADFILE_DESTINATION&");
 
-  commands:
+commands:
 
     linux.file_not_found::
-      "/usr/bin/curl"
-        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
-        comment => "Getting the file from the server",
-        classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
+		"/usr/bin/curl"
+			args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+			comment => "Getting the file from the server",
+			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
 
     windows.file_not_found::
-      "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
-        comment => "Getting the file from the server",
-        classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
+		"\"${g.rudder_base_sbin}\curl\curl.exe\""
+			args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+			comment => "Getting the file from the server",
+			classes => class_trigger("file_download_ok", "file_download_fail", "file_download_idle");
 
-  files:
+files:
 
-    linux::
-      "&DOWNLOADFILE_DESTINATION&"
-        pathtype => "literal", 	# force literal interpretation
-        perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
-        classes => kept_if_else("file_perms_idle", "file_perms_ok", "file_perms_fail");
+	linux::
+		"&DOWNLOADFILE_DESTINATION&"
+			pathtype => "literal", 	# force literal interpretation
+			perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
+			classes => class_trigger("file_perms_ok", "file_perms_fail", "file_perms_idle");
 
-  reports:
+reports:
 
-    # File downloading part
+    # File downloading part
     !file_not_found.!file_download_ok.!file_download_fail::
       "@@downloadFile@@result_success@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#The file &DOWNLOADFILE_SOURCE& already present";
 
@@ -61,7 +61,7 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
     file_download_fail::
       "@@downloadFile@@result_error@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The file &DOWNLOADFILE_SOURCE& was could not be downloaded";
 
-    # File permissions part
+    # File permissions part
     !windows.file_perms_idle.!file_perms_ok.!file_perms_fail::
       "@@downloadFile@@result_success@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The permissions on file &DOWNLOADFILE_SOURCE& are ok. Skipping ...";
 
