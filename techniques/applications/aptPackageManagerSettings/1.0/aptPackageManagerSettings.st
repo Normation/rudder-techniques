@@ -52,6 +52,14 @@ bundle agent check_apt_settings
 
       "apt_detected_distro" string => "squeeze";
 
+		debian_7::
+
+			"apt_detected_distro" string => "wheezy";
+
+		debian_8::
+
+			"apt_detected_distro" string => "jessie";
+
     ubuntu_karmic::
 
       "apt_detected_distro" string => "karmic";
@@ -63,6 +71,26 @@ bundle agent check_apt_settings
     ubuntu_maverick::
 
       "apt_detected_distro" string => "maverick";
+
+		ubuntu_natty::
+
+			"apt_detected_distro" string => "natty";
+
+		ubuntu_oneiric::
+
+			"apt_detected_distro" string => "oneiric";
+
+		ubuntu_precise::
+
+			"apt_detected_distro" string => "precise";
+
+		ubuntu_quantal::
+
+			"apt_detected_distro" string => "quantal";
+
+		ubuntu_raring::
+
+			"apt_detected_distro" string => "raring";
 
     apt_installrecommends_edit::
 
