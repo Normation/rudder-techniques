@@ -61,6 +61,41 @@ bundle edit_line rudder_common_disclaimer
       insert_type => "preserve_block";
 }
 
+#
+# Select files older than X months
+#
+body file_select rudder_common_months_old(months)
+{
+  mtime       => irange(0,ago(0,"${months}",0,0,0,0));
+  file_result => "mtime";
+}
+
+#
+# Select files older than X days
+#
+body file_select rudder_common_days_old(days)
+{
+  mtime       => irange(0,ago(0,0,"${days}",0,0,0));
+  file_result => "mtime";
+}
+
+#
+# Select files older than X hours
+#
+body file_select rudder_common_hours_old(hours)
+{
+  mtime       => irange(0,ago(0,0,0,"${hours}",0,0));
+  file_result => "mtime";
+}
+
+#
+# Select files older than X minutes
+#
+body file_select rudder_common_minutes_old(minutes)
+{
+  mtime       => irange(0,ago(0,0,0,0,"${minutes}",0));
+  file_result => "mtime";
+}
 
 ################################################
 # Reporting bundles
