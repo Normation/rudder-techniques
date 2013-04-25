@@ -36,14 +36,14 @@ the given destination.
   <TMLS>
     <TML name="downloadFile"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>DOWNLOADFILE_SOURCE</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <!-- First Section , index 1 -->
-    <SECTION name="Download a file">
+    <SECTION name="Download a file" component="true" componentKey="DOWNLOADFILE_SOURCE">
       <INPUT>
         <NAME>DOWNLOADFILE_SOURCE</NAME>
         <DESCRIPTION>URL to download file from</DESCRIPTION>
@@ -57,7 +57,7 @@ the given destination.
     </SECTION>
 
     <!-- Second Section, Linux specific , index 10 -->
-    <SECTION name="UNIX specific parameters">
+    <SECTION name="Permissions (on UNIX systems)" component="true" componentKey="DOWNLOADFILE_SOURCE">
       <INPUT>
         <NAME>DOWNLOADFILE_MODE</NAME>
         <DESCRIPTION>File permissions after download</DESCRIPTION>
