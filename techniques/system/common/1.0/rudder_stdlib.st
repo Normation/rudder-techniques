@@ -67,7 +67,7 @@ bundle edit_line rudder_common_disclaimer
 body file_select rudder_common_months_old(months)
 {
   mtime       => irange(0,ago(0,"${months}",0,0,0,0));
-  file_result => "mtime";
+  file_result => "!mtime";
 }
 
 #
@@ -76,7 +76,7 @@ body file_select rudder_common_months_old(months)
 body file_select rudder_common_days_old(days)
 {
   mtime       => irange(0,ago(0,0,"${days}",0,0,0));
-  file_result => "mtime";
+  file_result => "!mtime";
 }
 
 #
@@ -85,7 +85,7 @@ body file_select rudder_common_days_old(days)
 body file_select rudder_common_hours_old(hours)
 {
   mtime       => irange(0,ago(0,0,0,"${hours}",0,0));
-  file_result => "mtime";
+  file_result => "!mtime";
 }
 
 #
@@ -94,7 +94,7 @@ body file_select rudder_common_hours_old(hours)
 body file_select rudder_common_minutes_old(minutes)
 {
   mtime       => irange(0,ago(0,0,0,0,"${minutes}",0));
-  file_result => "mtime";
+  file_result => "!mtime";
 }
 
 ################################################

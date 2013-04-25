@@ -28,7 +28,7 @@ bundle agent root_integrity_check {
     "${g.rudder_var}/configuration-repository/.git/index.lock"
       delete       => tidy,
       file_select  => rudder_common_minutes_old("5"),
-      classes      => kept_if_else("rudder_git_lock_ok", "rudder_git_lock_nuked", "rudder_git_lock_failure");
+      classes      => rudder_common_classes("rudder_git_lock"");
       comment      => "Delete the git locking file in the configuration-repository if older than 5 minutes";
 
 	reports:
@@ -41,13 +41,13 @@ bundle agent root_integrity_check {
 			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check configuration-repository folder@@None@@$(g.execRun)##$(g.uuid)@#EMERGENCY: THE $(g.rudder_var)/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY."
 				ifvarclass => "!rudder_integrity_ok|rudder_integrity_failed";
 
-    rudder_git_lock_ok.!rudder_git_lock_nuked.!rudder_git_lock_failure::
+    rudder_git_lock_kept.!rudder_git_lock_repaired.!rudder_git_lock_failed::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@$(g.execRun)##$(g.uuid)@#The $(g.rudder_var)/configuration-repository GIT lock file is not present or not older than 5 minutes";
 
-    rudder_git_lock_nuked.!rudder_git_lock_failure::
+    rudder_git_lock_repaired.!rudder_git_lock_failed::
       "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@$(g.execRun)##$(g.uuid)@#WARNING: THE $(g.rudder_var)/configuration-repository GIT LOCK FILE WAS OLDER THAN 5 MINUTES AND HAS BEEN DELETED";
 
-    rudder_git_lock_failure::
+    rudder_git_lock_failed::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@$(g.execRun)##$(g.uuid)@#TheEMERGENCY: THE $(g.rudder_var)/configuration-repository GIT LOCK FILE IS OLDER THAN 5 MINUTES AND COULD NOT BE DELETED. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.";
 
 }
