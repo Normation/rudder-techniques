@@ -41,7 +41,7 @@ bundle agent root_integrity_check {
 			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check configuration-repository folder@@None@@$(g.execRun)##$(g.uuid)@#EMERGENCY: THE $(g.rudder_var)/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY."
 				ifvarclass => "!rudder_integrity_ok|rudder_integrity_failed";
 
-    rudder_git_lock_kept.!rudder_git_lock_repaired.!rudder_git_lock_failed::
+    !rudder_git_lock_repaired.!rudder_git_lock_failed::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_var}/configuration-repository GIT lock file is not present or not older than 5 minutes";
 
     rudder_git_lock_repaired.!rudder_git_lock_failed::
