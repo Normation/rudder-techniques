@@ -29,7 +29,7 @@ bundle agent root_integrity_check
       "${g.rudder_var}/configuration-repository/.git/index.lock"
         delete       => tidy,
         file_select  => rudder_common_minutes_old("5"),
-        classes      => rudder_common_classes("rudder_git_lock"");
+        classes      => rudder_common_classes("rudder_git_lock"),
         comment      => "Delete the git locking file in the configuration-repository if older than 5 minutes";
 
   reports:
