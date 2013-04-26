@@ -24,6 +24,12 @@ bundle agent root_networks_check
       "networks" string => join("${const.n}Allow from ","def.acl");
       "file_path" string => "/opt/rudder/etc/rudder-networks.conf";
 
+    redhat::
+      "apache_init" string => "httpd";
+
+    !redhat::
+      "apache_init" string => "apache2";
+
   files:
 
       "${file_path}"
@@ -39,7 +45,7 @@ bundle agent root_networks_check
 
     rudder_networks_repaired::
 
-      "/etc/init.d/apache2"
+      "/etc/init.d/${apache_init}"
         args => "reload",
         classes => if_else("apache_restarted", "apache_restart_failed");
 
