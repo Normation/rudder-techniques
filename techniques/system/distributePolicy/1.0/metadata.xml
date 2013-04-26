@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_postgres_check</NAME>
     <NAME>root_logrotate_check</NAME>
     <NAME>root_integrity_check</NAME>
+    <NAME>root_technique_reload</NAME>
     <NAME>root_networks_check</NAME>
     <NAME>root_alive_check</NAME>
     <NAME>root_password_check_file</NAME>
@@ -43,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="postgresCheck"/>
     <TML name="logrotateCheck"/>
     <TML name="integrityCheck"/>
+    <TML name="techniqueReload"/>
     <TML name="networkCheck"/>
     <TML name="aliveCheck"/>
     <TML name="passwordCheck"/>
