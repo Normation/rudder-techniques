@@ -58,7 +58,7 @@ body common control {
 
   policy_server::
 
-    bundlesequence => { @(va.bs),"setup_debian_backports","install_rsyslogd","propagatePromises","root_init_check","root_postgres_check","root_logrotate_check","root_integrity_check","root_networks_check","root_alive_check","root_password_check_file","root_password_check_ldap","root_password_check_psql","root_password_check_dav","root_password_restart_jetty", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @(va.end)};
+    bundlesequence => { @(va.bs),"setup_debian_backports","install_rsyslogd","propagatePromises","root_init_check","root_postgres_check","root_logrotate_check","root_integrity_check","root_technique_reload","root_networks_check","root_alive_check","root_password_check_file","root_password_check_ldap","root_password_check_psql","root_password_check_dav","root_password_restart_jetty", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @(va.end)};
     
   !policy_server::
 
@@ -76,7 +76,7 @@ bundle common va {
      };
 
       "inputs_list" slist => {
-        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf"
+        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/techniqueReload.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf"
      };
 
     !policy_server::
