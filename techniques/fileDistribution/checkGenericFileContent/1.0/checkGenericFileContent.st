@@ -52,7 +52,6 @@ bundle agent check_generic_file_content
       "index" slist => getindices("generic_file_content_path");
 
   classes:
-  classes:
     # Set a class to define when we need to run the post-modification hook
     &GENERIC_FILE_CONTENT_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
 }&

@@ -49,13 +49,6 @@ bundle agent check_generic_file_content
 }&
       &GENERIC_FILE_CONTENT_DELETION_REGEXP:{delreg |"generic_file_content_deletion_regexp[&i&]" string => "&delreg&";
 }&
-      # When we define the file to be checked only at creation, it means that we want to create it
-      &GENERIC_FILE_CONTENT_CREATE_BOOLEAN:{createfile |    tier1.!enforce_at_creation_only_&i&::
-      "generic_file_content_creation[&i&]" string => "&createfile&";
-}&
-      &GENERIC_FILE_CONTENT_CREATE_BOOLEAN:{createfile |    tier1.enforce_at_creation_only_&i&::
-      "generic_file_content_creation[&i&]" string => "true";
-}&
       &GENERIC_FILE_CONTENT_MODIFICATION_REGEXP:{delreg |"generic_file_content_modification_regexp[&i&]" string => "&delreg&";
 }&
       &GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
@@ -65,6 +58,14 @@ bundle agent check_generic_file_content
       "index" slist => getindices("generic_file_content_path");
 
       "file_edit_go" string => "go";
+
+      # When we define the file to be checked only at creation, it means that we want to create it
+      &GENERIC_FILE_CONTENT_CREATE_BOOLEAN:{createfile |    tier1.!enforce_at_creation_only_&i&::
+      "generic_file_content_creation[&i&]" string => "&createfile&";
+}&
+      &GENERIC_FILE_CONTENT_CREATE_BOOLEAN:{createfile |    tier1.enforce_at_creation_only_&i&::
+      "generic_file_content_creation[&i&]" string => "true";
+}&
 
   classes:
 
