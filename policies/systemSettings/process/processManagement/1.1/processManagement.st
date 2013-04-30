@@ -75,7 +75,7 @@ commands:
 		"$(command)"
 			args => "$(args)",
 			classes => kept_if_else("$(name)_restart_ok", "$(name)_restart_ok", "$(name)_restart_error"),
-			ifvarclass => and( canonify("$(name)_restart"), not(canonify("$(name)_command_empty"), not(canonify("$(name)_arg_empty")) );
+			ifvarclass => and( canonify("$(name)_restart"), not(canonify("$(name)_command_empty")), not(canonify("$(name)_arg_empty")) );
 
 		"$(command)"
 			classes => kept_if_else("$(name)_restart_ok", "$(name)_restart_ok", "$(name)_restart_error"),
