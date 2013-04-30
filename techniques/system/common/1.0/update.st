@@ -105,12 +105,11 @@ bundle agent update
         action       => immediate,
         classes      => success("config", "no_update", "config_ok");
 
-    (rudder_promises_generated_ok|rudder_promises_generated_repaired).!root_server::
+    root_server|((rudder_promises_generated_ok|rudder_promises_generated_repaired).(config|config_ok).!no_update)::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
-        touch      => "true",
-        ifvarclass => "(config|config_ok).!no_update";
+        touch      => "true";
 
     # same here, if the dependencies have been updated, we can skup this part 
     rudder_promises_generated_repaired.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
