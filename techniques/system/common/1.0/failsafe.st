@@ -127,7 +127,7 @@ bundle agent check_lock_db_problem{
         action      => warn_only,
         classes     => success("last_successful_inputs_update_too_old", "last_successful_inputs_update_check_error", "last_successful_inputs_update_ok");
 
-      "${sys.workdir}/state/cf_lock.[tc]?db"
+      "${sys.workdir}/state/cf_lock.tcdb"
         delete     => tidy,
         ifvarclass => "last_successful_inputs_update_too_old",
         classes    => success("cf_lock_removed", "cf_lock_error_removing", "cf_lock_not_deleted");
