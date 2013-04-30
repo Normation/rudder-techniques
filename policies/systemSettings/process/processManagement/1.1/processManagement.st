@@ -60,7 +60,7 @@ commands:
 
 		"$(command)"
 			classes => kept_if_else("$(name)_restart_ok", "$(name)_restart_ok", "$(name)_restart_error"),
-			ifvarclass => and( canonify("$(name)_restart"), not(canonify("$(name)_command_empty"), canonify("$(name)_arg_empty")) );
+			ifvarclass => and( canonify("$(name)_restart"), not(canonify("$(name)_command_empty")), canonify("$(name)_arg_empty") );
 
 		"/etc/init.d/$(name)"
 			args => "restart",
