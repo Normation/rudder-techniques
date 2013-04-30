@@ -25,15 +25,6 @@ vars:
 
 	"procList" slist => getindices("file");
 
-	"blacklist" slist => {&PROCESS_BLACKLIST: { "&it&"};separator=","&};
-
-#processes:
-
-#	"$(blacklist)"
-#			comment => "Kill the process",
-#			signals => { "stop", "term", "kill" },
-#			classes => kept_if_else("$(blacklist)_ok", "$(blacklist)_killed", "$(blacklist)_kill_failed");
-
 methods:
 
 	"any" usebundle => check_process("$(file[$(procList)][0])",
@@ -42,16 +33,6 @@ methods:
 			"$(file[$(procList)][3])",
 			"$(file[$(procList)][4])",
 			"$(file[$(procList)][5])");
-
-#reports:
-#		"@@ProcessManagement@@result_error@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process could not be killed"
-#			ifvarclass => canonify("$(blacklist)_kill_failed");
-
-#		"@@ProcessManagement@@result_repaired@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process has been killed (as requested)"
-#			ifvarclass => canonify("$(blacklist)_killed");
-
-#		"@@ProcessManagement@@result_success@@$(policyInstanceId)@@Blacklisted process@@$(blacklist)@@$(g.execRun)##$(g.uuid)@#${blacklist}: the process is not running (as requested)"
-#			ifvarclass => canonify("$(blacklist)_ok");
 
 }
 
