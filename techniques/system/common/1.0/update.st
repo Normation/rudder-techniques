@@ -92,9 +92,9 @@ bundle agent update {
             classes => success("config", "no_update", "config_ok");
 
 			# Every time we update inputs successfully, touch a file to let other promises know we are doing ok
+    root_server|((config|config_ok).!no_update)::
 			"${sys.workdir}/last_successful_inputs_update"
-				touch      => "true",
-				ifvarclass => "(config|config_ok).!no_update";
+				touch      => "true";
 
         !root_server.(!windows|cygwin)::
 		  "${g.rudder_dependencies}"
