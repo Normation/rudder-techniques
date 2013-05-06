@@ -238,6 +238,12 @@ bundle agent check_log_system {
 		process_count => islaunched("syslogd");
 
   files:
+    SuSE.rsyslogd.policy_server::
+      # For SuSE, ensure that SYSLOG_DAEMON is set to 'rsyslogd' even if another syslog has been installed before
+      "/etc/sysconfig/syslog"
+        edit_line => ensure_rsyslogd_on_suse,
+        classes   => class_trigger("rsyslog_repaired" , "rsyslog_failed", "rsyslog_kept");
+
   	linux.rsyslogd.!policy_server::
   	  "/etc/rsyslog.d/rudder-agent.conf"
   		edit_line => append_if_no_lines("#Rudder log system$(const.n)if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then @@$(server_info.cfserved):514"),
@@ -375,5 +381,15 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove) {
 	insert_lines:
 		"$(line_to_add)";
 
+}
+
+bundle edit_line ensure_rsyslogd_on_suse
+{
+  field_edits:
+
+      # match a line starting like 'SYSLOG_DAEMON=something'
+      "^SYSLOG_DAEMON=.*$"
+        edit_field => col("=","2","\"rsyslogd\"","set"),
+        comment => "Match a line starting like key = something";
 }
 
