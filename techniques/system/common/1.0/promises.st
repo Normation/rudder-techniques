@@ -327,6 +327,7 @@ bundle agent check_log_system {
 	"syslogd" expression => fileexists("/etc/syslog.conf");
 
   files:
+<<<<<<< HEAD:techniques/system/common/1.0/promises.st
 	linux.rsyslogd::
 		"/etc/rsyslog.conf"
 			edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
@@ -339,6 +340,12 @@ bundle agent check_log_system {
 				create => "true",
 				edit_defaults => empty_backup,
 				classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
+
+    SuSE.rsyslogd.policy_server::
+      # For SuSE, ensure that SYSLOG_DAEMON is set to 'rsyslogd' even if another syslog has been installed before
+      "/etc/sysconfig/syslog"
+        edit_line => ensure_rsyslogd_on_suse,
+				classes   => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
 	linux.syslogng.!policy_server::
 		"/etc/syslog-ng/syslog-ng.conf"
@@ -580,4 +587,14 @@ body location syslogng_log_part {
 	before_after => "before";
 	first_last => "first";
 
+}
+
+bundle edit_line ensure_rsyslogd_on_suse
+{
+  field_edits:
+
+      # match a line starting like 'SYSLOG_DAEMON=something'
+      "^SYSLOG_DAEMON=.*$"
+        edit_field => col("=","2","\"rsyslogd\"","set"),
+        comment => "Match a line starting like key = something";
 }
