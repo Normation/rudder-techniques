@@ -98,10 +98,10 @@ bundle agent download_from_shared_folder
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#There is no shared folder on the Rudder Server, so it's not possible to copy a file from it";
     linux|windows::
       "@@copyFile@@result_success@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The content of the file(s) is valid"
-        ifvarclass => "copy_file_${index}_kept.!copy_file_${index}_modified";
+        ifvarclass => "copy_file_${index}_kept.!copy_file_${index}_modified.!copy_file_$(index)_failed";
 
       "@@copyFile@@result_repaired@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The content or permissions of the file(s) has been repaired"
-        ifvarclass => "copy_file_${index}_modified";
+        ifvarclass => "copy_file_${index}_modified.!copy_file_$(index)_failed";
 
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The content or permissions of the file(s) could not have been repaired for some reason"
         ifvarclass => "copy_file_${index}_failed";
