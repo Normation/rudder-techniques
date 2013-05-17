@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable name</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEXP error="Please enter a valid CFengine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEXP>
+          <REGEX error="Please enter a valid CFengine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable content</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEXP error="Please enter a valid CFengine variable content"><![CDATA[ [^"&]*[^"&\\] ]]></REGEXP>
+          <REGEX error="Please enter a valid CFengine variable content"><![CDATA[ [^"&]*[^"&\\] ]]></REGEX>
         </CONSTRAINT>
       </INPUT>
     </SECTION>
