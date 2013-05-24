@@ -286,6 +286,11 @@ bundle agent rudder_openssh_server_configuration(service_name) {
       usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"permit tunnel\" isn't implemented on SuSE"),
       ifvarclass => "rudder_openssh_server_permit_tunnel_edit.(redhat|SuSE)";
 
+    "any"
+      usebundle  => rudder_common_report("${service_name}", "result_success", "&TRACKINGKEY&", "SSH port configuration", "None", "The ${service_name} ports are not requested to be enforced"),
+      ifvarclass => "!rudder_openssh_server_ports_edit";
+
+
   processes:
     (debian|redhat|SuSE)::
       "/usr/sbin/sshd"
