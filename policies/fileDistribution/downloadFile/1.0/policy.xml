@@ -53,6 +53,10 @@ the given destination.
         <NAME>DOWNLOADFILE_DESTINATION</NAME>
         <DESCRIPTION>Absolute path to download file to on a node</DESCRIPTION>
         <LONGDESCRIPTION>This path must be absolute, for example /home/foo/file or C:\foo\file</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid path for this file">(/.*)|([a-zA-Z]:[/\\].*)</REGEX>
+        </CONSTRAINT>
       </INPUT>
     </SECTION>
 
