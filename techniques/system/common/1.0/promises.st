@@ -339,7 +339,6 @@ bundle agent check_log_system {
 	"syslogd" expression => fileexists("/etc/syslog.conf");
 
   files:
-<<<<<<< HEAD:techniques/system/common/1.0/promises.st
 	linux.rsyslogd::
 		"/etc/rsyslog.conf"
 			edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
