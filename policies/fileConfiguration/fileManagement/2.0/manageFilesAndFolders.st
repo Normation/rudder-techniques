@@ -34,7 +34,7 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND:{cmd |"file[&i&][post_hook_command]" string => "&cmd&";
 }&
-		&FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE:{symsrc |"file[&i&][symlink_source]" string => "&symsrc&";
+		&FILE_AND_FOLDER_MANAGEMENT_SOURCE:{src |"file[&i&][source]" string => "&src&";
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_SYMLINK_ENFORCE:{symlink_enforced | "file[&i&][symlink_enforced]" string => "&symlink_enforced&";
 }&
@@ -62,6 +62,8 @@ bundle agent manageFilesAndFolders {
 		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createfile | "manageFilesAndFolders_createfile_&i&" expression => strcmp("&createfile&", "file");
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createdir | "manageFilesAndFolders_createdir_&i&" expression => strcmp("&createdir&", "dir");
+}&
+		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{copy | "manageFilesAndFolders_local_cp_&i&" expression => strcmp("&copy&", "copy");
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_ACTION:{createsymlink | "manageFilesAndFolders_createsymlink_&i&" expression => strcmp("&createsymlink&", "symlink");
 }&
@@ -92,23 +94,30 @@ bundle agent manageFilesAndFolders {
 			create => "true",
 			classes => kept_if_else("manageFolders_$(index)_kept", "manageFolders_$(index)_modified", "manageFolders_$(index)_failed"),
 			comment => "Enforcing the existance of folder $(file[$(index)][path])",
-			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createfile_$(index).manageFilesAndFolders_createdir_$(index)).!manageFilesAndFolders_createsymlink_$(index)";
+			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createfile_$(index).manageFilesAndFolders_createdir_$(index)).!manageFilesAndFolders_local_cp_$(index).!manageFilesAndFolders_createsymlink_$(index)";
 
 		# File
 		"$(file[$(index)][path])"
 			create => "true",
 			classes => kept_if_else("manageFiles_$(index)_kept", "manageFiles_$(index)_modified", "manageFiles_$(index)_failed"),
 			comment => "Enforcing the existance of file $(file[$(index)][path])",
-			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_createfile_$(index)).!manageFilesAndFolders_createsymlink_$(index)";
+			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_createfile_$(index)).!manageFilesAndFolders_local_cp_$(index).!manageFilesAndFolders_createsymlink_$(index)";
+
+		# Local copy
+		"$(file[$(index)][path])"
+			copy_from => local_cp("$(file[$(index)][source])"),
+			classes => kept_if_else("manageCp_$(index)_kept", "manageCp_$(index)_modified", "manageCp_$(index)_failed"),
+			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).manageFilesAndFolders_local_cp_$(index).!manageFilesAndFolders_createsymlink_$(index)",
+			comment => "Create $(file[$(index)][path]) file as copy of $(file[$(index)][source])";
 
 		# Symlink
 		"$(file[$(index)][path])"
 			# create => "true",
-			link_from => ln_s("$(file[$(index)][symlink_source])"),
+			link_from => ln_s("$(file[$(index)][source])"),
 			move_obstructions => "${file[${index}][symlink_enforced]}",
 			classes => kept_if_else("manageSyms_$(index)_kept", "manageSyms_$(index)_modified", "manageSyms_$(index)_failed"),
-			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).manageFilesAndFolders_createsymlink_$(index)",
-			comment => "Create the $(file[$(index)][path]) symlink pointing to $(file[$(index)][symlink_source])";
+			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).!manageFilesAndFolders_local_cp_$(index).manageFilesAndFolders_createsymlink_$(index)",
+			comment => "Create the $(file[$(index)][path]) symlink pointing to $(file[$(index)][source])";
 
 		# Check the permissions none recursively
 		## With user and group
@@ -173,7 +182,7 @@ bundle agent manageFilesAndFolders {
 		"$(file[$(index)][post_hook_command])"
 			classes => if_else("manageFilesAndFolders_$(index)_command_run_ok", "manageFilesAndFolders_$(index)_command_run_failed"),
 			contain => in_shell,
-			ifvarclass => "manageFilesAndFolders_post_hook_run_$(index).(manageFiles_$(index)_modified|manageFolders_$(index)_modified|manageSyms_$(index)_modified|manageFilesAndFolders_perms_$(index)_modified)";
+			ifvarclass => "manageFilesAndFolders_post_hook_run_$(index).(manageFiles_$(index)_modified|manageFolders_$(index)_modified|manageCp_$(index)_modified|manageSyms_$(index)_modified|manageFilesAndFolders_perms_$(index)_modified)";
 
 	reports:
 
@@ -199,6 +208,16 @@ bundle agent manageFilesAndFolders {
 
 			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) could not be created"
 				ifvarclass => "manageFiles_$(index)_failed|manageFiles_$(index)_kept.(manageFilesAndFolders_isdir_$(index)|manageFilesAndFolders_islink_$(index))";
+
+			## Reporting for local cp
+			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) already exists and is up to date"
+				ifvarclass => "manageCp_$(index)_kept.!manageCp_$(index)_modified.manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_islink_$(index)";
+
+			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) was successfully copied from $(file[$(index)][source])"
+				ifvarclass => "manageCp_$(index)_modified";
+
+			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) could not be created"
+				ifvarclass => "manageCp_$(index)_failed|manageCp_$(index)_kept.(manageFilesAndFolders_isdir_$(index)|manageFilesAndFolders_islink_$(index))";
 
 			## Reporting for symlink creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) already exists"
