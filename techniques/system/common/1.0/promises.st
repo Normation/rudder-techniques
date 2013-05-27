@@ -457,7 +457,7 @@ bundle agent check_cron_daemon
       "cron_bin" string => "cron$";
       "cron_restartcmd" string => "/etc/init.d/cron restart";
 
-    !(redhat.ubuntu)::
+    !(redhat|ubuntu)::
       "cron_bin" string => "/usr/sbin/cron$";
       "cron_restartcmd" string => "/etc/init.d/cron restart";
 
