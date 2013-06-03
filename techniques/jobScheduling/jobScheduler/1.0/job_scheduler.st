@@ -71,7 +71,7 @@ bundle agent job_scheduler {
 				                                             "@(job_scheduler.error_returncodes_$(iterator))");
 
 	reports:
-		(linux|windows).nos2::
+		nos2::
 			# Note: if the command has not been executed (ever or since > frequency), no report will be sent until the splayclass is defined
 			# This will cause Rudder to report an "Unknown" status, and is by design
 			"@@jobScheduler@@result_success@@$(job_scheduler_uuids[$(iterator)])@@Job@@$(job_scheduler_command[$(iterator)])@@$(g.execRun)##$(g.uuid)@#Job returned a success return code after the last completed execution ($(job_scheduler_command[$(iterator)]))"

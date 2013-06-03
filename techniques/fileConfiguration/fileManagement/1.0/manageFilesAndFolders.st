@@ -174,7 +174,7 @@ bundle agent manageFilesAndFolders {
 
 	reports:
 
-        (linux|windows)::
+        (linux|!linux)::
 
 			# Reporting for directory creation
 			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) already exists"
