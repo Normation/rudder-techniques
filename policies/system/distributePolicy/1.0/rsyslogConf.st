@@ -109,8 +109,8 @@ bundle agent install_rsyslogd {
 				classes => cf2_if_else("rudder_rsyslog_pgsql", "cannot_update_rudder_rsyslog_pgsql"),
 			        comment => "Removing the logging of all in the database";	
 
-    rsyslog_not_older_than_5_7_1::
-      "/etc/rsyslog.conf"
+    rsyslog_greater_than_5_7_1::
+      "/etc/rsyslog.d/rudder.conf"
         edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
         comment => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
         classes => cf2_if_else("rsyslog_limit_removed", "rsyslog_limit_failed");
@@ -144,6 +144,9 @@ bundle agent install_rsyslogd {
 
 		rsyslog_inc_failed::
 			"Fatal : Can't enable the rsyslog include directory !";
+
+    check_rsyslog_version_present::
+      "Warn : The file ${g.rudder_dependencies}/check_rsyslog_version is missing";
 
     rsyslog_limit_failed::
       "Warn : Can't remove limitation of messages of rsyslog";
