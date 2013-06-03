@@ -1,0 +1,11 @@
+#!/bin/bash
+#set -e
+
+TARGET_VER='5.7.1'
+LOCAL_VER=`rsyslogd -v | head -n1 | sed "s/^rsyslogd \([^, ]*\).*$/\1/"`
+
+if [ "$LOCAL_VER" \> "$TARGET_VER" -o "z$LOCAL_VER" == "z$TARGET_VER" ];then
+  echo "+rsyslog_not_older_than_5_7_1"
+else
+  echo "+rsyslog_older_than_5_7_1"
+fi
