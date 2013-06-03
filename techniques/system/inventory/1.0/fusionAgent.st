@@ -512,7 +512,7 @@ insert_lines:
 	android::
 
 		"<ACCESSLOG><LOGDATE>$(logdate)</LOGDATE></ACCESSLOG>"
-			location => after_location("<CONTENT>"),
+			location => after_location("</OPERATINGSYSTEM>"),
 			comment => "Adding log date";
 
 }
