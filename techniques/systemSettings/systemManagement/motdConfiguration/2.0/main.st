@@ -16,21 +16,50 @@
 #
 #####################################################################################
 
-##############################################################################
-# This Technique configures a machine MOTD. See metadata.xml for more details.
-##############################################################################
+##############################################################
+# Sets the MOTD according to the value given in the Directive.
+##############################################################
 
-bundle agent rudder_motd
+bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, params)
 {
   vars:
-      "rudder_motd_service_name"
-        string => "MOTD";
+      "rudder_motd_payload"     string => "${${params}[payload]}";
+      "rudder_motd_empty"       string => "${${params}[file_empty]}";
+
+    debian::
+      "rudder_motd_file"         slist => { "/etc/motd", "/etc/motd.tail" };
+
+    !debian::
+      "rudder_motd_file"         slist => { "/etc/motd" };
+
+  classes:
+      "rudder_motd_absent"         not => fileexists("/etc/motd");
+
+  files:
+    # Set every MOTD file to the wanted value
+    !windows::
+      "${rudder_motd_file}"
+        create        => "true",
+        edit_defaults => rudder_empty_select("${rudder_motd_empty}"),
+        perms         => mog("644", "root", "root"),
+        edit_line     => insert_lines("${rudder_motd_payload}"),
+        classes       => rudder_common_classes("${class_prefix}_file_edition");
 
   methods:
-    # Note:
-    # The reporting is made on separate bundles to abstract the complexity
-    # inherent to the normal ordering.
-      "any" usebundle => rudder_motd_configuration("${rudder_motd_service_name}");
-      "any" usebundle => rudder_motd_configuration_reporting("${rudder_motd_service_name}");
+    # Here, we will define reports for elements which only have a local visibility (like the MOTD file presence detection).
+    !windows.rudder_motd_absent::
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_repaired", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file was absent, it will be created");
+
 }
 
+# The reporting is made on separate bundles to abstract the complexity
+# inherent to the normal ordering.
+bundle agent rudder_motd_configuration_reporting(class_prefix, service_name, trackingkey)
+{
+  methods:
+      "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_file_edition", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file");
+    windows::
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_error", "${trackingkey}", "MOTD Configuration", "None", "This is a Windows machine. This Technique currently incompatible with it");
+}

@@ -34,8 +34,8 @@ It is intended to check if the required motd is installed.
   </BUNDLES>
 
   <TMLS>
+    <TML name="config"/>
     <TML name="main"/>
-    <TML name="configuration"/>
   </TMLS>
 
   <TRACKINGVARIABLE>
