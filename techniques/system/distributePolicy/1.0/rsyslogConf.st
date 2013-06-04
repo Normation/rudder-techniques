@@ -59,6 +59,10 @@ bundle agent setup_debian_backports {
 
 
 bundle agent install_rsyslogd {
+
+  classes:
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_dependencies}/check_rsyslog_version");
+
 	packages:
 
                 policy_server.debian_5.!SuSE::
@@ -107,7 +111,15 @@ bundle agent install_rsyslogd {
 				classes => cf2_if_else("rudder_rsyslog_pgsql", "cannot_update_rudder_rsyslog_pgsql"),
 			        comment => "Removing the logging of all in the database";	
 
+    rsyslog_greater_than_5_7_1::
+      "/etc/rsyslog.d/remove_limit.conf"
+        edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
+        create    => "true",
+        comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
+        classes   => rudder_common_classes("rsyslog_limit");
+
 	commands:
+
 		policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql).!SuSE::
 			"/etc/init.d/rsyslog"
 				args => "restart",
@@ -119,6 +131,13 @@ bundle agent install_rsyslogd {
                                 classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
                                 comment => "restarting rsyslog";
 
+    rsyslogd.check_rsyslog_version_present::
+      "${g.rudder_dependencies}/check_rsyslog_version"
+        contain => in_shell,
+        module  => "true",
+        comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
+
+
 	reports:
 		cant_install_rsyslog|cant_install_rsyslog_pgsql::
 			"Fatal : Can't install rsyslog or rsyslog_pgsql on the Rudder root server !";
@@ -128,6 +147,12 @@ bundle agent install_rsyslogd {
 
 		rsyslog_inc_failed::
 			"Fatal : Can't enable the rsyslog include directory !";
+
+    rsyslogd.!check_rsyslog_version_present::
+      "Warn : The file ${g.rudder_dependencies}/check_rsyslog_version is missing";
+
+    rsyslog_limit_error::
+      "Warn : Can't remove limitation of messages of rsyslog";
 
 		cant_restart_rsyslog::
 			"Fatal : Can't restart rsyslog !";
