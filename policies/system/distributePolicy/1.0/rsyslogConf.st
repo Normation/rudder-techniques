@@ -112,8 +112,9 @@ bundle agent install_rsyslogd {
     rsyslog_greater_than_5_7_1::
       "/etc/rsyslog.d/remove_limit.conf"
         edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
-        comment => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
-        classes => rudder_common_classes("rsyslog_limit");
+        create    => "true",
+        comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
+        classes   => rudder_common_classes("rsyslog_limit");
 
 	commands:
 
@@ -131,7 +132,7 @@ bundle agent install_rsyslogd {
     rsyslogd.check_rsyslog_version_present::
       "${g.rudder_dependencies}/check_rsyslog_version"
         contain => in_shell,
-        module => "true",
+        module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
 
 
