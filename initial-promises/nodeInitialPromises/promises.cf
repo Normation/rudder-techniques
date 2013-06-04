@@ -28,7 +28,7 @@
 body common control {
 
     inputs => {
-	"common/1.0/library.cf","common/1.0/site.cf", "common/1.0/update.cf","inventory/1.0/virtualMachines.cf","common/1.0/cfengine_stdlib.cf","inventory/1.0/fusionAgent.cf","common/1.0/core-lib.cf","common/1.0/process_matching.cf", "inventory/1.0/fetchFusionTools.cf"
+	"common/1.0/library.cf","common/1.0/site.cf", "common/1.0/update.cf","inventory/1.0/virtualMachines.cf","common/1.0/cfengine_stdlib.cf","inventory/1.0/fusionAgent.cf","common/1.0/core-lib.cf","common/1.0/process_matching.cf", "inventory/1.0/fetchFusionTools.cf","common/1.0/rudder_stdlib.cf"
     };
 
     bundlesequence => { @(va.bs), @(va.end)};

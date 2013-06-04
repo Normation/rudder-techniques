@@ -24,7 +24,7 @@
 body common control {
 
     inputs => {       
-        "common/site.cf","common/update.cf","common/process_matching.cf","distributePolicy/propagatePromises.cf", "distributePolicy/rsyslogConf.cf", "common/cfengine_stdlib.cf","common/cf-served.cf","common/library.cf","common/core-lib.cf"
+        "common/site.cf","common/update.cf","common/process_matching.cf","distributePolicy/propagatePromises.cf", "distributePolicy/rsyslogConf.cf", "common/cfengine_stdlib.cf","common/cf-served.cf","common/library.cf","common/core-lib.cf","common/rudder_stdlib.cf"
     };
 
     bundlesequence => { @(va.bs) , "propagatePromises", "setup_debian_backports", "install_rsyslogd", "sendInventoryToCmdb" };
