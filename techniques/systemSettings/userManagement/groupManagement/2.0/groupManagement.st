@@ -28,6 +28,8 @@ bundle agent check_usergroup_grp_parameters {
 	vars:
 		&USERGROUP_GROUP_NAME:{name |"usergroup_group_name[&i&]" string => "&name&";
 }&
+      &USERGROUP_GROUP_CREATE:{create |"usergroup_group_create[&i&]" string => "&create&";
+}&
 
 		&USERGROUP_GROUP_CONTENT:{content |"usergroup_group_content[&i&]" string => "&content&";
 }&
@@ -42,17 +44,17 @@ bundle agent check_usergroup_grp_parameters {
 
 	methods:
 
-		"any"
-
-			usebundle => check_usergroup_group_parameters_grouphandle("$(usergroup_group_name[$(usergroup_group_index)])", "$(usergroup_group_content[$(usergroup_group_index)])", "$(usergroup_group_index)", "$(usergroup_group_directive_id[$(usergroup_group_index)])");
+      "any"
+        usebundle => check_usergroup_group_parameters_grouphandle("${usergroup_group_name[${usergroup_group_index}]}", "${usergroup_group_create[${usergroup_group_index}]}", "${usergroup_group_content[${usergroup_group_index}]}", "${usergroup_group_index}", "${usergroup_group_directive_id[${usergroup_group_index}]}");
 
 }
 
-bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, directiveId) {
+bundle agent check_usergroup_group_parameters_grouphandle(name, create, content, index, directiveId) {
 
 	classes:
 
 		"groupmanagement_group_$(index)_absent" not => groupexists("$(name)");
+      "groupmanagement_group_${index}_create" expression => strcmp("${create}", "true");
 
 	vars:
 
@@ -61,11 +63,11 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, 
 
 	commands:
 
-		"/usr/sbin/groupadd"
-			args => "-f \"$(name)\"",
-			classes => if_else("groupmanagement_group_add_$(index)_repaired", "groupmanagement_group_add_$(index)_error"),
-			ifvarclass => "groupmanagement_group_$(index)_absent",
-			comment => "Add the group $(name) if it doesn't exists";
+      "/usr/sbin/groupadd"
+        args => "-f \"${name}\"",
+        classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
+        ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create",
+        comment => "Add the group ${name} if it doesn't exists";
 
 	files:
 
@@ -88,6 +90,8 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, 
 			"@@groupManagement@@result_error@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) could not be created or updated"
 				ifvarclass => "groupmanagement_group_add_$(index)_error";
 
+      "@@groupManagement@@result_success@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} is not present and not set to be created"
+        ifvarclass => "groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_create";
 }
 
 bundle edit_line groups_file_append(group,userlist)

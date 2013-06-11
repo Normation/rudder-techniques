@@ -50,6 +50,14 @@ It is intended to check the group parameters on the target host.
         </CONSTRAINT>
       </INPUT>
       <INPUT>
+        <NAME>USERGROUP_GROUP_CREATE</NAME>
+        <DESCRIPTION>Create the group if it doesn't exist</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
         <NAME>USERGROUP_GROUP_CONTENT</NAME>
         <DESCRIPTION>Users included in the group</DESCRIPTION>
         <LONGDESCRIPTION>This should be input as a comma separated list</LONGDESCRIPTION>
