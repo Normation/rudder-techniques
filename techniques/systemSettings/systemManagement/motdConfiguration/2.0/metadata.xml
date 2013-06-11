@@ -38,10 +38,6 @@ It is intended to check if the required motd is installed.
     <TML name="main"/>
   </TMLS>
 
-  <TRACKINGVARIABLE>
-    <!--<SAMESIZEAS>MOTD</SAMESIZEAS>-->
-  </TRACKINGVARIABLE>
-
   <SECTIONS>
     <SECTION name="MOTD Configuration" component="true">
       <INPUT>
