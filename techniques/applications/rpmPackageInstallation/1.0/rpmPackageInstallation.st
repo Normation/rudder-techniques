@@ -84,6 +84,7 @@ body package_method yum_nobulk(rpm_pkg_timeout)
         package_list_arch_regex    => "[^.]+\.([^\s]+).*";
         package_installed_regex => ".*installed.*";
         package_name_convention => "${name}.${arch}";
+        package_delete_convention  => "${name}";
         package_list_update_ifelapsed => "${rpm_pkg_timeout}";
         package_add_command => "/usr/bin/yum -y install";
         package_delete_command => "/bin/rpm -e";
