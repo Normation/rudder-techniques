@@ -170,26 +170,26 @@ bundle agent update {
 				"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
 
 
-    rudder_promises_generated_error::
+    (!failsafe|verbose_mode).rudder_promises_generated_error::
       "@@Common@@result_error@@hasPolicyServer-root@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
 
-    (rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update):: 
+    (!failsafe|verbose_mode).((rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)):: 
 				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
 
-			rudder_dependencies_updated::
+    (!failsafe|verbose_mode).rudder_dependencies_updated::
 				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Dependencies updated";
 
-			config::
+    (!failsafe|verbose_mode).config::
 				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Node's policy (CFEngine promises) updated";
 
-    rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok::
+    (!failsafe|verbose_mode).(rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok)::
 				"@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
 
-			policy_server::
+    (!failsafe|verbose_mode).policy_server::
 				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy server doesn't need to be updated";
 
 
-                        rudder_promises_generated_error|no_update::
+    (!failsafe|verbose_mode).(rudder_promises_generated_error|no_update)::
 				"*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by a network issue, an unavailable server, or if this      *
