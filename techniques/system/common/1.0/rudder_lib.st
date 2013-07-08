@@ -98,6 +98,7 @@ body package_method yum_remi
  package_list_arch_regex    => "[^.]+\.([^\s]+).*";
  package_installed_regex => ".*installed.*";
  package_name_convention => "$(name).$(arch)";
+ package_delete_convention  => "${name}";
  package_add_command => "/usr/bin/yum --enablerepo=remi -y install";
  package_delete_command => "/bin/rpm -e";
  package_verify_command => "/bin/rpm -V";
