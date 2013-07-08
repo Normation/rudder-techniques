@@ -1733,6 +1733,7 @@ body package_method yum
 
         package_installed_regex => ".*(installed|\s+@).*";
         package_name_convention => "$(name).$(arch)";
+        package_delete_convention => "${name}";
 
 # set it to "0" to avoid caching of list during upgrade
         package_list_update_ifelapsed => "240";
