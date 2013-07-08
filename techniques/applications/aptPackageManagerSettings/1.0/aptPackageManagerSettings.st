@@ -224,14 +224,7 @@ bundle edit_line set_apt_config_values_tier1(apt_url, apt_distro, apt_components
       "apt_index" slist => getindices("${apt_url}");
 
   insert_lines:
-
-        "#############################################################
-### This file is protected by your Rudder infrastructure. ###
-### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server’s            ###
-### configuration and/or to raise a compliance alert.     ###
-#############################################################
-"
+      "${rudder_parameters.rudder_file_edit_header}"
         location => start,
         insert_type => "preserve_block";
 
