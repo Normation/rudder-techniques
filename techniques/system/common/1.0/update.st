@@ -148,33 +148,36 @@ bundle agent update {
 &endif&
 
 	reports:
+      # The use of the failsafe class here is to prevent the failsafe to do reports
+      # (except in verbose mode) as it may prevent the normal execution to report due to lock
   			server_ok::
  				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the server (cf-serverd)";
-  			executor_ok::
+			executor_ok::
   			    "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Started the scheduler (cf-execd)";
   			    
-  			no_update::
-  				"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update node's policy (CFEngine promises)";
-			rudder_dependencies_update_error::
-				"@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
+    (!failsafe|verbose_mode).no_update::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update node's policy (CFEngine promises)";
 
-			rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update::
-				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
+    (!failsafe|verbose_mode).rudder_dependencies_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Cannot update dependencies";
 
-			rudder_dependencies_updated::
-				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Dependencies updated";
+    (!failsafe|verbose_mode).(rudder_dependencies_updated_ok.!rudder_dependencies_update_error.config_ok.!config.!no_update)::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy and dependencies already up to date. No action required.";
 
-			config::
-				"@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Node's policy (CFEngine promises) updated";
+    (!failsafe|verbose_mode).(rudder_dependencies_updated)::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Dependencies updated";
 
-			config|rudder_dependencies_updated|server_ok|executor_ok::
-				"@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
+    (!failsafe|verbose_mode).config::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Node's policy (CFEngine promises) updated";
 
-			policy_server::
-				"@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy server doesn't need to be updated";
+    (!failsafe|verbose_mode).(config|rudder_dependencies_updated|server_ok|executor_ok)::
+      "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy or dependencies were updated or CFEngine service restarted";
+
+    (!failsafe|verbose_mode).policy_server::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@$(g.execRun)##$(g.uuid)@#Policy server doesn't need to be updated";
 
 
-                        no_update::
+    (!failsafe|verbose_mode).no_update::
 				"*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by a network issue, an unavailable server, or if this      *
