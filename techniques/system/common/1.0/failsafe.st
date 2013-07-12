@@ -71,6 +71,9 @@ bundle common rudder_roles {
         "policy_server" expression => strcmp("root","$(g.uuid)");
         # Root Server is the top policy server machine
         "root_server" expression => strcmp("root","$(g.uuid)");
+
+      # We are in the failsafe phase
+      "failsafe" expression => "any";
 }
 
 ############################################
