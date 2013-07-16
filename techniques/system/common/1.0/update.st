@@ -78,7 +78,36 @@ bundle common server_info
       "cfserved"     string =>  readfile("${policy_server_file}", 40);            #server IP
 }
 
+# The update is now split in two parts
+# - the action part, only launched during failsafe
+#   it copies files, restarts deamons, defines persistent classes
+# - the report part, not done during failsafe but during regular run
+#   note that if in verbose_mode, then the reporting will be done
+#   as well during failsafe
+#
+# Since the defined class are persistent, the classes are still
+# available during the "normal" agent execution, for reporting
 bundle agent update
+{
+  methods:
+    failsafe::
+      "update" usebundle => update_action;
+    (!failsafe|verbose_mode)::
+      "report" usebundle => update_reports;
+
+  reports:
+    # We want to have always reports if something goes bad
+    rudder_promises_generated_error|no_update::
+      "*********************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
+* This can be caused by a network issue, an unavailable server, or if this      *
+* node was deleted from the Rudder root server.                                 *
+* Any existing configuration policy will continue to be applied without change. *
+*********************************************************************************"
+      action => immediate;
+}
+
+bundle agent update_action
 {
   vars:
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
@@ -164,45 +193,42 @@ bundle agent update
 &endif&
 
   reports:
-    # The use of the failsafe class here is to prevent the failsafe to do reports
-    # (except in verbose mode) as it may prevent the normal execution to report due to lock
     server_ok::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";
     executor_ok::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the scheduler (cf-execd)";
+}
 
-    (!failsafe|verbose_mode).no_update::
+# This bundle is responsible for the reporting of what happened in the update
+# It can work because the classes defined during the update are persistent, so
+# the classes are available for the next 4 minutes
+bundle agent update_reports
+{
+  reports:
+    no_update::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
 
-    (!failsafe|verbose_mode).rudder_dependencies_update_error::
+    rudder_dependencies_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
 
-    (!failsafe|verbose_mode).rudder_promises_generated_error::
+    rudder_promises_generated_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
 
-    (!failsafe|verbose_mode).((rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update))::
+    (rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)::
       "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
 
-    (!failsafe|verbose_mode).rudder_dependencies_updated::
+    rudder_dependencies_updated::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Dependencies updated";
 
-    (!failsafe|verbose_mode).config::
+    config::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
 
-    (!failsafe|verbose_mode).(rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok)::
+    rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok::
       "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy or dependencies were updated or CFEngine service restarted";
 
-    (!failsafe|verbose_mode).policy_server::
+    policy_server::
       "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy server doesn't need to be updated";
 
-
-    (!failsafe|verbose_mode).(rudder_promises_generated_error|no_update)::
-				"*********************************************************************************
-* rudder-agent could not get an updated configuration from the policy server.   *
-* This can be caused by a network issue, an unavailable server, or if this      *
-* node was deleted from the Rudder root server.                                 *
-* Any existing configuration policy will continue to be applied without change. *
-*********************************************************************************";
 }
 
 
