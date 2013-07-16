@@ -87,7 +87,7 @@ bundle agent process_matching
     linux::
 
       # This is to cleanup /etc/crontab from pre-2.5 usage
-      # It can be removed before 2.6
+      # and initial promises before 2.7
       "${g.crontab}"
         edit_line => cron_cleanup;
 
@@ -117,7 +117,7 @@ bundle agent process_matching
 }
 
 # This is to cleanup /etc/crontab from pre-2.5 usage
-# It can be removed before 2.6
+# and initial promises before 2.7
 bundle edit_line cron_cleanup
 {
 
