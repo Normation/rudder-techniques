@@ -501,7 +501,7 @@ bundle edit_line insert_rudder_disclaimer
 {
   insert_lines:
 
-      "## File managed by Rudder - Edit with caution, some changes may disappear (especially passwords) ##"
+      "${rudder_parameters.rudder_file_edit_header}"
         location => start;
 
 }
