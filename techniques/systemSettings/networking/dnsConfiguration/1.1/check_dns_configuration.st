@@ -176,14 +176,7 @@ bundle edit_line resolv_edition(search, list, options)
       "options.*";
 
   insert_lines:
-
-"#############################################################
-### This file is protected by your Rudder infrastructure. ###
-### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server’s            ###
-### configuration and/or to raise a compliance alert.     ###
-#############################################################
-"
+      "${rudder_parameters.rudder_file_edit_header}"
         location => start,
         insert_type => "preserve_block";
 
