@@ -50,7 +50,7 @@ body classes rudder_common_classes(prefix)
 bundle edit_line rudder_common_disclaimer
 {
   insert_lines:
-      "${rudder_parameters.rudder_file_edit_header}";
+      "${rudder_parameters.rudder_file_edit_header}"
         location    => start,
         insert_type => "preserve_block";
 }
