@@ -100,7 +100,8 @@ manager, and eventually enforce them.
     <SECTION name="Repository settings">
       <INPUT>
         <NAME>APT_ADDREPOSITORIES</NAME>
-        <DESCRIPTION>Also add the corresponding source repositories</DESCRIPTION>
+        <DESCRIPTION>Also add the following package repositories</DESCRIPTION>
+        <LONGDESCRIPTION>Tick this box if you want to add/edit the package repositories apt uses.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -117,6 +118,7 @@ manager, and eventually enforce them.
         <INPUT>
           <NAME>APT_DISTRO_AUTODETECT</NAME>
           <DESCRIPTION>Automatically detect the distribution</DESCRIPTION>
+          <LONGDESCRIPTION>Tick this box to use the distribution's name (ie, squeeze, lenny, lucid, ...) as the "path" on this repository. This is the default usage for apt repositories, but you may want to specify a different name (ie, squeeze-backports, stable, ...)</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>boolean</TYPE>
           </CONSTRAINT>
@@ -229,6 +231,7 @@ manager, and eventually enforce them.
       <INPUT>
         <NAME>APT_DISABLEREPOSITORIES</NAME>
         <DESCRIPTION>Disable all other repositories than these (potentially dangerous)</DESCRIPTION>
+        <LONGDESCRIPTION>If you tick this box, Rudder will remove all repositories defined in apt's settings, and only add in the ones above. Use with caution!</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
