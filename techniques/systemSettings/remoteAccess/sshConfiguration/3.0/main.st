@@ -48,6 +48,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
       "rudder_openssh_server_startup_init_activation_command"
         string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
 
+    any::
       # Copy the list of Ports in the local bundle
       # This is mandatory because we cannot use remote slist in CFEngine 3.2
       "rudder_openssh_server_config_ports"
