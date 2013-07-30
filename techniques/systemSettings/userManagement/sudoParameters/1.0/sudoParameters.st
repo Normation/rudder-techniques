@@ -125,6 +125,13 @@ bundle agent check_sudo_parameters
 
 }
 
+# body used as workaround for http://www.rudder-project.org/redmine/issues/3618, sudoers must not be the last inserted
+body location sudoers_line_location
+{
+  before_after => "before";
+  select_line_matching => "# Comment to fix bug in CFEngine 3.4, see http://www.rudder-project.org/redmine/issues/3618";
+}
+
 bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId, force)
 {
 
@@ -195,12 +202,17 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
 		classes => always("replace_attempted_env_reset");
 
   insert_lines:
+
+      # We need to add a line and make CFEngine insert lines before that one.
+      "# Comment to fix bug in CFEngine 3.4, see http://www.rudder-project.org/redmine/issues/3618";
+
     replace_attempted_env_reset::
       "Defaults	env_reset";
 
     check_sudo_parameters_sudo_add_line_vars_defined::
       "${lines[${index}]}"
-        classes => kept_if_else("line_${index}_kept", "line_${index}_added", "line_${index}_add_failed");
+        classes => rudder_common_classes("line_${index}"),
+        location => sudoers_line_location;
 
   delete_lines:
 
@@ -217,14 +229,14 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "@@sudoParameters@@log_warn@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#Entry for ${${type}[${index}]} ${${name}[${index}]} is invalid (no command given), and has been ignored"
         ifvarclass => "!sudo_${index}_command_notempty.!sudo_${index}_alldo";
 
-      "@@sudoParameters@@result_repaired@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} has been handled"
-        ifvarclass => canonify("line_${index}_added");
-
       "@@sudoParameters@@result_success@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} is already present"
-        ifvarclass => canonify("line_${index}_kept");
+        ifvarclass => "line_${index}_kept.!line_${index}_repaired.!line_${index}_error";
+
+      "@@sudoParameters@@result_repaired@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} has been handled"
+        ifvarclass => "line_${index}_repaired.!line_${index}_error";
 
       "@@sudoParameters@@result_error@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} could not be handled"
-        ifvarclass => canonify("line_${index}_add_failed");
+        ifvarclass => "line_${index}_error";
 
     all_lines_defined.force.line_deleted::
 
