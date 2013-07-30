@@ -39,7 +39,7 @@ bundle agent process_matching
 
   classes:
 
-      "restart_cf" expression => "Hr05.Min00_05.!disable_agent";
+      "restart_cf" expression => "Hr05.Min00_05";
 
   processes:
 
