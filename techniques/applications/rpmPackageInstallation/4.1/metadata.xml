@@ -42,7 +42,7 @@ presence of a package, and if not met to enforce them.
   <TMLS>
     <TML name="rpmPackageInstallation"/>
     <TML name="rpmPackageInstallationData">
-      <OUTPATH>rpmPackageInstallation/4.0/rpmPackageInstallationData</OUTPATH>
+      <OUTPATH>rpmPackageInstallation/4.1/rpmPackageInstallationData</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
   </TMLS>
@@ -53,18 +53,6 @@ presence of a package, and if not met to enforce them.
   
   <SECTIONS>
     <SECTION name="ZMD process" component="true" />
-    <SECTION name="Check interval" component="false">
-      <INPUT>
-        <NAME>RPM_PACKAGE_CHECK_INTERVAL</NAME>
-        <DESCRIPTION>Check package statuses every (minutes)</DESCRIPTION>
-        <LONGDESCRIPTION>By default, check packages every 5 minutes. Increase this value to reduce load on managed nodes. Note that when any setting is changed for a host, package statuses will be checked immediately and this timer will be reset</LONGDESCRIPTION>
-        <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
-        <CONSTRAINT>
-          <DEFAULT>5</DEFAULT>
-          <TYPE>integer</TYPE>
-        </CONSTRAINT>
-      </INPUT>
-    </SECTION>
     <SECTION name="RHEL/CentOS/SuSE packages" multivalued="true" component="true" componentKey="RPM_PACKAGE_REDLIST">
       <!-- Redhat like related Section , index 1-->
       <INPUT>
@@ -94,7 +82,7 @@ presence of a package, and if not met to enforce them.
           <DEFAULT>add</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
-      <SECTION name="Package version" component="false">
+      <SECTION name="Package version" component="false" displayPriority="low">
         <SELECT1>
           <NAME>RPM_PACKAGE_VERSION_DEFINITION</NAME>
           <DESCRIPTION>Define package version to install</DESCRIPTION>
@@ -149,6 +137,18 @@ presence of a package, and if not met to enforce them.
           </CONSTRAINT>
         </INPUT>
       </SECTION>
+    <SECTION name="Check interval" component="false" displayPriority="low">
+      <INPUT>
+        <NAME>RPM_PACKAGE_CHECK_INTERVAL</NAME>
+        <DESCRIPTION>Check package statuses every (minutes)</DESCRIPTION>
+        <LONGDESCRIPTION>By default, check packages every 5 minutes. Increase this value to reduce load on managed nodes. Note that when any setting is changed for a host, package statuses will be checked immediately and this timer will be reset.</LONGDESCRIPTION>
+        <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
+        <CONSTRAINT>
+          <DEFAULT>5</DEFAULT>
+          <TYPE>integer</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
     </SECTION>
   </SECTIONS>
 
