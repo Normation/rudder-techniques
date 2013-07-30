@@ -45,6 +45,7 @@ bundle common va
     policy_server::
       "bs" slist => {
         "startExecution",
+        "check_disable_agent",
         "clean_red_button",
         "update",
         "set_red_button",
@@ -63,6 +64,7 @@ bundle common va
     !policy_server::
       "bs" slist => {
         "startExecution",
+        "check_disable_agent",
         "clean_red_button",
         "update",
         "set_red_button",
@@ -93,8 +95,6 @@ bundle common rudder_roles
       # Abort if no uuid is defined
       "should_not_continue" not => fileexists("${g.uuid_file}");
 
-      "disable_agent" expression => fileexists("${g.rudder_base}/etc/disable-agent");
-
       # Policy Server is a machine which delivers promises
       "policy_server" expression => strcmp("root","${g.uuid}");
       # Root Server is the top policy server machine
@@ -124,6 +124,35 @@ bundle agent endExecution
 * node was deleted from the Rudder root server.                                 *
 * Any existing configuration policy will continue to be applied without change. *
 *********************************************************************************";
+}
+
+##########################################################
+# Check for "disable-agent" file and cleanly stop and
+# warn about this if it is present
+##########################################################
+bundle agent check_disable_agent
+{
+  vars:
+      "components" slist => { "cf-serverd", "cf-execd", "cf-monitord" };
+
+  classes:
+      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
+
+      # Only define this class when we're ready to die - this is a special class name in "abortclasses"
+      "should_not_continue"
+        expression => "should_disable_agent",
+        ifvarclass => "abort_report_done";
+
+  processes:
+    should_disable_agent::
+      "${sys.workdir}/bin/${components}"
+        signals       => { "term", "kill" };
+
+  reports:
+    should_disable_agent::
+      "FATAL: The file ${g.rudder_disable_agent_file} is present. Rudder will kill all running daemons and halt immediately."
+        classes => if_ok("abort_report_done");
+
 }
 
 ##########################################################
@@ -288,12 +317,12 @@ bundle agent check_cf_processes
 
   commands:
 
-    start_server.!disable_agent::
+    start_server::
       "${sys.cf_serverd}"
         action  => u_ifwin_bg,
         classes => outcome("server");
 
-    start_executor.!disable_agent::
+    start_executor::
       "${sys.cf_execd}"
         action  => u_ifwin_bg,
         classes => outcome("executor");
@@ -311,9 +340,6 @@ bundle agent check_cf_processes
 
       "@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."
         ifvarclass => "${binaries}_has_gone_really_wild";
-
-    disable_agent::
-      "@@Common@@log_info@@hasPolicyServer-root@@common-root@@2@@Process checking@@None@@${g.execRun}##${g.uuid}@#The disable-agent configuration file is present, no CFEngine processes will be started";
 
 }
 

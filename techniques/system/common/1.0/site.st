@@ -43,6 +43,7 @@ bundle common g
 
     windows.!cygwin::
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
+      "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
 
     linux|cygwin::
       "rudder_base"                string => "/opt/rudder";
@@ -53,6 +54,7 @@ bundle common g
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_inventories"         string => "${rudder_var}/inventories";
       "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
+      "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
       "rudder_dependencies"        string => "/var/rudder/tools";
       "crontab"                    string => "/etc/crontab";
 
