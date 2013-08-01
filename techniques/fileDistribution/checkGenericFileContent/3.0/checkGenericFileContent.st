@@ -114,7 +114,7 @@ bundle agent check_generic_file_content
 
       # Replace the matching line(s) of the file by an empty line
       # if replacement is not set
-      ${generic_file_content_path[${index}]}"
+      "${generic_file_content_path[${index}]}"
         edit_line => set_arbitrary_file_content_modify("${generic_file_content_modification_regexp[${index}]}", ""),
         create => "true",
         classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_${index}"),
