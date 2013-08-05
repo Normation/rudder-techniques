@@ -123,19 +123,18 @@ bundle agent check_rpm_package_installation {
 			"@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_data[$(index_rpmpkg)][0])"
         ifvarclass => canonify("rpm_package_install_kept_${index_rpmpkg}");
 
-			# ZMD Process presence related reports
+    # ZMD Process presence related reports
+    (redhat|SuSE).!SuSE_10::
+      "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#ZMD process presence verification not necessary. Skipping ...";
 
-			"@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#ZMD process presence verification not necessary. Skipping ..."
-				ifvarclass => "!SuSE_10";
+    (redhat|SuSE).SuSE_10.!zmd_restart::
+      "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ...";
 
-			"@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
-				ifvarclass => "SuSE_10.!zmd_restart";
+    (redhat|SuSE).SuSE_10.zmd_restarted::
+      "@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted";
 
-			"@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
-				ifvarclass => "SuSE_10.zmd_restarted";
-
-			"@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
-				ifvarclass => "SuSE_10.could_not_restart_zmd";
+    (redhat|SuSE).SuSE_10.could_not_restart_zmd::
+      "@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart";
 
 }
 
