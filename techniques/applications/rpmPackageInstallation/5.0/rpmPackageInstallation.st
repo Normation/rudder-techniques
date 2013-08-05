@@ -44,35 +44,16 @@ bundle agent check_rpm_package_installation {
 
 		"index_rpmpkg" slist => getindices("rpm_package");
 
+    "classes_to_cancel_on_update" slist => { "rpm_package_installation_${index_rpmpkg}_kept", "rpm_package_installation_${index_rpmpkg}_repaired", "rpm_package_installation_${index_rpmpkg}_error", "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
+
 	classes:
 
 		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
 
     rudder_promises_generated_repaired::
-      "rpm_kept_classes_purged"
+      "check_rpm_package_installation_class_purged_${classes_to_cancel_on_update}"
         expression => "any",
-        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
-
-      "rpm_repaired_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
-
-      "rpm_error_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
-
-      "zmd_kept_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("zmd_kept");
-
-      "zmd_repaired_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("zmd_restarted");
-
-      "zmd_error_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("could_not_restart_zmd");
-        
+        classes => cancel_all_classes("${classes_to_cancel_on_update}");
 
 	processes:
 
@@ -97,8 +78,8 @@ bundle agent check_rpm_package_installation {
 			"$(rpm_package[$(index_rpmpkg)])"
 				package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
 				package_method  => generic_nobulk("30"),
-        classes => kept_if_else_persist("rpm_package_install_kept_${index_rpmpkg}", "rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "${rpm_package_check_interval}"),
-        ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installed_${index_rpmpkg}|rpm_package_install_failed_${index_rpmpkg}|rpm_package_install_kept_${index_rpmpkg})",
+        classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
+        ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
 				comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
 			"$(rpm_package[$(index_rpmpkg)])"
@@ -106,8 +87,8 @@ bundle agent check_rpm_package_installation {
 				package_method   => generic_nobulk("30"),
 				package_select   => "$(rpm_data[$(index_rpmpkg)][2])",
 				package_version  => "$(rpm_version[$(index_rpmpkg)])",
-        classes => kept_if_else_persist("rpm_package_install_kept_${index_rpmpkg}", "rpm_package_installed_${index_rpmpkg}", "rpm_package_install_failed_${index_rpmpkg}", "${rpm_package_check_interval}"),
-        ifvarclass => "${index_rpmpkg}_package_version_defined.!(rpm_package_installed_${index_rpmpkg}|rpm_package_install_failed_${index_rpmpkg}|rpm_package_install_kept_${index_rpmpkg})",
+        classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
+        ifvarclass => "${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
 				comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
 	reports:
@@ -115,13 +96,13 @@ bundle agent check_rpm_package_installation {
 		redhat|SuSE::
 
 			"@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Performed repair action for RPM package $(rpm_package[$(index_rpmpkg)]) to comply with policy: $(rpm_data[$(index_rpmpkg)][0])"
-        ifvarclass => canonify("rpm_package_installed_${index_rpmpkg}");
+        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_repaired");
 
 			"@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Error taking action for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_data[$(index_rpmpkg)][0])"
-        ifvarclass => canonify("rpm_package_install_failed_${index_rpmpkg}");
+        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_error");
 
 			"@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_data[$(index_rpmpkg)][0])"
-        ifvarclass => canonify("rpm_package_install_kept_${index_rpmpkg}");
+        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_kept");
 
     # ZMD Process presence related reports
     (redhat|SuSE).!SuSE_10::
@@ -140,9 +121,9 @@ bundle agent check_rpm_package_installation {
 
 body package_method generic_nobulk(rpm_pkg_timeout) {
 
-redhat::
 	package_changes => "individual";
 
+redhat::
 	package_list_command => "/usr/bin/yum list installed";
 	package_list_name_regex    => "([^.]+).*";
 	package_list_version_regex => "[^\s]\s+([^\s]+).*";
@@ -155,8 +136,6 @@ redhat::
 	package_verify_command => "/bin/rpm -V";
 
 SuSE_11::
-	package_changes => "individual";
-
 	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
 	package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
 	package_installed_regex => "i.*";
@@ -170,8 +149,6 @@ SuSE_11::
 	package_verify_command => "/usr/bin/zypper --non-interactive verify$";
 
 SuSE_10::
-	package_changes => "individual";
-
 	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
 	package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
 	package_installed_regex => "i.*";
