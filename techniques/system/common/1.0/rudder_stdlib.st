@@ -39,6 +39,22 @@ body classes rudder_common_classes(prefix)
         repair_timeout   => { "${prefix}_timeout", "${prefix}_error" };
 }
 
+#
+# Automatically defines classes bases on a given prefix
+# The classes are defined based on the promises outcome
+# Same as above but persist classes for ${persist} mins
+#
+body classes rudder_common_classes(prefix, persist)
+{
+        promise_kept     => { "${prefix}_kept" };
+        promise_repaired => { "${prefix}_repaired" };
+        repair_failed    => { "${prefix}_failed" , "${prefix}_error" };
+        repair_denied    => { "${prefix}_denied" , "${prefix}_error" };
+        repair_timeout   => { "${prefix}_timeout", "${prefix}_error" };
+
+        persist_time     => ${persist};
+}
+
 
 ##################################################
 # files bundles
