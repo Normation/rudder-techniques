@@ -44,7 +44,7 @@ body classes rudder_common_classes(prefix)
 # The classes are defined based on the promises outcome
 # Same as above but persist classes for ${persist} mins
 #
-body classes rudder_common_classes(prefix, persist)
+body classes rudder_common_classes_persist(prefix, persist)
 {
         promise_kept     => { "${prefix}_kept" };
         promise_repaired => { "${prefix}_repaired" };
