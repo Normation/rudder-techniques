@@ -64,13 +64,13 @@ It is intended to check the group parameters on the target host.
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
+      </INPUT>
       <INPUT>
         <NAME>USERGROUP_GROUP_GID</NAME>
         <DESCRIPTION>Group ID</DESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
-      </INPUT>
       </INPUT>
        <INPUT>
         <NAME>USERGROUP_GROUP_CONTENT</NAME>
