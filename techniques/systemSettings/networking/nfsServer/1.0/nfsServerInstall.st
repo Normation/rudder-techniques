@@ -27,14 +27,14 @@ bundle agent check_nfs_server_installation {
 		(debian|SuSE)::
 			"nfs-kernel-server"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("nfs_server_here", "nfs_server_installed", "cant_install_nfs_server"),
 				comment => "Installing NFS server using generic interface";
 
 		redhat::
 			"nfs-utils"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("nfs_server_here", "nfs_server_installed", "cant_install_nfs_server"),
 				comment => "Installing NFS server using generic interface";
 

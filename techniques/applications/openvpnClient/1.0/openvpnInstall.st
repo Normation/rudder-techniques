@@ -29,7 +29,7 @@ bundle agent check_openvpn_installation {
 		(debian|redhat)::
 			"openvpn"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
 				comment => "Installing openvpn using generic interface";
 

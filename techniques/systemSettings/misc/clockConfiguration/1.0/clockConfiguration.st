@@ -161,14 +161,14 @@ bundle agent check_clock_configuration {
 		debian:: 
 			"ntp"
 				package_policy  => "add",
-				package_method  => apt,
+				package_method  => rudder_apt,
 				classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
 				comment => "Installing ntp using apt";
 
 		redhat::
 			"ntp"
 				package_policy => "add",
-				package_method => generic,
+				package_method => rudder_generic,
 				classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
 				comment => "Installing ntp using yum";
 

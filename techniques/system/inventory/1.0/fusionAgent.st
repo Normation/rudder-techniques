@@ -136,14 +136,14 @@ bundle agent fusionAgent {
             xen.(redhat|centos|SuSE)::
             "xen"
                 package_policy => "add",
-                package_method => generic,
+                package_method => rudder_generic,
                 classes => cf2_if_else("xen_installed", "cant_install_xen"),
                 comment => "Installing xen package for extended data";
 
             xen.debian::
             "xenstore-utils"
                 package_policy => "add",
-                package_method => generic,
+                package_method => rudder_generic,
                 classes => cf2_if_else("xen_installed", "cant_install_xen"),
                 comment => "Installing xen package for extended data";
 

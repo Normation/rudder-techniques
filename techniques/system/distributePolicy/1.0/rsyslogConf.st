@@ -81,13 +81,13 @@ bundle agent install_rsyslogd {
                 policy_server.!debian_5.!SuSE::
                         "rsyslog"
                                 package_policy  => "add",
-                                package_method  => generic,
+                                package_method  => rudder_generic,
                                 classes => cf2_if_else("rsyslog_installed", "cant_install_rsyslog"),
                                 comment => "Installing rsyslog using apt backports";
 
                         "rsyslog-pgsql"
                                 package_policy  => "add",
-                                package_method  => generic,
+                                package_method  => rudder_generic,
                                 classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
                                 comment => "Installing rsyslog_pgsql using apt backports";
 
@@ -171,7 +171,7 @@ body package_method debian_backports {
 	debian::
 		package_changes => "bulk";
 		package_list_command => "/usr/bin/dpkg -l";
-		package_list_name_regex    => "ii\s+([^\s]+).*";
+		package_list_name_regex    => "ii\s+([^\s:]+).*";
 		package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
 		package_installed_regex => ".*"; # all reported are installed
 		package_name_convention => "$(name)";

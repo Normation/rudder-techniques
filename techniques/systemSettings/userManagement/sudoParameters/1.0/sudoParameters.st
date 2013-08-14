@@ -234,7 +234,7 @@ bundle agent check_sudo_installation(directiveId) {
 		linux::
 			"sudo"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("sudoconfiguration_sudo_install_kept", "sudoconfiguration_sudo_install_repaired", "sudoconfiguration_sudo_install_error"),
 				comment => "Installing sudo using generic interface";
 
