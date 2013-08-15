@@ -127,6 +127,15 @@ It is intended to check the user parameters on the target host.
         </CONSTRAINT>
       </INPUT>
       <INPUT>
+        <NAME>USERGROUP_USER_FORCE_LOCAL</NAME>
+        <DESCRIPTION>Force local user creation</DESCRIPTION>
+        <LONGDESCRIPTION>Force user local creation, helps when useradd cannot be used (Duplicate network user etc...) /!\ You must provide UID and GID to use this option</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
         <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
         <DESCRIPTION>Use the default home directory</DESCRIPTION>
         <CONSTRAINT>

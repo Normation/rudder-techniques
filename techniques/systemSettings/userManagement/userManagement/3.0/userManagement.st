@@ -42,6 +42,21 @@ bundle agent check_usergroup_user_parameters
     &USERGROUP_USER_ACTION:{action |"usergroup_user_action[&i&]" string => "&action&";
 }&
 
+    &USERGROUP_USER_SET_UID:{setuid |"usergroup_user_setuid[&i&]" string => "&setuid&";
+}&
+
+    &USERGROUP_USER_UID:{uid |"usergroup_user_uid[&i&]" string => "&uid&";
+}&
+
+    &USERGROUP_USER_SET_GID:{setgid |"usergroup_user_setgid[&i&]" string => "&setgid&";
+}&
+
+    &USERGROUP_USER_GID:{gid |"usergroup_user_gid[&i&]" string => "&gid&";
+}&
+
+    &USERGROUP_USER_FORCE_LOCAL:{forcelocal |"usergroup_user_forcelocal[&i&]" string => "&forcelocal&";
+}&
+
     &USERGROUP_USER_HOME_PERSONNALIZE:{homeperso |"usergroup_user_home_perso[&i&]" string => "&homeperso&";
 }&
 
@@ -94,6 +109,12 @@ bundle agent check_usergroup_user_parameters
       "usermanagement_user_checkpres_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","checkhere");
 
       "usermanagement_user_checkabs_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","checknothere");
+
+      "usermanagement_user_setuid_${usergroup_user_index}" expression => strcmp("${usergroup_user_setuid[${usergroup_user_index}]}","true");
+
+      "usermanagement_user_setgid_${usergroup_user_index}" expression => strcmp("${usergroup_user_setgid[${usergroup_user_index}]}","true");
+
+      "usermanagement_user_forcelocal_${usergroup_user_index}" expression => strcmp("${usergroup_user_forcelocal[${usergroup_user_index}]}","true");
 
       "usermanagement_user_pershome_${usergroup_user_index}" not => strcmp("${usergroup_user_home_perso[${usergroup_user_index}]}","true");
 
@@ -151,6 +172,19 @@ bundle agent check_usergroup_user_parameters
         comment => "Create the user",
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
+      # User creation if UID has been set
+      "/usr/sbin/useradd"
+        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -u ${usergroup_user_uid[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user",
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
+
+      "/usr/sbin/useradd"
+        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -u ${usergroup_user_uid[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user",
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+
       "/usr/sbin/userdel"
         args => "${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
@@ -170,12 +204,31 @@ bundle agent check_usergroup_user_parameters
         action => warn_only,
         ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
+      # Set default GID if account exists
+      "/etc/passwd"
+        create => "false",
+        edit_line => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 4, "${usergroup_user_gid[${usergroup_user_index}]}"),
+        action => warn_only,
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_setgid_${usergroup_user_index}";
+
       # Define password when user has already been created
       "/etc/shadow"
         create     => "false",
         edit_line  => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
         classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
         ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+
+      # Force user creation by modifying files directly
+      "/etc/passwd"
+      create => "false",
+      edit_line => append_or_change_user("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_login[${usergroup_user_index}]}:x:${usergroup_user_uid[${usergroup_user_index}]}:${usergroup_user_gid[${usergroup_user_index}]}:${usergroup_user_fullname[${usergroup_user_index}]}:${usergroup_user_home[${usergroup_user_index}]}:${usergroup_user_shell[${usergroup_user_index}]}"),
+      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}"; 
+
+      "/etc/shadow"
+      create => "false",
+      edit_line => append_or_change_passwd("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_login[${usergroup_user_index}]}:${usergroup_user_password[${usergroup_user_index}]}:::99999:7:::"),
+      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}"; 
+
 
   reports:
 
@@ -265,3 +318,24 @@ bundle edit_line set_user_fullname(user,user_index,fullname)
         classes => kept_if_else("usermanagement_fullname_edit_${user_index}_kept","usermanagement_fullname_edit_${user_index}_repaired","usermanagement_fullname_edit_${user_index}_error");
 
 }
+
+bundle edit_line append_or_change_user(user, user_string) {
+    delete_lines:
+        "^.*$(user).*";
+
+    insert_lines:
+        "$(user_string)",
+            comment => "Append users into a password file format",
+            classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error");
+}
+
+bundle edit_line append_or_change_passwd(user, pass_string) {
+    delete_lines:
+        "^.*$(user).*";
+
+    insert_lines:
+        "$(pass_string)"
+            comment => "Append user password in shadow file format",
+            classes => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}");
+}
+
