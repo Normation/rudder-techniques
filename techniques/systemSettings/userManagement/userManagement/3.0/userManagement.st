@@ -358,7 +358,7 @@ bundle agent force_create_user_homedir(home, uid, gid) {
     files:
         "$(home)/."
             create => "true",
-            perms => system("750", "$(uid)", "$(gid)");
+            perms => mog("750", "$(uid)", "$(gid)");
 
 }
 
