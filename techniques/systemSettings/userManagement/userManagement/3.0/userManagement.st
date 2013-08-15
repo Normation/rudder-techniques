@@ -164,13 +164,13 @@ bundle agent check_usergroup_user_parameters
         args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_setuid_${usergroup_user_index}";
 
       "/usr/sbin/useradd"
         args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}.!usermanagement_user_setuid_${usergroup_user_index}";
 
       # User creation if UID has been set
       "/usr/sbin/useradd"
@@ -208,7 +208,7 @@ bundle agent check_usergroup_user_parameters
       "/etc/passwd"
         create => "false",
         edit_line => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 4, "${usergroup_user_gid[${usergroup_user_index}]}"),
-        action => warn_only,
+        classes    => kept_if_else("usermanagement_user_gid_ok_${usergroup_user_index}", "usermanagement_user_gid_repaired_${usergroup_user_index}", "usermanagement_user_gid_failed_${usergroup_user_index}"),
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_setgid_${usergroup_user_index}";
 
       # Define password when user has already been created
@@ -321,6 +321,23 @@ bundle agent check_usergroup_user_parameters
       ## Change not needed (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"
         ifvarclass => "(!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}";
+
+      # GID handling
+      ## Is OK (Success)
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group is OK"
+        ifvarclass => "usermanagement_user_gid_ok_${usergroup_user_index}";
+
+      ## Has been changed (Repaired)
+      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group has been changed"
+        ifvarclass => "usermanagement_user_gid_repaired_${usergroup_user_index}";
+
+      ## Could not be changed (Error)
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group could NOT be changed !"
+        ifvarclass => "usermanagement_user_gid_failed_${usergroup_user_index}";
+
+      ## Change not needed (Success)
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group change is not required"
+        ifvarclass => "!usermanagement_user_gid_ok_${usergroup_user_index}.!usermanagement_user_gid_repaired_${usergroup_user_index}.!usermanagement_user_gid_failed_${usergroup_user_index}";
 
 }
 
