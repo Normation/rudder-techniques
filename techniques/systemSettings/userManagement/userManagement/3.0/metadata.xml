@@ -97,6 +97,21 @@ It is intended to check the user parameters on the target host.
         </CONSTRAINT>
       </SELECT1>
       <INPUT>
+        <NAME>USERGROUP_USER_SET_UID</NAME>
+        <DESCRIPTION>Set user ID ?</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_UID</NAME>
+        <DESCRIPTION>User ID</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
         <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
         <DESCRIPTION>Use the default home directory</DESCRIPTION>
         <CONSTRAINT>
