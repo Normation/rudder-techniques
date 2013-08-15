@@ -222,12 +222,12 @@ bundle agent check_usergroup_user_parameters
       "/etc/passwd"
       create => "false",
       edit_line => append_or_change_user("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_login[${usergroup_user_index}]}:x:${usergroup_user_uid[${usergroup_user_index}]}:${usergroup_user_gid[${usergroup_user_index}]}:${usergroup_user_fullname[${usergroup_user_index}]}:${usergroup_user_home[${usergroup_user_index}]}:${usergroup_user_shell[${usergroup_user_index}]}"),
-      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}"; 
+      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}"; 
 
       "/etc/passwd"
       create => "false",
       edit_line => append_or_change_user("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_login[${usergroup_user_index}]}:x:${usergroup_user_uid[${usergroup_user_index}]}:${usergroup_user_gid[${usergroup_user_index}]}:${usergroup_user_fullname[${usergroup_user_index}]}:/home/${usergroup_user_login[${usergroup_user_index}]}:${usergroup_user_shell[${usergroup_user_index}]}"),
-      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.!usermanagement_user_custom_home_defined_${usergroup_user_index}"; 
+      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}"; 
 
       "/etc/shadow"
       create => "false",
@@ -358,7 +358,7 @@ bundle agent force_create_user_homedir(home, uid, gid) {
     files:
         "$(home)/."
             create => "true",
-            perms => mog("750", "$(uid)", "$(gid)");
+            perms => mog("700", "$(uid)", "$(gid)");
 
 }
 
