@@ -222,12 +222,27 @@ bundle agent check_usergroup_user_parameters
       "/etc/passwd"
       create => "false",
       edit_line => append_or_change_user("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_login[${usergroup_user_index}]}:x:${usergroup_user_uid[${usergroup_user_index}]}:${usergroup_user_gid[${usergroup_user_index}]}:${usergroup_user_fullname[${usergroup_user_index}]}:${usergroup_user_home[${usergroup_user_index}]}:${usergroup_user_shell[${usergroup_user_index}]}"),
-      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}"; 
+      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}"; 
+
+      "/etc/passwd"
+      create => "false",
+      edit_line => append_or_change_user("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_login[${usergroup_user_index}]}:x:${usergroup_user_uid[${usergroup_user_index}]}:${usergroup_user_gid[${usergroup_user_index}]}:${usergroup_user_fullname[${usergroup_user_index}]}:/home/${usergroup_user_login[${usergroup_user_index}]}:${usergroup_user_shell[${usergroup_user_index}]}"),
+      ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.!usermanagement_user_custom_home_defined_${usergroup_user_index}"; 
 
       "/etc/shadow"
       create => "false",
       edit_line => append_or_change_passwd("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_login[${usergroup_user_index}]}:${usergroup_user_password[${usergroup_user_index}]}:::99999:7:::"),
       ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}"; 
+
+
+  # Call user homedir creation for locally forced accounts
+  methods:
+
+      "any" usebundle => force_create_user_homedir("${usergroup_user_home[${usergroup_user_index}]}", "${usergroup_user_uid[${usergroup_user_index}]}", "${usergroup_user_gid[${usergroup_user_index}]}"),
+        ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}";
+
+      "any" usebundle => force_create_user_homedir("/home/${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_uid[${usergroup_user_index}]}", "${usergroup_user_gid[${usergroup_user_index}]}"),
+        ifvarclass => "usermanagement_user_forcelocal_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
 
 
   reports:
@@ -337,5 +352,13 @@ bundle edit_line append_or_change_passwd(user, pass_string) {
         "$(pass_string)"
             comment => "Append user password in shadow file format",
             classes => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}");
+}
+
+bundle agent force_create_user_homedir(home, uid, gid) {
+    files:
+        "$(home)/."
+            create => "true";
+            perms => system("750", "$(uid)", "$(gid)"),
+
 }
 
