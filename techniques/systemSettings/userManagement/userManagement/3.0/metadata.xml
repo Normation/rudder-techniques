@@ -112,6 +112,21 @@ It is intended to check the user parameters on the target host.
         </CONSTRAINT>
       </INPUT>
       <INPUT>
+        <NAME>USERGROUP_USER_SET_GID</NAME>
+        <DESCRIPTION>Set user default group ID ?</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_GID</NAME>
+        <DESCRIPTION>Default group ID</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
         <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
         <DESCRIPTION>Use the default home directory</DESCRIPTION>
         <CONSTRAINT>
