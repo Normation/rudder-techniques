@@ -357,8 +357,8 @@ bundle edit_line append_or_change_passwd(user, pass_string) {
 bundle agent force_create_user_homedir(home, uid, gid) {
     files:
         "$(home)/."
-            create => "true";
-            perms => system("750", "$(uid)", "$(gid)"),
+            create => "true",
+            perms => system("750", "$(uid)", "$(gid)");
 
 }
 
