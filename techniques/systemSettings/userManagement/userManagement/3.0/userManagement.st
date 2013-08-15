@@ -114,6 +114,8 @@ bundle agent check_usergroup_user_parameters
 
       "usermanagement_user_setgid_${usergroup_user_index}" expression => strcmp("${usergroup_user_setgid[${usergroup_user_index}]}","true");
 
+      "usermanagement_user_group_exists_${usergroup_user_index}" expression => groupexists("${usergroup_user_gid[${usergroup_user_index}]}");
+
       "usermanagement_user_forcelocal_${usergroup_user_index}" expression => strcmp("${usergroup_user_forcelocal[${usergroup_user_index}]}","true");
 
       "usermanagement_user_pershome_${usergroup_user_index}" not => strcmp("${usergroup_user_home_perso[${usergroup_user_index}]}","true");
@@ -160,30 +162,54 @@ bundle agent check_usergroup_user_parameters
 
     linux.showtime::
 
+      # Default
       "/usr/sbin/useradd"
         args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_setuid_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_setuid_${usergroup_user_index}.!usermanagement_user_setgid_${usergroup_user_index}";
 
+      # Default + homedir
       "/usr/sbin/useradd"
         args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}.!usermanagement_user_setuid_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}.!usermanagement_user_setuid_${usergroup_user_index}.!usermanagement_user_setgid_${usergroup_user_index}";
 
-      # User creation if UID has been set
+      # Default + homedir + GID
+      "/usr/sbin/useradd"
+        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -g ${usergroup_user_gid[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user",
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}.!usermanagement_user_setuid_${usergroup_user_index}.usermanagement_user_setgid_${usergroup_user_index}.usermanagement_user_group_exists_${usergroup_user_index}";
+
+      # Default + UID
       "/usr/sbin/useradd"
         args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -u ${usergroup_user_uid[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_setgid_${usergroup_user_index}";
 
+      # Default + UID + GID
+      "/usr/sbin/useradd"
+        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -u ${usergroup_user_uid[${usergroup_user_index}]} -g ${usergroup_user_gid[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user",
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_setgid_${usergroup_user_index}.usermanagement_user_group_exists_${usergroup_user_index}";
+
+      # Default + UID + homedir
       "/usr/sbin/useradd"
         args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -u ${usergroup_user_uid[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}.!usermanagement_user_setgid_${usergroup_user_index}";
+
+      # Default + UID + homedir + GID
+      "/usr/sbin/useradd"
+        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -u ${usergroup_user_uid[${usergroup_user_index}]} -g ${usergroup_user_gid[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user",
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}.usermanagement_user_setgid_${usergroup_user_index}.usermanagement_user_group_exists_${usergroup_user_index}";
 
       "/usr/sbin/userdel"
         args => "${usergroup_user_login[${usergroup_user_index}]}",

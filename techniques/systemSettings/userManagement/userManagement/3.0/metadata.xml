@@ -122,6 +122,7 @@ It is intended to check the user parameters on the target host.
       <INPUT>
         <NAME>USERGROUP_USER_GID</NAME>
         <DESCRIPTION>Default group ID</DESCRIPTION>
+        <LONGDESCRIPTION>Must exists if you don't force user creation locally</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
