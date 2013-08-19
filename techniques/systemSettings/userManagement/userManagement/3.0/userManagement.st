@@ -237,6 +237,13 @@ bundle agent check_usergroup_user_parameters
         classes    => kept_if_else("usermanagement_user_gid_ok_${usergroup_user_index}", "usermanagement_user_gid_repaired_${usergroup_user_index}", "usermanagement_user_gid_failed_${usergroup_user_index}"),
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_setgid_${usergroup_user_index}";
 
+      # Enforce UID if user exists and setuid is checked
+      "/etc/passwd"
+        create => "false",
+        edit_line => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 3, "${usergroup_user_uid[${usergroup_user_index}]}"),
+        classes    => rudder_common_classes("usermanagement_user_uid_${usergroup_user_index}"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_setuid_${usergroup_user_index}";
+
       # Define password when user has already been created
       "/etc/shadow"
         create     => "false",
@@ -364,6 +371,23 @@ bundle agent check_usergroup_user_parameters
       ## Change not needed (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group change is not required"
         ifvarclass => "!usermanagement_user_gid_ok_${usergroup_user_index}.!usermanagement_user_gid_repaired_${usergroup_user_index}.!usermanagement_user_gid_failed_${usergroup_user_index}";
+
+      # UID handling
+      ## Is OK (Success)
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID is OK"
+        ifvarclass => "usermanagement_user_uid_${usergroup_user_index}_kept";
+
+      ## Has been changed (Repaired)
+      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID has been changed"
+        ifvarclass => "usermanagement_user_uid_${usergroup_user_index}_repaired";
+
+      ## Could not be changed (Error)
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID could NOT be changed !"
+        ifvarclass => "usermanagement_user_uid_${usergroup_user_index}_error";
+
+      ## Change not needed (Success)
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID change is not required"
+        ifvarclass => "!usermanagement_user_uid_${usergroup_user_index}_kept.!usermanagement_user_uid_${usergroup_user_index}_repaired.!usermanagement_user_uid_${usergroup_user_index}_error";
 
 }
 
