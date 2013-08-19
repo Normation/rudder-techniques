@@ -98,7 +98,7 @@ bundle agent update
 
     # The defined class are persistent, so if they are already set, promises has already been updated
     # a short while ago
-    rudder_promises_generated_repaired.!config.!config_ok.!root_server:: 
+    rudder_promises_generated_repaired.!root_server:: 
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
         depth_search => recurse("inf"),
