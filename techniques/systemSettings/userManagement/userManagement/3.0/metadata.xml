@@ -97,37 +97,6 @@ It is intended to check the user parameters on the target host.
         </CONSTRAINT>
       </SELECT1>
       <INPUT>
-        <NAME>USERGROUP_USER_SET_UID</NAME>
-        <DESCRIPTION>Set user ID ?</DESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>USERGROUP_USER_UID</NAME>
-        <DESCRIPTION>User ID</DESCRIPTION>
-        <CONSTRAINT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>USERGROUP_USER_SET_GID</NAME>
-        <DESCRIPTION>Set user default group ID ?</DESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>USERGROUP_USER_GID</NAME>
-        <DESCRIPTION>Default group ID</DESCRIPTION>
-        <LONGDESCRIPTION>Must exists if you don't force user creation locally</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
         <NAME>USERGROUP_USER_FORCE_LOCAL</NAME>
         <DESCRIPTION>Force local user creation</DESCRIPTION>
         <LONGDESCRIPTION>Force user local creation, helps when useradd cannot be used (Duplicate network user etc...) /!\ You must provide UID and GID to use this option</LONGDESCRIPTION>
@@ -159,6 +128,41 @@ It is intended to check the user parameters on the target host.
           <DEFAULT>/bin/bash</DEFAULT>
         </CONSTRAINT>
       </INPUT>
+      <SECTION name="User ID" component="true" componentKey="USERGROUP_USER_LOGIN">
+      <INPUT>
+        <NAME>USERGROUP_USER_SET_UID</NAME>
+        <DESCRIPTION>Set user ID ?</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_UID</NAME>
+        <DESCRIPTION>User ID</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      </SECTION>
+      <SECTION name="Group ID" component="true" componentKey="USERGROUP_USER_LOGIN">
+      <INPUT>
+        <NAME>USERGROUP_USER_SET_GID</NAME>
+        <DESCRIPTION>Set user default group ID ?</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_GID</NAME>
+        <DESCRIPTION>Default group ID</DESCRIPTION>
+        <LONGDESCRIPTION>Must exists if you don't force user creation locally</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      </SECTION>
       <SECTION name="Password" component="true" componentKey="USERGROUP_USER_LOGIN">
         <INPUT>
           <NAME>USERGROUP_USER_PASSWORD</NAME>

@@ -357,36 +357,36 @@ bundle agent check_usergroup_user_parameters
 
       # GID handling
       ## Is OK (Success)
-      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group is OK"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Group ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) Group ID is OK"
         ifvarclass => "usermanagement_user_gid_ok_${usergroup_user_index}";
 
       ## Has been changed (Repaired)
-      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group has been changed"
+      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@Group ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) Group ID has been changed"
         ifvarclass => "usermanagement_user_gid_repaired_${usergroup_user_index}";
 
       ## Could not be changed (Error)
-      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group could NOT be changed !"
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Group ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) Group ID could NOT be changed !"
         ifvarclass => "usermanagement_user_gid_failed_${usergroup_user_index}";
 
       ## Change not needed (Success)
-      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@DefaultGroup@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) default group change is not required"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Group ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) Group ID change is not required"
         ifvarclass => "!usermanagement_user_gid_ok_${usergroup_user_index}.!usermanagement_user_gid_repaired_${usergroup_user_index}.!usermanagement_user_gid_failed_${usergroup_user_index}";
 
       # UID handling
       ## Is OK (Success)
-      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID is OK"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@User ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID is OK"
         ifvarclass => "usermanagement_user_uid_${usergroup_user_index}_kept";
 
       ## Has been changed (Repaired)
-      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID has been changed"
+      "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@User ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID has been changed"
         ifvarclass => "usermanagement_user_uid_${usergroup_user_index}_repaired";
 
       ## Could not be changed (Error)
-      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID could NOT be changed !"
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@User ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID could NOT be changed !"
         ifvarclass => "usermanagement_user_uid_${usergroup_user_index}_error";
 
       ## Change not needed (Success)
-      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@UserID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID change is not required"
+      "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@User ID@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) UID change is not required"
         ifvarclass => "!usermanagement_user_uid_${usergroup_user_index}_kept.!usermanagement_user_uid_${usergroup_user_index}_repaired.!usermanagement_user_uid_${usergroup_user_index}_error";
 
 }
