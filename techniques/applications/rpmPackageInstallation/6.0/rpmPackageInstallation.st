@@ -160,6 +160,7 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
         package_name_convention => "${name}";
         package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
         package_add_command => "/usr/bin/yum -y install";
+        package_update_command => "/usr/bin/yum -y update";
         package_delete_command => "/bin/rpm -e";
         package_verify_command => "/bin/rpm -V";
 
