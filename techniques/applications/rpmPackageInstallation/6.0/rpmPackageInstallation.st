@@ -97,7 +97,7 @@ bundle agent check_rpm_package_installation {
                 package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
                 package_method  => generic_nobulk("30"),
                 package_select  => "==",
-                package_version => execresult("/usr/bin/yum list $(rpm_package[$(index_rpmpkg)]) | /bin/awk 'END {print $2}'","in_shell"),
+                package_version => execresult("/usr/bin/yum list $(rpm_package[$(index_rpmpkg)]) | /bin/awk 'END {print $2}'","useshell"),
                 classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
                 ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
                 comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
