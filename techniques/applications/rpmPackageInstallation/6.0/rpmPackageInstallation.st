@@ -49,8 +49,10 @@ bundle agent check_rpm_package_installation {
 
         "classes_to_cancel_on_update" slist => { "rpm_package_installation_${index_rpmpkg}_kept", "rpm_package_installation_${index_rpmpkg}_repaired", "rpm_package_installation_${index_rpmpkg}_error", "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
 
-        "arch" slist => { "x86_64" },
-            ifvarclass => "x86_64";
+        # To be able to update package to latest version, we need to first detect arch of installed package
+        redhat::
+            "tosplit[$(index_rpmpkg)]" string => execresult("/bin/rpm -q --qf '%{arch}\n' $(rpm_package[$(index_rpmpkg)])", "useshell");
+            "arch[$(index_rpmpkg)]" slist => splitstring("$(tosplit[$(index_rpmpkg)])", "\n", "10");
 
     classes:
 
@@ -58,6 +60,9 @@ bundle agent check_rpm_package_installation {
         }&
 
         "$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
+        "$(index_rpmpkg)_package_add_defined" expression => strcmp("$(rpm_data[$(index_rpmpkg)][0])", "add");
+        "$(index_rpmpkg)_package_update_defined" expression => strcmp("$(rpm_data[$(index_rpmpkg)][0])", "update");
+        "$(index_rpmpkg)_package_delete_defined" expression => strcmp("$(rpm_data[$(index_rpmpkg)][0])", "delete");
 
         rudder_promises_generated_repaired::
             "check_rpm_package_installation_class_purged_${classes_to_cancel_on_update}"
@@ -95,18 +100,29 @@ bundle agent check_rpm_package_installation {
                 classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
                 ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
                 comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
+
         redhat::
+            # Update only with latest version from package manager selected
             "$(rpm_package[$(index_rpmpkg)])"
                 package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
                 package_method  => yum_rpm_nobulk("30"),
                 package_select  => "==",
                 package_version => execresult("/usr/bin/yum list $(rpm_package[$(index_rpmpkg)]) | /bin/awk 'END {print $2}' | cut -f 2 -d :","useshell"),
-                package_architectures => { "$(arch)" },
+                package_architectures => { "@{arch[$(index_rpmpkg)]}" },
                 classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
-                ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
+                ifvarclass => "!${index_rpmpkg}_package_version_defined.$(index_rpmpkg)_package_update_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
+                comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_rpm, policy : $(rpm_data[$(index_rpmpkg)][0])";
+
+            # Add and delete friendly when version not defined
+            "$(rpm_package[$(index_rpmpkg)])"
+                package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
+                package_method  => yum_rpm_nobulk("30"),
+                classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
+                ifvarclass => "!${index_rpmpkg}_package_version_defined.!$(index_rpmpkg)_package_update_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
                 comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_rpm, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
         redhat|SuSE::
+            # Should be OK for Add, Update, Delete when version is defined
             "$(rpm_package[$(index_rpmpkg)])"
                 package_policy   => "$(rpm_data[$(index_rpmpkg)][0])",
                 package_method   => generic_nobulk("30"),
