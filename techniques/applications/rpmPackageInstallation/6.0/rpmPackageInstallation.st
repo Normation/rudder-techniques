@@ -114,6 +114,10 @@ bundle agent check_rpm_package_installation {
             "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action required for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_data[$(index_rpmpkg)][0])"
                 ifvarclass => "rpm_package_installation_${index_rpmpkg}_kept";
 
+            # Update seems to not be able to define classes in some non-update cases
+            "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@RHEL/CentOS/SuSE packages@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No action taken for RPM package $(rpm_package[$(index_rpmpkg)]) with policy: $(rpm_data[$(index_rpmpkg)][0])"
+                ifvarclass => "!rpm_package_installation_${index_rpmpkg}_kept.!rpm_package_installation_${index_rpmpkg}_repaired.!rpm_package_installation_${index_rpmpkg}_error";
+
             # Post hooks handling
             # Repaired
             "@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Successfully executed post hook ($(rpm_posthook[$(index_rpmpkg)]) for RPM package $(rpm_package[$(index_rpmpkg)])"
