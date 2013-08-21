@@ -49,6 +49,9 @@ bundle agent check_rpm_package_installation {
 
         "classes_to_cancel_on_update" slist => { "rpm_package_installation_${index_rpmpkg}_kept", "rpm_package_installation_${index_rpmpkg}_repaired", "rpm_package_installation_${index_rpmpkg}_error", "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
 
+        "arch" slist => { "x86_64" },
+            ifvarclass => "x86_64";
+
     classes:
 
         &RPM_PACKAGE_POST_HOOK_RUN:{run |"execute_command_&i0&" expression => strcmp("&run&", "true");
@@ -95,12 +98,13 @@ bundle agent check_rpm_package_installation {
         redhat::
             "$(rpm_package[$(index_rpmpkg)])"
                 package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
-                package_method  => generic_nobulk("30"),
+                package_method  => yum_rpm_nobulk("30"),
                 package_select  => "==",
-                package_version => execresult("/usr/bin/yum list $(rpm_package[$(index_rpmpkg)]) | /bin/awk 'END {print $2}'","useshell"),
+                package_version => execresult("/usr/bin/yum list $(rpm_package[$(index_rpmpkg)]) | /bin/awk 'END {print $2}' | cut -f 2 -d :","useshell"),
+                package_architectures => { "$(arch)" },
                 classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
                 ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
-                comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
+                comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_rpm, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
         redhat|SuSE::
             "$(rpm_package[$(index_rpmpkg)])"
@@ -130,20 +134,27 @@ bundle agent check_rpm_package_installation {
 
             # Post hooks handling
             # Repaired
-            "@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Successfully executed post hook ($(rpm_posthook[$(index_rpmpkg)]) for RPM package $(rpm_package[$(index_rpmpkg)])"
+            "@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Successfully executed post hook ($(rpm_posthook[$(index_rpmpkg)])) for RPM package $(rpm_package[$(index_rpmpkg)])"
                 ifvarclass => "rpm_posthook_${index_rpmpkg}_repaired";
 
             # Error
             "@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Error executing post hook ($(rpm_posthook[$(index_rpmpkg)])) for RPM package $(rpm_package[$(index_rpmpkg)])"
                 ifvarclass => "rpm_posthook_${index_rpmpkg}_error";
 
+            "@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#Can't executing post hook ($(rpm_posthook[$(index_rpmpkg)])) for RPM package $(rpm_package[$(index_rpmpkg)]) as policy $(rpm_data[$(index_rpmpkg)][0]) failed"
+                ifvarclass => "rpm_package_installation_${index_rpmpkg}_error";
+
             # Nothing because kept
             "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No post hook execution required for RPM package $(rpm_package[$(index_rpmpkg)])"
-                ifvarclass => "rpm_package_installation_${index_rpmpkg}_kept";
+                ifvarclass => "rpm_package_installation_${index_rpmpkg}_kept.execute_command_${index_rpmpkg}";
 
             # Nothing because no post hook set
             "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No post hook execution set for RPM package $(rpm_package[$(index_rpmpkg)])"
                 ifvarclass => "!execute_command_${index_rpmpkg}";
+
+            # Nothing because no because actually package_policy didn't return any class :(
+            "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No post hook execution happened for RPM package $(rpm_package[$(index_rpmpkg)]) as package promise result was incertain"
+                ifvarclass => "!rpm_package_installation_${index_rpmpkg}_kept.!rpm_package_installation_${index_rpmpkg}_repaired.!rpm_package_installation_${index_rpmpkg}_error.execute_command_${index_rpmpkg}";
 
 
     # ZMD Process presence related reports
@@ -204,5 +215,34 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
         package_delete_command => "/usr/bin/rug remove -y";
         package_update_command => "/usr/bin/rug update -y";
         package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+}
+
+body package_method yum_rpm_nobulk(rpm_pkg_timeout) {
+    package_changes => "individual";
+
+    package_list_command => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+    package_patch_list_command => "/usr/bin/yum --quiet check-update";
+
+    package_list_name_regex    => "^(\S+?)\s\S+?\s\S+$";
+    package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
+    package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
+
+    package_installed_regex => ".*";
+    package_name_convention => "$(name)";
+
+    # set it to "0" to avoid caching of list during upgrade
+    package_list_update_command => "/usr/bin/yum --quiet check-update";
+    package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
+
+    package_patch_installed_regex => "^\s.*";
+    package_patch_name_regex    => "([^.]+).*";
+    package_patch_version_regex => "[^\s]\s+([^\s]+).*";
+    package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
+
+    package_add_command    => "/usr/bin/yum -y install";
+    package_update_command => "/usr/bin/yum -y update";
+    package_patch_command => "/usr/bin/yum -y update";
+    package_delete_command => "/bin/rpm -e --allmatches";
+    package_verify_command => "/bin/rpm -V";
 }
 
