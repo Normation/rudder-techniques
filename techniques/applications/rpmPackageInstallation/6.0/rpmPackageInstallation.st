@@ -49,18 +49,13 @@ bundle agent check_rpm_package_installation {
 
         "classes_to_cancel_on_update" slist => { "rpm_package_installation_${index_rpmpkg}_kept", "rpm_package_installation_${index_rpmpkg}_repaired", "rpm_package_installation_${index_rpmpkg}_error", "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
 
-        # To be able to update package to latest version, we need to first detect arch of installed package
-        redhat::
-            "tosplit[$(index_rpmpkg)]" string => execresult("/bin/rpm -q --qf '%{arch}\n' $(rpm_package[$(index_rpmpkg)])", "useshell");
-            "arch[$(index_rpmpkg)]" slist => splitstring("$(tosplit[$(index_rpmpkg)])", "\n", "10");
-
     classes:
 
         &RPM_PACKAGE_POST_HOOK_RUN:{run |"execute_command_&i0&" expression => strcmp("&run&", "true");
         }&
 
-        "$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
-        "$(index_rpmpkg)_package_add_defined" expression => strcmp("$(rpm_data[$(index_rpmpkg)][0])", "add");
+        "$(index_rpmpkg)_package_version_defined" not       => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
+        "$(index_rpmpkg)_package_add_defined" expression    => strcmp("$(rpm_data[$(index_rpmpkg)][0])", "add");
         "$(index_rpmpkg)_package_update_defined" expression => strcmp("$(rpm_data[$(index_rpmpkg)][0])", "update");
         "$(index_rpmpkg)_package_delete_defined" expression => strcmp("$(rpm_data[$(index_rpmpkg)][0])", "delete");
 
@@ -102,17 +97,6 @@ bundle agent check_rpm_package_installation {
                 comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
         redhat::
-            # Update only with latest version from package manager selected
-            "$(rpm_package[$(index_rpmpkg)])"
-                package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
-                package_method  => yum_rpm_nobulk("30"),
-                package_select  => "==",
-                package_version => execresult("/usr/bin/yum list $(rpm_package[$(index_rpmpkg)]) | /bin/awk 'END {print $2}' | cut -f 2 -d :","useshell"),
-                package_architectures => { "@{arch[$(index_rpmpkg)]}" },
-                classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
-                ifvarclass => "!${index_rpmpkg}_package_version_defined.$(index_rpmpkg)_package_update_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
-                comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_rpm, policy : $(rpm_data[$(index_rpmpkg)][0])";
-
             # Add and delete friendly when version not defined
             "$(rpm_package[$(index_rpmpkg)])"
                 package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
@@ -131,6 +115,12 @@ bundle agent check_rpm_package_installation {
                 classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
                 ifvarclass => "${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
                 comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
+
+    # Calling the update policy when version not defined
+    methods:
+        redhat::
+            "any" usebundle => call_update("$(rpm_package[$(index_rpmpkg)])", "$(index_rpmpkg)"),
+                ifvarclass => "$(index_rpmpkg)_package_update_defined.!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)";
 
     reports:
 
@@ -168,7 +158,7 @@ bundle agent check_rpm_package_installation {
             "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No post hook execution set for RPM package $(rpm_package[$(index_rpmpkg)])"
                 ifvarclass => "!execute_command_${index_rpmpkg}";
 
-            # Nothing because no because actually package_policy didn't return any class :(
+            # Nothing because no because actually package_policy did not return any class :(
             "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No post hook execution happened for RPM package $(rpm_package[$(index_rpmpkg)]) as package promise result was incertain"
                 ifvarclass => "!rpm_package_installation_${index_rpmpkg}_kept.!rpm_package_installation_${index_rpmpkg}_repaired.!rpm_package_installation_${index_rpmpkg}_error.execute_command_${index_rpmpkg}";
 
@@ -186,6 +176,24 @@ bundle agent check_rpm_package_installation {
     (redhat|SuSE).SuSE_10.could_not_restart_zmd::
       "@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart";
 
+}
+
+bundle agent call_update(rpm_package, index_rpmpkg) {
+    vars:
+        # To be able to update package to latest version, we need to first detect arch of installed package
+        "tosplit" string => execresult("/bin/rpm -q --qf '%{arch}\n' $(rpm_package)", "useshell");
+        "arch" slist => splitstring("$(tosplit)", "\n", "10");
+
+    packages:
+        # Update only with latest version from package manager selected
+        "$(rpm_package)"
+            package_policy  => "update",
+            package_method  => yum_rpm_nobulk("30"),
+            package_select  => "==",
+            package_version => execresult("/usr/bin/yum list $(rpm_package) | /bin/awk 'END {print $2}' | cut -f 2 -d :","useshell"),
+            package_architectures => { "@{arch}" },
+            classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${check_rpm_package_installation.rpm_package_check_interval}"),
+            comment => "Handling $(rpm_package) using yum_rpm, policy : update";
 }
 
 body package_method generic_nobulk(rpm_pkg_timeout) {
