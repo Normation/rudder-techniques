@@ -85,14 +85,24 @@ bundle agent check_rpm_package_installation {
 
     packages:
 
-        redhat|SuSE::
+        SuSE::
             "$(rpm_package[$(index_rpmpkg)])"
                 package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
                 package_method  => generic_nobulk("30"),
                 classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
                 ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
                 comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
+        redhat::
+            "$(rpm_package[$(index_rpmpkg)])"
+                package_policy  => "$(rpm_data[$(index_rpmpkg)][0])",
+                package_method  => generic_nobulk("30"),
+                package_select  => "==",
+                package_version => execresult("/usr/bin/yum list $(rpm_package[$(index_rpmpkg)]) | /bin/awk 'END {print $2}'","in_shell"),
+                classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
+                ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
+                comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
 
+        redhat|SuSE::
             "$(rpm_package[$(index_rpmpkg)])"
                 package_policy   => "$(rpm_data[$(index_rpmpkg)][0])",
                 package_method   => generic_nobulk("30"),
@@ -156,17 +166,18 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
     package_changes => "individual";
 
     redhat::
-        package_list_command => "/usr/bin/yum list installed";
-        package_list_name_regex    => "([^.]+).*";
-        package_list_version_regex => "[^\s]\s+([^\s]+).*";
-        package_list_arch_regex    => "[^.]+\.([^\s]+).*";
-        package_installed_regex => ".*installed.*";
-        package_name_convention => "${name}";
+        package_list_command          => "/usr/bin/yum list installed";
+        package_list_name_regex       => "([^.]+).*";
+        package_list_version_regex    => "[^\s]\s+([^\s]+).*";
+        package_list_arch_regex       => "[^.]+\.([^\s]+).*";
+        package_installed_regex       => ".*installed.*";
+        package_name_convention       => "${name}";
         package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
-        package_add_command => "/usr/bin/yum -y install";
-        package_update_command => "/usr/bin/yum -y update";
-        package_delete_command => "/bin/rpm -e";
-        package_verify_command => "/bin/rpm -V";
+        package_add_command           => "/usr/bin/yum -y install";
+        package_update_command        => "/usr/bin/yum -y update";
+        package_patch_command         => "/usr/bin/yum -y update";
+        package_delete_command        => "/bin/rpm -e";
+        package_verify_command        => "/bin/rpm -V";
 
     SuSE_11::
         package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
