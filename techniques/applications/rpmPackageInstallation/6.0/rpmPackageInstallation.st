@@ -139,7 +139,7 @@ bundle agent check_rpm_package_installation {
 
             # Nothing because kept
             "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No post hook execution required for RPM package $(rpm_package[$(index_rpmpkg)])"
-                ifvarclass => "rpm_posthook_${index_rpmpkg}_kept";
+                ifvarclass => "rpm_package_installation_${index_rpmpkg}_kept";
 
             # Nothing because no post hook set
             "@@packageInstallation@@result_success@@$(rpm_data[$(index_rpmpkg)][3])@@Post-modification hook@@$(rpm_package[$(index_rpmpkg)])@@$(g.execRun)##$(g.uuid)@#No post hook execution set for RPM package $(rpm_package[$(index_rpmpkg)])"
