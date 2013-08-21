@@ -99,7 +99,7 @@ presence of a package, and if not met to enforce them.
           <NAME>RPM_PACKAGE_VERSION_DEFINITION</NAME>
           <DESCRIPTION>Define package version to install</DESCRIPTION>
           <ITEM>
-            <LABEL>Use package manager default version</LABEL>
+            <LABEL>Use package manager latest version</LABEL>
             <VALUE>default</VALUE>
           </ITEM>
           <ITEM>
