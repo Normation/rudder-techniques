@@ -109,18 +109,18 @@ bundle agent check_sudo_parameters {
 
 		sudoconfiguration_sudoers_copy_kept.!sudoconfiguration_sudoers_copy_repaired::
 
-			"@@sudoParameters@@result_success@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file did not require any modification";
+			"@@sudoParameters@@result_success@@$(sudo_directive_id[${sudo_index}])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file did not require any modification";
 
 		sudoconfiguration_sudoers_copy_repaired::
 
-			"@@sudoParameters@@result_repaired@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file was fixed and successfully updated";
+			"@@sudoParameters@@result_repaired@@$(sudo_directive_id[${sudo_index}])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file was fixed and successfully updated";
 
 		sudoconfiguration_sudoers_tmp_edit_error|sudoconfiguration_sudoers_copy_error|sudoconfiguration_sudoers_tmp_copy_error::
 
-			"@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file could NOT be edited!";
+			"@@sudoParameters@@result_error@@$(sudo_directive_id[${sudo_index}])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The sudoers file could NOT be edited!";
 
 		sudoconfiguration_sudoers_invalid::
-			"@@sudoParameters@@result_error@@$(sudo_directive_id[1])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
+			"@@sudoParameters@@result_error@@$(sudo_directive_id[${sudo_index}])@@sudoersFile@@None@@$(g.execRun)##$(g.uuid)@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
 
 }
 
