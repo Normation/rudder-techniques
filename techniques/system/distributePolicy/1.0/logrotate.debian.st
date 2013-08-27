@@ -3,18 +3,18 @@
         missingok
         rotate 30
         compress
-    notifempty
-    create 640 root adm
+        notifempty
+        create 640 root adm
         sharedscripts
         postrotate
-      if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
-        if [ -x /usr/sbin/invoke-rc.d ]; then
-          invoke-rc.d apache2 reload > /dev/null
-        else
-          /etc/init.d/apache2 reload > /dev/null
-        fi
-      fi
-    endscript
+          if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
+            if [ -x /usr/sbin/invoke-rc.d ]; then
+              invoke-rc.d apache2 reload > /dev/null
+            else
+              /etc/init.d/apache2 reload > /dev/null
+            fi
+          fi
+        endscript
 }
 
 /var/log/rudder/ldap/slapd.log {
@@ -23,7 +23,14 @@
         rotate 30
         compress
         notifempty
-    create 640 root adm
+        create 640 root adm
+        postrotate
+        if [ -x /usr/sbin/invoke-rc.d ]; then
+          invoke-rc.d rsyslog reload > /dev/null
+        else
+          /etc/init.d/rsyslog reload > /dev/null
+        fi
+        endscript
 }
 
 /var/log/rudder/reports/*.log {
@@ -32,7 +39,15 @@
         rotate 30
         compress
         notifempty
-    create 640 root adm
+        create 640 root adm
+        sharedscripts
+        postrotate
+        if [ -x /usr/sbin/invoke-rc.d ]; then
+          invoke-rc.d rsyslog reload > /dev/null
+        else
+          /etc/init.d/rsyslog reload > /dev/null
+        fi
+        endscript
 }
 
 /var/log/rudder/core/*.log {
@@ -41,7 +56,7 @@
         rotate 30
         compress
         notifempty
-    create 640 root adm
+        create 640 root adm
 }
 
 /var/log/rudder/compliance/non-compliant-reports.log {

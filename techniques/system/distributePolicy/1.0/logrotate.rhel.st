@@ -19,7 +19,7 @@
         notifempty
         create 640 root root
         postrotate
-          /etc/init.d/syslog reload > /dev/null
+          /etc/init.d/rsyslog reload > /dev/null
         endscript
 }
 
@@ -32,7 +32,7 @@
         create 640 root root
         sharedscripts
         postrotate
-          /etc/init.d/syslog reload > /dev/null
+          /etc/init.d/rsyslog reload > /dev/null
         endscript
 }
 
@@ -40,15 +40,6 @@
         daily
         missingok
         rotate 30
-        compress
-        notifempty
-        create 640 root root
-}
-
-/var/log/rudder/compliance/non-compliant-reports.log {
-        daily
-        missingok
-        rotate 365
         compress
         notifempty
         create 640 root root
