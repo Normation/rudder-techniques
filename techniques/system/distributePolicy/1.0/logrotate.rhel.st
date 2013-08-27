@@ -4,16 +4,10 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create 640 root root
         sharedscripts
         postrotate
-          if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
-            if [ -x /usr/sbin/invoke-rc.d ]; then
-              invoke-rc.d apache2 reload > /dev/null
-            else
-              /etc/init.d/apache2 reload > /dev/null
-            fi
-          fi
+          /etc/init.d/apache2 reload > /dev/null
         endscript
 }
 
@@ -23,13 +17,9 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create 640 root root
         postrotate
-        if [ -x /usr/sbin/invoke-rc.d ]; then
-          invoke-rc.d rsyslog reload > /dev/null
-        else
           /etc/init.d/rsyslog reload > /dev/null
-        fi
         endscript
 }
 
@@ -39,14 +29,10 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create 640 root root
         sharedscripts
         postrotate
-        if [ -x /usr/sbin/invoke-rc.d ]; then
-          invoke-rc.d rsyslog reload > /dev/null
-        else
           /etc/init.d/rsyslog reload > /dev/null
-        fi
         endscript
 }
 
@@ -56,5 +42,5 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create 640 root root
 }
