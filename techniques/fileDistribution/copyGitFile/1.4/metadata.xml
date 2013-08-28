@@ -134,6 +134,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>COPYFILE_SUID</NAME>
         <DESCRIPTION>Set SetUID bit?</DESCRIPTION>
+        <LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
         </CONSTRAINT>

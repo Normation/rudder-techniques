@@ -91,24 +91,30 @@ bundle agent download_from_shared_folder
     is_valid.iteration_2::
 
       "${copyfile[${index}][destination]}"
-        copy_from => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
+        copy_from    => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
         depth_search => recurse("${copyfile[${index}][recursion]}"),
-        perms => mog("${copyfile[${index}][perm]}"
-             , "${copyfile[${index}][owner]}"
-             , "${copyfile[${index}][group]}"),
-        comment => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
-        classes => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
-        ifvarclass => "!exist_${index}|!is_file_${index}";
+        perms        => mog(
+                            "${copyfile[${index}][perm]}",
+                            "${copyfile[${index}][owner]}",
+                            "${copyfile[${index}][group]}"
+                           ),
+        comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
+        classes      => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
+        ifvarclass   => "!exist_${index}|!is_file_${index}";
 
-    # If it's a file, the depth_search prevents from enforcing the file content
-    # Besides it is possible to specify suid or sgid only for a file
+    # If it s a file, the depth_search prevents from enforcing the file content
+    # Besides it is possible to specify suid or sgid only for a file since this
+    # is too dangerous to apply suid or sgid recursively and only copy an empty
+    # directory does not make sense.
       "${copyfile[${index}][destination]}"
-        copy_from => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
-        perms => mog("${extended_modes_${index}}${copyfile[${index}][perm]}"
-             , "${copyfile[${index}][owner]}"
-             , "${copyfile[${index}][group]}"),
-        comment => "Enforce content of file ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
-        classes => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
+        copy_from  => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
+        perms      => mog(
+                          "${extended_modes_${index}}${copyfile[${index}][perm]}",
+                          "${copyfile[${index}][owner]}",
+                          "${copyfile[${index}][group]}"
+                         ),
+        comment    => "Enforce content of file ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
+        classes    => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
         ifvarclass => "exist_${index}.is_file_${index}";
 
   commands:
