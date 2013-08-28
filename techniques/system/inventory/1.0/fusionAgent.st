@@ -409,8 +409,7 @@ bundle agent moveInventoryToFinalDestination
         copy_from => copy("${g.rudder_var_tmp}/inventory"),
         depth_search => recurse_visible(1),
         file_select => inventory_files,
-        comment => "Moving inventory files to the final location",
-        action => bg(30, 10);
+        comment => "Moving inventory files to the final location";
 
 }
 
