@@ -144,7 +144,7 @@ bundle agent fusionAgent {
                 comment => "Installing xen package for extended data";
 
 	commands:
-	    !android.linux.inventoryfoldercreated::
+	    (android|linux).inventoryfoldercreated::
 			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs",
 			classes => cf2_if_else("run_inventory", "inventory_failed"),
 			comment => "Generating inventory, in the temporary folder";
@@ -345,6 +345,7 @@ bundle agent addInformationsToInventory {
 		"android_name" string => "Android";
 		"android_version" string => execresult("/system/bin/getprop ro.build.version.release", "noshell");
 		"android_fullname" string => "Android $(android_version)";
+		"logdate" string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
 
   classes:
 
@@ -381,6 +382,9 @@ bundle agent addInformationsToInventory {
 			edit_line => add_information_to_android_inventory($(android_fullname), $(android_kernelname), $(android_kernelversion), $(android_name), $(android_version)),
 			edit_defaults => def_no_backup;
 
+		"${g.rudder_var_tmp}/inventory/.*.ocs"
+			edit_line => add_accesslog_to_android_inventory($(logdate)),
+			edit_defaults => def_no_backup;
 }
 
 
@@ -495,8 +499,21 @@ insert_lines:
 	android::
 
 		"<OPERATINGSYSTEM>$(const.n)<FULL_NAME>$(fullname)</FULL_NAME>$(const.n)<KERNEL_NAME>$(kernelname)</KERNEL_NAME>$(const.n)<KERNEL_VERSION>$(kernelversion)</KERNEL_VERSION>$(const.n)<NAME>$(name)</NAME>$(const.n)<VERSION>$(version)</VERSION>$(const.n)</OPERATINGSYSTEM>"
-			location => after_location("<CONTENTS>"),
+			location => after_location("<CONTENT>"),
 			comment => "Adding the list of OPERATINGSYSTEM part";
+
+}
+
+#this bundle is necessary for OCSInventory (but not for fusioninventory)
+bundle edit_line add_accesslog_to_android_inventory(logdate)
+{
+insert_lines:
+
+	android::
+
+		"<ACCESSLOG><LOGDATE>$(logdate)</LOGDATE></ACCESSLOG>"
+			location => after_location("</OPERATINGSYSTEM>"),
+			comment => "Adding log date";
 
 }
 

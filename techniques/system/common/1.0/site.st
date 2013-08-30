@@ -36,6 +36,7 @@ vars:
    "rudder_base_sbin_arg" string => "$(sys.winprogdir)\Rudder\sbin"; # for the installer command line
    "rudder_dependencies" string => "$(rudder_sbin)";
    "escaped_workdir" string => escape("$(sys.workdir)");
+   "rudder_curl" string => "$(rudder_base_sbin)\curl\curl.exe";
 
    # The time at which the execution started
    "execRun" string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
