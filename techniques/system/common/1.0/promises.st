@@ -41,11 +41,11 @@ body common control {
 bundle common va {
   vars:
     policy_server::
-    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "e2s_enable"
+    "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_uuid", "check_log_system", "check_rsyslog_version", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "e2s_enable"
      };
 
     !policy_server::
-      "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "check_log_system", "e2s_enable", "check_uuid"
+      "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "check_red_button_status", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness", "check_log_system", "check_rsyslog_version", "e2s_enable", "check_uuid"
      };
  
     any::
@@ -409,6 +409,65 @@ bundle agent check_log_system {
 	(syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired)::
     	"@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Logging system for report centralization is already correctly configured";
 } 
+
+#######################################################
+# Check the version of rsyslog, and correct the conf
+# file if > 5.7.1
+# This is done in another bundle than check_log_system
+# as it would make it too complex to read and maintain
+# (we would have needed to delay the restart of the services
+# at later iteration)
+
+bundle agent check_rsyslog_version {
+  classes:
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_dependencies}/check_rsyslog_version");
+      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
+    SuSE::
+      "syslog_restart_cmd" string => "/etc/init.d/syslog restart";
+
+    !SuSE::
+      "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
+
+  files:
+    rsyslogd.rsyslog_greater_than_5_7_1::
+      "/etc/rsyslog.d/remove_limit.conf"
+        edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
+        create    => "true",
+        comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
+        classes   => rudder_common_classes("rsyslog_limit");
+
+  commands:
+    rsyslogd.check_rsyslog_version_present::
+      "${g.rudder_dependencies}/check_rsyslog_version"
+        contain => in_shell,
+        module  => "true",
+        comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
+
+    rsyslog_limit_repaired::
+      "${syslog_restart_cmd}"
+        args => "restart",
+        classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
+        comment => "restarting rsyslog";
+   
+  reports:
+    rsyslogd.!check_rsyslog_version_present::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#The file  ${g.rudder_dependencies}/check_rsyslog_version is missing";
+
+    rsyslog_limit_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not remove limitation of message in rsyslog";
+
+    rsyslog_limit_repaired::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Updated the rsyslog configuration to remove limitation of messages";
+
+    rsyslog_restarted::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Configured logging system for report centralization";
+
+    cant_restart_rsyslog::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not restart the logging system";
+
+
+
+}
 
 #######################################################
 # Check if the cron daemon is running
