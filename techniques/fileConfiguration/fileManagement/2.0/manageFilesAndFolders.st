@@ -34,7 +34,7 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND:{cmd |"file[&i&][post_hook_command]" string => "&cmd&";
 }&
-		&FILE_AND_FOLDER_MANAGEMENT_SOURCE:{src |"file[&i&][source]" string => "&src&";
+		&FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE:{src |"file[&i&][source]" string => "&src&";
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_SYMLINK_ENFORCE:{symlink_enforced | "file[&i&][symlink_enforced]" string => "&symlink_enforced&";
 }&

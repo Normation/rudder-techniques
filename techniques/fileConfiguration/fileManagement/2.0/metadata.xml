@@ -78,7 +78,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			</CONSTRAINT>
 		</SELECT1>
 		<INPUT>
-			<NAME>FILE_AND_FOLDER_MANAGEMENT_SOURCE</NAME>
+		        <!-- We had to keep the name FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE so that people could migrate from previous version automatically-->
+			<NAME>FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE</NAME>
 			<DESCRIPTION>Source for symbolic link or local copy</DESCRIPTION>
 			<LONGDESCRIPTION>If a symbolic link is to be created or a local file copied, please specify its source here</LONGDESCRIPTION>
 			<CONSTRAINT>
