@@ -62,12 +62,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<LABEL>Create an empty directory</LABEL>
 			</ITEM>
 			<ITEM>
-				<VALUE>copy</VALUE>
-				<LABEL>Create local copy</LABEL>
-			</ITEM>
-			<ITEM>
 				<VALUE>symlink</VALUE>
 				<LABEL>Create a symbolic link</LABEL>
+			</ITEM>
+			<ITEM>
+			        <VALUE>copy</VALUE>
+			        <LABEL>Copy from local file</LABEL>
 			</ITEM>
 			<ITEM>
 				<VALUE>clean</VALUE>
@@ -79,8 +79,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		</SELECT1>
 		<INPUT>
 			<NAME>FILE_AND_FOLDER_MANAGEMENT_SOURCE</NAME>
-			<DESCRIPTION>Copy/symbolic link source</DESCRIPTION>
-			<LONGDESCRIPTION>If a local copy or symbolic link is to be created, please specify its source here</LONGDESCRIPTION>
+			<DESCRIPTION>Source for symbolic link or local copy</DESCRIPTION>
+			<LONGDESCRIPTION>If a symbolic link is to be created or a local file copied, please specify its source here</LONGDESCRIPTION>
 			<CONSTRAINT>
 				<MAYBEEMPTY>true</MAYBEEMPTY>
 			</CONSTRAINT>
