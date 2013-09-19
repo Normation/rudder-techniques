@@ -88,6 +88,11 @@ files:
             create  => "true",
             edit_line => cron_add;
 
+      # Temporary cron file added by rudder-agent postinst to prevent from UUID removal.
+      # When this promise will be generated, this cron will be useless then removed.
+      # (see http://www.rudder-project.org/redmine/issues/3925 and http://www.rudder-project.org/redmine/issues/3930).
+      "/etc/cron.d/rudder-agent-uuid" delete => tidy;
+
 reports:
 
   restart_cf::
