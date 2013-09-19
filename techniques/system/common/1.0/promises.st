@@ -568,13 +568,13 @@ bundle edit_line fix_syslogd(syslogd)
 {
     delete_lines:
 	any::
-            "^(local6)\s+(?!$(syslogd)).*",
+            "^(local6)\s+(?!$(syslogd)).*"
                 comment => "Delete missconfigured rudder syslogd destination";
 
     insert_lines:
 	any::
             "# Rudder specific logging parameters";
-            "local6.*						$(syslogd)",
+            "local6.*						$(syslogd)"
                 comment => "Add the rudder syslogd destination";
 }
 
