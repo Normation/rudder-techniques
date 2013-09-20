@@ -103,24 +103,24 @@ body server control {
     trustkeysfrom     => { 
         "127.0.0.0/8" , "::1", 
         @(def.acl) ,
-         &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+         &ALLOWCONNECT: { "&it&", }&
 &if(CLIENTSLIST)&
-         &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+         &POLICYCHILDREN: { "&it&"};separator=", "&
 &endif&
     }; #trustkey allows the exchange of keys
     allowconnects     => {
     	 @(def.acl) ,
-        &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+        &ALLOWCONNECT: { "&it&", }&
 &if(CLIENTSLIST)&
-        &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+        &POLICYCHILDREN: { "&it&"};separator=", "&
 &endif&
     };
 
     allowallconnects  => {
          @(def.acl) ,
-        &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+        &ALLOWCONNECT: { "&it&", }&
 &if(CLIENTSLIST)&
-        &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+        &POLICYCHILDREN: { "&it&"};separator=", "&
 &endif&
     };
 
