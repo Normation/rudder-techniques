@@ -446,6 +446,26 @@ insert_lines:
 }
 
 ###################################################
+# edit_line rudder_line_insertion
+###################################################
+
+bundle edit_line rudder_line_insertion(lines, location)
+{
+insert_lines:
+
+      "${lines}"
+        comment => "Adding line: ${lines}",
+        location => rudder_location_before_after("${location}");
+
+}
+
+#########################################################
+body location rudder_location_before_after(location)
+{
+        before_after => "${location}";
+}
+
+###################################################
 # edit_line replace_line
 ###################################################
 
