@@ -56,6 +56,25 @@ community_edition::
  	portnumber => "&COMMUNITYPORT&";
 }
 
+# This is an evolved version of copy_from scp that uses local copies if we are
+# running on a policy server instead of copying from a localhost remote blindly.
+body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
+
+    source   => "$(from)";
+
+    compare  => "$(compare)";
+    encrypt  => "true";
+    verify   => "true";
+    trustkey => "${trustkey}";
+    preserve => "${preserve}"; # Preserve the permissions
+    purge    => "${purge}";
+
+  !is_policy_server::
+    servers  => { "${server}" };
+
+  community_edition::
+    portnumber => "&COMMUNITYPORT&";
+}
 
 body copy_from copy(from) {
 	source => "$(from)";
