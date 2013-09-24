@@ -25,6 +25,12 @@ bundle agent download_from_shared_folder
                 &COPYFILE_NAME:{name |"copyfile[&i&][name]" string => "&name&";
 }&
 
+                &COPYFILE_EXCLUDE_INCLUDE:{exclude_include |"copyfile[&i&][exclude_include]" string => "&exclude_include&";
+}&
+
+                &COPYFILE_EXCLUDE_INCLUDE_OPTION:{exclude_include_option |"copyfile[&i&][exclude_include_option]" string => "&exclude_include_option&";
+}&
+
                 &COPYFILE_RECURSION:{rec |"copyfile[&i&][recursion]" string => "&rec&";
 }&
 
@@ -72,13 +78,17 @@ bundle agent download_from_shared_folder
   classes:
       "is_valid" not => strcmp("&SHARED_FILES_FOLDER&", "");
 
-      "is_file_${index}" not => isdir("${copyfile[${index}][destination]}");
-      "exist_${index}" expression => fileexists("${copyfile[${index}][destination]}");
+      "is_file_${index}" not        => isdir("${copyfile[${index}][destination]}");
+      "exist_${index}" expression   => fileexists("${copyfile[${index}][destination]}");
+      "need_exclusion_${index}" and => { isvariable("copyfile[${index}][exclude_include]"), strcmp("${copyfile[${index}][exclude_include_option]}", "exclude") };
+      "need_inclusion_${index}" and => { isvariable("copyfile[${index}][exclude_include]"), strcmp("${copyfile[${index}][exclude_include_option]}", "include") };
+      "apply_regex_${index}"    or  => { "need_exclusion_${index}", "need_inclusion_${index}"};
 
                 &COPYFILE_SUID:{suid |"enable_suid_&i&" expression => strcmp("&suid&", "true");
 }&
                 &COPYFILE_SGID:{sgid |"enable_sgid_&i&" expression => strcmp("&sgid&", "true");
 }&
+
                 # Set a class to define when we need to run the post-modification hook
                 &COPYFILE_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
 }&
@@ -90,9 +100,24 @@ bundle agent download_from_shared_folder
   files:
     is_valid.iteration_2::
 
+      # If it's a directory, without exclusion
+      "$(copyfile[$(index)][destination])"
+        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/$(copyfile[$(index)][name])", "$(server_info.cfserved)", "$(copyfile[$(index)][compare_method])", "false", "false", "false"),
+        depth_search => recurse("$(copyfile[$(index)][recursion])"),
+        perms        => mog(
+                            "$(copyfile[$(index)][perm])",
+                            "$(copyfile[$(index)][owner])",
+					        "$(copyfile[$(index)][group])"
+                           ),
+        comment      => "Enforce content of $(copyfile[$(index)][destination]) based on the content on the Rudder server with $(copyfile[$(index)][compare_method]) method",
+        classes      => kept_if_else("copy_file_$(index)_kept", "copy_file_$(index)_modified", "copy_file_$(index)_failed"),
+        ifvarclass   => "(!exist_$(index)|!is_file_$(index)).!apply_regex_${index}";
+
+       # If it's a directory, with exclusion
       "${copyfile[${index}][destination]}"
         copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
         depth_search => recurse("${copyfile[${index}][recursion]}"),
+        file_select  => exclude("${copyfile[${index}][exclude_include]}"),
         perms        => mog(
                             "${copyfile[${index}][perm]}",
                             "${copyfile[${index}][owner]}",
@@ -100,7 +125,21 @@ bundle agent download_from_shared_folder
                            ),
         comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
         classes      => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
-        ifvarclass   => "!exist_${index}|!is_file_${index}";
+        ifvarclass   => "(!exist_${index}|!is_file_${index}).need_exclusion_${index}";
+
+       # If it's a directory, with inclusion
+      "${copyfile[${index}][destination]}"
+        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
+        depth_search => recurse("${copyfile[${index}][recursion]}"),
+        file_select  => by_name("${copyfile[${index}][exclude_include]}"),
+        perms        => mog(
+                            "${copyfile[${index}][perm]}",
+                            "${copyfile[${index}][owner]}",
+                            "${copyfile[${index}][group]}"
+                           ),
+        comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method with inclusion of '${copyfile[${index}][exclude_include]}'",
+        classes      => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
+        ifvarclass   => "(!exist_${index}|!is_file_${index}).need_inclusion_${index}";
 
     # If it s a file, the depth_search prevents from enforcing the file content
     # Besides it is possible to specify suid or sgid only for a file since this
@@ -113,16 +152,16 @@ bundle agent download_from_shared_folder
                           "${copyfile[${index}][owner]}",
                           "${copyfile[${index}][group]}"
                          ),
-        comment    => "Enforce content of file ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
+        comment    => "Enforce content of file ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method with exclusion of '${copyfile[${index}][exclude_include]}'",
         classes    => kept_if_else("copy_file_${index}_kept", "copy_file_${index}_modified", "copy_file_${index}_failed"),
         ifvarclass => "exist_${index}.is_file_${index}";
 
   commands:
       "${copyfile[${index}][posthook]}"
-        contain => in_shell,
-        classes => if_else("copyfile_posthook_${index}_command_run_ok", "copyfile_posthook_${index}_command_run_failed"),
+        contain    => in_shell,
+        classes    => if_else("copyfile_posthook_${index}_command_run_ok", "copyfile_posthook_${index}_command_run_failed"),
         ifvarclass => "execute_command_${index}.copy_file_${index}_modified.!copy_file_${index}_failed",
-        comment => "Execute the posthook command if a file was changed";
+        comment    => "Execute the posthook command if a file was changed";
 
   reports:
     !is_valid::

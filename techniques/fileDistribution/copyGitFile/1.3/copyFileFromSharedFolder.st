@@ -62,12 +62,11 @@ bundle agent download_from_shared_folder
                 &COPYFILE_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
 }&
 
-
   files:
     is_valid::
 
       "${copyfile[${index}][destination]}"
-        copy_from => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
+        copy_from => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
         depth_search => recurse("${copyfile[${index}][recursion]}"),
         perms => mog("${copyfile[${index}][perm]}"
              , "${copyfile[${index}][owner]}"
@@ -78,7 +77,7 @@ bundle agent download_from_shared_folder
 
     # If it's a file, the depth_search prevents from enforcing the file content
       "${copyfile[${index}][destination]}"
-        copy_from => scp("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
+        copy_from => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
         perms => mog("${copyfile[${index}][perm]}"
              , "${copyfile[${index}][owner]}"
              , "${copyfile[${index}][group]}"),

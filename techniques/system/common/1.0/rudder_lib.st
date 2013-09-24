@@ -60,6 +60,26 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge)
         portnumber => "&COMMUNITYPORT&";
 }
 
+# This is an evolved version of copy_from scp that uses local copies if we are
+# running on a policy server instead of copying from a localhost remote blindly.
+body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
+
+    source   => "$(from)";
+
+    compare  => "$(compare)";
+    encrypt  => "true";
+    verify   => "true";
+    trustkey => "${trustkey}";
+    preserve => "${preserve}"; # Preserve the permissions
+    purge    => "${purge}";
+
+  !is_policy_server::
+    servers  => { "${server}" };
+
+  community_edition::
+    portnumber => "&COMMUNITYPORT&";
+}
+
 body copy_from copy(from)
 {
         source      => "${from}";
@@ -451,6 +471,26 @@ bundle edit_line prepend(lines)
         comment  => "Prepending line: ${lines}",
         location => start;
 
+}
+
+###################################################
+# edit_line rudder_line_insertion
+###################################################
+
+bundle edit_line rudder_line_insertion(lines, location)
+{
+insert_lines:
+
+      "${lines}"
+        comment => "Adding line: ${lines}",
+        location => rudder_location_before_after("${location}");
+
+}
+
+#########################################################
+body location rudder_location_before_after(location)
+{
+        before_after => "${location}";
 }
 
 ###################################################
