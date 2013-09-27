@@ -108,7 +108,7 @@ bundle agent sendInventoryToCmdb
     root_server::
 
       "${g.rudder_inventories}/${inventory_folders}"
-        transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/",
+        transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
         classes => rudder_common_classes("rudder_inventory_processing"),
