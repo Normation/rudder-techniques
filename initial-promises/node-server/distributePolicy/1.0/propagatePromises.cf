@@ -85,19 +85,18 @@ bundle agent sendInventoryToCmdb
     root_server::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "${g.rudder_dependencies}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/",
+        transformer => "${g.rudder_dependencies}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
         classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
         comment => "Sending the inventory to the cmdb";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "${g.rudder_dependencies}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/",
+        transformer => "${g.rudder_dependencies}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
         classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
         comment => "Sending the inventory to the cmdb";
-
 
 # NEED TO DO THE RSYNC PART
 

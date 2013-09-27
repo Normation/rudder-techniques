@@ -26,6 +26,8 @@ fi
 SERVER=$1
 FILENAME=$2
 ARCHIVEDIR=$3
+FAILEDDIR=$4
+BASENAME=$(basename ${2})
 CURL_BINARY="/usr/bin/curl"
 
 # Attempt to send the file
@@ -34,6 +36,7 @@ SEND_COMMAND_RET=$?
 
 # Abort if sending failed
 if [ ${SEND_COMMAND_RET} -ne 0 ]; then
+	mv "${FILENAME}" "${FAILEDDIR}/${BASENAME}-$(date --rfc-3339=date)"
 	exit ${SEND_COMMAND_RET}
 fi
 
