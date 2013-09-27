@@ -419,14 +419,16 @@ bundle agent check_log_system {
 # at later iteration)
 
 bundle agent check_rsyslog_version {
-  classes:
-      "check_rsyslog_version_present" expression => fileexists("${g.rudder_dependencies}/check_rsyslog_version");
-      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
+  vars:
     SuSE::
       "syslog_restart_cmd" string => "/etc/init.d/syslog restart";
 
     !SuSE::
       "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
+
+  classes:
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_dependencies}/check_rsyslog_version");
+      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
   files:
     rsyslogd.rsyslog_greater_than_5_7_1::
