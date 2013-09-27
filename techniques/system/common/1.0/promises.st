@@ -441,6 +441,67 @@ bundle agent check_log_system
 }
 
 #######################################################
+# Check the version of rsyslog, and correct the conf
+# file if > 5.7.1
+# This is done in another bundle than check_log_system
+# as it would make it too complex to read and maintain
+# (we would have needed to delay the restart of the services
+# at later iteration)
+
+bundle agent check_rsyslog_version {
+  vars:
+    SuSE::
+      "syslog_restart_cmd" string => "/etc/init.d/syslog restart";
+
+    !SuSE::
+      "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
+
+  classes:
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_dependencies}/check_rsyslog_version");
+      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
+
+  files:
+    rsyslogd.rsyslog_greater_than_5_7_1::
+      "/etc/rsyslog.d/remove_limit.conf"
+        edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
+        create    => "true",
+        comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
+        classes   => rudder_common_classes("rsyslog_limit");
+
+  commands:
+    rsyslogd.check_rsyslog_version_present::
+      "${g.rudder_dependencies}/check_rsyslog_version"
+        contain => in_shell,
+        module  => "true",
+        comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
+
+    rsyslog_limit_repaired::
+      "${syslog_restart_cmd}"
+        args => "restart",
+        classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
+        comment => "restarting rsyslog";
+   
+  reports:
+    rsyslogd.!check_rsyslog_version_present::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#The file  ${g.rudder_dependencies}/check_rsyslog_version is missing";
+
+    rsyslog_limit_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not remove limitation of message in rsyslog";
+
+    rsyslog_limit_repaired::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Updated the rsyslog configuration to remove limitation of messages";
+
+    rsyslog_restarted::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Configured logging system for report centralization";
+
+    cant_restart_rsyslog::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not restart the logging system";
+
+
+
+}
+
+#######################################################
 # Check if the cron daemon is running
 # This only works with unix flavoured systems too
 
