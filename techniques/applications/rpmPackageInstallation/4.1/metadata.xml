@@ -82,7 +82,7 @@ presence of a package, and if not met to enforce them.
           <DEFAULT>add</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
-      <SECTION name="Package version" component="false" displayPriority="low">
+      <SECTION name="Package version" component="false">
         <SELECT1>
           <NAME>RPM_PACKAGE_VERSION_DEFINITION</NAME>
           <DESCRIPTION>Define package version to install</DESCRIPTION>
@@ -137,7 +137,7 @@ presence of a package, and if not met to enforce them.
           </CONSTRAINT>
         </INPUT>
       </SECTION>
-    <SECTION name="Check interval" component="false" displayPriority="low">
+    <SECTION name="Check interval" component="false">
       <INPUT>
         <NAME>RPM_PACKAGE_CHECK_INTERVAL</NAME>
         <DESCRIPTION>Check package statuses every (minutes)</DESCRIPTION>
