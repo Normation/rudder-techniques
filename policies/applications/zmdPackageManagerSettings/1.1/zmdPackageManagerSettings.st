@@ -1,0 +1,259 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+######################################################
+# Configures the RUG/YaST Package Managers using ZMD #
+######################################################
+
+bundle agent check_zmd_settings {
+
+	vars:
+
+		proxy_edit::
+
+			"zmdconf[Network][proxy-url]" string => "&ZMD_PROXY_URL&";
+
+		proxy_edit_user::
+
+			"zmdconf[Network][proxy-username]" string => "&ZMD_PROXY_USER&";
+
+		proxy_edit_password::
+
+			"zmdconf[Network][proxy-password]" string => "&ZMD_PROXY_PASSWORD&";
+
+		class_ok::
+
+		&ZMD_URL:{zmd_url |"zmd_url[&i&]" string => "&zmd_url&";
+}&
+		&ZMD_NAME:{zmd_name |"zmd_name[&i&]" string => "&zmd_name&";
+}&
+		&ZMD_REPOSITORY_KEY_NAME:{zmd_repository_key_name |"zmd_repository_key_name[&i&]" string => "&zmd_repository_key_name&";
+}&
+		&ZMD_REPOSITORY_KEY_ID:{zmd_repository_key_id |"zmd_repository_key_id[&i&]" string => "&zmd_repository_key_id&";
+}&
+		&ZMD_REPOSITORY_KEY_FINGERPRINT:{zmd_repository_key_fingerprint |"zmd_repository_key_fingerprint[&i&]" string => "&zmd_repository_key_fingerprint&";
+}&
+		"zmd_index" slist => getindices("zmd_url");
+
+&if(ZMD_SET_REFRESH_INTERVAL)&
+		"zmdconf[Server][refresh-interval]" string => "&ZMD_REFRESH_INTERVAL&";
+&endif&
+		"zmdconf[Advanced][security-level]" string => "&ZMD_SOURCEPOLICY&";
+
+		"zmdconf[Server][remote-enabled]" string => "&ZMD_REMOTE_ENABLED&";
+
+		"zmdconf[Debug][syslog-level]" string => "&ZMD_SYSLOG_LEVEL&";
+
+		"zmd_sections" slist => getindices("zmdconf");
+
+	classes:
+
+		# Repositories edition ?
+		"zmd_repositories_edit" not => strcmp("&ZMD_ADDREPOSITORIES&","false");
+
+		# Add a key for repository ?
+		"zmd_repository_key_need_to_be_added_${zmd_index}"   and => { strcmp("&ZMD_ADDREPOSITORYKEY&","true"), "zmd_repository_key_name_filled", "zmd_repository_key_id_filled", "zmd_repository_key_fingerprint_filled" };
+		# Are keys values filled ?
+		"zmd_repository_key_name_filled"        not => strcmp("&ZMD_REPOSITORY_KEY_NAME&", "");
+		"zmd_repository_key_id_filled"          not => strcmp("&ZMD_REPOSITORY_KEY_ID&", "");
+		"zmd_repository_key_fingerprint_filled" not => strcmp("&ZMD_REPOSITORY_KEY_FINGERPRINT&", "");
+
+		# Disable repositories ?
+		"zmd_disablerepositories" not => strcmp("&ZMD_DISABLEREPOSITORIES&","false");
+
+		# Is the checkzmd script present ?
+		"checkzmd_present" expression => fileexists("${g.rudder_dependencies}/checkzmd.pl");
+
+		# Is the check_zmd_keys script present ?
+		"check_zmd_keys_present" expression => fileexists("${g.rudder_dependencies}/check_zmd_keys.pl");
+
+		# Do we want to set the proxy ?
+		"proxy_edit" not => strcmp("&ZMD_PROXY_URL&", "");
+
+		# Do we want to set the proxy username ?
+		"proxy_edit_user" not => strcmp("&ZMD_PROXY_USER&", "");
+
+		# Do we want to set the proxy username ?
+		"proxy_edit_password" not => strcmp("&ZMD_PROXY_PASSWORD&", "");
+
+		"class_ok" expression => strcmp("true", "true");
+
+		"showtime" expression => isvariable("zmd_sections");
+
+	processes:
+
+		"/usr/lib/zmd/zmd.exe"
+			restart_class => "zmd_restart";
+
+	commands:
+
+		showtime.SuSE.checkzmd_present::
+
+			"${g.rudder_dependencies}/checkzmd.pl \"$(zmd_name[$(zmd_index)])\" \"$(zmd_url[$(zmd_index)])\" $(zmd_index)"
+				contain => in_shell,
+				module => "true",
+				comment => "Analyzing ZMD's output";
+
+		showtime.SuSE.zmd_repositories_edit::
+
+			# Check repository keys if script present and if Key has been specified
+			"${g.rudder_dependencies}/check_zmd_keys.pl \"${zmd_repository_key_name[${zmd_index}]}\" \"${zmd_repository_key_id[${zmd_index}]}\" \"${zmd_repository_key_fingerprint[${zmd_index}]}\" ${zmd_index}"
+				contain    => in_shell,
+				module     => "true",
+				ifvarclass => "check_zmd_keys_present.zmd_repository_key_need_to_be_added_${zmd_index}",
+				comment    => "Check existence of ${zmd_name[${zmd_index}]} repository key";
+
+			# Add repository key if verification has confirm its creation and before to add repository (otherwise, the add will fail)
+			"/usr/bin/rug"
+				args       => "ka \"${zmd_repository_key_name[${zmd_index}]}\" \"${zmd_repository_key_id[${zmd_index}]}\" \"${zmd_repository_key_fingerprint[${zmd_index}]}\"",
+				ifvarclass => "key_${zmd_index}_not_matched",
+				classes    => kept_if_else("zmd_repository_key_add_${zmd_index}_kept", "zmd_repository_key_add_${zmd_index}_repaired", "zmd_repository_key_add_${zmd_index}_error"),
+				comment    => "Add the {zmd_name[${zmd_index}] repository key";
+
+			# Add repository only if does not already set and key added if necessary
+			"/usr/bin/rug"
+				args => "sa --type=zypp \"$(zmd_url[$(zmd_index)])\" \"$(zmd_name[$(zmd_index)])\"",
+				ifvarclass => "(index_$(zmd_index)_not_matched.!zmd_repository_key_add[${zmd_index}])|(index_$(zmd_index)_not_matched.(zmd_repository_key_add[${zmd_index}].(key_${zmd_index}_matched|zmd_repository_key_add_${zmd_index}_repaired|zmd_repository_key_add_${zmd_index}_repaired)))",
+				classes => kept_if_else("source_$(zmd_index)_kept", "source_$(zmd_index)_added", "source_$(zmd_index)_failed"),
+				comment => "Add the $(zmd_index) as a new source";
+
+			"/usr/bin/rug"
+				args => "subscribe \"$(zmd_name[$(zmd_index)])\"",
+				ifvarclass => "source_$(zmd_index)_added",
+				classes => kept_if_else("source_$(zmd_index)_subkept", "source_$(zmd_index)_subscribed", "source_$(zmd_index)_subfailed"),
+				comment => "Subscribe $(zmd_index) as a new source";
+				
+		showtime.SuSE.(zmd_restart|zmd_conf_validated)::
+
+			"/etc/init.d/novell-zmd"
+				args => "restart",
+				classes => kept_if_else("zmd_kept", "zmd_restarted", "could_not_restart_zmd"),
+				comment => "Restart the ZMD daemon";
+	files:
+
+		showtime.SuSE::
+			"/etc/zmd/zmd.conf"
+				create => "true",
+				perms => mog("600", "root", "root"),
+				edit_defaults => noempty_backup,
+				edit_line => set_advanced_zmd_config_values("check_zmd_settings.zmdconf", "$(zmd_sections)"),
+				classes => kept_if_else("zmd_conf_kept", "zmd_conf_validated", "zmd_conf_failed");
+
+
+	reports:
+
+
+		# ZMD settings edition
+
+		zmd_conf_kept::
+			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD settings were all already correct";
+
+		zmd_conf_validated::
+			"@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#Some ZMD settings were reset";
+
+		zmd_conf_failed::
+			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@General settings@@None@@$(g.execRun)##$(g.uuid)@#ZMD repositories could not be edited";
+
+		# Ignore non-SuSE OSes
+
+		!SuSE::
+			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@zmdPackageManagerSettings@@None@@$(g.execRun)##$(g.uuid)@#ZMD cannot be configured on non SuSE OSes";
+
+		SuSE::
+
+			# Repositories
+
+			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) is not here but no edition required. Skipping..."
+				ifvarclass => "index_$(zmd_index)_not_matched.!zmd_repositories_edit";
+
+			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was already here. Skipping..."
+				ifvarclass => "index_$(zmd_index)_matched.!source_$(zmd_index)_subscribed";
+
+			"@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) has been successfully added"
+				ifvarclass => "index_$(zmd_index)_not_matched.source_$(zmd_index)_subscribed";
+
+			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was NOT added : Could not register the source !"
+				ifvarclass => "source_$(zmd_index)_failed";
+
+			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@Repository@@$(zmd_url[$(zmd_index)])@@$(g.execRun)##$(g.uuid)@#The ZMD source $(zmd_name[$(zmd_index)]) was NOT added : Could not subscribe to the source !"
+				ifvarclass => "source_$(zmd_index)_subfailed";
+
+
+			# ZMD Process presence related reports
+
+			"@@zmdPackageManagerSettings@@result_success@@&TRACKINGKEY&@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD process is present. Skipping ..."
+				ifvarclass => "!zmd_restart";
+
+			"@@zmdPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
+				ifvarclass => "zmd_restarted";
+
+			"@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
+				ifvarclass => "could_not_restart_zmd";
+
+}
+
+
+bundle edit_line set_advanced_zmd_config_values(tab, sectionName) {
+ # Sets the RHS of configuration items in the file of the form
+ # LHS=RHS
+ # If the line is commented out with #, it gets uncommented first.
+ # Adds a new line if none exists.
+ # The argument is an associative array containing tab[SectionName][LHS]="RHS"
+ # don't change value when the RHS is dontchange
+
+ # Based on set_variable_values from cfengine_stdlib.cf, modified to
+ # use section to define were to write, and to handle commented-out lines.
+
+ # CAUTION : for it to work nicely, you should use Cfengine with the commit n°3229
+ # otherwise you may risk a segfault 
+
+ vars:
+  "index" slist => getindices("$(tab)[$(sectionName)]");
+
+  # Be careful if the index string contains funny chars
+  "cindex[$(index)]" string => canonify("$(index)");
+
+ classes:
+	"edit_$(cindex[$(index)])" not => strcmp("$($(tab)[$(sectionName)][$(index)])","dontchange");
+
+field_edits:
+
+  # If the line is there, but commented out, first uncomment it
+  "#+$(index)=.*"
+ 	 select_region => INI_section("$(sectionName)"),
+     edit_field => col("=","1","$(index)","set"),
+	 ifvarclass => "edit_$(cindex[$(index)])";
+
+  # match a line starting like the key something
+  "$(index)=.*"
+     edit_field => col("=","2","$($(tab)[$(sectionName)][$(index)])","set"),
+		select_region => INI_section("$(sectionName)"),
+       	classes => if_ok("not_$(cindex[$(index)])"),
+		ifvarclass => "edit_$(cindex[$(index)])";
+
+insert_lines:
+	"[$(sectionName)]"
+		location => start;
+
+	"$(index)=$($(tab)[$(sectionName)][$(index)])",
+		select_region => INI_section("$(sectionName)"),
+		ifvarclass => "!not_$(cindex[$(index)]).edit_$(cindex[$(index)])";
+
+}
+
+
