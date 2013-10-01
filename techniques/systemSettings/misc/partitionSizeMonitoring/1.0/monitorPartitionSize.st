@@ -10,18 +10,18 @@ bundle agent monitorPartitionSize {
 }&
         &PARTITION_SIZE_MONITORING_CMD_EXEC_ERROR_COMMAND:{error_cmd |"partition[&i&][error_cmd]" string => "&error_cmd&";
 }&
-        &TRACKINGKEY:{directiveId |"file[&i&][uuid]" string => "&directiveId&";
+        &TRACKINGKEY:{directiveId |"partition[&i&][uuid]" string => "&directiveId&";
 }&
 
-        "index" slist => getindices("file");
+        "index" slist => getindices("partition");
 
     classes:
 
         # Set classes to define when to run command executions
-        &PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_RUN:{repaired_cmd_run |"monitorPartitionSize_repaired_cmd_run_&i&" expression => strcmp("&repaired_cmd&", "true");
+        &PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_RUN:{repaired_cmd_run |"monitorPartitionSize_repaired_cmd_run_&i&" expression => strcmp("&repaired_cmd_run&", "true");
 }&
 
-        &PARTITION_SIZE_MONITORING_CMD_EXEC_ERROR_RUN:{error_cmd_run |"monitorPartitionSize_error_cmd_run_&i&" expression => strcmp("&error_cmd&", "true");
+        &PARTITION_SIZE_MONITORING_CMD_EXEC_ERROR_RUN:{error_cmd_run |"monitorPartitionSize_error_cmd_run_&i&" expression => strcmp("&error_cmd_run&", "true");
 }&
 
 
@@ -51,14 +51,14 @@ bundle agent monitorPartitionSize {
 
             # Partition status reporting
             # Success
-            "@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The partition $(file[$(index)][path]) has enough free space"
+            "@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The partition $(partition[$(index)][path]) has enough free space"
 				ifvarclass => "monitorPartitionSize_partition_$(index)_kept";
 
             # Repaired
-            "@@monitorPartitionSize@@result_repaired@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The partition $(file[$(index)][path]) has not enough free space"
+            "@@monitorPartitionSize@@result_repaired@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The partition $(partition[$(index)][path]) has not enough free space"
                 ifvarclass => "monitorPartitionSize_partition_$(index)_repaired";
             # Error
-            "@@monitorPartitionSize@@result_error@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#There was an error checking partition $(file[$(index)][path])"
+            "@@monitorPartitionSize@@result_error@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#There was an error checking partition $(partition[$(index)][path])"
                 ifvarclass => "monitorPartitionSize_partition_$(index)_error";
 
 
