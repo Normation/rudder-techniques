@@ -5,6 +5,7 @@
         compress
         notifempty
         create 640 root root
+        delaycompress
         sharedscripts
         postrotate
           /etc/init.d/apache2 reload > /dev/null
@@ -30,6 +31,7 @@
         compress
         notifempty
         create 640 root root
+        delaycompress
         sharedscripts
         postrotate
           /etc/init.d/syslog reload > /dev/null
