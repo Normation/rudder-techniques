@@ -33,6 +33,12 @@ body common control
 &endif&
 }
 
+body agent control {
+   # we can not depend on DNS for mobile devices
+   android::
+      skipidentify=> true
+}
+
 bundle common g
 {
   vars:
