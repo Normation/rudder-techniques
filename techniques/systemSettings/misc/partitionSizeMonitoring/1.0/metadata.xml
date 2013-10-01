@@ -27,47 +27,47 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </COMPATIBLE>
 
   <BUNDLES>
-    <NAME>monitorPartitionSize</NAME>
+    <NAME>monitor_partition_size</NAME>
   </BUNDLES>
 
   <TMLS>
     <TML name="monitorPartitionSize"/>
   </TMLS>
-    
+  
   <TRACKINGVARIABLE>
     <SAMESIZEAS>PARTITION_SIZE_MONITORING_PATH</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+  
   <SECTIONS>
     <SECTION name="Partition to monitor" multivalued="true">
-		<SECTION name="Partition" multivalued="false" component="true" componentKey="PARTITION_SIZE_MONITORING_PATH">
-			<INPUT>
-				<NAME>PARTITION_SIZE_MONITORING_PATH</NAME>
-				<DESCRIPTION>Partition mounted path</DESCRIPTION>
-			    <LONGDESCRIPTION>Where is your partition mounted.</LONGDESCRIPTION>
-			</INPUT>
-			<INPUT>
-				<NAME>PARTITION_SIZE_MONITORING_FREE_SIZE</NAME>
-				<DESCRIPTION>Free size threshold</DESCRIPTION>
-			    <LONGDESCRIPTION>How much free space before triggering command execution. Allowed input range: [0-9]+[MBkKgGmb%]</LONGDESCRIPTION>
-			</INPUT>
-        </SECTION>
-        <SECTION name="Command execution on threshold" multivalued="false" component="true" componentKey="PARTITION_SIZE_MONITORING_PATH">
-		  <INPUT>
-			  <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_RUN</NAME>
-			  <DESCRIPTION>Should the command(s) below be run if the threshold is met?</DESCRIPTION>
-			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
-		  </INPUT>
-		  <INPUT>
-			  <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_COMMAND</NAME>
-			  <DESCRIPTION>Command(s) to run</DESCRIPTION>
-			  <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
-			  <CONSTRAINT>
-				<TYPE>textarea</TYPE>
-				<MAYBEEMPTY>true</MAYBEEMPTY>
-			</CONSTRAINT>
-		  </INPUT>
-        </SECTION>
+      <SECTION name="Partition" multivalued="false" component="true" componentKey="PARTITION_SIZE_MONITORING_PATH">
+        <INPUT>
+          <NAME>PARTITION_SIZE_MONITORING_PATH</NAME>
+          <DESCRIPTION>Partition mounted path</DESCRIPTION>
+          <LONGDESCRIPTION>Where is your partition mounted.</LONGDESCRIPTION>
+        </INPUT>
+        <INPUT>
+          <NAME>PARTITION_SIZE_MONITORING_FREE_SIZE</NAME>
+          <DESCRIPTION>Free size threshold</DESCRIPTION>
+          <LONGDESCRIPTION>How much free space before triggering command execution. Allowed input range: [0-9]+[MBkKgGmb%]</LONGDESCRIPTION>
+        </INPUT>
+      </SECTION>
+      <SECTION name="Command execution on threshold" multivalued="false" component="true" componentKey="PARTITION_SIZE_MONITORING_PATH">
+        <INPUT>
+          <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_RUN</NAME>
+          <DESCRIPTION>Should the command(s) below be run if the threshold is met?</DESCRIPTION>
+          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_COMMAND</NAME>
+          <DESCRIPTION>Command(s) to run</DESCRIPTION>
+          <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>textarea</TYPE>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
     </SECTION>
   </SECTIONS>
 </TECHNIQUE>
