@@ -50,19 +50,19 @@ bundle agent monitorPartitionSize {
 
             # Repaired command execution reporting
             # Success not set
-			"@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][repaired_cmd])@@$(g.execRun)##$(g.uuid)@#Under threshold command execution was not set"
+			"@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command execution was not set"
 				ifvarclass => "!monitorPartitionSize_repaired_cmd_run_$(index)";
 
             # Success not needed
-			"@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][repaired_cmd])@@$(g.execRun)##$(g.uuid)@#Under threshold command execution was not needed"
+			"@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command execution was not needed"
 				ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).!monitorPartitionSize_partition_$(index)_full";
 
             # Repaired
-			"@@monitorPartitionSize@@result_repaired@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][repaired_cmd])@@$(g.execRun)##$(g.uuid)@#Under threshold command executed - $(partition[$(index)][repaired_cmd])"
+			"@@monitorPartitionSize@@result_repaired@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command executed - $(partition[$(index)][repaired_cmd])"
 				ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).monitorPartitionSize_repaired_cmd_$(index)_repaired";
 
             # Error
-			"@@monitorPartitionSize@@result_error@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][repaired_cmd])@@$(g.execRun)##$(g.uuid)@#Under threshold command failed to execute"
+			"@@monitorPartitionSize@@result_error@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command failed to execute"
 				ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).monitorPartitionSize_repaired_cmd_$(index)_error";
 
 }
