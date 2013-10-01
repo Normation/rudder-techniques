@@ -28,7 +28,7 @@ bundle agent monitorPartitionSize {
     storage:
 
         "$(partition[$(index)][path])"
-            volume  => freespacecheck("partition[$(index)][freesize]"),
+            volume  => freespacecheck("$(partition[$(index)][freesize])"),
             classes => rudder_common_classes("monitorPartitionSize_partition_$(index)"),
             comment => "Check free space available on $(partition[$(index)][path])";
 
