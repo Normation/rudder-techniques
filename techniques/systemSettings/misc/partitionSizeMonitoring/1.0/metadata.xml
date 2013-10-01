@@ -68,22 +68,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			</CONSTRAINT>
 		  </INPUT>
         </SECTION>
-        <SECTION name="Command execution on error" multivalued="false" component="true" componentKey="PARTITION_SIZE_MONITORING_PATH">
-		  <INPUT>
-			  <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_ERROR_RUN</NAME>
-			  <DESCRIPTION>Should the command(s) below be run if an error is encountered?</DESCRIPTION>
-			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
-		  </INPUT>
-		  <INPUT>
-			  <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_ERROR_COMMAND</NAME>
-			  <DESCRIPTION>Command(s) to run</DESCRIPTION>
-			  <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
-			  <CONSTRAINT>
-				<TYPE>textarea</TYPE>
-				<MAYBEEMPTY>true</MAYBEEMPTY>
-			</CONSTRAINT>
-		  </INPUT>
-	  </SECTION>    
     </SECTION>
   </SECTIONS>
 </TECHNIQUE>
