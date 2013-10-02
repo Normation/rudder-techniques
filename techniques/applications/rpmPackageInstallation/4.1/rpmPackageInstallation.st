@@ -33,7 +33,7 @@ bundle agent check_rpm_package_installation {
       &RPM_PACKAGE_CHECK_INTERVAL:{check_interval |"rpm_package_check_interval" string => "&check_interval&";
       }&
 
-      "package_number" int => readstringarrayidx("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/3.0/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
+      "package_number" int => readstringarrayidx("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/4.1/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
 &! We need to use the i0 notation to have indexes starting at 0, as in readstringarrayidx !&
 
 		&RPM_PACKAGE_REDLIST:{name |"rpm_package[&i0&]" string => "&name&";
