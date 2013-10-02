@@ -150,7 +150,7 @@ field_edits:
 
 insert_lines:
 
-		"$($(data_array)[$(index)][origin]) $($(data_array)[$(index)][destination]) $($(data_array)[$(index)][filesystem]) $($(data_array)[$(index)][options]) $($(data_array)[$(index)][dump]) $($(data_array)[$(index)][fsckorder])",
+		"$($(data_array)[$(index)][origin]) $($(data_array)[$(index)][destination]) $($(data_array)[$(index)][filesystem]) $($(data_array)[$(index)][options]) $($(data_array)[$(index)][dump]) $($(data_array)[$(index)][fsckorder])"
 			ifvarclass => "addentry_$(index).!line_$(index)_added.!invalid_$(index)",
 			classes => kept_if_else("line_$(index)_kept", "line_$(index)_added", "line_$(index)_add_failed");
 reports:

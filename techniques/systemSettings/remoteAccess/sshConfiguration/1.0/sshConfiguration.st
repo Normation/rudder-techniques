@@ -389,7 +389,7 @@ insert_lines:
                 location => start,
                 insert_type => "preserve_block";
 
-	"$(index) $($(tab)[$(index)])",
+	"$(index) $($(tab)[$(index)])"
 		ifvarclass => "!not_$(cindex[$(index)])";
 
 }

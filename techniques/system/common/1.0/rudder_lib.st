@@ -185,7 +185,7 @@ max_file_size => "1024000";
 bundle edit_line DeleteLinesMatching(regex) {
   delete_lines:
 
-    "$(regex)",
+    "$(regex)"
   action => WarnOnly;
 
 }

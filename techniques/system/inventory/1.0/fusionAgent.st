@@ -149,7 +149,7 @@ bundle agent fusionAgent {
 
 	commands:
 	    linux.inventoryfoldercreated::
-			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs",
+			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs"
 			classes => cf2_if_else("run_inventory", "inventory_failed"),
 			comment => "Generating inventory, in the temporary folder";
 

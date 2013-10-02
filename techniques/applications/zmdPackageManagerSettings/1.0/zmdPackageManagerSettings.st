@@ -220,7 +220,7 @@ insert_lines:
 	"[$(sectionName)]"
 		location => start;
 
-	"$(index)=$($(tab)[$(sectionName)][$(index)])",
+	"$(index)=$($(tab)[$(sectionName)][$(index)])"
 		select_region => INI_section("$(sectionName)"),
 		ifvarclass => "!not_$(cindex[$(index)]).edit_$(cindex[$(index)])";
 

@@ -491,7 +491,7 @@ delete_lines:
 
 insert_lines:
 
-        "$(index) $($(tab)[$(index)])",
+        "$(index) $($(tab)[$(index)])"
                 ifvarclass => "!not_$(cindex[$(index)])";
 
 }
