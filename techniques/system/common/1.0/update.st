@@ -122,17 +122,17 @@ bundle agent update {
 
 		commands:
 			start_exec.!windows::
-				"$(sys.cf_execd)",
+				"$(sys.cf_execd)"
 				action => u_ifwin_bg,
 				classes => outcome("executor");
 
 			start_exec.cygwin::
-				"$(sys.cf_execd)",
+				"$(sys.cf_execd)"
 				action => u_ifwin_bg,
 				classes => outcome("executor");
 
 			start_server::
-				"$(sys.cf_serverd)",
+				"$(sys.cf_serverd)"
 				action => u_ifwin_bg,
 				classes => outcome("server");
 	
