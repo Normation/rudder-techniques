@@ -74,7 +74,7 @@ bundle agent check_generic_file_content
         ifvarclass => "content_${index}_modified.execute_command_${index}.!content_${index}_failed";
   reports:
 
-    (linux|windows)::
+    (linux|!linux)::
 
       "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the policy"
         ifvarclass => "content_${index}_kept.!content_${index}_modified";
