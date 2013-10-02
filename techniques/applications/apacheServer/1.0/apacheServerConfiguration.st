@@ -492,7 +492,7 @@ bundle edit_line set_apache_config_security(tab)
 
   insert_lines:
 
-      "${index} ${${tab}[${index}]}",
+      "${index} ${${tab}[${index}]}"
         ifvarclass => "!not_${cindex[${index}]}";
 
 }
