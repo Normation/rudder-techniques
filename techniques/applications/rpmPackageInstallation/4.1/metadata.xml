@@ -137,6 +137,7 @@ presence of a package, and if not met to enforce them.
           </CONSTRAINT>
         </INPUT>
       </SECTION>
+    </SECTION>
     <SECTION name="Check interval" component="false">
       <INPUT>
         <NAME>RPM_PACKAGE_CHECK_INTERVAL</NAME>
@@ -148,7 +149,6 @@ presence of a package, and if not met to enforce them.
           <TYPE>integer</TYPE>
         </CONSTRAINT>
       </INPUT>
-    </SECTION>
     </SECTION>
   </SECTIONS>
 
