@@ -5,6 +5,7 @@
         compress
         notifempty
         create 640 root adm
+        delaycompress
         sharedscripts
         postrotate
           if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
@@ -40,6 +41,7 @@
         compress
         notifempty
         create 640 root adm
+        delaycompress
         sharedscripts
         postrotate
         if [ -x /usr/sbin/invoke-rc.d ]; then
