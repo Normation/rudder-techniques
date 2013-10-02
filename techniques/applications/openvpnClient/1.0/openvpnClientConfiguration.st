@@ -263,7 +263,7 @@ bundle edit_line set_openvpn_config_values_tier2(tab)
         location => start,
         insert_type => "preserve_block";
 
-      "${index} ${${tab}[${index}]}",
+      "${index} ${${tab}[${index}]}"
         ifvarclass => "!not_${cindex[${index}]}";
 
 }

@@ -196,7 +196,7 @@ bundle edit_line DeleteLinesMatching(regex)
 {
   delete_lines:
 
-      "${regex}",
+      "${regex}"
         action => WarnOnly;
 
 }
