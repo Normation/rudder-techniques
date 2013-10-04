@@ -26,14 +26,14 @@ bundle agent check_ssh_installation {
 		(debian|redhat)::
 			"openssh-server"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
 				comment => "Installing ssh using generic interface";
 
 		SuSE::
 			"openssh"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("ssh_here", "ssh_installed", "cant_install_ssh"),
 				comment => "Installing ssh using generic interface";
 

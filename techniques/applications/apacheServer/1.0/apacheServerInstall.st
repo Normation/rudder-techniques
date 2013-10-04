@@ -28,7 +28,7 @@ bundle agent check_apache_installation {
 
 			"apache2"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
 				comment => "Installing apache using generic interface";
 
@@ -43,7 +43,7 @@ bundle agent check_apache_installation {
 
 			"httpd"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
 				comment => "Installing apache using generic interface";
 

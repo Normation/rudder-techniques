@@ -27,21 +27,21 @@ bundle agent check_nfs_client_installation {
 		debian::
 			"nfs-common"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
 				comment => "Installing NFS client using generic interface";
 
 		redhat::
 			"nfs-utils"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
 				comment => "Installing NFS client using generic interface";
 
 		SuSE::
 			"nfs-client"
 				package_policy  => "add",
-				package_method  => generic,
+				package_method  => rudder_generic,
 				classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
 				comment => "Installing NFS client using generic interface";
 

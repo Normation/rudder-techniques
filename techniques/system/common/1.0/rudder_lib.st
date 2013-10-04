@@ -450,6 +450,152 @@ body package_method rudder_rug {
 package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
 }
 
+########################################################################
+# Modified package_method of apt to manage multi-arch of Debian 7      #
+########################################################################
+body package_method rudder_apt
+{
+package_changes => "bulk";
+package_list_command => "/usr/bin/dpkg -l";
+package_list_name_regex    => ".i\s+([^\s:]+).*";
+package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
+package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
+package_name_convention => "$(name)";
+
+# set it to "0" to avoid caching of list during upgrade
+package_list_update_ifelapsed => "240";
+
+have_aptitude::
+   package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
+   package_list_update_command => "/usr/bin/aptitude update";
+   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes -q remove";
+   package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
+   package_verify_command =>  "/usr/bin/aptitude show";
+   package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
+
+!have_aptitude::
+   package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
+   package_list_update_command => "/usr/bin/apt-get update";
+   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes -q remove";
+   package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
+   package_verify_command => "/usr/bin/dpkg -s";
+   package_noverify_returncode => "1";
+}
+
+########################################################################
+# Modified package_method of generic to manage multi-arch of Debian 7  #
+########################################################################
+body package_method rudder_generic
+{
+SuSE::
+ package_changes => "bulk";
+ package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+ package_patch_list_command => "/usr/bin/zypper patches";
+ package_installed_regex => "i.*";
+ package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s:]+).*";
+ package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+ package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+ package_patch_installed_regex => ".*Installed.*|.*Not Applicable.*";
+ package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
+ package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+ package_name_convention => "$(name)";
+ package_add_command => "/usr/bin/zypper --non-interactive install";
+ package_delete_command => "/usr/bin/zypper --non-interactive remove --force-resolution";
+ package_update_command => "/usr/bin/zypper --non-interactive update";
+ package_patch_command => "/usr/bin/zypper --non-interactive patch$"; # $ means no args
+ package_verify_command => "/usr/bin/zypper --non-interactive verify$";
+
+redhat::
+ package_changes => "bulk";
+ package_list_command => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+ package_patch_list_command => "/usr/bin/yum check-update";
+ package_list_name_regex    => "^(\S+?)\s\S+?\s\S+$";
+ package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
+ package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
+ package_installed_regex => ".*";
+ package_name_convention => "$(name)";
+ package_list_update_ifelapsed => "0";     # sometimes, caching is pretty disturbing
+ package_patch_installed_regex => "^[^*]\s.*";
+ package_patch_name_regex    => "([^.]+).*";
+ package_patch_version_regex => "[^\s]\s+([^\s]+).*";
+ package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
+ package_add_command    => "/usr/bin/yum -y install";
+ package_update_command => "/usr/bin/yum -y update";
+ package_delete_command => "/bin/rpm -e --nodeps --allmatches";
+ package_verify_command => "/bin/rpm -V";
+
+# package_changes => "bulk";
+# package_list_command => "/usr/bin/yum list installed";
+# package_patch_list_command => "/usr/bin/yum check-update";
+# package_list_name_regex    => "([^.]+).*";
+# package_list_version_regex => "[^\s]\s+([^\s]+).*";
+# package_list_arch_regex    => "[^.]+\.([^\s]+).*";
+# package_installed_regex => ".*(installed|\s+@).*";
+# package_name_convention => "$(name).$(arch)";
+# package_list_update_ifelapsed => "240";
+# package_patch_installed_regex => "^[^*]\s.*";
+# package_patch_name_regex    => "([^.]+).*";
+# package_patch_version_regex => "[^\s]\s+([^\s]+).*";
+# package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
+# package_add_command => "/usr/bin/yum -y install";
+# package_delete_command => "/bin/rpm -e --nodeps";
+# package_verify_command => "/bin/rpm -V";
+
+debian::
+ package_changes => "bulk";
+ package_list_command => "/usr/bin/dpkg -l";
+ package_list_name_regex    => ".i\s+([^\s]+).*";
+ package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
+ package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
+ package_name_convention => "$(name)";
+ package_list_update_ifelapsed => "240";        # 4 hours
+
+debian.have_aptitude::
+   package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
+   package_list_update_command => "/usr/bin/aptitude update";
+   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes remove";
+   package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --assume-yes install";
+   package_verify_command =>  "/usr/bin/aptitude show";
+   package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
+
+debian.!have_aptitude::
+   package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
+   package_list_update_command => "/usr/bin/apt-get update";
+   package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes remove";
+   package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef --yes install";
+   package_verify_command => "/usr/bin/dpkg -s";
+   package_noverify_returncode => "1";
+
+freebsd::
+ package_changes => "individual";
+ package_list_command => "/usr/sbin/pkg_info";
+ package_list_name_regex    => "([^\s]+)-.*";
+ package_list_version_regex => "[^\s]+-([^\s]+).*";
+ package_name_regex    => "([^\s]+)-.*";
+ package_version_regex => "[^\s]+-([^\s]+).*";
+ package_installed_regex => ".*";
+ package_name_convention => "$(name)-$(version)";
+ package_add_command => "/usr/sbin/pkg_add -r";
+ package_delete_command => "/usr/sbin/pkg_delete";
+
+gentoo::
+ package_changes => "individual";
+ package_list_command => "/bin/sh -c '/bin/ls -d /var/db/pkg/*/* | cut -c 13-'";
+ package_list_name_regex => ".*/([^\s]+)-\d.*";
+ package_list_version_regex => ".*/[^\s]+-(\d.*)";
+ package_installed_regex => ".*";                          # all reported are installed
+ package_name_convention => "$(name)";
+ package_list_update_command => "/bin/true";               # I prefer manual syncing
+ #package_list_update_command => "/usr/bin/emerge --sync"; # if you like automatic
+ package_list_update_ifelapsed => "240";                   # should happen every 4 hours
+
+ package_add_command => "/usr/bin/emerge -q --quiet-build";
+ package_delete_command => "/usr/bin/emerge --depclean";
+ package_update_command => "/usr/bin/emerge --update";
+ package_verify_command => "/usr/bin/emerge -s";
+ package_noverify_regex => ".*(Not Installed|Applications found : 0).*";
+}
+
 ###################################################
 # edit_line prepend
 ###################################################

@@ -27,7 +27,7 @@ bundle agent fetchFusionTools {
 		debian::
                         "curl"
                                 package_policy  => "add",
-                                package_method  => apt,
+                                package_method  => rudder_apt,
                                 classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
                                 comment => "Installing curl using apt";
 		redhat::

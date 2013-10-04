@@ -127,7 +127,7 @@ bundle agent check_git_installation(directiveId) {
 
                         "git"
                                 package_policy  => "add",
-                                package_method  => generic,
+                                package_method  => rudder_generic,
                                 classes => kept_if_else("git_here", "git_installed", "cant_install_git"),
                                 comment => "Installing git using generic interface";
 
@@ -135,7 +135,7 @@ bundle agent check_git_installation(directiveId) {
 
                         "git-core"
                                 package_policy  => "add",
-                                package_method  => generic,
+                                package_method  => rudder_generic,
                                 classes => kept_if_else("git_here", "git_installed", "cant_install_git"),
                                 comment => "Installing git using generic interface";
         reports:
