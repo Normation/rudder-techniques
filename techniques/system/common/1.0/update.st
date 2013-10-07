@@ -36,7 +36,6 @@ body copy_from remote(server, path)
         preserve   => "false"; #preserver permissions
         verify     => "true";
         purge      => "true";
-        owners     => {"&OWNER&"};
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 
@@ -56,7 +55,6 @@ body copy_from remote_unsecured(server, path)
         preserve   => "true"; #preserver permissions
         verify     => "true";
         purge      => "true";
-        owners     => {"&OWNER&"};
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 
