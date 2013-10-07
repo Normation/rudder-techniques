@@ -303,7 +303,7 @@ bundle edit_line manage_variable_values_ini(tab, sectionName) {
                 location => start,
                  comment => "Insert lines";
 
-        "$(index)=$($(tab)[$(sectionName)][$(index)])",
+        "$(index)=$($(tab)[$(sectionName)][$(index)])"
                 select_region => INI_section("$(sectionName)"),
                 ifvarclass => "!manage_variable_values_ini_not_$(cindex[$(index)]).edit_$(cindex[$(index)])";
 
@@ -371,7 +371,7 @@ bundle edit_line set_variable_values_ini(tab, sectionName) {
                 location => start,
                  comment => "Insert lines";
 
-        "$(index)=$($(tab)[$(sectionName)][$(index)])",
+        "$(index)=$($(tab)[$(sectionName)][$(index)])"
                 select_region => INI_section("$(sectionName)"),
                 ifvarclass => "!set_variable_values_ini_not_$(cindex[$(index)]).edit_$(cindex[$(index)])";
 
@@ -413,7 +413,7 @@ field_edits:
 
 insert_lines:
 
-  "$(index)=$($(v)[$(index)])",
+  "$(index)=$($(v)[$(index)])"
 
          comment => "Insert a variable definition",
       ifvarclass => "!$(cindex[$(index)])_in_file";
@@ -510,7 +510,7 @@ bundle edit_line maintain_key_values(v,sep)
       replace_with => value("$(match.1)$($(v)[$(index)])");
 
   insert_lines:
-    "$(index)$(sep)$($(v)[$(index)])",
+    "$(index)$(sep)$($(v)[$(index)])"
       comment => "Insert definition of $(index)",
       ifvarclass => "!$(cindex[$(index)])_key_in_file";
 }
@@ -534,7 +534,7 @@ classes:
 
 insert_lines:
 
-  "$($(v)[$(index)])",
+  "$($(v)[$(index)])"
 
          comment => "Append users into a password file format",
       ifvarclass => "add_$(index)";
@@ -559,7 +559,7 @@ classes:
 
 insert_lines:
 
-  "$($(v)[$(index)])",
+  "$($(v)[$(index)])"
 
          comment => "Append users into a group file format",
       ifvarclass => "add_$(index)";
@@ -958,7 +958,6 @@ useshell => "true";
 body contain in_shell_bg
 {
 useshell => "true";
-background => "true";
 }
 
 ##
@@ -1898,7 +1897,7 @@ networkretries=3
 authentication=quit
 keystore=/var/sadm/security
 proxy=
-basedir=default",
+basedir=default"
       comment => "Insert contents of Solaris admin file (automatically install packages)";
 }
 
