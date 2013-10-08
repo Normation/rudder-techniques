@@ -56,7 +56,7 @@ bundle server access_rules
 
 
     any::
-    &POLICYCHILDREN, CHILDRENID : {host, uuid |
+    &MANAGED_NODES, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
         maproot => { host2ip("&host&"), escape("&host&")  },
         admit   => { host2ip("&host&"), escape("&host&")  };
@@ -110,7 +110,7 @@ body server control
           @{def.acl} ,
           &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
           &if(CLIENTSLIST)&
-          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &MANAGED_NODES: { host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         }; #trustkey allows the exchange of keys
 
@@ -118,7 +118,7 @@ body server control
           @{def.acl} ,
           &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
           &if(CLIENTSLIST)&
-          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &MANAGED_NODES: { host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         };
 
@@ -126,7 +126,7 @@ body server control
           @{def.acl} ,
           &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
           &if(CLIENTSLIST)&
-          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &MANAGED_NODES: { host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         };
 

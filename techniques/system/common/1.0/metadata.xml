@@ -65,6 +65,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>DAVUSER</NAME>
     <NAME>DAVPASSWORD</NAME>
     <NAME>SYSLOGPORT</NAME>
+    <NAME>MANAGED_NODES</NAME>
+    <NAME>MANAGED_NODES_ID</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
