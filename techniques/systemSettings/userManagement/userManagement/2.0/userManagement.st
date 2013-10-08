@@ -252,7 +252,7 @@ bundle agent check_usergroup_user_parameters
 
       ## Change not needed (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"
-        ifvarclass => "(!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}";
+        ifvarclass => "((!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_remove_${usergroup_user_index}";
 
 }
 
