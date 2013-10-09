@@ -461,14 +461,14 @@ bundle agent sendInventory
   # Once we've successfully sent all inventories, remove them
     (android|linux).inventory_sent.!cant_send_inventory::
       "${g.rudder_inventories}"
-        transformer  => "/bin/rm -f ${this.promiser}",
+        transformer  => "$(g.rudder_rm) -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select  => inventory_files,
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
       "${g.rudder_var_tmp}/inventory"
-        transformer  => "/bin/rm -f ${this.promiser}",
+        transformer  => "$(g.rudder_rm) -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select  => inventory_files,
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
