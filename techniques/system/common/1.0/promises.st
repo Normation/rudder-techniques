@@ -609,11 +609,11 @@ bundle agent check_binaries_freshness
 
     community_edition::
 
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-report", "cf-key" };
+      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key" };
 
     nova_edition::
 
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "cf-hub" };
 
   files:
 
