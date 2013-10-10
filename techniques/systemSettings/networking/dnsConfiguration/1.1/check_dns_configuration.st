@@ -177,7 +177,7 @@ bundle edit_line resolv_edition(search, list, options) {
 "#############################################################
 ### This file is protected by your Rudder infrastructure. ###
 ### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server’s            ###
+### infrastructure to change back the server's            ###
 ### configuration and/or to raise a compliance alert.     ###
 #############################################################
 "
