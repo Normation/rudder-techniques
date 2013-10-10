@@ -28,13 +28,13 @@ bundle agent fetchFusionTools {
                         "curl"
                                 package_policy  => "add",
                                 package_method  => apt,
-                                classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
+                                classes => rudder_common_classes("fetchFusionTools_install_curl"),
                                 comment => "Installing curl using apt";
 		redhat::
                         "curl"
                                 package_policy  => "add",
                                 package_method  => yum,
-                                classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
+                                classes => rudder_common_classes("fetchFusionTools_install_curl"),
                                 comment => "Installing curl using yum";
 
 	files:
@@ -56,6 +56,10 @@ bundle agent fetchFusionTools {
 			
 		cannot_copy_fusion_tools::
 			"@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@tools@@None@@$(g.execRun)##$(g.uuid)@#Can't copy fusion utilities. Fusion might not work";
+
+    fetchFusionTools_install_curl_error::
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@tools@@None@@$(g.execRun)##$(g.uuid)@#Installing 'curl' failed. Inventory registration will fail if curl is unavailable";
+
 }
 
 body perms myperms
