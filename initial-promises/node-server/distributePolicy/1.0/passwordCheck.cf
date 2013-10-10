@@ -165,7 +165,7 @@ bundle agent root_password_check_psql
 
     psql_cant_connect::
 
-      "/usr/bin/psql -q -c \"ALTER USER rudder WITH PASSWORD '${p.psql_password[2]}'\"",
+      "/usr/bin/psql -q -c \"ALTER USER rudder WITH PASSWORD '${p.psql_password[2]}'\""
         contain => setuid_sh("postgres"),
         classes => if_else("postgres_updated", "postgres_update_failed");
 
