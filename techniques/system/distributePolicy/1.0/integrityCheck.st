@@ -51,13 +51,4 @@ bundle agent root_integrity_check
     rudder_git_lock_failed::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#TheEMERGENCY: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE IS OLDER THAN 5 MINUTES AND COULD NOT BE DELETED. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.";
 
-    !rudder_git_lock_repaired.!rudder_git_lock_failed::
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_var}/configuration-repository GIT lock file is not present or not older than 5 minutes";
-
-    rudder_git_lock_repaired.!rudder_git_lock_failed::
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#WARNING: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE WAS OLDER THAN 5 MINUTES AND HAS BEEN DELETED";
-
-    rudder_git_lock_failed::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#TheEMERGENCY: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE IS OLDER THAN 5 MINUTES AND COULD NOT BE DELETED. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.";
-
 }
