@@ -39,11 +39,6 @@ bundle common rudder_roles
   classes:
         # Abort if no uuid is defined
       "should_not_continue" not => fileexists("${uuid_file}");
-
-        # Policy Server is a machine which delivers promises
-      "policy_server" expression => strcmp("root","${uuid)");
-        # Root Server is the top policy server machine
-      "root_server" expression => strcmp("root","${uuid}");
 }
 
 body common control
@@ -96,6 +91,11 @@ bundle common va
      };
 
 # definition of the machine roles
+  classes:
+        # Policy Server is a machine which delivers promises
+      "policy_server" expression => strcmp("root","${uuid)");
+        # Root Server is the top policy server machine
+      "root_server" expression => strcmp("root","${uuid}");
 }
 
 #########################################################
