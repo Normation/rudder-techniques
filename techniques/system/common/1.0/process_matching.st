@@ -25,7 +25,6 @@ bundle agent process_matching
         "cf-key",
         # "cf-monitord", Disabled
         "cf-promises",
-        "cf-report",
         "cf-runagent",
         "cf-serverd"
       };
