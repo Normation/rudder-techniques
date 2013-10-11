@@ -31,18 +31,28 @@ bundle agent propagatePromises
       "client_data" string => "${g.rudder_var}/share/";  #where to put the files on the client when downloaded
 
   files:
+
     root_server::
+
       "${g.rudder_dependencies}"
         copy_from    => copy("${g.rudder_base}/share/tools"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
         classes => if_else("tools_propagated", "could_not_propagate_tools");
-    !root_server::
+
+    policy_server.!root_server::
+
       "${client_data}"  #that's a loop on each files in client_inputs
         copy_from    => remote("${server_info.cfserved}","${server_data}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the promises to propagate",
         classes => if_else("promises_propagated", "could_not_propagate_promise");
+
+      "&SHARED_FILES_FOLDER&"
+        copy_from    => remote("${server_info.cfserved}","&SHARED_FILES_FOLDER&"),
+        depth_search => recurse_visible("inf"),
+        comment => "Fetching the files shared for the promises execution",
+        classes => if_else("files_propagated", "could_not_propagate_files");
 
       "${g.rudder_dependencies}"
         copy_from    => remote("${server_info.cfserved}","${g.rudder_dependencies}"),
@@ -57,10 +67,12 @@ bundle agent propagatePromises
         comment => "Fetching the bootstrap promises",
         classes => if_else("masterfiles_propagated", "could_not_propagate_masterfiles");
 
+&if(NOVA)&
       "${sys.workdir}/masterfiles/license.dat"
         copy_from    => local_cp("${sys.workdir}/inputs/license.dat"),
         comment => "Putting the right license in the bootstrap",
         classes => if_else("license_copied", "could_not_copy_license");
+&endif&
 
   reports:
     # Success if files are updated or not changed (kept or repaired).
@@ -70,6 +82,9 @@ bundle agent propagatePromises
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#All files have been propagated";
     could_not_propagate_promise::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate policy files";
+
+    could_not_propagate_files::
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate shared files";
 
     could_not_propagate_tools::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate tools";
@@ -84,35 +99,72 @@ bundle agent propagatePromises
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
 bundle agent sendInventoryToCmdb
 {
+  vars:
+
+      "inventory_folders" slist => { "incoming", "accepted-nodes-updates" };
 
   files:
 
     root_server::
 
-      "${g.rudder_inventories}/incoming"
+      "${g.rudder_inventories}/${inventory_folders}"
         transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/",
         depth_search => recurse_visible(1),
         file_select => all_files,
-        classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
-        comment => "Sending the inventory to the cmdb";
+        classes => rudder_common_classes("rudder_inventory_processing");
+        comment => "Processing a local inventory";
+
+    policy_server.!root_server::
+
+      "${g.rudder_inventories}/incoming"
+        transformer => "/usr/bin/curl -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  http://${server_info.cfserved}/inventories/",
+        depth_search => recurse_visible(1),
+        file_select => inventory_files,
+        classes => rudder_common_classes("rudder_inventory_relay");
+        comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/",
+        transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
-        file_select => all_files,
-        classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
-        comment => "Sending the inventory to the cmdb";
+        file_select => inventory_files,
+        classes => rudder_common_classes("rudder_inventory_relay");
+        comment => "Sending an inventory to the root server";
 
+    policy_server.!root_server.!rudder_inventory_relay_error::
 
-# NEED TO DO THE RSYNC PART
+      "${g.rudder_inventories}/${inventory_folders}"
+        transformer => "/bin/rm -f ${this.promiser}",
+        depth_search => recurse_visible(1),
+        file_select => inventory_files,
+        classes => rudder_common_classes("rudder_inventory_cleanup");
+        comment => "Purging the received inventory files after processing";
 
   reports:
-    inventory_sent.!rudder_send_inventory_to_cmdb_cant_send_inventory::
+
+    rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Incoming inventories were successfully added to Rudder";
-    rudder_send_inventory_to_cmdb_cant_send_inventory::
+
+    rudder_inventory_processing_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Some inventories failed to add successfully to Rudder";
-    !inventory_sent::
+
+    !rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to send";
+
+    rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Incoming inventories were successfully relayed to the root server";
+
+    rudder_inventory_relay_error::
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Cannot relay some inventories to the root server";
+
+    !rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to relay";
+
+    rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error::
+      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Sent incoming inventories were removed from local cache";
+
+    rudder_inventory_cleanup_error::
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Cannot remove incoming inventories from local cache";
+
 }
 
 

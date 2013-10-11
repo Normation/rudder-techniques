@@ -21,6 +21,8 @@ bundle agent root_integrity_check
 
   files:
 
+    root_server::
+
       "${g.rudder_var}/configuration-repository"
         create => "true",
         action => WarnOnly,
@@ -34,7 +36,7 @@ bundle agent root_integrity_check
 
   reports:
 
-    linux::
+    root_server::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check configuration-repository folder@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_var}/configuration-repository directory is present"
         ifvarclass => "rudder_integrity_ok.!rudder_integrity_failed";
@@ -42,13 +44,19 @@ bundle agent root_integrity_check
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check configuration-repository folder@@None@@${g.execRun}##${g.uuid}@#EMERGENCY: THE ${g.rudder_var}/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY."
         ifvarclass => "!rudder_integrity_ok|rudder_integrity_failed";
 
-    !rudder_git_lock_repaired.!rudder_git_lock_failed::
+    root_server.!rudder_git_lock_repaired.!rudder_git_lock_failed::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_var}/configuration-repository GIT lock file is not present or not older than 5 minutes";
 
-    rudder_git_lock_repaired.!rudder_git_lock_failed::
+    root_server.rudder_git_lock_repaired.!rudder_git_lock_failed::
       "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#WARNING: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE WAS OLDER THAN 5 MINUTES AND HAS BEEN DELETED";
 
-    rudder_git_lock_failed::
+    root_server.rudder_git_lock_failed::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#TheEMERGENCY: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE IS OLDER THAN 5 MINUTES AND COULD NOT BE DELETED. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.";
+
+    policy_server.!root_server::
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check configuration-repository folder@@None@@${g.execRun}##${g.uuid}@#Nothing to check about the configuration-repository on relay servers";
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check configuration-repository GIT lock@@None@@${g.execRun}##${g.uuid}@#Nothing to check about configuration-repository GIT locking on relay servers";
 
 }

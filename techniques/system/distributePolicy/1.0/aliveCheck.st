@@ -57,11 +57,15 @@ bundle agent generic_alive_check(app)
 
   methods:
 
+    root_server::
+
       "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "jetty", "true"),
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}",
         classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
 
   commands:
+
+    root_server::
 
       "/usr/bin/curl -s ${site_to_check} |/bin/grep -q OK"
         contain => in_shell_silent,
@@ -70,7 +74,7 @@ bundle agent generic_alive_check(app)
 
   reports:
 
-    linux::
+    root_server::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application is running"
         ifvarclass => "site_ok.!site_down_once_${sitename}";
@@ -80,6 +84,10 @@ bundle agent generic_alive_check(app)
 
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting jetty NOW !"
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}";
+
+    policy_server.!root_server::
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application check do not need to be done on relay servers. Skipping...";
 
 }
 
