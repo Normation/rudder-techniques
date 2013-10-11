@@ -383,7 +383,7 @@ bundle edit_line set_ssh_config_values_tier2(tab)
 "#############################################################
 ### This file is protected by your Rudder infrastructure. ###
 ### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server’s            ###
+### infrastructure to change back the server's            ###
 ### configuration and/or to raise a compliance alert.     ###
 #############################################################
 "

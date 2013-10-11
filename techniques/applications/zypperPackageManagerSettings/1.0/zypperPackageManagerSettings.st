@@ -164,7 +164,7 @@ bundle edit_line set_zypper_repos_BROKEN(zypper_name, zypper_url, zypper_enabled
         "#############################################################
 ### This file is protected by your Rudder infrastructure. ###
 ### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server’s            ###
+### infrastructure to change back the server's            ###
 ### configuration and/or to raise a compliance alert.     ###
 #############################################################
 "
