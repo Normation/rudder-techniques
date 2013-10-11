@@ -322,7 +322,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"";
       "USER"           string => getenv("USERNAME", 40);
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "33" );
+      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "50" );
       "users"          slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",50,4000) };
 &endif&
 
@@ -331,7 +331,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
+      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
       "users"          slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
 
@@ -354,7 +354,7 @@ bundle agent addInformationsToInventory
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "33" );
+      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
       "users"          slist => getindices("userslist");
 

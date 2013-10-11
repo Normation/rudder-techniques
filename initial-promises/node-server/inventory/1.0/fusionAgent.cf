@@ -291,7 +291,7 @@ bundle agent addInformationsToInventory
       "CFKEY" string => execresult("${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"", "noshell");
       "USER" string => getenv("USERNAME", 40);
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"","noshell");
-      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "33" );
+      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
       "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",50,4000) };
 
     cygwin::
@@ -299,7 +299,7 @@ bundle agent addInformationsToInventory
       "CFKEY" string => execresult("/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
       "USER" string => execresult("/usr/bin/whoami", "noshell");
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs","noshell");
-      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "33" );
+      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
       "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
     xen.SuSE::
@@ -320,7 +320,7 @@ bundle agent addInformationsToInventory
     linux::
       "CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
       "USER" string => execresult("/usr/bin/whoami", "noshell");
-      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "33" );
+      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
       "usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
       "users" slist => getindices("userslist");
 
