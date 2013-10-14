@@ -1,4 +1,4 @@
-###########################################################################
+############################################################################
 #  Copyright (C) Cfengine AS
 #
 #  This program is free software; you can redistribute it and/or modify it
@@ -39,8 +39,7 @@
 # the online docs
 #
 
-# Subversion : $Rev$
-# For Cfengine Core: 3.1.0
+# For Cfengine Core: 3.5.0 and older
 
 ###################################################
 # If you find Cfengine useful, please consider    #
@@ -110,7 +109,7 @@ bundle edit_line comment_lines_containing(regex,comment)
 {
   replace_patterns:
 
-      "^(.*$(regex).*)$"
+ "^((?!$(comment)).*$(regex).*)$"
 
         replace_with => comment("$(comment)"),
         comment => "Comment out lines in a file";
@@ -250,7 +249,8 @@ bundle edit_line resolvconf(search,list)
 
 ##
 
-bundle edit_line manage_variable_values_ini(tab, sectionName) {
+bundle edit_line manage_variable_values_ini(tab, sectionName)
+
  # Sets the RHS of configuration items in the file of the form
  # LHS=RHS
  # If the line is commented out with #, it gets uncommented first.
@@ -281,6 +281,7 @@ bundle edit_line manage_variable_values_ini(tab, sectionName) {
  #         comment     => "Set the variale values only in the specified ini region";
  #
 
+{
   vars:
       "index" slist => getindices("$(tab)[$(sectionName)]");
 
@@ -294,7 +295,7 @@ bundle edit_line manage_variable_values_ini(tab, sectionName) {
   field_edits:
 
     # If the line is there, but commented out, first uncomment it
-      "#+$(index)\s*=.*"
+        "#+\s*$(index)\s*=.*"
         select_region => INI_section("$(sectionName)"),
         edit_field => col("=","1","$(index)","set"),
         ifvarclass => "edit_$(cindex[$(index)])";
@@ -324,7 +325,8 @@ bundle edit_line manage_variable_values_ini(tab, sectionName) {
 
 ##
 
-bundle edit_line set_variable_values_ini(tab, sectionName) {
+bundle edit_line set_variable_values_ini(tab, sectionName)
+
  # Sets the RHS of configuration items in the file of the form
  # LHS=RHS
  # If the line is commented out with #, it gets uncommented first.
@@ -354,6 +356,7 @@ bundle edit_line set_variable_values_ini(tab, sectionName) {
  #         comment     => "Set the variale values only in the specified ini region";
  #
 
+{
   vars:
       "index" slist => getindices("$(tab)[$(sectionName)]");
 
@@ -367,7 +370,7 @@ bundle edit_line set_variable_values_ini(tab, sectionName) {
   field_edits:
 
     # If the line is there, but commented out, first uncomment it
-      "#+$(index)\s*=.*"
+        "#+\s*$(index)\s*=.*"
         select_region => INI_section("$(sectionName)"),
         edit_field => col("=","1","$(index)","set"),
         ifvarclass => "edit_$(cindex[$(index)])";
@@ -452,6 +455,7 @@ bundle edit_line set_variable_values(v)
   # Be careful if the index string contains funny chars
 
       "cindex[$(index)]" string => canonify("$(index)");
+  "cv"               string => canonify("$(v)");
 
   field_edits:
 
@@ -460,7 +464,7 @@ bundle edit_line set_variable_values(v)
       "\s*$(index)\s*=.*"
 
         edit_field => col("=","2","$($(v)[$(index)])","set"),
-        classes => if_ok("$(cindex[$(index)])_in_file"),
+        classes => if_ok("$(cv)_$(cindex[$(index)])_in_file"),
         comment => "Match a line starting like key = something";
 
   insert_lines:
@@ -468,7 +472,7 @@ bundle edit_line set_variable_values(v)
       "$(index)=$($(v)[$(index)])"
 
         comment => "Insert a variable definition",
-        ifvarclass => "!$(cindex[$(index)])_in_file";
+      ifvarclass => "!$(cv)_$(cindex[$(index)])_in_file";
 }
 
 bundle edit_line set_config_values(v)
@@ -489,7 +493,7 @@ bundle edit_line set_config_values(v)
   replace_patterns:
   # If the line is there, maybe commented out, uncomment and replace with
   # the correct value
-      "^\s*($(index)\s+(?!$($(v)[$(index)])).*|# ?$(index)\s+.*)$"
+  "^\s*($(index)\s+(?!$($(v)[$(index)])$).*|# ?$(index)\s+.*)$"
         comment => "Correct the value",
         replace_with => value("$(index) $($(v)[$(index)])"),
         classes => always("replace_attempted_$(cindex[$(index)])");
@@ -557,7 +561,7 @@ bundle edit_line maintain_key_values(v,sep)
   replace_patterns:
     # For convergence need to use negative lookahead on value:
     # "key sep (?!value).*"
-      "^($(keypat[$(index)]))(?!$(ve[$(index)])).*"
+    "^($(keypat[$(index)]))(?!$(ve[$(index)])$).*"
         comment => "Replace definition of $(index)",
         replace_with => value("$(match.1)$($(v)[$(index)])");
 
@@ -660,7 +664,7 @@ bundle edit_line append_user_field(group,field,allusers)
 {
   vars:
 
-      "val" slist => { @{allusers} };
+  "val" slist => { @(allusers) };
 
   field_edits:
 
@@ -698,9 +702,10 @@ bundle edit_line replace_or_add(pattern,line)
 {
   vars:
       "cline" string => canonify("$(line)");
+  "eline" string => escape("$(line)");
 
   replace_patterns:
-      "^(?!$(line)$)$(pattern)$"
+  "^(?!$(eline)$)$(pattern)$"
         comment => "Replace a pattern here",
         replace_with => value("$(line)"),
         classes => always("replace_done_$(cline)");
@@ -724,7 +729,9 @@ bundle agent cronjob(commands,user,hours,mins)
       "crontab" string => "/var/spool/cron/tabs";
     redhat|fedora::
       "crontab" string => "/var/spool/cron";
-    !(SuSE|redhat|fedora)::
+  freebsd::
+   "crontab" string => "/var/cron/tabs";
+ !(SuSE|redhat|fedora|freebsd)::
       "crontab" string => "/var/spool/cron/crontabs";
 
   files:
@@ -735,7 +742,7 @@ bundle agent cronjob(commands,user,hours,mins)
         comment => "A user's regular batch jobs are added to this file",
         create => "true",
         edit_line => append_if_no_line("$(mins) $(hours) * * * $(commands)"),
-        perms => mo("644","$(user)"),
+      perms => mo("600","$(user)"),
         classes => if_repaired("changed_crontab");
 
   processes:
@@ -996,7 +1003,7 @@ body contain in_dir(s)
 body contain in_dir_shell(s)
 {
         chdir => "$(s)";
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
 }
 
 ##
@@ -1011,21 +1018,21 @@ body contain silent_in_dir(s)
 
 body contain in_shell
 {
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
 }
 
 ##
 
 body contain in_shell_bg
 {
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
 }
 
 ##
 
 body contain in_shell_and_silent
 {
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
         no_output => "true";
 }
 
@@ -1033,7 +1040,7 @@ body contain in_shell_and_silent
 
 body contain in_dir_shell_and_silent(dir)
 {
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
         no_output => "true";
         chdir => "$(dir)";
 }
@@ -1043,7 +1050,7 @@ body contain in_dir_shell_and_silent(dir)
 body contain setuid(x)
 {
         exec_owner => "$(x)";
-        useshell => "false";
+useshell => "false"; # canonical "noshell" but this is backwards-compatible
 }
 
 ##
@@ -1051,7 +1058,7 @@ body contain setuid(x)
 body contain setuid_sh(x)
 {
         exec_owner => "$(x)";
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
 }
 
 ##
@@ -1060,7 +1067,7 @@ body contain setuidgid_sh(owner,group)
 {
         exec_owner => "$(owner)";
         exec_group => "$(group)";
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
 }
 
 ##
@@ -1068,7 +1075,7 @@ body contain setuidgid_sh(owner,group)
 body contain jail(owner,root,dir)
 {
         exec_owner => "$(owner)";
-        useshell => "true";
+useshell => "true"; # canonical "useshell" but this is backwards-compatible
         chdir => "$(dir)";
         chroot => "$(root)";
 }
@@ -1417,7 +1424,7 @@ body acl access_generic(acl)
 # applicable for both files and directories on all platforms
 {
         acl_method => "overwrite";
-        aces => { "@{acl}" };
+aces => { "@(acl)" };
 
     windows::
         acl_type => "ntfs";
@@ -1432,7 +1439,7 @@ body acl ntfs(acl)
 {
         acl_type => "ntfs";
         acl_method => "overwrite";
-        aces => { "@{acl}" };
+aces => { "@(acl)" };
 }
 
 ##
@@ -1465,7 +1472,7 @@ body depth_search recurse(d)
 body depth_search recurse_ignore(d,list)
 {
         depth => "$(d)";
-        exclude_dirs => { @{list} };
+exclude_dirs => { @(list) };
 }
 
 ##
@@ -1569,7 +1576,7 @@ body file_select dirs
 
 body file_select by_name(names)
 {
-        leaf_name  => { @{names}};
+leaf_name  => { @(names)};
         file_result => "leaf_name";
 }
 
@@ -1577,7 +1584,7 @@ body file_select by_name(names)
 
 body file_select ex_list(names)
 {
-        leaf_name  => { @{names}};
+leaf_name  => { @(names)};
         file_result => "!leaf_name";
 }
 
