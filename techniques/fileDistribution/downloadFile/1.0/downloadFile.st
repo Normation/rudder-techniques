@@ -29,21 +29,15 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
 
   commands:
 
-    linux.file_not_found::
-      "/usr/bin/curl"
-        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
-        comment => "Getting the file from the server",
-        classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
-
-    windows.file_not_found::
-      "\"${g.rudder_base_sbin}\curl\curl.exe\""
+    file_not_found::
+      "\"${g.rudder_curl}\""
         args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
         comment => "Getting the file from the server",
         classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
   files:
 
-    linux::
+    (android|linux)::
       "&DOWNLOADFILE_DESTINATION&"
         pathtype => "literal", 	# force literal interpretation
         perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
