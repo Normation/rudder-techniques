@@ -111,7 +111,7 @@ bundle agent sendInventoryToCmdb
         transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/",
         depth_search => recurse_visible(1),
         file_select => all_files,
-        classes => rudder_common_classes("rudder_inventory_processing");
+        classes => rudder_common_classes("rudder_inventory_processing"),
         comment => "Processing a local inventory";
 
     policy_server.!root_server::
@@ -120,14 +120,14 @@ bundle agent sendInventoryToCmdb
         transformer => "/usr/bin/curl -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  http://${server_info.cfserved}/inventories/",
         depth_search => recurse_visible(1),
         file_select => inventory_files,
-        classes => rudder_common_classes("rudder_inventory_relay");
+        classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
         file_select => inventory_files,
-        classes => rudder_common_classes("rudder_inventory_relay");
+        classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
     policy_server.!root_server.!rudder_inventory_relay_error::
@@ -136,7 +136,7 @@ bundle agent sendInventoryToCmdb
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select => inventory_files,
-        classes => rudder_common_classes("rudder_inventory_cleanup");
+        classes => rudder_common_classes("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
   reports:
