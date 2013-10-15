@@ -60,6 +60,14 @@ bundle agent setup_debian_backports
 
 
 bundle agent install_rsyslogd {
+	vars:
+
+		root_server::
+			"rsyslog_source_file" string => "rudder-rsyslog-root.conf";
+
+		policy_server.!root_server::
+			"rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
+
 	packages:
 
                 policy_server.debian_5.!SuSE::
@@ -89,11 +97,13 @@ bundle agent install_rsyslogd {
                                 comment => "Installing rsyslog_pgsql using apt backports";
 
 	files:
+
 		policy_server::
+
 			"/etc/rsyslog.d/rudder.conf"
 				create    => "true",
 				edit_defaults => empty,
-				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/rudder.conf"),
+				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/${rsyslog_source_file}"),
         			classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
 			        comment => "Copying rsyslog conf";	
 

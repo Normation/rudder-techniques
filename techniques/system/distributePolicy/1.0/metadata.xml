@@ -52,8 +52,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="rudder">
-      <OUTPATH>distributePolicy/rsyslog.conf/rudder.conf</OUTPATH>
+    <TML name="rudder-rsyslog-root">
+      <OUTPATH>distributePolicy/rsyslog.conf/rudder-rsyslog-root.conf</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="rudder-rsyslog-relay">
+      <OUTPATH>distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="logrotate.debian">
@@ -74,6 +78,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>CMDBENDPOINT</NAME>
     <NAME>CLIENTSFOLDERS</NAME>
     <NAME>SYSLOGPORT</NAME>
+    <NAME>SHARED_FILES_FOLDER</NAME>
   </SYSTEMVARS>
 
   <TRACKINGVARIABLE>
