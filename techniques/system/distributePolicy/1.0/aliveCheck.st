@@ -59,7 +59,7 @@ bundle agent generic_alive_check(app)
 
     root_server::
 
-      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "jetty", "true"),
+      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "jetty", "true", "false"),
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}",
         classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
 
