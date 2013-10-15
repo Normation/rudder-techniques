@@ -21,6 +21,8 @@ bundle common p
 
   vars:
 
+    root_server::
+
       "no" int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","psql_password");
       "no2" int => getfields("RUDDER_OPENLDAP_BIND_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","ldap_password");
 
@@ -37,6 +39,8 @@ bundle agent root_password_check_disclaimer
       "disclaim" slist => { "@{p.managed_files}" };
 
   files:
+
+    root_server::
 
       "${disclaim}"
         edit_line => insert_rudder_disclaimer,
@@ -57,6 +61,8 @@ bundle agent root_password_check_file
 
   files:
 
+    root_server::
+
       "${g.rudder_base}/etc/rudder-passwords.conf"
         perms => mog("600", "root", "root"),
         classes => kept_if_else("file_ok", "file_repaired", "file_error");
@@ -67,7 +73,7 @@ bundle agent root_password_check_file
 
   reports:
 
-    linux::
+    root_server::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file is present and secure"
         ifvarclass => "file_ok.!file_repaired.!file_error";
@@ -77,6 +83,10 @@ bundle agent root_password_check_file
 
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#EMERGENCY: THE ${g.rudder_base}/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY."
         ifvarclass => "file_error";
+
+    policy_server.!root_server::
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file does not need to be checked on relay servers. Skipping...";
 
 }
 
@@ -94,6 +104,8 @@ bundle agent root_password_check_ldap
       "prop_edit" slist => { "@{p.properties_files}" };
 
   files:
+
+    root_server::
 
       "${prop_edit}"
         edit_line => set_variable_values("root_password_check_ldap.rudder"),
@@ -115,7 +127,7 @@ bundle agent root_password_check_ldap
 
   reports:
 
-    linux::
+    root_server::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked LDAP password)"
         ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
@@ -138,12 +150,20 @@ bundle agent root_password_check_ldap
       "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-passwords.conf file@@None@@${g.execRun}##${g.uuid}@#slapd has been restarted"
         ifvarclass => "slapd_restarted";
 
+    policy_server.!root_server::
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file do not need to be checked on relay servers. Skipping...";
+
 }
 
 bundle agent root_password_check_psql
 {
 
   vars:
+
+    root_server::
 
       "no" int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","psql_pass");
 
@@ -152,9 +172,13 @@ bundle agent root_password_check_psql
 
   classes:
 
+    root_server::
+
       "psql_cant_connect" not => returnszero("/usr/bin/psql --host localhost --username rudder --dbname rudder --quiet --output /dev/null --command 'select id from ruddersysevents limit 1' 2> /dev/null","useshell");
 
   files:
+
+    root_server::
 
       "${g.rudder_base}/etc/rudder-web.properties"
         edit_line => set_variable_values("root_password_check_psql.rudder"),
@@ -171,7 +195,7 @@ bundle agent root_password_check_psql
 
   reports:
 
-    linux::
+    root_server::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked SQL password)"
         ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
@@ -190,6 +214,12 @@ bundle agent root_password_check_psql
 
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password could not be changed!"
         ifvarclass => "postgres_update_failed";
+
+    policy_server.!root_server::
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's do not need to be checked on relay servers. Skipping...";
 
 }
 
