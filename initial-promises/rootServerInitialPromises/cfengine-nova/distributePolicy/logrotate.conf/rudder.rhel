@@ -36,6 +36,7 @@
         compress
         notifempty
         create 640 root root
+        delaycompress
         postrotate
           /etc/init.d/rsyslog reload > /dev/null
         endscript
@@ -62,4 +63,5 @@
         compress
         notifempty
         create 640 root root
+        delaycompress
 }

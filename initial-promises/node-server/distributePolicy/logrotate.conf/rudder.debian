@@ -55,4 +55,5 @@ var/log/rudder/compliance/non-compliant-reports.log {
         compress
         notifempty
         create 640 root adm
+        delaycompress
 }
