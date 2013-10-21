@@ -97,17 +97,22 @@ bundle agent propagatePromises
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
+# We cannot use list of paths to send the inventories because it cause the transformer to fail
+# for some unknown reason
 bundle agent sendInventoryToCmdb
 {
-  vars:
-
-      "inventory_folders" slist => { "incoming", "accepted-nodes-updates" };
-
   files:
 
     root_server::
 
-      "${g.rudder_inventories}/${inventory_folders}"
+      "${g.rudder_inventories}/incoming"
+        transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        depth_search => recurse_visible(1),
+        file_select => all_files,
+        classes => rudder_common_classes("rudder_inventory_processing"),
+        comment => "Processing a local inventory";
+
+      "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
@@ -132,7 +137,14 @@ bundle agent sendInventoryToCmdb
 
     policy_server.!root_server.!rudder_inventory_relay_error::
 
-      "${g.rudder_inventories}/${inventory_folders}"
+      "${g.rudder_inventories}/incoming"
+        transformer => "/bin/rm -f ${this.promiser}",
+        depth_search => recurse_visible(1),
+        file_select => inventory_files,
+        classes => rudder_common_classes("rudder_inventory_cleanup"),
+        comment => "Purging the received inventory files after processing";
+
+      "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select => inventory_files,
