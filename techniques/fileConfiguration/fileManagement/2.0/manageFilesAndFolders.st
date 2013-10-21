@@ -186,7 +186,7 @@ bundle agent manageFilesAndFolders {
 
 	reports:
 
-        (linux|windows)::
+        (linux|!linux)::
 
 			# Reporting for creation
 			## Reporting for directory creation
