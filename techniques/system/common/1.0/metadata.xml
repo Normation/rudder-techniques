@@ -36,8 +36,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>promises.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="rudder_agent_community_cron">
+      <OUTPATH>common/cron/rudder_agent_community_cron</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="rudder_agent_nova_cron">
+      <OUTPATH>common/cron/rudder_agent_nova_cron</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="rudder_promises_generated">
+      <OUTPATH>rudder_promises_generated</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="rudder_parameters"/>
   </TMLS>
-      
+
   <SYSTEMVARS>
     <NAME>ALLOWCONNECT</NAME>
     <NAME>CLIENTSLIST</NAME>
@@ -52,18 +65,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>DAVUSER</NAME>
     <NAME>DAVPASSWORD</NAME>
     <NAME>SYSLOGPORT</NAME>
-  </SYSTEMVARS>  
+    <NAME>MANAGED_NODES_NAME</NAME>
+    <NAME>MANAGED_NODES_ID</NAME> 
+  </SYSTEMVARS>
 
   <SECTIONS>
 
-	  <!-- The following sections are for reporting only, variable are defined in the main section below -->
-	  <SECTION name="Red Button" component="true" />
-	  <SECTION name="Security parameters" component="true" />
-	  <SECTION name="Update" component="true" />
-	  <SECTION name="Log system for reports" component="true" />
-	  <SECTION name="CRON Daemon" component="true" />
-	  <SECTION name="Binaries update" component="true" />
-	  <SECTION name="Process checking" component="true" />
+    <!-- The following sections are for reporting only, variable are defined in the main section below -->
+    <SECTION name="Red Button" component="true" />
+    <SECTION name="Security parameters" component="true" />
+    <SECTION name="Update" component="true" />
+    <SECTION name="Log system for reports" component="true" />
+    <SECTION name="CRON Daemon" component="true" />
+    <SECTION name="Binaries update" component="true" />
+    <SECTION name="Process checking" component="true" />
 
     <SECTION name="common">
       <INPUT>
@@ -117,5 +132,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SECTION>
     </SECTION>
   </SECTIONS>
-  
+
 </TECHNIQUE>

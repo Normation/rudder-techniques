@@ -23,90 +23,92 @@
 # aware of this if a file creation is reported !
 #
 
-bundle agent check_hosts_configuration {
+bundle agent check_hosts_configuration
+{
 
-	vars:
+  vars:
 
-		&HOSTS_HOST:{host |"hosts_host[&i&]" string => "&host&";
+    &HOSTS_HOST:{host |"hosts_host[&i&]" string => "&host&";
 }&
 
-		&HOSTS_IP:{ip |"hosts_ip[&i&]" string => "&ip&";
+    &HOSTS_IP:{ip |"hosts_ip[&i&]" string => "&ip&";
 }&
 
-		"hosts_base_template" string => "&HOSTS_BASE_TEMPLATE&";
+      "hosts_base_template" string => "&HOSTS_BASE_TEMPLATE&";
 
-	files:
+  files:
 
-		linux::
+    linux::
 
-			"/etc/hosts"
+      "/etc/hosts"
 
-				create => "true",
-				perms => m("644"),
+        create => "true",
+        perms => m("644"),
 &if (HOSTS_ENFORCE)&
-				edit_defaults => empty_backup,
+        edit_defaults => empty_backup,
 &else&
-				edit_defaults => noempty_backup,
+        edit_defaults => noempty_backup,
 &endif&
 
-				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip", "$(hosts_base_template)"),
-				classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
+        edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip", "${hosts_base_template}"),
+        classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
 
-		windows::
+    windows::
 
-			"$(sys.winsysdir)\drivers\etc\hosts"
+      "${sys.winsysdir}\drivers\etc\hosts"
 
-				create => "true",
-				# perms => m("644"),
+        create => "true",
+        # perms => m("644"),
 &if (HOSTS_ENFORCE)&
-				edit_defaults => empty_backup,
+        edit_defaults => empty_backup,
 &else&
-				edit_defaults => noempty_backup,
+        edit_defaults => noempty_backup,
 &endif&
 
-				edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
-				classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
+        edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
+        classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
 
 
-	reports:
+  reports:
 
-		(linux|windows)::
+    (linux|windows)::
 &if (HOSTS_ENFORCE)&
-			"@@hostsConfiguration@@log_debug@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file content enforcement requested";
+      "@@hostsConfiguration@@log_debug@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file content enforcement requested";
 &endif&
 
-		hosts_edition_done::
-			"@@hostsConfiguration@@result_repaired@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file was updated";
+    hosts_edition_done::
+      "@@hostsConfiguration@@result_repaired@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file was updated";
 
-		hosts_edition_kept.!hosts_edition_done::
-			"@@hostsConfiguration@@result_success@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file already OK";
+    hosts_edition_kept.!hosts_edition_done::
+      "@@hostsConfiguration@@result_success@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file already OK";
 
-		hosts_edition_failed::
-			"@@hostsConfiguration@@result_error@@&TRACKINGKEY&@@hostsConfiguration@@None@@$(g.execRun)##$(g.uuid)@#Hosts file could not be edited";
+    hosts_edition_failed::
+      "@@hostsConfiguration@@result_error@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file could not be edited";
 
 
 }
 
-bundle edit_line set_hosts_values(hosts, ips, base_tmpl) {
+bundle edit_line set_hosts_values(hosts, ips, base_tmpl)
+{
 
-vars:
+  vars:
 
-	"hosts_index" slist => getindices("$(hosts)");
+      "hosts_index" slist => getindices("${hosts}");
 
-delete_lines:
+  delete_lines:
 
-	"$($(ips)[$(hosts_index)]).*";
+      "${${ips}[${hosts_index}]}.*";
 
-insert_lines:
+  insert_lines:
 
 &if (HOSTS_ENFORCE)&
 
-	"$(base_tmpl)"
-		insert_type => "preserve_block";
+      "${base_tmpl}"
+        insert_type => "preserve_block";
 
 &endif&
 
-	"$($(ips)[$(hosts_index)])	$($(hosts)[$(hosts_index)])";
+      "${${ips}[${hosts_index}]}	${${hosts}[${hosts_index}]}";
 
 }
 

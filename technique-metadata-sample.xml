@@ -1,82 +1,82 @@
 <!--
-		This is a sample metadata.xml file to create a Rudder Technique.
-		You can use this as a starting point, and change the information below.
+    This is a sample metadata.xml file to create a Rudder Technique.
+    You can use this as a starting point, and change the information below.
 -->
 
 <!-- The "technical name" for this Technique is the name of the directory
-	 it is contained in. It must be unique across all Techniques. -->
+   it is contained in. It must be unique across all Techniques. -->
 
 <!-- The name here is the "human readable name" of this Technique.
-	 It is displayed in the web interface as the main name for this Technique -->
+   It is displayed in the web interface as the main name for this Technique -->
 <TECHNIQUE name="Sample Technique">
 
-	<!-- This description is displayed in detailed views in the interface.
-		 It should be used to describe what this Technique does, in detail.
-		 New lines will be ignored. -->
-	<DESCRIPTION>This sample technique actually does nothing, except demonstrate.</DESCRIPTION>
+  <!-- This description is displayed in detailed views in the interface.
+     It should be used to describe what this Technique does, in detail.
+     New lines will be ignored. -->
+  <DESCRIPTION>This sample technique actually does nothing, except demonstrate.</DESCRIPTION>
 
-	<!-- Can several Directives based on this Technique be applied to the same node?
-		 If so, the Technique will have to be written to support multi-valued variables.
-		 -->
-	<MULTIINSTANCE>false</MULTIINSTANCE>
+  <!-- Can several Directives based on this Technique be applied to the same node?
+     If so, the Technique will have to be written to support multi-valued variables.
+     -->
+  <MULTIINSTANCE>false</MULTIINSTANCE>
 
-	<!-- List of .st files (also called templates or TMLS)
-		 in this Technique to import and parse variables in.
-		 Note: the ".st" extension will be added automatically, don't specify it here -->
-	<TMLS>
-		<TML name="sample_technique"/>
-	</TMLS>
-	
-	<!-- List of CFEngine bundles in the above .st TMLS to call.
-		 These will be added to the CFEngine bundlesequence.
-	     Technically, they don't have to have the same name as the
-		 TML, but if there is one bundle per TML, it is recommended. -->
-	<BUNDLES>
-		<NAME>sample_technique</NAME>
-	</BUNDLES>
-	
-	<!-- Define agent and OS compatibility for this Technique.
-		 Currently, this is for information purposes only. -->
-	<COMPATIBLE>
-		<OS version=">= 5">Debian</OS>
-		<OS version=">= 5">RHEL</OS>
-		<AGENT version=">= 3.1.5">cfengine-community</AGENT>
-	</COMPATIBLE>
+  <!-- List of .st files (also called templates or TMLS)
+     in this Technique to import and parse variables in.
+     Note: the ".st" extension will be added automatically, don't specify it here -->
+  <TMLS>
+    <TML name="sample_technique"/>
+  </TMLS>
 
-	<TRACKINGVARIABLE>
-		<!--<SAMESIZEAS>MOTD</SAMESIZEAS>-->
-	</TRACKINGVARIABLE>
-		
-	<!-- From here on, define variables to display in the web interface
-		 All variables must be contained in a section.
-		 Sections may be multivalued, or not -->
-	<SECTIONS>
-		<SECTION name="MOTD entry" multivalued="false">
-			<INPUT>
-				<NAME>MOTD</NAME>
-				<DESCRIPTION>Message of the day (MOTD) to display</DESCRIPTION>
-	<REGEX error="Please enter a valid motd, without quotes"><![CDATA[ ([^"]|(?<=\\)")* ]]></REGEX>
-				<CONSTRAINT>
-					<TYPE>textarea</TYPE>
-				</CONSTRAINT>
-			</INPUT>
-			<SELECT1>
-				<NAME>MOTD_EMPTY</NAME>
-				<DESCRIPTION>Enforce this MOTD only</DESCRIPTION>
-				<LONGDESCRIPTION>This option will remove any existing messages in the motd file and replace them with the text provided above</LONGDESCRIPTION>
-				<ITEM>
-					<LABEL>Yes</LABEL>
-					<VALUE>true</VALUE>
-				</ITEM>
-				<ITEM>
-					<LABEL>No</LABEL>
-					<VALUE>false</VALUE>
-				</ITEM>
-				<CONSTRAINT>
-					<DEFAULT>false</DEFAULT>
-				</CONSTRAINT>
-			</SELECT1>
-		</SECTION>
-	</SECTIONS>
+  <!-- List of CFEngine bundles in the above .st TMLS to call.
+     These will be added to the CFEngine bundlesequence.
+       Technically, they don't have to have the same name as the
+     TML, but if there is one bundle per TML, it is recommended. -->
+  <BUNDLES>
+    <NAME>sample_technique</NAME>
+  </BUNDLES>
+
+  <!-- Define agent and OS compatibility for this Technique.
+     Currently, this is for information purposes only. -->
+  <COMPATIBLE>
+    <OS version=">= 5">Debian</OS>
+    <OS version=">= 5">RHEL</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <TRACKINGVARIABLE>
+    <!--<SAMESIZEAS>MOTD</SAMESIZEAS>-->
+  </TRACKINGVARIABLE>
+
+  <!-- From here on, define variables to display in the web interface
+     All variables must be contained in a section.
+     Sections may be multivalued, or not -->
+  <SECTIONS>
+    <SECTION name="MOTD entry" multivalued="false">
+      <INPUT>
+        <NAME>MOTD</NAME>
+        <DESCRIPTION>Message of the day (MOTD) to display</DESCRIPTION>
+          <REGEX error="Please enter a valid motd, without quotes"><![CDATA[ ([^"]|(?<=\\)")* ]]></REGEX>
+        <CONSTRAINT>
+          <TYPE>textarea</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>MOTD_EMPTY</NAME>
+        <DESCRIPTION>Enforce this MOTD only</DESCRIPTION>
+        <LONGDESCRIPTION>This option will remove any existing messages in the motd file and replace them with the text provided above</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
 
 </TECHNIQUE>

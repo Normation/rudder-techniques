@@ -16,7 +16,7 @@
 #
 #####################################################################################
 
-# This our core-library of common 
+# This our core-library of common
 # function. That's our knowledge !
 #
 # Just bodies and editbundles here
@@ -25,38 +25,42 @@
 
 
 
-body depth_search recurse_visible(d) {
-    depth        => "$(d)";
-    exclude_dirs => { "\..*" };
+body depth_search recurse_visible(d)
+{
+        depth        => "${d}";
+        exclude_dirs => { "\..*" };
 }
 
 #perms validation
-body perms u_p(p) {
-  mode  => "$(p)";
+body perms u_p(p)
+{
+        mode  => "${p}";
 }
 
 #########################################################
 #server may be a list
-body copy_from cp(from,server) {
-  servers     => { "${server}" };
-  source      => "$(from)";
-  compare     => "digest";
-community_edition::
- 	portnumber => "5309";
-  
+body copy_from cp(from,server)
+{
+        servers     => { "${server}" };
+        source      => "${from}";
+        compare     => "digest";
+    community_edition::
+        portnumber => "5309";
+
 }
 
-body copy_from scp(from, server,trustkey,preserve,purge) {
-  servers  => { "${server}" };
-  source   => "$(from)";
-  compare  => "digest";
-  encrypt  => "true";
-  verify   => "true";
-  trustkey => "${trustkey}";
-  preserve => "${preserve}"; #preserver permissions
-  purge    => "${purge}";
-community_edition::
- 	portnumber => "5309";
+body copy_from scp(from, server,trustkey,preserve,purge)
+{
+        servers  => { "${server}" };
+        source   => "${from}";
+        compare  => "digest";
+        encrypt  => "true";
+        verify   => "true";
+        trustkey => "${trustkey}";
+        preserve => "${preserve}"; #preserver permissions
+        purge    => "${purge}";
+    community_edition::
+        portnumber => "5309";
 }
 
 # This is an evolved version of copy_from scp that uses local copies if we are
@@ -80,17 +84,23 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
 }
 
 body copy_from copy(from) {
-	source => "$(from)";
-	copy_backup => "false";
-community_edition::
- 	portnumber => "5309";
-
+    source      => "$(from)";
+    copy_backup => "false";
+  community_edition::
+    portnumber  => "5309";
 }
 
+body copy_from copy(from)
+{
+        source      => "${from}";
+        copy_backup => "false";
+        preserve    => "true";
+}
 
-body copy_from copy_digest(from) {
-        source => "$(from)";
+body copy_from copy_digest(from)
+{
+        source => "${from}";
         copy_backup => "false";
         preserve => "true";
-	compare => "digest";
+        compare => "digest";
 }

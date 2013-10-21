@@ -23,42 +23,51 @@
 #       - default apt_preferences to upgrade packages installed from backports
 #       - a package_method to install packages from backports via cfengine
 
-bundle agent setup_debian_backports {
-        vars:
-                "apt_source_line"       slist => { "deb http://backports.debian.org/debian-backports lenny-backports" };
-                "apt_components"        slist => { "main" };
+bundle agent setup_debian_backports
+{
+  vars:
+      "apt_source_line"       slist => { "deb http://backports.debian.org/debian-backports lenny-backports" };
+      "apt_components"        slist => { "main" };
 
-        files:
+  files:
 
-		debian_5::
+    debian_5::
 
-	                "/etc/apt/sources.list"
-	                        comment => "Include extra apt repos",
-	                        edit_line => append_if_no_lines("$(apt_source_line) $(apt_components)"),
-	                        classes => if_repaired("apt_sources_updated");
+      "/etc/apt/sources.list"
+        comment => "Include extra apt repos",
+        edit_line => append_if_no_lines("${apt_source_line} ${apt_components}"),
+        classes => if_repaired("apt_sources_updated");
 
-        	        "/etc/apt/preferences"
-			comment => "Set automatic upgrades for packages installed from backports (recommended setting from backports.debian.org)",
-			create => "true",
-			edit_line => append_if_no_lines("Package: *$(const.n)Pin: release a=lenny-backports$(const.n)Pin-Priority: 200"),
-			classes => if_repaired("apt_preferences_repaired");
+      "/etc/apt/preferences"
+        comment => "Set automatic upgrades for packages installed from backports (recommended setting from backports.debian.org)",
+        create => "true",
+        edit_line => append_if_no_lines("Package: *${const.n}Pin: release a=lenny-backports${const.n}Pin-Priority: 200"),
+        classes => if_repaired("apt_preferences_repaired");
 
-        commands:
-                apt_sources_updated::
-                        "/usr/bin/aptitude"
-                                args => "update";
+  commands:
+    apt_sources_updated::
+      "/usr/bin/aptitude"
+        args => "update";
 
-        reports:
-                apt_sources_updated::
-			"apt's sources.list was edited, and an aptitude update will now run";
+  reports:
+    apt_sources_updated::
+      "apt's sources.list was edited, and an aptitude update will now run";
 
-                apt_preferences_repaired::
-			"apt's /etc/apt/preferences file was changed";
+    apt_preferences_repaired::
+      "apt's /etc/apt/preferences file was changed";
 
 }
 
 
 bundle agent install_rsyslogd {
+	vars:
+
+		root_server::
+			"rsyslog_source_file" string => "rudder-rsyslog-root.conf";
+
+		policy_server.!root_server::
+			"rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
+
 	packages:
 
                 policy_server.debian_5.!SuSE::
@@ -88,11 +97,13 @@ bundle agent install_rsyslogd {
                                 comment => "Installing rsyslog_pgsql using apt backports";
 
 	files:
+
 		policy_server::
+
 			"/etc/rsyslog.d/rudder.conf"
 				create    => "true",
 				edit_defaults => empty,
-				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/rudder.conf"),
+				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/${rsyslog_source_file}"),
         			classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
 			        comment => "Copying rsyslog conf";	
 
@@ -142,45 +153,47 @@ bundle agent install_rsyslogd {
 }
 
 # Package method to install packages from debian-backports
-body package_method debian_backports {
+body package_method debian_backports
+{
 
-	debian::
-		package_changes => "bulk";
-		package_list_command => "/usr/bin/dpkg -l";
-		package_list_name_regex    => "ii\s+([^\s]+).*";
-		package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
-		package_installed_regex => ".*"; # all reported are installed
-		package_name_convention => "$(name)";
-		package_list_update_ifelapsed => "240";		# 4 hours
+    debian::
+        package_changes => "bulk";
+        package_list_command => "/usr/bin/dpkg -l";
+        package_list_name_regex    => "ii\s+([^\s]+).*";
+        package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
+        package_installed_regex => ".*"; # all reported are installed
+        package_name_convention => "${name}";
+        package_list_update_ifelapsed => "240";		# 4 hours
 
-	debian.have_aptitude::
-		package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false -t lenny-backports --assume-yes install";
-		package_list_update_command => "/usr/bin/aptitude update";
-		package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false --assume-yes -q remove";
-		package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false --assume-yes install";
-		package_verify_command =>  "/usr/bin/aptitude show";
-		package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
+    debian.have_aptitude::
+        package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false -t lenny-backports --assume-yes install";
+        package_list_update_command => "/usr/bin/aptitude update";
+        package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false --assume-yes -q remove";
+        package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false --assume-yes install";
+        package_verify_command => "/usr/bin/aptitude show";
+        package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
 
-	debian.!have_aptitude::
-		package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -t lenny-backports install";
-		package_list_update_command => "/usr/bin/apt-get update";
-		package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -q remove";
-		package_update_command =>  "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes install";
-		package_verify_command => "/usr/bin/dpkg -s";
-		package_noverify_returncode => "1";
+    debian.!have_aptitude::
+        package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -t lenny-backports install";
+        package_list_update_command => "/usr/bin/apt-get update";
+        package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -q remove";
+        package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes install";
+        package_verify_command => "/usr/bin/dpkg -s";
+        package_noverify_returncode => "1";
 
 }
 
-bundle edit_line comment_all() {
+bundle edit_line comment_all()
+{
   replace_patterns:
   # comment all lines
-   "^[^#](.*)"
-	replace_with => comments;
+      "^[^#](.*)"
+        replace_with => comments;
 }
 
 body replace_with comments
 {
-replace_value => "#$(match.1)"; # backreference 0
-occurrences => "all";  # first, last all
+        replace_value => "#${match.1}"; # backreference 0
+        occurrences => "all";  # first, last all
 }
 

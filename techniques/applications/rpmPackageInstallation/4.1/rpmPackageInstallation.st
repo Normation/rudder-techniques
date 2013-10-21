@@ -145,7 +145,6 @@ redhat::
 	package_changes => "individual";
 
 	package_list_command => "/usr/bin/yum list installed";
-	package_patch_list_command => "/usr/bin/yum check-update";
 	package_list_name_regex    => "([^.]+).*";
 	package_list_version_regex => "[^\s]\s+([^\s]+).*";
 	package_list_arch_regex    => "[^.]+\.([^\s]+).*";
@@ -153,10 +152,6 @@ redhat::
 	package_name_convention => "$(name).$(arch)";
 	package_delete_convention  => "${name}";
 	package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
-	package_patch_installed_regex => "";
-	package_patch_name_regex    => "([^.]+).*";
-	package_patch_version_regex => "[^\s]\s+([^\s]+).*";
-	package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
 	package_add_command => "/usr/bin/yum -y install";
 	package_delete_command => "/bin/rpm -e";
 	package_verify_command => "/bin/rpm -V";
@@ -180,24 +175,17 @@ SuSE_10::
 	package_changes => "individual";
 
 	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
-	package_patch_list_command => "/usr/bin/rug patches";
 	package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
 	package_installed_regex => "i.*";
 	package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
 	package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
 	package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
 
-	package_patch_installed_regex => ".*Installed.*|.*Not Applicable.*";
-	package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
-	package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
-
 	package_name_convention => "$(name)";
 	package_add_command => "/usr/bin/rug install -y";
 	package_delete_command => "/usr/bin/rug remove -y";
 	package_update_command => "/usr/bin/rug update -y";
 
-	#Unsure about the behavior of this command ...
-	#package_patch_command => "/usr/bin/rug patch-info";
 	package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
 }
 

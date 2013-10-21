@@ -18,58 +18,53 @@
 
 bundle agent internal_security
 {
-	vars:
+  vars:
 
-		!windows::
+    !windows::
 
-			"mode" string => "600";
-			"user" string => "root";
-			"group" string => "root";
+      "mode"  string => "600";
+      "user"  string => "root";
+      "group" string => "root";
 
-		#windows::
+    #windows::
 
-		#	"mode" string => "755";
-		#	"user" string => "Administrator";
-		#	"group" string => "Administrators";
+    #	"mode"  string => "755";
+    #	"user"  string => "Administrator";
+    #	"group" string => "Administrators";
 
-	files:
+  files:
 
-		!windows::
+    !windows::
 
-			"$(g.rudder_var)/cfengine-community/inputs"
-				depth_search => recurse("inf"),
-				perms => mog("$(mode)", "$(user)", "$(group)"),
-				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
+      "${g.rudder_var}/cfengine-community/inputs"
+        depth_search => recurse("inf"),
+        perms        => mog("${mode}", "${user}", "${group}"),
+        classes      => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-			"$(g.rudder_var)/cfengine-community/inputs"
-				perms => mog("$(mode)", "$(user)", "$(group)"),
-				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
+      "${g.rudder_var}/cfengine-community/inputs"
+        perms   => mog("${mode}", "${user}", "${group}"),
+        classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-			"$(g.rudder_var)/cfengine-community/ppkeys"
-				depth_search => recurse("inf"),
-				perms => mog("$(mode)", "$(user)", "$(group)"),
-				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
+      "${g.rudder_var}/cfengine-community/ppkeys"
+        depth_search => recurse("inf"),
+        perms        => mog("${mode}", "${user}", "${group}"),
+        classes      => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-			"$(g.rudder_var)/cfengine-community/ppkeys"
-				perms => mog("$(mode)", "$(user)", "$(group)"),
-				classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
+      "${g.rudder_var}/cfengine-community/ppkeys"
+        perms   => mog("${mode}", "${user}", "${group}"),
+        classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-reports:
+  reports:
 
-  security_sanitization_ok.!security_sanitization_repaired::
+    security_sanitization_ok.!security_sanitization_repaired::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#The internal environment security is acceptable";
 
-    "@@Common@@result_success@@&TRACKINGKEY&@@Security parameters@@None@@$(g.execRun)##$(g.uuid)@#The internal environment security is acceptable";
+    security_sanitization_repaired::
+      "@@Common@@result_repaired@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#Some internal security parameters were adjusted";
 
-  security_sanitization_repaired::
+    security_sanitization_failed::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#The internal environment security is NOT acceptable!";
 
-    "@@Common@@result_repaired@@&TRACKINGKEY&@@Security parameters@@None@@$(g.execRun)##$(g.uuid)@#Some internal security parameters were adjusted";
-
-  security_sanitization_failed::
-
-    "@@Common@@result_error@@&TRACKINGKEY&@@Security parameters@@None@@$(g.execRun)##$(g.uuid)@#The internal environment security is NOT acceptable!";
-
-  windows::
-
-    "@@Common@@result_success@@&TRACKINGKEY&@@Security parameters@@None@@$(g.execRun)##$(g.uuid)@#No internal security parameters defined for Windows OSes yet";
-
+    windows::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#No internal security parameters defined for Windows OSes yet";
 }

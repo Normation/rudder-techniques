@@ -17,52 +17,53 @@
 #####################################################################################
 
 
-bundle agent file_alteration_monitor {
+bundle agent file_alteration_monitor
+{
 
-        vars:
+  vars:
 
                 &MONITOR_ENTITY_NAME:{name |"monitor_entity[&i&][name]" string => "&name&";
 }&
                 &TRACKINGKEY:{uuid |"monitor_entity[&i&][uuid]" string => "&uuid&";
 }&
-		"index" slist => getindices("monitor_entity");
+      "index" slist => getindices("monitor_entity");
 
-	classes:
+  classes:
 
-		"isfile_$(index)" expression => isplain("$(monitor_entity[$(index)][name])");
-		"isdir_$(index)" expression => isdir("$(monitor_entity[$(index)][name])");
-
-
-	files:
-
-		"$(monitor_entity[$(index)][name])"
-
-			ifvarclass => "isdir_$(index)",
-			changes => detect_all_change,
-			classes => kept_if_else("$(index)_kept", "$(index)_changed", "$(index)_error"),
-			depth_search => recurse("inf");
-
-		"$(monitor_entity[$(index)][name])"
-
-			ifvarclass => "isfile_$(index)",
-			changes => detect_all_change,
-			classes => kept_if_else("$(index)_kept", "$(index)_changed", "$(index)_error");
+      "isfile_${index}" expression => isplain("${monitor_entity[${index}][name]}");
+      "isdir_${index}" expression => isdir("${monitor_entity[${index}][name]}");
 
 
-	reports:
+  files:
 
-		linux|windows::
+      "${monitor_entity[${index}][name]}"
 
-		"@@fileAlterationMonitoring@@result_success@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) is consistent"
-			ifvarclass => "$(index)_kept";
+        ifvarclass => "isdir_${index}",
+        changes => detect_all_change,
+        classes => kept_if_else("${index}_kept", "${index}_changed", "${index}_error"),
+        depth_search => recurse("inf");
 
-		"@@fileAlterationMonitoring@@result_repaired@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) is INCONSISTENT: Either the file has changed or one of the elements in the directory has"
-			ifvarclass => "$(index)_changed";
+      "${monitor_entity[${index}][name]}"
 
-		"@@fileAlterationMonitoring@@result_error@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The content of $(monitor_entity[$(index)][name]) could not be checked"
-			ifvarclass => "$(index)_error";
+        ifvarclass => "isfile_${index}",
+        changes => detect_all_change,
+        classes => kept_if_else("${index}_kept", "${index}_changed", "${index}_error");
 
-		"@@fileAlterationMonitoring@@result_error@@$(monitor_entity[$(index)][uuid])@@File or directory to monitor@@$(monitor_entity[$(index)][name])@@$(g.execRun)##$(g.uuid)@#The entity $(monitor_entity[$(index)][name]) does not exist: alteration monitoring impossible"
-			ifvarclass => "!isdir_$(index).!isfile_$(index)";
+
+  reports:
+
+    linux|windows::
+
+      "@@fileAlterationMonitoring@@result_success@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The content of ${monitor_entity[${index}][name]} is consistent"
+        ifvarclass => "${index}_kept";
+
+      "@@fileAlterationMonitoring@@result_repaired@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The content of ${monitor_entity[${index}][name]} is INCONSISTENT: Either the file has changed or one of the elements in the directory has"
+        ifvarclass => "${index}_changed";
+
+      "@@fileAlterationMonitoring@@result_error@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The content of ${monitor_entity[${index}][name]} could not be checked"
+        ifvarclass => "${index}_error";
+
+      "@@fileAlterationMonitoring@@result_error@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The entity ${monitor_entity[${index}][name]} does not exist: alteration monitoring impossible"
+        ifvarclass => "!isdir_${index}.!isfile_${index}";
 
 }

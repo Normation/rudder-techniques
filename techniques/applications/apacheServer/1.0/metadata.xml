@@ -47,11 +47,11 @@ It then adds apache to the boot init scripts if not already set to start on boot
     <TML name="apacheServerConfiguration"/>
     <TML name="apacheServerInstall"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>APACHE_AUTOSTART</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="Apache2 installation" component="true" />
     <SECTION name="Apache bootstart" component="true" />

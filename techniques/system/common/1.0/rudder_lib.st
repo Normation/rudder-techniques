@@ -22,38 +22,42 @@
 #
 #####################################################################################
 
-body depth_search recurse_visible(d) {
-    depth        => "$(d)";
-    exclude_dirs => { "\..*" };
+body depth_search recurse_visible(d)
+{
+        depth        => "${d}";
+        exclude_dirs => { "\..*" };
 }
 
 #perms validation
-body perms u_p(p) {
-  mode  => "$(p)";
+body perms u_p(p)
+{
+        mode  => "${p}";
 }
 
 #########################################################
 #server may be a list
-body copy_from cp(from,server) {
-  servers     => { "${server}" };
-  source      => "$(from)";
-  compare     => "digest";
-community_edition::
- 	portnumber => "&COMMUNITYPORT&";
-  
+body copy_from cp(from,server)
+{
+        servers     => { "${server}" };
+        source      => "${from}";
+        compare     => "digest";
+    community_edition::
+        portnumber => "&COMMUNITYPORT&";
+
 }
 
-body copy_from scp(from, server,compare,trustkey,preserve,purge) {
-  servers  => { "${server}" };
-  source   => "$(from)";
-  compare  => "$(compare)";
-  encrypt  => "true";
-  verify   => "true";
-  trustkey => "${trustkey}";
-  preserve => "${preserve}"; #preserver permissions
-  purge    => "${purge}";
-community_edition::
- 	portnumber => "&COMMUNITYPORT&";
+body copy_from scp(from, server,compare,trustkey,preserve,purge)
+{
+        servers  => { "${server}" };
+        source   => "${from}";
+        compare  => "${compare}";
+        encrypt  => "true";
+        verify   => "true";
+        trustkey => "${trustkey}";
+        preserve => "${preserve}"; #preserver permissions
+        purge    => "${purge}";
+    community_edition::
+        portnumber => "&COMMUNITYPORT&";
 }
 
 # This is an evolved version of copy_from scp that uses local copies if we are
@@ -76,17 +80,19 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
     portnumber => "&COMMUNITYPORT&";
 }
 
-body copy_from copy(from) {
-	source => "$(from)";
-	copy_backup => "false";
-	preserve => "true";
+body copy_from copy(from)
+{
+        source      => "${from}";
+        copy_backup => "false";
+        preserve    => "true";
 }
 
-body copy_from copy_digest(from) {
-        source => "$(from)";
+body copy_from copy_digest(from)
+{
+        source      => "${from}";
         copy_backup => "false";
-        preserve => "true";
-	compare => "digest";
+        preserve    => "true";
+        compare     => "digest";
 }
 
 #########################################################
@@ -94,61 +100,65 @@ body copy_from copy_digest(from) {
 #########################################################
 body classes class_trigger(if,else,kept)
 {
-promise_kept => { "$(kept)" };
-promise_repaired => { "$(if)" };
-repair_failed => { "$(else)" };
-repair_denied    => { "$(else)" };
-repair_timeout   => { "$(else)" };
+        promise_kept     => { "${kept}" };
+        promise_repaired => { "${if}" };
+        repair_failed    => { "${else}" };
+        repair_denied    => { "${else}" };
+        repair_timeout   => { "${else}" };
 }
 
 #########################################################
 body location append
 {
-before_after => "after";
+        before_after => "after";
 }
 
 #########################################################
 body package_method yum_remi
 {
- package_changes => "bulk";
- package_list_command => "/usr/bin/yum list installed";
- package_list_name_regex    => "([^.]+).*";
- package_list_version_regex => "[^\s]\s+([^\s]+).*";
- package_list_arch_regex    => "[^.]+\.([^\s]+).*";
- package_installed_regex => ".*installed.*";
- package_name_convention => "$(name).$(arch)";
- package_delete_convention  => "${name}";
- package_add_command => "/usr/bin/yum --enablerepo=remi -y install";
- package_delete_command => "/bin/rpm -e";
- package_verify_command => "/bin/rpm -V";
+        package_changes            => "bulk";
+        package_list_command       => "/usr/bin/yum list installed";
+        package_list_name_regex    => "([^.]+).*";
+        package_list_version_regex => "[^\s]\s+([^\s]+).*";
+        package_list_arch_regex    => "[^.]+\.([^\s]+).*";
+        package_installed_regex    => ".*installed.*";
+        package_name_convention    => "${name}.${arch}";
+        package_delete_convention  => "${name}";
+        package_add_command        => "/usr/bin/yum --enablerepo=remi -y install";
+        package_delete_command     => "/bin/rpm -e";
+        package_verify_command     => "/bin/rpm -V";
 }
 
 #perms validation
-body perms p(user,mode) {
-  owners => { "$(user)" };
-  mode   => "$(mode)";
+body perms p(user,mode)
+{
+        owners => { "${user}" };
+        mode   => "${mode}";
 }
 
 ############################################
 
-body file_select cf3_files {
-  leaf_name => { "cf-.*" };
-  file_result => "leaf_name";
+body file_select cf3_files
+{
+        leaf_name   => { "cf-.*" };
+        file_result => "leaf_name";
 }
 
 
 #########################################################
 
-body changes lay_trip_wire {
-  hash           => "best";
-  report_changes => "content";
-  update_hashes  => "yes";
+body changes lay_trip_wire
+{
+        hash           => "best";
+        report_changes => "content";
+        update_hashes  => "yes";
 }
 
 ########################################################
 
-body action longjob {
-ifelapsed => "240"; # run only every 4 hours
+body action longjob
+{
+        ifelapsed => "240"; # run only every 4 hours
 }
 
 #######################################################
@@ -157,24 +167,24 @@ ifelapsed => "240"; # run only every 4 hours
 
 body edit_defaults noempty_backup
 {
-empty_file_before_editing => "false";
-edit_backup => "timestamp";  # we want to keep a track of everything
-max_file_size => "1024000";
+        empty_file_before_editing => "false";
+        edit_backup               => "timestamp";  # we want to keep a track of everything
+        max_file_size             => "1024000";
 }
 
 body edit_defaults empty_backup
 {
-empty_file_before_editing => "true";
-edit_backup => "timestamp";
-max_file_size => "1024000";
+        empty_file_before_editing => "true";
+        edit_backup               => "timestamp";
+        max_file_size             => "1024000";
 }
 
 
 body edit_defaults def_no_backup
 {
-empty_file_before_editing => "false";
-edit_backup => "false";
-max_file_size => "1024000";
+        empty_file_before_editing => "false";
+        edit_backup               => "false";
+        max_file_size             => "1024000";
 }
 ########################################################
 
@@ -182,18 +192,20 @@ max_file_size => "1024000";
 
 ########################################################
 
-bundle edit_line DeleteLinesMatching(regex) {
+bundle edit_line DeleteLinesMatching(regex)
+{
   delete_lines:
 
-    "$(regex)"
-  action => WarnOnly;
+      "${regex}"
+        action => WarnOnly;
 
 }
 
 ########################################################
 
-body action WarnOnly {
-  action_policy => "warn";
+body action WarnOnly
+{
+        action_policy => "warn";
 }
 
 ########################################
@@ -203,8 +215,8 @@ body action WarnOnly {
 body replace_with With(x)
 
 {
-replace_value => "$(x)";
-occurrences => "all";
+        replace_value => "${x}";
+        occurrences   => "all";
 }
 
 ########################################
@@ -214,8 +226,8 @@ occurrences => "all";
 ################################
 body contain outputable
 {
-useshell => "true";
-no_output=> "false";
+        useshell  => "true";
+        no_output => "false";
 }
 
 ################################
@@ -223,18 +235,19 @@ no_output=> "false";
 ################################
 body contain outputable_dir(dir)
 {
-useshell => "true";
-no_output=> "false";
-chdir => "$(dir)";
+        useshell  => "true";
+        no_output => "false";
+        chdir     => "${dir}";
 }
 
 ################################
 # Process is launched ?
 ################################
-body process_count islaunched(class) {
-  match_range => irange("1", "500");
-  in_range_define => { "$(class)"};
-  out_of_range_define => {"no_$(class)"};
+body process_count islaunched(class)
+{
+        match_range         => irange("1", "500");
+        in_range_define     => { "${class}"};
+        out_of_range_define => {"no_${class}"};
 }
 
 ###########################################################################################
@@ -253,16 +266,17 @@ body classes cancel_all_classes(class_to_cancel) {
 # If the promise is repaired, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes persistant_class(repaired, failed, length) {
-  promise_repaired => { "$(repaired)" };
-  repair_failed    => { "$(failed)" };
-  repair_denied    => { "$(failed)" };
-  repair_timeout   => { "$(failed)" };
-  
-  cancel_repaired => {"$(failed)"};
-  cancel_notkept => {"$(repaired)"};
-  
-  persist_time => "$(length)";
+body classes persistant_class(repaired, failed, length)
+{
+        promise_repaired => { "${repaired}" };
+        repair_failed    => { "${failed}" };
+        repair_denied    => { "${failed}" };
+        repair_timeout   => { "${failed}" };
+
+        cancel_repaired  => {"${failed}"};
+        cancel_notkept   => {"${repaired}"};
+
+        persist_time     => "${length}";
 }
 
 
@@ -272,18 +286,19 @@ body classes persistant_class(repaired, failed, length) {
 # If the promise is repaired/kept, define repaired for length minutes and undefine failed
 # If the promise is not kept, undefine repaired and define failed for length minutes
 ##########################################################################################
-body classes set_persist_classes(repaired, failed, length) {
-  promise_kept 	   => { "$(repaired)" };
-  promise_repaired => { "$(repaired)" };
-  repair_failed    => { "$(failed)" };
-  repair_denied    => { "$(failed)" };
-  repair_timeout   => { "$(failed)" };
-  
-  cancel_kept => {"$(failed)"};
-  cancel_repaired => {"$(failed)"};
-  cancel_notkept => {"$(repaired)"};
-   
-  persist_time => "$(length)";
+body classes set_persist_classes(repaired, failed, length)
+{
+        promise_kept 	   => { "${repaired}" };
+        promise_repaired => { "${repaired}" };
+        repair_failed    => { "${failed}" };
+        repair_denied    => { "${failed}" };
+        repair_timeout   => { "${failed}" };
+
+        cancel_kept      => {"${failed}"};
+        cancel_repaired  => {"${failed}"};
+        cancel_notkept   => {"${repaired}"};
+
+        persist_time     => "${length}";
 }
 
 ################################################
@@ -295,11 +310,11 @@ body classes set_persist_classes(repaired, failed, length) {
 body classes kept_if_else(kept, yes,no)
 
 {
-promise_kept     => { "$(kept)" };
-promise_repaired => { "$(yes)" };
-repair_failed    => { "$(no)" };
-repair_denied    => { "$(no)" };
-repair_timeout   => { "$(no)" };
+        promise_kept     => { "${kept}" };
+        promise_repaired => { "${yes}" };
+        repair_failed    => { "${no}" };
+        repair_denied    => { "${no}" };
+        repair_timeout   => { "${no}" };
 }
 
 
@@ -308,9 +323,9 @@ repair_timeout   => { "$(no)" };
 #########################################
 body copy_from digest_cp(from)
 {
-source      => "$(from)";
-compare     => "digest";
-copylink_patterns => { ".*" };
+        source            => "${from}";
+        compare           => "digest";
+        copylink_patterns => { ".*" };
 }
 
 ################################################
@@ -342,11 +357,11 @@ body classes kept_if_else_persist(kept, repaired, failed, persist) {
 body classes kept_if_else_hook(kept,yes,no,hook)
 
 {
-promise_kept     => { "$(kept)" };
-promise_repaired => { "$(yes)", "$(hook)" };
-repair_failed    => { "$(no)" };
-repair_denied    => { "$(no)" };
-repair_timeout   => { "$(no)" };
+        promise_kept     => { "${kept}" };
+        promise_repaired => { "${yes}", "${hook}" };
+        repair_failed    => { "${no}" };
+        repair_denied    => { "${no}" };
+        repair_timeout   => { "${no}" };
 }
 
 ################################################
@@ -365,9 +380,9 @@ body perms group(group)
 body depth_search recurse_with_current(d)
 
 {
-depth => "$(d)";
-include_basedir => "true";
-xdev  => "false";
+        depth           => "${d}";
+        include_basedir => "true";
+        xdev            => "false";
 }
 
 ########################################################################
@@ -375,10 +390,10 @@ xdev  => "false";
 ########################################################################
 body mount rudder_nfs(server,source,type,persistence)
 {
-mount_type => "$(type)";
-mount_source => "$(source)";
-mount_server => "$(server)";
-edit_fstab => "$(persistence)";
+        mount_type   => "${type}";
+        mount_source => "${source}";
+        mount_server => "${server}";
+        edit_fstab   => "${persistence}";
 }
 
 ########################################################################
@@ -386,9 +401,9 @@ edit_fstab => "$(persistence)";
 ########################################################################
 body edit_defaults rudder_empty_select(select)
 {
-empty_file_before_editing => "$(select)";
-max_file_size => "1024000";
-edit_backup => "timestamp";
+        empty_file_before_editing => "${select}";
+        max_file_size             => "1024000";
+        edit_backup               => "timestamp";
 }
 
 ########################################################################
@@ -396,9 +411,9 @@ edit_backup => "timestamp";
 ########################################################################
 body depth_search recurse_withroot(d)
 {
-depth => "$(d)";
-# xdev  => "true";
-include_basedir => "true";
+        depth           => "${d}";
+        # xdev            => "true";
+        include_basedir => "true";
 }
 
 ########################################################################
@@ -406,8 +421,8 @@ include_basedir => "true";
 ########################################################################
 body perms mg(mode,group)
 {
-groups => { "$(group)" };
-mode   => "$(mode)";
+        groups => { "${group}" };
+        mode   => "${mode}";
 }
 
 ########################################################################
@@ -415,39 +430,33 @@ mode   => "$(mode)";
 ########################################################################
 body file_select date_pattern(age, pattern)
 {
-	mtime       => irange("0", ago(0,0,"$(age)",0,0,0));
-	leaf_name   => { "$(pattern)" };
+        mtime       => irange("0", ago(0,0,"${age}",0,0,0));
+        leaf_name   => { "${pattern}" };
 
-	file_result => "leaf_name.mtime";
+        file_result => "leaf_name.mtime";
 }
 
 ########################################################################
 # Install a package using rug                                          #
 ########################################################################
-body package_method rudder_rug {
+body package_method rudder_rug
+{
 
-	package_changes => "individual";
+        package_changes => "individual";
 
-	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
-	package_patch_list_command => "/usr/bin/rug patches";
-	package_list_update_ifelapsed => "240";
-	package_installed_regex => "i.*";
-	package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
-	package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
-	package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_list_command          => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+        package_list_update_ifelapsed => "240";
+        package_installed_regex       => "i.*";
+        package_list_name_regex       => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_list_version_regex    => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_list_arch_regex       => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
 
-	package_patch_installed_regex => ".*Installed.*|.*Not Applicable.*";
-	package_patch_name_regex    => "[^|]+\|\s+([^\s]+).*";
-	package_patch_version_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+        package_name_convention       => "${name}";
+        package_add_command           => "/usr/bin/rug install -y";
+        package_delete_command        => "/usr/bin/rug remove -y";
+        package_update_command        => "/usr/bin/rug update -y";
 
-	package_name_convention => "$(name)";
-	package_add_command => "/usr/bin/rug install -y";
-	package_delete_command => "/usr/bin/rug remove -y";
-	package_update_command => "/usr/bin/rug update -y";
-
-#Unsure about the behavior of this command ...
-#package_patch_command => "/usr/bin/rug patch-info";
-package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+        package_verify_command        => "/usr/bin/rug verify -y$"; # $ means no args
 }
 
 ###################################################
@@ -456,11 +465,11 @@ package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
 
 bundle edit_line prepend(lines)
 {
-insert_lines:
+  insert_lines:
 
-  "$(lines)"
-    comment => "Prepending line : $(lines)",
-    location => start;
+      "${lines}"
+        comment  => "Prepending line: ${lines}",
+        location => start;
 
 }
 
@@ -490,11 +499,11 @@ body location rudder_location_before_after(location)
 
 bundle edit_line replace_line(regex,replacement)
 {
-replace_patterns:
+  replace_patterns:
 
-	"$(regex)"
-		replace_with => With("$(replacement)"),
-		comment => "Replace every occurence of $(regex) with $(replacement)";
+      "${regex}"
+        replace_with => With("${replacement}"),
+        comment      => "Replace every occurence of ${regex} with ${replacement}";
 
 }
 
@@ -504,13 +513,13 @@ replace_patterns:
 
 bundle edit_line from_to(from,to)
 {
-delete_lines:
+  delete_lines:
 
-	"$(from)" comment => "Reset $(from)";
+      "${from}" comment => "Reset ${from}";
 
-insert_lines:
+  insert_lines:
 
-	"$(to)" comment => "Add $(to)";
+      "${to}"   comment => "Add ${to}";
 
 }
 
@@ -520,8 +529,8 @@ insert_lines:
 
 body contain in_shell_silent
 {
-	useshell => "true";
-	no_output => "true";
+        useshell  => "true";
+        no_output => "true";
 }
 
 ###################################################
@@ -530,9 +539,9 @@ body contain in_shell_silent
 
 bundle edit_line insert_rudder_disclaimer
 {
-insert_lines:
+  insert_lines:
 
-	"## File managed by Rudder - Edit with caution, some changes may disappear (especially passwords) ##"
-		location => start;
+      "${rudder_parameters.rudder_file_edit_header}"
+        location => start;
 
 }

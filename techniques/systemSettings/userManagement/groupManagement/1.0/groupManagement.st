@@ -23,86 +23,88 @@
 ##########################################################################
 
 # I was forced to truncate brutally the name, as on CF3 3.1.4 more than 32 chars on the bundle name leads to arrays corruption
-bundle agent check_usergroup_grp_parameters {
+bundle agent check_usergroup_grp_parameters
+{
 
-	vars:
-		&USERGROUP_GROUP_NAME:{name |"usergroup_group_name[&i&]" string => "&name&";
+  vars:
+    &USERGROUP_GROUP_NAME:{name |"usergroup_group_name[&i&]" string => "&name&";
 }&
 
-		&USERGROUP_GROUP_CONTENT:{content |"usergroup_group_content[&i&]" string => "&content&";
+    &USERGROUP_GROUP_CONTENT:{content |"usergroup_group_content[&i&]" string => "&content&";
 }&
 
-		&USERGROUP_GROUP_POLICY:{policy |"usergroup_group_policy[&i&]" string => "&policy&";
+    &USERGROUP_GROUP_POLICY:{policy |"usergroup_group_policy[&i&]" string => "&policy&";
 }&
 
-		&TRACKINGKEY:{directiveId |"usergroup_group_directive_id[&i&]" string => "&directiveId&";
+    &TRACKINGKEY:{directiveId |"usergroup_group_directive_id[&i&]" string => "&directiveId&";
 }&
 
-		"usergroup_group_index" slist => getindices("usergroup_group_name");
+      "usergroup_group_index" slist => getindices("usergroup_group_name");
 
-	methods:
+  methods:
 
-		"any"
+      "any"
 
-			usebundle => check_usergroup_group_parameters_grouphandle("$(usergroup_group_name[$(usergroup_group_index)])", "$(usergroup_group_content[$(usergroup_group_index)])", "$(usergroup_group_index)", "$(usergroup_group_directive_id[$(usergroup_group_index)])");
+        usebundle => check_usergroup_group_parameters_grouphandle("${usergroup_group_name[${usergroup_group_index}]}", "${usergroup_group_content[${usergroup_group_index}]}", "${usergroup_group_index}", "${usergroup_group_directive_id[${usergroup_group_index}]}");
 
 }
 
-bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, directiveId) {
+bundle agent check_usergroup_group_parameters_grouphandle(name, content, index, directiveId)
+{
 
-	classes:
+  classes:
 
-		"groupmanagement_group_$(index)_absent" not => groupexists("$(name)");
+      "groupmanagement_group_${index}_absent" not => groupexists("${name}");
 
-	vars:
+  vars:
 
-		"userlist" slist => splitstring("$(content)",",","16");
+      "userlist" slist => splitstring("${content}",",","16");
 
 
-	commands:
+  commands:
 
-		"/usr/sbin/groupadd"
-			args => "-f \"$(name)\"",
-			classes => if_else("groupmanagement_group_add_$(index)_repaired", "groupmanagement_group_add_$(index)_error"),
-			ifvarclass => "groupmanagement_group_$(index)_absent",
-			comment => "Add the group $(name) if it doesn't exists";
+      "/usr/sbin/groupadd"
+        args => "-f \"${name}\"",
+        classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
+        ifvarclass => "groupmanagement_group_${index}_absent",
+        comment => "Add the group ${name} if it doesn't exists";
 
-	files:
+  files:
 
-		"/etc/group"
-			edit_line => groups_file_append("$(name)", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
-			classes => kept_if_else("groupmanagement_group_add_$(index)_kept", "groupmanagement_group_add_$(index)_repaired", "groupmanagement_group_add_$(index)_error"),
-			ifvarclass => "!groupmanagement_group_$(index)_absent|groupmanagement_group_add_$(index)_repaired",
-			comment => "Set users on the group $(name) only if the group is already present";
+      "/etc/group"
+        edit_line => groups_file_append("${name}", "@{check_usergroup_group_parameters_grouphandle.userlist}"),
+        classes => kept_if_else("groupmanagement_group_add_${index}_kept", "groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
+        ifvarclass => "!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_repaired",
+        comment => "Set users on the group ${name} only if the group is already present";
 
-	reports:
+  reports:
 
-		linux::
+    linux::
 
-			"@@groupManagement@@result_success@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already present and compliant with the policy"
-				ifvarclass => "groupmanagement_group_add_$(index)_kept.!(groupmanagement_group_add_$(index)_repaired|groupmanagement_group_add_$(index)_error)";
+      "@@groupManagement@@result_success@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} is already present and compliant with the policy"
+        ifvarclass => "groupmanagement_group_add_${index}_kept.!(groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
 
-			"@@groupManagement@@result_repaired@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) has been updated"
-				ifvarclass => "groupmanagement_group_add_$(index)_repaired.!(groupmanagement_group_add_$(index)_kept|groupmanagement_group_add_$(index)_error)";
+      "@@groupManagement@@result_repaired@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} has been updated"
+        ifvarclass => "groupmanagement_group_add_${index}_repaired.!(groupmanagement_group_add_${index}_kept|groupmanagement_group_add_${index}_error)";
 
-			"@@groupManagement@@result_error@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) could not be created or updated"
-				ifvarclass => "groupmanagement_group_add_$(index)_error";
+      "@@groupManagement@@result_error@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} could not be created or updated"
+        ifvarclass => "groupmanagement_group_add_${index}_error";
 
 }
 
 bundle edit_line groups_file_append(group,userlist)
 {
 
-vars:
+  vars:
 
-	"finalgroup" string => join(",","userlist");
+      "finalgroup" string => join(",","userlist");
 
-field_edits:
+  field_edits:
 
-	"$(group):.*"
+      "${group}:.*"
 
-	# Set field of the file to parameter
-	# /etc/group entry is: groupname:x:gid:users
-	edit_field => col(":","4","$(finalgroup)","set");
+  # Set field of the file to parameter
+  # /etc/group entry is: groupname:x:gid:users
+        edit_field => col(":","4","${finalgroup}","set");
 
 }

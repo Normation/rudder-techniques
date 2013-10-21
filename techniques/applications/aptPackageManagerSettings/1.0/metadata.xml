@@ -111,10 +111,10 @@ manager, and eventually enforce them.
         <INPUT>
           <NAME>APT_URL</NAME>
           <DESCRIPTION>Repository URL</DESCRIPTION>
-		  <CONSTRAINT>
-		    <MAYBEEMPTY>true</MAYBEEMPTY>
-		  </CONSTRAINT>
-		</INPUT>
+      <CONSTRAINT>
+        <MAYBEEMPTY>true</MAYBEEMPTY>
+      </CONSTRAINT>
+    </INPUT>
         <INPUT>
           <NAME>APT_DISTRO_AUTODETECT</NAME>
           <DESCRIPTION>Automatically detect the distribution</DESCRIPTION>
@@ -227,7 +227,7 @@ manager, and eventually enforce them.
           </CONSTRAINT>
         </SELECT1>
       </SECTION>
-      
+
       <INPUT>
         <NAME>APT_DISABLEREPOSITORIES</NAME>
         <DESCRIPTION>Disable all other repositories than these (potentially dangerous)</DESCRIPTION>

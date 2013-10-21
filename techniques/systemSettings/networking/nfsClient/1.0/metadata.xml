@@ -29,19 +29,19 @@ required mount points are set with the right options.
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
-  
+
   <MULTIINSTANCE>true</MULTIINSTANCE>
 
   <BUNDLES>
     <NAME>check_nfs_client_installation</NAME>
     <NAME>check_nfs_client_configuration</NAME>
   </BUNDLES>
-  
+
   <TMLS>
     <TML name="nfsClientConfigure"/>
     <TML name="nfsClientInstall"/>
   </TMLS>
-  
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>NFS_CLIENT_REMOTE_PATH</SAMESIZEAS>
   </TRACKINGVARIABLE>

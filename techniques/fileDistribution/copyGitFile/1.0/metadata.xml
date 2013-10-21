@@ -32,11 +32,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="copyGitFile"/>
   </TMLS>
-    
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>COPYFILE_GIT_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
-    
+
   <SECTIONS>
     <SECTION name="GIT Installation" component="true"/>
     <SECTION name="GIT File" multivalued="true" component="true" componentKey="COPYFILE_GIT_NAME">

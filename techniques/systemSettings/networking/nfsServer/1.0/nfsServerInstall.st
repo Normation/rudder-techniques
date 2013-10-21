@@ -20,31 +20,32 @@
 # Installs the NFS server
 
 
-bundle agent check_nfs_server_installation {
+bundle agent check_nfs_server_installation
+{
 
-	packages:
+  packages:
 
-		(debian|SuSE)::
-			"nfs-kernel-server"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("nfs_server_here", "nfs_server_installed", "cant_install_nfs_server"),
-				comment => "Installing NFS server using generic interface";
+    (debian|SuSE)::
+      "nfs-kernel-server"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("nfs_server_here", "nfs_server_installed", "cant_install_nfs_server"),
+        comment => "Installing NFS server using generic interface";
 
-		redhat::
-			"nfs-utils"
-				package_policy  => "add",
-				package_method  => generic,
-				classes => kept_if_else("nfs_server_here", "nfs_server_installed", "cant_install_nfs_server"),
-				comment => "Installing NFS server using generic interface";
+    redhat::
+      "nfs-utils"
+        package_policy  => "add",
+        package_method  => generic,
+        classes => kept_if_else("nfs_server_here", "nfs_server_installed", "cant_install_nfs_server"),
+        comment => "Installing NFS server using generic interface";
 
-	reports:
-		nfs_server_here::
-			"@@nfsServer@@result_success@@&TRACKINGKEY&@@NFS server package install@@None@@$(g.execRun)##$(g.uuid)@#NFS server package already installed";
+  reports:
+    nfs_server_here::
+      "@@nfsServer@@result_success@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#NFS server package already installed";
 
-		nfs_server_installed::
-			"@@nfsServer@@result_repaired@@&TRACKINGKEY&@@NFS server package install@@None@@$(g.execRun)##$(g.uuid)@#NFS server package installed";
+    nfs_server_installed::
+      "@@nfsServer@@result_repaired@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#NFS server package installed";
 
-		cant_install_nfs_server::
-			"@@nfsServer@@result_error@@&TRACKINGKEY&@@NFS server package install@@None@@$(g.execRun)##$(g.uuid)@#Can't install NFS server package";
+    cant_install_nfs_server::
+      "@@nfsServer@@result_error@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#Can't install NFS server package";
 }

@@ -16,282 +16,320 @@
 #
 #####################################################################################
 
-bundle common p {
+bundle common p
+{
 
-	vars:
+  vars:
 
-		"no" int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","psql_password");
-		"no2" int => getfields("RUDDER_OPENLDAP_BIND_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","ldap_password");
+    root_server::
 
-		"properties_files" slist => { "$(g.rudder_base)/etc/rudder-web.properties", "$(g.rudder_base)/etc/inventory-web.properties" };
-		"managed_files" slist => { "@(properties_files)", "/root/.pgpass", "$(g.rudder_base)/etc/openldap/slapd.conf" };
+      "no" int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","psql_password");
+      "no2" int => getfields("RUDDER_OPENLDAP_BIND_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","ldap_password");
 
-}
-
-bundle agent root_password_check_disclaimer {
-
-	vars:
-
-		"disclaim" slist => { "@(p.managed_files)" };
-
-	files:
-
-		"$(disclaim)"
-			edit_line => insert_rudder_disclaimer,
-			comment => "Insert a disclaimer into Rudder";
+      "properties_files" slist => { "${g.rudder_base}/etc/rudder-web.properties", "${g.rudder_base}/etc/inventory-web.properties" };
+      "managed_files" slist => { "@{properties_files}", "/root/.pgpass", "${g.rudder_base}/etc/openldap/slapd.conf" };
 
 }
 
-bundle agent root_password_check_file {
+bundle agent root_password_check_disclaimer
+{
 
-	vars:
+  vars:
 
-			"pgpass[1]" string => "localhost";
-			"pgpass[2]" string => "5432";
-			"pgpass[3]" string => "rudder";
-			"pgpass[4]" string => "rudder";
-			"pgpass[5]" string => "$(p.psql_password[2])";
+      "disclaim" slist => { "@{p.managed_files}" };
 
-	files:
+  files:
 
-			"$(g.rudder_base)/etc/rudder-passwords.conf"
-				perms => mog("600", "root", "root"),
-				classes => kept_if_else("file_ok", "file_repaired", "file_error");
+    root_server::
 
-			"/root/.pgpass"
-				create    => "true",
-				edit_line => root_password_check_file_pgpass("root_password_check_file.pgpass");
-
-	reports:
-
-		linux::
-
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@$(g.execRun)##$(g.uuid)@#The Rudder passwords file is present and secure"
-				ifvarclass => "file_ok.!file_repaired.!file_error";
-
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@$(g.execRun)##$(g.uuid)@#The Rudder passwords file permissions were fixed"
-				ifvarclass => "file_repaired.!file_error";
-
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@$(g.execRun)##$(g.uuid)@#EMERGENCY: THE $(g.rudder_base)/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY."
-				ifvarclass => "file_error";
+      "${disclaim}"
+        edit_line => insert_rudder_disclaimer,
+        comment => "Insert a disclaimer into Rudder";
 
 }
 
-bundle agent root_password_check_ldap {
+bundle agent root_password_check_file
+{
 
-	vars:
+  vars:
 
-			# Build an array using ldap configuration values
+      "pgpass[1]" string => "localhost";
+      "pgpass[2]" string => "5432";
+      "pgpass[3]" string => "rudder";
+      "pgpass[4]" string => "rudder";
+      "pgpass[5]" string => "${p.psql_password[2]}";
 
-			"rudder[ldap.authpw]" string => "$(p.ldap_password[2])";
+  files:
 
-			"slapd[rootpw]" string => "$(p.ldap_password[2])"; # Looks like a bug, I can not use execresult("/opt/rudder/sbin/slappasswd -s $(p.ldap_password[2])","noshell");
+    root_server::
 
-			"prop_edit" slist => { "@(p.properties_files)" };
+      "${g.rudder_base}/etc/rudder-passwords.conf"
+        perms => mog("600", "root", "root"),
+        classes => kept_if_else("file_ok", "file_repaired", "file_error");
 
-	files:
+      "/root/.pgpass"
+        create    => "true",
+        edit_line => root_password_check_file_pgpass("root_password_check_file.pgpass");
 
-			"$(prop_edit)"
-				edit_line => set_variable_values("root_password_check_ldap.rudder"),
-				classes => kept_if_else("rudder_web_password_integrity_ok", "rudder_web_password_integrity_changed", "rudder_web_password_integrity_failed"),
-			        comment => "Verifying the Rudder Webapp properties file passwords and users";
+  reports:
 
-			"$(g.rudder_base)/etc/openldap/slapd.conf"
-				edit_line => update_slapd("root_password_check_ldap.slapd"),
-        			classes => kept_if_else("rudder_ldap_password_integrity_ok", "rudder_ldap_password_integrity_changed", "rudder_ldap_password_integrity_failed"),
-			        comment => "Verifying the Rudder LDAP file password and user";
+    root_server::
 
-	commands:
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file is present and secure"
+        ifvarclass => "file_ok.!file_repaired.!file_error";
 
-		rudder_ldap_password_integrity_changed::
+      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file permissions were fixed"
+        ifvarclass => "file_repaired.!file_error";
 
-			"/etc/init.d/slapd restart"
-				contain => in_shell,
-				classes => if_else("slapd_restarted", "slapd_restart_failed");
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#EMERGENCY: THE ${g.rudder_base}/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY."
+        ifvarclass => "file_error";
 
-	reports:
+    policy_server.!root_server::
 
-		linux::
-
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files are OK (checked LDAP password)"
-				ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
-
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files were updated with a new LDAP password"
-				ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
-
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files could not be updated to set the LDAP password"
-				ifvarclass => "rudder_web_password_integrity_failed";
-
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file is OK (checked rootdn password)"
-				ifvarclass => "rudder_ldap_password_integrity_ok.!rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
-
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check LDAP credentials@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file was updated with a new rootdn password"
-				ifvarclass => "rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
-
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check LDAP credentials@@None@@$(g.execRun)##$(g.uuid)@#The OpenLDAP configuration file could not be updated to set the rootdn password"
-				ifvarclass => "rudder_ldap_password_integrity_failed";
-
-			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-passwords.conf file@@None@@$(g.execRun)##$(g.uuid)@#slapd has been restarted"
-				ifvarclass => "slapd_restarted";
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file does not need to be checked on relay servers. Skipping...";
 
 }
 
-bundle agent root_password_check_psql {
+bundle agent root_password_check_ldap
+{
 
-	vars:
+  vars:
 
-			"no" int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","psql_pass");
+      # Build an array using ldap configuration values
 
-			# Build an array using PSQL configuration values
-			"rudder[rudder.jdbc.password]" string => "$(p.psql_password[2])";
+      "rudder[ldap.authpw]" string => "${p.ldap_password[2]}";
 
-	classes:
+      "slapd[rootpw]" string => "${p.ldap_password[2]}"; # Looks like a bug, I can not use execresult("/opt/rudder/sbin/slappasswd -s ${p.ldap_password[2]}","noshell");
 
-			"psql_cant_connect" not => returnszero("/usr/bin/psql --host localhost --username rudder --dbname rudder --quiet --output /dev/null --command 'select id from ruddersysevents limit 1' 2> /dev/null","useshell");
+      "prop_edit" slist => { "@{p.properties_files}" };
 
-	files:
+  files:
 
-			"$(g.rudder_base)/etc/rudder-web.properties"
-				edit_line => set_variable_values("root_password_check_psql.rudder"),
-				classes => kept_if_else("rudder_web_password_integrity_ok", "rudder_web_password_integrity_changed", "rudder_web_password_integrity_failed"),
-				comment => "Verifying the Rudder Webapp properties file passwords and users";
+    root_server::
 
-	commands:
+      "${prop_edit}"
+        edit_line => set_variable_values("root_password_check_ldap.rudder"),
+        classes => kept_if_else("rudder_web_password_integrity_ok", "rudder_web_password_integrity_changed", "rudder_web_password_integrity_failed"),
+        comment => "Verifying the Rudder Webapp properties file passwords and users";
 
-		psql_cant_connect::
+      "${g.rudder_base}/etc/openldap/slapd.conf"
+        edit_line => update_slapd("root_password_check_ldap.slapd"),
+        classes => kept_if_else("rudder_ldap_password_integrity_ok", "rudder_ldap_password_integrity_changed", "rudder_ldap_password_integrity_failed"),
+        comment => "Verifying the Rudder LDAP file password and user";
 
-			"/usr/bin/psql -q -c \"ALTER USER rudder WITH PASSWORD '$(p.psql_password[2])'\""
-				contain => setuid_sh("postgres"),
-				classes => if_else("postgres_updated", "postgres_update_failed");
+  commands:
 
-	reports:
+    rudder_ldap_password_integrity_changed::
 
-		linux::
+      "/etc/init.d/slapd restart"
+        contain => in_shell,
+        classes => if_else("slapd_restarted", "slapd_restart_failed");
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files are OK (checked SQL password)"
-				ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
+  reports:
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files were updated with a new SQL password"
-				ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
+    root_server::
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@$(g.execRun)##$(g.uuid)@#The Rudder Webapp configuration files could not be updated to set the SQL password"
-				ifvarclass => "rudder_web_password_integrity_failed";
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked LDAP password)"
+        ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password is correct and works"
-				ifvarclass => "!psql_cant_connect";
+      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files were updated with a new LDAP password"
+        ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check SQL credentials@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password has been changed"
-				ifvarclass => "postgres_updated";
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files could not be updated to set the LDAP password"
+        ifvarclass => "rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check SQL credentials@@None@@$(g.execRun)##$(g.uuid)@#The Rudder PostgreSQL user account's password could not be changed!"
-				ifvarclass => "postgres_update_failed";
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file is OK (checked rootdn password)"
+        ifvarclass => "rudder_ldap_password_integrity_ok.!rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
 
-}
+      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file was updated with a new rootdn password"
+        ifvarclass => "rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
 
-bundle agent root_password_restart_jetty {
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file could not be updated to set the rootdn password"
+        ifvarclass => "rudder_ldap_password_integrity_failed";
 
-	commands:
+      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-passwords.conf file@@None@@${g.execRun}##${g.uuid}@#slapd has been restarted"
+        ifvarclass => "slapd_restarted";
 
-		rudder_web_password_integrity_changed::
+    policy_server.!root_server::
 
-			"/etc/init.d/jetty restart </dev/null >/dev/null 2>/dev/null"
-				contain => in_shell,
-				classes => if_else("jetty_restarted", "jetty_restart_failed");
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
 
-	reports:
-
-			"@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-webapp.properties@@None@@$(g.execRun)##$(g.uuid)@#Jetty has been restarted"
-				ifvarclass => "jetty_restarted";
-
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file do not need to be checked on relay servers. Skipping...";
 
 }
 
-bundle agent root_password_check_dav {
+bundle agent root_password_check_psql
+{
 
-	vars:
+  vars:
 
-		debian::
-			"webdav_check_wwwgroup" string => "www-data";
+    root_server::
 
-		redhat::
-			"webdav_check_wwwgroup" string => "apache";
+      "no" int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","psql_pass");
 
-		!debian.!redhat::
-			"webdav_check_wwwgroup" string => "www";
+      # Build an array using PSQL configuration values
+      "rudder[rudder.jdbc.password]" string => "${p.psql_password[2]}";
 
-		SuSE::
-			"htpasswd_bin" string => "/usr/bin/htpasswd2";
+  classes:
 
-		!SuSE::
-			"htpasswd_bin" string => "/usr/bin/htpasswd";
+    root_server::
 
-	classes:
+      "psql_cant_connect" not => returnszero("/usr/bin/psql --host localhost --username rudder --dbname rudder --quiet --output /dev/null --command 'select id from ruddersysevents limit 1' 2> /dev/null","useshell");
 
-		"dav_cant_connect" not => returnszero("/usr/bin/curl -s -f -u $(g.davuser):$(g.davpw) -T /etc/motd http://localhost/inventory-updates/motd","noshell");
+  files:
 
+    root_server::
 
-	files:
+      "${g.rudder_base}/etc/rudder-web.properties"
+        edit_line => set_variable_values("root_password_check_psql.rudder"),
+        classes => kept_if_else("rudder_web_password_integrity_ok", "rudder_web_password_integrity_changed", "rudder_web_password_integrity_failed"),
+        comment => "Verifying the Rudder Webapp properties file passwords and users";
 
-		"$(g.rudder_base)/etc/htpasswd-webdav"
-			create => "true",
-			perms => mog("640", "root", "$(webdav_check_wwwgroup)");
+  commands:
 
-	commands:
+    psql_cant_connect::
 
-		dav_cant_connect::
+      "/usr/bin/psql -q -c \"ALTER USER rudder WITH PASSWORD '${p.psql_password[2]}'\""
+        contain => setuid_sh("postgres"),
+        classes => if_else("postgres_updated", "postgres_update_failed");
 
-			# Apache reads this file when it's changed, no need to restart or reload it after it's changed
-			"$(htpasswd_bin)"
-				args => "-b $(g.rudder_base)/etc/htpasswd-webdav $(g.davuser) $(g.davpw)",
-        			classes => kept_if_else("rudder_apache_davpassword_ok", "rudder_apache_davpassword_changed", "rudder_apache_davpassword_failed"),
-			        comment => "Repairing the Rudder WebDAV user and password";
+  reports:
 
-	reports:
+    root_server::
 
-		linux::
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked SQL password)"
+        ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password are OK"
-				ifvarclass => "!dav_cant_connect";
+      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files were updated with a new SQL password"
+        ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password were updated"
-				ifvarclass => "rudder_apache_davpassword_changed.!rudder_apache_davpassword_failed";
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files could not be updated to set the SQL password"
+        ifvarclass => "rudder_web_password_integrity_failed";
 
-			"@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@$(g.execRun)##$(g.uuid)@#The Rudder WebDAV user and password could not be updated"
-				ifvarclass => "rudder_apache_davpassword_failed";
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password is correct and works"
+        ifvarclass => "!psql_cant_connect";
+
+      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password has been changed"
+        ifvarclass => "postgres_updated";
+
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password could not be changed!"
+        ifvarclass => "postgres_update_failed";
+
+    policy_server.!root_server::
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's do not need to be checked on relay servers. Skipping...";
 
 }
 
-bundle edit_line update_slapd(tab) {
+bundle agent root_password_restart_jetty
+{
 
-vars:
+  commands:
 
-	"index" slist => getindices("$(tab)");
+    rudder_web_password_integrity_changed::
 
-delete_lines:
+      "/etc/init.d/jetty restart </dev/null >/dev/null 2>/dev/null"
+        contain => in_shell,
+        classes => if_else("jetty_restarted", "jetty_restart_failed");
 
-	"$(index).*";
+  reports:
 
-insert_lines:
+      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#Jetty has been restarted"
+        ifvarclass => "jetty_restarted";
 
-	"$(index)		$($(tab)[$(index)])" location => after("^rootdn.*");
+
+}
+
+bundle agent root_password_check_dav
+{
+
+  vars:
+
+    debian::
+      "webdav_check_wwwgroup" string => "www-data";
+
+    redhat::
+      "webdav_check_wwwgroup" string => "apache";
+
+    !debian.!redhat::
+      "webdav_check_wwwgroup" string => "www";
+
+    SuSE::
+      "htpasswd_bin" string => "/usr/bin/htpasswd2";
+
+    !SuSE::
+      "htpasswd_bin" string => "/usr/bin/htpasswd";
+
+  classes:
+
+      "dav_cant_connect" not => returnszero("/usr/bin/curl -s -f -u ${g.davuser}:${g.davpw} -T /etc/motd http://localhost/inventory-updates/motd","noshell");
+
+
+  files:
+
+      "${g.rudder_base}/etc/htpasswd-webdav"
+        create => "true",
+        perms => mog("640", "root", "${webdav_check_wwwgroup}");
+
+  commands:
+
+    dav_cant_connect::
+
+      # Apache reads this file when it's changed, no need to restart or reload it after it's changed
+      "${htpasswd_bin}"
+        args => "-b ${g.rudder_base}/etc/htpasswd-webdav ${g.davuser} ${g.davpw}",
+        classes => kept_if_else("rudder_apache_davpassword_ok", "rudder_apache_davpassword_changed", "rudder_apache_davpassword_failed"),
+        comment => "Repairing the Rudder WebDAV user and password";
+
+  reports:
+
+    linux::
+
+      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password are OK"
+        ifvarclass => "!dav_cant_connect";
+
+      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password were updated"
+        ifvarclass => "rudder_apache_davpassword_changed.!rudder_apache_davpassword_failed";
+
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password could not be updated"
+        ifvarclass => "rudder_apache_davpassword_failed";
+
+}
+
+bundle edit_line update_slapd(tab)
+{
+
+  vars:
+
+      "index" slist => getindices("${tab}");
+
+  delete_lines:
+
+      "${index}.*";
+
+  insert_lines:
+
+      "${index}		${${tab}[${index}]}" location => after("^rootdn.*");
 
 }
 
 bundle edit_line root_password_check_file_pgpass(parameter)
 {
-vars:
+  vars:
 
-	"indices" slist => getindices($(parameter));
+      "indices" slist => getindices(${parameter});
 
-insert_lines:
+  insert_lines:
 
-	"localhost:5432:rudder:$($(parameter)[4]):$($(parameter)[5])";
+      "localhost:5432:rudder:${${parameter}[4]}:${${parameter}[5]}";
 
-field_edits:
+  field_edits:
 
-	"localhost:5432:rudder:.*"
+      "localhost:5432:rudder:.*"
 
-		# Set field of the file to parameter
-		edit_field => col(":","$(indices)","$($(parameter)[$(indices)])","set");
+    # Set field of the file to parameter
+        edit_field => col(":","${indices}","${${parameter}[${indices}]}","set");
 
 }

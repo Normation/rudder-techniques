@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_postgres_check</NAME>
     <NAME>root_logrotate_check</NAME>
     <NAME>root_integrity_check</NAME>
+    <NAME>root_technique_reload</NAME>
     <NAME>root_networks_check</NAME>
     <NAME>root_alive_check</NAME>
     <NAME>root_password_check_file</NAME>
@@ -43,6 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="postgresCheck"/>
     <TML name="logrotateCheck"/>
     <TML name="integrityCheck"/>
+    <TML name="techniqueReload"/>
     <TML name="networkCheck"/>
     <TML name="aliveCheck"/>
     <TML name="passwordCheck"/>
@@ -50,8 +52,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="rudder">
-      <OUTPATH>distributePolicy/rsyslog.conf/rudder.conf</OUTPATH>
+    <TML name="rudder-rsyslog-root">
+      <OUTPATH>distributePolicy/rsyslog.conf/rudder-rsyslog-root.conf</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="rudder-rsyslog-relay">
+      <OUTPATH>distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="logrotate.debian">
@@ -67,11 +73,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INCLUDED>false</INCLUDED>
     </TML>
   </TMLS>
-  
+
   <SYSTEMVARS>
     <NAME>CMDBENDPOINT</NAME>
     <NAME>CLIENTSFOLDERS</NAME>
     <NAME>SYSLOGPORT</NAME>
+    <NAME>SHARED_FILES_FOLDER</NAME>
   </SYSTEMVARS>
 
   <TRACKINGVARIABLE>
