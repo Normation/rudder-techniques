@@ -104,14 +104,14 @@ bundle common va
 bundle agent startExecution
 {
   reports:
-    linux|windows::
+    cfengine_3::
       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution";
 }
 
 bundle agent endExecution
 {
   reports:
-    linux|windows::
+    cfengine_3::
       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution";
 
     no_update::
@@ -251,7 +251,7 @@ bundle agent check_cf_processes
 
   processes:
 
-    linux::
+    android|linux::
 
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
@@ -385,6 +385,7 @@ bundle agent check_cron_daemon
 
   processes:
 
+    !android::
       "${cron_bin}"
         restart_class => "restart_crond";
 
@@ -405,8 +406,11 @@ bundle agent check_cron_daemon
     crond_restarted::
       "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
 
-    !restart_crond.!crond_restarted.!crond_failed::
+    !restart_crond.!crond_restarted.!crond_failed.!android::
       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
+
+     android::
+       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is an android machine: CRON verifications skipped !";
 
 }
 
@@ -452,6 +456,7 @@ bundle agent check_binaries_freshness
 
   files:
 
+    !android::
       "${sys.workdir}/bin/${components}"
         perms => u_p("700"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
@@ -470,6 +475,9 @@ bundle agent check_binaries_freshness
     binaries_missing::
       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
 
+    android::
+      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an android machine: no CFEngine binaries update needed";
+
 }
 
 #######################################################
@@ -487,9 +495,12 @@ body agent control
         agentfacility => "LOG_LOCAL6";
 
   # Repository where to put the copy of modified files
-    linux::
+    (android|linux)::
         default_repository => "/var/rudder/modified-files";
 
+    # we can not depend on DNS for mobile devices
+    android::
+        skipidentify => "true";
 }
 
 #######################################################
