@@ -33,6 +33,12 @@ body common control
 &endif&
 }
 
+body agent control {
+   # we can not depend on DNS for mobile devices
+   android::
+      skipidentify=> "true";
+}
+
 bundle common g
 {
   vars:
@@ -59,6 +65,14 @@ bundle common g
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_dependencies"        string => "/var/rudder/tools";
       "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
+
+    android::
+      "rudder_base" string => "/data/rudder";
+      "rudder_var"  string => "/data/rudder";
+      "rudder_sbin" string  => "${rudder_base}/sbin";
+      "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_dependencies" string => "${rudder_var}/tools";
+      "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
 
 
 # definition of the node roles
