@@ -9,4 +9,4 @@
 # /opt/rudder/etc/rudder-restart-message.txt file with your custom message inside. It will be sent by mail
 # instead of the default one.
 
-0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ -e /opt/rudder/bin/check-rudder-agent ]; then /opt/rudder/bin/check-rudder-agent; else /bin/echo "WARNING: /opt/rudder/bin/check-rudder-agent is not yet installed"; fi
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * root if [ -e ${g.rudder_base}/bin/check-rudder-agent ]; then ${g.rudder_base}/bin/check-rudder-agent; else if [ ! -e ${g.rudder_base}/etc/disable-agent -a `ps -efww | grep -E "(cf-execd|cf-agent)" | grep -E "${sys.workdir}/bin/(cf-execd|cf-agent)" | grep -v grep | wc -l` -eq 0 ]; then ${sys.workdir}/bin/cf-agent -f failsafe.cf >/dev/null 2>\&1 \&\& ${sys.workdir}/bin/cf-agent >/dev/null 2>\&1; if [ $? != 0 ]; then if [ -f /opt/rudder/etc/rudder-restart-message.txt ]; then cat /opt/rudder/etc/rudder-restart-message.txt; else echo "Rudder agent was unable to restart on $(hostname)."; fi; fi; fi; fi
