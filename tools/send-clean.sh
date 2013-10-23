@@ -13,11 +13,11 @@
 
 
 function usage() {
-	echo "Usage: $0 server filename archiveDir"
+	echo "Usage: $0 server filename archiveDir failedDir"
 }
 
 # Check number of arguments
-if [ $# -ne 3 ]; then
+if [ $# -ne 4 ]; then
 	usage
 	exit -1
 fi
