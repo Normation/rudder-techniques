@@ -90,7 +90,7 @@ It is intended to check if the required DNS entries are set.
     </SECTION>
 
     <!-- option settings , index 20 -->
-    <SECTION name="Option settings">
+    <SECTION name="Option settings" displayPriority="low">
       <INPUT>
         <NAME>DNS_OPTIONS_EDIT</NAME>
         <DESCRIPTION>Set DNS options?</DESCRIPTION>

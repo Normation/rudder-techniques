@@ -100,7 +100,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </INPUT>
     </SECTION>
-    <SECTION name="Line deletion regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+    <SECTION name="Line deletion regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH" displayPriority="low">
       <INPUT>
         <NAME>GENERIC_FILE_CONTENT_DELETION_REGEXP</NAME>
         <DESCRIPTION>Regular expression</DESCRIPTION>
@@ -111,7 +111,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </INPUT>
     </SECTION>
-    <SECTION name="Line replacement regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+    <SECTION name="Line replacement regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH" displayPriority="low">
       <INPUT>
         <NAME>GENERIC_FILE_CONTENT_MODIFICATION_REGEXP</NAME>
         <DESCRIPTION>Regular expression</DESCRIPTION>
@@ -131,7 +131,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </INPUT>
     </SECTION>
-    <SECTION name="Permission adjustment" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+    <SECTION name="Permission adjustment" component="true" componentKey="GENERIC_FILE_CONTENT_PATH" displayPriority="low">
       <INPUT>
           <NAME>GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT</NAME>
           <DESCRIPTION>Set explicit permissions to apply on the file</DESCRIPTION>
@@ -160,7 +160,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </INPUT>
     </SECTION>
-    <SECTION name="Post-modification hook" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+    <SECTION name="Post-modification hook" component="true" componentKey="GENERIC_FILE_CONTENT_PATH" displayPriority="low">
       <INPUT>
           <NAME>GENERIC_FILE_CONTENT_POST_HOOK_RUN</NAME>
           <DESCRIPTION>Should the command(s) below be run if any modifications are made on the path above?</DESCRIPTION>

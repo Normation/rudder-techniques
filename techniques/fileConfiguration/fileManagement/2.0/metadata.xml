@@ -102,7 +102,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<DEFAULT>false</DEFAULT>
 			</CONSTRAINT>
 		</SELECT1>
-		<SECTION name="Permissions" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+		<SECTION name="Permissions" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH" displayPriority="low">
 			<SELECT1>
 				<NAME>FILE_AND_FOLDER_MANAGEMENT_CHECK_PERMISSIONS</NAME>
 				<DESCRIPTION>Set permissions</DESCRIPTION>
@@ -155,7 +155,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				</CONSTRAINT>
 			</SELECT1>
 		</SECTION>
-	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH" displayPriority="low">
 		  <INPUT>
 			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN</NAME>
 			  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the path above?</DESCRIPTION>

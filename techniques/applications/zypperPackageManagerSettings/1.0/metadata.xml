@@ -88,7 +88,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
-      <SECTION name="Repository" multivalued="true" component="true" componentKey="ZYPPER_NAME">
+      <SECTION name="Repository" multivalued="true" component="true" componentKey="ZYPPER_NAME" displayPriority="low">
         <INPUT>
           <NAME>ZYPPER_NAME</NAME>
           <DESCRIPTION>Repository name</DESCRIPTION>
