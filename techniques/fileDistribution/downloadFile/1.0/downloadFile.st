@@ -28,8 +28,14 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
       "file_not_found" not => fileexists("&DOWNLOADFILE_DESTINATION&");
 
   commands:
+    !windows.file_not_found::
+      "${g.rudder_curl}"
+        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+        comment => "Getting the file from the server",
+        classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
-    file_not_found::
+
+    windows.file_not_found::
       "\"${g.rudder_curl}\""
         args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
         comment => "Getting the file from the server",
@@ -37,7 +43,7 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
 
   files:
 
-    (android|linux)::
+    !windows::
       "&DOWNLOADFILE_DESTINATION&"
         pathtype => "literal", 	# force literal interpretation
         perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),

@@ -273,7 +273,7 @@ bundle agent check_cf_processes
 
   processes:
 
-    android|linux::
+    !windows::
 
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
@@ -668,7 +668,7 @@ body agent control
         agentfacility => "LOG_LOCAL6";
 
   # Repository where to put the copy of modified files
-    (android|linux)::
+    !windows::
         default_repository => "${g.rudder_var}/modified-files";
 
     # we can not depend on DNS for mobile devices

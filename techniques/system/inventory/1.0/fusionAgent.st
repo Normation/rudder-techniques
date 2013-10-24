@@ -28,7 +28,7 @@
 bundle agent doInventory
 {
   commands:
-    (android|linux)::
+    !windows::
       "${g.rudder_curl}"
         args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
         comment => "Getting the uuid from the server",
@@ -43,7 +43,7 @@ bundle agent doInventory
 &endif&
 
   vars:
-    (android|linux).uuid_succesfully_downloaded::
+    !windows.uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
 &if(NOVA)&
@@ -120,7 +120,7 @@ bundle agent fusionAgent
 
 
   files:
-    android|linux|cygwin::
+    !windows|cygwin::
       "${g.rudder_var_tmp}/inventory/."
         create => "true",
         comment => "Creating inventory directory",
@@ -156,7 +156,7 @@ bundle agent fusionAgent
         comment => "Installing xen package for extended data";
 
   commands:
-    (android|linux).inventoryfoldercreated::
+    !windows.inventoryfoldercreated::
       "${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
@@ -358,7 +358,7 @@ bundle agent addInformationsToInventory
     xen.xenrudderuuid::
       "RUDDERUUID" string => "${vmarray[1]}";
 
-    (linux|android)::
+    !windows::
       "polserv_uuid"          string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
 
     android::
@@ -413,7 +413,7 @@ bundle agent addInformationsToInventory
         pathtype => "regex";
 &endif&
 
-    (android|linux).uuiddefined::
+    !windows.uuiddefined::
       "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         edit_defaults => def_no_backup;
@@ -450,7 +450,7 @@ bundle agent moveInventoryToFinalDestination
 bundle agent sendInventory
 {
   files:
-    (android|linux)::
+    !windows::
       "${g.rudder_inventories}"
         transformer => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
@@ -459,7 +459,7 @@ bundle agent sendInventory
         comment => "Sending the inventory to the server";
 
   # Once we've successfully sent all inventories, remove them
-    (android|linux).inventory_sent.!cant_send_inventory::
+    !windows.inventory_sent.!cant_send_inventory::
       "${g.rudder_inventories}"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
