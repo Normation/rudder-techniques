@@ -107,7 +107,7 @@ This implemenation is intended as a reference for Technique development best pra
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
-      <SECTION name="SSH ports" multivalued="true">
+      <SECTION name="SSH ports" multivalued="true" displayPriority="low">
         <INPUT>
           <NAME>OPENSSH_SERVER_PORTS</NAME>
           <DESCRIPTION>Port number that SSH listens on</DESCRIPTION>
