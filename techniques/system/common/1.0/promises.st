@@ -37,6 +37,11 @@ body common control
         host_licenses_paid => "&LICENSESPAID&";
 
 &endif&
+
+    android::
+        # if native syslog is not available, use cfengine implementation (eg: android)
+        syslog_host => "${server_info.cfserved}";
+        syslog_port => "&SYSLOGPORT&";
 }
 
 bundle common va
@@ -107,14 +112,14 @@ bundle common rudder_roles
 bundle agent startExecution
 {
   reports:
-    linux|windows::
+    cfengine_3::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution";
 }
 
 bundle agent endExecution
 {
   reports:
-    linux|windows::
+    cfengine_3::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution";
 
     rudder_promises_generated_error|no_update::
@@ -268,7 +273,7 @@ bundle agent check_cf_processes
 
   processes:
 
-    linux::
+    !windows::
 
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
@@ -328,8 +333,7 @@ bundle agent check_cf_processes
         classes => outcome("executor");
 
   reports:
-
-    (linux|windows)::
+    cfengine_3::
 
       "@@Common@@result_success@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#There is an acceptable number of CFEngine processes running on the machine"
       # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
@@ -388,6 +392,7 @@ bundle agent check_log_system
 
   classes:
 
+    !android::
       "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
       "syslogng" expression => fileexists("/etc/syslog-ng/syslog-ng.conf");
@@ -464,6 +469,9 @@ bundle agent check_log_system
 
     (syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired)::
       "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Logging system for report centralization is already correctly configured";
+
+    android::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#This is an android machine: Logging system configuration skipped.";
 }
 
 #######################################################
@@ -550,6 +558,7 @@ bundle agent check_cron_daemon
 
   processes:
 
+    !android::
       "${cron_bin}"
         restart_class => "restart_crond";
 
@@ -570,8 +579,11 @@ bundle agent check_cron_daemon
     crond_restarted::
       "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
 
-    !restart_crond.!crond_restarted.!crond_failed::
+    !restart_crond.!crond_restarted.!crond_failed.!android::
       "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
+
+    android::
+      "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is an android machine: CRON verifications skipped !";
 
 }
 
@@ -617,6 +629,7 @@ bundle agent check_binaries_freshness
 
   files:
 
+    !android::
       "${sys.workdir}/bin/${components}"
         perms => u_p("700"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
@@ -635,6 +648,9 @@ bundle agent check_binaries_freshness
     binaries_missing::
       "@@Common@@result_error@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
 
+    android::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an android machine: no CFEngine binaries update needed";
+
 }
 
 #######################################################
@@ -652,8 +668,12 @@ body agent control
         agentfacility => "LOG_LOCAL6";
 
   # Repository where to put the copy of modified files
-    linux::
+    !windows::
         default_repository => "${g.rudder_var}/modified-files";
+
+    # we can not depend on DNS for mobile devices
+    android::
+        skipidentify => "true";
 
 &if(NOVA)&
 #    windows::

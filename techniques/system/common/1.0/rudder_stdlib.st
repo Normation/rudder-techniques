@@ -132,7 +132,7 @@ body file_select rudder_common_minutes_old(minutes)
 bundle agent rudder_common_report(technique_name, status, identifier, component_name, component_key, message)
 {
   reports:
-    linux|!linux::
+    cfengine_3::
       "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}";
 }
 

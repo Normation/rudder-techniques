@@ -28,8 +28,8 @@
 bundle agent doInventory
 {
   commands:
-    linux::
-      "/usr/bin/curl"
+    !windows::
+      "${g.rudder_curl}"
         args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
         comment => "Getting the uuid from the server",
         classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
@@ -43,7 +43,7 @@ bundle agent doInventory
 &endif&
 
   vars:
-    linux.uuid_succesfully_downloaded::
+    !windows.uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
 &if(NOVA)&
@@ -133,7 +133,7 @@ bundle agent fusionAgent
 
 
   files:
-    linux|cygwin::
+    !windows|cygwin::
       "${g.rudder_var_tmp}/inventory/."
         create => "true",
         comment => "Creating inventory directory",
@@ -169,7 +169,7 @@ bundle agent fusionAgent
         comment => "Installing xen package for extended data";
 
   commands:
-    linux.inventoryfoldercreated::
+    !windows.inventoryfoldercreated::
       "${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
@@ -294,6 +294,14 @@ bundle agent generateExtraInformations
         classes => cf2_if_else("cpuid", "cpuid_fail"),
         comment => "Generating file with CPUID information";
 
+    android::
+      "${g.rudder_dependencies}/cpuid-android-V1.0.sh"
+        args => " > ${inventory.CPUIDFile}",
+        contain => outputable,
+        classes => cf2_if_else("cpuid", "cpuid_fail"),
+        comment => "Generating file with CPUID information";
+
+
   reports:
     userlist::
       "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Generated the userlist";
@@ -347,7 +355,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"";
       "USER"           string => getenv("USERNAME", 40);
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
 
     windows.!cygwin.rudder_inventory_userlist_tool_present::
 
@@ -359,7 +367,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
 
     cygwin.rudder_inventory_userlist_tool_present::
 
@@ -381,11 +389,26 @@ bundle agent addInformationsToInventory
     xen.xenrudderuuid::
       "RUDDERUUID" string => "${vmarray[1]}";
 
+    !windows::
+      "polserv_uuid"          string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
+
+    android::
+      "RUDDERUUID_cmd"        string => "/system/xbin/sqlite3 /data/data/com.android.providers.settings/databases/settings.db \"select value from secure where name = 'android_id'\"";
+      "CFKEY_cmd"             string => "/system/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
+      "USER_cmd"              string => "/system/xbin/whoami";
+      "usersnumber"           int =>  "1";
+      "users"                 slist => {"root"};
+      "android_kernelname"    string => "linux";
+      "android_kernelversion" string => execresult("/system/xbin/uname -r", "noshell");
+      "android_name"          string => "Android";
+      "android_version"       string => execresult("/system/bin/getprop ro.build.version.release", "noshell");
+      "android_fullname"      string => "Android ${android_version}";
+      "logdate"               string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
+
     linux::
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
       "users"          slist => getindices("userslist");
 
@@ -393,6 +416,7 @@ bundle agent addInformationsToInventory
       "CFKEY"      string => execresult("${CFKEY_cmd}", "noshell");
 
       "USER"       string => execresult("${USER_cmd}", "noshell");
+
     !xen::
       "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
 
@@ -420,7 +444,7 @@ bundle agent addInformationsToInventory
         pathtype => "regex";
 &endif&
 
-    linux.uuiddefined::
+    !windows.uuiddefined::
       "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         edit_defaults => def_no_backup;
@@ -429,6 +453,14 @@ bundle agent addInformationsToInventory
         edit_line => add_users_information_to_inventory(${users}),
         edit_defaults => def_no_backup;
 
+    android::
+      "${g.rudder_var_tmp}/inventory/.*.ocs"
+        edit_line => add_information_to_android_inventory(${android_fullname}, ${android_kernelname}, ${android_kernelversion}, ${android_name}, ${android_version}),
+        edit_defaults => def_no_backup;
+
+      "${g.rudder_var_tmp}/inventory/.*.ocs"
+        edit_line => add_accesslog_to_android_inventory(${logdate}),
+        edit_defaults => def_no_backup;
 }
 
 
@@ -449,25 +481,25 @@ bundle agent moveInventoryToFinalDestination
 bundle agent sendInventory
 {
   files:
-    linux::
+    !windows::
       "${g.rudder_inventories}"
-        transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
+        transformer => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
         file_select => inventory_files,
         classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment => "Sending the inventory to the server";
 
   # Once we've successfully sent all inventories, remove them
-    linux.inventory_sent.!cant_send_inventory::
+    !windows.inventory_sent.!cant_send_inventory::
       "${g.rudder_inventories}"
-        transformer  => "/bin/rm -f ${this.promiser}",
+        transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select  => inventory_files,
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
       "${g.rudder_var_tmp}/inventory"
-        transformer  => "/bin/rm -f ${this.promiser}",
+        transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select  => inventory_files,
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
@@ -493,7 +525,6 @@ bundle agent sendInventory
 
     cant_delete_inventory_file::
       "@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not delete inventory file after sending to server";
-
 }
 
 #####################################################
@@ -537,6 +568,26 @@ bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUI
         insert_type => "file",
         location => after_vm,
         comment => "Adding the list of VM in the inventory file";
+}
+
+bundle edit_line add_information_to_android_inventory(fullname, kernelname, kernelversion, name, version)
+{
+  insert_lines:
+
+    android::
+      "<OPERATINGSYSTEM>${const.n}<FULL_NAME>${fullname}</FULL_NAME>${const.n}<KERNEL_NAME>${kernelname}</KERNEL_NAME>${const.n}<KERNEL_VERSION>${kernelversion}</KERNEL_VERSION>${const.n}<NAME>${name}</NAME>${const.n}<VERSION>${version}</VERSION>${const.n}</OPERATINGSYSTEM>"
+    location => after_location("<CONTENT>"),
+    comment => "Adding the list of OPERATINGSYSTEM part";
+}
+
+#this bundle is necessary for OCSInventory (but not for fusioninventory)
+bundle edit_line add_accesslog_to_android_inventory(logdate)
+{
+  insert_lines:
+    android::
+      "<ACCESSLOG><LOGDATE>${logdate}</LOGDATE></ACCESSLOG>"
+        location => after_location("</OPERATINGSYSTEM>"),
+        comment => "Adding log date";
 }
 
 bundle edit_line add_users_information_to_inventory(userlist)
@@ -602,7 +653,7 @@ body replace_with xmled(attribute)
 body file_select inventory_files
 {
 
-    (windows|linux)::
+    any::
         leaf_name => { ".*.ocs" };
         file_result => "leaf_name";
 

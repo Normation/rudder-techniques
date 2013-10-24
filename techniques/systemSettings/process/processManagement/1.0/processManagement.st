@@ -66,7 +66,7 @@ bundle agent check_process(directiveId, name, maxInst, minInst, command, args)
 
   reports:
 
-    (linux|!linux)::
+    cfengine_3::
 
       "@@ProcessManagement@@result_error@@${directiveId}@@Process@@${name}@@${g.execRun}##${g.uuid}@#${name}: the process count could't be checked"
         ifvarclass => canonify("${name}_error");

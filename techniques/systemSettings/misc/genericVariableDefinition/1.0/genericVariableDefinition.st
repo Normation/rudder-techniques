@@ -30,7 +30,7 @@ bundle agent generic_variable_definition_report
 
   reports:
 
-    (linux|!linux)::
+    cfengine_3::
 
       "@@genericVariableDefinition@@result_success@@&TRACKINGKEY&@@genericVariableDefinition@@None@@${g.execRun}##${g.uuid}@#A generic variable definition Policy Instance is active";
 
