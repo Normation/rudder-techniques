@@ -106,6 +106,19 @@ bundle common inventory {
 
 	  any::
 	  	"CPUIDFile" string => "${g.rudder_var_tmp}/cpuid.arc";
+
+  classes:
+
+    windows::
+
+      "rudder_inventory_cpuid_tool_present"    expression => isfile("\"${g.rudder_dependencies}\cpuid-windows-V1.0.vbs\"");
+
+      "rudder_inventory_userlist_tool_present" expression => isfile("\"${g.rudder_dependencies}\userlist.bat\"");
+
+    !windows::
+
+      "rudder_inventory_cpuid_tool_present"    expression => isfile("${g.rudder_dependencies}/cpuid-linux-V1.0.sh");
+
 }
 
 bundle agent fusionAgent {
@@ -246,14 +259,18 @@ bundle agent listInstalledVM {
 
 bundle agent generateExtraInformations {
   commands:
+
 &if(NOVA)&
-    windows::
+    windows.rudder_inventory_userlist_tool_present::
+
 		"\"${g.rudder_dependencies}\userlist.bat\""
 			args => " > \"${inventory.UserListFile_cp}\" ",
 			contain => outputable,
 			classes => cf2_if_else("userlist", "userlist_fail"),
 			comment => "Generating file with list of users";
 	
+    windows.rudder_inventory_cpuid_tool_present::
+
 		"${sys.winsysdir}\cscript.exe"
 			args => "/Nologo \"${g.rudder_dependencies}/cpuid-windows-V1.0.vbs\" > \"${inventory.CPUIDFile}\"",
 			contain => outputable,
@@ -261,7 +278,8 @@ bundle agent generateExtraInformations {
 			comment => "Generating file with CPUID information";
 &endif&
 			
-	linux::
+	linux.rudder_inventory_cpuid_tool_present::
+
 		"${g.rudder_dependencies}/cpuid-linux-V1.0.sh"
 			args => " > ${inventory.CPUIDFile}",
 			contain => outputable,
@@ -271,15 +289,24 @@ bundle agent generateExtraInformations {
  reports:
 		userlist::
 			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Generated the userlist";
+
 		cpuid::
 			"@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Generated the CPUID";
-		
-			
+
 		userlist_fail::
 			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not generate the user list";
-	
+
 		cpuid_fail::
 			"@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not generate the cpuid";
+
+    !rudder_inventory_userlist_tool_present::
+
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The user list generation tool is not present yet. Skipping...";
+
+    !rudder_inventory_cpuid_tool_present::
+
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The CPUID generation tool is not present yet. Skipping...";
+
 }
 
 bundle agent turnUsersToUnicode {
@@ -311,6 +338,9 @@ bundle agent addInformationsToInventory {
 		"USER" string => getenv("USERNAME", 40);
         "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "50" );
+
+    windows.!cygwin.rudder_inventory_userlist_tool_present::
+
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",50,4000) };
 &endif&
 		
@@ -320,6 +350,9 @@ bundle agent addInformationsToInventory {
         "USER_cmd"          string => "/usr/bin/whoami";
         "RUDDERUUID_cmd"    string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs";
 		"polserv_uuid" string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
+
+    cygwin.rudder_inventory_userlist_tool_present::
+
 		"users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
 
@@ -466,6 +499,7 @@ bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUI
 	any::
 		"<VMS>$(const.n)</VMS>$(const.n)<USERSLIST>$(const.n)</USERSLIST>" location => after_content;
 
+    rudder_inventory_cpuid_tool_present::
 
 		"${inventory.CPUIDFile}"
 		    insert_type => "file",
@@ -498,6 +532,9 @@ bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUI
 bundle edit_line add_users_information_to_inventory(userlist)
 {
 	insert_lines:
+
+    (windows.rudder_inventory_userlist_tool_present)|!windows::
+
 		"<USER>${userlist}</USER>$(const.n)" location => after_users,
 		comment => "Add the UUID and CFKEY tags in the inventory file";	
 }
