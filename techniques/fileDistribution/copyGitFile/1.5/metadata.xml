@@ -179,7 +179,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
     </SECTION>
 
-    <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_NAME">
+    <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_NAME" displayPriority="low">
        <INPUT>
           <NAME>COPYFILE_POST_HOOK_RUN</NAME>
           <DESCRIPTION>Should the command(s) below be run if any modifications (permission or overwriting) are made on the files above?</DESCRIPTION>
