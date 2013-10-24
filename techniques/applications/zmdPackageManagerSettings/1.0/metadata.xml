@@ -100,7 +100,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
-      <SECTION name="Repository" multivalued="true" component="true" componentKey="ZMD_URL">
+      <SECTION name="Repository" multivalued="true" component="true" componentKey="ZMD_URL" displayPriority="low">
     <INPUT>
           <NAME>ZMD_URL</NAME>
           <DESCRIPTION>Repository URL</DESCRIPTION>
