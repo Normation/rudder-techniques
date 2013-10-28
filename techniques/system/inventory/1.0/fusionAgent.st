@@ -1,4 +1,4 @@
-#####################################################################################
+r#####################################################################################
 # Copyright 2011 Normation SAS
 #####################################################################################
 #
@@ -118,13 +118,13 @@ bundle common inventory
 
     windows::
 
-      "rudder_inventory_cpuid_tool_present"    expression => isfile("\"${g.rudder_dependencies}\cpuid-windows-V1.0.vbs\"");
+      "rudder_inventory_cpuid_tool_present"    expression => fileexists("\"${g.rudder_dependencies}\cpuid-windows-V1.0.vbs\"");
 
-      "rudder_inventory_userlist_tool_present" expression => isfile("\"${g.rudder_dependencies}\userlist.bat\"");
+      "rudder_inventory_userlist_tool_present" expression => fileexists("\"${g.rudder_dependencies}\userlist.bat\"");
 
     !windows::
 
-      "rudder_inventory_cpuid_tool_present"    expression => isfile("${g.rudder_dependencies}/cpuid-linux-V1.0.sh");
+      "rudder_inventory_cpuid_tool_present"    expression => fileexists("${g.rudder_dependencies}/cpuid-linux-V1.0.sh");
 
 }
 
