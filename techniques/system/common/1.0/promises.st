@@ -60,6 +60,7 @@ bundle common va
         "check_cf_processes",
         "check_uuid",
         "check_log_system",
+        "check_rsyslog_version",
         "check_cron_daemon",
         "garbage_collection",
         "check_binaries_freshness",
@@ -81,6 +82,7 @@ bundle common va
         "garbage_collection",
         "check_binaries_freshness",
         "check_log_system",
+        "check_rsyslog_version",
         "e2s_enable",
         "check_uuid"
       };
