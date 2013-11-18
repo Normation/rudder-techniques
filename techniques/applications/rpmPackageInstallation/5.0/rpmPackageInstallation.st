@@ -44,16 +44,48 @@ bundle agent check_rpm_package_installation {
 
 		"index_rpmpkg" slist => getindices("rpm_package");
 
-    "classes_to_cancel_on_update" slist => { "rpm_package_installation_${index_rpmpkg}_kept", "rpm_package_installation_${index_rpmpkg}_repaired", "rpm_package_installation_${index_rpmpkg}_error", "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
+
+    # If the promises have been updated, we need to remove previously
+    # defined persistent classes (by setting there persistence to 1 minutes)
+    # and cancelling also the classes for this run
+    rudder_promises_generated_repaired::
+      "zmd_classes_to_cancel_on_update" slist => { "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
+
+      "unpersist_rpm_kept_classes_${index_rpmpkg}"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("rpm_package_install_kept_${index_rpmpkg}", "1");
+
+      "rpm_kept_classes_purged_${index_rpmpkg}"
+        string  => "undefine",
+        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
+
+      "unpersist_rpm_repaired_classes_${index_rpmpkg}"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("rpm_package_installed_${index_rpmpkg}", "1");
+
+      "rpm_repaired_classes_purged_${index_rpmpkg}"
+        string  => "undefine",
+        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
+
+      "unpersist_rpm_error_classes_${index_rpmpkg}"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("rpm_package_install_failed_${index_rpmpkg}", "1");
+
+      "rpm_error_classes_purged_${index_rpmpkg}"
+        string  => "undefine",
+        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
+
+      "unpersist_${zmd_classes_to_cancel_on_update}"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("${zmd_classes_to_cancel_on_update}", "1");
+
+      "${zmd_classes_to_cancel_on_update}_purged"
+        string  => "undefine",
+        classes => cancel_all_classes("${zmd_classes_to_cancel_on_update}");
 
 	classes:
 
 		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
-
-    rudder_promises_generated_repaired::
-      "check_rpm_package_installation_class_purged_${classes_to_cancel_on_update}"
-        expression => "any",
-        classes => cancel_all_classes("${classes_to_cancel_on_update}");
 
 	processes:
 
