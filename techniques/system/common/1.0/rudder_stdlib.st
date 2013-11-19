@@ -55,6 +55,21 @@ body classes rudder_common_classes_persist(prefix, persist)
         persist_time     => ${persist};
 }
 
+#
+# Always define a class, with the given persist time
+# Define the class for ${persist} minutes
+#
+body classes rudder_always_classes_persist(always, persist)
+{
+  promise_kept     => { "${always}" };
+  promise_repaired => { "${always}" };
+  repair_failed    => { "${always}" };
+  repair_denied    => { "${always}" };
+  repair_timeout   => { "${always}" };
+
+  persist_time     => "${persist}";
+}
+
 
 ##################################################
 # files bundles

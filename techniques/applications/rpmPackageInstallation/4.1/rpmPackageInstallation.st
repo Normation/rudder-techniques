@@ -44,35 +44,62 @@ bundle agent check_rpm_package_installation {
 
 		"index_rpmpkg" slist => getindices("rpm_package");
 
+    # If the promises have been updated, we need to remove previously
+    # defined persistent classes (by setting there persistence to 1 minutes)
+    # and cancelling also the classes for this run
+    rudder_promises_generated_repaired::
+      "unpersist_rpm_kept_classes_${index_rpmpkg}"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("rpm_package_install_kept_${index_rpmpkg}", "1");
+
+      "rpm_kept_classes_purged_${index_rpmpkg}"
+        string  => "undefine",
+        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
+
+      "unpersist_rpm_repaired_classes_${index_rpmpkg}"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("rpm_package_installed_${index_rpmpkg}", "1");
+
+      "rpm_repaired_classes_purged_${index_rpmpkg}"
+        string  => "undefine",
+        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
+
+      "unpersist_rpm_error_classes_${index_rpmpkg}"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("rpm_package_install_failed_${index_rpmpkg}", "1");
+
+      "rpm_error_classes_purged_${index_rpmpkg}"
+        string  => "undefine",
+        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
+
+      "unpersist_zmd_kept_classes"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("zmd_kept", "1");
+
+      "zmd_kept_classes_purged"
+        string  => "undefine",
+        classes => cancel_all_classes("zmd_kept");
+
+      "unpersist_zmd_repaired_classes"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("zmd_restarted", "1");
+
+      "zmd_repaired_classes_purged"
+        string  => "undefine",
+        classes => cancel_all_classes("zmd_restarted");
+
+      "unpersist_zmd_error_classes"
+        string  => "undefine",
+        classes => rudder_always_classes_persist("could_not_restart_zmd", "1");
+
+      "zmd_error_classes_purged"
+        string  => "undefine",
+        classes => cancel_all_classes("could_not_restart_zmd");
+
+
 	classes:
 
 		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
-
-    rudder_promises_generated_repaired::
-      "rpm_kept_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
-
-      "rpm_repaired_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
-
-      "rpm_error_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
-
-      "zmd_kept_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("zmd_kept");
-
-      "zmd_repaired_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("zmd_restarted");
-
-      "zmd_error_classes_purged"
-        expression => "any",
-        classes => cancel_all_classes("could_not_restart_zmd");
-        
 
 	processes:
 
