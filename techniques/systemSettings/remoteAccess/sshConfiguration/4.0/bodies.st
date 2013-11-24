@@ -22,11 +22,15 @@
 #
 bundle edit_line rudder_openssh_server_port_configuration(portlist)
 {
+  vars:
+      "ports" slist => maplist("Port ${this}", "portlist");
+
   delete_lines:
-      "Port.*";
+      "Port.*"
+         delete_select => delete_if_not_in_list("@{this.ports}");
 
   insert_lines:
-      "Port ${portlist}";
+      "${ports}";
 }
 
 #
@@ -35,10 +39,14 @@ bundle edit_line rudder_openssh_server_port_configuration(portlist)
 #
 bundle edit_line rudder_openssh_server_address_configuration(addresslist)
 {
+  vars:
+      "addresses" slist => maplist("ListenAddress ${this}", "addresslist");
+
   delete_lines:
-    "ListenAddress.*";
+      "ListenAddress.*"
+         delete_select => delete_if_not_in_list("@{this.addresses}");
 
   insert_lines:
-    "ListenAddress ${addresslist}";
+      "${addresses}";
 }
 
