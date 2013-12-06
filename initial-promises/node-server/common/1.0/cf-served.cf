@@ -39,6 +39,10 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+      "${g.rudder_ncf}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
       "/var/rudder/share/root/"
         maproot => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  },
         admit   => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  };

@@ -46,6 +46,10 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+      "${g.rudder_ncf}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
       &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
         comment => "Grant access to the share files",
