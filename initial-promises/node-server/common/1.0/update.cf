@@ -122,6 +122,12 @@ bundle agent update
         action => immediate,
         classes => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
 
+    !root_server::
+      "${g.rudder_ncf}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action => immediate,
+        classes => success("rudder_ncf_updated", "rudder_ncf_update_error", "rudder_ncf_updated_ok");
 
   processes:
     config.!windows::
@@ -157,16 +163,22 @@ bundle agent update
       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
 
     rudder_tools_update_error::
-      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools";
+
+    rudder_ncf_update_error::
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder ncf instance";
 
     rudder_promises_generated_error::
-      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
 
-    (rudder_promises_generated_ok|(rudder_tools_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|config|no_update)::
-      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
+    (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_ncf_updated|rudder_tools_update_error|config|no_update)::
+      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
 
     rudder_tools_updated::
-      "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Dependencies updated";
+      "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder tools updated";
+
+    rudder_ncf_updated::
+      "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf instance updated";
 
     config::
       "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
