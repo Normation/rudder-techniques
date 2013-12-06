@@ -138,22 +138,38 @@ bundle agent update_action
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
 
-    # same here, if the dependencies have been updated, we can skup this part 
-    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
-      "${g.rudder_dependencies}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+    # same here, if the tools have been updated, we can skip this part
+    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
+      "${g.rudder_tools}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
-        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
+        comment      => "Update the Rudder tools";
 
-    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
+    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_ncf_updated.!rudder_ncf_updated_ok::
+      "${g.rudder_ncf}/common"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_ncf_updated", "rudder_ncf_update_error", "rudder_ncf_updated_ok"),
+        comment      => "Update the common Rudder ncf instance";
+
+      "${g.rudder_ncf}/local"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_ncf_updated", "rudder_ncf_update_error", "rudder_ncf_updated_ok"),
+        comment      => "Update the local Rudder ncf instance";
+
+    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
       "${g.rudder_sbin}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
-        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
 
 
   processes:
@@ -206,26 +222,32 @@ bundle agent update_reports
     no_update::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
 
-    rudder_dependencies_update_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
+    rudder_tools_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools";
+
+    rudder_ncf_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder ncf instance";
 
     rudder_promises_generated_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
 
-    (rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
+    (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_updated|rudder_ncf_update_error|config|no_update)::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
 
-    rudder_dependencies_updated::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Dependencies updated";
+    rudder_tools_updated::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder tools updated";
+
+    rudder_ncf_updated::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf instance updated";
 
     config::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
 
-    rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy or dependencies were updated or CFEngine service restarted";
+    rudder_promises_generated_repaired|config|rudder_tools_updated|rudder_ncf_updated|server_ok|executor_ok::
+      "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools or ncf instance were updated or CFEngine service restarted";
 
     policy_server::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy server doesn't need to be updated";
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy server doesn't need to be updated";
 
 }
 

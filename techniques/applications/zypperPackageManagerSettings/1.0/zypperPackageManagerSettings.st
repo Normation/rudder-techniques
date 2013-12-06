@@ -75,7 +75,7 @@ bundle agent check_zypper_settings
       "/etc/zypp/repos.d/rudder-${zypper_name[${zypper_index}]}.repo"
         create => "true",
         perms => m("644"),
-        edit_line => set_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${g.rudder_dependencies}/zypper-repo.tpl"),
+        edit_line => set_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${g.rudder_tools}/zypper-repo.tpl"),
         edit_defaults => empty_backup,
         classes => kept_if_else("zypper_${zypper_index}_kept", "zypper_${zypper_index}_validated", "zypper_${zypper_index}_failed");
 

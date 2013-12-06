@@ -118,13 +118,13 @@ bundle common inventory
 
     windows::
 
-      "rudder_inventory_cpuid_tool_present"    expression => fileexists("\"${g.rudder_dependencies}\cpuid-windows-V1.0.vbs\"");
+      "rudder_inventory_cpuid_tool_present"    expression => fileexists("\"${g.rudder_tools}\cpuid-windows-V1.0.vbs\"");
 
-      "rudder_inventory_userlist_tool_present" expression => fileexists("\"${g.rudder_dependencies}\userlist.bat\"");
+      "rudder_inventory_userlist_tool_present" expression => fileexists("\"${g.rudder_tools}\userlist.bat\"");
 
     !windows::
 
-      "rudder_inventory_cpuid_tool_present"    expression => fileexists("${g.rudder_dependencies}/cpuid-linux-V1.0.sh");
+      "rudder_inventory_cpuid_tool_present"    expression => fileexists("${g.rudder_tools}/cpuid-linux-V1.0.sh");
 
 }
 
@@ -272,7 +272,7 @@ bundle agent generateExtraInformations
 
 &if(NOVA)&
     windows.rudder_inventory_userlist_tool_present::
-      "\"${g.rudder_dependencies}\userlist.bat\""
+      "\"${g.rudder_tools}\userlist.bat\""
         args => " > \"${inventory.UserListFile_cp}\" ",
         contain => outputable,
         classes => cf2_if_else("userlist", "userlist_fail"),
@@ -281,21 +281,21 @@ bundle agent generateExtraInformations
     windows.rudder_inventory_cpuid_tool_present::
 
       "${sys.winsysdir}\cscript.exe"
-        args => "/Nologo \"${g.rudder_dependencies}/cpuid-windows-V1.0.vbs\" > \"${inventory.CPUIDFile}\"",
+        args => "/Nologo \"${g.rudder_tools}/cpuid-windows-V1.0.vbs\" > \"${inventory.CPUIDFile}\"",
         contain => outputable,
         classes => cf2_if_else("cpuid", "cpuid_fail"),
         comment => "Generating file with CPUID information";
 &endif&
 
     linux.linux.rudder_inventory_cpuid_tool_present::
-      "${g.rudder_dependencies}/cpuid-linux-V1.0.sh"
+      "${g.rudder_tools}/cpuid-linux-V1.0.sh"
         args => " > ${inventory.CPUIDFile}",
         contain => outputable,
         classes => cf2_if_else("cpuid", "cpuid_fail"),
         comment => "Generating file with CPUID information";
 
     android::
-      "${g.rudder_dependencies}/cpuid-android-V1.0.sh"
+      "${g.rudder_tools}/cpuid-android-V1.0.sh"
         args => " > ${inventory.CPUIDFile}",
         contain => outputable,
         classes => cf2_if_else("cpuid", "cpuid_fail"),
@@ -331,9 +331,9 @@ bundle agent turnUsersToUnicode
 &if(NOVA)&
   commands:
     windows::
-      "\"${g.rudder_dependencies}\iconv.exe\""
+      "\"${g.rudder_tools}\iconv.exe\""
         args => " -f CP850 -t UTF-8 \"${inventory.UserListFile_cp}\" > \"${inventory.UserListFile}\" ",
-        contain => outputable_dir("${g.rudder_dependencies}"),
+        contain => outputable_dir("${g.rudder_tools}"),
         classes => cf2_if_else("userlist", "userlist_fail"),
         comment => "Generating file with list of users in UTF";
 
@@ -354,7 +354,7 @@ bundle agent addInformationsToInventory
     windows.!cygwin::
       "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"";
       "USER"           string => getenv("USERNAME", 40);
-      "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
+      "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_tools}/uuid.vbs\"";
       "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
 
     windows.!cygwin.rudder_inventory_userlist_tool_present::
@@ -366,7 +366,7 @@ bundle agent addInformationsToInventory
       "mywinpath"      string => execresult("/usr/bin/echo $WINDIR ", "useshell");
       "CFKEY_cmd"      string => "/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
-      "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs";
+      "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_tools}/uuid.vbs";
       "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
 
     cygwin.rudder_inventory_userlist_tool_present::

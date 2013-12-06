@@ -61,11 +61,23 @@ bundle agent update
 
   files:
     !root_server::
-      "${g.rudder_dependencies}"
-        copy_from    => remote("${server_info.cfserved}", "${g.rudder_dependencies}"),
+      "${g.rudder_tools}"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_tools}"),
         depth_search => recurse("inf"),
         action => immediate,
-        classes => success("rudder_dependencies_updated_ok", "rudder_dependencies_update_error");
+        classes => success("rudder_tools_updated_ok", "rudder_tools_update_error");
+
+      "${g.rudder_ncf}/common"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        depth_search => recurse("inf"),
+        action => immediate,
+        classes => success("rudder_ncf_updated_ok", "rudder_ncf_update_error");
+
+      "${g.rudder_ncf}/local"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        depth_search => recurse("inf"),
+        action => immediate,
+        classes => success("rudder_ncf_updated_ok", "rudder_ncf_update_error");
 
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
@@ -113,8 +125,10 @@ bundle agent update
 
     no_update::
       "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update policy files";
-    rudder_dependencies_update_error::
-      "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update dependencies";
+    rudder_tools_update_error::
+      "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update Rudder tools";
+    rudder_ncf_update_error::
+      "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update Rudder ncf instance";
 }
 
 

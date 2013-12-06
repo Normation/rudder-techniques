@@ -493,7 +493,7 @@ bundle agent check_rsyslog_version {
       "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
 
   classes:
-      "check_rsyslog_version_present" expression => fileexists("${g.rudder_dependencies}/check_rsyslog_version");
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check_rsyslog_version");
       "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
   files:
@@ -506,7 +506,7 @@ bundle agent check_rsyslog_version {
 
   commands:
     rsyslogd.check_rsyslog_version_present::
-      "${g.rudder_dependencies}/check_rsyslog_version"
+      "${g.rudder_tools}/check_rsyslog_version"
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
@@ -519,7 +519,7 @@ bundle agent check_rsyslog_version {
    
   reports:
     rsyslogd.!check_rsyslog_version_present::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#The file  ${g.rudder_dependencies}/check_rsyslog_version is missing";
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#The file  ${g.rudder_tools}/check_rsyslog_version is missing";
 
     rsyslog_limit_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not remove limitation of message in rsyslog";

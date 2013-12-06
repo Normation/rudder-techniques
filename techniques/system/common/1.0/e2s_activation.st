@@ -54,8 +54,8 @@ bundle common e2sCommon
 
   vars:
     windows::
-      "e2s_exe" string => "${g.rudder_dependencies}/centreon-e2s.exe";
-      "e2s_tpl" string => "${g.rudder_dependencies}/e2s.tpl";
+      "e2s_exe" string => "${g.rudder_tools}/centreon-e2s.exe";
+      "e2s_tpl" string => "${g.rudder_tools}/e2s.tpl";
 
 }
 

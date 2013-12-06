@@ -45,7 +45,7 @@ bundle common g
     any::
       "uuid"                       string => "&UUID&";
       "excludedreps"               slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_dependencies_origin" string => "/var/rudder/tools";
+      "rudder_tools_origin" string => "/var/rudder/tools";
 
 &if(NOVA)&
     windows::
@@ -53,7 +53,7 @@ bundle common g
       "rudder_var"                 string => "${sys.winprogdir}\Rudder\var";
       "rudder_bin"                 string => "${rudder_base}\bin";
       "rudder_sbin"                string => "${rudder_base}\sbin";
-      "rudder_dependencies"        string => "${rudder_sbin}";
+      "rudder_tools"        string => "${rudder_sbin}";
       "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
 
@@ -63,7 +63,7 @@ bundle common g
       "rudder_bin"                 string => "${rudder_base}/bin";
       "rudder_sbin"                string => "${rudder_base}/sbin";
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_dependencies"        string => "/var/rudder/tools";
+      "rudder_tools"        string => "/var/rudder/tools";
       "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
 
     android::
@@ -71,7 +71,7 @@ bundle common g
       "rudder_var"  string => "/data/rudder";
       "rudder_sbin" string  => "${rudder_base}/sbin";
       "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_dependencies" string => "${rudder_var}/tools";
+      "rudder_tools" string => "${rudder_var}/tools";
       "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
 
 

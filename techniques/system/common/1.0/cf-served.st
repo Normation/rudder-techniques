@@ -42,7 +42,15 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-      "${g.rudder_dependencies}"
+      "${g.rudder_tools}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
+      "${g.rudder_ncf_common}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
+      "${g.rudder_ncf_local}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
