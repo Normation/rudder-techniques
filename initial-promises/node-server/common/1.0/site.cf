@@ -100,7 +100,10 @@ bundle common g
       "davpw" string => "rudder";
       "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"         string => "/var/rudder/tools";
-      "rudder_ncf_origin"           string => "/var/rudder/ncf";
+      "rudder_ncf_common_origin"    string => "/var/rudder/ncf/common";
+
+      "rudder_ncf_origin_common"    string => "/usr/share/ncf";
+      "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin"  string => "/var/rudder/tools";

@@ -149,12 +149,19 @@ bundle agent update_action
         comment      => "Update the Rudder tools";
 
     rudder_promises_generated_repaired.(!windows|cygwin).!rudder_ncf_updated.!rudder_ncf_updated_ok::
-      "${g.rudder_ncf}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin}"),
+      "${g.rudder_ncf}/common"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
         classes      => success("rudder_ncf_updated", "rudder_ncf_update_error", "rudder_ncf_updated_ok"),
-        comment      => "Update the Rudder ncf instance";
+        comment      => "Update the common Rudder ncf instance";
+
+      "${g.rudder_ncf}/local"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_ncf_updated", "rudder_ncf_update_error", "rudder_ncf_updated_ok"),
+        comment      => "Update the local Rudder ncf instance";
 
     rudder_promises_generated_repaired.(windows.!cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
       "${g.rudder_sbin}"

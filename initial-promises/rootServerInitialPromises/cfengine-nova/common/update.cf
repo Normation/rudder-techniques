@@ -67,8 +67,14 @@ bundle agent update
         action => immediate,
         classes => success("rudder_tools_updated_ok", "rudder_tools_update_error");
 
-      "${g.rudder_ncf}"
-        copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin}"),
+      "${g.rudder_ncf}/common"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        depth_search => recurse("inf"),
+        action => immediate,
+        classes => success("rudder_ncf_updated_ok", "rudder_ncf_update_error");
+
+      "${g.rudder_ncf}/local"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
         depth_search => recurse("inf"),
         action => immediate,
         classes => success("rudder_ncf_updated_ok", "rudder_ncf_update_error");
