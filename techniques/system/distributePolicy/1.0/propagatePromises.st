@@ -34,7 +34,7 @@ bundle agent propagatePromises
 
     root_server::
 
-      "${g.rudder_dependencies}"
+      "${g.rudder_tools}"
         copy_from    => copy("${g.rudder_base}/share/tools"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
@@ -54,8 +54,8 @@ bundle agent propagatePromises
         comment => "Fetching the files shared for the promises execution",
         classes => if_else("files_propagated", "could_not_propagate_files");
 
-      "${g.rudder_dependencies}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_dependencies}"),
+      "${g.rudder_tools}"
+        copy_from    => remote("${server_info.cfserved}","${g.rudder_tools}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
         classes => if_else("tools_propagated", "could_not_propagate_tools");
@@ -106,14 +106,14 @@ bundle agent sendInventoryToCmdb
     root_server::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
         classes => rudder_common_classes("rudder_inventory_processing"),
         comment => "Processing a local inventory";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "${g.rudder_dependencies}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
         classes => rudder_common_classes("rudder_inventory_processing"),

@@ -49,13 +49,13 @@ bundle agent check_routing_parameters
 
   classes:
 
-      "checkroute_present" expression => fileexists("${g.rudder_dependencies}/checkroute.pl");
+      "checkroute_present" expression => fileexists("${g.rudder_tools}/checkroute.pl");
 
   commands:
 
     linux.checkroute_present::
 
-      "${g.rudder_dependencies}/checkroute.pl ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} linux"
+      "${g.rudder_tools}/checkroute.pl ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} linux"
         contain => in_shell,
         module => "true",
         comment => "Analysing routes";
@@ -74,7 +74,7 @@ bundle agent check_routing_parameters
     windows.checkroute_present::
 
       "\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
-        args => "\"${g.rudder_dependencies}\checkroute.pl\" ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} windows",
+        args => "\"${g.rudder_tools}\checkroute.pl\" ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} windows",
         contain => in_shell,
         module => "true",
         comment => "Analysing routes";

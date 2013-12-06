@@ -139,21 +139,21 @@ bundle agent update_action
         touch      => "true";
 
     # same here, if the dependencies have been updated, we can skup this part 
-    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
-      "${g.rudder_dependencies}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
+      "${g.rudder_tools}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
-        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
 
-    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
+    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
       "${g.rudder_sbin}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
-        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
+        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
 
 
   processes:
@@ -206,22 +206,22 @@ bundle agent update_reports
     no_update::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
 
-    rudder_dependencies_update_error::
+    rudder_tools_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
 
     rudder_promises_generated_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
 
-    (rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update)::
+    (rudder_promises_generated_ok|(rudder_tools_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|config|no_update)::
       "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
 
-    rudder_dependencies_updated::
+    rudder_tools_updated::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Dependencies updated";
 
     config::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
 
-    rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok::
+    rudder_promises_generated_repaired|config|rudder_tools_updated|server_ok|executor_ok::
       "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy or dependencies were updated or CFEngine service restarted";
 
     policy_server::

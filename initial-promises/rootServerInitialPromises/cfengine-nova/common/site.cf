@@ -61,6 +61,6 @@ bundle common g
 
       "uuid" string => "root";
       "server_shares_folder" string  => "/var/rudder/share/${uuid}/share";
-      "rudder_dependencies" string => "/var/rudder/tools";
+      "rudder_tools" string => "/var/rudder/tools";
 
 }

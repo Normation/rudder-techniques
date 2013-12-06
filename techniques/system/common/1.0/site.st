@@ -35,7 +35,7 @@ bundle common g
       "rudder_base_sbin"           string => "${rudder_base}\sbin"; #folder where tools are installed
       "rudder_inventories"         string => "${rudder_var}\inventories";
       "rudder_base_sbin_arg"       string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
-      "rudder_dependencies"        string => "${rudder_sbin}";
+      "rudder_tools"        string => "${rudder_sbin}";
       "escaped_workdir"            string => escape("${sys.workdir}");
       "rudder_curl"                string => "${rudder_base_sbin}\curl\curl.exe";
       # The time at which the execution started
@@ -55,7 +55,7 @@ bundle common g
       "rudder_inventories"         string => "${rudder_var}/inventories";
       "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
-      "rudder_dependencies"        string => "/var/rudder/tools";
+      "rudder_tools"        string => "/var/rudder/tools";
       "crontab"                    string => "/etc/crontab";
       "rudder_curl"                string => "/usr/bin/curl";
       "rudder_rm"                  string => "/bin/rm";
@@ -70,7 +70,7 @@ bundle common g
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_inventories"         string => "${rudder_var}/inventories";
       "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
-      "rudder_dependencies"        string => "${rudder_var}/tools";
+      "rudder_tools"        string => "${rudder_var}/tools";
       "crontab"                    string => "/etc/crontab";
       "rudder_curl"                string => "/system/bin/curl";
       "rudder_rm"                  string => "/system/xbin/rm";
@@ -86,7 +86,7 @@ bundle common g
      "davuser"                     string => "&DAVUSER&";
      "davpw"                       string => "&DAVPASSWORD&";
      "excludedreps"                slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
-     "rudder_dependencies_origin"  string => "/var/rudder/tools";
+     "rudder_tools_origin"  string => "/var/rudder/tools";
      # The time at which the execution started
      "execRun"                     string => execresult("${execRun_cmd}", "noshell");
 

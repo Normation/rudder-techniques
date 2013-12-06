@@ -211,7 +211,7 @@ bundle agent check_apache_configuration
         create => "true",
         perms => m("644"),
         edit_defaults => empty_backup,
-        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_dependencies}/apache-vhost.tpl"),
+        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_tools}/apache-vhost.tpl"),
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     redhat::
@@ -263,7 +263,7 @@ bundle agent check_apache_configuration
         create => "true",
         perms => m("644"),
         edit_defaults => empty_backup,
-        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_dependencies}/apache-vhost.tpl"),
+        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_tools}/apache-vhost.tpl"),
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     SuSE::
@@ -311,7 +311,7 @@ bundle agent check_apache_configuration
         create => "true",
         perms => m("644"),
         edit_defaults => empty_backup,
-        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_dependencies}/apache-vhost.tpl"),
+        edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_tools}/apache-vhost.tpl"),
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     linux::

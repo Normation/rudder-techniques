@@ -61,11 +61,11 @@ bundle agent update
 
   files:
     !root_server::
-      "${g.rudder_dependencies}"
-        copy_from    => remote("${server_info.cfserved}", "${g.rudder_dependencies}"),
+      "${g.rudder_tools}"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_tools}"),
         depth_search => recurse("inf"),
         action => immediate,
-        classes => success("rudder_dependencies_updated_ok", "rudder_dependencies_update_error");
+        classes => success("rudder_tools_updated_ok", "rudder_tools_update_error");
 
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
@@ -113,7 +113,7 @@ bundle agent update
 
     no_update::
       "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update policy files";
-    rudder_dependencies_update_error::
+    rudder_tools_update_error::
       "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update dependencies";
 }
 
