@@ -60,30 +60,39 @@ bundle agent update
 
 
   files:
-    !root_server::
-      "${g.rudder_tools}"
-        copy_from    => remote("${server_info.cfserved}", "${g.rudder_tools}"),
-        depth_search => recurse("inf"),
-        action => immediate,
-        classes => success("rudder_tools_updated_ok", "rudder_tools_update_error");
+
+    any::
+
+      "${g.rudder_ncf}/."
+        create  => "true",
+        comment => "Make sure the ncf directory exists";
 
       "${g.rudder_ncf}/common"
         copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
         depth_search => recurse("inf"),
-        action => immediate,
-        classes => success("rudder_ncf_updated_ok", "rudder_ncf_update_error");
+        action       => immediate,
+        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment      => "Update the common Rudder ncf instance";
 
       "${g.rudder_ncf}/local"
         copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
         depth_search => recurse("inf"),
-        action => immediate,
-        classes => success("rudder_ncf_updated_ok", "rudder_ncf_update_error");
+        action       => immediate,
+        classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
+        comment      => "Update the local Rudder ncf instance";
+
+    !root_server::
+      "${g.rudder_tools}"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_tools}"),
+        depth_search => recurse("inf"),
+        action       => immediate,
+        classes      => success("rudder_tools_updated_ok", "rudder_tools_update_error");
 
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
         depth_search => recurse("inf"),
-        action => immediate,
-        classes => success("config", "no_update");
+        action       => immediate,
+        classes      => success("config", "no_update");
 
 
   processes:
@@ -127,8 +136,10 @@ bundle agent update
       "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update policy files";
     rudder_tools_update_error::
       "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update Rudder tools";
-    rudder_ncf_update_error::
-      "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update Rudder ncf instance";
+    rudder_ncf_common_update_error::
+      "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update Rudder common ncf instance";
+    rudder_ncf_local_update_error::
+      "@@HasPolicyServer@@Error@@hasPolicyServer-root#@common-root##${g.uuid}@#Cannot update Rudder local ncf instance";
 }
 
 
@@ -162,3 +173,4 @@ body service_method u_bootstart
 {
         service_autostart_policy => "boot_time";
 }
+

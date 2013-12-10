@@ -42,6 +42,8 @@ bundle common g
       "rudder_base_sbin_arg" string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
       "rudder_ncf" string  => "${rudder_var}\ncf";
 
+      # DEPRECATED: This variable is used in pre-2.9 Techniques.
+      "rudder_dependencies"        string => "${rudder_sbin}";
 
     windows.!cygwin::
       "cfengine_share_directory" string => "c:\opt\hive\cf-served";
@@ -59,13 +61,19 @@ bundle common g
       "uuid_file" string => "${rudder_base}/etc/uuid.hive";
       "rudder_ncf" string  => "${rudder_var}/ncf";
 
+      # DEPRECATED: This variable is used in pre-2.9 Techniques.
+      "rudder_dependencies"        string => "${rudder_var}/tools";
+
     any::
 
       "uuid" string => "root";
       "server_shares_folder" string  => "/var/rudder/share/${uuid}/share";
       "rudder_tools" string => "/var/rudder/tools";
 
-      "rudder_ncf_origin_common"    string => "/usr/share/ncf";
+      "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
+
+      # DEPRECATED: This variable is used in pre-2.9 Techniques.
+      "rudder_dependencies_origin"  string => "/var/rudder/tools";
 
 }

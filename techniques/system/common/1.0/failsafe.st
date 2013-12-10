@@ -43,37 +43,41 @@ bundle common g
 {
   vars:
     any::
-      "uuid"                       string => "&UUID&";
-      "excludedreps"               slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_tools_origin" string => "/var/rudder/tools";
+      "uuid"                     string => "&UUID&";
+      "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "rudder_tools_origin"      string => "/var/rudder/tools";
+      "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
+      "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
 &if(NOVA)&
     windows::
-      "rudder_base"                string => "${sys.winprogdir}\Rudder";
-      "rudder_var"                 string => "${sys.winprogdir}\Rudder\var";
-      "rudder_bin"                 string => "${rudder_base}\bin";
-      "rudder_sbin"                string => "${rudder_base}\sbin";
-      "rudder_tools"        string => "${rudder_sbin}";
-      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+      "rudder_base"              string => "${sys.winprogdir}\Rudder";
+      "rudder_var"               string => "${sys.winprogdir}\Rudder\var";
+      "rudder_bin"               string => "${rudder_base}\bin";
+      "rudder_sbin"              string => "${rudder_base}\sbin";
+      "rudder_tools"             string => "${rudder_sbin}";
+      "rudder_ncf"               string => "${rudder_var}\ncf";
+      "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
 
     linux|cygwin::
-      "rudder_base"                string => "/opt/rudder";
-      "rudder_var"                 string => "/var/rudder";
-      "rudder_bin"                 string => "${rudder_base}/bin";
-      "rudder_sbin"                string => "${rudder_base}/sbin";
-      "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools"        string => "/var/rudder/tools";
-      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
+      "rudder_base"              string => "/opt/rudder";
+      "rudder_var"               string => "/var/rudder";
+      "rudder_bin"               string => "${rudder_base}/bin";
+      "rudder_sbin"              string => "${rudder_base}/sbin";
+      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_tools"             string => "/var/rudder/tools";
+      "rudder_ncf"               string => "${rudder_var}/ncf";
+      "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
 
     android::
-      "rudder_base" string => "/data/rudder";
-      "rudder_var"  string => "/data/rudder";
-      "rudder_sbin" string  => "${rudder_base}/sbin";
-      "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools" string => "${rudder_var}/tools";
-      "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
-
+      "rudder_base"              string => "/data/rudder";
+      "rudder_var"               string => "/data/rudder";
+      "rudder_sbin"              string  => "${rudder_base}/sbin";
+      "rudder_base_sbin"         string  => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_tools"             string => "${rudder_var}/tools";
+      "rudder_ncf"               string => "${rudder_var}/ncf";
+      "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
 
 # definition of the node roles
   &NODEROLE&
