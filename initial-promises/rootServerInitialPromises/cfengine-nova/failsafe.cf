@@ -33,16 +33,20 @@ bundle common g
   vars:
 
     linux|cygwin::
-      "rudder_base" string => "/opt/rudder";
-      "rudder_bin" string  => "${rudder_base}/bin";
-      "rudder_sbin" string  => "${rudder_base}/sbin";
-      "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools" string => "/var/rudder/tools";
+      "rudder_base"              string => "/opt/rudder";
+      "rudder_var"               string => "/var/rudder";
+      "rudder_bin"               string => "${rudder_base}/bin";
+      "rudder_sbin"              string => "${rudder_base}/sbin";
+      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_tools"             string => "${rudder_var}/tools";
+      "rudder_ncf"               string => "${rudder_var}/ncf";
 
     any::
-      "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_tools_origin" string => "/var/rudder/tools";
-      "uuid" string => "root";
+      "excludedreps"              slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "rudder_tools_origin"      string => "/var/rudder/tools";
+      "rudder_ncf_origin_common" string => "/usr/share/ncf";
+      "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
+      "uuid"                     string => "root";
 
 # definition of the machine roles
   classes:

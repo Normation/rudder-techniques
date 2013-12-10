@@ -41,34 +41,41 @@ bundle common g
   vars:
 
     windows::
-      "rudder_base" string  => "${sys.winprogdir}\Rudder";
-      "rudder_bin" string  => "${rudder_base}\bin";
-      "rudder_sbin" string  => "${rudder_base}\sbin";
-      "rudder_tools" string => "${rudder_sbin}";
+      "rudder_base"              string => "${sys.winprogdir}\Rudder";
+      "rudder_bin"               string => "${rudder_base}\bin";
+      "rudder_var"               string => "${sys.winprogdir}\Rudder\var";
+      "rudder_sbin"              string => "${rudder_base}\sbin";
+      "rudder_tools"             string => "${rudder_sbin}";
+      "rudder_ncf"               string => "${rudder_var}\ncf";
 
     windows.!cygwin::
-      "uuid_file" string => "${rudder_base}\etc\uuid.hive";
+      "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
 
     linux|cygwin::
-      "rudder_base" string => "/opt/rudder";
-      "rudder_bin" string  => "${rudder_base}/bin";
-      "rudder_sbin" string  => "${rudder_base}/sbin";
-      "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools" string => "/var/rudder/tools";
-      "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+      "rudder_base"              string => "/opt/rudder";
+      "rudder_var"               string => "/var/rudder";
+      "rudder_bin"               string => "${rudder_base}/bin";
+      "rudder_sbin"              string => "${rudder_base}/sbin";
+      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_tools"             string => "${rudder_var}/tools";
+      "rudder_ncf"               string => "${rudder_var}/ncf";
+      "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
 
     android::
-      "rudder_base" string => "/data/rudder";
-      "rudder_var" string => "/data/rudder";
-      "rudder_sbin" string  => "${rudder_base}/sbin";
-      "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools" string => "${rudder_var}/tools";
-      "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+      "rudder_base"              string => "/data/rudder";
+      "rudder_var"               string => "/data/rudder";
+      "rudder_sbin"              string => "${rudder_base}/sbin";
+      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_tools"             string => "${rudder_var}/tools";
+      "rudder_ncf"               string => "${rudder_var}/ncf";
+      "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
 
     any::
-      "uuid" string => readfile("${g.uuid_file}", 60);
-      "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_tools_origin" string => "/var/rudder/tools";
+      "uuid"                     string => readfile("${g.uuid_file}", 60);
+      "excludedreps"              slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "rudder_tools_origin"      string => "/var/rudder/tools";
+      "rudder_ncf_origin_common" string => "/usr/share/ncf";
+      "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
 }
 
