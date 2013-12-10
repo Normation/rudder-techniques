@@ -43,10 +43,10 @@ bundle common g
 {
   vars:
     any::
-      "uuid"                     string => "root";
+      "uuid"                     string => "&UUID&";
       "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"      string => "/var/rudder/tools";
-      "rudder_ncf_origin_common" string => "/usr/share/ncf";
+      "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
 &if(NOVA)&

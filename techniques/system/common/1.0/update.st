@@ -124,6 +124,20 @@ bundle agent update_action
         create  => "true",
         comment => "Make sure the ncf directory exists";
 
+      "${g.rudder_ncf}/common"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment      => "Update the common Rudder ncf instance";
+
+      "${g.rudder_ncf}/local"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
+        comment      => "Update the local Rudder ncf instance";
+
     !root_server::
       "${client_inputs}/${file_to_check_update}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
@@ -154,22 +168,6 @@ bundle agent update_action
         action       => immediate,
         classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
         comment      => "Update the Rudder tools";
-
-    !rudder_ncf_common_updated.!rudder_ncf_common_updated_ok::
-      "${g.rudder_ncf}/common"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action       => immediate,
-        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
-        comment      => "Update the common Rudder ncf instance";
-
-    !rudder_ncf_local_updated.!rudder_ncf_local_updated_ok::
-      "${g.rudder_ncf}/local"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action       => immediate,
-        classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
-        comment      => "Update the local Rudder ncf instance";
 
     rudder_promises_generated_repaired.(windows.!cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
       "${g.rudder_sbin}"

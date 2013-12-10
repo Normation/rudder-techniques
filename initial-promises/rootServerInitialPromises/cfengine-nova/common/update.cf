@@ -67,13 +67,6 @@ bundle agent update
         create  => "true",
         comment => "Make sure the ncf directory exists";
 
-    !root_server::
-      "${g.rudder_tools}"
-        copy_from    => remote("${server_info.cfserved}", "${g.rudder_tools}"),
-        depth_search => recurse("inf"),
-        action       => immediate,
-        classes      => success("rudder_tools_updated_ok", "rudder_tools_update_error");
-
       "${g.rudder_ncf}/common"
         copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
         depth_search => recurse("inf"),
@@ -87,6 +80,13 @@ bundle agent update
         action       => immediate,
         classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment      => "Update the local Rudder ncf instance";
+
+    !root_server::
+      "${g.rudder_tools}"
+        copy_from    => remote("${server_info.cfserved}", "${g.rudder_tools}"),
+        depth_search => recurse("inf"),
+        action       => immediate,
+        classes      => success("rudder_tools_updated_ok", "rudder_tools_update_error");
 
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
