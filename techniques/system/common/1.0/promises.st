@@ -669,13 +669,11 @@ body agent control
 
         agentfacility => "LOG_LOCAL6";
 
+        skipidentify => "&SKIPIDENTIFY&";
+
   # Repository where to put the copy of modified files
     !windows::
         default_repository => "${g.rudder_var}/modified-files";
-
-    # we can not depend on DNS for mobile devices
-    android::
-        skipidentify => "true";
 
 &if(NOVA)&
 #    windows::
