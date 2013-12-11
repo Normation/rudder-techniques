@@ -177,7 +177,7 @@ bundle agent update
       "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Policy or dependencies were updated or CFEngine service restarted";
 
 
-    no_update::
+    rudder_promises_generated_error|no_update::
         "*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by a network issue, an unavailable server, or if this      *
