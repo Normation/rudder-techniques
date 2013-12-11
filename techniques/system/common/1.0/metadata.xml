@@ -68,6 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>MANAGED_NODES_NAME</NAME>
     <NAME>MANAGED_NODES_ID</NAME> 
     <NAME>DENYBADCLOCKS</NAME>
+    <NAME>SKIPIDENTIFY</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
