@@ -21,6 +21,14 @@
 # promises.cf
 #
 #######################################################
+
+bundle common me
+{
+  vars:
+      "framework_path" string => "/var/rudder/ncf/common";
+}
+
+
 body common control
 {
 
