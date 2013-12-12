@@ -108,25 +108,31 @@ body server control
         trustkeysfrom     => {
           "127.0.0.0/8" , "::1",
           @{def.acl} ,
-          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+          &ALLOWCONNECT: {
+          host2ip("&it&"), "&it&", }&
           &if(CLIENTSLIST)&
-          &MANAGED_NODES_NAME: { host2ip("&it&"), "&it&"};separator=", "&
+          &MANAGED_NODES_NAME: {
+          host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
           @{def.acl} ,
-          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+          &ALLOWCONNECT: {
+          host2ip("&it&"), "&it&", }&
           &if(CLIENTSLIST)&
-          &MANAGED_NODES_NAME: { host2ip("&it&"), "&it&"};separator=", "&
+          &MANAGED_NODES_NAME: {
+          host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         };
 
         allowallconnects  => {
           @{def.acl} ,
-          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
+          &ALLOWCONNECT: {
+          host2ip("&it&"), "&it&", }&
           &if(CLIENTSLIST)&
-          &MANAGED_NODES_NAME: { host2ip("&it&"), "&it&"};separator=", "&
+          &MANAGED_NODES_NAME: {
+          host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         };
 
@@ -154,7 +160,8 @@ body server control
 body runagent control
 {
         hosts => {
-          &CLIENTSLIST: { "&it&",}&
+          &CLIENTSLIST: {
+          "&it&",}&
         };
 
         max_children => "25";
