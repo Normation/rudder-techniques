@@ -99,6 +99,7 @@ bundle common g
       "excludedreps"                slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"         string => "/var/rudder/tools";
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
+      "rudder_ncf_origin_tools"     string => "/usr/share/ncf/tools";
       "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
       # The time at which the execution started
       "execRun"                     string => execresult("${execRun_cmd}", "noshell");

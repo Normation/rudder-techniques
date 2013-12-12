@@ -131,6 +131,13 @@ bundle agent update_action
         classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
         comment      => "Update the common Rudder ncf instance";
 
+      "${g.rudder_ncf}/tools"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_tools}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        action       => immediate,
+        classes      => success("rudder_ncf_tools_updated", "rudder_ncf_tools_update_error", "rudder_ncf_tools_updated_ok"),
+        comment      => "Update the Rudder ncf tools";
+
       "${g.rudder_ncf}/local"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
@@ -234,13 +241,16 @@ bundle agent update_reports
     rudder_ncf_common_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update common Rudder ncf instance";
 
+    rudder_ncf_tools_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update common Rudder ncf tools";
+
     rudder_ncf_local_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update local Rudder ncf instance";
 
     rudder_promises_generated_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
 
-    (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
+    (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_common_updated_ok.rudder_ncf_tools_updated_ok.rudder_ncf_local_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_tools_updated|rudder_ncf_tools_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
       "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
 
     rudder_tools_updated::
@@ -248,6 +258,9 @@ bundle agent update_reports
 
     rudder_ncf_common_updated::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf common instance updated";
+
+    rudder_ncf_tools_updated::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf tools updated";
 
     rudder_ncf_local_updated::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf local instance updated";
