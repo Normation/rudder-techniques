@@ -101,6 +101,7 @@ bundle common def
 &if(CLIENTSLIST)&
     policy_server::
       "acl" slist => {
+      "127.0.0.0/8" , "::1",
       &ALLOWEDNETWORK:{net|"&net&",}&
     };
 &endif&
@@ -114,7 +115,6 @@ bundle common def
 body server control
 {
         trustkeysfrom     => {
-          "127.0.0.0/8" , "::1",
           @{def.acl} ,
           &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
           &if(CLIENTSLIST)&
