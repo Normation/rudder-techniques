@@ -132,6 +132,44 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		    </CONSTRAINT>
 		  </INPUT>
 		</SECTION>
+                <SECTION name="Enforce content by section" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+                  <INPUT>
+                    <NAME>GENERIC_FILE_CONTENT_SECTION_MANAGEMENT</NAME>
+                    <DESCRIPTION>Enforce the content of a section in the file</DESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>boolean</TYPE>
+                      <DEFAULT>false</DEFAULT>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_HEADER</NAME>
+                    <DESCRIPTION>Header of the section to enforce</DESCRIPTION>
+                    <LONGDESCRIPTION>The line corresponding to the beginning of the section to enforce content. If left empty, no section edition will be done.</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>string</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_CONTENT</NAME>
+                    <DESCRIPTION>Content of the section</DESCRIPTION>
+                    <LONGDESCRIPTION>The exact content of the section (without the header and footer).</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>textarea</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_FOOTER</NAME>
+                    <DESCRIPTION>Footer of the section to enforce</DESCRIPTION>
+                    <LONGDESCRIPTION>The line corresponding to the ending of the section to enforce content. If left empty, no section edition will be done.</LONGDESCRIPTION>
+                    <CONSTRAINT>  
+                      <TYPE>string</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                </SECTION>
+
 		<SECTION name="Permission adjustment" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
 			<INPUT>
 				  <NAME>GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT</NAME>
