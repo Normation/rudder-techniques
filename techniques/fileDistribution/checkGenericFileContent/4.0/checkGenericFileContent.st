@@ -52,6 +52,13 @@ bundle agent check_generic_file_content {
 }&
 			&GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION:{destination |"generic_file_content_modification_destination[&i&]" string => "&destination&";
 }&
+      &GENERIC_FILE_SECTION_HEADER:{header |"generic_file_content_section_header[&i&]" string => "&header&";
+}&
+# Since content is multiline, it is not indented to prevent spurious space from being inserted within
+&GENERIC_FILE_SECTION_CONTENT:{content |"generic_file_content_section_content[&i&]" string => "&content&";
+}&
+      &GENERIC_FILE_SECTION_FOOTER:{footer |"generic_file_content_section_footer[&i&]" string => "&footer&";
+}&
 	                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
 }&
 			"index" slist => getindices("generic_file_content_path");
@@ -79,6 +86,11 @@ classes:
 }&
       &GENERIC_FILE_CONTENT_ENFORCE_CREATE_ONLY_BOOLEAN:{enforce_at_creation_only |"enforce_at_creation_only_&i&" expression => strcmp("&enforce_at_creation_only&", "true");
 }&
+
+      &GENERIC_FILE_CONTENT_SECTION_MANAGEMENT:{enforce_section |"enforce_section_&i&" expression => strcmp("&enforce_section&", "true");
+}&
+      "edit_section_valid_${index}" and => { isvariable("generic_file_content_section_header[${index}]"), isvariable("generic_file_content_section_footer[${index}]") } ;
+
       "file_doesnt_exist_${index}"                       not => fileexists("$(generic_file_content_path[$(index)])");
       "creation_only_but_already_exists_${index}" expression => "enforce_at_creation_only_${index}.!file_doesnt_exist_${index}";
 
@@ -135,6 +147,15 @@ classes:
 			        ifvarclass => "modify_lines_$(index).!generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
 			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
+      # Enforce the content of section in file
+      "${generic_file_content_path[${index}]}"
+        edit_line => rudder_ensure_section_content("${generic_file_content_section_header[${index}]}", "${generic_file_content_section_footer[${index}]}", "${generic_file_content_section_content[${index}]}"),
+        create => "${generic_file_content_creation[${index}]}",
+        classes => kept_if_else("section_content_modification_kept_${index}", "section_content_modification_modified_${index}", "section_content_modification_failed_${index}"),
+        ifvarclass => "enforce_section_${index}.!creation_only_but_already_exists_${index}.edit_section_valid_${index}",
+        comment => "Enforcing content of section in ${generic_file_content_path[${index}]}";
+
+
 			  "$(generic_file_content_path[$(index)])"
 				  create => "$(generic_file_content_creation[$(index)])",
 				  perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
@@ -149,7 +170,7 @@ classes:
 			"$(generic_file_content_posthook[$(index)])"
 				classes => if_else("generic_file_content_posthook_$(index)_command_run_ok", "generic_file_content_posthook_$(index)_command_run_failed"),
 				contain => in_shell,
-				ifvarclass => "execute_command_$(index).!(content_$(index)_failed|content_deletion_failed_$(index)|content_modification_failed_$(index)).(content_$(index)_modified|content_deletion_modified_$(index)|content_modification_modified_$(index))";
+				ifvarclass => "execute_command_$(index).!(content_$(index)_failed|content_deletion_failed_$(index)|content_modification_failed_$(index)).(content_$(index)_modified|content_deletion_modified_$(index)|content_modification_modified_$(index)|section_content_modification_modified_${index})";
 
 	reports:
 
@@ -214,6 +235,27 @@ classes:
     # Permissions edition - enforce only at creation
     "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already existing, skipping permission checking"
                         ifvarclass => "adjust_permissions_$(index).creation_only_but_already_exists_${index}";
+
+      #Section edition
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was not set for section edition, skipping"
+        ifvarclass => "!enforce_section_${index}";
+
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was set for section edition, but no header or footer was defined"
+        ifvarclass => "enforce_section_${index}.!edit_section_valid_${index}";
+
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} already exists, skipping section edition"
+        ifvarclass => "enforce_section_${index}.creation_only_but_already_exists_${index}";
+
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the section content policy"
+        ifvarclass => "section_content_modification_kept_${index}.!section_content_modification_modified_${index}";
+
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated using the section content policy"
+        ifvarclass => "section_content_modification_modified_${index}.!section_content_modification_failed_${index}";
+
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated using the section content policy"
+        ifvarclass => "section_content_modification_failed_${index}";
+
+
 
 		# Posthook report
                 "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No command for $(generic_file_content_path[$(index)]) was to be executed"

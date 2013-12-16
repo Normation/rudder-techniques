@@ -132,6 +132,45 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		    </CONSTRAINT>
 		  </INPUT>
 		</SECTION>
+                <SECTION name="Enforce content by section" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+                  <INPUT>
+                    <NAME>GENERIC_FILE_CONTENT_SECTION_MANAGEMENT</NAME>
+                    <DESCRIPTION>Enforce the content of a section in the file</DESCRIPTION>
+                    <LONGDESCRIPTION>Match a portion of the file between two lines (header/footer) and enforce the content between those lines. If they don't exist, the whole section will be added at the end of the file.</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>boolean</TYPE>
+                      <DEFAULT>false</DEFAULT>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_HEADER</NAME>
+                    <DESCRIPTION>Header of the section to enforce</DESCRIPTION>
+                    <LONGDESCRIPTION>First line of the section to enforce content in. If not found, this line and the section content will be added at the end of the file. If left empty, no sections will be edited.</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>string</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_CONTENT</NAME>
+                    <DESCRIPTION>Content of the section</DESCRIPTION>
+                    <LONGDESCRIPTION>The exact content of the section (without the header and footer).</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>textarea</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_FOOTER</NAME>
+                    <DESCRIPTION>Footer of the section to enforce</DESCRIPTION>
+                    <LONGDESCRIPTION>Last  line of the section to enforce content in. If not found, this line and the section content will be added at the end of the file. If left empty, no sections will be edited.</LONGDESCRIPTION>
+                    <CONSTRAINT>  
+                      <TYPE>string</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                </SECTION>
+
 		<SECTION name="Permission adjustment" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
 			<INPUT>
 				  <NAME>GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT</NAME>
