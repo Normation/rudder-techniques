@@ -130,6 +130,15 @@ bundle common inventory
 
 bundle agent fusionAgent
 {
+  vars:
+    SuSE.xen_dom0::
+      "xen_tools_package" string => "xen-tools";
+    SuSE.xen_domu_pv::
+      "xen_tools_package" string => "xen-tools-domU";
+    debian::
+      "xen_tools_package" string => "xenstore-utils";
+    (redhat|centos)::
+      "xen_tools_package" string => "xen";
 
 
   files:
@@ -154,19 +163,12 @@ bundle agent fusionAgent
 &endif&
 
   packages:
-    xen.(redhat|centos|SuSE)::
-      "xen"
+    xen::
+      "${xen_tools_package}"
         package_policy => "add",
         package_method => generic,
-        classes => cf2_if_else("xen_installed", "cant_install_xen"),
-        comment => "Installing xen package for extended data";
-
-    xen.debian::
-      "xenstore-utils"
-        package_policy => "add",
-        package_method => generic,
-        classes => cf2_if_else("xen_installed", "cant_install_xen"),
-        comment => "Installing xen package for extended data";
+        classes        => cf2_if_else("xen_installed", "cant_install_xen"),
+        comment        => "Installing xen package for extended data";
 
   commands:
     linux.inventoryfoldercreated::
@@ -366,10 +368,10 @@ bundle agent addInformationsToInventory
       "users"          slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
 
-    xen.SuSE::
+    xen.SuSE.xen_domu_pv::
       "VMRUDDERUUID_cmd" string => "/bin/xenstore-read vm";
 
-    xen.(centos|redhat)::
+    xen.(centos|redhat|(SuSE.xen_dom0))::
       "VMRUDDERUUID_cmd" string => "/usr/bin/xenstore-read vm";
 
     xen.(!SuSE.!centos.!redhat)::
