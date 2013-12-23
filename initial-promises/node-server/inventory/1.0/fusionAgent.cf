@@ -332,17 +332,10 @@ bundle agent addInformationsToInventory
 
       "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
-<<<<<<< HEAD
-    xen.SuSE::
-      "VMRUDDERUUID" string => execresult("/bin/xenstore-read vm","noshell");
-
-    xen.(centos|redhat)::
-=======
     xen.SuSE.xen_domu_pv::
       "VMRUDDERUUID" string => execresult("/bin/xenstore-read vm","noshell");
 
     xen.(centos|redhat|(SuSE.xen_dom0))::
->>>>>>> branches/rudder/2.4
       "VMRUDDERUUID" string => execresult("/usr/bin/xenstore-read vm","noshell");
 
     xen.(!SuSE.!centos.!redhat)::
