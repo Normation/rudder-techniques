@@ -120,23 +120,23 @@ bundle agent fusionAgent {
       "xen_tools_package" string => "xen";
 
   files:
-	linux|cygwin::
-	    "${g.rudder_var_tmp}/inventory/."
-		create => "true",
-		comment => "Creating inventory directory",
-		classes => if_ok("inventoryfoldercreated");
+    linux|cygwin::
+      "${g.rudder_var_tmp}/inventory/."
+        create => "true",
+        comment => "Creating inventory directory",
+        classes => if_ok("inventoryfoldercreated");
 
-	    "${g.rudder_var_reports}/."
-		create => "true";
+      "${g.rudder_var_reports}/."
+        create => "true";
 
-	windows.!cygwin::
-	    "${g.rudder_var_tmp}\inventory\."
-		create => "true",
-		comment => "Creating inventory directory",
-		classes => if_ok("inventoryfoldercreated");
+    windows.!cygwin::
+      "${g.rudder_var_tmp}\inventory\."
+        create => "true",
+        comment => "Creating inventory directory",
+        classes => if_ok("inventoryfoldercreated");
 
-	    "${g.rudder_var_reports}\."
-		create => "true";
+      "${g.rudder_var_reports}\."
+        create => "true";
 
   packages:
     xen::
@@ -147,39 +147,39 @@ bundle agent fusionAgent {
         comment        => "Installing xen package for extended data";
 
   commands:
-	    linux.inventoryfoldercreated::
-			"${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs",
-			classes => cf2_if_else("run_inventory", "inventory_failed"),
-			comment => "Generating inventory, in the temporary folder";
+    linux.inventoryfoldercreated::
+      "${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs",
+        classes => cf2_if_else("run_inventory", "inventory_failed"),
+        comment => "Generating inventory, in the temporary folder";
 
-	    windows::	    
-			"\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
-				        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
-				        contain => in_shell,
-				        classes => cf2_if_else("run_inventory", "inventory_failed"),
-			 			comment => "Generating inventory";
+    windows::	    
+      "\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
+        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
+        contain => in_shell,
+        classes => cf2_if_else("run_inventory", "inventory_failed"),
+        comment => "Generating inventory";
 			 			
   reports:
-		run_inventory::
-           "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Running inventory";
+    run_inventory::
+      "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Running inventory";
 			
-		inventory_failed::
-           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not execute the inventory";
+    inventory_failed::
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not execute the inventory";
 			
-		cant_install_curl::
-           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install curl";
+    cant_install_curl::
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install curl";
 			
-		cant_install_ocs::
-           "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install ocs";
+    cant_install_ocs::
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install ocs";
 			
-		curl_installed::
-           "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
+    curl_installed::
+      "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
 
-                cant_install_xen::
-                        "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
+    cant_install_xen::
+      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
 
-                xen_installed::
-                        "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
+    xen_installed::
+      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
 			
 }
 
