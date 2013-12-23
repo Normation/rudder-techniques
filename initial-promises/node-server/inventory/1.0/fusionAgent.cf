@@ -107,9 +107,17 @@ bundle common inventory
 
 }
 
-bundle agent fusionAgent
-{
+bundle agent fusionAgent {
 
+  vars:
+    SuSE.xen_dom0::
+      "xen_tools_package" string => "xen-tools";
+    SuSE.xen_domu_pv::
+      "xen_tools_package" string => "xen-tools-domU";
+    debian::
+      "xen_tools_package" string => "xenstore-utils";
+    (redhat|centos)::
+      "xen_tools_package" string => "xen";
 
   files:
     !windows|cygwin::
@@ -131,19 +139,12 @@ bundle agent fusionAgent
         create => "true";
 
   packages:
-    xen.(redhat|centos|SuSE)::
-      "xen"
+    xen::
+      "${xen_tools_package}"
         package_policy => "add",
         package_method => generic,
-        classes => cf2_if_else("xen_installed", "cant_install_xen"),
-        comment => "Installing xen package for extended data";
-
-    xen.debian::
-      "xenstore-utils"
-        package_policy => "add",
-        package_method => generic,
-        classes => cf2_if_else("xen_installed", "cant_install_xen"),
-        comment => "Installing xen package for extended data";
+        classes        => cf2_if_else("xen_installed", "cant_install_xen"),
+        comment        => "Installing xen package for extended data";
 
   commands:
     !windows.inventoryfoldercreated::
@@ -151,35 +152,35 @@ bundle agent fusionAgent
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
 
-    windows::
+    windows::	    
       "\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
         args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
         contain => in_shell,
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory";
-
+			 			
   reports:
     run_inventory::
-      "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Running inventory";
-
+      "@@Inventory@@log_debug@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Running inventory";
+			
     inventory_failed::
-      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not execute the inventory";
-
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not execute the inventory";
+			
     cant_install_curl::
-      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not install curl";
-
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install curl";
+			
     cant_install_ocs::
-      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not install ocs";
-
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install ocs";
+			
     curl_installed::
-      "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Curl installed";
+      "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
 
     cant_install_xen::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not install xen utils on xen systems";
+      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
 
     xen_installed::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Xen utils installed";
-
+      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
+			
 }
 
 # List all installed VM on the machine (based on VirtualBox)
@@ -339,10 +340,10 @@ bundle agent addInformationsToInventory
 
       "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
-    xen.SuSE::
+    xen.SuSE.xen_domu_pv::
       "VMRUDDERUUID" string => execresult("/bin/xenstore-read vm","noshell");
 
-    xen.(centos|redhat)::
+    xen.(centos|redhat|(SuSE.xen_dom0))::
       "VMRUDDERUUID" string => execresult("/usr/bin/xenstore-read vm","noshell");
 
     xen.(!SuSE.!centos.!redhat)::
