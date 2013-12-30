@@ -200,6 +200,14 @@ body copy_from cp(from,server)
 
 }
 
+body copy_from copy_digest(from)
+{
+        source      => "${from}";
+        copy_backup => "false";
+        preserve    => "true";
+        compare     => "digest";
+}
+
 body action immediate
 {
         ifelapsed => "0";
