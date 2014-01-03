@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="File" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
       <INPUT>
         <NAME>GENERIC_FILE_CONTENT_PATH</NAME>
-        <DESCRIPTION>Path</DESCRIPTION>
+        <DESCRIPTION>Path or file name</DESCRIPTION>
       </INPUT>
       <INPUT>
         <NAME>GENERIC_FILE_CONTENT_ENFORCE</NAME>
