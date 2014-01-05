@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<TECHNIQUE name="RUG / YaST package manager configuration (ZMD)">
-  <DESCRIPTION>This technique configures the RUG and YaST package manager using Novell's ZMD.</DESCRIPTION>
+<TECHNIQUE name="RUG / YaST package manager configuration (ZMD) [DEPRECATED]">
+  <DESCRIPTION>This is a deprecated technique which configure the RUG and YaST package manager using Novell's ZMD. It is recommended to use the Technique 'Package manager sources repositories (SuSE)' to configure the repositories for SuSE or 'Package manager configuration for Rug / YaST (ZMD)' to configure ZMD settings</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
