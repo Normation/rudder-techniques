@@ -177,7 +177,7 @@ bundle agent check_usergroup_user_parameters
       "/etc/passwd"
         create => "false",
         edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
-        action => warn_only,
+        action => WarnOnly,
         ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
   reports:
