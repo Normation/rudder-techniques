@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<TECHNIQUE name="Zypper package manager configuration">
-  <DESCRIPTION>This technique configure the Zypper package manager.</DESCRIPTION>
+<TECHNIQUE name="Zypper package manager configuration [DEPRECATED]">
+  <DESCRIPTION>This is a deprecated technique to configure the Zypper package manager. It is recommended to use the Technique 'Package manager sources repositories (SuSE)' to configure the repositories for SuSE or 'Package manager configuration for Zypper' to configure Zypper settings</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
 

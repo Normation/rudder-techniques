@@ -1,0 +1,59 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<TECHNIQUE name="Package manager configuration for Zypper">
+  <DESCRIPTION>This technique configure the Zypper package manager.</DESCRIPTION>
+
+  <MULTIINSTANCE>false</MULTIINSTANCE>
+
+  <COMPATIBLE>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_zypper_settings</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="packageManagerSettingsZypper"/>
+  </TMLS>
+
+  <SECTIONS>
+    <!-- General settings Section , index 1-->
+    <SECTION name="General settings" component="true">
+      <SELECT1>
+        <NAME>ZYPPER_INSTALLRECOMMENDS</NAME>
+        <DESCRIPTION>Install 'recommended' packages automatically</DESCRIPTION>
+        <ITEM>
+          <VALUE>dontchange</VALUE>
+          <LABEL>Don't change</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>true</VALUE>
+          <LABEL>Yes</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>false</VALUE>
+          <LABEL>No</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>dontchange</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

@@ -1,0 +1,127 @@
+<!--
+Copyright 2013 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<TECHNIQUE name="Package manager sources repositories (SuSE)">
+  <DESCRIPTION>This technique configure the repositories of the package manager in SuSE based systems.</DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <COMPATIBLE>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_pkg_manager_repositories</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="packageRepositoriesManagementSuSE"/>
+  </TMLS>
+  
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>PKG_MGR_URL</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <!-- Repository settings Section , index 20 -->
+    <SECTION name="Repository settings">
+      <SECTION name="Repository" multivalued="true" component="true" componentKey="PKG_MGR_NAME">
+        <INPUT>
+          <NAME>PKG_MGR_NAME</NAME>
+          <DESCRIPTION>Repository name</DESCRIPTION>
+    <CONSTRAINT>
+      <MAYBEEMPTY>false</MAYBEEMPTY>
+    </CONSTRAINT>
+  </INPUT>
+        <INPUT>
+          <NAME>PKG_MGR_URL</NAME>
+          <DESCRIPTION>Repository URL</DESCRIPTION>
+    <CONSTRAINT>
+      <MAYBEEMPTY>false</MAYBEEMPTY>
+    </CONSTRAINT>
+  </INPUT>
+        <SELECT1>
+          <NAME>PKG_MGR_TYPE</NAME>
+          <DESCRIPTION>Repository type</DESCRIPTION>
+          <LONGDESCRIPTION>Choose the type of repository to add.</LONGDESCRIPTION>
+          <ITEM>
+            <VALUE>rpm-md</VALUE>
+            <LABEL>rpm-md: Used with RPM Metadata (SLES 11)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>yast2</VALUE>
+            <LABEL>yast2: Used with SLES media (SLES11)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>plaindir</VALUE>
+            <LABEL>plaindir: Used with directories only containing packages (SLES 11)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>yum</VALUE>
+            <LABEL>YUM: A service type for YUM servers (SLES 10)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>zypp</VALUE>
+            <LABEL>ZYPP: A service type for ZYPP installation source (SLES 10)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>nu</VALUE>
+            <LABEL>NU: A service type for Novell Update servers (SLES 10)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>rce</VALUE>
+            <LABEL>RCE: A service type for RCE servers (SLES 10)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>zenworks</VALUE>
+            <LABEL>ZEnworks: A service type for Novell ZENworks servers (SLES 10)</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>mount</VALUE>
+            <LABEL>Mount: Mount a directory of RPMs (SLES 10)</LABEL>
+          </ITEM>
+    <CONSTRAINT>
+      <DEFAULT>yast2</DEFAULT>
+    </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>PKG_MGR_ENABLED</NAME>
+          <DESCRIPTION>Enabled</DESCRIPTION>
+          <ITEM>
+            <VALUE>1</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>0</VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>1</DEFAULT>
+        </CONSTRAINT>
+        </SELECT1>
+      </SECTION>
+      <INPUT>
+        <NAME>PKG_MGR_DISABLEREPOSITORIES</NAME>
+        <DESCRIPTION>Delete all other repositories than these (potentially dangerous)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
