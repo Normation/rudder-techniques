@@ -124,6 +124,7 @@ The "mtime" option is set by default but "digest" is highly recommended for crit
         <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>perm</TYPE>
+          <DEFAULT>644</DEFAULT>
         </CONSTRAINT>
       </INPUT>
     </SECTION>
