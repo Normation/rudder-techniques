@@ -105,9 +105,18 @@ bundle agent check_usergroup_user_parameters
 
       "usermanagement_user_pweverytime_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","everytime");
 
-      "usermanagement_user_pwempty_${usergroup_user_index}" not => isvariable("usergroup_user_password[${usergroup_user_index}]");
+      # with variables that are not unique, the emptyness detection is quite tricky
+      "usermanagement_user_pw_no_variable_${usergroup_user_index}" not => isvariable("usergroup_user_password[${usergroup_user_index}]");
 
-      "usermanagement_user_nameempty_${usergroup_user_index}" not => isvariable("usergroup_user_fullname[${usergroup_user_index}]");
+      "usermanagement_user_pw_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_password[${usergroup_user_index}]}");
+
+      "usermanagement_user_pwempty_${usergroup_user_index}" expression => "usermanagement_user_pw_no_variable_${usergroup_user_index}|(!usermanagement_user_pw_no_variable_${usergroup_user_index}.usermanagement_user_pw_no_value_${usergroup_user_index})";
+
+      "usermanagement_user_name_no_variable_${usergroup_user_index}" not => isvariable("usergroup_user_fullname[${usergroup_user_index}]");
+      
+      "usermanagement_user_name_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_fullname[${usergroup_user_index}]}");
+
+      "usermanagement_user_nameempty_${usergroup_user_index}" expression => "usermanagement_user_name_no_variable_${usergroup_user_index}|(!usermanagement_user_name_no_variable_${usergroup_user_index}.usermanagement_user_name_no_value_${usergroup_user_index})";
 
     # Class 'any' is executed before others classes defined.
     # Same as 'any' but execution will be after all classes defined
@@ -167,7 +176,7 @@ bundle agent check_usergroup_user_parameters
       "/etc/passwd"
         create => "false",
         edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
-        action => warn_only,
+        action => WarnOnly,
         ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
       # Define password when user has already been created
