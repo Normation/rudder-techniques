@@ -157,6 +157,17 @@ body select_region rudder_section_selector(section_start, section_end)
   select_end   => "${section_end}";
 }
 
+
+################################################
+# Process selection bodies
+################################################
+body process_select by_pid( pid )
+{
+  pid => irange( "${pid}", "${pid}" );
+  process_result => "pid";
+}
+
+
 ################################################
 # Reporting bundles
 ################################################
