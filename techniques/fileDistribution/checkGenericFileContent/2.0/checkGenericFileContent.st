@@ -62,8 +62,7 @@ bundle agent check_generic_file_content
   files:
 
       "${generic_file_content_path[${index}]}"
-        edit_line => set_arbitrary_file_content("${generic_file_content_payload[${index}]}",
-      "${generic_file_content_enforced[${index}]}"),
+        edit_line => set_arbitrary_file_content("${generic_file_content_payload[${index}]}", "${generic_file_content_enforced[${index}]}"),
         create => "true",
         edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
         classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),

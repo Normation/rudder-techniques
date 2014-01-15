@@ -60,6 +60,7 @@ bundle agent check_dns_configuration
       "${sys.resolv}"
         create     => "true",
         edit_line  => resolv_edition("${this.spaced_searchlist}",  "@{this.resolvers}", "${this.spaced_options}"),
+        edit_defaults => noempty_backup,
         classes    => kept_if_else("dns_kept", "dns_repaired", "cant_repair_dns");
 
 

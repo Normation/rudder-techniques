@@ -56,6 +56,7 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge)
         trustkey => "${trustkey}";
         preserve => "${preserve}"; #preserver permissions
         purge    => "${purge}";
+        copy_backup => "timestamp";
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 }
@@ -72,6 +73,7 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
     trustkey => "${trustkey}";
     preserve => "${preserve}"; # Preserve the permissions
     purge    => "${purge}";
+    copy_backup => "timestamp";
 
   !is_policy_server::
     servers  => { "${server}" };
@@ -90,7 +92,7 @@ body copy_from copy(from)
 body copy_from copy_digest(from)
 {
         source      => "${from}";
-        copy_backup => "false";
+        copy_backup => "timestamp";
         preserve    => "true";
         compare     => "digest";
 }
@@ -326,6 +328,7 @@ body copy_from digest_cp(from)
         source            => "${from}";
         compare           => "digest";
         copylink_patterns => { ".*" };
+        copy_backup       => "timestamp";
 }
 
 ################################################

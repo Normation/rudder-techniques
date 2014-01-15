@@ -36,12 +36,14 @@ bundle agent setup_debian_backports
       "/etc/apt/sources.list"
         comment => "Include extra apt repos",
         edit_line => append_if_no_lines("${apt_source_line} ${apt_components}"),
+        edit_defaults => noempty_backup,
         classes => if_repaired("apt_sources_updated");
 
       "/etc/apt/preferences"
         comment => "Set automatic upgrades for packages installed from backports (recommended setting from backports.debian.org)",
         create => "true",
         edit_line => append_if_no_lines("Package: *${const.n}Pin: release a=lenny-backports${const.n}Pin-Priority: 200"),
+        edit_defaults => noempty_backup,
         classes => if_repaired("apt_preferences_repaired");
 
   commands:
@@ -109,17 +111,20 @@ bundle agent install_rsyslogd
         create    => "true",
         edit_defaults => empty,
         edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/rudder.conf"),
+        edit_defaults => noempty_backup,
         classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
         comment => "Copying rsyslog conf";
 
       "/etc/rsyslog.conf"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
+        edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => cf2_if_else("rsyslog_inc_ok" , "rsyslog_inc_failed");
 
     policy_server.!SuSE::
       "/etc/rsyslog.d/pgsql.conf"
         edit_line => comment_all(),
+        edit_defaults => noempty_backup,
         classes => cf2_if_else("rudder_rsyslog_pgsql", "cannot_update_rudder_rsyslog_pgsql"),
         comment => "Removing the logging of all in the database";
 
