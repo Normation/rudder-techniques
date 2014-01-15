@@ -40,6 +40,7 @@ bundle agent root_postgres_check
 
       "/var/lib/pgsql/data/pg_hba.conf"
         edit_line => prepend("${configuration_statements}"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("psql_conf_ok", "psql_conf_updated", "psql_conf_update_error"),
         comment => "Edit the SuSE postgresql configuration to enable account-less logins";
 

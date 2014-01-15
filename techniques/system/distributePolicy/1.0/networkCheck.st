@@ -35,7 +35,7 @@ bundle agent root_networks_check
       "${file_path}"
         create => "true",
         perms => mog("644", "root", "root"),
-        edit_defaults => empty,
+        edit_defaults => empty_backup,
         edit_line => insert_lines("Allow from 127.0.0.0/8${const.n}Allow from ${networks}"),
         classes => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
         comment => "Copying rudder apache configuration";

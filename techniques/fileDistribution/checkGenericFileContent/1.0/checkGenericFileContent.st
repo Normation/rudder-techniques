@@ -59,8 +59,7 @@ bundle agent check_generic_file_content
   files:
 
       "${generic_file_content_path[${index}]}"
-        edit_line => set_arbitrary_file_content("${generic_file_content_payload[${index}]}",
-      "${generic_file_content_enforced[${index}]}"),
+        edit_line => set_arbitrary_file_content("${generic_file_content_payload[${index}]}", "${generic_file_content_enforced[${index}]}"),
         create => "true",
         edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
         perms => mog("${generic_file_content_perms[${index}]}", "${generic_file_content_owner[${index}]}", "${generic_file_content_group[${index}]}"),

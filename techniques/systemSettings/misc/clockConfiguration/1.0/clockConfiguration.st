@@ -241,6 +241,7 @@ bundle agent check_clock_configuration
     (debian|redhat|SuSE)::
       "/etc/ntp.conf"
         edit_line => setNtpServer("@{this.ntpServers}"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
     # Copy the correct localtime file (distro independant)
@@ -254,11 +255,13 @@ bundle agent check_clock_configuration
     (redhat.!clock_timezone_noedit).clock_vardef::
       "/etc/sysconfig/clock"
         edit_line => EditCentOSTimezone("${linux_timezone}"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("redhattz_kept", "repaired_redhattz", "not_repaired_redhattz");
 
     (SuSE.!clock_timezone_noedit).clock_vardef::
       "/etc/sysconfig/clock"
         edit_line => EditSuSETimezone("${linux_timezone}"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("susetz_kept", "repaired_susetz", "not_repaired_susetz");
 
     (debian.!clock_timezone_noedit).clock_vardef::

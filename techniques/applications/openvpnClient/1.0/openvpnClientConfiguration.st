@@ -136,12 +136,14 @@ bundle agent check_openvpn_client_configuration
         create => "true",
         perms => m("644"),
         edit_line => set_openvpn_config_values_tier1("check_openvpn_client_configuration.ovpn_client_remote"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("openvpn_tier1_kept", "openvpn_tier1_validated", "openvpn_tier1_failed");
 
       "/etc/openvpn/rudder.conf"
         create => "true",
         perms => m("644"),
         edit_line => set_openvpn_config_values_tier2("check_openvpn_client_configuration.ovpn_client"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("openvpn_tier2_kept", "openvpn_tier2_validated", "openvpn_tier2_failed");
 
     ovpn_client_pwauth::
@@ -151,6 +153,7 @@ bundle agent check_openvpn_client_configuration
         edit_defaults => noempty_backup,
         perms => mog("600", "root", "root"),
         edit_line => set_openvpn_config_values_keyring("&OVPN_CLIENT_REMOTE_USER&", "&OVPN_CLIENT_REMOTE_PASS&"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("openvpn_keyring_kept", "openvpn_keyring_validated", "openvpn_keyring_failed");
 
   reports:

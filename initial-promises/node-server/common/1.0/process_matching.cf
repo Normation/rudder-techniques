@@ -74,6 +74,7 @@ bundle agent process_matching
       "${g.crontab}"
 
         create  => "true",
+        edit_defaults => noempty_backup,
         edit_line => cron_cleanup;
 
     community_edition::
@@ -81,7 +82,7 @@ bundle agent process_matching
       "/etc/cron.d/rudder-agent"
         create        => "true",
         perms         => mog("644", "root", "root"),
-        edit_defaults => empty,
+        edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 
   reports:
