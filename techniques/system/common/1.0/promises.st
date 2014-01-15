@@ -408,6 +408,7 @@ bundle agent check_log_system
     linux.rsyslogd::
       "/etc/rsyslog.conf"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
+        edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
@@ -422,16 +423,19 @@ bundle agent check_log_system
       # For SuSE, ensure that SYSLOG_DAEMON is set to 'rsyslogd' even if another syslog has been installed before
       "/etc/sysconfig/syslog"
         edit_line => ensure_rsyslogd_on_suse,
+        edit_defaults => noempty_backup,
 				classes   => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
     linux.syslogng.!policy_server::
       "/etc/syslog-ng/syslog-ng.conf"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("syslog_ng_kept", "syslog_ng_repaired" , "syslog_ng_failed");
 
     linux.syslogd.!policy_server::
       "/etc/syslog.conf"
         edit_line => fix_syslogd("@${server_info.cfserved}"),
+        edit_defaults => noempty_backup,
         classes => kept_if_else("syslogd_kept", "syslogd_repaired" , "syslogd_failed");
       #Probably, we want to do something if it is repaired ?
 
@@ -511,6 +515,7 @@ bundle agent check_rsyslog_version {
     rsyslogd.rsyslog_greater_than_5_7_1::
       "/etc/rsyslog.d/remove_limit.conf"
         edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
+        edit_defaults => noempty_backup,
         create    => "true",
         comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
         classes   => rudder_common_classes("rsyslog_limit");

@@ -105,7 +105,7 @@ bundle agent manageFilesAndFolders {
 
 		# Local copy
 		"$(file[$(index)][path])"
-			copy_from => local_cp("$(file[$(index)][source])"),
+			copy_from => backup_local_cp("$(file[$(index)][source])"),
 			classes => kept_if_else("manageCp_$(index)_kept", "manageCp_$(index)_modified", "manageCp_$(index)_failed"),
 			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).manageFilesAndFolders_local_cp_$(index).!manageFilesAndFolders_createsymlink_$(index)",
 			comment => "Create $(file[$(index)][path]) file as copy of $(file[$(index)][source])";

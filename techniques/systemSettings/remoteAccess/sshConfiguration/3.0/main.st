@@ -111,7 +111,7 @@ bundle agent rudder_openssh_server_configuration_reporting(class_prefix, service
 {
   methods:
       # Port edition defined
-      "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_ports", "${${params}[report]}", "SSH port configuration", "None", "The ${service_name} port configuration")
+      "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_ports", "${${params}[report]}", "SSH port configuration", "None", "The ${service_name} port configuration"),
         ifvarclass => "${class_prefix}_ports_edit";
       # When no port edition is defined
       "any" 

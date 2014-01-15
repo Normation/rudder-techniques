@@ -248,6 +248,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
     linux::
       "${rudder_openssh_server_config}"
         edit_line => rudder_common_disclaimer,
+        edit_defaults => noempty_backup,
         comment   => "Insert the standard Rudder disclaimer in the OpenSSHd configuration file";
 
     (debian|redhat|SuSE)::
@@ -261,12 +262,14 @@ bundle agent rudder_openssh_server_configuration(service_name)
     (debian|redhat|SuSE).rudder_openssh_server_ports_edit::
       "${rudder_openssh_server_config}"
         edit_line => rudder_openssh_server_port_configuration("@{this.sshPorts}"),
+        edit_defaults => noempty_backup,
         classes   => rudder_common_classes("rudder_openssh_server_ports"),
         comment   => "Edit the OpenSSH listening ports in the configuration file";
 
     (debian|redhat|SuSE)::
       "${rudder_openssh_server_config}"
         edit_line => set_config_values("rudder_openssh_server_configuration.sshd"),
+        edit_defaults => noempty_backup,
         classes   => rudder_common_classes("rudder_openssh_server_configuration"),
         comment   => "Edit the OpenSSH configuration file";
 

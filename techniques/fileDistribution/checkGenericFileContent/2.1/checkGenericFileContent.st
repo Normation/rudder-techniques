@@ -80,8 +80,7 @@ bundle agent check_generic_file_content
     tier2::
 
       "${generic_file_content_path[${index}]}"
-        edit_line => set_arbitrary_file_content("${generic_file_content_payload[${index}]}",
-      "${generic_file_content_enforced[${index}]}"),
+        edit_line => set_arbitrary_file_content("${generic_file_content_payload[${index}]}", "${generic_file_content_enforced[${index}]}"),
         create => "true",
         edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
         classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),
@@ -90,6 +89,7 @@ bundle agent check_generic_file_content
       "${generic_file_content_path[${index}]}"
         edit_line => delete_lines_matching("${generic_file_content_deletion_regexp[${index}]}"),
         create => "true",
+        edit_defaults => noempty_backup,
         classes => kept_if_else("content_deletion_kept_${index}", "content_deletion_modified_${index}", "content_deletion_failed_${index}"),
         ifvarclass => "delete_lines_${index}",
         comment => "Deleting lines in ${generic_file_content_path[${index}]} using the given regexps...";
@@ -97,6 +97,7 @@ bundle agent check_generic_file_content
       "${generic_file_content_path[${index}]}"
         edit_line => set_arbitrary_file_content_modify("${generic_file_content_modification_regexp[${index}]}", "${generic_file_content_modification_destination[${index}]}"),
         create => "true",
+        edit_defaults => noempty_backup,
         classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_${index}"),
         ifvarclass => "modify_lines_${index}",
         comment => "Replacing lines in ${generic_file_content_path[${index}]} using the given regexps...";

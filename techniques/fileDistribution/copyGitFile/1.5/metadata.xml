@@ -47,7 +47,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>COPYFILE_NAME</NAME>
         <DESCRIPTION>Path of the file to be copied</DESCRIPTION>
-      <LONGDESCRIPTION>This is the relative path of the file/folder to be copied, on the Rudder policy server</LONGDESCRIPTION>
+        <LONGDESCRIPTION>This is the relative path of the file/folder to be copied, on the Rudder policy server.
+The default location of the shared folder is /var/rudder/configuration-repository/shared-files, but it can be overriden by changing the value of rudder.dir.shared.files.folder in the Rudder configuration file.</LONGDESCRIPTION>
       </INPUT>
           <SECTION name="Exclusion/Inclusion" multivalued="false" component="false" displayPriority="low">
             <SELECT1>
@@ -159,6 +160,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>perm</TYPE>
+          <DEFAULT>644</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
