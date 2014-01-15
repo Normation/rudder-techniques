@@ -88,7 +88,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
       "${reverse_proxy_configuration_file}"
         create        => "true",
-        edit_defaults => empty,
+        edit_defaults => empty_backup,
         edit_line     => insert_proxy_entries("${rudder_reverse_proxy_apache_proxies}"),
         classes       => rudder_common_classes("rudder_reverse_proxy_apache_configuration"),
         comment       => "Edit the Apache reverse proxy file";
