@@ -159,7 +159,7 @@ bundle agent sendInventoryToCmdb
     rudder_inventory_processing_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Some inventories failed to add successfully to Rudder";
 
-    !rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
+    root_server.!rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to send";
 
     rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
@@ -168,7 +168,7 @@ bundle agent sendInventoryToCmdb
     rudder_inventory_relay_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Cannot relay some inventories to the root server";
 
-    !rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
+    policy_server.!root_server.!rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to relay";
 
     rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error::
