@@ -72,7 +72,7 @@ bundle agent check_sudo_parameters
     # error report below)
     sudoconfiguration_sudoers_present::
       "/etc/sudoers.rudder"
-        copy_from => local_dcp("/etc/sudoers"),
+        copy_from => digest_cp("/etc/sudoers"),
         perms => mog("0440", "root", "root"),
         classes => kept_if_else("sudoconfiguration_sudoers_tmp_copy_kept", "sudoconfiguration_sudoers_tmp_copy_repaired", "sudoconfiguration_sudoers_tmp_copy_error"),
         comment => "Copying sudoers to a temporary file for editing";
@@ -100,7 +100,7 @@ bundle agent check_sudo_parameters
     sudoconfiguration_sudoers_valid::
 
       "/etc/sudoers"
-        copy_from => local_dcp("/etc/sudoers.rudder"),
+        copy_from => digest_cp("/etc/sudoers.rudder"),
         create => "true",
         perms => mog("0440", "root", "root"),
         classes => kept_if_else("sudoconfiguration_sudoers_copy_kept", "sudoconfiguration_sudoers_copy_repaired", "sudoconfiguration_sudoers_copy_error"),

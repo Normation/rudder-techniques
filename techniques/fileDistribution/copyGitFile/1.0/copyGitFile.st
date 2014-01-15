@@ -99,7 +99,7 @@ bundle agent download_file_from_git_unit(name, repo, branch, ruddername, owner, 
     repoexists::
 
       "${dest}"
-        copy_from => local_cp("/var/rudder/tmp/${ruddername}/${name}"),
+        copy_from => backup_local_cp("/var/rudder/tmp/${ruddername}/${name}"),
         create => "true",
         perms => mog("${perms}", "${owner}", "${group}"),
         classes => kept_if_else("file_copy_kept", "file_copy_ok", "file_copy_failed"),

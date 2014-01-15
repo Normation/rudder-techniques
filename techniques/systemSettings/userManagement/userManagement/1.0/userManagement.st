@@ -181,6 +181,7 @@ bundle agent check_usergroup_user_parameters
       "/etc/passwd"
         create => "false",
         edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
       "/etc/passwd"

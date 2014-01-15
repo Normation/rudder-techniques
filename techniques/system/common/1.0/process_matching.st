@@ -89,6 +89,7 @@ bundle agent process_matching
       # This is to cleanup /etc/crontab from pre-2.5 usage
       # and initial promises before 2.7
       "${g.crontab}"
+        edit_defaults => noempty_backup,
         edit_line => cron_cleanup;
 
     community_edition::
@@ -96,7 +97,7 @@ bundle agent process_matching
       "/etc/cron.d/rudder-agent"
         create        => "true",
         perms         => mog("644", "root", "root"),
-        edit_defaults => empty,
+        edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 &if(NOVA)&
 
@@ -105,7 +106,7 @@ bundle agent process_matching
       "/etc/cron.d/rudder-agent-nova"
         create        => "true",
         perms         => mog("644", "root", "root"),
-        edit_defaults => empty,
+        edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
 &endif&
 

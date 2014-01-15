@@ -125,6 +125,7 @@ classes:
 			"$(generic_file_content_path[$(index)])"
 			        edit_line => delete_lines_matching("$(generic_file_content_deletion_regexp[$(index)])"),
 			        create => "$(generic_file_content_creation[$(index)])",
+              edit_defaults => noempty_backup,
 			        classes => kept_if_else("content_deletion_kept_$(index)", "content_deletion_modified_$(index)", "content_deletion_failed_$(index)"),
 			        ifvarclass => "delete_lines_$(index).!creation_only_but_already_exists_${index}",
 			        comment => "Deleting lines in $(generic_file_content_path[$(index)]) using the given regexps...";
@@ -134,6 +135,7 @@ classes:
 			"$(generic_file_content_path[$(index)])"
 			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])"),
 			        create => "$(generic_file_content_creation[$(index)])",
+			        edit_defaults => noempty_backup,
 			        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
 			        ifvarclass => "modify_lines_$(index).generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
 			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
@@ -143,6 +145,7 @@ classes:
 			"$(generic_file_content_path[$(index)])"
 			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", ""),
 			        create => "$(generic_file_content_creation[$(index)])",
+			        edit_defaults => noempty_backup,
 			        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
 			        ifvarclass => "modify_lines_$(index).!generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
 			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
@@ -151,6 +154,7 @@ classes:
       "${generic_file_content_path[${index}]}"
         edit_line => rudder_ensure_section_content("${generic_file_content_section_header[${index}]}", "${generic_file_content_section_footer[${index}]}", "${generic_file_content_section_content[${index}]}"),
         create => "${generic_file_content_creation[${index}]}",
+        edit_defaults => noempty_backup,
         classes => kept_if_else("section_content_modification_kept_${index}", "section_content_modification_modified_${index}", "section_content_modification_failed_${index}"),
         ifvarclass => "enforce_section_${index}.!creation_only_but_already_exists_${index}.edit_section_valid_${index}",
         comment => "Enforcing content of section in ${generic_file_content_path[${index}]}";
