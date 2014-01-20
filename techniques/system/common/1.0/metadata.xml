@@ -53,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <SYSTEMVARS>
     <NAME>ALLOWCONNECT</NAME>
+    <NAME>AUTHORIZED_NETWORKS</NAME>
     <NAME>CLIENTSLIST</NAME>
     <NAME>INPUTLIST</NAME>
     <NAME>LICENSESPAID</NAME>
