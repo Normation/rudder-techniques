@@ -75,7 +75,7 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
     purge    => "${purge}";
     copy_backup => "timestamp";
 
-  !is_policy_server::
+  !root_server::
     servers  => { "${server}" };
 
   community_edition::

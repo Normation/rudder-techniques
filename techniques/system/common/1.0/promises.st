@@ -551,15 +551,19 @@ bundle agent check_cron_daemon
 
   vars:
 
-    redhat::
+    redhat.!fedora::
       "cron_bin" string => "crond$";
       "cron_restartcmd" string => "/etc/init.d/crond restart";
+
+    fedora::
+      "cron_bin" string => "/usr/sbin/crond -n$";
+      "cron_restartcmd" string => "/bin/systemctl restart crond.service";
 
     ubuntu::
       "cron_bin" string => "cron$";
       "cron_restartcmd" string => "/etc/init.d/cron restart";
 
-    !(redhat|ubuntu)::
+    !(redhat|fedora|ubuntu)::
       "cron_bin" string => "/usr/sbin/cron$";
       "cron_restartcmd" string => "/etc/init.d/cron restart";
 
