@@ -98,11 +98,11 @@ bundle common def
 
    # List here the IP masks that we grant access to on the server
 
-&if(CLIENTSLIST)&
+&if(AUTHORIZED_NETWORKS)&
     policy_server::
       "acl" slist => {
       "127.0.0.0/8" , "::1",
-      &ALLOWEDNETWORK:{net|"&net&",}&
+      &AUTHORIZED_NETWORKS:{net|"&net&",}&
     };
 &endif&
     !policy_server::
