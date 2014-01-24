@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="e2s_activation"/>
     <TML name="site"/>
     <TML name="update"/>
+    <TML name="prevent_multiple_locks_on_tcdb"/>
     <TML name="failsafe">
       <OUTPATH>failsafe.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
