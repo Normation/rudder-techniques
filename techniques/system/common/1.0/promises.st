@@ -442,12 +442,12 @@ bundle agent check_log_system
         args => "restart",
         comment => "Restarting syslog-ng after it's been updated";
 
-    rsyslog_repaired.!(SuSE|Fedora)::
+    rsyslog_repaired.!(SuSE|fedora)::
       "/etc/init.d/rsyslog"
         args => "restart",
         comment => "Restarting rsyslog after it's been updated";
 
-    rsyslog_repaired.Fedora::
+    rsyslog_repaired.fedora::
       "/bin/systemctl"
         args => "restart rsyslog",
         comment => "Restarting rsyslog after it's been updated";
@@ -490,10 +490,10 @@ bundle agent check_rsyslog_version {
     SuSE::
       "syslog_restart_cmd" string => "/etc/init.d/syslog restart";
 
-    Fedora::
+    fedora::
       "syslog_restart_cmd" string => "/bin/systemctl restart rsyslog";
 
-    !(SuSE|Fedora)::
+    !(SuSE|fedora)::
       "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
 
   classes:
