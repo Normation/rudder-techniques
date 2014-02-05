@@ -1,0 +1,83 @@
+<!--
+    AutoFS unmanaged map definition technique.
+    Compatibility : Linux Red Hat like, Debian like
+
+It only defines additional autofs maps to add to master.
+
+Author: Michael Gliwinski
+All bugs added by: Matthieu "Kegeruneku" Cerda
+-->
+<TECHNIQUE name="AutoFS unmanaged map">
+  <DESCRIPTION>This technique will define additional unmanaged maps for AutoFS.
+
+  It only defines entries for the master map, it requires "AutoFS master"
+  technique to be used on the same host, and relies on it to enable the defined
+  map files in auto.master map.  "AutoFS master" will do that automatically if
+  it notices any maps defined using this technique.
+  </DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <!-- Agent and OS compatibility. -->
+  <COMPATIBLE>
+    <OS version=">= 7 (Wheezy)">Debian</OS>
+    <OS version=">= 6 (Santiago)">RHEL / CentOS</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <!-- List of .st files (templates or TMLS) -->
+  <TMLS>
+    <TML name="rudder_main"/>
+  </TMLS>
+
+  <!-- List of CFEngine bundles in the above .st TMLS to add to bundlesequence. -->
+  <BUNDLES>
+    <NAME>rudder_autofs_unmanaged_map</NAME>
+  </BUNDLES>
+
+  <!-- @todo: what is TRACKINGVARIABLE?
+  -->
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>AUTOFS_UNMANAGED_MAP_MOUNT_MAP</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <!-- From here on, define variables to display in the web interface
+  All variables must be contained in a section.
+  Sections may be multivalued, or not -->
+  <SECTIONS>
+    <SECTION name="AutoFS unmanaged map mount points"
+             component="true"
+             componentKey="AUTOFS_UNMANAGED_MAP_MOUNT_MAP"
+             multivalued="true">
+      <INPUT>
+        <NAME>AUTOFS_UNMANAGED_MAP_MOUNT_POINT</NAME>
+        <DESCRIPTION>Base location for the autofs filesystem to be mounted.</DESCRIPTION>
+        <LONGDESCRIPTION>
+          For indirect maps this directory will be created and deleted
+          automatically.  Use '/-' for direct maps.
+        </LONGDESCRIPTION>
+      </INPUT>
+
+      <!-- @todo: add support for map-type and format? -->
+
+      <INPUT>
+        <NAME>AUTOFS_UNMANAGED_MAP_MOUNT_MAP</NAME>
+        <DESCRIPTION>Name of the map to use.</DESCRIPTION>
+        <LONGDESCRIPTION>This is an absolute UNIX pathname.</LONGDESCRIPTION>
+      </INPUT>
+
+      <INPUT>
+        <NAME>AUTOFS_UNMANAGED_MAP_MOUNT_OPTIONS</NAME>
+        <DESCRIPTION>Mount options</DESCRIPTION>
+        <LONGDESCRIPTION>
+          Options (-o) to mount(8) or options for the maps, see auto.master(5).
+        </LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+  </SECTIONS>
+
+</TECHNIQUE>

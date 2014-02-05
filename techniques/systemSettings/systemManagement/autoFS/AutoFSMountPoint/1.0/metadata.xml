@@ -1,0 +1,102 @@
+<!--
+    AutoFS mount point configuration technique.
+    Compatibility : Linux Red Hat like, Debian like
+
+It is intended to configure mounts according to parameters.
+
+Author: Michael Gliwinski
+All bugs added by: Matthieu "Kegeruneku" Cerda
+-->
+<TECHNIQUE name="AutoFS mount point">
+  <DESCRIPTION>This technique will configure mounts in AutoFS.
+
+  It only manages entries in managed direct and indirect map files, it relies on
+  'AutoFS master' technique to enable those map files in auto.master map.
+  'AutoFS master'will do that automatically if it notices any mounts defined.
+  </DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <!-- Agent and OS compatibility. -->
+  <COMPATIBLE>
+    <OS version=">= 7 (Wheezy)">Debian</OS>
+    <OS version=">= 6 (Santiago)">RHEL / CentOS</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <!-- List of .st files (templates or TMLS) -->
+  <TMLS>
+    <TML name="rudder_main"/>
+    <TML name="configuration"/>
+    <TML name="bodies"/>
+  </TMLS>
+
+  <!-- List of CFEngine bundles in the above .st TMLS to add to bundlesequence. -->
+  <BUNDLES>
+    <NAME>rudder_autofs_mount_point</NAME>
+  </BUNDLES>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>AUTOFS_MOUNT_POINT_KEY</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <!-- From here on, define variables to display in the web interface
+  All variables must be contained in a section.
+  Sections may be multivalued, or not -->
+  <SECTIONS>
+
+    <SECTION name="AutoFS direct mounts configuration" component="true" />
+    <SECTION name="AutoFS indirect mounts configuration" component="true" />
+
+    <SECTION name="AutoFS configuration"
+             multivalued="true"
+             component="false">
+      <INPUT>
+        <NAME>AUTOFS_MOUNT_POINT_KEY</NAME>
+        <DESCRIPTION>Location for the autofs filesystem to be mounted.</DESCRIPTION>
+        <LONGDESCRIPTION>
+          For indirect mounts this is the part of the path name between the
+          mount point and the path into the filesystem when it is mounted (i.e.
+          sub-directory name below the autofs managed mount point).
+
+          For direct mounts this is the full path of the mount point.
+        </LONGDESCRIPTION>
+      </INPUT>
+
+      <INPUT>
+        <NAME>AUTOFS_MOUNT_POINT_OPTIONS</NAME>
+        <DESCRIPTION>Mount options</DESCRIPTION>
+        <LONGDESCRIPTION>
+          List of comma separated options as customary for the mount(8) command.
+
+          Additionally -fstype= is used to specify a filesystem type if the
+          filesystem is not of the default NFS type.  See autofs(5) manpage for
+          other available options.
+
+          Merged with options given in the auto.master file if any.
+        </LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+
+      <INPUT>
+        <NAME>AUTOFS_MOUNT_POINT_LOCATION</NAME>
+        <DESCRIPTION>From where the file system is to be mounted</DESCRIPTION>
+        <LONGDESCRIPTION>
+          For NFS volume and the usual notation host:pathname is used. If the
+          filesystem to be mounted begins with a / (such as local /dev entries
+          or smbfs shares) a : needs to be prefixed (e.g.  :/dev/sda1).
+
+          NOTE: if entering a multi-map (on multiple lines), remember to end
+          each line except for the last with '\\'.
+        </LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>textarea</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+  </SECTIONS>
+
+</TECHNIQUE>

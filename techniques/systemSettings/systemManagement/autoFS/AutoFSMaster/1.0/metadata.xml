@@ -1,0 +1,105 @@
+<!--
+    AutoFS master configuration technique.
+    Compatibility : Linux Red Hat like, Debian like
+
+It is intended to install and configure autofs master map according to
+parameters.
+
+Author: Michael Gliwinski
+All bugs added by: Matthieu "Kegeruneku" Cerda
+-->
+<TECHNIQUE name="AutoFS Master">
+  <DESCRIPTION>This technique will install and configure AutoFS.
+
+  It will ensure all necessary components are installed.
+
+  Note: currently the technique does not ensure the autofs service is running
+  and configured to start on boot.  In the meantime, you can do that yourself
+  using "Service Management" technique (use "Service name" = "autofs" and
+  "Process name" = "automount").
+
+  Configuration will adapt auto.master file according to specified values, it
+  will also add maps for managed mount points if any are defined (using "AutoFS
+  mount point" technique) and maps for unmanaged mount points if defined (using
+  "AutoFS unmanaged map" technique).
+  </DESCRIPTION>
+
+  <!-- Agent and OS compatibility. -->
+  <COMPATIBLE>
+    <OS version=">= 7 (Wheezy)">Debian</OS>
+    <OS version=">= 6 (Santiago)">RHEL / CentOS</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <!-- List of .st files (templates or TMLS) -->
+  <TMLS>
+    <TML name="rudder_main"/>
+    <TML name="installation"/>
+    <TML name="configuration"/>
+    <TML name="bodies"/>
+  </TMLS>
+
+  <!-- List of CFEngine bundles in the above .st TMLS to add to bundlesequence. -->
+  <BUNDLES>
+    <NAME>rudder_autofs_master</NAME>
+  </BUNDLES>
+
+  <!-- @todo: what is TRACKINGVARIABLE?
+  -->
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>AUTOFS_MASTER_CONFFILE</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <!-- From here on, define variables to display in the web interface
+  All variables must be contained in a section.
+  Sections may be multivalued, or not -->
+  <SECTIONS>
+    <!-- Sections for reporting only, variables are separate below -->
+    <SECTION name="AutoFS Master installation" component="true" />
+
+    <SECTION name="AutoFS Master configuration" component="true">
+      <INPUT>
+        <NAME>AUTOFS_MASTER_CONFFILE</NAME>
+        <DESCRIPTION>Location of auto.master file that should be edited</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/etc/auto.master</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>AUTOFS_MASTER_MANAGED_DIRECT_MAP_FILE</NAME>
+        <DESCRIPTION>Location of direct map file</DESCRIPTION>
+        <LONGDESCRIPTION>This is where configuration of direct mounts defined
+          using "AutoFS mount point" technique will be placed.  Note that
+          contents of this file are managed entirely by Rudder.
+        </LONGDESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/etc/auto.rudder.direct</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>AUTOFS_MASTER_MANAGED_INDIRECT_MAP_FILE</NAME>
+        <DESCRIPTION>Location of indirect map file</DESCRIPTION>
+        <LONGDESCRIPTION>This is where configuration of indirect mounts defined
+          using "AutoFS mount point" technique will be placed.  Note that
+          contents of this file are managed entirely by Rudder.
+        </LONGDESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/etc/auto.rudder.indirect</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>AUTOFS_MASTER_MANAGED_INDIRECT_MOUNT_ROOT</NAME>
+        <DESCRIPTION>Root of indirect mount points</DESCRIPTION>
+        <LONGDESCRIPTION>This is a root directory for indirect mounts defined
+          using "AutoFS mount point" technique.
+        </LONGDESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/mnt/a</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+
+    </SECTION>
+
+  </SECTIONS>
+
+</TECHNIQUE>
