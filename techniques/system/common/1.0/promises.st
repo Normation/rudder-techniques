@@ -705,7 +705,7 @@ body agent control
 
 body executor control
 {
-        splaytime => "1";
+        splaytime => "5";
 
         exec_command => "${sys.cf_agent} -f failsafe.cf \&\& ${sys.cf_agent}";
         schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
