@@ -46,11 +46,11 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-      "${g.rudder_ncf}/common"
+      "${g.rudder_ncf_origin_common}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-      "${g.rudder_ncf}/local"
+      "${g.rudder_ncf_origin_local}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
