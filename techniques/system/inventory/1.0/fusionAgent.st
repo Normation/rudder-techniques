@@ -388,7 +388,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
       "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
-      "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
+      "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users"          slist => getindices("userslist");
 
     any::
