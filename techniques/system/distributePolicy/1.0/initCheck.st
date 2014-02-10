@@ -167,7 +167,7 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} is started on boot as required"
         ifvarclass => "service_bootstarted_${canoname}";

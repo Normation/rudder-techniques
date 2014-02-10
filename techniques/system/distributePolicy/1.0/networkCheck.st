@@ -51,7 +51,7 @@ bundle agent root_networks_check
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file is OK"
         ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";

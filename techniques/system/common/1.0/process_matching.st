@@ -46,7 +46,7 @@ bundle agent process_matching
       # Always stop cf-monitord
       "${g.escaped_workdir}\/bin\/cf-monitord" signals => { "${stop_signal}" };
 
-    linux::
+    !windows::
       # Always stop cf-monitord
       "${sys.workdir}/bin/cf-monitord"         signals => { "${stop_signal}" };
 

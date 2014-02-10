@@ -29,7 +29,7 @@ bundle common rudder_roles
       "rudder_base" string  => "${sys.winprogdir}\Rudder";
       "uuid_file" string => "${rudder_base}\etc\uuid.hive";
 
-    linux|cygwin::
+    !windows::
       "rudder_base" string => "/opt/rudder";
       "uuid_file" string => "${rudder_base}/etc/uuid.hive";
 

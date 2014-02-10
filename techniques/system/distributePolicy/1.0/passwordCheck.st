@@ -285,7 +285,7 @@ bundle agent root_password_check_dav
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password are OK"
         ifvarclass => "!dav_cant_connect";

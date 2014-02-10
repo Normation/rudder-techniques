@@ -115,7 +115,6 @@ bundle agent update_action
     community_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
 
-
   files:
 
     any::
@@ -191,7 +190,6 @@ bundle agent update_action
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
         classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
-
 
   processes:
     config.!windows::

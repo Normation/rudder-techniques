@@ -26,14 +26,8 @@ bundle agent fusion_getuuid
 
   commands:
 
-    linux::
-      "/usr/bin/curl"
+      "${g.rudder_curl}"
         args => "-f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server";
-
-    windows::
-      "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
         comment => "Getting the uuid from the server";
 
 }

@@ -47,7 +47,7 @@ bundle common virtualMachines
 
 
   classes:
-    linux::
+    !windows::
       "VirtualBoxInstalled" expression => fileexists("/usr/bin/VBoxManage"),
         comment => "Checking installation of VirtualBox";
 
