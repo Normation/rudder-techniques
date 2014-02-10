@@ -42,12 +42,25 @@ body agent control {
 bundle common g
 {
   vars:
-    any::
-      "uuid"                     string => "&UUID&";
-      "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_tools_origin"      string => "/var/rudder/tools";
-      "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
-      "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
+    android::
+      "rudder_base"              string => "/data/rudder";
+      "rudder_var"               string => "/data/rudder";
+
+    !windows.!android::
+      "rudder_base"              string => "/opt/rudder";
+
+    solaris::
+      "rudder_var"               string => "/opt/rudder/var";
+
+    !windows.!android.!solaris::
+      "rudder_var"               string => "/var/rudder";
+
+    !windows::
+      "rudder_bin"               string => "${rudder_base}/bin";
+      "rudder_sbin"              string => "${rudder_base}/sbin";
+      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_tools"             string => "${rudder_var}/tools";
+      "rudder_ncf"               string => "${rudder_var}/ncf";
 
 &if(NOVA)&
     windows::
@@ -57,32 +70,22 @@ bundle common g
       "rudder_sbin"              string => "${rudder_base}\sbin";
       "rudder_tools"             string => "${rudder_sbin}";
       "rudder_ncf"               string => "${rudder_var}\ncf";
-      "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
 
-    !windows::
-      "rudder_bin"               string => "${rudder_base}/bin";
-      "rudder_sbin"              string => "${rudder_base}/sbin";
-      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools"             string => "${rudder_var}/tools";
-      "rudder_ncf"               string => "${rudder_var}/ncf";
-
-    android::
-      "rudder_base"              string => "/data/rudder";
-      "rudder_var"               string => "/data/rudder";
-
-    solaris::
-      "rudder_var"               string => "/opt/rudder/var";
-
-    !windows.!android.!solaris::
-      "rudder_var"               string => "/var/rudder";
-
-    !windows.!android::
-      "rudder_base"              string => "/opt/rudder";
+    any::
+      "uuid"                     string => "&UUID&";
+      "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "rudder_tools_origin"      string => "/var/rudder/tools";
+      "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
+      "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
     # The time at which the execution started
     linux|cygwin::
       "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
+&if(NOVA)&
+    windows::
+      "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+&endif&
     android::
       "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
     !linux.!cygwin.!windows.!android::

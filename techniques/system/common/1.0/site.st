@@ -26,6 +26,38 @@ bundle common g
 {
   vars:
 
+    android::
+      "rudder_base"                string => "/data/rudder";
+      "rudder_var"                 string => "/data/rudder";
+      "rudder_curl"                string => "/system/bin/curl";
+      "rudder_rm"                  string => "/system/xbin/rm";
+
+    !windows.!android::
+      "rudder_base"                string => "/opt/rudder";
+      "rudder_curl"                string => "/usr/bin/curl";
+      "rudder_rm"                  string => "/bin/rm";
+
+    solaris::
+      "rudder_var"                 string => "/opt/rudder/var";
+
+    !solaris.!windows.!android::
+      "rudder_var"                 string => "/var/rudder";
+
+    !windows::
+      "rudder_bin"                 string => "${rudder_base}/bin";
+      "rudder_sbin"                string => "${rudder_base}/sbin";
+      "rudder_var_tmp"             string => "${rudder_var}/tmp"; # tmp generated data
+      "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_inventories"         string => "${rudder_var}/inventories";
+      "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
+      "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
+      "rudder_tools"               string => "${rudder_var}/tools";
+      "rudder_ncf"                 string => "${rudder_var}/ncf";
+      "crontab"                    string => "/etc/crontab";
+
+      # DEPRECATED: This variable is used in pre-2.9 Techniques.
+      "rudder_dependencies"        string => "${rudder_var}/tools";
+
     windows::
       "rudder_base"                string => "${sys.winprogdir}\Rudder";
       "rudder_bin"                 string => "${rudder_base}\bin";
@@ -42,51 +74,16 @@ bundle common g
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
 
-      # The time at which the execution started
-      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
-
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_sbin}";
 
-    !windows::
-      "rudder_base"                string => "/opt/rudder";
-      "rudder_bin"                 string => "${rudder_base}/bin";
-      "rudder_sbin"                string => "${rudder_base}/sbin";
-      "rudder_var_tmp"             string => "${rudder_var}/tmp"; # tmp generated data
-      "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_inventories"         string => "${rudder_var}/inventories";
-      "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
-      "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
-      "rudder_tools"               string => "${rudder_var}/tools";
-      "rudder_ncf"                 string => "${rudder_var}/ncf";
-      "crontab"                    string => "/etc/crontab";
-
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies"        string => "${rudder_var}/tools";
-
-    solaris::
-      "rudder_var"  string => "/opt/rudder/var";
-
-    !solaris.!windows.!android::
-      "rudder_var"  string => "/var/rudder";
-
-    !windows.!android::
-      "rudder_curl"                string => "/usr/bin/curl";
-      "rudder_rm"                  string => "/bin/rm";
-
-    android::
-      "rudder_base"                string => "/data/rudder";
-      "rudder_var"                 string => "/data/rudder";
-      "rudder_curl"                string => "/system/bin/curl";
-      "rudder_rm"                  string => "/system/xbin/rm";
-
     any::
-      "uuid"                        string => readfile("$(g.uuid_file)", 60);
-      "server_shares_folder"        string  => "/var/rudder/share/${uuid}/promises/shares";
-      "rudder_var_reports"          string => "$(rudder_var)/reports";
+      "uuid"                        string => readfile("${g.uuid_file}", 60);
+      "server_shares_folder"        string => "/var/rudder/share/${uuid}/promises/shares";
+      "rudder_var_reports"          string => "${rudder_var}/reports";
       "davuser"                     string => "&DAVUSER&";
       "davpw"                       string => "&DAVPASSWORD&";
-      "excludedreps"                slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "excludedreps"                slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"         string => "/var/rudder/tools";
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
@@ -97,6 +94,8 @@ bundle common g
     # The time at which the execution started
     linux|cygwin::
       "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
+    windows::
+      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
     android::
       "execRun"                    string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
     !linux.!cygwin.!windows.!android::

@@ -40,14 +40,18 @@ bundle common g
 {
   vars:
 
-    windows::
-      "rudder_base"              string => "${sys.winprogdir}\Rudder";
-      "rudder_bin"               string => "${rudder_base}\bin";
-      "rudder_var"               string => "${sys.winprogdir}\Rudder\var";
-      "rudder_sbin"              string => "${rudder_base}\sbin";
-      "rudder_tools"             string => "${rudder_sbin}";
-      "rudder_ncf"               string => "${rudder_var}\ncf";
-      "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
+    android::
+      "rudder_base"              string => "/data/rudder";
+      "rudder_var"               string => "/data/rudder";
+
+    !windows.!android::
+      "rudder_base"              string => "/opt/rudder";
+
+    solaris::
+      "rudder_var"               string => "/opt/rudder/var";
+
+    !windows.!solaris.!android::
+      "rudder_var"               string => "/var/rudder";
 
     !windows::
       "rudder_bin"               string => "${rudder_base}/bin";
@@ -57,18 +61,14 @@ bundle common g
       "rudder_ncf"               string => "${rudder_var}/ncf";
       "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
 
-    !windows.!android::
-      "rudder_base"              string => "/opt/rudder";
-
-    android::
-      "rudder_base"              string => "/data/rudder";
-      "rudder_var"               string => "/data/rudder";
-
-    solaris::
-      "rudder_var"               string => "/opt/rudder/var";
-
-    !windows.!solaris.!android::
-      "rudder_var"               string => "/var/rudder";
+    windows::
+      "rudder_base"              string => "${sys.winprogdir}\Rudder";
+      "rudder_bin"               string => "${rudder_base}\bin";
+      "rudder_var"               string => "${sys.winprogdir}\Rudder\var";
+      "rudder_sbin"              string => "${rudder_base}\sbin";
+      "rudder_tools"             string => "${rudder_sbin}";
+      "rudder_ncf"               string => "${rudder_var}\ncf";
+      "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
 
     any::
       "uuid"                     string => readfile("${g.uuid_file}", 60);
