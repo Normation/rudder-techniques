@@ -48,6 +48,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>rudder_promises_generated</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="check_zypper">
   </TMLS>
 
   <SYSTEMVARS>
