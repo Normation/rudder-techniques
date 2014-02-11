@@ -358,7 +358,7 @@ bundle agent addInformationsToInventory
     linux::
       "CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
       "USER" string => execresult("/usr/bin/whoami", "noshell");
-      "usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
+      "usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users" slist => getindices("userslist");
 
     !windows::
