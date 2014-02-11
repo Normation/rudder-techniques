@@ -11,7 +11,7 @@ set -e
 TARGET_VER='1.0.8'
 LOCAL_VER=`/usr/bin/zypper --version | cut -d' ' -f2`
 
-if [ "$LOCAL_VER" =\> "$TARGET_VER" -o "z$LOCAL_VER" == "z$TARGET_VER" ];then
+if [ "$LOCAL_VER" \> "$TARGET_VER" -o "z$LOCAL_VER" == "z$TARGET_VER" ];then
   echo "+zypper_version_ok"
 else
   echo "+zypper_version_unusable"

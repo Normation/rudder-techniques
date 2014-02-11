@@ -167,7 +167,7 @@ redhat::
 	package_delete_command => "/bin/rpm -e";
 	package_verify_command => "/bin/rpm -V";
 
-SuSE_11|(SuSE_10.zypper_version_ok)::
+zypper_version_ok::
 	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
 	package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
 	package_installed_regex => "i.*";
