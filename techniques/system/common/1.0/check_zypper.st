@@ -19,6 +19,7 @@
 bundle agent check_zypper
 {
   commands:
+    SuSE::
       "${g.rudder_tools}/check_zypper_version"
          module     => "true";
 
