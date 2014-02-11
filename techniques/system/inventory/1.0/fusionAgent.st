@@ -408,7 +408,7 @@ bundle agent addInformationsToInventory
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
-      "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,4000);
+      "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users"          slist => getindices("userslist");
 
     any::
