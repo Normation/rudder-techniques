@@ -1,0 +1,18 @@
+#!/bin/bash
+set -e
+
+# On SLES 10, Zypper is a technical preview which is not usable with
+# automatic tools. To be able to use it on SLES 10, we have to check
+# that the version is more recent than the one in SLES 10 SP4 (latest SLES 10).
+# The version of Zypper provided by SLES 10 SP4 is '0.6.201-0.4.1' and
+# '1.0.8' by the SLES 11.
+# We need to check that Zypper is at least as recent as on SLES 11 to be
+# able to use it with Rudder.
+TARGET_VER='1.0.8'
+LOCAL_VER=`/usr/bin/zypper --version | cut -d' ' -f2`
+
+if [ "$LOCAL_VER" \> "$TARGET_VER" -o "z$LOCAL_VER" == "z$TARGET_VER" ];then
+  echo "+zypper_version_ok"
+else
+  echo "+zypper_version_unusable"
+fi
