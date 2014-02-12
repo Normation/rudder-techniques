@@ -64,7 +64,8 @@ bundle common va
         "check_cron_daemon",
         "garbage_collection",
         "check_binaries_freshness",
-        "e2s_enable"
+        "e2s_enable",
+        "check_zypper"
       };
 
     !policy_server::
@@ -84,6 +85,7 @@ bundle common va
         "check_log_system",
         "check_rsyslog_version",
         "e2s_enable",
+        "check_zypper",
         "check_uuid"
       };
 
