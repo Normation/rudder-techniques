@@ -27,10 +27,18 @@ bundle agent check_ssh_key_distribution
 
     begin_evaluation::
 
-      "index_${sshkey_distribution_index}_exists" expression => userexists("${sshkey_distribution_name[${sshkey_distribution_index}]}");
+      "user_${sshkey_distribution_index}_exists" expression => userexists("${sshkey_distribution_name[${sshkey_distribution_index}]}");
 
   vars:
 
+    any::
+      "technique_name"  string  => "sshKeyDistribution";
+      "component_name"  string  => "SSH key";
+
+      "config_basename" string  => "authorized_keys";
+
+                &SSH_KEY_DISTRIBUTION_TAG:{key_tag |"sshkey_distribution_tag[&i&]" string => "&key_tag&";
+}&
                 &SSH_KEY_DISTRIBUTION_NAME:{distribution_name |"sshkey_distribution_name[&i&]" string => "&distribution_name&";
 }&
                 &SSH_KEY_DISTRIBUTION_KEY:{distribution_key |"sshkey_distribution_key[&i&]" string => "&distribution_key&";
@@ -39,64 +47,105 @@ bundle agent check_ssh_key_distribution
 }&
                 &TRACKINGKEY:{uuid |"sshkey_distribution_uuid[&i&]" string => "&uuid&";
 }&
-      "sshkey_distribution_index" slist => getindices("sshkey_distribution_name");
+      "sshkey_distribution_index"
+        slist   => getindices("sshkey_distribution_name");
 
-      "userdata_${sshkey_distribution_index}" string => execresult("/usr/bin/getent passwd ${sshkey_distribution_name[${sshkey_distribution_index}]}", "noshell");
-      "no_${sshkey_distribution_index}" int => parsestringarray(
-      "userarray_${sshkey_distribution_index}",
-      "${userdata_${sshkey_distribution_index}}",
-      "",
-      ":",
-      "1000",
-      "200000"
-      );
+      "userdata_${sshkey_distribution_index}"
+        string  => execresult("/usr/bin/getent passwd ${sshkey_distribution_name[${sshkey_distribution_index}]}", "noshell");
+
+      "no_${sshkey_distribution_index}"
+        int     => parsestringarray("userarray_${sshkey_distribution_index}", "${userdata_${sshkey_distribution_index}}", "", ":", "1000", "200000" );
+
+      "key_class_prefix[${sshkey_distribution_index}]"
+        string  => canonify("${sshkey_distribution_tag[${sshkey_distribution_index}]}_${sshkey_distribution_uuid[${sshkey_distribution_index}]}");
+
+      "homedir[${sshkey_distribution_index}]"
+        string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}";
+
+    !SuSE::
+      "gid[${sshkey_distribution_index}]"
+        string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}";
+
+    SuSE::
+      "gid[${sshkey_distribution_index}]"
+        string  => "users";
 
   files:
 
-    linux.!SuSE::
+    linux::
 
-      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/."
-        create => "true",
-        ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        perms  => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}");
+      "${homedir[${sshkey_distribution_index}]}/.ssh/."
+        create        => "true",
+        ifvarclass    => canonify("user_${sshkey_distribution_index}_exists"),
+        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}");
 
-      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/authorized_keys"
-        create => "true",
+      "${homedir[${sshkey_distribution_index}]}/.ssh/${config_basename}"
+        create        => "true",
         edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
-        perms  => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}"),
-        edit_line => insert_lines("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
-        ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        classes => kept_if_else("line_${sshkey_distribution_index}_ok","line_${sshkey_distribution_index}_added","line_${sshkey_distribution_index}_failed");
+        perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
+        edit_line     => append_or_replace_ssh_key("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
+        ifvarclass    => canonify("user_${sshkey_distribution_index}_exists"),
+        classes       => rudder_common_classes("${key_class_prefix[${sshkey_distribution_index}]}");
 
-    SuSE::
-
-      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/."
-        create => "true",
-        ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        perms  => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "users");
-
-      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/authorized_keys"
-        create => "true",
-        edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
-        perms  => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "users"),
-        edit_line => insert_lines("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
-        ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        classes => kept_if_else("line_${sshkey_distribution_index}_ok","line_${sshkey_distribution_index}_added","line_${sshkey_distribution_index}_failed");
-
-  reports:
+  methods:
 
     linux::
 
-      "@@sshKeyDistribution@@result_repaired@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#SSH key for user ${sshkey_distribution_name[${sshkey_distribution_index}]} was put in place"
-        ifvarclass => "line_${sshkey_distribution_index}_added";
+      "SSH Key Report"
+        ifvarclass    => "user_${sshkey_distribution_index}_exists",
+        usebundle     => rudder_common_reports_generic(
+          "${technique_name}", "${key_class_prefix[${sshkey_distribution_index}]}",
+          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}", "SSH key \"${sshkey_distribution_tag[${sshkey_distribution_index}]}\" for user ${sshkey_distribution_name[${sshkey_distribution_index}]}"
+        );
 
-      "@@sshKeyDistribution@@result_success@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#SSH key for user ${sshkey_distribution_name[${sshkey_distribution_index}]} was already present"
-        ifvarclass => "line_${sshkey_distribution_index}_ok.!line_${sshkey_distribution_index}_added";
+      "No User Exist Report"
+        ifvarclass    => "!user_${sshkey_distribution_index}_exists",
+        usebundle     => rudder_common_report(
+          "${technique_name}", "result_error",
+          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}", "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, not adding SSH key"
+        );
+}
 
-      "@@sshKeyDistribution@@result_error@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#SSH key for user ${sshkey_distribution_name[${sshkey_distribution_index}]} could not be added"
-        ifvarclass => "line_${sshkey_distribution_index}_failed";
+# authorized_keys file contains one line per key, in the following format:
+# (optional-options\s)(<keytype>)\s(the_key=)(\soptional-comment)
+# where
+#   - keytype is one of ssh-rsa or ssh-dss
+#   - key value ends with "="
+#   - no spaces are allowed in options, except in double-quoted strings
+#
+bundle edit_line append_or_replace_ssh_key(keyspec)
+{
+  vars:
+    any::
+      "eline"
+        comment     => "An escaped version of the keyspec - \Q..\E do not escape everything",
+        string      => escape("${keyspec}");
+    key_parsed::
+      "ckey" string => canonify("${keybits[3]}");
+      "ekey" string => escape("${keybits[3]}");
 
-      "@@sshKeyDistribution@@result_error@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, not adding SSH key"
-        ifvarclass => "!index_${sshkey_distribution_index}_exists";
+  classes:
+    "key_parsed" 
+      # If the key hash happens to exceed 1000 chars $keybits[3] is going to be undefined because 
+      # of some weird cfengine bugs, probably this one: https://cfengine.com/dev/issues/1258
+      # Therefore we limit the regex to extract as much of the hash as possible to make it unique enough
+      # without exceeding 1000 charachter limit.
+      # The hashes of that length apparently correspond to DSS 2048 bits keys, generated i.e. on rhel 4,
+      # with openssh v3.9p1-redhat. I believe that since openssh v4 DSS bitlengh is limited to 1024,
+      # as required by FIPS.
+      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S{1,1000})\S*=(\s+.+)?\Z", "${keyspec}", "keybits" );
 
+  insert_lines:
+    "${keyspec}"
+      # NOTE: this is only to ensure that insert is attempted *after* the replace,
+      # as normally insert step precedes the replace, see
+      # (https://cfengine.com/docs/3.5/manuals-language-concepts-normal-ordering.html)
+      ifvarclass    => canonify("replace_step_attempted_${ckey}");
+
+  replace_patterns:
+    "^(?!${eline}$)(.*${ekey}.*)$"
+      comment       => "Replace a key here",
+      replace_with  => value("${keyspec}"),
+      ifvarclass    => "key_parsed",
+      classes       => always("replace_step_attempted_${ckey}");
 }
