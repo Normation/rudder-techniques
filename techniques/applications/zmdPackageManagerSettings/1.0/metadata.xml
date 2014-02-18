@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="General settings" component="true">
       <SELECT1>
         <NAME>ZMD_SOURCEPOLICY</NAME>
-        <DESCRIPTION>Package sources policy</DESCRIPTION>
+        <DESCRIPTION>Security level</DESCRIPTION>
         <LONGDESCRIPTION>This option defines which component of a repository is used as a trusted reference for the packages. Signature checks the package against the repository PGP key and Checksum only checks the package integrity. None installs the packages blindly without checking them.</LONGDESCRIPTION>
         <ITEM>
           <VALUE>signature</VALUE>
