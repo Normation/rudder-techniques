@@ -35,7 +35,11 @@ ${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} ${SERVER}
 SEND_COMMAND_RET=$?
 
 # Abort if sending failed
-if [ ${SEND_COMMAND_RET} -ne 0 ]; then
+if [ ${SEND_COMMAND_RET} -eq 7 ]; then
+	# Endpoint is unavailable, try again later
+	# Just leave this file in the incoming directory, it will be retried soon
+	exit ${SEND_COMMAND_RET}
+elif [ ${SEND_COMMAND_RET} -ne 0 ]; then
 	mv "${FILENAME}" "${FAILEDDIR}/${BASENAME}-$(date --rfc-3339=date)"
 	exit ${SEND_COMMAND_RET}
 fi
