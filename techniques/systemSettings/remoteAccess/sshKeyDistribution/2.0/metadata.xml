@@ -1,0 +1,89 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the SSH Key distribution Technique.
+    Compatibility : Linux Red Hat like, Debian like
+
+It is intended to check if all the required SSH keys are installed.
+-->
+<TECHNIQUE name="SSH keys distribution">
+  <DESCRIPTION>This technique will check if the required SSH keys are present on a user directory.</DESCRIPTION>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.4.4">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <BUNDLES>
+    <NAME>check_ssh_key_distribution</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="sshKeyDistribution"/>
+  </TMLS>
+
+  <!-- Policy Instance Settings -->
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>SSH_KEY_DISTRIBUTION_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="SSH key" multivalued="true" component="true" componentKey="SSH_KEY_DISTRIBUTION_TAG">
+      <INPUT>
+        <NAME>SSH_KEY_DISTRIBUTION_TAG</NAME>
+        <DESCRIPTION>Enter a tag to track this key in reports, i.e. "root #1" or "Operations key"</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+          <TYPE>string</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>SSH_KEY_DISTRIBUTION_NAME</NAME>
+        <DESCRIPTION>Which user do you want to apply the key on</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>SSH_KEY_DISTRIBUTION_KEY</NAME>
+        <DESCRIPTION>Which key do you want to insert</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>textarea</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>SSH_KEY_DISTRIBUTION_EDIT_TYPE</NAME>
+        <DESCRIPTION>Do you want to flush the authorized keys file before updating</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
