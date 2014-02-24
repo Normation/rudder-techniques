@@ -62,7 +62,7 @@ bundle agent monitor_partition_size {
 
     reports:
 
-        (linux|windows)::
+        cfengine::
 
             # Partition status reporting
             # Success

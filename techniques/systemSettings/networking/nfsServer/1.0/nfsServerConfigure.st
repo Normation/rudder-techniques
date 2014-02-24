@@ -98,6 +98,8 @@ bundle agent check_nfs_server_configuration
         action => WarnOnly,
         classes => cf2_if_else("nfs_server_bootstarted", "nfs_server_unbootstarted");
 
+    !windows::
+
       "/etc/exports"
 
         create => "true",
@@ -108,7 +110,7 @@ bundle agent check_nfs_server_configuration
 
   reports:
 
-    (debian|redhat|SuSE)::
+    !windows::
 
       "@@nfsServer@@result_repaired@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#The export ${nfs_server_path[${nfs_server_index}]} was successfully added"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_done");
@@ -118,6 +120,8 @@ bundle agent check_nfs_server_configuration
 
       "@@nfsServer@@result_error@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#The export ${nfs_server_path[${nfs_server_index}]} could not be added"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_failed");
+
+    (debian|redhat|SuSE)::
 
       "@@nfsServer@@log_repaired@@${nfs_server_uuid[${nfs_server_index}]}@@NFS server settings@@${nfs_server_path[${nfs_server_index}]}@@${g.execRun}##${g.uuid}@#Restarted the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}"
         ifvarclass => canonify("nfs_server_${nfs_server_index}_restarted");

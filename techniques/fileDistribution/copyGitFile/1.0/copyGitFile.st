@@ -126,7 +126,7 @@ bundle agent check_git_installation(directiveId)
 
   packages:
 
-    (debian|redhat)::
+    linux.!SuSE::
 
       "git"
         package_policy  => "add",
@@ -151,5 +151,8 @@ bundle agent check_git_installation(directiveId)
 
     cant_install_git::
       "@@copyGitFile@@result_error@@${directiveId}@@GIT Installation@@None@@${g.execRun}##${g.uuid}@#Can't install git";
+
+    !linux::
+      "@@copyGitFile@@result_success@@${directiveId}@@GIT Installation@@None@@${g.execRun}##${g.uuid}@#Support to check if git is installed not available on this platform";
 
 }

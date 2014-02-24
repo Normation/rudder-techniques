@@ -80,7 +80,7 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, content,
 
 	reports:
 
-		linux::
+		cfengine::
 
 			"@@groupManagement@@result_success@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already present and compliant with the policy"
 				ifvarclass => "groupmanagement_group_add_$(index)_kept.!(groupmanagement_group_add_$(index)_repaired|groupmanagement_group_add_$(index)_error)";

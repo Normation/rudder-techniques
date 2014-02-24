@@ -25,7 +25,7 @@ bundle agent check_nfs_client_installation
 
   packages:
 
-    debian::
+    linux.!redhat.!SuSE::
       "nfs-common"
         package_policy  => "add",
         package_method  => generic,
@@ -55,4 +55,7 @@ bundle agent check_nfs_client_installation
 
     cant_install_nfs_client::
       "@@nfsClient@@result_error@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#Can't install the NFS client package";
+
+    !linux::
+      "@@nfsClient@@result_success@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#Support to check if NFS client is installed not available on this platform";
 }

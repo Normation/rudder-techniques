@@ -36,7 +36,7 @@ bundle agent check_hosts_configuration
 
   files:
 
-    linux::
+    !windows::
 
       "/etc/hosts"
 
@@ -69,7 +69,7 @@ bundle agent check_hosts_configuration
 
   reports:
 
-    (linux|windows)::
+    cfengine::
 &if (HOSTS_ENFORCE)&
       "@@hostsConfiguration@@log_debug@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file content enforcement requested";
 &endif&

@@ -104,7 +104,7 @@ bundle agent check_cron_configuration
 
   reports:
 
-    linux::
+    !windows::
 
     # Reports about the creation of the cron entries
 

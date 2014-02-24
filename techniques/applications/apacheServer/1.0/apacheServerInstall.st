@@ -25,7 +25,7 @@ bundle agent check_apache_installation
 
   packages:
 
-    debian|SuSE_11::
+    linux.!SuSE_10.!redhat::
 
       "apache2"
         package_policy  => "add",
@@ -40,6 +40,7 @@ bundle agent check_apache_installation
         package_method  => rudder_rug,
         classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
         comment => "Installing apache using the rug interface";
+
     redhat::
 
       "httpd"
@@ -57,4 +58,7 @@ bundle agent check_apache_installation
 
     cant_install_apache::
       "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Can't install Apache";
+
+    !linux::
+      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Support to check if Apache is installed not available on this platform";
 }

@@ -122,8 +122,6 @@ bundle agent check_clock_configuration
 
   classes:
 
-    (linux|windows)::
-
       "clock_vardef" expression => isvariable("linux_timezone");
 
       "clock_timezone_noedit" expression => strcmp("&CLOCK_TIMEZONE&","dontchange");
@@ -143,6 +141,7 @@ bundle agent check_clock_configuration
       "clock_set_netherlands" expression => strcmp("&CLOCK_TIMEZONE&","netherlands");
       "clock_set_norway" expression => strcmp("&CLOCK_TIMEZONE&","norway");
       "clock_set_beijing" expression => strcmp("&CLOCK_TIMEZONE&","beijing");
+
 &if(NOVA)&
   databases:
 
@@ -159,19 +158,12 @@ bundle agent check_clock_configuration
 
   # Install the NTP package
   packages:
-    debian::
+    linux.!SuSE_10.!SuSE_11::
       "ntp"
         package_policy  => "add",
-        package_method  => apt,
+        package_method  => generic,
         classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing ntp using apt";
-
-    redhat::
-      "ntp"
-        package_policy => "add",
-        package_method => generic,
-        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing ntp using yum";
+        comment => "Installing ntp";
 
     SuSE_11::
       "ntp"
@@ -179,6 +171,7 @@ bundle agent check_clock_configuration
         package_method => zypper,
         classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
         comment => "Installing ntp using zypper";
+
     SuSE_10::
       "xntp"
         package_policy => "add",
@@ -195,7 +188,7 @@ bundle agent check_clock_configuration
   commands:
 
     # Restart commands
-    (debian|SuSE).(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
+    !windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
       "/etc/init.d/ntp"
         args => "restart",
         classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
@@ -228,7 +221,7 @@ bundle agent check_clock_configuration
         comment => "Restart the windows NTP service";
 
     # HW clock sync command
-    (debian|redhat|SuSE)::
+    !windows::
       "/sbin/hwclock"
         args => "--systohc",
         action => if_elapsed("&CLOCK_SYNCSCHED&"),
@@ -238,14 +231,14 @@ bundle agent check_clock_configuration
   files:
 
     # Adjust ntp.conf (Add the servers)
-    (debian|redhat|SuSE)::
+    !windows::
       "/etc/ntp.conf"
         edit_line => setNtpServer("@{this.ntpServers}"),
         edit_defaults => noempty_backup,
         classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
     # Copy the correct localtime file (distro independant)
-    !clock_timezone_noedit.linux.clock_vardef::
+    !clock_timezone_noedit.!windows.clock_vardef::
       "/etc/localtime"
         copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),
         comment => "Updating the /etc/localtime file",
@@ -274,7 +267,7 @@ bundle agent check_clock_configuration
 
 
     # Global report for the "Time synchronization (NTP)" component - Linux
-    ntp_install_kept.ntpconf_kept.!ntpd_down::
+    (ntp_install_kept|(!linux.!windows)).ntpconf_kept.!ntpd_down::
       "@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@${g.execRun}##${g.uuid}@#ntp daemon installed, configured and running";
 
     ntp_installed|repaired_ntpconf|ntp_restarted::
@@ -296,6 +289,9 @@ bundle agent check_clock_configuration
 
     ntp_install_kept::
       "@@ntpConfiguration@@log_info@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@${g.execRun}##${g.uuid}@#ntp package already installed";
+
+    !linux.!windows::
+      "@@ntpConfiguration@@log_info@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@${g.execRun}##${g.uuid}@#Support to check if ntp is installed not available on this platform";
 
     repaired_ntpconf::
       "@@ntpConfiguration@@log_repaired@@&TRACKINGKEY&@@Time synchronization (NTP)@@None@@${g.execRun}##${g.uuid}@#ntpd configuration updated";
