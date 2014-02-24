@@ -78,7 +78,7 @@ body package_method apt_nobulk(apt_pkg_timeout)
         package_list_update_ifelapsed => "${apt_pkg_timeout}";
 
         package_list_command => "/usr/bin/dpkg -l";
-        package_list_name_regex    => ".i\s+([^\s]+).*";
+        package_list_name_regex    => ".i\s+([^\s:]+).*";
         package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
         package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
         package_name_convention => "${name}";
