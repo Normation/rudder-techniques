@@ -1571,7 +1571,7 @@ body package_method apt
 {
         package_changes => "bulk";
         package_list_command => "/usr/bin/dpkg -l";
-        package_list_name_regex    => ".i\s+([^\s]+).*";
+        package_list_name_regex    => ".i\s+([^\s:]+).*";
         package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
         package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
         package_name_convention => "$(name)";
@@ -1608,7 +1608,7 @@ body package_method dpkg_version(repo)
 # set it to "0" to avoid caching of list during upgrade
         package_list_update_ifelapsed => "240";
 
-        package_list_name_regex    => ".i\s+([^\s]+).*";
+        package_list_name_regex    => ".i\s+([^\s:]+).*";
         package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
 
         package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
@@ -2020,7 +2020,7 @@ body package_method generic
     debian::
         package_changes => "bulk";
         package_list_command => "/usr/bin/dpkg -l";
-        package_list_name_regex    => ".i\s+([^\s]+).*";
+        package_list_name_regex    => ".i\s+([^\s:]+).*";
         package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
         package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
         package_name_convention => "$(name)";
