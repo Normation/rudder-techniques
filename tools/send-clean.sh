@@ -31,12 +31,12 @@ BASENAME=$(basename ${2})
 CURL_BINARY="/usr/bin/curl"
 
 # Attempt to send the file
-${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} ${SERVER}
+HTTP_CODE=`${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} -o /dev/null -w '%{http_code}' ${SERVER}`
 SEND_COMMAND_RET=$?
 
 # Abort if sending failed
-if [ ${SEND_COMMAND_RET} -eq 7 ]; then
-	# Endpoint is unavailable, try again later
+if [ ${SEND_COMMAND_RET} -eq 7 -o "z${HTTP_CODE}" = "z503" ]; then
+	# Endpoint is unavailable (ret == 7) or too busy (HTTP_CODE == 503), try again later
 	# Just leave this file in the incoming directory, it will be retried soon
 	exit ${SEND_COMMAND_RET}
 elif [ ${SEND_COMMAND_RET} -ne 0 ]; then
