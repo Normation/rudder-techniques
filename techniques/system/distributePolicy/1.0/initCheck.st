@@ -23,12 +23,12 @@ bundle agent root_init_check()
 
     "service[1][name]" string => "slapd";
     "service[1][binary]" string => "/opt/rudder/libexec/slapd";
-    "service[1][initscript]" string => "slapd";
+    "service[1][initscript]" string => "rudder-slapd";
     "service[1][check_on_relay_server]" string => "false";
 
     "service[2][name]" string => "jetty";
     "service[2][binary]" string => ".*java.*/opt/rudder/jetty7/start.jar";
-    "service[2][initscript]" string => "jetty";
+    "service[2][initscript]" string => "rudder-jetty";
     "service[2][check_on_relay_server]" string => "false";
 
     "service[3][name]" string => "postgresql";
