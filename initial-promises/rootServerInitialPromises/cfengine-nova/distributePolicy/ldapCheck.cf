@@ -48,10 +48,10 @@ bundle agent root_ldap_check
 
   methods:
 
-      "any" usebundle => generic_process_check_process("/opt/rudder/libexec/slapd", "slapd", "true"),
+      "any" usebundle => generic_process_check_process("/opt/rudder/libexec/slapd", "rudder-slapd", "true"),
         ifvarclass => "rudder_ldap_slapd_password_changed";
 
-      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "true"),
+      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "rudder-jetty", "true"),
         ifvarclass => "rudder_ldap_prop_password_changed";
 
   reports:

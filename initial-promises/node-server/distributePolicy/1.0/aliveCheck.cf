@@ -56,7 +56,7 @@ bundle agent generic_alive_check(site_to_check)
 
   methods:
 
-      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "jetty", "true"),
+      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "rudder-jetty", "true"),
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}",
         classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
 
@@ -77,7 +77,7 @@ bundle agent generic_alive_check(site_to_check)
       "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#This is the first time the ${site_to_check} web application failed to respond. Deferring the restart."
         ifvarclass => "site_down_once_${sitename}.!site_alivecheck_restart_jetty_${sitename}";
 
-      "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting jetty NOW !"
+      "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting rudder-jetty NOW !"
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}";
 
 }
