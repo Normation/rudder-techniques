@@ -27,7 +27,7 @@ bundle agent check_openvpn_installation
       "openvpn_present" expression => fileexists("/etc/init.d/openvpn");
 
   packages:
-    (debian|redhat)::
+    linux.!SuSE::
       "openvpn"
         package_policy  => "add",
         package_method  => generic,
@@ -56,5 +56,8 @@ bundle agent check_openvpn_installation
 
     cant_install_openvpn::
       "@@openvpnConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#Can't install openvpn";
+
+    !linux::
+      "@@openvpnConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#Support to check if openvpn is installed not available on this platform";
 
 }

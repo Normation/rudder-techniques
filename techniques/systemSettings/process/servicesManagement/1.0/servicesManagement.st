@@ -132,7 +132,7 @@ bundle agent services_management
 
 
   reports:
-    linux::
+    cfengine::
 
       "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} didn't need to have its process checked"
         ifvarclass => "!start_process_${index}.!stop_process_${index}";

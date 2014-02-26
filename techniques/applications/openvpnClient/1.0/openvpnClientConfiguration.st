@@ -88,7 +88,7 @@ bundle agent check_openvpn_client_configuration
 
   processes:
 
-    (SuSE|debian|redhat).ovpn_client_autostart::
+    ovpn_client_autostart::
 
       "/usr/sbin/openvpn"
         restart_class => "openvpn_down",

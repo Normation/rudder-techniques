@@ -71,7 +71,7 @@ bundle agent check_apache_configuration
 
   classes:
 
-    debian::
+    !redhat.!SuSE::
 
       # Security : if not there, Apache too, so don't bother anymore
       "apache_bin_present" expression => fileexists("/usr/sbin/apache2");
@@ -106,7 +106,7 @@ bundle agent check_apache_configuration
 
   processes:
 
-    debian.apache_autostart::
+    !redhat.!SuSE.apache_autostart::
 
       "/usr/sbin/apache2"
         restart_class => "apache_down",
@@ -146,7 +146,7 @@ bundle agent check_apache_configuration
         classes => cf2_if_else("apache_selinux_${apache_vhost_index}_adjusted", "apache_selinux_${apache_vhost_index}_not_adjusted"),
         comment => "Set SELinux context for Apache VHosts";
 
-    (SuSE|debian).(apache_down|apache_change)::
+    !redhat.(apache_down|apache_change)::
       "/etc/init.d/apache2"
         args => "restart",
         classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
@@ -314,7 +314,7 @@ bundle agent check_apache_configuration
         edit_line => set_apache_config_vhost("${apache_vhost_fqdn[${apache_vhost_index}]}", "${apache_vhost_port[${apache_vhost_index}]}", "${apache_vhost_root[${apache_vhost_index}]}", "${apache_vhost_expires[${apache_vhost_index}]}", "${apache_vhost_expires_ttl[${apache_vhost_index}]}", "${apache_vhost_alias_one_src[${apache_vhost_index}]}", "${apache_vhost_alias_one_dst[${apache_vhost_index}]}", "${apache_vhost_alias_two_src[${apache_vhost_index}]}", "${apache_vhost_alias_two_dst[${apache_vhost_index}]}", "${apache_vhost_alias_three_src[${apache_vhost_index}]}", "${apache_vhost_alias_three_dst[${apache_vhost_index}]}", "${g.rudder_tools}/apache-vhost.tpl"),
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
-    linux::
+    any::
 
       "${apache_vhost_root[${apache_vhost_index}]}/."
         perms => mog("755", "root", "root"),
@@ -372,7 +372,7 @@ bundle agent check_apache_configuration
     apache_security_failed::
       "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Security settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD security settings could not be set !";
 
-    linux::
+    cfengine::
       "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} already set"
         ifvarclass => "apache_vhost_${apache_vhost_index}_kept.!apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
 

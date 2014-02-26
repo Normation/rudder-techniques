@@ -23,7 +23,7 @@
 bundle agent rudder_openssh_server_installation(class_prefix, service_name, params)
 {
   vars:
-    (debian|redhat)::
+    linux.!SuSE::
       "rudder_openssh_server_package_name"
         string => "openssh-server";
     SuSE::
@@ -32,7 +32,7 @@ bundle agent rudder_openssh_server_installation(class_prefix, service_name, para
 
   packages:
     # Install OpenSSH if needed, using generic installation.
-    (debian|redhat|SuSE)::
+    linux::
       "${rudder_openssh_server_package_name}"
         package_policy  => "add",
         package_method  => generic,
@@ -44,6 +44,10 @@ bundle agent rudder_openssh_server_installation_reporting(class_prefix, service_
 {
   methods:
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_package", "${${params}[report]}", "SSH installation", "None", "The ${service_name} package installation");
+
+    !linux::
+      "any" usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH installation", "None", "Support to check if ${service_name} is installed not available on this platform");
+
 }
 
 # This bundle is common because it defines a class that we reuse in the configuration part,

@@ -53,7 +53,7 @@ bundle agent check_ssh_key_distribution
 
   files:
 
-    linux.!SuSE::
+    !SuSE::
 
       "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/."
         create => "true",
@@ -85,7 +85,7 @@ bundle agent check_ssh_key_distribution
 
   reports:
 
-    linux::
+    cfengine::
 
       "@@sshKeyDistribution@@result_repaired@@${sshkey_distribution_uuid[${sshkey_distribution_index}]}@@SSH key@@${sshkey_distribution_name[${sshkey_distribution_index}]}@@${g.execRun}##${g.uuid}@#SSH key for user ${sshkey_distribution_name[${sshkey_distribution_index}]} was put in place"
         ifvarclass => "line_${sshkey_distribution_index}_added";

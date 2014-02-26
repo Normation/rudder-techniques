@@ -52,7 +52,7 @@ bundle agent file_alteration_monitor
 
   reports:
 
-    linux|windows::
+    cfengine::
 
       "@@fileAlterationMonitoring@@result_success@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The content of ${monitor_entity[${index}][name]} is consistent"
         ifvarclass => "${index}_kept";

@@ -245,7 +245,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
         not => strcmp("&OPENSSH_SERVER_SYSLOGFACILITY&","dontchange");
 
   files:
-    linux::
+
       "${rudder_openssh_server_config}"
         edit_line => rudder_common_disclaimer,
         edit_defaults => noempty_backup,
@@ -259,14 +259,14 @@ bundle agent rudder_openssh_server_configuration(service_name)
         action  => WarnOnly,
         classes => if_else("rudder_openssh_server_activated_on_boot_kept", "rudder_openssh_server_activation_detection_failed");
 
-    (debian|redhat|SuSE).rudder_openssh_server_ports_edit::
+    rudder_openssh_server_ports_edit::
       "${rudder_openssh_server_config}"
         edit_line => rudder_openssh_server_port_configuration("@{this.sshPorts}"),
         edit_defaults => noempty_backup,
         classes   => rudder_common_classes("rudder_openssh_server_ports"),
         comment   => "Edit the OpenSSH listening ports in the configuration file";
 
-    (debian|redhat|SuSE)::
+    any::
       "${rudder_openssh_server_config}"
         edit_line => set_config_values("rudder_openssh_server_configuration.sshd"),
         edit_defaults => noempty_backup,
@@ -296,7 +296,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
 
 
   processes:
-    (debian|redhat|SuSE)::
+    any::
       "/usr/sbin/sshd"
         restart_class => "rudder_openssh_server_down",
         comment       => "Checking whether OpenSSH is up or not";
