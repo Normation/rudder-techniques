@@ -68,6 +68,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>distributePolicy/logrotate.conf/rudder.rhel</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="logrotate.ubuntu">
+      <OUTPATH>distributePolicy/logrotate.conf/rudder.ubuntu</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
 
   <SYSTEMVARS>
