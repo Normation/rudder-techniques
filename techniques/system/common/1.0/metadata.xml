@@ -67,7 +67,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>DAVPASSWORD</NAME>
     <NAME>SYSLOGPORT</NAME>
     <NAME>MANAGED_NODES_NAME</NAME>
-    <NAME>MANAGED_NODES_ID</NAME> 
+    <NAME>MANAGED_NODES_ID</NAME>
+    <NAME>MANAGED_NODES_ADMIN</NAME> 
     <NAME>DENYBADCLOCKS</NAME>
     <NAME>SKIPIDENTIFY</NAME>
   </SYSTEMVARS>
@@ -115,12 +116,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>CHILDRENID</NAME>
         <DESCRIPTION>List of uids of nodes that receive policies from this machine</DESCRIPTION>
-      </INPUT>
-      </SECTION>
-      <SECTION name="adminSection" multivalued="true">
-      <INPUT>
-        <NAME>ADMIN</NAME>
-        <DESCRIPTION>List of admins of nodes that receive policies from this machine</DESCRIPTION>
       </INPUT>
       </SECTION>
       <SECTION name="authorizedNetworkSection" multivalued="true">

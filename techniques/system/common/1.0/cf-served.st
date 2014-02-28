@@ -150,9 +150,7 @@ body server control
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf \&\& ${sys.workdir}/bin/cf-agent";
         allowusers        => {
           "&POLICYSERVER_ADMIN&",
-&if(CLIENTSLIST)&
-          &ADMIN : {admin | "&admin&" };separator=", "&
-&endif&
+          &MANAGED_NODES_ADMIN : {admin | "&admin&" };separator=", "&
         };
 
         denybadclocks => "&DENYBADCLOCKS&";
