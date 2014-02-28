@@ -67,7 +67,7 @@ The default location of the shared folder is /var/rudder/configuration-repositor
       </ITEM>
       <ITEM>
         <VALUE>inf</VALUE>
-        <LABEL>The folder, its content, and all the subfolders</LABEL>
+        <LABEL>The content of the folder, and all its subfolders</LABEL>
       </ITEM>
       <CONSTRAINT>
         <DEFAULT>0</DEFAULT>
