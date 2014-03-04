@@ -60,6 +60,24 @@ body copy_from remote_unsecured(server, path)
 
 }
 
+body copy_from remote_unsecured_without_perms(server, path)
+{
+
+        servers    => {
+          "${server}"
+        };
+        encrypt    => "false";
+        trustkey   => "true";
+        source     => "${path}";
+        compare    => "mtime";
+        preserve   => "false"; #preserver permissions
+        verify     => "true";
+        purge      => "true";
+    community_edition::
+        portnumber => "&COMMUNITYPORT&";
+
+}
+
 bundle common server_info
 {
   vars:
@@ -125,30 +143,34 @@ bundle agent update_action
 
     root_server::
       "${g.rudder_ncf}/common"
-        copy_from    => copy_digest("${g.rudder_ncf_origin_common}"),
+        copy_from    => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        perms        => u_mog("644", "root", "root"),
         action       => immediate,
         classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
         comment      => "Update the common Rudder ncf instance";
 
       "${g.rudder_ncf}/local"
-        copy_from    => copy_digest("${g.rudder_ncf_origin_local}"),
+        copy_from    => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        perms        => u_mog("644", "root", "root"),
         action       => immediate,
         classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment      => "Update the local Rudder ncf instance";
 
     !root_server::
       "${g.rudder_ncf}/common"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        perms        => u_mog("644", "root", "root"),
         action       => immediate,
         classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
         comment      => "Update the common Rudder ncf instance";
 
       "${g.rudder_ncf}/local"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        perms        => u_mog("644", "root", "root"),
         action       => immediate,
         classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment      => "Update the local Rudder ncf instance";
@@ -314,3 +336,10 @@ body service_method u_bootstart
         service_autostart_policy => "boot_time";
 }
 &endif&
+
+body perms u_mog(mode,user,group)
+{
+owners => { "$(user)" };
+groups => { "$(group)" };
+mode   => "$(mode)";
+}

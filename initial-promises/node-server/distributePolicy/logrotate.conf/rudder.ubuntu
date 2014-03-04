@@ -24,7 +24,7 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create 640 syslog adm
         postrotate
         if [ -x /usr/sbin/invoke-rc.d ]; then
           invoke-rc.d rsyslog reload > /dev/null
@@ -40,7 +40,7 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create 640 syslog adm
         delaycompress
         sharedscripts
         postrotate

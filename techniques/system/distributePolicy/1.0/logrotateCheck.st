@@ -21,11 +21,17 @@ bundle agent root_logrotate_check
 
   files:
 
-    debian::
+    debian.!ubuntu::
       "/etc/logrotate.d/rudder"
         copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.debian"),
         classes => kept_if_else("rudder_logrotate_conf_ok", "rudder_logrotate_conf_copied", "cannot_copy_rudder_logrotate_conf"),
-        comment => "Copying the logrotate configurationi for Debian-like system";
+        comment => "Copying the logrotate configuration for Debian-like system (except Ubuntu)";
+
+    ubuntu::
+      "/etc/logrotate.d/rudder"
+        copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.ubuntu"),
+        classes => kept_if_else("rudder_logrotate_conf_ok", "rudder_logrotate_conf_copied", "cannot_copy_rudder_logrotate_conf"),
+        comment => "Copying the logrotate configuration for Ubuntu system";
 
     redhat::
       "/etc/logrotate.d/rudder"

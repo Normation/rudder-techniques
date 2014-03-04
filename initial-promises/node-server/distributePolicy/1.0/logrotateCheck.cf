@@ -20,8 +20,11 @@ bundle agent root_logrotate_check
 {
   vars:
 
-    debian::
+    debian.!ubuntu::
       "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.debian";
+
+    ubuntu::
+      "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.ubuntu";
 
     redhat::
       "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.rhel";
