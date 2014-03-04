@@ -58,6 +58,7 @@ The default location of the shared folder is /var/rudder/configuration-repositor
       <SELECT1>
         <NAME>COPYFILE_RECURSION</NAME>
         <DESCRIPTION>What should be the recursion level of the copy</DESCRIPTION>
+        <LONGDESCRIPTION>If you're copying a folder, this option will only copy it's contents. Specify the full path to the containing folder in the destination above. This folder will be created if it doesn't exist.</LONGDESCRIPTION>
         <ITEM>
           <VALUE>0</VALUE>
           <LABEL>Only this file</LABEL>
@@ -68,7 +69,7 @@ The default location of the shared folder is /var/rudder/configuration-repositor
         </ITEM>
         <ITEM>
           <VALUE>inf</VALUE>
-          <LABEL>The folder, its content, and all the subfolders</LABEL>
+          <LABEL>The content of the folder, and all its subfolders</LABEL>
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>0</DEFAULT>
