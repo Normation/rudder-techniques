@@ -4,7 +4,7 @@
         rotate 30
         compress
         notifempty
-        create 640 root root
+        create 640 root adm
         delaycompress
         sharedscripts
         postrotate
@@ -58,7 +58,7 @@
         rotate 30
         compress
         notifempty
-        create 640 root root
+        create 640 root adm
 }
 
 /var/log/rudder/compliance/non-compliant-reports.log {
@@ -67,5 +67,5 @@
         rotate 365
         compress
         notifempty
-        create 640 root root
+        create 640 root adm
 }

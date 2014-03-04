@@ -5,7 +5,7 @@
         compress
         delaycompress
 		notifempty
-		create 640 root root
+		create 640 root adm
         sharedscripts
         postrotate
 			if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
@@ -45,7 +45,7 @@
         compress
         delaycompress
         notifempty
-        create 640 root root
+        create 640 root adm
 }
 
 var/log/rudder/compliance/non-compliant-reports.log {
@@ -54,5 +54,5 @@ var/log/rudder/compliance/non-compliant-reports.log {
         rotate 365
         compress
         notifempty
-        create 640 root root
+        create 640 root adm
 }
