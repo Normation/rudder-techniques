@@ -74,3 +74,14 @@ do
         exit 6
     fi
 done
+
+# Check that logrotate configurations are synchronized from techniques to initial-promises
+ls ${REPOSITORY_PATH}/techniques/system/distributePolicy/1.0/logrotate.*.st | xargs -L1 basename | sed -r "s/^logrotate\.([^.]*)\.st$/\1/" | while read version
+do
+  if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/distributePolicy/1.0/logrotate.${version}.st ${REPOSITORY_PATH}/initial-promises/node-server/distributePolicy/logrotate.conf/rudder.${version}
+  then
+    echo "Logrotate files ${REPOSITORY_PATH}/techniques/system/distributePolicy/1.0/logrotate.${version}.st and ${REPOSITORY_PATH}/initial-promises/node-server/distributePolicy/logrotate.conf/rudder.${version} differ"
+    exit 7
+  fi
+done
+
