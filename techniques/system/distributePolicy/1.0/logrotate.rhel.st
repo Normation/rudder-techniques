@@ -73,4 +73,5 @@
         compress
         notifempty
         create 640 root root
+        delaycompress
 }
