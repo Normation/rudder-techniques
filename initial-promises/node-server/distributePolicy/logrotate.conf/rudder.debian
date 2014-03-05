@@ -25,6 +25,7 @@
         compress
         notifempty
         create 640 root adm
+        delaycompress
         postrotate
         if [ -x /usr/sbin/invoke-rc.d ]; then
           invoke-rc.d rsyslog reload > /dev/null
@@ -59,6 +60,7 @@
         compress
         notifempty
         create 640 root adm
+        delaycompress
 }
 
 /var/log/rudder/compliance/non-compliant-reports.log {
@@ -68,4 +70,5 @@
         compress
         notifempty
         create 640 root adm
+        delaycompress
 }
