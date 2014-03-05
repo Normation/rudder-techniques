@@ -65,3 +65,12 @@
         create 640 root root
         delaycompress
 }
+
+/var/log/rudder/compliance/non-compliant-reports.log {
+        daily
+        missingok
+        rotate 365
+        compress
+        notifempty
+        create 640 root root
+}
