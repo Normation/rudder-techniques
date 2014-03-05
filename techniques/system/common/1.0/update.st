@@ -60,6 +60,14 @@ body copy_from remote_unsecured(server, path)
 
 }
 
+body copy_from copy_digest_without_perms(from)
+{
+        source      => "${from}";
+        copy_backup => "false";
+        preserve    => "false";
+        compare     => "digest";
+}
+
 body copy_from remote_unsecured_without_perms(server, path)
 {
 
@@ -70,7 +78,7 @@ body copy_from remote_unsecured_without_perms(server, path)
         trustkey   => "true";
         source     => "${path}";
         compare    => "mtime";
-        preserve   => "false"; #preserver permissions
+        preserve   => "false";
         verify     => "true";
         purge      => "true";
     community_edition::
