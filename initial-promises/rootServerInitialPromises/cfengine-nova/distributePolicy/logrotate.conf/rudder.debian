@@ -12,7 +12,7 @@
 				if [ -x /usr/sbin/invoke-rc.d ]; then
 					invoke-rc.d apache2 reload > /dev/null
 				else
-					/etc/init.d/apache2 reload > /dev/null
+					/usr/sbin/service apache2 reload > /dev/null
 				fi
 			fi
 		endscript

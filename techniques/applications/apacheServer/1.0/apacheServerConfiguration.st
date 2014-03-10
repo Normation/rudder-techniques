@@ -147,13 +147,13 @@ bundle agent check_apache_configuration
         comment => "Set SELinux context for Apache VHosts";
 
     !redhat.(apache_down|apache_change)::
-      "/etc/init.d/apache2"
+      "${g.service_management_binary} apache2"
         args => "restart",
         classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
         comment => "restarting apache";
 
     redhat.(apache_down|apache_change)::
-      "/etc/init.d/httpd"
+      "${g.service_management_binary} httpd"
         args => "restart",
         classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
         comment => "restarting apache";

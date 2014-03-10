@@ -11,7 +11,7 @@
         delaycompress
         sharedscripts
         postrotate
-          /etc/init.d/httpd reload > /dev/null
+          ${g.service_management_binary} httpd reload > /dev/null
         endscript
 }
 
@@ -25,7 +25,7 @@
         delaycompress
         sharedscripts
         postrotate
-          /etc/init.d/httpd reload > /dev/null
+          ${g.service_management_binary} httpd reload > /dev/null
         endscript
 }
 
@@ -38,7 +38,7 @@
         create 640 root root
         delaycompress
         postrotate
-          /etc/init.d/rsyslog reload > /dev/null
+          ${g.service_management_binary} rsyslog reload > /dev/null
         endscript
 }
 
@@ -52,7 +52,7 @@
         delaycompress
         sharedscripts
         postrotate
-          /etc/init.d/rsyslog reload > /dev/null
+          ${g.service_management_binary} rsyslog reload > /dev/null
         endscript
 }
 

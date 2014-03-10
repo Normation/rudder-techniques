@@ -49,6 +49,7 @@ bundle common g
       "cfengine_share_directory" string => "c:\opt\hive\cf-served";
       "uuid_file" string => "${rudder_base}\uuid.hive";
 
+      # service_management_binary is not relevant on Windows
 
     linux|cygwin::
       "rudder_base" string => "/opt/rudder";
@@ -63,6 +64,12 @@ bundle common g
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_var}/tools";
+
+    linux.(debian|ubuntu)::
+      "service_management_binary"  string => "/usr/sbin/service";
+
+    linux.!(debian|ubuntu)::
+      "service_management_binary"  string => "/sbin/service";
 
     any::
 

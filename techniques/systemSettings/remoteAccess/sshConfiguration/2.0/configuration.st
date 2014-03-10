@@ -43,18 +43,18 @@ bundle agent rudder_openssh_server_configuration(service_name)
     # OS Specific parameters
     debian::
       "rudder_openssh_server_startup_init_name"
-        string => "/etc/init.d/ssh";
+        string => "${g.service_management_binary} ssh";
       "rudder_openssh_server_startup_init_activation_command"
         string => "/usr/sbin/update-rc.d -f ssh remove \&\& /usr/sbin/update-rc.d ssh defaults";
     SuSE::
       "rudder_openssh_server_startup_script_regex"
-        string => "/etc/init.d/rc3.d/S.*ssh.*";
+        string => "${g.service_management_binary} rc3.d/S.*ssh.*";
     (debian|redhat)::
       "rudder_openssh_server_startup_script_regex"
         string => "/etc/rc2.d/S.*ssh.*";
     (SuSE|redhat)::
       "rudder_openssh_server_startup_init_name"
-        string => "/etc/init.d/sshd";
+        string => "${g.service_management_binary} sshd";
       "rudder_openssh_server_startup_init_activation_command"
         string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
 

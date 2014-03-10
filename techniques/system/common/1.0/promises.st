@@ -444,16 +444,16 @@ bundle agent check_log_system
 
   commands:
     SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "/etc/init.d/syslog"
+      "${g.service_management_binary} syslog"
         args => "restart",
         comment => "Restarting syslog-ng after it's been updated";
     syslog_ng_repaired.!SuSE::
-      "/etc/init.d/syslog-ng"
+      "${g.service_management_binary} syslog-ng"
         args => "restart",
         comment => "Restarting syslog-ng after it's been updated";
 
     rsyslog_repaired.!(SuSE|fedora)::
-      "/etc/init.d/rsyslog"
+      "${g.service_management_binary} rsyslog"
         args => "restart",
         comment => "Restarting rsyslog after it's been updated";
 
@@ -463,7 +463,7 @@ bundle agent check_log_system
         comment => "Restarting rsyslog after it's been updated";
 
     syslogd_repaired.!SuSE::
-      "/etc/init.d/syslog"
+      "${g.service_management_binary} syslog"
         args => "restart",
         comment => "Restarting rsyslog after it's been updated";
 
@@ -504,13 +504,13 @@ bundle agent check_log_system
 bundle agent check_rsyslog_version {
   vars:
     SuSE::
-      "syslog_restart_cmd" string => "/etc/init.d/syslog restart";
+      "syslog_restart_cmd" string => "${g.service_management_binary} syslog restart";
 
     fedora::
       "syslog_restart_cmd" string => "/bin/systemctl restart rsyslog";
 
     !(SuSE|fedora)::
-      "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
+      "syslog_restart_cmd" string => "${g.service_management_binary} rsyslog restart";
 
   classes:
       "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check_rsyslog_version");
@@ -569,7 +569,7 @@ bundle agent check_cron_daemon
 
     redhat.!fedora::
       "cron_bin" string => "crond$";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
+      "cron_restartcmd" string => "${g.service_management_binary} crond restart";
 
     fedora::
       "cron_bin" string => "/usr/sbin/crond -n$";
@@ -577,11 +577,11 @@ bundle agent check_cron_daemon
 
     ubuntu::
       "cron_bin" string => "cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+      "cron_restartcmd" string => "${g.service_management_binary} cron restart";
 
     !(redhat|fedora|ubuntu)::
       "cron_bin" string => "/usr/sbin/cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+      "cron_restartcmd" string => "${g.service_management_binary} cron restart";
 
   processes:
 

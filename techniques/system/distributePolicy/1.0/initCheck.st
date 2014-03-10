@@ -88,7 +88,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
     root_server|process_exception_on_relay::
 
-      "/etc/init.d/${initscript}"
+      "${g.service_management_binary} ${initscript}"
         args => "restart </dev/null >/dev/null 2>/dev/null",
         contain => in_shell_silent,
       # action => bg("0", "120"),
