@@ -140,16 +140,16 @@ bundle agent update_action
 
     # same here, if the dependencies have been updated, we can skup this part 
     rudder_promises_generated_repaired.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
-      "${g.rudder_dependencies}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+      "${g.rudder_dependencies}/${g.rudder_dependencies_files}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}/${g.rudder_dependencies_files}"),
         #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
         classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
     rudder_promises_generated_repaired.(windows.!cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
-      "${g.rudder_sbin}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
+      "${g.rudder_sbin}//${g.rudder_dependencies_files}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}/${g.rudder_dependencies_files}"),
         #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
