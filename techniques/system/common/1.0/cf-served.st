@@ -64,13 +64,21 @@ bundle server access_rules
 
 
     any::
+  &if(SKIPIDENTIFY)&
+    &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
+      "/var/rudder/share/&uuid&/"
+        maproot => { escape("&host&")  },
+        admit   => { escape("&host&")  };
+
+     } &
+  &else&
     &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
         maproot => { host2ip("&host&"), escape("&host&")  },
         admit   => { host2ip("&host&"), escape("&host&")  };
 
      } &
-
+  &endif&
 
       # the policy server must have access to the cfengine folder
       "${sys.workdir}"
@@ -114,6 +122,37 @@ bundle common def
 
 body server control
 {
+&if(SKIPIDENTIFY)&
+        trustkeysfrom     => {
+          @{def.acl} ,
+          &ALLOWCONNECT: {
+          "&it&", }&
+          &if(CLIENTSLIST)&
+          &MANAGED_NODES_NAME: {
+          "&it&"};separator=", "&
+          &endif&
+        }; #trustkey allows the exchange of keys
+
+        allowconnects     => {
+          @{def.acl} ,
+          &ALLOWCONNECT: {
+          "&it&", }&
+          &if(CLIENTSLIST)&
+          &MANAGED_NODES_NAME: {
+          "&it&"};separator=", "&
+          &endif&
+        };
+
+        allowallconnects  => {
+          @{def.acl} ,
+          &ALLOWCONNECT: {
+          "&it&", }&
+          &if(CLIENTSLIST)&
+          &MANAGED_NODES_NAME: {
+          "&it&"};separator=", "&
+          &endif&
+        };
+&else&
         trustkeysfrom     => {
           @{def.acl} ,
           &ALLOWCONNECT: {
@@ -143,7 +182,7 @@ body server control
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         };
-
+&endif&
         maxconnections    => "1000";
         logallconnections => "true";
 

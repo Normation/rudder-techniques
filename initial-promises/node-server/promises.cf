@@ -498,8 +498,8 @@ body agent control
     !windows::
         default_repository => "/var/rudder/modified-files";
 
-    # we can not depend on DNS for mobile devices
-    android::
+    # we can not depend on DNS for mobile devices or NATed device
+    any::
         skipidentify => "true";
 }
 
