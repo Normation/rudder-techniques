@@ -30,23 +30,15 @@ $UDPServerRun &SYSLOGPORT&
 $EscapeControlCharactersOnReceive off
 
 # Log everything
-#*.*	/var/log/all.log
 *.*	/var/log/rudder/reports/all.log
 
 # Direct to DB
 $ActionQueueType Direct
 $ActionQueueSaveOnShutdown on
 
-# We start by logging all the Windows and Linux message
-:programname, contains, "rudder" /var/log/rudder/reports/linuxlog.log
-:programname, contains, "Cfengine_Nova" /var/log/rudder/reports/winlog.log
-
 # Filtering by content
 # Process :
-# We first log the data in the file, then forward it to the root server, and we drop the message
-
-if $programname startswith 'rudder' and $msg startswith '  R: @@' then /var/log/rudder/reports/extLinuxReport.log
-
+# We forward the log to the root server, and we drop the message
 if $programname startswith 'rudder' and $msg startswith '  R: @@' then @@${server_info.cfserved}:&SYSLOGPORT&
 
 # We shouldn't have any rudder message here left
