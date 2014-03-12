@@ -533,11 +533,15 @@ bundle agent sendInventory
 bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUID)
 {
   insert_lines:
-      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<HOSTNAME>${sys.fqhost}</HOSTNAME>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}" location => after_deviceid,
-        comment => "Add the UUID and CFKEY tags in the inventory file";
+      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<HOSTNAME>${sys.fqhost}</HOSTNAME>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}"
+        location    => after_deviceid,
+        insert_type => "preserve_block",
+        comment     => "Add the UUID and CFKEY tags in the inventory file";
 
     any::
-      "<VMS>${const.n}</VMS>${const.n}<USERSLIST>${const.n}</USERSLIST>" location => after_content;
+      "<VMS>${const.n}</VMS>${const.n}<USERSLIST>${const.n}</USERSLIST>"
+        insert_type => "preserve_block",
+        location    => after_content;
 
     rudder_inventory_cpuid_tool_present::
 
@@ -575,8 +579,9 @@ bundle edit_line add_information_to_android_inventory(fullname, kernelname, kern
 
     android::
       "<OPERATINGSYSTEM>${const.n}<FULL_NAME>${fullname}</FULL_NAME>${const.n}<KERNEL_NAME>${kernelname}</KERNEL_NAME>${const.n}<KERNEL_VERSION>${kernelversion}</KERNEL_VERSION>${const.n}<NAME>${name}</NAME>${const.n}<VERSION>${version}</VERSION>${const.n}</OPERATINGSYSTEM>"
-    location => after_location("<CONTENT>"),
-    comment => "Adding the list of OPERATINGSYSTEM part";
+        location    => after_location("<CONTENT>"),
+        insert_type => "preserve_block",
+        comment     => "Adding the list of OPERATINGSYSTEM part";
 }
 
 #this bundle is necessary for OCSInventory (but not for fusioninventory)
