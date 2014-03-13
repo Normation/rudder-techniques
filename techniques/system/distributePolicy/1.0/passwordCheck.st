@@ -174,7 +174,7 @@ bundle agent root_password_check_psql
 
     root_server::
 
-      "psql_cant_connect" not => returnszero("/usr/bin/psql --host localhost --username rudder --dbname rudder --quiet --output /dev/null --command 'select id from ruddersysevents limit 1' 2> /dev/null","useshell");
+      "psql_cant_connect" not => returnszero("/usr/bin/psql --host localhost --username rudder --dbname rudder --quiet --output /dev/null --command 'select 1' 2> /dev/null","useshell");
 
   files:
 
