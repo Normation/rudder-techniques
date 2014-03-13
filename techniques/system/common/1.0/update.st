@@ -198,7 +198,7 @@ bundle agent update_action
         action       => immediate,
         classes      => success("config", "no_update", "config_ok");
 
-    root_server|((rudder_promises_generated_ok|rudder_promises_generated_repaired).(config|config_ok).!no_update)::
+    root_server|(rudder_promises_generated_ok|(rudder_promises_generated_repaired.(config|config_ok)).!no_update.!rudder_promises_generated_error)::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
