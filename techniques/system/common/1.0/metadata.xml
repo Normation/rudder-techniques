@@ -49,6 +49,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </TML>
     <TML name="rudder_parameters"/>
     <TML name="check_zypper"/>
+    <TML name="run_interval">
+      <OUTPATH>run_interval</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
 
   <SYSTEMVARS>
@@ -71,6 +75,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>MANAGED_NODES_ADMIN</NAME> 
     <NAME>DENYBADCLOCKS</NAME>
     <NAME>SKIPIDENTIFY</NAME>
+    <NAME>AGENT_RUN_INTERVAL</NAME>
+    <NAME>AGENT_RUN_SPLAYTIME</NAME>
+    <NAME>AGENT_RUN_SCHEDULE</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
