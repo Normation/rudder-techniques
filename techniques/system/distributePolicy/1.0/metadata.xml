@@ -21,18 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>setup_debian_backports</NAME>
     <NAME>install_rsyslogd</NAME>
     <NAME>propagatePromises</NAME>
-    <NAME>root_init_check</NAME>
-    <NAME>root_postgres_check</NAME>
-    <NAME>root_logrotate_check</NAME>
-    <NAME>root_integrity_check</NAME>
-    <NAME>root_technique_reload</NAME>
-    <NAME>root_networks_check</NAME>
-    <NAME>root_alive_check</NAME>
-    <NAME>root_password_check_file</NAME>
-    <NAME>root_password_check_ldap</NAME>
-    <NAME>root_password_check_psql</NAME>
-    <NAME>root_password_check_dav</NAME>
-    <NAME>root_password_restart_jetty</NAME>
+    <NAME>root_component_check</NAME>
     <NAME>sendInventoryToCmdb</NAME>
   </BUNDLES>
 
@@ -41,8 +30,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="propagatePromises"/>
     <TML name="rsyslogConf"/>
     <TML name="initCheck"/>
+    <TML name="component-check"/>
+    <TML name="logrotate-check"/>
     <TML name="postgresCheck"/>
-    <TML name="logrotateCheck"/>
     <TML name="integrityCheck"/>
     <TML name="techniqueReload"/>
     <TML name="networkCheck"/>
@@ -60,20 +50,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="logrotate.debian">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.debian</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
-    <TML name="logrotate.suse">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.suse</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
-    <TML name="logrotate.rhel">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.rhel</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
-    <TML name="logrotate.ubuntu">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.ubuntu</OUTPATH>
+    <TML name="rudder-logrotate">
+      <OUTPATH>distributePolicy/logrotate.conf/rudder</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
   </TMLS>

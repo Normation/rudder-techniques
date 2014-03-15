@@ -16,19 +16,6 @@
 #
 #####################################################################################
 
-bundle agent root_alive_check
-{
-
-  vars:
-
-      "apps_to_check" slist => { "rudder", "endpoint" };
-
-  methods:
-
-      "any" usebundle => generic_alive_check("${apps_to_check}");
-
-}
-
 bundle agent generic_alive_check(app)
 {
 
