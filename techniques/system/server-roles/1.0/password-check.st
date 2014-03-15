@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2012 Normation SAS
+# Copyright 2014 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -75,18 +75,18 @@ bundle agent root_password_check_file
 
     root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file is present and secure"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file is present and secure"
         ifvarclass => "file_ok.!file_repaired.!file_error";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file permissions were fixed"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file permissions were fixed"
         ifvarclass => "file_repaired.!file_error";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#EMERGENCY: THE ${g.rudder_base}/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY."
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#EMERGENCY: THE ${g.rudder_base}/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY."
         ifvarclass => "file_error";
 
     policy_server.!root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file does not need to be checked on relay servers. Skipping...";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check rudder-passwords.conf and pgpass files@@None@@${g.execRun}##${g.uuid}@#The Rudder passwords file does not need to be checked on relay servers. Skipping...";
 
 }
 
@@ -129,32 +129,32 @@ bundle agent root_password_check_ldap
 
     root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked LDAP password)"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked LDAP password)"
         ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files were updated with a new LDAP password"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files were updated with a new LDAP password"
         ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files could not be updated to set the LDAP password"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files could not be updated to set the LDAP password"
         ifvarclass => "rudder_web_password_integrity_failed";
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file is OK (checked rootdn password)"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file is OK (checked rootdn password)"
         ifvarclass => "rudder_ldap_password_integrity_ok.!rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file was updated with a new rootdn password"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file was updated with a new rootdn password"
         ifvarclass => "rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file could not be updated to set the rootdn password"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file could not be updated to set the rootdn password"
         ifvarclass => "rudder_ldap_password_integrity_failed";
 
-      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-passwords.conf file@@None@@${g.execRun}##${g.uuid}@#rudder-slapd has been restarted"
+      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check rudder-passwords.conf file@@None@@${g.execRun}##${g.uuid}@#rudder-slapd has been restarted"
         ifvarclass => "slapd_restarted";
 
     policy_server.!root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check LDAP in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file do not need to be checked on relay servers. Skipping...";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check LDAP credentials@@None@@${g.execRun}##${g.uuid}@#The OpenLDAP configuration file do not need to be checked on relay servers. Skipping...";
 
 }
 
@@ -197,29 +197,29 @@ bundle agent root_password_check_psql
 
     root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked SQL password)"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files are OK (checked SQL password)"
         ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files were updated with a new SQL password"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files were updated with a new SQL password"
         ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files could not be updated to set the SQL password"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files could not be updated to set the SQL password"
         ifvarclass => "rudder_web_password_integrity_failed";
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password is correct and works"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password is correct and works"
         ifvarclass => "!psql_cant_connect";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password has been changed"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password has been changed"
         ifvarclass => "postgres_updated";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password could not be changed!"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's password could not be changed!"
         ifvarclass => "postgres_update_failed";
 
     policy_server.!root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check SQL in rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...";
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's do not need to be checked on relay servers. Skipping...";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check SQL credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder PostgreSQL user account's do not need to be checked on relay servers. Skipping...";
 
 }
 
@@ -236,7 +236,7 @@ bundle agent root_password_restart_jetty
 
   reports:
 
-      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#Jetty has been restarted"
+      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check rudder-webapp.properties@@None@@${g.execRun}##${g.uuid}@#Jetty has been restarted"
         ifvarclass => "jetty_restarted";
 
 
@@ -287,13 +287,13 @@ bundle agent root_password_check_dav
 
     cfengine::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password are OK"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password are OK"
         ifvarclass => "!dav_cant_connect";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password were updated"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password were updated"
         ifvarclass => "rudder_apache_davpassword_changed.!rudder_apache_davpassword_failed";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password could not be updated"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check WebDAV credentials@@None@@${g.execRun}##${g.uuid}@#The Rudder WebDAV user and password could not be updated"
         ifvarclass => "rudder_apache_davpassword_failed";
 
 }

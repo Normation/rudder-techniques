@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2012 Normation SAS
+# Copyright 2014 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -53,19 +53,19 @@ bundle agent root_networks_check
 
     cfengine::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file is OK"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file is OK"
         ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file has been corrected"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file has been corrected"
         ifvarclass => "rudder_networks_repaired.!rudder_networks_failed";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file was NOT edited because of an error"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file was NOT edited because of an error"
         ifvarclass => "rudder_networks_failed";
 
-      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd has been reloaded successfully"
+      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd has been reloaded successfully"
         ifvarclass => "apache_restarted.!apache_restart_failed";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd failed to restart"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd failed to restart"
         ifvarclass => "apache_restart_failed";
 
 }
