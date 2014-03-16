@@ -63,7 +63,7 @@ bundle agent generic_process_check_process(binary, initscript, force_restart)
 
   commands:
 
-      "/etc/init.d/${initscript}"
+      "${g.service_management_binary} ${initscript}"
         args => "restart </dev/null >/dev/null 2>/dev/null",
         contain => in_shell_silent,
       # action => bg("0", "120"),

@@ -49,7 +49,7 @@ necessary and kill undesired processes.
     <SECTION name="Service to manage" multivalued="true" >
     <INPUT>
         <NAME>SERVICE_MANAGED_NAME</NAME>
-        <DESCRIPTION>Service name (as seen in init.d)</DESCRIPTION>
+        <DESCRIPTION>Service name (as seen in "service --status-all")</DESCRIPTION>
     </INPUT>
     <SECTION name="Process"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
       <INPUT>
@@ -106,7 +106,7 @@ necessary and kill undesired processes.
         <NAME>PROCESS_MANAGED_KILLING_METHOD</NAME>
         <DESCRIPTION>When stopping this process</DESCRIPTION>
         <ITEM>
-          <LABEL>Stop gracefully (/etc/init.d/xxx stop)</LABEL>
+          <LABEL>Stop gracefully (${g.service_management_binary} xxx stop)</LABEL>
           <VALUE>graceful</VALUE>
         </ITEM>
         <ITEM>

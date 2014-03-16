@@ -34,12 +34,12 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
       "reverse_proxy_configuration_file"                string => "/etc/httpd/conf.d/rudder-reverse-proxy.conf";
       "rudder_reverse_proxy_apache_binary_name"         string => "/usr/sbin/httpd";
-      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/httpd";
+      "rudder_reverse_proxy_apache_restart_command"     string => "${g.service_management_binary} httpd";
 
     !redhat::
 
       "reverse_proxy_configuration_file"                string => "/etc/apache2/conf.d/rudder-reverse-proxy.conf";
-      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/apache2";
+      "rudder_reverse_proxy_apache_restart_command"     string => "${g.service_management_binary} apache2";
 
     !SuSE.!redhat::
 

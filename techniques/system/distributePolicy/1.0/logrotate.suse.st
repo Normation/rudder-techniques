@@ -8,7 +8,7 @@
         delaycompress
         sharedscripts
         postrotate
-          /etc/init.d/apache2 reload > /dev/null
+          ${g.service_management_binary} apache2 reload > /dev/null
         endscript
 }
 
@@ -21,7 +21,7 @@
         create 640 root root
         delaycompress
         postrotate
-          /etc/init.d/syslog reload > /dev/null
+          ${g.service_management_binary} syslog reload > /dev/null
         endscript
 }
 
@@ -35,7 +35,7 @@
         delaycompress
         sharedscripts
         postrotate
-          /etc/init.d/syslog reload > /dev/null
+          ${g.service_management_binary} syslog reload > /dev/null
         endscript
 }
 

@@ -208,13 +208,13 @@ bundle agent check_ssh_configuration
   commands:
 
     debian.(ssh_tier1_validated|ssh_tier2_validated|ssh_down)::
-      "/etc/init.d/ssh"
+      "${g.service_management_binary} ssh"
         args => "restart",
         classes => cf2_if_else("ssh_restarted", "cant_restart_ssh"),
         comment => "restarting ssh";
 
     (redhat|SuSE).(ssh_tier1_validated|ssh_tier2_validated|ssh_down)::
-      "/etc/init.d/sshd"
+      "${g.service_management_binary} sshd"
         args => "restart",
         classes => cf2_if_else("ssh_restarted", "cant_restart_ssh"),
         comment => "restarting ssh";
@@ -235,7 +235,7 @@ bundle agent check_ssh_configuration
 
     SuSE::
 
-      "/etc/init.d/rc3.d/S.*ssh.*"
+      "${g.service_management_binary} rc3.d/S.*ssh.*"
         create => "true",
                                 #depth_search => recurse("0"),
                                 #file_select => ssh_startlink,

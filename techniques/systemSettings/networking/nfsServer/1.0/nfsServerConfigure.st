@@ -38,7 +38,7 @@ bundle agent check_nfs_server_configuration
 
     debian::
 
-      "/etc/init.d/nfs-kernel-server"
+      "${g.service_management_binary} nfs-kernel-server"
         args => "restart",
         ifvarclass => canonify("nfs_server_${nfs_server_index}_done"),
         classes => cf2_if_else("nfs_server_${nfs_server_index}_restarted", "nfs_server_${nfs_server_index}_not_restarted"),

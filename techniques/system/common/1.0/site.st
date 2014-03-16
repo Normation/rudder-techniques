@@ -32,6 +32,9 @@ bundle common g
       "rudder_curl"                string => "/system/bin/curl";
       "rudder_rm"                  string => "/system/xbin/rm";
 
+      # We do not support any init system on Android (yet)
+      "service_management_binary"  string => "/system/xbin/false";
+
     !windows.!android::
       "rudder_base"                string => "/opt/rudder";
       "rudder_curl"                string => "/usr/bin/curl";
@@ -39,9 +42,16 @@ bundle common g
 
     solaris::
       "rudder_var"                 string => "/opt/rudder/var";
+      "service_management_binary"  string => "/usr/sbin/svcadm";
 
     !solaris.!windows.!android::
       "rudder_var"                 string => "/var/rudder";
+
+    linux.(debian|ubuntu)::
+      "service_management_binary"  string => "/usr/sbin/service";
+
+    linux.!(debian|ubuntu)::
+      "service_management_binary"  string => "/sbin/service";
 
     !windows::
       "rudder_bin"                 string => "${rudder_base}/bin";
@@ -73,6 +83,8 @@ bundle common g
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
+
+      # service_management_binary is not relevant on Windows
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_sbin}";

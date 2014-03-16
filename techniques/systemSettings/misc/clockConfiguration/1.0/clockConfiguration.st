@@ -189,13 +189,13 @@ bundle agent check_clock_configuration
 
     # Restart commands
     !windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
-      "/etc/init.d/ntp"
+      "${g.service_management_binary} ntp"
         args => "restart",
         classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
         comment => "restarting ntp";
 
     redhat.(repaired_ntpconf|repaired_localtime|repaired_redhattz|ntpd_down)::
-      "/etc/init.d/ntpd"
+      "${g.service_management_binary} ntpd"
         args => "restart",
         classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
         comment => "restarting ntp";

@@ -59,7 +59,7 @@ bundle agent check_process(directiveId, name, maxInst, minInst, command, args)
         classes => kept_if_else("${name}_restart_ok", "${name}_restart_ok", "${name}_restart_error"),
         ifvarclass => and( canonify("${name}_restart"), not(canonify("${name}_command_empty")) );
 
-      "/etc/init.d/${name}"
+      "${g.service_management_binary} ${name}"
         args => "restart",
         classes => kept_if_else("${name}_restart_ok", "${name}_restart_ok", "${name}_restart_error"),
         ifvarclass => and( canonify("${name}_restart"), canonify("${name}_command_empty") );

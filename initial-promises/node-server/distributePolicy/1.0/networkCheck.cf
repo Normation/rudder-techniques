@@ -45,7 +45,7 @@ bundle agent root_networks_check
 
     rudder_networks_repaired::
 
-      "/etc/init.d/${apache_init}"
+      "${g.service_management_binary} ${apache_init}"
         args => "reload",
         classes => if_else("apache_restarted", "apache_restart_failed");
 
