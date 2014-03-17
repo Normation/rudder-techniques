@@ -614,9 +614,9 @@ bundle agent check_cron_daemon
 
 }
 
-########################################################
-# Trash every output report older than 30 days         #
-########################################################
+###################################################################
+# Trash every output report and modified files older than the TTL #
+###################################################################
 
 bundle agent garbage_collection
 {
@@ -626,13 +626,13 @@ bundle agent garbage_collection
       "${sys.workdir}/outputs"
 
         delete => tidy,
-        file_select => days_old("30"),
+        file_select => days_old("&CFENGINE_OUTPUTS_TTL&"),
         depth_search => recurse("inf");
 
       "${g.rudder_var}/modified-files"
 
         delete => tidy,
-        file_select => days_old("30"),
+        file_select => days_old("&MODIFIED_FILES_TTL&"),
         depth_search => recurse("inf");
 
 }

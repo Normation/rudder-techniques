@@ -78,6 +78,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>AGENT_RUN_INTERVAL</NAME>
     <NAME>AGENT_RUN_SPLAYTIME</NAME>
     <NAME>AGENT_RUN_SCHEDULE</NAME>
+    <NAME>MODIFIED_FILES_TTL</NAME>
+    <NAME>CFENGINE_OUTPUTS_TTL</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
