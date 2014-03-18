@@ -426,7 +426,7 @@ bundle agent garbage_collection
       "${sys.workdir}/outputs"
 
         delete => tidy,
-        file_select => days_old("30"),
+        file_select => days_old("7"),
         depth_search => recurse("inf");
 
       "${g.rudder_var}/modified-files"
