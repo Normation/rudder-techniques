@@ -110,6 +110,7 @@ bundle common def
     policy_server::
       "acl" slist => {
       "127.0.0.0/8" , "::1",
+      "${def.policy_server}", # the policy server can connect to a relay
       &AUTHORIZED_NETWORKS:{net|"&net&",}&
     };
 &endif&
@@ -125,9 +126,7 @@ body server control
 &if(SKIPIDENTIFY)&
         trustkeysfrom     => {
           @{def.acl} ,
-          &ALLOWCONNECT: {
-          "&it&", }&
-          &if(CLIENTSLIST)&
+          &if(MANAGED_NODES_NAME)&
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
@@ -135,9 +134,7 @@ body server control
 
         allowconnects     => {
           @{def.acl} ,
-          &ALLOWCONNECT: {
-          "&it&", }&
-          &if(CLIENTSLIST)&
+          &if(MANAGED_NODES_NAME)&
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
@@ -145,9 +142,7 @@ body server control
 
         allowallconnects  => {
           @{def.acl} ,
-          &ALLOWCONNECT: {
-          "&it&", }&
-          &if(CLIENTSLIST)&
+          &if(MANAGED_NODES_NAME)&
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
@@ -155,9 +150,7 @@ body server control
 &else&
         trustkeysfrom     => {
           @{def.acl} ,
-          &ALLOWCONNECT: {
-          host2ip("&it&"), "&it&", }&
-          &if(CLIENTSLIST)&
+          &if(MANAGED_NODES_NAME)&
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
@@ -165,9 +158,7 @@ body server control
 
         allowconnects     => {
           @{def.acl} ,
-          &ALLOWCONNECT: {
-          host2ip("&it&"), "&it&", }&
-          &if(CLIENTSLIST)&
+          &if(MANAGED_NODES_NAME)&
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
@@ -175,9 +166,7 @@ body server control
 
         allowallconnects  => {
           @{def.acl} ,
-          &ALLOWCONNECT: {
-          host2ip("&it&"), "&it&", }&
-          &if(CLIENTSLIST)&
+          &if(MANAGED_NODES_NAME)&
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
