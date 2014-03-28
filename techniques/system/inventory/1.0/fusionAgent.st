@@ -404,8 +404,13 @@ bundle agent addInformationsToInventory
       "android_fullname"      string => "Android ${android_version}";
       "logdate"               string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
 
-    !windows.!android::
+    linux.!xen::
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
+
+    aix::
+      "RUDDERUUID_cmd" string => "/usr/bin/uname -f";
+
+    !windows.!android::
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
