@@ -355,7 +355,10 @@ bundle agent addInformationsToInventory
     linux.!xen::
       "RUDDERUUID" string => execresult("/usr/sbin/dmidecode -s system-uuid","noshell");
 
-    linux::
+    aix::
+      "RUDDERUUID" string => execresult("/usr/bin/uname -f", "noshell");
+
+    !windows.!android::
       "CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
       "USER" string => execresult("/usr/bin/whoami", "noshell");
       "usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
