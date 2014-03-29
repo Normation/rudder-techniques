@@ -93,7 +93,7 @@ bundle common va
     any::
       "end" slist => { "endExecution" };
 
-      "ncf_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
+      "ncf_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf -name '*.cf' ! -name 'promises.cf'", "noshell"), "\n", 10000);
 
 
 # definition of the machine roles
