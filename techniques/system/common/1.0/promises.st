@@ -462,7 +462,7 @@ bundle agent check_log_system
         args => "restart rsyslog",
         comment => "Restarting rsyslog after it's been updated";
 
-    syslogd_repaired.!SuSE::
+    syslogd_repaired.!SuSE.!solaris.!aix::
       "/etc/init.d/syslog"
         args => "restart",
         comment => "Restarting rsyslog after it's been updated";
@@ -470,6 +470,8 @@ bundle agent check_log_system
     solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
       "svcadm refresh svc:/system/system-log:default";
 
+    aix.syslogd_repaired::
+      "/usr/bin/refresh -s syslogd";
 
   reports:
 
@@ -741,7 +743,7 @@ bundle edit_line fix_syslogd(syslogd)
   insert_lines:
     any::
       "# Rudder specific logging parameters";
-      "local6.*						${syslogd}"
+      "local6.notice					${syslogd}"
         comment => "Add the rudder syslogd destination";
 }
 
