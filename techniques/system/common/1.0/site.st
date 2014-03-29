@@ -98,7 +98,10 @@ bundle common g
       "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
     android::
       "execRun"                    string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
-    !linux.!cygwin.!windows.!android::
+    aix::
+      # AIX's date command doesn't have a "%z" option, so we fake it by using UTC
+      "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
+    !linux.!cygwin.!windows.!android.!aix::
       "execRun"                    string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
 }

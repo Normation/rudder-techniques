@@ -88,7 +88,10 @@ bundle common g
 &endif&
     android::
       "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
-    !linux.!cygwin.!windows.!android::
+    aix::
+      # AIX's date command doesn't have a "%z" option, so we fake it by using UTC
+      "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
+    !linux.!cygwin.!windows.!android.!aix::
       "execRun"                  string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
 # definition of the node roles
