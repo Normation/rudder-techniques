@@ -24,7 +24,7 @@ bundle agent internal_security
 
       "mode"  string => "600";
       "user"  string => "root";
-      "group" string => "root";
+      "group" string => "0"; # This is "root" on most UNIX-like systems, but "system" on AIX
 
     #windows::
 
