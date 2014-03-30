@@ -32,6 +32,11 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
     !debian::
       "rudder_motd_file"         slist => { "/etc/motd" };
 
+    aix::
+      "rudder_motd_group"       string => "bin";
+    !aix::
+      "rudder_motd_group"       string => "root";
+
   classes:
       "rudder_motd_absent"         not => fileexists("/etc/motd");
 
@@ -41,7 +46,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
       "${rudder_motd_file}"
         create        => "true",
         edit_defaults => rudder_empty_select("${rudder_motd_empty}"),
-        perms         => mog("644", "root", "root"),
+        perms         => mog("644", "root", "${rudder_motd_group}"),
         edit_line     => insert_lines("${rudder_motd_payload}"),
         classes       => rudder_common_classes("${class_prefix}_file_edition");
 
