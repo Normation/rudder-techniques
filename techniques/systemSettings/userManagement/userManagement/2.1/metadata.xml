@@ -1,5 +1,5 @@
 <!--
-Copyright 2011 Normation SAS
+Copyright 2014 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -50,6 +50,13 @@ It is intended to check the user parameters on the target host.
       <INPUT>
         <NAME>USERGROUP_USER_LOGIN</NAME>
         <DESCRIPTION>Login name for this account</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_SYSTEM_USER</NAME>
+        <DESCRIPTION>System user</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_USER_NAME</NAME>
