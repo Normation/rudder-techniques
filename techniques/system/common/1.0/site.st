@@ -31,6 +31,7 @@ bundle common g
       "rudder_var"                 string => "/data/rudder";
       "rudder_curl"                string => "/system/bin/curl";
       "rudder_rm"                  string => "/system/xbin/rm";
+      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"                string => "/opt/rudder";
@@ -73,6 +74,22 @@ bundle common g
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
+      "rudder_tools_files_windows" slist => { "uuid.vbs",
+                                              "iconv.dll",
+                                              "userlist.bat",
+                                              "getDate.bat",
+                                              "registrydns.bat",
+                                              "iconv.exe",
+                                              "curl/curl.exe",
+                                              "curl/libcurl.dll",
+                                              "curl/libssl32.dll",
+                                              "curl/libeay32.dll",
+                                              "cpuid-windows-v1.0.vbs",
+                                              "fusionagent.exe",
+                                              "centreon-e2s.exe",
+                                              "e2s.tpl",
+                                              "checkroute.pl" };
+
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_sbin}";
@@ -116,6 +133,24 @@ bundle common g
     !linux.!cygwin.!windows.!android.!aix::
       "execRun"                    string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
+    linux::
+      "rudder_tools_files_linux"   slist => { "send-clean.sh",
+                                              "cpuid-linux-V1.0.sh",
+                                              "vmware_info.sh",
+                                              "check_rsyslog_version",
+                                              "apache-vhost.tpl" };
+    SuSE::
+      "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
+                                              "openvpn-2.2.1-1.i686.rpm",
+                                              "zypper-repo.tpl",
+                                              "check_zypper_version",
+                                              "checkzmd.pl" };
+    any::
+      "rudder_tools_files"         slist => { @{rudder_tools_files_windows},
+                                              @{rudder_tools_files_android},
+                                              @{rudder_tools_files_linux},
+                                              @{rudder_tools_files_suse},
+                                            }, policy => "ifdefined";
   classes:
 
     "gzip_installed"           expression => isexecutable("${rudder_gzip}");
