@@ -67,7 +67,7 @@ bundle agent process_matching
 
   files:
 
-    !windows::
+    !windows.!android::
 
       # This is to cleanup /etc/crontab from pre-2.5 usage
       # and initial promises before 2.7

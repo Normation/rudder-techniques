@@ -29,8 +29,12 @@ bundle common rudder_roles
       "rudder_base" string  => "${sys.winprogdir}\Rudder";
       "uuid_file" string => "${rudder_base}\etc\uuid.hive";
 
-    !windows::
+    !windows.!android::
       "rudder_base" string => "/opt/rudder";
+      "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+
+    android::
+      "rudder_base" string => "/data/rudder";
       "uuid_file" string => "${rudder_base}/etc/uuid.hive";
 
     any::
