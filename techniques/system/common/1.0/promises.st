@@ -739,6 +739,8 @@ bundle edit_line fix_syslogd(syslogd)
     any::
       "^(local6)\s+(?!${syslogd}).*"
         comment => "Delete missconfigured rudder syslogd destination";
+      "^local6\.\*\s+${syslogd}"
+        comment => "Delete old rudder syslogd format";
 
   insert_lines:
     any::
