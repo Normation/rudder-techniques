@@ -93,7 +93,11 @@ bundle common va
     any::
       "end" slist => { "endExecution" };
 
+    !android::
       "ncf_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf -name '*.cf' ! -name 'promises.cf'", "noshell"), "\n", 10000);
+    android::
+      "ncf_inputs" slist => splitstring(execresult("/system/xbin/find /data/rudder/ncf -name '*.cf' | grep -v 'promises.cf'", "useshell"), "\n", 10000);
+
 
 
 # definition of the machine roles
