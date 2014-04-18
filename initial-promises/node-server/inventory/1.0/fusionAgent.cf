@@ -48,12 +48,15 @@ bundle agent doInventory
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
   classes:
+
+    # The force_inventory class may be specified by the user at runtime, or defined here
+      "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory");
+
     uuid_succesfully_downloaded::
       "uuid_valid" expression => regcmp("[a-z0-9-]+","${policy_server_uuid}");
       "uuid_validity_checked"
         expression => "any",
         comment    => "This dummy class is just used for ordering the report using !uuid_valid below";
-
 
   methods:
 
@@ -66,6 +69,7 @@ bundle agent doInventory
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => sendInventory;
+      "any" usebundle => cleanForceInventoryFlagFile;
 
   reports:
     could_not_download_uuid::
@@ -639,4 +643,14 @@ body file_select one_day_age
 {
         mtime     => irange(ago(1,0,0,0,0,0),ago(0,0,1,0,0,0));
         file_result => "mtime";
+}
+
+bundle agent cleanForceInventoryFlagFile
+{
+
+  files:
+      "${g.rudder_base}/etc/force_inventory"
+        delete     => tidy,
+        ifvarclass => "inventory_sent"; # if the force inventory file was present, and we successfully sent an inventory, clean up the flag file
+
 }
