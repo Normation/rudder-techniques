@@ -54,6 +54,7 @@ It is intended to check the user parameters on the target host.
       <INPUT>
         <NAME>USERGROUP_SYSTEM_USER</NAME>
         <DESCRIPTION>System user</DESCRIPTION>
+        <LONGDESCRIPTION>System users will be created with no aging information in /etc/shadow, and their numeric identifiers are chosen in the SYS_UID_MIN-SYS_UID_MAX range, defined in /etc/login.defs, instead of UID_MIN-UID_MAX (and their GID counterparts for the creation of groups).</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
