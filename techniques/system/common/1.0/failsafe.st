@@ -34,9 +34,7 @@ body common control
 }
 
 body agent control {
-   # we can not depend on DNS for mobile devices
-   android::
-      skipidentify=> "true";
+        skipidentify => "&SKIPIDENTIFY&";
 }
 
 bundle common g
