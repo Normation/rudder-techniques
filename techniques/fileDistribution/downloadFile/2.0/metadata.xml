@@ -27,6 +27,7 @@ the given destination.
   <DESCRIPTION>This technique downloads a file from a server.
 
   It takes a cURL compatible source (HTTP/FTP/...) and a destination on the target host.
+  If cURL is not available, it will try to use minicurl.pl, a LWP-based Perl script.
   </DESCRIPTION>
 
   <BUNDLES>
@@ -47,7 +48,7 @@ the given destination.
       <INPUT>
         <NAME>DOWNLOADFILE_SOURCE</NAME>
         <DESCRIPTION>URL to download file from</DESCRIPTION>
-        <LONGDESCRIPTION>cURL compatible URL, for example http://server/file or ftp://server/file. cURL will do its best to use what you pass to it as a URL. It is not trying to validate it as a syntactically correct URL by any means but is instead very liberal with what it accepts.</LONGDESCRIPTION>
+        <LONGDESCRIPTION>For example http://server/file or ftp://server/file. cURL/miniperl will do its best to use what you pass to it as a URL. It is not trying to validate it as a syntactically correct URL by any means but is instead very liberal with what it accepts.</LONGDESCRIPTION>
       </INPUT>
       <INPUT>
         <NAME>DOWNLOADFILE_DESTINATION</NAME>

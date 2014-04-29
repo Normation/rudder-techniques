@@ -16,28 +16,35 @@
 #
 #####################################################################################
 
-##################################################################################
-# Download a file from an arbitrary http server ( or any supported curl source ) #
-##################################################################################
+###########################################################
+# Download a file from an arbitrary http/https/ftp server #
+###########################################################
 
 bundle agent execute_file_download # WARNING : If there is many instance, isn't there a risk of a bundle name collision ???
 {
+
+  vars:
+
+    # If curl is here, use it
+    !windows.curl_installed::
+      "download_command" string => "${g.rudder_curl} -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
+
+    # If no curl is present, fallback to minicurl
+    !windows.!curl_installed::
+      "download_command" string => "${g.minicurl} --get --file \"&DOWNLOADFILE_DESTINATION&\" --url &DOWNLOADFILE_SOURCE&";
+
+    # Windows always use curl
+    windows::
+      "download_command" string => "\"${g.rudder_curl}\" -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
 
   classes:
 
       "file_not_found" not => fileexists("&DOWNLOADFILE_DESTINATION&");
 
   commands:
-    !windows.file_not_found::
-      "${g.rudder_curl}"
-        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
-        comment => "Getting the file from the server",
-        classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
-
-    windows.file_not_found::
-      "\"${g.rudder_curl}\""
-        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+    file_not_found::
+      "${download_command}"
         comment => "Getting the file from the server",
         classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
@@ -52,6 +59,9 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
   reports:
 
     # File downloading part
+    !curl_installed:
+      "@@downloadFile@@log_info@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#No usable cURL binary detected, falling back to miniperl instead";
+
     !file_not_found.!file_download_ok.!file_download_fail::
       "@@downloadFile@@result_success@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#The file &DOWNLOADFILE_SOURCE& already present";
 
