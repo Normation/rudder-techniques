@@ -24,7 +24,7 @@
 
 bundle server access_rules
 {
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
@@ -192,11 +192,11 @@ body server control
 
 #######################################################
 
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
 body runagent control
 {
         hosts => {
-          &CLIENTSLIST: {
+          &MANAGED_NODES_NAME: {
           "&it&",}&
         };
 
