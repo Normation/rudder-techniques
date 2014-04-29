@@ -85,3 +85,10 @@ do
   fi
 done
 
+# Check that minicurl is synchronized from techniques to initial-promises
+if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl
+then
+  echo "The minicurl utility in ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st and ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl differ"
+  exit 7
+fi
+
