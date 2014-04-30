@@ -72,6 +72,7 @@ bundle agent doInventory
       "any" usebundle => turnUsersToUnicode;
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
+      "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
 
@@ -83,6 +84,7 @@ bundle agent doInventory
       "any" usebundle => turnUsersToUnicode;
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
+      "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
 
   reports:
@@ -473,13 +475,25 @@ bundle agent moveInventoryToFinalDestination
 {
   files:
       "${g.rudder_inventories}"
-        copy_from => copy("${g.rudder_var_tmp}/inventory"),
+        copy_from    => copy("${g.rudder_var_tmp}/inventory"),
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
-        comment => "Moving inventory files to the final location";
-
+        file_select  => by_name("@{g.inventory_file_types}"),
+        comment      => "Moving inventory files to the final location";
 }
 
+# compress inventories if possible
+bundle agent compressInventories
+{
+  files:
+
+    !windows.gzip_installed::
+
+      "${g.rudder_inventories}"
+	transformer  => "${g.rudder_gzip} -q ${this.promiser}",
+        depth_search => recurse_visible(1),
+        file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
+        comment      => "gzip inventory files";
+}
 
 # Send the file to the promises server
 bundle agent sendInventory
@@ -489,23 +503,23 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
-        classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
-        comment => "Sending the inventory to the server";
+        file_select  => by_name("@{g.inventory_file_types}"),
+        classes      => persistant_class("inventory_sent", "cant_send_inventory", 480),
+        comment      => "Sending the inventory to the server";
 
   # Once we've successfully sent all inventories, remove them
     !windows.inventory_sent.!cant_send_inventory::
       "${g.rudder_inventories}"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => inventory_files,
+        file_select  => by_name("@{g.inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
       "${g.rudder_var_tmp}/inventory"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => inventory_files,
+        file_select  => by_name("@{g.inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
@@ -656,29 +670,10 @@ body replace_with xmled(attribute)
 }
 
 
-# select the inventory files that has the right extension
-#I'd like to select also those older than 4 hours (ctime => irange(ago(0,0,0,4,0,0),now);) not working...
-# (for some reason, ocs duplicated files over time)
-body file_select inventory_files
-{
-
-    any::
-        leaf_name => { ".*.ocs" };
-        file_result => "leaf_name";
-
-&if(NOVA)&
-  #windows::
-  #	leaf_name => { ".*.xml" };
-  #	file_result => "leaf_name";
-&endif&
-
-}
-
 body perms inventory_perms
 {
         mode => "0700";
 }
-
 
 body file_select one_day_age
 #
