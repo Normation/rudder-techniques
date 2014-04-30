@@ -78,6 +78,14 @@ bundle common g
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
 
+    aix::
+
+      "rudder_gzip"                       string => "/usr/bin/gzip";
+
+    !aix.!windows::
+
+      "rudder_gzip"                       string => "/bin/gzip";
+
     any::
       "uuid"                       string => readfile("${g.uuid_file}", 60);
       "server_shares_folder"       string => "/var/rudder/share/${uuid}/promises/shares";
@@ -90,6 +98,9 @@ bundle common g
 
       "rudder_ncf_origin_common"   string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"    string => "/var/rudder/configuration-repository/ncf";
+
+      "uncompressed_inventory_file_types" slist => { ".*.ocs" };
+      "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin" string => "/var/rudder/tools";
@@ -106,5 +117,9 @@ bundle common g
       "execRun" string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
     !linux.!cygwin.!windows.!android.!aix::
       "execRun" string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
+
+  classes:
+
+    "gzip_installed"           expression => isexecutable("${rudder_gzip}");
 
 }
