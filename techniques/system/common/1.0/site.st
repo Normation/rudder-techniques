@@ -77,6 +77,14 @@ bundle common g
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_sbin}";
 
+    aix::
+
+      "gzip"                       string => "/usr/bin/gzip";
+
+    !aix.!windows::
+
+      "gzip"                       string => "/bin/gzip";
+
     any::
       "uuid"                        string => readfile("${g.uuid_file}", 60);
       "server_shares_folder"        string => "/var/rudder/share/${uuid}/promises/shares";
@@ -88,6 +96,9 @@ bundle common g
       "rudder_tools_origin"         string => "/var/rudder/tools";
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
+
+      "uncompressed_inventory_file_types" slist => { ".*.ocs" };
+      "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin"  string => "/var/rudder/tools";
@@ -108,5 +119,6 @@ bundle common g
   classes:
 
     "curl_installed"           expression => isexecutable("${rudder_curl}");
+    "gzip_installed"           expression => isexecutable("${rudder_gzip}");
 
 }
