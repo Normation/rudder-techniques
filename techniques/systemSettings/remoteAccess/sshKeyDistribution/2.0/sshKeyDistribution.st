@@ -32,6 +32,7 @@ bundle agent check_ssh_key_distribution
   vars:
 
     any::
+
       "technique_name"  string  => "sshKeyDistribution";
       "component_name"  string  => "SSH key";
 
@@ -50,9 +51,6 @@ bundle agent check_ssh_key_distribution
       "sshkey_distribution_index"
         slist   => getindices("sshkey_distribution_name");
 
-      "userdata_${sshkey_distribution_index}"
-        string  => execresult("/usr/bin/getent passwd ${sshkey_distribution_name[${sshkey_distribution_index}]}", "noshell");
-
       "no_${sshkey_distribution_index}"
         int     => parsestringarray("userarray_${sshkey_distribution_index}", "${userdata_${sshkey_distribution_index}}", "", ":", "1000", "200000" );
 
@@ -61,6 +59,18 @@ bundle agent check_ssh_key_distribution
 
       "homedir[${sshkey_distribution_index}]"
         string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}";
+
+    # Only Linuxes (not Slackware), Solaris and FreeBSD support PAM/getent
+    (linux.!slackware)|solaris|freebsd::
+
+      "userdata_${sshkey_distribution_index}"
+        string  => execresult("/usr/bin/getent passwd ${sshkey_distribution_name[${sshkey_distribution_index}]}", "noshell");
+
+    # On systems without PAM, directly read entries from /etc/passwd instead (compatibility)
+    !((linux.!slackware)|solaris|freebsd)::
+
+      "userdata_${sshkey_distribution_index}"
+        string  => execresult("/usr/bin/grep ^${sshkey_distribution_name[${sshkey_distribution_index}]}: /etc/passwd", "noshell");
 
     !SuSE::
       "gid[${sshkey_distribution_index}]"
@@ -72,7 +82,7 @@ bundle agent check_ssh_key_distribution
 
   files:
 
-    linux::
+    !windows::
 
       "${homedir[${sshkey_distribution_index}]}/.ssh/."
         create        => "true",
@@ -89,20 +99,31 @@ bundle agent check_ssh_key_distribution
 
   methods:
 
-    linux::
+    !windows::
 
       "SSH Key Report"
         ifvarclass    => "user_${sshkey_distribution_index}_exists",
         usebundle     => rudder_common_reports_generic(
           "${technique_name}", "${key_class_prefix[${sshkey_distribution_index}]}",
-          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}", "SSH key \"${sshkey_distribution_tag[${sshkey_distribution_index}]}\" for user ${sshkey_distribution_name[${sshkey_distribution_index}]}"
+          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
+          "SSH key \"${sshkey_distribution_tag[${sshkey_distribution_index}]}\" for user ${sshkey_distribution_name[${sshkey_distribution_index}]}"
         );
 
       "No User Exist Report"
         ifvarclass    => "!user_${sshkey_distribution_index}_exists",
         usebundle     => rudder_common_report(
           "${technique_name}", "result_error",
-          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}", "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, not adding SSH key"
+          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
+          "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, not adding SSH key"
+        );
+
+    windows::
+
+      "No Windows Support Report"
+        usebundle     => rudder_common_report(
+          "${technique_name}", "result_error",
+          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
+          "Unable to add a SSH key for ${sshkey_distribution_name[${sshkey_distribution_index}]}: This Technique does not support Windows"
         );
 }
 
