@@ -29,6 +29,15 @@ ARCHIVEDIR=$3
 FAILEDDIR=$4
 BASENAME=$(basename ${2})
 CURL_BINARY="/usr/bin/curl"
+GZIP_BINARY="/bin/gzip"
+
+# If the file appears to be compressed, attempt to uncompress it
+# ${VARIABLE##*.} extracts the file extension
+if [ "z${BASENAME##*.}" = "zgz" ]; then
+	${GZIP_BINARY} -d ${FILENAME}
+	# ${VARIABLE%.*} removes the last extension of the file, here: .gz
+        FILENAME="${FILENAME%.*}"
+fi
 
 # Attempt to send the file
 HTTP_CODE=`${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} -o /dev/null -w '%{http_code}' ${SERVER}`
