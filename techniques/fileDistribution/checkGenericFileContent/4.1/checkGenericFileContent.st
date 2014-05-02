@@ -61,6 +61,17 @@ bundle agent check_generic_file_content {
 }&
 	                &TRACKINGKEY:{piuuid |"generic_file_content_uuid[&i&]" string => "&piuuid&";
 }&
+
+      # Since classes of a bundle are not visible to the bundle edit_line, we need to define variable
+      # and check their values in the bundle_edit_line
+      &GENERIC_FILE_CONTENT_DELETION_BOOLEAN:{deletion | "generic_file_content_deletion_boolean[&i&]" string => "&deletion&";
+}&
+      &GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN:{modification |"generic_file_content_modification_boolean[&i&]" string => "&modification&";
+}&
+      &GENERIC_FILE_CONTENT_SECTION_MANAGEMENT:{enforce_section |"generic_file_content_section_boolean[&i&]" string => "&enforce_section&";
+}&
+
+
 			"index" slist => getindices("generic_file_content_path");
 
 			"file_edit_go" string => "go";
@@ -110,53 +121,22 @@ classes:
 
   files:
     tier2::
-      # Add content to the file only if the content has been set
+      # Edit the file
+      # Defines classes for the file edition globaly, as it can be globally kept even if part are modified
+      # (for instance, section edition have a global status kept, but several repaired status)
       "$(generic_file_content_path[$(index)])"
-        edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])",
-						"$(generic_file_content_enforced[$(index)])"),
+        edit_line => check_generic_file_content_edition(
+            "$(generic_file_content_payload[$(index)])", "$(generic_file_content_enforced[$(index)])",
+            "$(generic_file_content_deletion_regexp[$(index)])", "$(generic_file_content_deletion_boolean[$(index)])",
+            "$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])", "$(generic_file_content_modification_boolean[$(index)])",
+            "${generic_file_content_section_header[${index}]}", "${generic_file_content_section_footer[${index}]}", "${generic_file_content_section_content[${index}]}", "${generic_file_content_section_boolean[${index}]}",
+            "${index}"
+        ),
         create => "$(generic_file_content_creation[$(index)])",
         edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
-        classes => kept_if_else("content_$(index)_kept", "content_$(index)_modified", "content_$(index)_failed"),
-        ifvarclass => "edit_content_$(index).!creation_only_but_already_exists_${index}",
+        ifvarclass => "!creation_only_but_already_exists_${index}",
+        classes => kept_if_else("file_edition_global_files_status_$(index)_kept", "file_edition_global_files_status_$(index)_repaired", "file_edition_global_files_status_$(index)_failed"),
         comment => "Editing $(generic_file_content_path[$(index)])...";
-
-      "$(generic_file_content_path[$(index)])"
-        edit_line => delete_lines_matching("$(generic_file_content_deletion_regexp[$(index)])"),
-        create => "$(generic_file_content_creation[$(index)])",
-        edit_defaults => noempty_backup,
-        classes => kept_if_else("content_deletion_kept_$(index)", "content_deletion_modified_$(index)", "content_deletion_failed_$(index)"),
-        ifvarclass => "delete_lines_$(index).!creation_only_but_already_exists_${index}",
-        comment => "Deleting lines in $(generic_file_content_path[$(index)]) using the given regexps...";
-
-      # Replace the matching line(s) of the file by values of replacement
-      # if replacement has been set
-      "$(generic_file_content_path[$(index)])"
-        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])"),
-        create => "$(generic_file_content_creation[$(index)])",
-        edit_defaults => noempty_backup,
-        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
-        ifvarclass => "modify_lines_$(index).generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
-        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
-
-      # Replace the matching line(s) of the file by an empty line
-      # if replacement is not set
-      "$(generic_file_content_path[$(index)])"
-        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", ""),
-        create => "$(generic_file_content_creation[$(index)])",
-        edit_defaults => noempty_backup,
-        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
-        ifvarclass => "modify_lines_$(index).!generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
-        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
-
-      # Enforce the content of section in file
-      "${generic_file_content_path[${index}]}"
-        edit_line => rudder_ensure_section_content("${generic_file_content_section_header[${index}]}", "${generic_file_content_section_footer[${index}]}", "${generic_file_content_section_content[${index}]}"),
-        create => "${generic_file_content_creation[${index}]}",
-        edit_defaults => noempty_backup,
-        classes => kept_if_else("section_content_modification_kept_${index}", "section_content_modification_modified_${index}", "section_content_modification_failed_${index}"),
-        ifvarclass => "enforce_section_${index}.!creation_only_but_already_exists_${index}.edit_section_valid_${index}",
-        comment => "Enforcing content of section in ${generic_file_content_path[${index}]}";
-
 
       "$(generic_file_content_path[$(index)])"
         create => "$(generic_file_content_creation[$(index)])",
@@ -173,13 +153,13 @@ classes:
         ifvarclass => "execute_command_$(index).!(content_$(index)_failed|content_deletion_failed_$(index)|content_modification_failed_$(index)).(content_$(index)_modified|content_deletion_modified_$(index)|content_modification_modified_$(index)|section_content_modification_modified_${index})";
 
   reports:
-    (linux|windows).tier2::
+    tier2::
     # Files edition
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
-        ifvarclass => "content_$(index)_kept.!content_$(index)_modified";
+        ifvarclass => "edit_content_$(index).((content_$(index)_kept.!content_$(index)_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
 
       "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated"
-        ifvarclass => "content_$(index)_modified";
+        ifvarclass => "content_$(index)_modified.file_edition_global_files_status_${index}_repaired";
 
       "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated"
         ifvarclass => "content_$(index)_failed";
@@ -192,10 +172,10 @@ classes:
         ifvarclass => "!delete_lines_$(index)";
 
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the deletion policy"
-        ifvarclass => "content_deletion_kept_$(index).!content_deletion_modified_$(index).!content_deletion_failed_$(index)";
+        ifvarclass => "delete_lines_$(index).((content_deletion_kept_$(index).!content_deletion_modified_$(index).!content_deletion_failed_$(index))|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
 
       "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the deletion policy"
-        ifvarclass => "content_deletion_modified_$(index)";
+        ifvarclass => "content_deletion_modified_$(index).file_edition_global_files_status_${index}_repaired";
 
       "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the deletion policy"
         ifvarclass => "content_deletion_failed_$(index)";
@@ -245,10 +225,10 @@ classes:
         ifvarclass => "enforce_section_${index}.creation_only_but_already_exists_${index}";
 
       "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the section content policy"
-        ifvarclass => "section_content_modification_kept_${index}.!section_content_modification_modified_${index}";
+        ifvarclass => "enforce_section_${index}.((section_content_modification_kept_${index}.!section_content_modification_modified_${index})|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
 
       "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated using the section content policy"
-        ifvarclass => "section_content_modification_modified_${index}.!section_content_modification_failed_${index}";
+        ifvarclass => "section_content_modification_modified_${index}.!section_content_modification_failed_${index}.file_edition_global_files_status_${index}_repaired";
 
       "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated using the section content policy"
         ifvarclass => "section_content_modification_failed_${index}";
@@ -270,27 +250,94 @@ classes:
 
 }
 
-bundle edit_line set_arbitrary_file_content(content, enforce)
+
+# The file edition should be unitary made in this bundle
+bundle edit_line check_generic_file_content_edition(
+    content, enforce_content_boolean,
+    deletion_regex, deletion_boolean, 
+    modification_regex, modification_replacement, modification_boolean, 
+    section_start, section_end, section_content, section_boolean,
+    index # For the reporting
+    )
 {
 
+  vars:
+  # define all the information for the section edition
+      "csection"              string => canonify("${section_start}");
+      "escaped_section_start" string => escape(${section_start});
+      "escaped_section_end"   string => escape(${section_end});
+
+
+  # define the classes that will define which edition we are to do
   classes:
-      "preserve_file_content" expression => strcmp("true", "$(enforce)");
+      "preserve_content" expression => strcmp("true", "$(enforce_content_boolean)");
+
+      # when need to check the validity of the content on the original value, otherwise local context is always true
+      "edit_content" expression => isvariable("check_generic_file_content.generic_file_content_payload[$(index)]");
+      "delete_lines" expression => strcmp("${deletion_boolean}", "true");
+
+      "replace_lines" expression => strcmp("${modification_boolean}", "true");
+      "replace_lines_destination_defined" expression => isvariable("check_generic_file_content.generic_file_content_modification_destination[$(index)]");
+
+      "section_edition" expression => strcmp("${section_boolean}", "true");
+
+      "edit_section_valid" and => { isvariable("check_generic_file_content.generic_file_content_section_header[${index}]"), isvariable("check_generic_file_content.generic_file_content_section_footer[${index}]") } ;
+
+      # Detect if section is already there
+      "has_$(csection)" expression => regline("${escaped_section_start}", "$(edit.filename)");
+
+
+  delete_lines:
+    delete_lines::
+      "${deletion_regex}"
+        classes => kept_if_else("content_deletion_kept_${index}", "content_deletion_modified_${index}", "content_deletion_failed_${index}"),
+        comment => "Deleting lines using the given regexps...";
+
+    section_edition.edit_section_valid::
+      # Delete the content of the section
+      ".*"
+        select_region => rudder_section_selector("${escaped_section_start}", "${escaped_section_end}"),
+        ifvarclass => "has_$(csection)";
 
   insert_lines:
-    preserve_file_content::
+    preserve_content.edit_content::
       "$(content)"
-        insert_type => "preserve_block";
+        classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),
+        insert_type => "preserve_block",
+        comment => "Editing ...";
 
-    !preserve_file_content::
-      "$(content)";
+    !preserve_content.edit_content::
+      "$(content)"
+        classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),
+        comment => "Editing ...";
 
-}
+    section_edition.edit_section_valid::
+      # Insert new, empty section if it doesn't exist already.
+      "${section_start}
+${section_end}"
+        insert_type => "preserve_block",
+        ifvarclass => "!has_${csection}";
 
-bundle edit_line set_arbitrary_file_content_modify(regexp, destination)
-{
+      # Insert missing lines into the section
+      "${section_content}"
+        select_region => rudder_section_selector("${escaped_section_start}", "${escaped_section_end}"),
+        classes => kept_if_else("section_content_modification_kept_${index}", "section_content_modification_modified_${index}", "section_content_modification_failed_${index}");
+
+
   replace_patterns:
-      "$(regexp)"
-        replace_with => value("$(destination)");
+    replace_lines.replace_lines_destination_defined::
+      "$(modification_regex)"
+        replace_with => value("${modification_replacement}"),
+        classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_${index}"),
+        comment => "Replacing lines using the given regexps...";
+
+
+    replace_lines.!replace_lines_destination_defined::
+      "$(modification_regex)"
+        replace_with => value(""),
+        classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_${index}"),
+        comment => "Replacing lines using the given regexps...";
+
 
 }
 
