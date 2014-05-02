@@ -1,0 +1,12 @@
+ -- Matthieu CERDA <matthieu.cerda@normation.com>  Fri, 9 Dec 2011 15:32:00 +0100
+  * Version 2.1
+  ** Added the possibility to delete a line based on a regexp
+  ** Added the possibility to replace a line based on a regexp
+ -- Nicolas CHARLES <nicolas.charles@normation.com>  Tue, 15 Jan 2013 17:49:00 +0100
+  * Version 3.2
+  ** Added the possibility to enforce content of file only at creation
+ -- Nicolas CHARLES <nicolas.charles@normation.com>  Sun, 15 Dec 2013 19:00:00 +0100
+  * Version 4.0
+  ** Added possibility to enforce strictly the content of a section
+
+
