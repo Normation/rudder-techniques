@@ -95,60 +95,58 @@ classes:
       "creation_only_but_already_exists_${index}" expression => "enforce_at_creation_only_${index}.!file_doesnt_exist_${index}";
 
 
-			# Workaround for #3014: no value = empty value
-			# In some conditions, the value of replacement is
-			# considerered as null instead of empty.
-			# This class will ensure that no variable (=null) will be considered
-			# as an empty variable.
-			"generic_file_content_modification_destination_defined_$(index)" expression => isvariable("generic_file_content_modification_destination[$(index)]");
-			# Check that value has been set before to edit the file
-			"edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
+      # Workaround for #3014: no value = empty value
+      # In some conditions, the value of replacement is
+      # considerered as null instead of empty.
+      # This class will ensure that no variable (=null) will be considered
+      # as an empty variable.
+      "generic_file_content_modification_destination_defined_$(index)" expression => isvariable("generic_file_content_modification_destination[$(index)]");
+      # Check that value has been set before to edit the file
+      "edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
 
-			"tier1" expression => "any";
+      "tier1" expression => "any";
 
-			"tier2" expression => isvariable("file_edit_go");
+      "tier2" expression => isvariable("file_edit_go");
 
-	files:
+  files:
+    tier2::
+      # Add content to the file only if the content has been set
+      "$(generic_file_content_path[$(index)])"
+        edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])",
+						"$(generic_file_content_enforced[$(index)])"),
+        create => "$(generic_file_content_creation[$(index)])",
+        edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
+        classes => kept_if_else("content_$(index)_kept", "content_$(index)_modified", "content_$(index)_failed"),
+        ifvarclass => "edit_content_$(index).!creation_only_but_already_exists_${index}",
+        comment => "Editing $(generic_file_content_path[$(index)])...";
 
-		tier2::
+      "$(generic_file_content_path[$(index)])"
+        edit_line => delete_lines_matching("$(generic_file_content_deletion_regexp[$(index)])"),
+        create => "$(generic_file_content_creation[$(index)])",
+        edit_defaults => noempty_backup,
+        classes => kept_if_else("content_deletion_kept_$(index)", "content_deletion_modified_$(index)", "content_deletion_failed_$(index)"),
+        ifvarclass => "delete_lines_$(index).!creation_only_but_already_exists_${index}",
+        comment => "Deleting lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
-			# Add content to the file only if the content has been set
-			"$(generic_file_content_path[$(index)])"
-				edit_line => set_arbitrary_file_content("$(generic_file_content_payload[$(index)])",
-														"$(generic_file_content_enforced[$(index)])"),
-				create => "$(generic_file_content_creation[$(index)])",
-				edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
-				classes => kept_if_else("content_$(index)_kept", "content_$(index)_modified", "content_$(index)_failed"),
-				ifvarclass => "edit_content_$(index).!creation_only_but_already_exists_${index}",
-				comment => "Editing $(generic_file_content_path[$(index)])...";
+      # Replace the matching line(s) of the file by values of replacement
+      # if replacement has been set
+      "$(generic_file_content_path[$(index)])"
+        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])"),
+        create => "$(generic_file_content_creation[$(index)])",
+        edit_defaults => noempty_backup,
+        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
+        ifvarclass => "modify_lines_$(index).generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
+        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
-			"$(generic_file_content_path[$(index)])"
-			        edit_line => delete_lines_matching("$(generic_file_content_deletion_regexp[$(index)])"),
-			        create => "$(generic_file_content_creation[$(index)])",
-              edit_defaults => noempty_backup,
-			        classes => kept_if_else("content_deletion_kept_$(index)", "content_deletion_modified_$(index)", "content_deletion_failed_$(index)"),
-			        ifvarclass => "delete_lines_$(index).!creation_only_but_already_exists_${index}",
-			        comment => "Deleting lines in $(generic_file_content_path[$(index)]) using the given regexps...";
-
-			# Replace the matching line(s) of the file by values of replacement
-			# if replacement has been set
-			"$(generic_file_content_path[$(index)])"
-			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])"),
-			        create => "$(generic_file_content_creation[$(index)])",
-			        edit_defaults => noempty_backup,
-			        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
-			        ifvarclass => "modify_lines_$(index).generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
-			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
-
-			# Replace the matching line(s) of the file by an empty line
-			# if replacement is not set
-			"$(generic_file_content_path[$(index)])"
-			        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", ""),
-			        create => "$(generic_file_content_creation[$(index)])",
-			        edit_defaults => noempty_backup,
-			        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
-			        ifvarclass => "modify_lines_$(index).!generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
-			        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
+      # Replace the matching line(s) of the file by an empty line
+      # if replacement is not set
+      "$(generic_file_content_path[$(index)])"
+        edit_line => set_arbitrary_file_content_modify("$(generic_file_content_modification_regexp[$(index)])", ""),
+        create => "$(generic_file_content_creation[$(index)])",
+        edit_defaults => noempty_backup,
+        classes => kept_if_else("content_modification_kept_$(index)", "content_modification_modified_$(index)", "content_modification_failed_$(index)"),
+        ifvarclass => "modify_lines_$(index).!generic_file_content_modification_destination_defined_$(index).!creation_only_but_already_exists_${index}",
+        comment => "Replacing lines in $(generic_file_content_path[$(index)]) using the given regexps...";
 
       # Enforce the content of section in file
       "${generic_file_content_path[${index}]}"
@@ -160,85 +158,81 @@ classes:
         comment => "Enforcing content of section in ${generic_file_content_path[${index}]}";
 
 
-			  "$(generic_file_content_path[$(index)])"
-				  create => "$(generic_file_content_creation[$(index)])",
-				  perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
-				  classes => kept_if_else("perms_$(index)_kept", "perms_$(index)_modified", "perms_$(index)_failed"),
-				  ifvarclass => "adjust_permissions_$(index).!creation_only_but_already_exists_${index}",
-				  comment => "Setting $(generic_file_content_path[$(index)]) permissions...";
+      "$(generic_file_content_path[$(index)])"
+        create => "$(generic_file_content_creation[$(index)])",
+        perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
+        classes => kept_if_else("perms_$(index)_kept", "perms_$(index)_modified", "perms_$(index)_failed"),
+        ifvarclass => "adjust_permissions_$(index).!creation_only_but_already_exists_${index}",
+        comment => "Setting $(generic_file_content_path[$(index)]) permissions...";
 
-	commands:
+  commands:
+    tier2::
+      "$(generic_file_content_posthook[$(index)])"
+        classes => if_else("generic_file_content_posthook_$(index)_command_run_ok", "generic_file_content_posthook_$(index)_command_run_failed"),
+        contain => in_shell,
+        ifvarclass => "execute_command_$(index).!(content_$(index)_failed|content_deletion_failed_$(index)|content_modification_failed_$(index)).(content_$(index)_modified|content_deletion_modified_$(index)|content_modification_modified_$(index)|section_content_modification_modified_${index})";
 
-		tier2::
+  reports:
+    (linux|windows).tier2::
+    # Files edition
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
+        ifvarclass => "content_$(index)_kept.!content_$(index)_modified";
 
-			"$(generic_file_content_posthook[$(index)])"
-				classes => if_else("generic_file_content_posthook_$(index)_command_run_ok", "generic_file_content_posthook_$(index)_command_run_failed"),
-				contain => in_shell,
-				ifvarclass => "execute_command_$(index).!(content_$(index)_failed|content_deletion_failed_$(index)|content_modification_failed_$(index)).(content_$(index)_modified|content_deletion_modified_$(index)|content_modification_modified_$(index)|section_content_modification_modified_${index})";
+      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated"
+        ifvarclass => "content_$(index)_modified";
 
-	reports:
+      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated"
+        ifvarclass => "content_$(index)_failed";
 
-        (linux|windows).tier2::
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No content was given to check file $(generic_file_content_path[$(index)]), skipping"
+        ifvarclass => "!edit_content_$(index)";
 
-		# Files edition
-		"@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
-			ifvarclass => "content_$(index)_kept.!content_$(index)_modified";
+      # Files edition - deletion
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line deletion"
+        ifvarclass => "!delete_lines_$(index)";
 
-		"@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated"
-			ifvarclass => "content_$(index)_modified";
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the deletion policy"
+        ifvarclass => "content_deletion_kept_$(index).!content_deletion_modified_$(index).!content_deletion_failed_$(index)";
 
-                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated"
-			ifvarclass => "content_$(index)_failed";
+      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the deletion policy"
+        ifvarclass => "content_deletion_modified_$(index)";
 
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No content was given to check file $(generic_file_content_path[$(index)]), skipping"
-                        ifvarclass => "!edit_content_$(index)";
+      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the deletion policy"
+        ifvarclass => "content_deletion_failed_$(index)";
 
-                        # Files edition - deletion
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line deletion"
-                        ifvarclass => "!delete_lines_$(index)";
+      # Files edition - replacement
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line replacement"
+        ifvarclass => "!modify_lines_$(index)";
 
-               "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the deletion policy"
-                        ifvarclass => "content_deletion_kept_$(index).!content_deletion_modified_$(index).!content_deletion_failed_$(index)";
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the replacement policy"
+        ifvarclass => "content_modification_kept_$(index).!content_modification_modified_$(index).!content_modification_failed_$(index)";
 
-                "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the deletion policy"
-                        ifvarclass => "content_deletion_modified_$(index)";
+      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the replacement policy"
+        ifvarclass => "content_modification_modified_$(index)";
 
-                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the deletion policy"
-                        ifvarclass => "content_deletion_failed_$(index)";
+      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the replacement policy"
+        ifvarclass => "content_modification_failed_$(index)";
 
-                        # Files edition - replacement
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line replacement"
-                        ifvarclass => "!modify_lines_$(index)";
+      # File edition - enforce only at creation
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) already exists, skipping content editing"
+        ifvarclass => "edit_content_$(index).creation_only_but_already_exists_${index}";
 
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the replacement policy"
-                        ifvarclass => "content_modification_kept_$(index).!content_modification_modified_$(index).!content_modification_failed_$(index)";
+      # Permissions edition
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) uses default permissions"
+        ifvarclass => "!adjust_permissions_$(index)";
 
-                "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the replacement policy"
-                        ifvarclass => "content_modification_modified_$(index)";
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions are OK"
+        ifvarclass => "perms_$(index)_kept";
 
-                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the replacement policy"
-                        ifvarclass => "content_modification_failed_$(index)";
+      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions were adjusted"
+        ifvarclass => "perms_$(index)_modified";
 
-		# File edition - enforce only at creation
-    "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) already exists, skipping content editing"
-                        ifvarclass => "edit_content_$(index).creation_only_but_already_exists_${index}";
+      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions could not be adjusted"
+        ifvarclass => "perms_$(index)_failed";
 
-			# Permissions edition
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) uses default permissions"
-			ifvarclass => "!adjust_permissions_$(index)";
-
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions are OK"
-			ifvarclass => "perms_$(index)_kept";
-
-		"@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions were adjusted"
-			ifvarclass => "perms_$(index)_modified";
-
-                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions could not be adjusted"
-			ifvarclass => "perms_$(index)_failed";
-
-    # Permissions edition - enforce only at creation
-    "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already existing, skipping permission checking"
-                        ifvarclass => "adjust_permissions_$(index).creation_only_but_already_exists_${index}";
+      # Permissions edition - enforce only at creation
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already existing, skipping permission checking"
+        ifvarclass => "adjust_permissions_$(index).creation_only_but_already_exists_${index}";
 
       #Section edition
       "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was not set for section edition, skipping"
@@ -261,48 +255,42 @@ classes:
 
 
 
-		# Posthook report
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No command for $(generic_file_content_path[$(index)]) was to be executed"
-			ifvarclass => "!execute_command_$(index)";
+      # Posthook report
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No command for $(generic_file_content_path[$(index)]) was to be executed"
+        ifvarclass => "!execute_command_$(index)";
 
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#$(generic_file_content_path[$(index)]) was in the proper state, so no command to execute"
-			ifvarclass => "execute_command_$(index).content_$(index)_kept.!content_$(index)_modified";
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#$(generic_file_content_path[$(index)]) was in the proper state, so no command to execute"
+        ifvarclass => "execute_command_$(index).content_$(index)_kept.!content_$(index)_modified";
 
-                "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) was correctly executed"
-			ifvarclass => "generic_file_content_posthook_$(index)_command_run_ok";
+      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) was correctly executed"
+        ifvarclass => "generic_file_content_posthook_$(index)_command_run_ok";
 
-                "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) could not to be executed"
-			ifvarclass => "generic_file_content_posthook_$(index)_command_run_failed";
+      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) could not to be executed"
+        ifvarclass => "generic_file_content_posthook_$(index)_command_run_failed";
 
 }
 
 bundle edit_line set_arbitrary_file_content(content, enforce)
 {
 
-classes:
+  classes:
+      "preserve_file_content" expression => strcmp("true", "$(enforce)");
 
-	"preserve_file_content" expression => strcmp("true", "$(enforce)");
+  insert_lines:
+    preserve_file_content::
+      "$(content)"
+        insert_type => "preserve_block";
 
-insert_lines:
-
-	preserve_file_content::
-
-		"$(content)"
-			insert_type => "preserve_block";
-
-	!preserve_file_content::
-
-		"$(content)";
+    !preserve_file_content::
+      "$(content)";
 
 }
 
 bundle edit_line set_arbitrary_file_content_modify(regexp, destination)
 {
-
-replace_patterns:
-
-	"$(regexp)"
-		replace_with => value("$(destination)");
+  replace_patterns:
+      "$(regexp)"
+        replace_with => value("$(destination)");
 
 }
 
