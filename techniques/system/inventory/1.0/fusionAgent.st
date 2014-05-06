@@ -498,7 +498,7 @@ bundle agent sendInventory
 
     # If not, use minicurl instead
     !windows.!curl_installed::
-      "download_command_prefix"   string => "${g.minicurl} --put --authenticate ${g.davuser}:${g.davpw} --file";
+      "download_command_prefix"   string => "${g.minicurl} --put --authentication ${g.davuser}:${g.davpw} --file";
       "download_command_suffix"   string => "--url ${download_endpoint}";
 
 &if(NOVA)&
