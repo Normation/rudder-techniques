@@ -37,11 +37,9 @@ bundle agent doInventory
     !windows.!curl_installed::
       "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url http://${server_info.cfserved}/uuid";
 
-&if(NOVA)&
     # On windows, always use curl
     windows::
       "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
-&endif&
 
     uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
@@ -180,10 +178,10 @@ bundle agent fusionAgent {
       "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
 
     cant_install_xen::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
+      "@@Inventory@@result_error@@hasPolicyServer-root@@common-root@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
 
     xen_installed::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
+      "@@Inventory@@log_info@@hasPolicyServer-root@@common-root@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
 			
 }
 
@@ -453,12 +451,10 @@ bundle agent sendInventory
       "download_command_prefix"   string => "${g.minicurl} --put --authenticate ${g.davuser}:${g.davpw} --file";
       "download_command_suffix"   string => "--url ${download_endpoint}";
 
-&if(NOVA)&
     # On windows, always use curl
     windows::
       "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
-&endif&
 
   files:
 
@@ -470,7 +466,6 @@ bundle agent sendInventory
         classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment => "Sending the inventory to the server";
 
-&if(NOVA)&
     # On windows, the this.promiser variable is not evaluated the same way. We are forced to duplicate this block
     windows::
       "${g.rudder_inventories}"
@@ -479,7 +474,6 @@ bundle agent sendInventory
         file_select => inventory_files,
         classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment => "Sending the inventory to the server";
-&endif&
 
   # Once we've successfully sent all inventories, remove them
     !windows.inventory_sent.!cant_send_inventory::

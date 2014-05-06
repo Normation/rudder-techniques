@@ -92,3 +92,9 @@ then
   exit 7
 fi
 
+# Check that no StringTemplate thingies were put into the initial-promises ( lines beginning with & or StringTemplate iterators )
+if grep -E -r '^\s*&|&[a-zA-Z_]&' ${REPOSITORY_PATH}/initial-promises
+then
+  echo "There are some StringTemplate definitions in the initial promises"
+  exit 7
+fi
