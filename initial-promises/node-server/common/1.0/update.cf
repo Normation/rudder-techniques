@@ -179,10 +179,10 @@ bundle agent update
       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools";
 
     rudder_ncf_common_update_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update common Rudder ncf instance";
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update common Rudder ncf instance";
 
     rudder_ncf_local_update_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update local Rudder ncf instance";
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update local Rudder ncf instance";
 
     rudder_promises_generated_error::
       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
@@ -194,10 +194,10 @@ bundle agent update
       "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder tools updated";
 
     rudder_ncf_common_updated::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf common instance updated";
+      "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf common instance updated";
 
     rudder_ncf_local_updated::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf local instance updated";
+      "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf local instance updated";
 
     config::
       "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";

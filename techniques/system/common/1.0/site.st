@@ -83,6 +83,7 @@ bundle common g
       "rudder_var_reports"          string => "${rudder_var}/reports";
       "davuser"                     string => "&DAVUSER&";
       "davpw"                       string => "&DAVPASSWORD&";
+      "minicurl"                    string => "${rudder_bin}/rudder-perl ${sys.workdir}/inputs/common/utilities/minicurl";
       "excludedreps"                slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"         string => "/var/rudder/tools";
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
@@ -103,5 +104,9 @@ bundle common g
       "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
     !linux.!cygwin.!windows.!android.!aix::
       "execRun"                    string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
+
+  classes:
+
+    "curl_installed"           expression => isexecutable("${rudder_curl}");
 
 }
