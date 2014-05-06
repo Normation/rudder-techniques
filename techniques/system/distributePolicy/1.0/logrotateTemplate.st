@@ -4,17 +4,11 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
         delaycompress
         sharedscripts
         postrotate
-          if [ -f "`. /etc/apache2/envvars ; echo ${APACHE_PID_FILE:-/var/run/apache2.pid}`" ]; then
-            if [ -x /usr/sbin/invoke-rc.d ]; then
-              invoke-rc.d apache2 reload > /dev/null
-            else
-              /etc/init.d/apache2 reload > /dev/null
-            fi
-          fi
+          /sbin/service ${root_logrotate_check.httpd_daemon} reload > /dev/null
         endscript
 }
 
@@ -24,14 +18,10 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
         delaycompress
         postrotate
-        if [ -x /usr/sbin/invoke-rc.d ]; then
-          invoke-rc.d rsyslog reload > /dev/null
-        else
-          /etc/init.d/rsyslog reload > /dev/null
-        fi
+          /sbin/service ${root_logrotate_check.syslog_daemon} reload > /dev/null
         endscript
 }
 
@@ -41,15 +31,11 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
         delaycompress
         sharedscripts
         postrotate
-        if [ -x /usr/sbin/invoke-rc.d ]; then
-          invoke-rc.d rsyslog reload > /dev/null
-        else
-          /etc/init.d/rsyslog reload > /dev/null
-        fi
+          /sbin/service ${root_logrotate_check.syslog_daemon} reload > /dev/null
         endscript
 }
 
@@ -59,7 +45,7 @@
         rotate 30
         compress
         notifempty
-        create 640 root adm
+        create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
         delaycompress
 }
 
@@ -69,6 +55,6 @@
         rotate 365
         compress
         notifempty
-        create 640 root adm
+        create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
         delaycompress
 }
