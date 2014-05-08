@@ -92,6 +92,7 @@ bundle common g
       "rudder_var_reports"         string => "${rudder_var}/reports";
       "davuser"                    string => "rudder";
       "davpw"                      string => "rudder";
+      "minicurl"                   string => "${rudder_bin}/rudder-perl ${sys.workdir}/inputs/common/utilities/minicurl";
       "excludedreps"                slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"        string => "/var/rudder/tools";
       "rudder_ncf_common_origin"   string => "/var/rudder/ncf/common";
@@ -121,5 +122,6 @@ bundle common g
   classes:
 
     "gzip_installed"           expression => isexecutable("${rudder_gzip}");
+    "curl_installed"           expression => isexecutable("${rudder_curl}");
 
 }

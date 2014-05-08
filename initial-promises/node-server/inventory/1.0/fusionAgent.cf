@@ -27,33 +27,39 @@
 
 bundle agent doInventory
 {
-  commands:
-    !windows::
-      "${g.rudder_curl}"
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
-    windows::
-      "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
   vars:
-    !windows.uuid_succesfully_downloaded::
-      "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
-    windows.uuid_succesfully_downloaded::
+    # If curl is available, use it
+    !windows.curl_installed::
+      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid";
+
+    # If not, use minicurl instead
+    !windows.!curl_installed::
+      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url http://${server_info.cfserved}/uuid";
+
+    # On windows, always use curl
+    windows::
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
+
+    uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
   classes:
+
+    # The force_inventory class may be specified by the user at runtime, or defined here
+      "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory");
+
     uuid_succesfully_downloaded::
       "uuid_valid" expression => regcmp("[a-z0-9-]+","${policy_server_uuid}");
       "uuid_validity_checked"
         expression => "any",
         comment    => "This dummy class is just used for ordering the report using !uuid_valid below";
 
+  commands:
+
+      "${download_command}"
+        comment => "Getting the uuid from the server",
+        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
 
   methods:
 
@@ -67,6 +73,7 @@ bundle agent doInventory
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
+      "any" usebundle => cleanForceInventoryFlagFile;
 
   reports:
     could_not_download_uuid::
@@ -177,10 +184,10 @@ bundle agent fusionAgent {
       "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Curl installed";
 
     cant_install_xen::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
+      "@@Inventory@@result_error@@hasPolicyServer-root@@common-root@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Could not install xen utils on xen systems";
 
     xen_installed::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
+      "@@Inventory@@log_info@@hasPolicyServer-root@@common-root@@00@@inventory@@None@@$(g.execRun)##$(g.uuid)@#Xen utils installed";
 			
 }
 
@@ -449,10 +456,39 @@ bundle agent compressInventories
 # Send the file to the promises server
 bundle agent sendInventory
 {
+  vars:
+
+      "download_endpoint"         string => "http://${server_info.cfserved}/inventories/";
+
+    # If curl is available, use it
+    !windows.curl_installed::
+      "download_command_prefix"   string => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_suffix"   string => "${download_endpoint}";
+
+    # If not, use minicurl instead
+    !windows.!curl_installed::
+      "download_command_prefix"   string => "${g.minicurl} --put --authentication ${g.davuser}:${g.davpw} --file";
+      "download_command_suffix"   string => "--url ${download_endpoint}";
+
+    # On windows, always use curl
+    windows::
+      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_suffix"   string => "${download_endpoint}";
+
   files:
+
     !windows::
       "${g.rudder_inventories}"
-        transformer => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventories/",
+        transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
+        depth_search => recurse_visible(1),
+        file_select => inventory_files,
+        classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
+        comment => "Sending the inventory to the server";
+
+    # On windows, the this.promiser variable is not evaluated the same way. We are forced to duplicate this block
+    windows::
+      "${g.rudder_inventories}"
+        transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.inventory_file_types}"),
         classes      => persistant_class("inventory_sent", "cant_send_inventory", 480),
@@ -473,15 +509,6 @@ bundle agent sendInventory
         file_select  => by_name("@{g.inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
-
-   # TODO: we should find some way to have an equivalent behaviour to send-clean.sh above on Windows
-    windows::
-      "${g.rudder_inventories}"
-        transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T \"${this.promiser}\"  http://${server_info.cfserved}/inventories/",
-        depth_search => recurse_visible(1),
-        file_select => inventory_files,
-        classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
-        comment => "Sending the inventory to the server";
 
   reports:
     inventory_sent::
@@ -636,4 +663,14 @@ body file_select one_day_age
 {
         mtime     => irange(ago(1,0,0,0,0,0),ago(0,0,1,0,0,0));
         file_result => "mtime";
+}
+
+bundle agent cleanForceInventoryFlagFile
+{
+
+  files:
+      "${g.rudder_base}/etc/force_inventory"
+        delete     => tidy,
+        ifvarclass => "inventory_sent"; # if the force inventory file was present, and we successfully sent an inventory, clean up the flag file
+
 }

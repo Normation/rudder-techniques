@@ -27,29 +27,25 @@
 
 bundle agent doInventory
 {
-  commands:
-    !windows::
-      "${g.rudder_curl}"
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
-&if(NOVA)&
-    windows::
-      "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-&endif&
 
   vars:
-    !windows.uuid_succesfully_downloaded::
-      "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
+
+    # If curl is available, use it
+    !windows.curl_installed::
+      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid";
+
+    # If not, use minicurl instead
+    !windows.!curl_installed::
+      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url http://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
-    windows.uuid_succesfully_downloaded::
-      "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
+    # On windows, always use curl
+    windows::
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
 &endif&
+
+    uuid_succesfully_downloaded::
+      "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
   classes:
       "splaying" expression => splayclass("${sys.host}${sys.ipv4}","hourly");
@@ -62,6 +58,12 @@ bundle agent doInventory
       "uuid_validity_checked"
         expression => "any",
         comment    => "This dummy class is just used for ordering the report using !uuid_valid below";
+
+  commands:
+
+      "${download_command}"
+        comment => "Getting the uuid from the server",
+        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
 
   methods:
 
@@ -498,14 +500,48 @@ bundle agent compressInventories
 # Send the file to the promises server
 bundle agent sendInventory
 {
+
+  vars:
+
+      "download_endpoint"         string => "http://${server_info.cfserved}/inventory-updates/";
+
+    # If curl is available, use it
+    !windows.curl_installed::
+      "download_command_prefix"   string => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_suffix"   string => "${download_endpoint}";
+
+    # If not, use minicurl instead
+    !windows.!curl_installed::
+      "download_command_prefix"   string => "${g.minicurl} --put --authentication ${g.davuser}:${g.davpw} --file";
+      "download_command_suffix"   string => "--url ${download_endpoint}";
+
+&if(NOVA)&
+    # On windows, always use curl
+    windows::
+      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_suffix"   string => "${download_endpoint}";
+&endif&
+
   files:
+
     !windows::
       "${g.rudder_inventories}"
-        transformer => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
+        transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.inventory_file_types}"),
         classes      => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment      => "Sending the inventory to the server";
+
+&if(NOVA)&
+    # On windows, the this.promiser variable is not evaluated the same way. We are forced to duplicate this block
+    windows::
+      "${g.rudder_inventories}"
+        transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
+        depth_search => recurse_visible(1),
+        file_select => inventory_files,
+        classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
+        comment => "Sending the inventory to the server";
+&endif&
 
   # Once we've successfully sent all inventories, remove them
     !windows.inventory_sent.!cant_send_inventory::
@@ -522,17 +558,6 @@ bundle agent sendInventory
         file_select  => by_name("@{g.inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
-
-&if(NOVA)&
-  # TODO: we should find some way to have an equivalent behaviour to send-clean.sh above on Windows
-    windows::
-      "${g.rudder_inventories}"
-        transformer => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T \"${this.promiser}\"  http://${server_info.cfserved}/inventory-updates/",
-        depth_search => recurse_visible(1),
-        file_select => inventory_files,
-        classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
-        comment => "Sending the inventory to the server";
-&endif&
 
   reports:
     inventory_sent::

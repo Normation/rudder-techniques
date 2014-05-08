@@ -53,6 +53,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>run_interval</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="minicurl">
+      <OUTPATH>common/utilities/minicurl</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
 
   <SYSTEMVARS>
