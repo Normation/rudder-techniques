@@ -66,6 +66,7 @@ body copy_from copy_digest_without_perms(from)
         copy_backup => "false";
         preserve    => "false";
         compare     => "digest";
+        purge       => "true";
 }
 
 body copy_from remote_unsecured_without_perms(server, path)
