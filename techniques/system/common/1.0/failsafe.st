@@ -145,11 +145,11 @@ bundle agent check_lock_db_problem{
   files:
       # The aim of this promise is to create a class when this file is older
       # than one hour. The class can not be created without touching but in
-      # order to not modifing the mtime we use warn_only.
+      # order to not modifing the mtime we use WarnOnly.
       "${sys.workdir}/last_successful_inputs_update"
         file_select => over_an_hour,
         touch       => "true",
-        action      => warn_only,
+        action      => WarnOnly,
         classes     => success("last_successful_inputs_update_too_old", "last_successful_inputs_update_check_error", "last_successful_inputs_update_ok");
 
       "${sys.workdir}/state/${cf_lock_filename}"
@@ -213,8 +213,7 @@ body delete tidy
         rmdirs   => "true";
 }
 
-body action warn_only
+body action WarnOnly
 {
         action_policy => "warn";
-        ifelapsed => "60";
 }
