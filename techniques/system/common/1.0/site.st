@@ -96,6 +96,7 @@ bundle common g
       "rudder_tools_origin"         string => "/var/rudder/tools";
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
+      "inventory_upload_protocol"   string => "http";
 
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };

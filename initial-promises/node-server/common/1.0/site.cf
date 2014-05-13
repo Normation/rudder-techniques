@@ -102,6 +102,7 @@ bundle common g
 
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
+      "inventory_upload_protocol"  string => "http";
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin" string => "/var/rudder/tools";
