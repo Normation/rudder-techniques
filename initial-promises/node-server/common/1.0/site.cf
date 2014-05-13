@@ -36,6 +36,21 @@ bundle common g
       "rudder_inventories"  string => "${rudder_var}\inventories";
       "rudder_base_sbin_arg" string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
       "rudder_dependencies" string => "${rudder_sbin}";
+      "rudder_dep_files_windows" slist => { "uuid.vbs",
+					    "iconv.dll",
+					    "userlist.bat",
+					    "getDate.bat",
+					    "registrydns.bat",
+					    "iconv.exe",
+					    "curl/curl.exe",
+					    "curl/libcurl.dll",
+					    "curl/libssl32.dll",
+					    "curl/libeay32.dll",
+					    "cpuid-windows-v1.0.vbs",
+					    "fusionagent.exe",
+					    "centreon-e2s.exe",
+					    "e2s.tpl",
+					    "checkroute.pl" };
       "escaped_workdir" string => escape("${sys.workdir}");
       "rudder_curl" string => "${rudder_base_sbin}\curl\curl.exe";
 
@@ -73,6 +88,7 @@ bundle common g
       "rudder_inventories" string  => "${rudder_var}/inventories";
       "uuid_file" string => "${rudder_base}/etc/uuid.hive";
       "rudder_dependencies" string => "${rudder_var}/tools";
+      "rudder_dep_files_android" slist => { "cpuid-android-V1.0.sh" };
       "crontab" string => "/etc/crontab";
       "rudder_curl" string => "/system/bin/curl";
       "rudder_rm" string => "/system/xbin/rm";
@@ -80,6 +96,18 @@ bundle common g
       # The time at which the execution started
       "execRun" string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
 
+   linux::
+      "rudder_dep_files_linux" slist => { "send-clean.sh",
+					  "cpuid-linux-V1.0.sh",
+					  "vmware_info.sh",
+					  "check_rsyslog_version",
+					  "apache-vhost.tpl" };
+
+    SuSE::
+      "rudder_dep_files_suse" slist => { "openvpn-2.2.1-1.x86_64.rpm",
+					 "openvpn-2.2.1-1.i686.rpm",
+					 "zypper-repo.tpl",
+					 "checkzmd.pl" };
     any::
       "uuid" string => readfile("${g.uuid_file}", 60);
       "server_shares_folder" string  => "/var/rudder/share/${uuid}/promises/shares";
@@ -88,5 +116,9 @@ bundle common g
       "davpw" string => "rudder";
       "excludedreps" slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_dependencies_origin" string => "/var/rudder/tools";
-
+      "rudder_dependencies_files" slist => { @{rudder_dep_files_windows},
+					     @{rudder_dep_files_android},
+					     @{rudder_dep_files_linux},
+					     @{rudder_dep_files_suse},
+					   }, policy => "ifdefined";
 }
