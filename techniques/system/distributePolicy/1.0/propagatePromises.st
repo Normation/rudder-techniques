@@ -142,14 +142,14 @@ bundle agent sendInventoryToCmdb
       "${g.rudder_inventories}/incoming"
         transformer => "/usr/bin/curl -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  http://${server_info.cfserved}/inventories/",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
@@ -158,14 +158,14 @@ bundle agent sendInventoryToCmdb
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
