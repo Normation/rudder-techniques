@@ -538,7 +538,7 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment => "Sending the inventory to the server";
 &endif&
