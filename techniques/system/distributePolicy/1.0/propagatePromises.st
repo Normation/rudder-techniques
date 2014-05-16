@@ -48,6 +48,18 @@ bundle agent propagatePromises
         comment => "Fetching the promises to propagate",
         classes => if_else("promises_propagated", "could_not_propagate_promise");
 
+      "${g.rudder_ncf_origin_local}"
+        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_local}"),
+        depth_search => recurse_visible("inf"),
+        comment      => "Fetching the ncf local to propagate",
+        classes      => if_else("ncf_local_promises_propagated", "could_not_propagate_ncf_local_promise");
+
+      "${g.rudder_ncf_origin_common}"
+        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_common}"),
+        depth_search => recurse_visible("inf"),
+        comment      => "Fetching the ncf common to propagate",
+        classes      => if_else("ncf_common_promises_propagated", "could_not_propagate_ncf_common_promise");
+
       "&SHARED_FILES_FOLDER&"
         copy_from    => remote("${server_info.cfserved}","&SHARED_FILES_FOLDER&"),
         depth_search => recurse_visible("inf"),
@@ -78,7 +90,7 @@ bundle agent propagatePromises
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder and licenses to be updated.
-    ((root_server.tools_propagated)|(!root_server.tools_propagated.promises_propagated.masterfiles_propagated.license_copied)).!(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license)::
+    ((root_server.tools_propagated)|(!root_server.tools_propagated.promises_propagated.masterfiles_propagated.license_copied.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise)::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#All files have been propagated";
     could_not_propagate_promise::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate policy files";
@@ -88,6 +100,12 @@ bundle agent propagatePromises
 
     could_not_propagate_tools::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate tools";
+
+    could_not_propagate_ncf_local_promise::
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate local ncf promises";
+
+    could_not_propagate_ncf_common_promise::
+      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate common ncf promises";
 
     could_not_propagate_masterfiles::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate masterfiles";
