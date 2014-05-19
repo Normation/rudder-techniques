@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2014 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,16 +22,20 @@ bundle agent file_alteration_monitor
 
   vars:
 
-                &MONITOR_ENTITY_NAME:{name |"monitor_entity[&i&][name]" string => "&name&";
+      &MONITOR_ENTITY_NAME:{name |"monitor_entity[&i&][name]" string => "&name&";
 }&
-                &TRACKINGKEY:{uuid |"monitor_entity[&i&][uuid]" string => "&uuid&";
+      &TRACKINGKEY:{uuid |"monitor_entity[&i&][uuid]" string => "&uuid&";
 }&
       "index" slist => getindices("monitor_entity");
 
   classes:
 
       "isfile_${index}" expression => isplain("${monitor_entity[${index}][name]}");
-      "isdir_${index}" expression => isdir("${monitor_entity[${index}][name]}");
+      "isdir_${index}" expression  => isdir("${monitor_entity[${index}][name]}");
+
+      # Should the file reports an error if the file does not exist ?
+      &MONITOR_NOFILE_BEHAVIOR:{ nofile | "nofile_reports_error_&i&" expression  => strcmp("&nofile&", "true"); 
+}&
 
 
   files:
@@ -63,7 +67,12 @@ bundle agent file_alteration_monitor
       "@@fileAlterationMonitoring@@result_error@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The content of ${monitor_entity[${index}][name]} could not be checked"
         ifvarclass => "${index}_error";
 
-      "@@fileAlterationMonitoring@@result_error@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The entity ${monitor_entity[${index}][name]} does not exist: alteration monitoring impossible"
-        ifvarclass => "!isdir_${index}.!isfile_${index}";
+      "@@fileAlterationMonitoring@@result_error@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The entity ${monitor_entity[${index}][name]} does not exist: alteration monitoring was forced but impossible"
+        ifvarclass => "!(isdir_${index}|isfile_${index}).!nofile_reports_error_${index}";
 
+      "@@fileAlterationMonitoring@@result_success@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#No alteration monitoring is required for entity ${monitor_entity[${index}][name]}"
+        ifvarclass => "!(isdir_${index}|isfile_${index}).nofile_reports_error_${index}";
+
+      "@@fileAlterationMonitoring@@log_warn@@${monitor_entity[${index}][uuid]}@@File or directory to monitor@@${monitor_entity[${index}][name]}@@${g.execRun}##${g.uuid}@#The entity ${monitor_entity[${index}][name]} does not exist"
+        ifvarclass => "!(isdir_${index}|isfile_${index}).nofile_reports_error_${index}";
 }
