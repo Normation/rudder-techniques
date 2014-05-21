@@ -9,6 +9,7 @@
 name=$(set_zypper_repos.zypper_name)
 enabled=$(set_zypper_repos.zypper_enabled)
 autorefresh=0
+gpgcheck=0
 baseurl=$(set_zypper_repos.zypper_url)
 type=$(set_zypper_repos.zypper_type)
 keeppackages=0
