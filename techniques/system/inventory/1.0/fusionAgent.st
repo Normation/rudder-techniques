@@ -163,10 +163,17 @@ bundle agent fusionAgent
 &endif&
 
   packages:
-    xen::
+    xen.!redhat::
       "${xen_tools_package}"
         package_policy => "add",
         package_method => generic,
+        classes        => cf2_if_else("xen_installed", "cant_install_xen"),
+        comment        => "Installing xen package for extended data";
+
+    xen.redhat::
+      "${xen_tools_package}"
+        package_policy => "add",
+        package_method => rudder_yum,
         classes        => cf2_if_else("xen_installed", "cant_install_xen"),
         comment        => "Installing xen package for extended data";
 
