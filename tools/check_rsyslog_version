@@ -1,5 +1,8 @@
 #!/bin/bash
-#set -e
+set -e
+
+# Add PATH to ensure that binaries will always be found
+PATH=${PATH}:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
 
 TARGET_VER='5.7.1'
 LOCAL_VER=`rsyslogd -v | head -n1 | sed "s/^rsyslogd \([^, ]*\).*$/\1/"`
