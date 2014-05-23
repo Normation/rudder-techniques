@@ -77,7 +77,7 @@ bundle agent install_rsyslogd {
                                 classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
                                 comment => "Installing rsyslog_pgsql using apt backports";
 
-                policy_server.!debian_5.!SuSE::
+                policy_server.!debian_5.!SuSE.!redhat::
                         "rsyslog"
                                 package_policy  => "add",
                                 package_method  => generic,
@@ -87,6 +87,19 @@ bundle agent install_rsyslogd {
                         "rsyslog-pgsql"
                                 package_policy  => "add",
                                 package_method  => generic,
+                                classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
+                                comment => "Installing rsyslog_pgsql using apt backports";
+
+                policy_server.!debian_5.!SuSE.redhat::
+                        "rsyslog"
+                                package_policy  => "add",
+                                package_method  => rudder_yum,
+                                classes => cf2_if_else("rsyslog_installed", "cant_install_rsyslog"),
+                                comment => "Installing rsyslog using apt backports";
+
+                        "rsyslog-pgsql"
+                                package_policy  => "add",
+                                package_method  => rudder_yum,
                                 classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
                                 comment => "Installing rsyslog_pgsql using apt backports";
 
