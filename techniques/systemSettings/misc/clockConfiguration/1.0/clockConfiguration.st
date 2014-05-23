@@ -158,10 +158,17 @@ bundle agent check_clock_configuration
 
   # Install the NTP package
   packages:
-    linux.!SuSE_10.!SuSE_11::
+    linux.!SuSE_10.!SuSE_11.!redhat::
       "ntp"
         package_policy  => "add",
         package_method  => generic,
+        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
+        comment => "Installing ntp";
+
+    redhat::
+      "ntp"
+        package_policy  => "add",
+        package_method  => rudder_yum,
         classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
         comment => "Installing ntp";
 

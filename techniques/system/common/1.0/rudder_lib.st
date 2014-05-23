@@ -462,6 +462,34 @@ body package_method rudder_rug
         package_verify_command        => "/usr/bin/rug verify -y$"; # $ means no args
 }
 
+########################################################################
+# Install a package using yum but with a check from rpm                #
+########################################################################
+body package_method rudder_yum
+{
+
+ package_changes => "bulk";
+ package_list_command => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+ package_list_name_regex    => "^(\S+?)\s\S+?\s\S+$";
+ package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
+ package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
+ package_installed_regex => ".*";
+ package_name_convention => "$(name)";
+ package_list_update_command => "/usr/bin/yum --quiet check-update";
+ package_list_update_ifelapsed => "240";
+ package_patch_installed_regex => "^\s.*";
+ package_patch_name_regex    => "([^.]+).*";
+ package_patch_version_regex => "[^\s]\s+([^\s]+).*";
+ package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
+ package_add_command    => "/usr/bin/yum -y install";
+ package_update_command => "/usr/bin/yum -y update";
+ package_patch_command => "/usr/bin/yum -y update";
+ package_delete_command => "/bin/rpm -e --nodeps --allmatches";
+ package_verify_command => "/bin/rpm -V";
+
+}
+
+
 ###################################################
 # edit_line prepend
 ###################################################
