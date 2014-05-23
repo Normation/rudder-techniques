@@ -119,7 +119,7 @@ bundle common inventory
     android::
       "cpuid_tool"      string => "${g.rudder_tools}/cpuid-android-V1.0.sh";
 
-    !windows.!android::
+    !aix.!windows.!android::
       "cpuid_tool"      string => "${g.rudder_tools}/cpuid-linux-V1.0.sh";
 
     any::
