@@ -16,50 +16,6 @@
 #
 #####################################################################################
 
-bundle agent root_init_check()
-{
-
-  vars:
-
-    "service[1][name]" string => "slapd";
-    "service[1][binary]" string => "/opt/rudder/libexec/slapd";
-    "service[1][initscript]" string => "rudder-slapd";
-    "service[1][check_on_relay_server]" string => "false";
-
-    "service[2][name]" string => "jetty";
-    "service[2][binary]" string => ".*java.*/opt/rudder/jetty7/start.jar";
-    "service[2][initscript]" string => "rudder-jetty";
-    "service[2][check_on_relay_server]" string => "false";
-
-    "service[3][name]" string => "postgresql";
-    "service[3][binary]" string => "postgres: writer process";
-    "service[3][initscript]" string => "postgresql";
-    "service[3][check_on_relay_server]" string => "false";
-
-    "service[4][name]" string => "apache";
-    "service[4][check_on_relay_server]" string => "true";
-
-    !redhat::
-
-      "service[4][binary]" string => "apache2";
-      "service[4][initscript]" string => "apache2";
-
-    redhat::
-
-      "service[4][binary]" string => "httpd";
-      "service[4][initscript]" string => "httpd";
-
-    any::
-
-      "index" slist => getindices("service");
-
-  methods:
-
-    "any" usebundle => generic_process_check_process("${service[${index}][binary]}", "${service[${index}][initscript]}", "${service[${index}][name]}", "false", "${service[${index}][check_on_relay_server]}");
-    "any" usebundle => generic_process_check_bootstart("${service[${index}][binary]}", "${service[${index}][initscript]}", "${service[${index}][name]}");
-
-}
-
 bundle agent generic_process_check_process(binary, initscript, name, force_restart, check_on_relay_server) {
 
   vars:
