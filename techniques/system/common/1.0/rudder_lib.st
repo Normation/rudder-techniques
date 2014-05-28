@@ -477,7 +477,6 @@ body package_method rudder_yum
  package_name_convention => "$(name)";
  package_list_update_command => "/usr/bin/yum --quiet check-update";
  package_list_update_ifelapsed => "240";
- package_patch_installed_regex => "^\s.*";
  package_patch_name_regex    => "([^.]+).*";
  package_patch_version_regex => "[^\s]\s+([^\s]+).*";
  package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
