@@ -61,8 +61,8 @@ bundle common def
       "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-      "policy_server"      string => readfile("${policy_server_file}", 40),
-        comment => "IP address to locate your policy host.";
+      "policy_server"      string => readfile("${policy_server_file}", 2048),
+        comment => "IP address or hostname to locate your policy host.";
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
