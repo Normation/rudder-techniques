@@ -575,3 +575,28 @@ bundle edit_line insert_rudder_disclaimer
         location => start;
 
 }
+
+###################################################
+# edit_line rudder_change_aix_password_entry
+###################################################
+
+bundle edit_line rudder_change_aix_password_entry(user, entry, content)
+{
+
+  field_edits:
+
+    "\s*${entry}\s*=.*"
+      select_region => rudder_aix_user_section("${user}"),
+      edit_field    => col("=","2"," ${content}","set");
+
+}
+
+###################################################
+# select_region rudder_aix_user_section
+###################################################
+
+body select_region rudder_aix_user_section(x)
+{
+select_start => "${x}:\s*";
+select_end => "\S*:\s*";
+}
