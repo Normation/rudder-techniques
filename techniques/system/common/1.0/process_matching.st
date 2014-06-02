@@ -96,7 +96,7 @@ bundle agent process_matching
       # (see http://www.rudder-project.org/redmine/issues/3925 and http://www.rudder-project.org/redmine/issues/3930).
       "/etc/cron.d/rudder-agent-uuid" delete => tidy;
 
-    community_edition::
+    community_edition.!aix::
 
       "/etc/cron.d/rudder-agent"
         create        => "true",
@@ -105,7 +105,7 @@ bundle agent process_matching
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 &if(NOVA)&
 
-    nova_edition::
+    nova_edition.!aix::
 
       "/etc/cron.d/rudder-agent-nova"
         create        => "true",
@@ -113,6 +113,14 @@ bundle agent process_matching
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
 &endif&
+
+    aix::
+
+      "/var/spool/cron/crontabs/root"
+        create        => "true",
+        perms         => mog("600", "root", "cron"),
+        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * if [ -x /opt/rudder/bin/check-rudder-agent ]; then /opt/rudder/bin/check-rudder-agent; fi"),
+        comment       => "Insert an AIX-compatible user crontab to run /opt/rudder/bin/check-rudder-agent";
 
   reports:
 
