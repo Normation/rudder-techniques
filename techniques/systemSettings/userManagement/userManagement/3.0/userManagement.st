@@ -56,11 +56,6 @@ bundle agent check_usergroup_user_parameters
 
       "usergroup_user_index" slist => getindices("usergroup_user_login");
 
-    aix::
-
-      # Only execute this on AIX to prevent costly executions on irrelevant OSes:
-      # We only need this to update /etc/security/passwd, which is AIX specific.
-      "timestamp"           string => execresult("/bin/date +%s", "noshell");
 
     any_2nd_pass::
 
@@ -185,36 +180,13 @@ bundle agent check_usergroup_user_parameters
         action => WarnOnly,
         ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
-    # Define password when user has already been created
-
-    !aix::
-
+      # Define password when user has already been created
       "/etc/shadow"
         create     => "false",
         edit_line  => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
         classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
         ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
-
-    # AIX has a specific approach for passwords, needing a different approach (no tabular edition)
-
-    aix::
-
-      "/etc/security/passwd"
-        create        => "false",
-        edit_line     => rudder_change_aix_password_entry("${usergroup_user_login[${usergroup_user_index}]}", "password", "${usergroup_user_password[${usergroup_user_index}]}"),
-        edit_defaults => noempty_backup,
-        classes       => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
-        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
-
-      # If a password update is needed, also update the timestamp to avoid administrative headaches (password expiration/policies)
-      "/etc/security/passwd"
-        create        => "false",
-        edit_line     => rudder_change_aix_password_entry("${usergroup_user_login[${usergroup_user_index}]}", "lastupdate", "${timestamp}"),
-        edit_defaults => noempty_backup,
-        classes       => kept_if_else("usermanagement_user_password_timestamp_ok_${usergroup_user_index}", "usermanagement_aix_password_timestamp_repaired_${usergroup_user_index}", "usermanagement_aix_password_timestamp_failed_${usergroup_user_index}"),
-        ifvarclass    => "usermanagement_user_password_repaired_${usergroup_user_index}";
-
 
   reports:
 
@@ -283,13 +255,11 @@ bundle agent check_usergroup_user_parameters
 
       ## Has been changed (Repaired)
       "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password has been changed"
-        ifvarclass => "(usermanagement_user_password_repaired_${usergroup_user_index})|(aix.usermanagement_user_password_timestamp_repaired_${usergroup_user_index})";
+        ifvarclass => "usermanagement_user_password_repaired_${usergroup_user_index}";
 
       ## Could not be changed (Error)
       "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password could NOT be changed !"
         ifvarclass => "usermanagement_user_password_failed_${usergroup_user_index}";
-      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password timestamp could NOT be updated !"
-        ifvarclass => "usermanagement_user_password_timestamp_failed_${usergroup_user_index}";
 
       ## Change not needed (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"
