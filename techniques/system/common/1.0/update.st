@@ -135,6 +135,7 @@ bundle agent update
 bundle agent update_action
 {
   vars:
+
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
       "file_to_check_update" string => "rudder_promises_generated";
     nova_edition::
@@ -145,7 +146,6 @@ bundle agent update_action
   files:
 
     any::
-
       "${g.rudder_ncf}/."
         create  => "true",
         comment => "Make sure the ncf directory exists";
@@ -205,22 +205,13 @@ bundle agent update_action
         touch      => "true";
 
     # same here, if the tools have been updated, we can skip this part
-    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
+    rudder_promises_generated_repaired.!rudder_tools_updated.!rudder_tools_updated_ok::
       "${g.rudder_tools}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
-        #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
         classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
         comment      => "Update the Rudder tools";
-
-    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
-      "${g.rudder_sbin}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
-        #depth_search => recurse("inf"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action       => immediate,
-        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
 
   processes:
     config.!windows::
@@ -230,12 +221,7 @@ bundle agent update_action
       "cf-execd"   restart_class => "start_exec";
 
   commands:
-    start_exec.!windows::
-      "${sys.cf_execd}"
-        action  => u_ifwin_bg,
-        classes => outcome("executor");
-
-    start_exec.cygwin::
+    start_exec.(!windows|cygwin)::
       "${sys.cf_execd}"
         action  => u_ifwin_bg,
         classes => outcome("executor");
@@ -312,11 +298,6 @@ bundle agent update_reports
 body classes outcome(x)
 {
         promise_repaired => {"${x}_ok"};
-}
-############################################
-body action u_background
-{
-        background => "true";
 }
 ############################################
 body classes success(if, else, kept)
