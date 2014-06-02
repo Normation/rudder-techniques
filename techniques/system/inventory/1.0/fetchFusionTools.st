@@ -34,7 +34,7 @@ bundle agent fetchFusionTools
     redhat::
       "curl"
         package_policy  => "add",
-        package_method  => yum,
+        package_method  => rudder_yum,
         classes => rudder_common_classes("fetchFusionTools_install_curl"),
         comment => "Installing curl using yum";
 
