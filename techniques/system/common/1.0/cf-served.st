@@ -99,8 +99,8 @@ bundle common def
         comment => "Path to file containing address to policy server";
 
       "policy_server"
-        string  => readfile("${policy_server_file}", 40),
-        comment => "IP address to locate your policy host.";
+        string  => readfile("${policy_server_file}", 2048),
+        comment => "IP address or hostname to locate your policy host.";
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
