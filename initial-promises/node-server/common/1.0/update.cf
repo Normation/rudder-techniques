@@ -99,7 +99,7 @@ bundle common server_info
       "policy_server_file"
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
-      "cfserved" string =>  readfile("${policy_server_file}", 40);            #server IP
+      "cfserved" string =>  readfile("${policy_server_file}", 2048);
 }
 
 # The update is now split in two parts
