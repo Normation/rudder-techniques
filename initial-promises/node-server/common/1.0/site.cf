@@ -103,6 +103,8 @@ bundle common g
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
 
+      "server_roles_path"          string => "${rudder_base}/etc/server-roles.d/";
+
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin" string => "/var/rudder/tools";
 
