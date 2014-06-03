@@ -88,6 +88,7 @@ bundle common g
       "rudder_tools_origin"         string => "/var/rudder/tools";
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
+      "inventory_upload_protocol"   string => "http";
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin"  string => "/var/rudder/tools";
