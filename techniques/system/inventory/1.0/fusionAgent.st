@@ -452,7 +452,7 @@ bundle agent addInformationsToInventory
 
       "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
     #"${g.esc_rudder_var_tmp}\\inventory\\.*.ocs"
-        edit_line => add_users_information_to_inventory(${users}),
+        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup,
         pathtype => "regex";
 &endif&
@@ -463,7 +463,7 @@ bundle agent addInformationsToInventory
         edit_defaults => def_no_backup;
 
       "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_users_information_to_inventory(${users}),
+        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup;
 
     android::
