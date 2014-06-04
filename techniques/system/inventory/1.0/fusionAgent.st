@@ -432,6 +432,10 @@ bundle agent addInformationsToInventory
 
       "USER"       string => execresult("${USER_cmd}", "noshell");
 
+      # Roles of the system, fetch from the server_roles_path folder
+      # Don't extract file starting by . (especially . and .., but also hidden files)
+      "rudder_roles" slist => lsdir("${g.server_roles_path}", "^[^.].*", "false");
+
     !xen::
       "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
 
@@ -454,9 +458,15 @@ bundle agent addInformationsToInventory
 
       "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
     #"${g.esc_rudder_var_tmp}\\inventory\\.*.ocs"
-        edit_line => add_users_information_to_inventory(${users}),
+        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup,
         pathtype => "regex";
+
+      "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
+        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
+        edit_defaults => def_no_backup,
+        pathtype      => "regex";
+
 &endif&
 
     !windows.uuiddefined::
@@ -465,7 +475,11 @@ bundle agent addInformationsToInventory
         edit_defaults => def_no_backup;
 
       "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_users_information_to_inventory(${users}),
+        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
+        edit_defaults => def_no_backup;
+
+      "${g.rudder_var_tmp}/inventory/.*.ocs"
+        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         edit_defaults => def_no_backup;
 
     android::
@@ -584,7 +598,7 @@ bundle agent sendInventory
 bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUID)
 {
   insert_lines:
-      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<HOSTNAME>${sys.fqhost}</HOSTNAME>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}"
+      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<HOSTNAME>${sys.fqhost}</HOSTNAME>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}<SERVER_ROLES>${const.n}</SERVER_ROLES>${const.n}"
         location    => after_deviceid,
         insert_type => "preserve_block",
         comment     => "Add the UUID and CFKEY tags in the inventory file";
@@ -653,6 +667,14 @@ bundle edit_line add_users_information_to_inventory(userlist)
 
       "<USER>${userlist}</USER>${const.n}" location => after_users,
         comment => "Add the UUID and CFKEY tags in the inventory file";
+}
+
+bundle edit_line add_server_roles_information_to_inventory(server_roles)
+{
+  insert_lines:
+      "<SERVER_ROLE>${server_roles}</SERVER_ROLE>"
+        location => after_location("<SERVER_ROLES>"),
+        comment  => "Adding server role to inventory";
 }
 
 #Locators
