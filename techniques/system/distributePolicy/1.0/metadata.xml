@@ -21,18 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>setup_debian_backports</NAME>
     <NAME>install_rsyslogd</NAME>
     <NAME>propagatePromises</NAME>
-    <NAME>root_init_check</NAME>
-    <NAME>root_postgres_check</NAME>
-    <NAME>root_logrotate_check</NAME>
-    <NAME>root_integrity_check</NAME>
-    <NAME>root_technique_reload</NAME>
-    <NAME>root_networks_check</NAME>
-    <NAME>root_alive_check</NAME>
-    <NAME>root_password_check_file</NAME>
-    <NAME>root_password_check_ldap</NAME>
-    <NAME>root_password_check_psql</NAME>
-    <NAME>root_password_check_dav</NAME>
-    <NAME>root_password_restart_jetty</NAME>
     <NAME>sendInventoryToCmdb</NAME>
   </BUNDLES>
 
@@ -40,14 +28,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- Note that the policy server is set via the common.xml -->
     <TML name="propagatePromises"/>
     <TML name="rsyslogConf"/>
-    <TML name="initCheck"/>
-    <TML name="postgresCheck"/>
-    <TML name="logrotateCheck"/>
-    <TML name="integrityCheck"/>
-    <TML name="techniqueReload"/>
-    <TML name="networkCheck"/>
-    <TML name="aliveCheck"/>
-    <TML name="passwordCheck"/>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
@@ -58,22 +38,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </TML>
     <TML name="rudder-rsyslog-relay">
       <OUTPATH>distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
-    <TML name="logrotate.debian">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.debian</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
-    <TML name="logrotate.suse">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.suse</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
-    <TML name="logrotate.rhel">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.rhel</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
-    <TML name="logrotate.ubuntu">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder.ubuntu</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
   </TMLS>
@@ -94,26 +58,5 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- The following sections are for reporting only -->
     <SECTION name="Propagate promises" component="true"/>
     <SECTION name="Send inventories to CMDB" component="true"/>
-    <SECTION name="Check postgresql process" component="true"/>
-    <SECTION name="Check jetty process" component="true"/>
-    <SECTION name="Check slapd process" component="true"/>
-    <SECTION name="Check apache process" component="true"/>
-    <SECTION name="Check postgresql boot script" component="true"/>
-    <SECTION name="Check jetty boot script" component="true"/>
-    <SECTION name="Check slapd boot script" component="true"/>
-    <SECTION name="Check apache boot script" component="true"/>
-    <SECTION name="Check PostgreSQL configuration" component="true"/>
-    <SECTION name="Check logrotate configuration" component="true"/>
-    <SECTION name="Check configuration-repository folder" component="true"/>
-    <SECTION name="Check configuration-repository GIT lock" component="true"/>
-    <SECTION name="Check rudder-networks.conf file" component="true"/>
-    <SECTION name="Check rudder status" component="true"/>
-    <SECTION name="Check endpoint status" component="true"/>
-    <SECTION name="Check rudder-passwords.conf and pgpass files" component="true"/>
-    <SECTION name="Check LDAP credentials" component="true"/>
-    <SECTION name="Check LDAP in rudder-webapp.properties" component="true"/>
-    <SECTION name="Check SQL credentials" component="true"/>
-    <SECTION name="Check SQL in rudder-webapp.properties" component="true"/>
-    <SECTION name="Check WebDAV credentials" component="true"/>
   </SECTIONS>
 </TECHNIQUE>

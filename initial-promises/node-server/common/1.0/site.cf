@@ -123,7 +123,16 @@ bundle common g
 
   classes:
 
-    "gzip_installed"           expression => isexecutable("${rudder_gzip}");
-    "curl_installed"           expression => isexecutable("${rudder_curl}");
+    # Utilities
+    "gzip_installed"                 expression => isexecutable("${rudder_gzip}");
+    "curl_installed"                 expression => isexecutable("${rudder_curl}");
+
+    # Roles
+    "role_rudder_server_root"        expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root");
+    "role_rudder_inventory_ldap"     expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-ldap");
+    "role_rudder_jetty"              expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-jetty");
+    "role_rudder_webapp"             expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
+    "role_rudder_inventory_endpoint" expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-endpoint");
+    "role_rudder_reports"            expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
 
 }

@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2014 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -15,19 +15,6 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #####################################################################################
-
-bundle agent root_alive_check
-{
-
-  vars:
-
-      "apps_to_check" slist => { "rudder", "endpoint" };
-
-  methods:
-
-      "any" usebundle => generic_alive_check("${apps_to_check}");
-
-}
 
 bundle agent generic_alive_check(app)
 {
@@ -76,18 +63,18 @@ bundle agent generic_alive_check(app)
 
     root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application is running"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application is running"
         ifvarclass => "site_ok.!site_down_once_${sitename}";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#This is the first time the ${site_to_check} web application failed to respond. Deferring the restart."
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#This is the first time the ${site_to_check} web application failed to respond. Deferring the restart."
         ifvarclass => "site_down_once_${sitename}.!site_alivecheck_restart_jetty_${sitename}";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting jetty NOW !"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting jetty NOW !"
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}";
 
     policy_server.!root_server::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application check do not need to be done on relay servers. Skipping...";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application check do not need to be done on relay servers. Skipping...";
 
 }
 
