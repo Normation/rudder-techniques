@@ -48,6 +48,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>File to set permissions on</DESCRIPTION>
       </INPUT>
       <INPUT>
+        <NAME>FILEPERMISSION_IGNORE_ABSENTFILE</NAME>
+        <DESCRIPTION>Ignore file or directory if it does not exist</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
         <NAME>FILEPERMISSION_RECURSION</NAME>
         <DESCRIPTION>In case the path is a directory, the permissions should be adjusted recursively</DESCRIPTION>
         <CONSTRAINT>

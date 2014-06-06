@@ -44,11 +44,12 @@ bundle agent files_permissions
       "${file[${filePerms}][7]}",
       "${file[${filePerms}][8]}",
       "${file[${filePerms}][9]}",
-      "${file[${filePerms}][10]}");
+      "${file[${filePerms}][10]}",
+      "${file[${filePerms}][11]}");
 
 }
 
-bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_user, edit_group, edit_mode, suid, sgid, recursion)
+bundle agent check_permissions(directiveId, fileName, ignoreFile, user, group, mode, edit_user, edit_group, edit_mode, suid, sgid, recursion)
 {
 
 
@@ -80,6 +81,8 @@ bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_us
   classes:
 
       "file_exists"   expression => fileexists(${fileName});
+
+      "ignore_absent" not => strcmp("${ignoreFile}","false");
 
       "user_absent"   not => userexists("${user}");
 
@@ -160,7 +163,10 @@ bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_us
     is_symlink::
       "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Will not adjust permissions on ${fileName}, because it is a symlink";
 
-    !file_exists::
+    !file_exists.ignore_absent::
+      "@@FilesPermissions@@result_success@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#${fileName} does not exist but is ignored";
+
+    !file_exists.!ignore_absent::
       "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#File or directory not found: ${fileName}";
 
     user_absent::

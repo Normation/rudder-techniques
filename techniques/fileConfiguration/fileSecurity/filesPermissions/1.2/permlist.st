@@ -18,6 +18,6 @@
 
 # List of files permission
 # Format of the file :
-# policyIsntanceId:file:user:group:mode:edituser:editgroup:editmode:suid:sgid:recursion
-&TRACKINGKEY, FILEPERMISSION_FILENAME, FILEPERMISSION_USER, FILEPERMISSION_GROUP, FILEPERMISSION_MODE, FILEPERMISSION_EDITUSER, FILEPERMISSION_EDITGROUP, FILEPERMISSION_EDITMODE, FILEPERMISSION_SUID, FILEPERMISSION_SGID, FILEPERMISSION_RECURSION:{directiveId, fileName, user, group, perm, edituser, editgroup, editperm, suid, sgid, recursion | &directiveId&:&fileName&:&user&:&group&:&perm&:&edituser&:&editgroup&:&editperm&:&suid&:&sgid&:&recursion&
+# policyIsntanceId:file:ignorefile:user:group:mode:edituser:editgroup:editmode:suid:sgid:recursion
+&TRACKINGKEY, FILEPERMISSION_FILENAME, FILEPERMISSION_IGNORE_ABSENTFILE, FILEPERMISSION_USER, FILEPERMISSION_GROUP, FILEPERMISSION_MODE, FILEPERMISSION_EDITUSER, FILEPERMISSION_EDITGROUP, FILEPERMISSION_EDITMODE, FILEPERMISSION_SUID, FILEPERMISSION_SGID, FILEPERMISSION_RECURSION:{directiveId, fileName, ignoreFile, user, group, perm, edituser, editgroup, editperm, suid, sgid, recursion | &directiveId&:&fileName&:&ignoreFile&:&user&:&group&:&perm&:&edituser&:&editgroup&:&editperm&:&suid&:&sgid&:&recursion&
 }&
