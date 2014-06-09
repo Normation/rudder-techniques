@@ -66,11 +66,15 @@ bundle common g
       "rudder_curl" string => "/usr/bin/curl";
       "rudder_rm" string => "/bin/rm";
 
-    # The time at which the execution started
-      "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
-
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_var}/tools";
+
+    # The time at which the execution started
+    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
+      "execRun" string => execresult("/bin/date --rfc-3339=second", "noshell");
+    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
+      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
+      "execRun" string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
     android::
       "rudder_base" string => "/data/rudder";

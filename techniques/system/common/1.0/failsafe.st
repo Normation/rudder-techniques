@@ -68,7 +68,12 @@ bundle common g
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_tools"             string => "/var/rudder/tools";
       "rudder_ncf"               string => "${rudder_var}/ncf";
+
+    # The time at which the execution started
+    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
       "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
+    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
+      "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
     android::
       "rudder_base"              string => "/data/rudder";

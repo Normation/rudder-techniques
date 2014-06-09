@@ -64,11 +64,16 @@ bundle common g
       "crontab"                    string => "/etc/crontab";
       "rudder_curl"                string => "/usr/bin/curl";
       "rudder_rm"                  string => "/bin/rm";
-      # The time at which the execution started
-      "execRun_cmd" string => "/bin/date --rfc-3339=second";
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_var}/tools";
+
+    # The time at which the execution started
+    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
+      "execRun_cmd"                string => "/bin/date --rfc-3339=second";
+    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
+      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
+      "execRun_cmd"                string => "/bin/date -u \"+%Y-%m-%d %T+00:00\"";
 
     android::
       "rudder_base"                string => "/data/rudder";
@@ -100,10 +105,12 @@ bundle common g
       "rudder_tools_origin"         string => "/var/rudder/tools";
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
-      # The time at which the execution started
-      "execRun"                     string => execresult("${execRun_cmd}", "noshell");
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin"  string => "/var/rudder/tools";
+
+    !android::
+      # The time at which the execution started
+      "execRun"                     string => execresult("${execRun_cmd}", "noshell");
 
 }
