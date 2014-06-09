@@ -84,7 +84,7 @@ bundle common g
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 &if(NOVA)&
-    windows::
+    windows.!cygwin::
       "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
     android::
