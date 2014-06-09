@@ -79,7 +79,7 @@ bundle common g
 
     # The time at which the execution started
 &if(NOVA)&
-    windows::
+    windows.!cygwin::
       "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
     android::

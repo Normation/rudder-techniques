@@ -106,7 +106,7 @@ bundle common g
       "rudder_dependencies_origin"  string => "/var/rudder/tools";
 
     # The time at which the execution started
-    windows::
+    windows.!cygwin::
       "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
     android::
       "execRun"                    string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
