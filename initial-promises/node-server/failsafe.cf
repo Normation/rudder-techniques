@@ -72,9 +72,13 @@ bundle common g
 
     # The time at which the execution started
     (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
+      "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
     (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
+      "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
+    windows::
+      "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+    android::
+      "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
 
     any::
       "uuid"                     string => readfile("${g.uuid_file}", 60);
