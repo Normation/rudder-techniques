@@ -57,7 +57,11 @@ bundle common g
       "crontab"                    string => "/etc/crontab";
 
     # The time at which the execution started
-    "execRun_cmd" string => "/bin/date --rfc-3339=second";
+    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
+      "execRun_cmd"                string => "/bin/date --rfc-3339=second";
+    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
+      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
+      "execRun_cmd"                string => "/bin/date -u \"+%Y-%m-%d %T+00:00\"";
 
    any::
      "uuid"                        string => readfile("$(g.uuid_file)", 60);
