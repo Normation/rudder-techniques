@@ -78,22 +78,15 @@ bundle common g
       "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
     # The time at which the execution started
-    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
-    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
-      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
-      "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 &if(NOVA)&
-    windows::
+    windows.!cygwin::
       "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
     android::
       "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
-    aix::
-      # AIX's date command doesn't have a "%z" option, so we fake it by using UTC
+    (!windows|cygwin).!android::
+      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
-    !linux.!cygwin.!windows.!android.!aix::
-      "execRun"                  string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
 # definition of the node roles
   &NODEROLE&
