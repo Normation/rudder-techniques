@@ -47,14 +47,14 @@ bundle agent root_technique_reload
 
     root_technique_reload_trigger::
 
-      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_base}/etc/force_technique_reload file is present. Reloading Technique library...";
+      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_base}/etc/force_technique_reload file is present. Reloading Technique library...";
 
     root_technique_reload_rest_call_repaired::
 
-      "@@DistributePolicy@@log_repaired@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library has been reloaded.";
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library has been reloaded.";
 
     root_technique_reload_rest_call_failed::
 
-      "@@DistributePolicy@@log_warn@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library failed to reload. Will try again next time";
+      "@@server-roles@@log_warn@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library failed to reload. Will try again next time";
 
 }

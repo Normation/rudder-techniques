@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2014 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -49,23 +49,23 @@ bundle agent root_postgres_check
     SuSE::
 
     # Report about the configuration file edition
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration is present"
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration is present"
         ifvarclass => "psql_conf_ok.!psql_conf_updated.!psql_conf_update_error";
 
-      "@@DistributePolicy@@result_repaired@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration has been added"
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration has been added"
         ifvarclass => "psql_conf_updated.!psql_conf_update_error";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration could not be added"
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration could not be added"
         ifvarclass => "psql_conf_update_error";
 
     # Reports about Postgres restart status
-      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#PostgreSQL has been restarted"
+      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#PostgreSQL has been restarted"
         ifvarclass => "psql_restart_ok";
 
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#PostgreSQL restart has failed! Rudder is most certainly broken..."
+      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#PostgreSQL restart has failed! Rudder is most certainly broken..."
         ifvarclass => "psql_restart_error";
 
     !SuSE::
 
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#Their is no need of specific postgresql configuration on this system";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#Their is no need of specific postgresql configuration on this system";
 }
