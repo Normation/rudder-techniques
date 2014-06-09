@@ -34,11 +34,6 @@ body common control
 
         bundlesequence => { @{va.bs} &BUNDLELIST& , @{va.end} };
 
-&if(NOVA)&
-        host_licenses_paid => "&LICENSESPAID&";
-
-&endif&
-
     android::
         # if native syslog is not available, use cfengine implementation (eg: android)
         syslog_host => "${server_info.cfserved}";
