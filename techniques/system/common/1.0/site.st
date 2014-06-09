@@ -39,8 +39,6 @@ bundle common g
       "rudder_ncf"                 string => "${rudder_base}\ncf";
       "escaped_workdir"            string => escape("${sys.workdir}");
       "rudder_curl"                string => "${rudder_base_sbin}\curl\curl.exe";
-      # The time at which the execution started
-      "execRun_cmd" string => "\"${g.rudder_sbin}\getDate.bat\"";
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_sbin}";
@@ -48,6 +46,9 @@ bundle common g
     windows.!cygwin::
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
+
+      # The time at which the execution started
+      "execRun_cmd" string => "\"${g.rudder_sbin}\getDate.bat\"";
 
     linux|cygwin::
       "rudder_base"                string => "/opt/rudder";
