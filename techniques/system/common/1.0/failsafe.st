@@ -48,6 +48,8 @@ bundle common g
       "rudder_bin"                 string => "${rudder_base}\bin";
       "rudder_sbin"                string => "${rudder_base}\sbin";
       "rudder_dependencies"        string => "${rudder_sbin}";
+
+    windows.!cygwin::
       "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
 

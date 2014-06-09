@@ -38,11 +38,11 @@ bundle common g
       "rudder_dependencies"        string => "${rudder_sbin}";
       "escaped_workdir"            string => escape("${sys.workdir}");
 
-      # The time at which the execution started
-      "execRun_cmd" string => "\"${g.rudder_sbin}\getDate.bat\"";
-
     windows.!cygwin::
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
+
+      # The time at which the execution started
+      "execRun_cmd" string => "\"${g.rudder_sbin}\getDate.bat\"";
 
     linux|cygwin::
       "rudder_base"                string => "/opt/rudder";
