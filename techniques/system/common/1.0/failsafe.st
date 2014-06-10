@@ -26,11 +26,6 @@ body common control
 
         inputs             => { "common/1.0/update.cf" };
         output_prefix      => "rudder";
-
-&if(NOVA)&
-        host_licenses_paid => "&LICENSESPAID&";
-
-&endif&
 }
 
 body agent control {
