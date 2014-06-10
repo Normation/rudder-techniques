@@ -63,8 +63,6 @@ body common control
 
         bundlesequence => { @{va.bs} , "fetchFusionTools", "virtualMachines", "doInventory" , @{va.end}};
 
-        host_licenses_paid => "1";
-
 }
 
 bundle common va
