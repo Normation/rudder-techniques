@@ -105,8 +105,6 @@ body server control
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf && ${sys.workdir}/bin/cf-agent";
         allowusers        => { "root" };
 
-        skipverify            => { "127.0.0.0/8" , "::1",  @{def.acl}  };
-
     community_edition::
         port => "5309";
 

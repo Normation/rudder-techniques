@@ -183,8 +183,6 @@ body server control
 
         denybadclocks => "&DENYBADCLOCKS&";
 
-        skipverify        => { "127.0.0.0/8" , "::1",  @{def.acl}  };
-
     community_edition::
         port => "&COMMUNITYPORT&";
 
