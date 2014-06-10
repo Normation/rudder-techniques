@@ -32,8 +32,6 @@ body common control
 
         output_prefix => "rudder";
 
-        host_licenses_paid => "%%POLICY_SERVER_LICENSES_PAID%%";
-
 }
 
 bundle common va

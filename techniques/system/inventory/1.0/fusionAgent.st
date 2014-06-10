@@ -32,16 +32,16 @@ bundle agent doInventory
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # If not, use minicurl instead
     !windows.!curl_installed::
-      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url http://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 &endif&
 
     uuid_succesfully_downloaded::
@@ -524,7 +524,7 @@ bundle agent sendInventory
 
   vars:
 
-      "download_endpoint"         string => "http://${server_info.cfserved}/inventory-updates/";
+      "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
 
     # If curl is available, use it
     !windows.curl_installed::

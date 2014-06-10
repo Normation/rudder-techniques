@@ -154,7 +154,7 @@ bundle edit_line append_or_replace_ssh_key(keyspec)
       # The hashes of that length apparently correspond to DSS 2048 bits keys, generated i.e. on rhel 4,
       # with openssh v3.9p1-redhat. I believe that since openssh v4 DSS bitlengh is limited to 1024,
       # as required by FIPS.
-      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S{1,1000})\S*=(\s+.+)?\Z", "${keyspec}", "keybits" );
+      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S{1,1000})\S*(\s+.+)?\Z", "${keyspec}", "keybits" );
 
   insert_lines:
     "${keyspec}"
