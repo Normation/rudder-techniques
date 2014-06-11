@@ -55,7 +55,7 @@ It is intended to check the user parameters on the target host.
       <INPUT>
         <NAME>USERGROUP_USER_GROUP</NAME>
         <DESCRIPTION>Primary group for this user</DESCRIPTION>
-        <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group</LONGDESCRIPTION>
+        <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group (at creation only)</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
