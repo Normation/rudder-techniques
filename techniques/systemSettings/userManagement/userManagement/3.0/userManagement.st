@@ -30,6 +30,9 @@ bundle agent check_usergroup_user_parameters
     &USERGROUP_USER_LOGIN:{login |"usergroup_user_login[&i&]" string => "&login&";
 }&
 
+    &USERGROUP_USER_GROUP:{group |"usergroup_user_groupname[&i&]" string => "&group&";
+}&
+
     &USERGROUP_USER_NAME:{name |"usergroup_user_fullname[&i&]" string => "&name&";
 }&
 
@@ -64,7 +67,7 @@ bundle agent check_usergroup_user_parameters
 
     any_2nd_pass::
 
-      # Options to use whether Fullname is defined or not
+      # 1 - Options to use whether Fullname is defined or not
       "nameopt[${usergroup_user_index}]"
         string => "",
         ifvarclass => "usermanagement_user_nameempty_${usergroup_user_index}";
@@ -88,6 +91,15 @@ bundle agent check_usergroup_user_parameters
         string => "${usergroup_user_fullname[${usergroup_user_index}]}",
         ifvarclass => "!usermanagement_user_nameempty_${usergroup_user_index}";
 
+      # 2 - On UNIX, choose between using no group name or using a custom one
+      "groupopt[${usergroup_user_index}]"
+        string => "",
+        ifvarclass => "usermanagement_user_groupempty_${usergroup_user_index}";
+
+      "groupopt[${usergroup_user_index}]"
+        string => "-g ${usergroup_user_groupname[${usergroup_user_index}]}",
+        ifvarclass => "!usermanagement_user_groupempty_${usergroup_user_index}";
+
   classes:
 
     # Actions
@@ -106,22 +118,21 @@ bundle agent check_usergroup_user_parameters
 
       "usermanagement_user_exists_${usergroup_user_index}" expression => userexists("${usergroup_user_login[${usergroup_user_index}]}");
 
+      "usermanagement_group_exists_${usergroup_user_index}" expression => groupexists("${usergroup_user_groupname[${usergroup_user_index}]}");
+
       "usermanagement_user_pwoneshot_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","oneshot");
 
       "usermanagement_user_pweverytime_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","everytime");
 
-      # with variables that are not unique, the emptyness detection is quite tricky
-      "usermanagement_user_pw_no_variable_${usergroup_user_index}" not => isvariable("usergroup_user_password[${usergroup_user_index}]");
+      "usermanagement_user_pwempty_${usergroup_user_index}" not => isvariable("usergroup_user_password[${usergroup_user_index}]");
 
-      "usermanagement_user_pw_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_password[${usergroup_user_index}]}");
+      "usermanagement_user_nameempty_${usergroup_user_index}" not => isvariable("usergroup_user_fullname[${usergroup_user_index}]");
 
-      "usermanagement_user_pwempty_${usergroup_user_index}" expression => "usermanagement_user_pw_no_variable_${usergroup_user_index}|(!usermanagement_user_pw_no_variable_${usergroup_user_index}.usermanagement_user_pw_no_value_${usergroup_user_index})";
+      "usermanagement_user_groupempty_${usergroup_user_index}" not => isvariable("usergroup_user_groupname[${usergroup_user_index}]");
 
-      "usermanagement_user_name_no_variable_${usergroup_user_index}" not => isvariable("usergroup_user_fullname[${usergroup_user_index}]");
-      
-      "usermanagement_user_name_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_fullname[${usergroup_user_index}]}");
+      "usermanagement_user_groupmatchesname_${usergroup_user_index}" expression => strcmp("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}");
 
-      "usermanagement_user_nameempty_${usergroup_user_index}" expression => "usermanagement_user_name_no_variable_${usergroup_user_index}|(!usermanagement_user_name_no_variable_${usergroup_user_index}.usermanagement_user_name_no_value_${usergroup_user_index})";
+      "usermanagement_user_group_definition_error_${usergroup_user_index}" expression => "(!usermanagement_group_exists_${usergroup_user_index}.usermanagement_user_groupmatchesname_${usergroup_user_index})|(!usermanagement_user_groupempty_${usergroup_user_index}.!usermanagement_group_exists_${usergroup_user_index})";
 
     # Class 'any' is executed before others classes defined.
     # Same as 'any' but execution will be after all classes defined
@@ -154,16 +165,16 @@ bundle agent check_usergroup_user_parameters
     !windows.showtime::
 
       "/usr/sbin/useradd"
-        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.(usermanagement_user_groupexists_${usergroup_user_index}|(!usermanagement_user_groupempty_${usergroup_user_index}|usermanagement_user_groupmatchesname_${usergroup_user_index})).!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
 
       "/usr/sbin/useradd"
-        args => "-m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
-        comment => "Create the user",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+        comment => "Create the user with a custom home directory",
+        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.(usermanagement_user_groupexists_${usergroup_user_index}|(!usermanagement_user_groupempty_${usergroup_user_index}|usermanagement_user_groupmatchesname_${usergroup_user_index})).!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
       "/usr/sbin/userdel"
         args => "${usergroup_user_login[${usergroup_user_index}]}",
@@ -182,10 +193,11 @@ bundle agent check_usergroup_user_parameters
       "/etc/passwd"
         create => "false",
         edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
         action => WarnOnly,
         ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
-    # Define password when user has already been created
+      # Define password when user has already been created
 
     !aix::
 
@@ -241,6 +253,10 @@ bundle agent check_usergroup_user_parameters
       "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the default home directory was not selected, but the custom path was not specified"
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
+      ## Could not be added, as a custom group was asked for and did not exist on the system
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the custom group \"${usergroup_user_groupname[${usergroup_user_index}]}\" does not exist"
+        ifvarclass => "usermanagement_user_group_definition_error_${usergroup_user_index}";
+
       # Remove user
       ## Does not exist (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) does not exist, as required"
@@ -288,6 +304,7 @@ bundle agent check_usergroup_user_parameters
       ## Could not be changed (Error)
       "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password could NOT be changed !"
         ifvarclass => "usermanagement_user_password_failed_${usergroup_user_index}";
+
       "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password timestamp could NOT be updated !"
         ifvarclass => "usermanagement_user_password_timestamp_failed_${usergroup_user_index}";
 
