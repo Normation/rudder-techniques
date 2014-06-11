@@ -171,12 +171,14 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
 redhat::
 	package_changes => "individual";
 
-	package_list_command => "/usr/bin/yum list installed";
-	package_list_name_regex    => "([^.]+).*";
-	package_list_version_regex => "[^\s]\s+([^\s]+).*";
-	package_list_arch_regex    => "[^.]+\.([^\s]+).*";
-	package_installed_regex => ".*installed.*";
-	package_name_convention => "$(name).$(arch)";
+  package_list_command => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+
+  package_list_name_regex    => "^(\S+?)\s\S+?\s\S+$";
+  package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
+  package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
+
+	package_installed_regex => ".*";
+	package_name_convention => "${name}-${version}.${arch}";
 	package_delete_convention  => "${name}";
 	package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
 	package_add_command => "/usr/bin/yum -y install";
