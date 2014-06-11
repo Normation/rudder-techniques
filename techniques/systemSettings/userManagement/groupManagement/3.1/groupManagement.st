@@ -94,7 +94,7 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
             edit_line => groups_file_append("$(name)", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
             edit_defaults => noempty_backup,
             classes => rudder_common_classes("groupmanagement_group_add_${index}"),
-            ifvarclass => "groupmanagement_group_${index}_enforce_content.!groupmanagement_group_$(index)_absent|groupmanagement_group_add_$(index)_repaired",
+            ifvarclass => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_$(index)_absent|groupmanagement_group_add_$(index)_repaired)",
             comment => "Set users on the group $(name) only if the group is already present";
 
         # Enforce GID if setgid has been set
