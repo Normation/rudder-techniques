@@ -163,13 +163,13 @@ bundle agent check_usergroup_user_parameters
         args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.(usermanagement_user_groupexists_${usergroup_user_index}|(!usermanagement_user_groupempty_${usergroup_user_index}|usermanagement_user_groupmatchesname_${usergroup_user_index})).!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
 
       "/usr/sbin/useradd"
         args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user with a custom home directory",
-        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.(usermanagement_user_groupexists_${usergroup_user_index}|(!usermanagement_user_groupempty_${usergroup_user_index}|usermanagement_user_groupmatchesname_${usergroup_user_index})).!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
       "/usr/sbin/userdel"
         args => "${usergroup_user_login[${usergroup_user_index}]}",
@@ -227,7 +227,7 @@ bundle agent check_usergroup_user_parameters
 
       ## Could not be added, as a custom group was asked for and did not exist on the system
       "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the custom group \"${usergroup_user_groupname[${usergroup_user_index}]}\" does not exist"
-        ifvarclass => "usermanagement_user_group_definition_error_${usergroup_user_index}";
+        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_group_definition_error_${usergroup_user_index}";
 
       # Remove user
       ## Does not exist (Success)
@@ -279,7 +279,8 @@ bundle agent check_usergroup_user_parameters
 
       ## Change not needed (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"
-        ifvarclass => "((!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_remove_${usergroup_user_index}";
+        ifvarclass => "((!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_group_definition_error_${usergroup_user_index})))|usermanagement_user_remove_${usergroup_user_index}";
+
 }
 
 bundle edit_line set_user_fullname(user,user_index,fullname)
