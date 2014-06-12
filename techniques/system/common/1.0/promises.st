@@ -28,7 +28,8 @@ body common control
         output_prefix => "rudder";
 
         inputs => {
-          @{va.ncf_inputs},
+          @{va.ncf_common_inputs},
+          @{va.ncf_local_inputs},
           &INPUTLIST&
         };
 
@@ -89,10 +90,13 @@ bundle common va
       "end" slist => { "endExecution" };
 
     !android::
-      "ncf_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf -name '*.cf' ! -name 'promises.cf'", "noshell"), "\n", 10000);
+      "ncf_find" string => "/usr/bin/find /var/rudder/ncf";
     android::
-      "ncf_inputs" slist => splitstring(execresult("/system/xbin/find /data/rudder/ncf -name '*.cf' | grep -v 'promises.cf'", "useshell"), "\n", 10000);
+      "ncf_find" string => "/system/xbin/find /data/rudder/ncf";
 
+    any::
+      "ncf_common_inputs" slist => splitstring(execresult("${ncf_find}/common -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
+      "ncf_local_inputs"  slist => splitstring(execresult("${ncf_find}/local -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
 
 
 # definition of the machine roles
