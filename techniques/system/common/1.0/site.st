@@ -94,10 +94,10 @@ bundle common g
 
     # The time at which the execution started
     (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");;
+      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
     (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
-      "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");;
+      "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
     windows.!cygwin::
       "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
     android::
