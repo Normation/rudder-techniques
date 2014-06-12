@@ -113,7 +113,7 @@ bundle common g
       "execRun"                    string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
     (!windows|cygwin).!android::
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
-      "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");;
+      "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
   classes:
 
