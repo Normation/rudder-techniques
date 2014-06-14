@@ -32,6 +32,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="technique-reload"/>
+    <TML name="servers-by-role"/>
     <TML name="rudder-server-roles">
       <OUTPATH>rudder-server-roles.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
