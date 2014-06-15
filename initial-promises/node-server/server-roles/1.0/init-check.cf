@@ -55,21 +55,21 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
     root_server|process_exception_on_relay::
 
-		"@@server-roles@@result_success@@server-roles@@server-roles-directive@@2@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process is already running"
+		"@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process is already running"
 			ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
 
-		"@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@2@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process was not running and has been restarted"
+		"@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@0@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process was not running and has been restarted"
 			ifvarclass => "process_restart_${canoname}.process_restart_ok_${canoname}.!forced_trigger_${canoname}";
 
-		"@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@2@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process has been restarted"
+		"@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@0@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process has been restarted"
 			ifvarclass => "process_restart_ok_${canoname}.forced_trigger_${canoname}";
 
-		"@@server-roles@@result_error@@server-roles@@server-roles-directive@@2@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process couldn't be restarted"
+		"@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process couldn't be restarted"
 			ifvarclass => "process_restart_error_${canoname}";
 
     policy_server.!root_server.!process_exception_on_relay::
 
-		"@@server-roles@@result_success@@server-roles@@server-roles-directive@@2@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process do not need to be checked on relay servers. Skipping...";
+		"@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process do not need to be checked on relay servers. Skipping...";
 
 }
 
@@ -125,13 +125,13 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
     cfengine::
 
-      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@2@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} is started on boot as required"
+      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} is started on boot as required"
         ifvarclass => "service_bootstarted_${canoname}";
 
-      "@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@2@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} has been set to start on boot"
+      "@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@0@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} has been set to start on boot"
         ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_ok_${canoname}";
 
-      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@2@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#Could not set ${name} to start on boot!"
+      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#Could not set ${name} to start on boot!"
         ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_fail_${canoname}";
 
 }

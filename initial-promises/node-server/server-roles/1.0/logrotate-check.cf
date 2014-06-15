@@ -72,12 +72,12 @@ bundle agent root_logrotate_check
   reports:
 
     rudder_logrotate_conf_ok.!rudder_logrotate_conf_copied.!cannot_copy_rudder_logrotate_conf::
-      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@2@@Check logrotate configuration@@None@@${g.execRun}##${g.uuid}@#The logrotate configuration is correct";
+      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check logrotate configuration@@None@@${g.execRun}##${g.uuid}@#The logrotate configuration is correct";
 
     rudder_logrotate_conf_copied.!cannot_copy_rudder_logrotate_conf::
-      "@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@2@@Check logrotate configuration@@None@@${g.execRun}##${g.uuid}@#The logrotate configuration has been updated";
+      "@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@0@@Check logrotate configuration@@None@@${g.execRun}##${g.uuid}@#The logrotate configuration has been updated";
 
     cannot_copy_rudder_logrotate_conf::
-      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@2@@Check logrotate configuration@@None@@${g.execRun}##${g.uuid}@#The logrotate configuration could not be updated";
+      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check logrotate configuration@@None@@${g.execRun}##${g.uuid}@#The logrotate configuration could not be updated";
 
 }
