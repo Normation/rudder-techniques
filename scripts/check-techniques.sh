@@ -76,25 +76,22 @@ do
 done
 
 # Check that logrotate configurations are synchronized from techniques to initial-promises
-ls ${REPOSITORY_PATH}/techniques/system/distributePolicy/1.0/logrotate.*.st | xargs -L1 basename | sed -r "s/^logrotate\.([^.]*)\.st$/\1/" | while read version
-do
-  if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/distributePolicy/1.0/logrotate.${version}.st ${REPOSITORY_PATH}/initial-promises/node-server/distributePolicy/logrotate.conf/rudder.${version}
-  then
-    echo "Logrotate files ${REPOSITORY_PATH}/techniques/system/distributePolicy/1.0/logrotate.${version}.st and ${REPOSITORY_PATH}/initial-promises/node-server/distributePolicy/logrotate.conf/rudder.${version} differ"
-    exit 7
-  fi
-done
+if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/server-roles/1.0/rudder-logrotate.st ${REPOSITORY_PATH}/initial-promises/node-server/server-roles/logrotate.conf/rudder
+then
+  echo "Logrotate files ${REPOSITORY_PATH}/techniques/system/server-roles/1.0/rudder-logrotate.st and ${REPOSITORY_PATH}/initial-promises/node-server/server-roles/logrotate.conf/rudder differ"
+  exit 7
+fi
 
 # Check that minicurl is synchronized from techniques to initial-promises
 if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl
 then
   echo "The minicurl utility in ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st and ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl differ"
-  exit 7
+  exit 8
 fi
 
 # Check that no StringTemplate thingies were put into the initial-promises ( lines beginning with & or StringTemplate iterators )
 if grep -E -r '^\s*&|&[a-zA-Z_]&' ${REPOSITORY_PATH}/initial-promises
 then
   echo "There are some StringTemplate definitions in the initial promises"
-  exit 7
+  exit 9
 fi

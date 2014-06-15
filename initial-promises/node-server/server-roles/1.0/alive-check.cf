@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2014 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,24 +16,12 @@
 #
 #####################################################################################
 
-bundle agent root_alive_check
+bundle agent generic_alive_check(app)
 {
 
   vars:
 
-      "sites_to_check" slist => { "http://localhost:8080/rudder/api/status", "http://localhost:8080/endpoint/api/status" };
-
-  methods:
-
-      "any" usebundle => generic_alive_check("${sites_to_check}");
-
-}
-
-bundle agent generic_alive_check(site_to_check)
-{
-
-  vars:
-
+      "site_to_check" string => "http://localhost:8080/${app}/api/status";
       "sitename" string => canonify("${site_to_check}");
 
       "cleanup_failed_classes" slist => { "site_down_once_${sitename}", "site_alivecheck_restart_jetty_${sitename}" };
@@ -56,11 +44,15 @@ bundle agent generic_alive_check(site_to_check)
 
   methods:
 
-      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "rudder-jetty", "true"),
+    root_server::
+
+      "any" usebundle => generic_process_check_process(".*java.*/opt/rudder/jetty7/start.jar", "rudder-jetty", "jetty", "true", "false"),
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}",
         classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
 
   commands:
+
+    root_server::
 
       "/usr/bin/curl -s ${site_to_check} |/bin/grep -q OK"
         contain => in_shell_silent,
@@ -69,16 +61,20 @@ bundle agent generic_alive_check(site_to_check)
 
   reports:
 
-    cfengine::
+    root_server::
 
-      "@@DistributePolicy@@result_success@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application is running"
+      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application is running"
         ifvarclass => "site_ok.!site_down_once_${sitename}";
 
-      "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#This is the first time the ${site_to_check} web application failed to respond. Deferring the restart."
+      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#This is the first time the ${site_to_check} web application failed to respond. Deferring the restart."
         ifvarclass => "site_down_once_${sitename}.!site_alivecheck_restart_jetty_${sitename}";
 
-      "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting rudder-jetty NOW !"
+      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting jetty NOW !"
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}";
+
+    policy_server.!root_server::
+
+      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application check do not need to be done on relay servers. Skipping...";
 
 }
 
