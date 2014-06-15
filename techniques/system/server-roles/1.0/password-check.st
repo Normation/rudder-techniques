@@ -16,6 +16,13 @@
 #
 #####################################################################################
 
+# This file contains bundles to manage password between all components of a
+# Rudder server (OpenLDAP, PostgreSQL, Apache WebDAV, endpoint and web interface)
+
+# It is currently only used on root servers where all components are installed
+# on one host. It may be extended in the future to support changing passwords
+# across multiple hosts.
+
 bundle common p
 {
 
