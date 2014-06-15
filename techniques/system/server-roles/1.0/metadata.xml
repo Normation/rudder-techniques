@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="postgres-check"/>
     <TML name="logrotate-check"/>
     <TML name="rudder-logrotate">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder</OUTPATH>
+      <OUTPATH>server-roles/logrotate.conf/rudder</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="technique-reload"/>
