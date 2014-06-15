@@ -69,9 +69,9 @@ bundle agent install_rsyslogd {
 
       # Define the where to send the syslog messages
       # default is localhost if the rudder_db is unknown
-      "rudder_postgres_server" string => "localhost"
+      "rudder_postgres_server" string => "localhost",
         ifvarclass => "!role_rudder_db_server_defined";
-      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}"
+      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}",
         ifvarclass => "role_rudder_db_server_defined";
 
 		policy_server.!(root_server|role_rudder_front)::
