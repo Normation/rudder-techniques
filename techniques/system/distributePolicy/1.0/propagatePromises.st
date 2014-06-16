@@ -120,8 +120,8 @@ bundle agent propagatePromises
 bundle agent sendInventoryToCmdb
 {
   files:
-
-    root_server::
+    # Root server and front send to the endpoint, every other send as usual to their policy server
+    root_server|role_rudder_front::
 
       "${g.rudder_inventories}/incoming"
         transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
@@ -137,7 +137,7 @@ bundle agent sendInventoryToCmdb
         classes => rudder_common_classes("rudder_inventory_processing"),
         comment => "Processing a local inventory";
 
-    policy_server.!root_server::
+    policy_server.!(root_server|role_rudder_front)::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/usr/bin/curl -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
@@ -153,7 +153,7 @@ bundle agent sendInventoryToCmdb
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
-    policy_server.!root_server.!rudder_inventory_relay_error::
+    policy_server.!(root_server|role_rudder_front).!rudder_inventory_relay_error::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
@@ -177,7 +177,7 @@ bundle agent sendInventoryToCmdb
     rudder_inventory_processing_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Some inventories failed to add successfully to Rudder";
 
-    root_server.!rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
+    (root_server|role_rudder_front).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to send";
 
     rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
@@ -186,7 +186,7 @@ bundle agent sendInventoryToCmdb
     rudder_inventory_relay_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Cannot relay some inventories to the root server";
 
-    policy_server.!root_server.!rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
+    policy_server.!(root_server|role_rudder_front).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to relay";
 
     rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error::

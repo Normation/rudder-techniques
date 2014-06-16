@@ -19,24 +19,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SYSTEM>true</SYSTEM>
 
   <TMLS>
-    <TML>component-check</TML>
-    <TML>alive-check</TML>
-    <TML>init-check</TML>
-    <TML>integrity-check</TML>
-    <TML>network-check</TML>
-    <TML>password-check</TML>
-    <TML>postgres-check</TML>
-    <TML>logrotate-check</TML>
+    <TML name="component-check"/>
+    <TML name="alive-check"/>
+    <TML name="init-check"/>
+    <TML name="integrity-check"/>
+    <TML name="network-check"/>
+    <TML name="password-check"/>
+    <TML name="postgres-check"/>
+    <TML name="logrotate-check"/>
     <TML name="rudder-logrotate">
-      <OUTPATH>distributePolicy/logrotate.conf/rudder</OUTPATH>
+      <OUTPATH>server-roles/logrotate.conf/rudder</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML>technique-reload</TML>
+    <TML name="technique-reload"/>
+    <TML name="servers-by-role"/>
+    <TML name="rudder-server-roles">
+      <OUTPATH>rudder-server-roles.conf</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
 
   <BUNDLES>
     <NAME>root_component_check</NAME>
   </BUNDLES>
+
+  <SYSTEMVARS>
+    <NAME>RUDDER_SERVER_ROLES</NAME>
+  </SYSTEMVARS>
 
   <SECTIONS>
     <SECTION name="Check postgresql process" component="true"/>
