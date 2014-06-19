@@ -74,7 +74,7 @@ bundle common va
      };
 
       "inputs_list" slist => {
-        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/techniqueReload.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf"
+        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/init-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf","server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf"
      };
 
     !policy_server::
