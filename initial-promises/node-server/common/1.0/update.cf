@@ -205,16 +205,16 @@ bundle agent update_action
 
     # same here, if the tools have been updated, we can skip this part
     rudder_promises_generated_repaired.!root_server.(!windows|cygwin)::
-      "${g.rudder_tools}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
+      "${g.rudder_tools}/${g.rudder_tools_files}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}/${g.rudder_tools_files}"),
       #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action => immediate,
         classes => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
 
     rudder_promises_generated_repaired.!root_server.(windows.!cygwin)::
-      "${g.rudder_sbin}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
+      "${g.rudder_sbin}/${g.rudder_tools_files}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}/${g.rudder_tools_files}"),
       #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action => immediate,
