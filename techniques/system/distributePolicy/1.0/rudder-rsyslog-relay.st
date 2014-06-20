@@ -39,7 +39,7 @@ $ActionQueueSaveOnShutdown on
 # Filtering by content
 # Process :
 # We forward the log to the root server, and we drop the message
-if $programname startswith 'rudder' and $msg startswith '  R: @@' then @@${server_info.cfserved}:&SYSLOGPORT&
+if $programname startswith 'rudder' then @@${server_info.cfserved}:&SYSLOGPORT&
 
 # We shouldn't have any rudder message here left
 if $programname startswith 'rudder' then ~
