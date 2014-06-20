@@ -57,7 +57,7 @@ body common control
 
     policy_server::
 
-        bundlesequence => { @(va.bs),"setup_debian_backports","install_rsyslogd","propagatePromises","root_component_check", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @(va.end)};
+        bundlesequence => { @{va.bs}, "install_rsyslogd", "propagatePromises", "root_component_check", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @{va.end}};
 
     !policy_server::
 
