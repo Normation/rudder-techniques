@@ -45,9 +45,9 @@ $ActionQueueSaveOnShutdown on
 # Process :
 # We first log the data in the file, then forward it to the root server, and we drop the message
 
-if $programname startswith 'rudder' and $msg startswith '  R: @@' then /var/log/rudder/reports/extLinuxReport.log
+if $programname startswith 'rudder' then /var/log/rudder/reports/extLinuxReport.log
 
-if $programname startswith 'rudder' and $msg startswith '  R: @@' then @@${server_info.cfserved}:&SYSLOGPORT&
+if $programname startswith 'rudder' then @@${server_info.cfserved}:&SYSLOGPORT&
 
 # We shouldn't have any rudder message here left
 if $programname startswith 'rudder' then ~
