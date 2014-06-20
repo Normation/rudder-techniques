@@ -87,7 +87,7 @@ bundle common g
                                               "fusionagent.exe",
                                               "centreon-e2s.exe",
                                               "e2s.tpl",
-                                              "checkroute.pl" };
+                                            };
 
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
@@ -137,23 +137,26 @@ bundle common g
     !linux.!cygwin.!windows.!android.!aix::
       "execRun" string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
-    linux::
-      "rudder_tools_files_linux"   slist => { "send-clean.sh",
+    !windows.!android::
+      "rudder_tools_files_unix"    slist => { "send-clean.sh",
                                               "cpuid-linux-V1.0.sh",
                                               "vmware_info.sh",
                                               "check_rsyslog_version",
-                                              "apache-vhost.tpl" };
+                                              "apache-vhost.tpl",
+                                            };
     SuSE::
       "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
                                               "openvpn-2.2.1-1.i686.rpm",
                                               "zypper-repo.tpl",
                                               "check_zypper_version",
-                                              "checkzmd.pl" };
+                                              "checkzmd.pl",
+                                            };
     any::
       "rudder_tools_files"         slist => { @{rudder_tools_files_windows},
                                               @{rudder_tools_files_android},
-                                              @{rudder_tools_files_linux},
+                                              @{rudder_tools_files_unix},
                                               @{rudder_tools_files_suse},
+                                              "checkroute.pl",
                                             }, policy => "ifdefined";
 
   classes:
