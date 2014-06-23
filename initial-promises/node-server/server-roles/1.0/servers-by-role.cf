@@ -26,7 +26,7 @@ bundle common rudder_servers_by_role
   vars:
       "dim_array" int => readstringarray("roles", "${sys.workdir}/inputs/rudder-server-roles.conf", "#[^\n]*", ":", 15, 4000);
 
-      "key" slist => getindices("rudder_servers_by_roles.roles");
+      "key" slist => getindices("roles");
 
       # roles[role_name][all] contains ALL the servers with the role hostname
       "roles[${key}][all]" slist => splitstring("${roles[${key}][1]}", ",", "100");
