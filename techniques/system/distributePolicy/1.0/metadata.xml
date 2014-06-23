@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>Distribute policy</DESCRIPTION>
 
   <BUNDLES>
-    <NAME>setup_debian_backports</NAME>
     <NAME>install_rsyslogd</NAME>
     <NAME>propagatePromises</NAME>
     <NAME>sendInventoryToCmdb</NAME>
