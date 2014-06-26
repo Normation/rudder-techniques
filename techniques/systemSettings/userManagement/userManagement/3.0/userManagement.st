@@ -119,11 +119,19 @@ bundle agent check_usergroup_user_parameters
 
       "usermanagement_user_pweverytime_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","everytime");
 
-      "usermanagement_user_pwempty_${usergroup_user_index}" not => isvariable("usergroup_user_password[${usergroup_user_index}]");
+      # with variables that are not unique, the emptyness detection is quite tricky
+      # either the variable is not defined, or the variable value is ""
+      "usermanagement_user_pw_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_password[${usergroup_user_index}]");
+      "usermanagement_user_pw_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_password[${usergroup_user_index}]}");
+      "usermanagement_user_pwempty_${usergroup_user_index}"     expression => "usermanagement_user_pw_no_variable_${usergroup_user_index}|usermanagement_user_pw_no_value_${usergroup_user_index}";
 
-      "usermanagement_user_nameempty_${usergroup_user_index}" not => isvariable("usergroup_user_fullname[${usergroup_user_index}]");
+      "usermanagement_user_name_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_fullname[${usergroup_user_index}]");
+      "usermanagement_user_name_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_fullname[${usergroup_user_index}]}");
+      "usermanagement_user_nameempty_${usergroup_user_index}"     expression => "usermanagement_user_name_no_variable_${usergroup_user_index}|usermanagement_user_name_no_value_${usergroup_user_index}";
 
-      "usermanagement_user_groupempty_${usergroup_user_index}" not => isvariable("usergroup_user_groupname[${usergroup_user_index}]");
+      "usermanagement_user_group_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_groupname[${usergroup_user_index}]");
+      "usermanagement_user_group_no_value_${usergroup_user_index}" expression =>  strcmp("", "${usergroup_user_groupname[${usergroup_user_index}]}");
+      "usermanagement_user_groupempty_${usergroup_user_index}"     expression => "usermanagement_user_group_no_variable_${usergroup_user_index}|usermanagement_user_group_no_value_${usergroup_user_index}";
 
       "usermanagement_user_groupmatchesname_${usergroup_user_index}" expression => strcmp("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}");
 
