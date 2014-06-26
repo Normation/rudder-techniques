@@ -85,7 +85,7 @@ bundle agent root_component_check
         );
 
     # Do this if this is the root_server  a relay server
-r
+
     root_server|policy_server::
       "any" usebundle => root_networks_check;
       "any" usebundle => root_password_check_dav;
