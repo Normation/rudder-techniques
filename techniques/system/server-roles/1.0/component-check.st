@@ -67,8 +67,6 @@ bundle agent root_component_check
 
     # This is to be done only if the package rudder-server-root is present
     role_rudder_server_root::
-      "any" usebundle => root_integrity_check;
-
       # Password management is expected to be done manually in case of a splitted/relayed installation for now.
       "any" usebundle => root_password_check_ldap;
       "any" usebundle => root_password_check_psql;
@@ -76,9 +74,6 @@ bundle agent root_component_check
       "any" usebundle => root_password_restart_jetty;
 
     !role_rudder_server_root::
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "${root_integrity_check}", "None", "Checking configuration-repository is unnecessary on this machine, skipping..."
-        );
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "${root_password_check_ldap}", "None", "Checking LDAP passwords is unnecessary on this machine, skipping..."
         );
@@ -89,16 +84,14 @@ bundle agent root_component_check
           "Check rudder-passwords.conf and pgpass files", "None", "Checking the password files is unnecessary on this machine, skipping..."
         );
 
-    # Do this if the package rudder-server-root is installed OR I am a relay server (serving files but NOT a root server)
-    # This way, I avoid having trouble with splitted installations who match policy_server.root_server because of rudder-webapp
-    # even without having rudder-server-root installed.
-    role_rudder_server_root|(policy_server.!root_server)::
+    # Do this if this is the root_server or a relay server
+    root_server|policy_server::
       "any" usebundle => root_networks_check;
       "any" usebundle => root_password_check_dav;
       "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][initscript]}", "${service[apache][name]}", "false", "${service[apache][check_on_relay_server]}");
       "any" usebundle => generic_process_check_bootstart("${service[apache][binary]}", "${service[apache][initscript]}", "${service[apache][name]}");
 
-    !(role_rudder_server_root|(policy_server.!root_server))::
+    !(root_server|policy_server)::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check rudder-networks.conf file", "None", "Checking rudder-networks.conf is unnecessary on this machine, skipping..."
         );
@@ -126,10 +119,14 @@ bundle agent root_component_check
         );
 
     role_rudder_webapp::
+      "any" usebundle => root_integrity_check;
       "any" usebundle => root_technique_reload;
       "any" usebundle => generic_alive_check("rudder");
 
     !role_rudder_webapp::
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
+          "${root_integrity_check}", "None", "Checking configuration-repository is unnecessary on this machine, skipping..."
+        );
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check rudder status", "None", "Checking rudder webapp status is unnecessary on this machine, skipping..."
         );
