@@ -85,3 +85,14 @@ do
   fi
 done
 
+# Check that we are not using classes to detect distribution version as DistributionVersion (which does not exists)
+find ${REPOSITORY_PATH}/techniques -type f -name "*.st" | while read filename
+do
+    CHECK_CLASS_DISTRIB=`egrep 'debian[1-9]|redhat[1-9]|centos[1-9]' "$filename" | wc -l`
+    if [ ${CHECK_CLASS_DISTRIB} -ne 0 ]
+    then
+        echo "Reason: found invalid use of class DistributionVersion that does not exists in file ${filename}"
+        exit 8
+    fi
+done
+
