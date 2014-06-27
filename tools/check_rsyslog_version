@@ -1,14 +1,24 @@
-#!/bin/bash
-set -e
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
+from subprocess import Popen, PIPE # To use command-line
+from distutils.version import LooseVersion # To compare versions
 
-# Add PATH to ensure that binaries will always be found
-PATH=${PATH}:/usr/local/sbin:/usr/local/bin:/sbin:/bin:/usr/sbin:/usr/bin
+# Initialize versions to compare
+target_rsyslogd_version='5.7.1'
+local_rsyslogd_version=''
 
-TARGET_VER='5.7.1'
-LOCAL_VER=`rsyslogd -v | head -n1 | sed "s/^rsyslogd \([^, ]*\).*$/\1/"`
-
-if [ "$LOCAL_VER" \> "$TARGET_VER" -o "z$LOCAL_VER" == "z$TARGET_VER" ];then
-  echo "+rsyslog_greater_than_5_7_1"
-else
-  echo "+rsyslog_older_than_5_7_1"
-fi
+try:
+  # Use return of command 'rsyslogd -v | head -n1 | sed "s/^rsyslogd \([^, ]*\).*$/\1/"'
+  p1 = Popen(["rsyslogd", "-v"], stdout=PIPE)
+  p2 = Popen(["head","-n1"], stdin=p1.stdout, stdout=PIPE)
+  p3 = Popen(["sed", "s/^rsyslogd \\([^, ]*\\).*$/\\1/"], stdin=p2.stdout, stdout=PIPE)
+  local_rsyslogd_version=p3.communicate()[0]
+  # Compare versions
+  if LooseVersion(local_rsyslogd_version) > LooseVersion(target_rsyslogd_version):
+    print "+rsyslog_greater_than_5_7_1"
+  else:
+    print "+rsyslog_older_than_5_7_1"
+except OSError:
+  print "Error: rsyslogd binary not found"
+except AttributeError, e: # Handle errors during comparison
+  print "Error: %s" % e
