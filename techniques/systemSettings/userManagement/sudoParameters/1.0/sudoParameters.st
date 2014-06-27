@@ -24,11 +24,6 @@
 
 bundle agent check_sudo_parameters
 {
-
-  classes:
-
-      "sudoconfiguration_sudoers_present" expression => fileexists("/etc/sudoers");
-
   vars:
 
                 &SUDO_TYPE:{type |"sudo_entity_type[&i&]" string => "&type&";
@@ -51,20 +46,29 @@ bundle agent check_sudo_parameters
 
       "sudo_index" slist => getindices("sudo_entity_type");
 
+    pass_1.visudo_use_strict_mode::
+      "strict_mode" string => "-s ";
+
+    pass_1.!visudo_use_strict_mode::
+      "strict_mode" string => "";
+
+  classes:
+
+      "sudoconfiguration_sudoers_present" expression => fileexists("/etc/sudoers");
+
+      # Check the version of visudo; if before 1.7 (so 1.6 or less), we need to use strict mode
+      # For version 1.7, bugs in the strict parsing prevent from using safely the strict mode (see http://www.sudo.ws/bugs/show_bug.cgi?id=519 )
+      # Versions after 1.7 don't need to have Aliases defined before they are used, and strict mode only checks that, so we can safely ignore it
+      # visudo -V can returns several lines, so we need to keep only the visudo version line
+      "visudo_use_strict_mode" expression => returnszero("/usr/sbin/visudo  -V | grep 'visudo version' | sed -e 's/visudo version \([0-9]\+\)\.\([0-9]\+\)\..*/\1 \2/p' | awk '{ if(($1<1)||($1==1 \&\& $2<=6)) { exit 0 }; exit 1 }'", "useshell");
+
+      "pass_1" expression => "any";
+      "pass_2" expression => isvariable("strict_mode");
   methods:
 
       "any"
 
         usebundle => check_sudo_installation("${sudo_directive_id[${sudo_index}]}");
-
-  commands:
-
-    sudoconfiguration_sudoers_tmp_edit_repair|sudoconfiguration_sudoers_tmp_edit_kept::
-
-      "/usr/sbin/visudo"
-        args => "-c -s -f /etc/sudoers.rudder",
-        classes => cf2_if_else("sudoconfiguration_sudoers_valid", "sudoconfiguration_sudoers_invalid"),
-        comment => "Checking new sudoers validity";
 
   files:
 
@@ -105,6 +109,15 @@ bundle agent check_sudo_parameters
         perms => mog("0440", "root", "root"),
         classes => kept_if_else("sudoconfiguration_sudoers_copy_kept", "sudoconfiguration_sudoers_copy_repaired", "sudoconfiguration_sudoers_copy_error"),
         comment => "Copying sudoers to its final home";
+
+  commands:
+
+    (sudoconfiguration_sudoers_tmp_edit_repair|sudoconfiguration_sudoers_tmp_edit_kept).pass_2::
+
+      "/usr/sbin/visudo"
+        args => "-c ${strict_mode} -f /etc/sudoers.rudder",
+        classes => cf2_if_else("sudoconfiguration_sudoers_valid", "sudoconfiguration_sudoers_invalid"),
+        comment => "Checking new sudoers validity";
 
   reports:
 

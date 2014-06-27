@@ -59,7 +59,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
         string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
 
     # Class specific parameters
-    rudder_openssh_server_address_family_edit.!(debian3|redhat3|redhat4)::
+    rudder_openssh_server_address_family_edit.!(debian_3|redhat_3|redhat_4|centos_3|centos_4)::
       "sshd[AddressFamily]"
         string => "&OPENSSH_SERVER_ADDRESSFAMILY&";
 
@@ -67,7 +67,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
       "sshd[Protocol]"
         string => "&OPENSSH_SERVER_PROTOCOL&";
 
-    rudder_openssh_server_max_sessions_edit.!(redhat|SuSE|debian3|debian4)::
+    rudder_openssh_server_max_sessions_edit.!(redhat|SuSE|debian_3|debian_4)::
       "sshd[MaxSessions]"
         string => "&OPENSSH_SERVER_MAXSESSIONS&";
 
@@ -91,7 +91,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
       "sshd[PermitRootLogin]"
         string => "&OPENSSH_SERVER_PERMITROOTLOGIN&";
 
-    rudder_openssh_server_max_auth_tries_edit.!(debian3|redhat3)::
+    rudder_openssh_server_max_auth_tries_edit.!(debian_3|redhat_3)::
       "sshd[MaxAuthTries]"
         string => "&OPENSSH_SERVER_MAXAUTHTRIES&";
 
@@ -107,7 +107,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
       "sshd[StrictModes]"
         string => "&OPENSSH_SERVER_STRICTMODES&";
 
-    rudder_openssh_server_allow_agent_forwarding_edit.!(redhat|SuSE|debian3|debian4)::
+    rudder_openssh_server_allow_agent_forwarding_edit.!(redhat|SuSE|debian_3|debian_4)::
       "sshd[AllowAgentForwarding]"
         string => "&OPENSSH_SERVER_ALLOWAGENTFORWARDING&";
 
@@ -115,7 +115,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
       "sshd[AllowTcpForwarding]"
         string => "&OPENSSH_SERVER_ALLOWTCPFORWARDING&";
 
-    rudder_openssh_server_permit_tunnel_edit.!(SuSE|debian3|redhat3|redhat4)::
+    rudder_openssh_server_permit_tunnel_edit.!(SuSE|debian_3|redhat_3|redhat_4|centos_3|centos_4)::
       "sshd[PermitTunnel]"
         string => "&OPENSSH_SERVER_PERMITTUNNEL&";
 
@@ -135,7 +135,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
       "sshd[PrintMotd]"
         string => "&OPENSSH_SERVER_PRINTMOTD&";
 
-    rudder_openssh_server_tcp_keepalive_edit.!redhat3::
+    rudder_openssh_server_tcp_keepalive_edit.!(redhat_3|centos_3)::
       "sshd[TCPKeepAlive]"
         string => "&OPENSSH_SERVER_TCPKEEPALIVE&";
 
@@ -282,25 +282,25 @@ bundle agent rudder_openssh_server_configuration(service_name)
     # Warn about features that are not implemented on all platforms
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"address family\" isn't implemented on Red Hat/CentOS/SuSE/Debian 3 and 4"),
-        ifvarclass => "rudder_openssh_server_address_family_edit.(redhat|SuSE|debian3|debian4)";
+        ifvarclass => "rudder_openssh_server_address_family_edit.(redhat|SuSE|debian_3|debian_4)";
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"maximum authentication attemps per connection\" isn't implemented on Red Hat/CentOS 3/Debian 3"),
-        ifvarclass => "rudder_openssh_server_max_auth_tries_edit.(redhat3|debian3)";
+        ifvarclass => "rudder_openssh_server_max_auth_tries_edit.(redhat_3|centos_3|debian_3)";
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"agent forwarding\" isn't implemented on Red Hat/CentOS/SuSE/Debian 3 and 4"),
-        ifvarclass => "rudder_openssh_server_allow_agent_forwarding_edit.(redhat|SuSE|debian3|debian4)";
+        ifvarclass => "rudder_openssh_server_allow_agent_forwarding_edit.(redhat|SuSE|debian_3|debian_4)";
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"max sessions\" isn't implemented on Red Hat/CentOS/SuSE/Debian 3 and 4"),
-        ifvarclass => "rudder_openssh_server_max_sessions_edit.(redhat|SuSE|debian3|debian4)";
+        ifvarclass => "rudder_openssh_server_max_sessions_edit.(redhat|SuSE|debian_3|debian_4)";
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"permit tunnel\" isn't implemented on SuSE/Debian 3/Redhat/CentOS3 and4"),
-        ifvarclass => "rudder_openssh_server_permit_tunnel_edit.(SuSE|debian3|redhat3|redhat4)";
+        ifvarclass => "rudder_openssh_server_permit_tunnel_edit.(SuSE|debian_3|redhat_3|redhat_4|centos_3|centos_4)";
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${service_name} parameter \"TCP Keep Alive (Time before disconnect)\" isn't implemented on Red Hat/CentOS 3"),
-        ifvarclass => "rudder_openssh_server_tcp_keepalive_edit.(redhat3)";
+        ifvarclass => "rudder_openssh_server_tcp_keepalive_edit.(redhat_3|centos_3)";
 
 
     "any"
