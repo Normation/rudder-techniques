@@ -167,6 +167,6 @@ bundle common g
     "role_rudder_webapp"             expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
     "role_rudder_inventory_endpoint" expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-endpoint");
     "role_rudder_reports"            expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
-    "role_rudder_front"              expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-front");
+    "role_rudder_relay_top"          expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-relay-top");
 
 }
