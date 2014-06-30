@@ -21,7 +21,7 @@
 bundle agent install_rsyslogd {
 	vars:
 
-		root_server|role_rudder_front::
+		root_server|role_rudder_relay_top::
 			"rsyslog_source_file" string => "rudder-rsyslog-root.conf";
 
       # Define the where to send the syslog messages
@@ -31,7 +31,7 @@ bundle agent install_rsyslogd {
       "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}",
         ifvarclass => "role_rudder_db_server_defined";
 
-		policy_server.!(root_server|role_rudder_front)::
+		policy_server.!(root_server|role_rudder_relay_top)::
 			"rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
 
 	packages:
