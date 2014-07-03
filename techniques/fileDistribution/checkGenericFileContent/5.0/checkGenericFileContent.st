@@ -248,6 +248,9 @@ classes:
       "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) could not to be executed"
         ifvarclass => "generic_file_content_posthook_$(index)_command_run_failed";
 
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#${generic_file_content_path[${index}]} already exists, skipping command execution"
+        ifvarclass => "execute_command_${index}.creation_only_but_already_exists_${index}";
+
 }
 
 
