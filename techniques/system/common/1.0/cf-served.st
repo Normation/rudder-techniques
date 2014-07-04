@@ -80,10 +80,6 @@ bundle server access_rules
      } &
   &endif&
 
-      # the policy server must have access to the cfengine folder
-      "${sys.workdir}"
-        maproot => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  },
-        admit   => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  };
 &endif&
 
   roles:
