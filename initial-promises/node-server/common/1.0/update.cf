@@ -92,10 +92,10 @@ bundle common server_info
     any::
       "policy_files"  string  => "/var/rudder/share/${g.uuid}";   #directory where to look for promises in the server for that client
 
-    policy_server::
-      "cfserved" string => "%%POLICY_SERVER_HOSTNAME%%";
+    root_server::
+      "cfserved" string => "localhost";
 
-    !policy_server::
+    !root_server::
       "policy_server_file"
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";

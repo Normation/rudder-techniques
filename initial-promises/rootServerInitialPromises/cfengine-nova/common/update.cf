@@ -45,7 +45,7 @@ bundle common server_info
 {
   vars:
     any::
-      "cfserved" string      => "%%POLICY_SERVER_HOSTNAME%%";
+      "cfserved" string      => "localhost";
       "policy_files" string  => "/var/rudder/share/root";   #directory where to look for promises in the server for that client
 }
 
