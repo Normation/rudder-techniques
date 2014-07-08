@@ -28,13 +28,15 @@ bundle agent install_rsyslogd
     rsyslog_port_not_found::
       "rsyslog_port[2]"    string => "514";
 
-    root_server|role_rudder_relay_top::
-      # Define the where to send the syslog messages
-      # default is localhost if the rudder_db is unknown
-      "rudder_postgres_server" string => "localhost",
-        ifvarclass => "!role_rudder_db_server_defined";
-      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}",
-        ifvarclass => "role_rudder_db_server_defined";
+    # Define the where to send the syslog messages
+    # default is localhost if the rudder_db is unknown
+    # or if the role rudder-server-root is installed
+
+    root_server.(!role_rudder_db_server_defined|role_rudder_server_root)::
+      "rudder_postgres_server" string => "localhost";
+
+    (root_server|role_rudder_relay_top).role_rudder_db_server_defined.!role_rudder_server_root::
+      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}";
 
   classes:
     # There is no "equals" function for ints in CFEngine (currently, at least) so we compare strings
