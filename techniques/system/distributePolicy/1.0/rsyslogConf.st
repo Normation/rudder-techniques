@@ -19,20 +19,24 @@
 # Configure rsyslog on the root/relay servers
 
 bundle agent install_rsyslogd {
-	vars:
 
-		root_server|role_rudder_relay_top::
-			"rsyslog_source_file" string => "rudder-rsyslog-root.conf";
+  vars:
 
-      # Define the where to send the syslog messages
-      # default is localhost if the rudder_db is unknown
-      "rudder_postgres_server" string => "localhost",
-        ifvarclass => "!role_rudder_db_server_defined";
-      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}",
-        ifvarclass => "role_rudder_db_server_defined";
+    root_server|role_rudder_relay_top::
+      "rsyslog_source_file" string => "rudder-rsyslog-root.conf";
 
-		policy_server.!(root_server|role_rudder_relay_top)::
-			"rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
+    # Define the where to send the syslog messages
+    # default is localhost if the rudder_db is unknown
+    # or if the role rudder-server-root is installed
+
+    root_server.(!role_rudder_db_server_defined|role_rudder_server_root)::
+      "rudder_postgres_server" string => "localhost";
+
+    (root_server|role_rudder_relay_top).role_rudder_db_server_defined.!role_rudder_server_root::
+      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}";
+
+    policy_server.!(root_server|role_rudder_relay_top)::
+      "rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
 
 	packages:
 
