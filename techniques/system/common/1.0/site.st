@@ -161,6 +161,7 @@ bundle common g
     "curl_installed"                 expression => isexecutable("${rudder_curl}");
 
     # Roles
+    "rudder_server_roles_dir_exists" expression => isdir("${server_roles_path}");
     "role_rudder_server_root"        expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root");
     "role_rudder_inventory_ldap"     expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-ldap");
     "role_rudder_jetty"              expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-jetty");

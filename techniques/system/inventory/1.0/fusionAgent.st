@@ -432,6 +432,7 @@ bundle agent addInformationsToInventory
 
       "USER"       string => execresult("${USER_cmd}", "noshell");
 
+    rudder_server_roles_dir_exists::
       # Roles of the system, fetch from the server_roles_path folder
       # Don't extract file starting by . (especially . and .., but also hidden files)
       "rudder_roles" slist => lsdir("${g.server_roles_path}", "^[^.].*", "false");
@@ -462,6 +463,7 @@ bundle agent addInformationsToInventory
         edit_defaults => def_no_backup,
         pathtype => "regex";
 
+    windows.rudder_server_roles_dir_exists::
       "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
         edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         edit_defaults => def_no_backup,
@@ -478,6 +480,7 @@ bundle agent addInformationsToInventory
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup;
 
+    !windows.uuiddefined.rudder_server_roles_dir_exists::
       "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         edit_defaults => def_no_backup;
