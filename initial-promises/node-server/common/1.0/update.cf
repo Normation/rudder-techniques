@@ -78,7 +78,7 @@ body copy_from remote_unsecured_without_perms(server, path)
         encrypt    => "false";
         trustkey   => "true";
         source     => "${path}";
-        compare    => "mtime";
+        compare    => "digest";
         preserve   => "false";
         verify     => "true";
         purge      => "true";
