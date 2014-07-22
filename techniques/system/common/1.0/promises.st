@@ -89,17 +89,24 @@ bundle common va
     any::
       "end" slist => { "endExecution" };
 
-    !android::
-      "ncf_find" string => "/usr/bin/find /var/rudder/ncf";
+    # Definition of all the elements from ncf to include as part of the inputs
+
+    ## 1 - On Android, the find binary is part of the external system utilities, but with standard GNU-like syntax.
     android::
-      "ncf_find" string => "/system/xbin/find /data/rudder/ncf";
+      "ncf_common_inputs" slist => splitstring(execresult("/system/xbin/find /data/rudder/ncf/common -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
+      "ncf_local_inputs"  slist => splitstring(execresult("/system/xbin/find /data/rudder/ncf/local -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
 
-    any::
-      "ncf_common_inputs" slist => splitstring(execresult("${ncf_find}/common -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
-      "ncf_local_inputs"  slist => splitstring(execresult("${ncf_find}/local -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
+    ## 2 - On AIX, find is part of the standard PATH, but this non GNU find is unable to use "-not", so we use grep -v instead. "useshell" is necessary.
+    aix::
+      "ncf_common_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/common -name '*.cf' | /bin/grep -v 'promises.cf'", "useshell"), "\n", 10000);
+      "ncf_local_inputs"  slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/local -name '*.cf' | /bin/grep -v 'promises.cf'", "useshell"), "\n", 10000);
 
+    ## 3 - If neither of those special cases is relevant, assume a "-not"-able find is available in the PATH.
+    !android.!aix::
+      "ncf_common_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/common -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
+      "ncf_local_inputs"  slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/local -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
 
-# definition of the machine roles
+    # definition of the machine roles
 &NODEROLE&
 }
 
