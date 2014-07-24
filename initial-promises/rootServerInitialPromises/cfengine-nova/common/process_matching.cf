@@ -40,14 +40,13 @@ bundle agent process_matching
   processes:
 
     restart_cf.!policy_server::
-      "${cf_components}" signals => { "${stop_signal}" };
+      "${cf_components}"                    signals => { "${stop_signal}" };
 
     restart_cf.policy_server::
       "${sys.workdir}/bin/${cf_components}" signals => { "${stop_signal}" };
 
     restart_cf.!windows::
-      "${sys.workdir}/bin/cf-execd"  signals => { "${stop_signal}" };
-
+      "${sys.workdir}/bin/cf-execd"         signals => { "${stop_signal}" };
 
   commands:
 
