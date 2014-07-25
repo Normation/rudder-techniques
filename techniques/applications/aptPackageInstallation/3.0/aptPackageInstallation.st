@@ -47,6 +47,9 @@ bundle agent check_apt_package_installation
     &APT_PACKAGE_VERSION:{version |"apt_version[&i&]" string => "&version&";
     }&
 
+    &APT_PACKAGE_BACKPORT_NAME:{apt_backport_name |"apt_backport_name[&i&]" string => "&apt_backport_name&";
+    }&
+
     &TRACKINGKEY:{piuuid |"apt_policy_instance_uuid[&i&]" string => "&piuuid&";
     }&
 
@@ -57,25 +60,45 @@ bundle agent check_apt_package_installation
   classes:
 
       "${index_aptpkg}_package_version_defined" not => strcmp("${apt_version_definition[${index_aptpkg}]}", "default");
+    &APT_PACKAGE_BACKPORT_ENABLE:{apt_backport_enable |"apt_backport_enable_&i&" expression => strcmp("&apt_backport_enable&","yes");
+    }&
 
   packages:
 
     debian::
+      # For apt without backport
       "${apt_package[${index_aptpkg}]}"
         package_policy  => "${apt_action[${index_aptpkg}]}",
         package_method  => apt_nobulk("30", "$(apt_allow_untrusted[$(index_aptpkg)])"),
-        classes => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),
-        ifvarclass => "!${index_aptpkg}_package_version_defined",
-        comment => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
+        classes         => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),
+        ifvarclass      => "!${index_aptpkg}_package_version_defined.!apt_backport_enable[${index_aptpkg}]",
+        comment         => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
 
       "${apt_package[${index_aptpkg}]}"
         package_policy  => "${apt_action[${index_aptpkg}]}",
         package_method  => apt_nobulk("30", "$(apt_allow_untrusted[$(index_aptpkg)])"),
-        package_select   => "${apt_version_criterion[${index_aptpkg}]}",
-        package_version  => "${apt_version[${index_aptpkg}]}",
-        classes => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),
-        ifvarclass => "${index_aptpkg}_package_version_defined",
-        comment => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
+        package_select  => "${apt_version_criterion[${index_aptpkg}]}",
+        package_version => "${apt_version[${index_aptpkg}]}",
+        classes         => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),
+        ifvarclass      => "${index_aptpkg}_package_version_defined.!apt_backport_enable[${index_aptpkg}]",
+        comment         => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
+
+      # For apt with backport
+      "${apt_package[${index_aptpkg}]}"
+        package_policy  => "${apt_action[${index_aptpkg}]}",
+        package_method  => apt_backport_nobulk("30", "$(apt_allow_untrusted[$(index_aptpkg)])","${apt_backport_name[${index_aptpkg}]}"),
+        classes         => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),
+        ifvarclass      => "!${index_aptpkg}_package_version_defined.apt_backport_enable_${index_aptpkg}",
+        comment         => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
+
+      "${apt_package[${index_aptpkg}]}"
+        package_policy  => "${apt_action[${index_aptpkg}]}",
+        package_method  => apt_backport_nobulk("30", "$(apt_allow_untrusted[$(index_aptpkg)])","${apt_backport_name[${index_aptpkg}]}"),
+        package_select  => "${apt_version_criterion[${index_aptpkg}]}",
+        package_version => "${apt_version[${index_aptpkg}]}",
+        classes         => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),
+        ifvarclass      => "${index_aptpkg}_package_version_defined.apt_backport_enable_${index_aptpkg}",
+        comment         => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
 
   reports:
 
@@ -96,20 +119,41 @@ body package_method apt_nobulk(apt_pkg_timeout, allow_untrusted)
 {
 
     debian::
-        package_changes => "individual";
+        package_changes               => "individual";
         package_list_update_ifelapsed => "${apt_pkg_timeout}";
 
-        package_list_command => "/usr/bin/dpkg -l";
-        package_list_name_regex    => ".i\s+([^\s:]+).*";
-        package_list_version_regex => ".i\s+[^\s]+\s+([^\s]+).*";
-        package_installed_regex => ".i.*"; # packages that have been uninstalled may be listed
-        package_name_convention => "${name}";
+        package_list_command          => "/usr/bin/dpkg -l";
+        package_list_name_regex       => ".i\s+([^\s:]+).*";
+        package_list_version_regex    => ".i\s+[^\s]+\s+([^\s]+).*";
+        package_installed_regex       => ".i.*"; # packages that have been uninstalled may be listed
+        package_name_convention       => "${name}";
 
-        package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false -o Apt::Get::AllowUnauthenticated=${allow_untrusted} --yes install";
-        package_list_update_command => "/usr/bin/apt-get update";
-        package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -q remove";
-        package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false -o Apt::Get::AllowUnauthenticated=${allow_untrusted} --yes install";
-        package_verify_command => "/usr/bin/dpkg -s";
-        package_noverify_returncode => "1";
+        package_add_command           => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false -o Apt::Get::AllowUnauthenticated=${allow_untrusted} --yes install";
+        package_list_update_command   => "/usr/bin/apt-get update";
+        package_delete_command        => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -q remove";
+        package_update_command        => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false -o Apt::Get::AllowUnauthenticated=${allow_untrusted} --yes install";
+        package_verify_command        => "/usr/bin/dpkg -s";
+        package_noverify_returncode   => "1";
 
+}
+
+body package_method apt_backport_nobulk(apt_pkg_timeout, allow_untrusted, apt_backport)
+{
+
+    debian::
+        package_changes               => "individual";
+        package_list_update_ifelapsed => "${apt_pkg_timeout}";
+
+        package_list_command          => "/usr/bin/dpkg -l";
+        package_list_name_regex       => ".i\s+([^\s:]+).*";
+        package_list_version_regex    => ".i\s+[^\s]+\s+([^\s]+).*";
+        package_installed_regex       => ".i.*"; # packages that have been uninstalled may be listed
+        package_name_convention       => "${name}";
+
+        package_add_command           => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false -o Apt::Get::AllowUnauthenticated=${allow_untrusted} --yes -t ${apt_backport} install";
+        package_list_update_command   => "/usr/bin/apt-get update";
+        package_delete_command        => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -q remove";
+        package_update_command        => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false -o Apt::Get::AllowUnauthenticated=${allow_untrusted} --yes -t ${apt_backport} install";
+        package_verify_command        => "/usr/bin/dpkg -s";
+        package_noverify_returncode   => "1";
 }
