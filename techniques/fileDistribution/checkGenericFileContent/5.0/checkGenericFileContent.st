@@ -240,7 +240,7 @@ classes:
         ifvarclass => "!execute_command_$(index)";
 
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#$(generic_file_content_path[$(index)]) was in the proper state, so no command to execute"
-        ifvarclass => "execute_command_$(index).content_$(index)_kept.!content_$(index)_modified";
+        ifvarclass => "execute_command_$(index).file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired";
 
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) was correctly executed"
         ifvarclass => "generic_file_content_posthook_$(index)_command_run_ok";
