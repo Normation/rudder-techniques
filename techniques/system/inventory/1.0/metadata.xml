@@ -21,6 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <MULTIINSTANCE>false</MULTIINSTANCE>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <BUNDLES>
     <NAME>fetchFusionTools</NAME>
     <NAME>virtualMachines</NAME>
