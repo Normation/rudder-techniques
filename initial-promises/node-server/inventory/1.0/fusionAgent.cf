@@ -95,8 +95,8 @@ bundle common inventory
   vars:
     windows::
     # Files names
-      "UserListFile_cp" string => "${g.rudder_var_tmp}\UserList.tmp";
-      "UserListFile" string => "${g.rudder_var_tmp}\UserList.list";
+      "UserListFile_cp" string => "\"${g.rudder_var_tmp}\UserList.tmp\"";
+      "UserListFile" string => "\"${g.rudder_var_tmp}\UserList.list\"";
 
     any::
       "CPUIDFile" string => "${g.rudder_var_tmp}/cpuid.arc";
@@ -161,8 +161,8 @@ bundle agent fusionAgent {
         comment => "Generating inventory, in the temporary folder";
 
     windows::	    
-      "\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
-        args => "\"${g.rudder_base_sbin}\perl\bin\fusioninventory-agent\" --local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
+      "\"c:\Program Files\FusionInventory-Agent\fusioninventory-inventory.bat\""
+        args => "--local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
         contain => in_shell,
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory";
@@ -253,7 +253,7 @@ bundle agent generateExtraInformations
   commands:
     windows.rudder_inventory_userlist_tool_present::
       "\"${g.rudder_tools}\userlist.bat\""
-        args => " > \"${inventory.UserListFile_cp}\" ",
+        args => " > ${inventory.UserListFile_cp} ",
         contain => outputable,
         classes => cf2_if_else("userlist", "userlist_fail"),
         comment => "Generating file with list of users";
@@ -309,7 +309,7 @@ bundle agent turnUsersToUnicode
   commands:
     windows::
       "\"${g.rudder_tools}\iconv.exe\""
-        args => " -f CP850 -t UTF-8 \"${inventory.UserListFile_cp}\" > \"${inventory.UserListFile}\" ",
+        args => " -f CP850 -t UTF-8 ${inventory.UserListFile_cp} > ${inventory.UserListFile} ",
         contain => outputable_dir("${g.rudder_tools}"),
         classes => cf2_if_else("userlist", "userlist_fail"),
         comment => "Generating file with list of users in UTF";
@@ -332,10 +332,8 @@ bundle agent addInformationsToInventory
       "USER" string => getenv("USERNAME", 40);
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_tools}/uuid.vbs\"","noshell");
       "polserv_uuid" string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
-
-    windows.!cygwin.rudder_inventory_userlist_tool_present::
-
-      "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",50,4000) };
+      # Somehow, using the variable rather than the path fails with readstringlist
+      "users" slist => { readstringlist("C:\Program Files\Rudder\var\tmp\UserList.list","#.*","[\n| |\r]",50,4000) };
 
     cygwin::
       "mywinpath" string => execresult("/usr/bin/echo $WINDIR ", "useshell");
@@ -343,8 +341,6 @@ bundle agent addInformationsToInventory
       "USER" string => execresult("/usr/bin/whoami", "noshell");
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_tools}/uuid.vbs","noshell");
       "polserv_uuid" string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
-
-    cygwin.rudder_inventory_userlist_tool_present::
 
       "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
@@ -401,17 +397,15 @@ bundle agent addInformationsToInventory
       "uuiddefined" expression => isvariable("RUDDERUUID");
   files:
     windows::
-      "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
+      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
     #"${g.esc_rudder_var_tmp}\inventory\.*.ocs"
         edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
-        edit_defaults => def_no_backup,
-        pathtype => "regex";
+        edit_defaults => def_no_backup;
 
-      "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
+      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
     #"${g.esc_rudder_var_tmp}\inventory\.*.ocs"
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
-        edit_defaults => def_no_backup,
-        pathtype => "regex";
+        edit_defaults => def_no_backup;
 
     windows.rudder_server_roles_dir_exists::
       "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
@@ -488,7 +482,7 @@ bundle agent sendInventory
 
     # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl.exe\" -f -s --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
   files:
