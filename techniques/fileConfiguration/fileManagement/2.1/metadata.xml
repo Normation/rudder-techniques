@@ -154,6 +154,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 					<DEFAULT>1</DEFAULT>
 				</CONSTRAINT>
 			</SELECT1>
+			<INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_SUID</NAME>
+				<DESCRIPTION>Set SetUID bit?</DESCRIPTION>
+				<LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
+				<CONSTRAINT>
+					<TYPE>boolean</TYPE>
+				</CONSTRAINT>
+			</INPUT>
+			<INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_SGID</NAME>
+				<DESCRIPTION>Set SetGID bit?</DESCRIPTION>
+				<LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
+				<CONSTRAINT>
+					<TYPE>boolean</TYPE>
+				</CONSTRAINT>
+			</INPUT>
 		</SECTION>
 	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH" displayPriority="low">
 		  <INPUT>

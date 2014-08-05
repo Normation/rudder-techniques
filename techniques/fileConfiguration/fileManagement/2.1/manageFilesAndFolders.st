@@ -49,6 +49,24 @@ bundle agent manageFilesAndFolders {
 
 		"index" slist => getindices("file");
 
+  iteration_1::
+    "extended_modes_${index}"
+      string     => "4",
+      ifvarclass => "enable_suid_${index}.!enable_sgid_${index}";
+
+    "extended_modes_${index}"
+      string     => "2",
+      ifvarclass => "!enable_suid_${index}.enable_sgid_${index}";
+
+    "extended_modes_${index}"
+      string     => "6",
+      ifvarclass => "enable_suid_${index}.enable_sgid_${index}";
+
+    "extended_modes_${index}"
+      string     => "0",
+      ifvarclass => "!enable_suid_${index}.!enable_sgid_${index}";
+
+
 	classes:
 
 		# Set a class to define when we need to run the post-modification hook
@@ -83,11 +101,21 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_DELETION_OPTION:{delopt | "manageFilesAndFolders_deletion_exterminate_&i&" expression => strcmp("&delopt&", "exterminate");
 }&
-		"manageFilesAndFolders_isdir_$(index)" expression => isdir("$(file[$(index)][path])");
-		"manageFilesAndFolders_isfile_$(index)" expression => isplain("$(file[$(index)][path])");
-		"manageFilesAndFolders_islink_$(index)" expression => islink("$(file[$(index)][path])");
+
+      &FILE_AND_FOLDER_MANAGEMENT_SUID:{suid |"enable_suid_&i&" expression => strcmp("&suid&", "true");
+}&
+      &FILE_AND_FOLDER_MANAGEMENT_SGID:{sgid |"enable_sgid_&i&" expression => strcmp("&sgid&", "true");
+}&
+
+      "manageFilesAndFolders_isdir_$(index)" expression => isdir("$(file[$(index)][path])");
+      "manageFilesAndFolders_isfile_$(index)" expression => isplain("$(file[$(index)][path])");
+      "manageFilesAndFolders_islink_$(index)" expression => islink("$(file[$(index)][path])");
+
+      "iteration_2" expression => "iteration_1";
+      "iteration_1" expression => "any";
  
 	files:
+      iteration_2::
 
 		# Directory
 		"$(file[$(index)][path])/."
@@ -122,36 +150,36 @@ bundle agent manageFilesAndFolders {
 		# Check the permissions none recursively
 		## With user and group
 		"$(file[$(index)][path])"
-			perms => mog("$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
+			perms => mog("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).manageFilesAndFolders_groupset_$(index)";
 		## With user
 		"$(file[$(index)][path])"
-			perms => mo("$(file[$(index)][mode])", "$(file[$(index)][owner])"),
+			perms => mo("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).!manageFilesAndFolders_groupset_$(index)";
 		## With group
 		"$(file[$(index)][path])"
-			perms => mg("$(file[$(index)][mode])", "$(file[$(index)][group])"),
+			perms => mg("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][group])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_groupset_$(index).!manageFilesAndFolders_userset_$(index)";
 		# Check the permissions recursively
 		## With user and group
 		"$(file[$(index)][path])"
 			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
-			perms => mog("$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
+			perms => mog("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).manageFilesAndFolders_groupset_$(index)";
 		## With user
 		"$(file[$(index)][path])"
 			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
-			perms => mo("$(file[$(index)][mode])", "$(file[$(index)][owner])"),
+			perms => mo("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).!manageFilesAndFolders_groupset_$(index)";
 		## With group
 		"$(file[$(index)][path])"
 			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
-			perms => mg("$(file[$(index)][mode])", "$(file[$(index)][group])"),
+			perms => mg("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][group])"),
 			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_groupset_$(index).!manageFilesAndFolders_userset_$(index)";
 
