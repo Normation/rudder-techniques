@@ -35,36 +35,10 @@ bundle agent check_fstab_configuration
 }&
     &FSTAB_FILESYSTEM:{filesystem |"fstab[&i&][filesystem]" string => "&filesystem&";
 }&
-    &FSTAB_DEFAULTS:{defaults |"fstab_options[&i&][defaults]" string => "&defaults&";
+
+    &FSTAB_DEFAULTS, FSTAB_ASYNC, FSTAB_ATIME, FSTAB_NOAUTO, FSTAB_DEV, FSTAB_EXEC, FSTAB_SUID, FSTAB_USER, FSTAB_USERS, FSTAB_GROUP, FSTAB_MAND, FSTAB_NETDEV, FSTAB_OWNER, FSTAB_READWRITE, FSTAB_MISCOPTIONS: {defaults, async, atime, noauto, dev, exec, suid, user, users, group, mand, netdev, owner, readwrite, miscoptions | "fstab_raw_options_&i&" slist => { "&defaults&", "&async&", "&atime&", "&noauto&", "&dev&", "&exec&", "&suid&", "&user&", "&users&", "&group&", "&mand&", "&netdev&", "&owner&", "&readwrite&", "&miscoptions&" };
 }&
-    &FSTAB_ASYNC:{async |"fstab_options[&i&][async]" string => "&async&";
-}&
-    &FSTAB_ATIME:{atime |"fstab_options[&i&][atime]" string => "&atime&";
-}&
-    &FSTAB_NOAUTO:{noauto |"fstab_options[&i&][noauto]" string => "&noauto&";
-}&
-    &FSTAB_DEV:{dev |"fstab_options[&i&][dev]" string => "&dev&";
-}&
-    &FSTAB_EXEC:{exec |"fstab_options[&i&][exec]" string => "&exec&";
-}&
-    &FSTAB_SUID:{suid |"fstab_options[&i&][suid]" string => "&suid&";
-}&
-    &FSTAB_USER:{user |"fstab_options[&i&][user]" string => "&user&";
-}&
-    &FSTAB_USERS:{users |"fstab_options[&i&][users]" string => "&users&";
-}&
-    &FSTAB_GROUP:{group |"fstab_options[&i&][group]" string => "&group&";
-}&
-    &FSTAB_MAND:{mand |"fstab_options[&i&][mand]" string => "&mand&";
-}&
-    &FSTAB_NETDEV:{netdev |"fstab_options[&i&][netdev]" string => "&netdev&";
-}&
-    &FSTAB_OWNER:{owner |"fstab_options[&i&][owner]" string => "&owner&";
-}&
-    &FSTAB_READWRITE:{readwrite |"fstab_options[&i&][readwrite]" string => "&readwrite&";
-}&
-    &FSTAB_MISCOPTIONS:{miscoptions |"fstab_options[&i&][miscoptions]" string => "&miscoptions&";
-}&
+
     &FSTAB_DUMP:{dump |"fstab[&i&][dump]" string => "&dump&";
 }&
     &FSTAB_FSCKORDER:{fsckorder |"fstab[&i&][fsckorder]" string => "&fsckorder&";
@@ -78,7 +52,6 @@ bundle agent check_fstab_configuration
       "fstab_index" slist => getindices("fstab");
 
     # We create a clean list of options : we list them, remove the blanks and join them as a plain string
-      "fstab_raw_options_${fstab_index}" slist => getvalues("fstab_options[${fstab_index}]");
       "fstab_filtered_options_${fstab_index}" slist => grep(".+","fstab_raw_options_${fstab_index}");
       "fstab[${fstab_index}][options]" string => join(",", "fstab_filtered_options_${fstab_index}");
 
