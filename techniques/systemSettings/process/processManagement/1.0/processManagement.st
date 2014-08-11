@@ -47,10 +47,13 @@ bundle agent check_process(directiveId, name, maxInst, minInst, command, args)
   processes:
 
       "${name}"
-        comment => "Enforcing process parameters",
-        process_count => check_process_count("${name}", "${maxInst}","${minInst}"),
         restart_class => "${name}_restart",
-        classes => kept_if_else("${name}_ok", "${name}_anomaly", "${name}_error");
+        comment       => "Verifying process presence";
+
+      "${name}"
+        process_count => check_process_count("${name}", "${maxInst}","${minInst}"),
+        classes       => kept_if_else("${name}_ok", "${name}_anomaly", "${name}_error"),
+        comment       => "Verifying process count";
 
   commands:
 
