@@ -94,9 +94,17 @@ bundle common def
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
+   # Use localhost as default policy_server if no policy_server.dat exists
+    policy_server_set::
       "policy_server"
         string  => readfile("${policy_server_file}", 2048),
         comment => "IP address or hostname to locate your policy host.";
+    !policy_server_set::
+      "policy_server"
+        string  => "rudder",
+        comment => "IP address by default without ${def.policy_server_file} file";
+
+    any::
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
@@ -114,6 +122,9 @@ bundle common def
       "acl" slist => {
       "${def.policy_server}"
     };
+
+  classes:
+      "policy_server_set" expression => fileexists("${def.policy_server_file}");
 }
 
 
