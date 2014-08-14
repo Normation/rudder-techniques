@@ -34,6 +34,10 @@ It is intended to check if the required DNS entries are set.
     <NAME>check_dns_configuration</NAME>
   </BUNDLES>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <TMLS>
     <TML name="check_dns_configuration"/>
   </TMLS>

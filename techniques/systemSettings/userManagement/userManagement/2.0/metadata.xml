@@ -32,6 +32,10 @@ It is intended to check the user parameters on the target host.
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <BUNDLES>
     <NAME>check_usergroup_user_parameters</NAME>
   </BUNDLES>

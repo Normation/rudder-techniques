@@ -36,6 +36,10 @@ It is intended to check the user parameters on the target host.
     <NAME>check_usergroup_user_parameters</NAME>
   </BUNDLES>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <TMLS>
     <TML name="userManagement"/>
   </TMLS>

@@ -41,6 +41,10 @@ It is intended to check the user parameters on the target host.
     <TML name="userManagement"/>
   </TMLS>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>USERGROUP_USER_LOGIN</SAMESIZEAS>
   </TRACKINGVARIABLE>
