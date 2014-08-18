@@ -101,8 +101,13 @@ bundle common va
       "ncf_common_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/common -name '*.cf' | /bin/grep -v 'promises.cf'", "useshell"), "\n", 10000);
       "ncf_local_inputs"  slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/local -name '*.cf' | /bin/grep -v 'promises.cf'", "useshell"), "\n", 10000);
 
-    ## 3 - If neither of those special cases is relevant, assume a "-not"-able find is available in the PATH.
-    !android.!aix::
+    ## 3 - On Windows, we don't have find, so we need to rely on ls, with path. The text is quite long also, but we can't use maplist
+    windows::
+      "ncf_common_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\common\$_ } \"", "useshell"), "\n", 10000);
+      "ncf_local_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\local\$_ } \"", "useshell"), "\n", 10000);
+
+    ## 4 - If neither of those special cases is relevant, assume a "-not"-able find is available in the PATH.
+    !android.!aix.!windows::
       "ncf_common_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/common -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
       "ncf_local_inputs"  slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/local -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
 

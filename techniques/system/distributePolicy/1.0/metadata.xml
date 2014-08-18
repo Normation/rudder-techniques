@@ -17,6 +17,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <TECHNIQUE name="Distribute the policy to servers">
   <DESCRIPTION>Distribute policy</DESCRIPTION>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <BUNDLES>
     <NAME>install_rsyslogd</NAME>
     <NAME>propagatePromises</NAME>
