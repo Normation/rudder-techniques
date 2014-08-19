@@ -226,3 +226,10 @@ body action warn_only
         action_policy => "warn";
         ifelapsed => "60";
 }
+
+body file_select exclude(name)
+{
+          leaf_name  => { "$(name)"};
+          file_result => "!leaf_name";
+}
+
