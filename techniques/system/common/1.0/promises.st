@@ -28,8 +28,10 @@ body common control
         output_prefix => "rudder";
 
         inputs => {
-          @{va.ncf_common_inputs},
-          @{va.ncf_local_inputs},
+          @{va.ncf_common_inputs_10_40},
+          @{va.ncf_common_inputs_50_60},
+          @{va.ncf_local_inputs_10_40},
+          @{va.ncf_local_inputs_50_60},
           &INPUTLIST&
         };
 
@@ -89,27 +91,21 @@ bundle common va
     any::
       "end" slist => { "endExecution" };
 
-    # Definition of all the elements from ncf to include as part of the inputs
-
-    ## 1 - On Android, the find binary is part of the external system utilities, but with standard GNU-like syntax.
+    !android::
+      "ncf_path" string => "/var/rudder/ncf";
     android::
-      "ncf_common_inputs" slist => splitstring(execresult("/system/xbin/find /data/rudder/ncf/common -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
-      "ncf_local_inputs"  slist => splitstring(execresult("/system/xbin/find /data/rudder/ncf/local -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
+      "ncf_path" string => "/data/rudder/ncf";
 
-    ## 2 - On AIX, find is part of the standard PATH, but this non GNU find is unable to use "-not", so we use grep -v instead. "useshell" is necessary.
-    aix::
-      "ncf_common_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/common -name '*.cf' | /bin/grep -v 'promises.cf'", "useshell"), "\n", 10000);
-      "ncf_local_inputs"  slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/local -name '*.cf' | /bin/grep -v 'promises.cf'", "useshell"), "\n", 10000);
+    any::
+      "list_compatible_inputs" string => "${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
 
-    ## 3 - On Windows, we don't have find, so we need to rely on ls, with path. The text is quite long also, but we can't use maplist
-    windows::
-      "ncf_common_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\common\$_ } \"", "useshell"), "\n", 10000);
-      "ncf_local_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\local\$_ } \"", "useshell"), "\n", 10000);
+      "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
 
-    ## 4 - If neither of those special cases is relevant, assume a "-not"-able find is available in the PATH.
-    !android.!aix.!windows::
-      "ncf_common_inputs" slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/common -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
-      "ncf_local_inputs"  slist => splitstring(execresult("/usr/bin/find /var/rudder/ncf/local -name '*.cf' -not -name 'promises.cf'", "noshell"), "\n", 10000);
+      "ncf_common_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 50_techniques 60_services", "noshell"), "\n", 10000);
+
+      "ncf_local_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
+
+      "ncf_local_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques 60_services", "noshell"), "\n", 10000);
 
     # definition of the machine roles
 &NODEROLE&
