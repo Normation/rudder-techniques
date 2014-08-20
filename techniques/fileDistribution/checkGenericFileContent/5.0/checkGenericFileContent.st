@@ -150,7 +150,7 @@ classes:
       "$(generic_file_content_posthook[$(index)])"
         classes => if_else("generic_file_content_posthook_$(index)_command_run_ok", "generic_file_content_posthook_$(index)_command_run_failed"),
         contain => in_shell,
-        ifvarclass => "execute_command_$(index).!(content_$(index)_failed|content_deletion_failed_$(index)|content_modification_failed_$(index)).(content_$(index)_modified|content_deletion_modified_$(index)|content_modification_modified_$(index)|section_content_modification_modified_${index})";
+        ifvarclass => "execute_command_$(index).file_edition_global_files_status_$(index)_repaired";
 
   reports:
     tier2::
@@ -240,13 +240,16 @@ classes:
         ifvarclass => "!execute_command_$(index)";
 
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#$(generic_file_content_path[$(index)]) was in the proper state, so no command to execute"
-        ifvarclass => "execute_command_$(index).content_$(index)_kept.!content_$(index)_modified";
+        ifvarclass => "execute_command_$(index).file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired";
 
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) was correctly executed"
         ifvarclass => "generic_file_content_posthook_$(index)_command_run_ok";
 
       "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) could not to be executed"
         ifvarclass => "generic_file_content_posthook_$(index)_command_run_failed";
+
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#${generic_file_content_path[${index}]} already exists, skipping command execution"
+        ifvarclass => "execute_command_${index}.creation_only_but_already_exists_${index}";
 
 }
 
