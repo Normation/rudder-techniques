@@ -28,10 +28,7 @@ body common control
         output_prefix => "rudder";
 
         inputs => {
-          @{va.ncf_common_inputs_10_40},
-          @{va.ncf_common_inputs_50_60},
-          @{va.ncf_local_inputs_10_40},
-          @{va.ncf_local_inputs_50_60},
+          @{va.ncf_inputs},
           &INPUTLIST&
         };
 
@@ -106,6 +103,15 @@ bundle common va
       "ncf_local_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
 
       "ncf_local_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques 60_services", "noshell"), "\n", 10000);
+
+      # ncf_inputs contains all the files of ncf, and ignore the empty lists
+      "ncf_inputs" slist => {
+                             "@{ncf_common_inputs_10_40}",
+                             "@{ncf_common_inputs_50_60}",
+                             "@{ncf_local_inputs_10_40}",
+                             "@{ncf_local_inputs_50_60}",
+                            },
+                  policy => "ifdefined";
 
     # definition of the machine roles
 &NODEROLE&
