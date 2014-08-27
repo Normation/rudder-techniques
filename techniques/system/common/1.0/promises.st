@@ -88,13 +88,22 @@ bundle common va
     any::
       "end" slist => { "endExecution" };
 
-    !android::
-      "ncf_path" string => "/var/rudder/ncf";
+    !android.!windows::::
+      "rudder_var"     string => "/var/rudder";
     android::
-      "ncf_path" string => "/data/rudder/ncf";
+      "rudder_var"     string => "/data/rudder";
+
+    !windows::
+      "ncf_path"       string => "${rudder_var}/ncf";
+      "rudder_tools"   string => "${rudder_var}/tools";
+
+    windows::
+      "rudder_base"    string => "${sys.winprogdir}\Rudder";
+      "rudder_tools"   string => "${rudder_base}\sbin";
+      "ncf_path"       string => "${rudder_base}\ncf";
 
     any::
-      "list_compatible_inputs" string => "${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
+      "list_compatible_inputs" string => "${rudder_tools}/list-compatible-inputs";
 
       "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
 
