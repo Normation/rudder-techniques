@@ -63,14 +63,14 @@ bundle agent check_apt_package_installation
     debian::
       "${apt_package[${index_aptpkg}]}"
         package_policy  => "${apt_action[${index_aptpkg}]}",
-        package_method  => apt_nobulk("30", "$(apt_allow_untrusted[$(index_aptpkg)])"),
+        package_method  => apt_nobulk("30", "${apt_allow_untrusted[${index_aptpkg}]}"),
         classes => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),
         ifvarclass => "!${index_aptpkg}_package_version_defined",
         comment => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
 
       "${apt_package[${index_aptpkg}]}"
         package_policy  => "${apt_action[${index_aptpkg}]}",
-        package_method  => apt_nobulk("30", "$(apt_allow_untrusted[$(index_aptpkg)])"),
+        package_method  => apt_nobulk("30", "${apt_allow_untrusted[${index_aptpkg}]}"),
         package_select   => "${apt_version_criterion[${index_aptpkg}]}",
         package_version  => "${apt_version[${index_aptpkg}]}",
         classes => kept_if_else("debian_install_kept_${apt_package[${index_aptpkg}]}", "debian_installed_${apt_package[${index_aptpkg}]}", "debian_install_failed_${apt_package[${index_aptpkg}]}"),

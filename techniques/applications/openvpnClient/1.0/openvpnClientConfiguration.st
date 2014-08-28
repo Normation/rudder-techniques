@@ -186,10 +186,10 @@ bundle agent check_openvpn_client_configuration
       "@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN keyring could not be written";
 
     ovpn_client_nopwauth.((openvpn_tier1_validated.openvpn_tier2_validated)|(openvpn_tier1_kept.openvpn_tier2_kept))::
-      "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@$(g.execRun)##$(g.uuid)@#OpenVPN configuration is set correctly";
+      "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN configuration is set correctly";
 
     ovpn_client_pwauth.((openvpn_tier1_validated.openvpn_tier2_validated.openvpn_keyring_validated)|(openvpn_tier1_kept.openvpn_tier2_kept.openvpn_keyring_kept))::
-      "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@$(g.execRun)##$(g.uuid)@#OpenVPN configuration is set correctly";
+      "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN configuration is set correctly";
 
     (openvpn_tier1_validated.openvpn_tier2_validated.openvpn_keyring_validated)|(openvpn_tier1_kept.openvpn_tier2_kept.openvpn_keyring_kept)::
       "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN configuration is set correctly"

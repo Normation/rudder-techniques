@@ -102,7 +102,7 @@ classes:
 }&
       "edit_section_valid_${index}" and => { isvariable("generic_file_content_section_header[${index}]"), isvariable("generic_file_content_section_footer[${index}]") } ;
 
-      "file_doesnt_exist_${index}"                       not => fileexists("$(generic_file_content_path[$(index)])");
+      "file_doesnt_exist_${index}"                       not => fileexists("${generic_file_content_path[${index}]}");
       "creation_only_but_already_exists_${index}" expression => "enforce_at_creation_only_${index}.!file_doesnt_exist_${index}";
 
 
@@ -111,9 +111,9 @@ classes:
       # considerered as null instead of empty.
       # This class will ensure that no variable (=null) will be considered
       # as an empty variable.
-      "generic_file_content_modification_destination_defined_$(index)" expression => isvariable("generic_file_content_modification_destination[$(index)]");
+      "generic_file_content_modification_destination_defined_${index}" expression => isvariable("generic_file_content_modification_destination[${index}]");
       # Check that value has been set before to edit the file
-      "edit_content_$(index)" expression => isvariable("generic_file_content_payload[$(index)]");
+      "edit_content_${index}" expression => isvariable("generic_file_content_payload[${index}]");
 
       "tier1" expression => "any";
 
@@ -124,95 +124,95 @@ classes:
       # Edit the file
       # Defines classes for the file edition globaly, as it can be globally kept even if part are modified
       # (for instance, section edition have a global status kept, but several repaired status)
-      "$(generic_file_content_path[$(index)])"
+      "${generic_file_content_path[${index}]}"
         edit_line => check_generic_file_content_edition(
-            "$(generic_file_content_payload[$(index)])", "$(generic_file_content_enforced[$(index)])",
-            "$(generic_file_content_deletion_regexp[$(index)])", "$(generic_file_content_deletion_boolean[$(index)])",
-            "$(generic_file_content_modification_regexp[$(index)])", "$(generic_file_content_modification_destination[$(index)])", "$(generic_file_content_modification_boolean[$(index)])",
+            "${generic_file_content_payload[${index}]}", "${generic_file_content_enforced[${index}]}",
+            "${generic_file_content_deletion_regexp[${index}]}", "${generic_file_content_deletion_boolean[${index}]}",
+            "${generic_file_content_modification_regexp[${index}]}", "${generic_file_content_modification_destination[${index}]}", "${generic_file_content_modification_boolean[${index}]}",
             "${generic_file_content_section_header[${index}]}", "${generic_file_content_section_footer[${index}]}", "${generic_file_content_section_content[${index}]}", "${generic_file_content_section_boolean[${index}]}",
             "${index}"
         ),
-        create => "$(generic_file_content_creation[$(index)])",
-        edit_defaults => rudder_empty_select("$(generic_file_content_enforced[$(index)])"),
+        create => "${generic_file_content_creation[${index}]}",
+        edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
         ifvarclass => "!creation_only_but_already_exists_${index}",
-        classes => kept_if_else("file_edition_global_files_status_$(index)_kept", "file_edition_global_files_status_$(index)_repaired", "file_edition_global_files_status_$(index)_failed"),
-        comment => "Editing $(generic_file_content_path[$(index)])...";
+        classes => kept_if_else("file_edition_global_files_status_${index}_kept", "file_edition_global_files_status_${index}_repaired", "file_edition_global_files_status_${index}_failed"),
+        comment => "Editing ${generic_file_content_path[${index}]}...";
 
-      "$(generic_file_content_path[$(index)])"
-        create => "$(generic_file_content_creation[$(index)])",
-        perms => mog("$(generic_file_content_perms[$(index)])", "$(generic_file_content_owner[$(index)])", "$(generic_file_content_group[$(index)])"),
-        classes => kept_if_else("perms_$(index)_kept", "perms_$(index)_modified", "perms_$(index)_failed"),
-        ifvarclass => "adjust_permissions_$(index).!creation_only_but_already_exists_${index}",
-        comment => "Setting $(generic_file_content_path[$(index)]) permissions...";
+      "${generic_file_content_path[${index}]}"
+        create => "${generic_file_content_creation[${index}]}",
+        perms => mog("${generic_file_content_perms[${index}]}", "${generic_file_content_owner[${index}]}", "${generic_file_content_group[${index}]}"),
+        classes => kept_if_else("perms_${index}_kept", "perms_${index}_modified", "perms_${index}_failed"),
+        ifvarclass => "adjust_permissions_${index}.!creation_only_but_already_exists_${index}",
+        comment => "Setting ${generic_file_content_path[${index}]} permissions...";
 
   commands:
     tier2::
-      "$(generic_file_content_posthook[$(index)])"
-        classes => if_else("generic_file_content_posthook_$(index)_command_run_ok", "generic_file_content_posthook_$(index)_command_run_failed"),
+      "${generic_file_content_posthook[${index}]}"
+        classes => if_else("generic_file_content_posthook_${index}_command_run_ok", "generic_file_content_posthook_${index}_command_run_failed"),
         contain => in_shell,
-        ifvarclass => "execute_command_$(index).file_edition_global_files_status_$(index)_repaired";
+        ifvarclass => "execute_command_${index}.file_edition_global_files_status_${index}_repaired";
 
   reports:
     tier2::
     # Files edition
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
-        ifvarclass => "edit_content_$(index).((content_$(index)_kept.!content_$(index)_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the policy"
+        ifvarclass => "edit_content_${index}.((content_${index}_kept.!content_${index}_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated"
-        ifvarclass => "content_$(index)_modified.file_edition_global_files_status_${index}_repaired";
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated"
+        ifvarclass => "content_${index}_modified.file_edition_global_files_status_${index}_repaired";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated"
-        ifvarclass => "content_$(index)_failed";
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated"
+        ifvarclass => "content_${index}_failed";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No content was given to check file $(generic_file_content_path[$(index)]), skipping"
-        ifvarclass => "!edit_content_$(index)";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#No content was given to check file ${generic_file_content_path[${index}]}, skipping"
+        ifvarclass => "!edit_content_${index}";
 
       # Files edition - deletion
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line deletion"
-        ifvarclass => "!delete_lines_$(index)";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Line deletion regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was not set for any line deletion"
+        ifvarclass => "!delete_lines_${index}";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the deletion policy"
-        ifvarclass => "delete_lines_$(index).((content_deletion_kept_$(index).!content_deletion_modified_$(index).!content_deletion_failed_$(index))|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Line deletion regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the deletion policy"
+        ifvarclass => "delete_lines_${index}.((content_deletion_kept_${index}.!content_deletion_modified_${index}.!content_deletion_failed_${index})|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the deletion policy"
-        ifvarclass => "content_deletion_modified_$(index).file_edition_global_files_status_${index}_repaired";
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Line deletion regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated using the deletion policy"
+        ifvarclass => "content_deletion_modified_${index}.file_edition_global_files_status_${index}_repaired";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line deletion regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the deletion policy"
-        ifvarclass => "content_deletion_failed_$(index)";
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Line deletion regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated using the deletion policy"
+        ifvarclass => "content_deletion_failed_${index}";
 
       # Files edition - replacement
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was not set for any line replacement"
-        ifvarclass => "!modify_lines_$(index)";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Line replacement regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was not set for any line replacement"
+        ifvarclass => "!modify_lines_${index}";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the replacement policy"
-        ifvarclass => "content_modification_kept_$(index).!content_modification_modified_$(index).!content_modification_failed_$(index)";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Line replacement regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the replacement policy"
+        ifvarclass => "content_modification_kept_${index}.!content_modification_modified_${index}.!content_modification_failed_${index}";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated using the replacement policy"
-        ifvarclass => "content_modification_modified_$(index)";
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Line replacement regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated using the replacement policy"
+        ifvarclass => "content_modification_modified_${index}";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Line replacement regular expressions@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated using the replacement policy"
-        ifvarclass => "content_modification_failed_$(index)";
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Line replacement regular expressions@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated using the replacement policy"
+        ifvarclass => "content_modification_failed_${index}";
 
       # File edition - enforce only at creation
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) already exists, skipping content editing"
-        ifvarclass => "edit_content_$(index).creation_only_but_already_exists_${index}";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} already exists, skipping content editing"
+        ifvarclass => "edit_content_${index}.creation_only_but_already_exists_${index}";
 
       # Permissions edition
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) uses default permissions"
-        ifvarclass => "!adjust_permissions_$(index)";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} uses default permissions"
+        ifvarclass => "!adjust_permissions_${index}";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions are OK"
-        ifvarclass => "perms_$(index)_kept";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions are OK"
+        ifvarclass => "perms_${index}_kept";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions were adjusted"
-        ifvarclass => "perms_$(index)_modified";
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions were adjusted"
+        ifvarclass => "perms_${index}_modified";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions could not be adjusted"
-        ifvarclass => "perms_$(index)_failed";
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions could not be adjusted"
+        ifvarclass => "perms_${index}_failed";
 
       # Permissions edition - enforce only at creation
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already existing, skipping permission checking"
-        ifvarclass => "adjust_permissions_$(index).creation_only_but_already_exists_${index}";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already existing, skipping permission checking"
+        ifvarclass => "adjust_permissions_${index}.creation_only_but_already_exists_${index}";
 
       #Section edition
       "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was not set for section edition, skipping"
@@ -236,17 +236,17 @@ classes:
 
 
       # Posthook report
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No command for $(generic_file_content_path[$(index)]) was to be executed"
-        ifvarclass => "!execute_command_$(index)";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#No command for ${generic_file_content_path[${index}]} was to be executed"
+        ifvarclass => "!execute_command_${index}";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#$(generic_file_content_path[$(index)]) was in the proper state, so no command to execute"
-        ifvarclass => "execute_command_$(index).file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#${generic_file_content_path[${index}]} was in the proper state, so no command to execute"
+        ifvarclass => "execute_command_${index}.file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) was correctly executed"
-        ifvarclass => "generic_file_content_posthook_$(index)_command_run_ok";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The command for ${generic_file_content_path[${index}]} was correctly executed"
+        ifvarclass => "generic_file_content_posthook_${index}_command_run_ok";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Post-modification hook@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The command for $(generic_file_content_path[$(index)]) could not to be executed"
-        ifvarclass => "generic_file_content_posthook_$(index)_command_run_failed";
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The command for ${generic_file_content_path[${index}]} could not to be executed"
+        ifvarclass => "generic_file_content_posthook_${index}_command_run_failed";
 
       "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Post-modification hook@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#${generic_file_content_path[${index}]} already exists, skipping command execution"
         ifvarclass => "execute_command_${index}.creation_only_but_already_exists_${index}";
@@ -273,21 +273,21 @@ bundle edit_line check_generic_file_content_edition(
 
   # define the classes that will define which edition we are to do
   classes:
-      "preserve_content" expression => strcmp("true", "$(enforce_content_boolean)");
+      "preserve_content" expression => strcmp("true", "${enforce_content_boolean}");
 
       # when need to check the validity of the content on the original value, otherwise local context is always true
-      "edit_content" expression => isvariable("check_generic_file_content.generic_file_content_payload[$(index)]");
+      "edit_content" expression => isvariable("check_generic_file_content.generic_file_content_payload[${index}]");
       "delete_lines" expression => strcmp("${deletion_boolean}", "true");
 
       "replace_lines" expression => strcmp("${modification_boolean}", "true");
-      "replace_lines_destination_defined" expression => isvariable("check_generic_file_content.generic_file_content_modification_destination[$(index)]");
+      "replace_lines_destination_defined" expression => isvariable("check_generic_file_content.generic_file_content_modification_destination[${index}]");
 
       "section_edition" expression => strcmp("${section_boolean}", "true");
 
       "edit_section_valid" and => { isvariable("check_generic_file_content.generic_file_content_section_header[${index}]"), isvariable("check_generic_file_content.generic_file_content_section_footer[${index}]") } ;
 
       # Detect if section is already there
-      "has_$(csection)" expression => regline("${escaped_section_start}", "$(edit.filename)");
+      "has_${csection}" expression => regline("${escaped_section_start}", "${edit.filename}");
 
 
   delete_lines:
@@ -300,17 +300,17 @@ bundle edit_line check_generic_file_content_edition(
       # Delete the content of the section
       ".*"
         select_region => rudder_section_selector("${escaped_section_start}", "${escaped_section_end}"),
-        ifvarclass => "has_$(csection)";
+        ifvarclass => "has_${csection}";
 
   insert_lines:
     preserve_content.edit_content::
-      "$(content)"
+      "${content}"
         classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),
         insert_type => "preserve_block",
         comment => "Editing ...";
 
     !preserve_content.edit_content::
-      "$(content)"
+      "${content}"
         classes => kept_if_else("content_${index}_kept", "content_${index}_modified", "content_${index}_failed"),
         comment => "Editing ...";
 
@@ -329,14 +329,14 @@ ${section_end}"
 
   replace_patterns:
     replace_lines.replace_lines_destination_defined::
-      "$(modification_regex)"
+      "${modification_regex}"
         replace_with => value("${modification_replacement}"),
         classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_${index}"),
         comment => "Replacing lines using the given regexps...";
 
 
     replace_lines.!replace_lines_destination_defined::
-      "$(modification_regex)"
+      "${modification_regex}"
         replace_with => value(""),
         classes => kept_if_else("content_modification_kept_${index}", "content_modification_modified_${index}", "content_modification_failed_${index}"),
         comment => "Replacing lines using the given regexps...";

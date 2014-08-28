@@ -327,11 +327,11 @@ bundle agent generateExtraInformations
 
     !rudder_inventory_userlist_tool_present::
 
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The user list generation tool is not present yet. Skipping...";
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The user list generation tool is not present yet. Skipping...";
 
     !rudder_inventory_cpuid_tool_present::
 
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The CPUID generation tool is not present yet. Skipping...";
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The CPUID generation tool is not present yet. Skipping...";
 
 }
 

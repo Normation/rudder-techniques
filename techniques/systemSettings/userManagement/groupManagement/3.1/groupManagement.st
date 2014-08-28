@@ -63,14 +63,14 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
     classes:
 
-        "groupmanagement_group_${index}_absent"          not => groupexists("$(name)");
+        "groupmanagement_group_${index}_absent"          not => groupexists("${name}");
         "groupmanagement_group_${index}_create"          expression => strcmp("${create}", "true");
         "groupmanagement_group_${index}_setgid"          expression => strcmp("${setgid}", "true");
         "groupmanagement_group_${index}_enforce_content" expression => strcmp("${enforce_content}", "true");
 
     vars:
 
-        "userlist" slist => splitstring("$(content)",",","16");
+        "userlist" slist => splitstring("${content}",",","16");
 
 
     commands:
@@ -91,11 +91,11 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
         # Enforce group content on if groupmanagement_group_${index}_enforce_content is set
         "/etc/group"
-            edit_line => groups_file_append("$(name)", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
+            edit_line => groups_file_append("${name}", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
             edit_defaults => noempty_backup,
             classes => rudder_common_classes("groupmanagement_group_add_${index}"),
-            ifvarclass => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_$(index)_absent|groupmanagement_group_add_$(index)_repaired)",
-            comment => "Set users on the group $(name) only if the group is already present";
+            ifvarclass => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_repaired)",
+            comment => "Set users on the group ${name} only if the group is already present";
 
         # Enforce GID if setgid has been set
         "/etc/group"
@@ -108,17 +108,17 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
         cfengine::
 
-            "@@groupManagement@@result_success@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already present and compliant with the policy"
-                ifvarclass => "groupmanagement_group_add_$(index)_kept.!(groupmanagement_group_add_$(index)_repaired|groupmanagement_group_add_$(index)_error)";
+            "@@groupManagement@@result_success@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} is already present and compliant with the policy"
+                ifvarclass => "groupmanagement_group_add_${index}_kept.!(groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
 
-            "@@groupManagement@@result_success@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) is already present and doesn't require to have its content enforced"
-                ifvarclass => "!groupmanagement_group_${index}_enforce_content.!(groupmanagement_group_add_$(index)_kept.groupmanagement_group_add_$(index)_repaired|groupmanagement_group_add_$(index)_error)";
+            "@@groupManagement@@result_success@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} is already present and doesn't require to have its content enforced"
+                ifvarclass => "!groupmanagement_group_${index}_enforce_content.!(groupmanagement_group_add_${index}_kept.groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
 
-            "@@groupManagement@@result_repaired@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) has been updated"
-                ifvarclass => "groupmanagement_group_add_$(index)_repaired.!(groupmanagement_group_add_$(index)_kept|groupmanagement_group_add_$(index)_error)";
+            "@@groupManagement@@result_repaired@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} has been updated"
+                ifvarclass => "groupmanagement_group_add_${index}_repaired.!(groupmanagement_group_add_${index}_kept|groupmanagement_group_add_${index}_error)";
 
-            "@@groupManagement@@result_error@@$(directiveId)@@Groups@@$(name)@@$(g.execRun)##$(g.uuid)@#The group $(name) could not be created or updated"
-                ifvarclass => "groupmanagement_group_add_$(index)_error";
+            "@@groupManagement@@result_error@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} could not be created or updated"
+                ifvarclass => "groupmanagement_group_add_${index}_error";
 
             "@@groupManagement@@result_success@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} is not present and not set to be created"
                 ifvarclass => "groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_create";
@@ -133,10 +133,10 @@ vars:
 
 field_edits:
 
-	"$(group):.*"
+	"${group}:.*"
 
 	# Set field of the file to parameter
 	# /etc/group entry is: groupname:x:gid:users
-	edit_field => col(":","4","$(finalgroup)","set");
+	edit_field => col(":","4","${finalgroup}","set");
 
 }

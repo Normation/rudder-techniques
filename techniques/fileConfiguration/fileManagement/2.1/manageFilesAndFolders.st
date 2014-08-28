@@ -89,9 +89,9 @@ bundle agent manageFilesAndFolders {
 }&
 		&FILE_AND_FOLDER_MANAGEMENT_RECURSIVE:{isrecursive | "manageFilesAndFolders_isrecursive_&i&" expression => strcmp("&isrecursive&", "inf");
 }&
-		&FILE_AND_FOLDER_MANAGEMENT_OWNER:{userset | "manageFilesAndFolders_userset_&i&" expression => strcmp("&userset&", "$(file[&i&][owner])");
+		&FILE_AND_FOLDER_MANAGEMENT_OWNER:{userset | "manageFilesAndFolders_userset_&i&" expression => strcmp("&userset&", "${file[&i&][owner]}");
 }&
-		&FILE_AND_FOLDER_MANAGEMENT_GROUP:{groupset | "manageFilesAndFolders_groupset_&i&" expression => strcmp("&groupset&", "$(file[&i&][group])");
+		&FILE_AND_FOLDER_MANAGEMENT_GROUP:{groupset | "manageFilesAndFolders_groupset_&i&" expression => strcmp("&groupset&", "${file[&i&][group]}");
 }&
 		&FILE_AND_FOLDER_DELETION_OPTION:{delopt | "manageFilesAndFolders_deletion_simple_&i&" expression => strcmp("&delopt&", "none");
 }&
@@ -107,9 +107,9 @@ bundle agent manageFilesAndFolders {
       &FILE_AND_FOLDER_MANAGEMENT_SGID:{sgid |"enable_sgid_&i&" expression => strcmp("&sgid&", "true");
 }&
 
-      "manageFilesAndFolders_isdir_$(index)" expression => isdir("$(file[$(index)][path])");
-      "manageFilesAndFolders_isfile_$(index)" expression => isplain("$(file[$(index)][path])");
-      "manageFilesAndFolders_islink_$(index)" expression => islink("$(file[$(index)][path])");
+      "manageFilesAndFolders_isdir_${index}" expression => isdir("${file[${index}][path]}");
+      "manageFilesAndFolders_isfile_${index}" expression => isplain("${file[${index}][path]}");
+      "manageFilesAndFolders_islink_${index}" expression => islink("${file[${index}][path]}");
 
       "iteration_2" expression => "iteration_1";
       "iteration_1" expression => "any";
@@ -118,99 +118,99 @@ bundle agent manageFilesAndFolders {
       iteration_2::
 
 		# Directory
-		"$(file[$(index)][path])/."
+		"${file[${index}][path]}/."
 			create => "true",
-			classes => kept_if_else("manageFolders_$(index)_kept", "manageFolders_$(index)_modified", "manageFolders_$(index)_failed"),
-			comment => "Enforcing the existance of folder $(file[$(index)][path])",
-			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createfile_$(index).manageFilesAndFolders_createdir_$(index)).!manageFilesAndFolders_local_cp_$(index).!manageFilesAndFolders_createsymlink_$(index)";
+			classes => kept_if_else("manageFolders_${index}_kept", "manageFolders_${index}_modified", "manageFolders_${index}_failed"),
+			comment => "Enforcing the existance of folder ${file[${index}][path]}",
+			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createfile_${index}.manageFilesAndFolders_createdir_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
 		# File
-		"$(file[$(index)][path])"
+		"${file[${index}][path]}"
 			create => "true",
-			classes => kept_if_else("manageFiles_$(index)_kept", "manageFiles_$(index)_modified", "manageFiles_$(index)_failed"),
-			comment => "Enforcing the existance of file $(file[$(index)][path])",
-			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_createfile_$(index)).!manageFilesAndFolders_local_cp_$(index).!manageFilesAndFolders_createsymlink_$(index)";
+			classes => kept_if_else("manageFiles_${index}_kept", "manageFiles_${index}_modified", "manageFiles_${index}_failed"),
+			comment => "Enforcing the existance of file ${file[${index}][path]}",
+			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
 		# Local copy
-		"$(file[$(index)][path])"
-			copy_from => backup_local_cp("$(file[$(index)][source])"),
-			classes => kept_if_else("manageCp_$(index)_kept", "manageCp_$(index)_modified", "manageCp_$(index)_failed"),
-			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).manageFilesAndFolders_local_cp_$(index).!manageFilesAndFolders_createsymlink_$(index)",
-			comment => "Create $(file[$(index)][path]) file as copy of $(file[$(index)][source])";
+		"${file[${index}][path]}"
+			copy_from => backup_local_cp("${file[${index}][source]}"),
+			classes => kept_if_else("manageCp_${index}_kept", "manageCp_${index}_modified", "manageCp_${index}_failed"),
+			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.!manageFilesAndFolders_createfile_${index}).manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}",
+			comment => "Create ${file[${index}][path]} file as copy of ${file[${index}][source]}";
 
 		# Symlink
-		"$(file[$(index)][path])"
+		"${file[${index}][path]}"
 			# create => "true",
-			link_from => ln_s("$(file[$(index)][source])"),
+			link_from => ln_s("${file[${index}][source]}"),
 			move_obstructions => "${file[${index}][symlink_enforced]}",
-			classes => kept_if_else("manageSyms_$(index)_kept", "manageSyms_$(index)_modified", "manageSyms_$(index)_failed"),
-			ifvarclass => "(!manageFilesAndFolders_nocreate_$(index).!manageFilesAndFolders_createdir_$(index).!manageFilesAndFolders_createfile_$(index)).!manageFilesAndFolders_local_cp_$(index).manageFilesAndFolders_createsymlink_$(index)",
-			comment => "Create the $(file[$(index)][path]) symlink pointing to $(file[$(index)][source])";
+			classes => kept_if_else("manageSyms_${index}_kept", "manageSyms_${index}_modified", "manageSyms_${index}_failed"),
+			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.!manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_local_cp_${index}.manageFilesAndFolders_createsymlink_${index}",
+			comment => "Create the ${file[${index}][path]} symlink pointing to ${file[${index}][source]}";
 
 		# Check the permissions none recursively
 		## With user and group
-		"$(file[$(index)][path])"
-			perms => mog("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
-			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).manageFilesAndFolders_groupset_$(index)";
+		"${file[${index}][path]}"
+			perms => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
+			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}";
 		## With user
-		"$(file[$(index)][path])"
-			perms => mo("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])"),
-			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).!manageFilesAndFolders_groupset_$(index)";
+		"${file[${index}][path]}"
+			perms => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
+			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}";
 		## With group
-		"$(file[$(index)][path])"
-			perms => mg("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][group])"),
-			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_groupset_$(index).!manageFilesAndFolders_userset_$(index)";
+		"${file[${index}][path]}"
+			perms => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
+			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}";
 		# Check the permissions recursively
 		## With user and group
-		"$(file[$(index)][path])"
-			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
-			perms => mog("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])", "$(file[$(index)][group])"),
-			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).manageFilesAndFolders_groupset_$(index)";
+		"${file[${index}][path]}"
+			depth_search => recurse_withroot("${file[${index}][recursive]}"),
+			perms => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
+			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}";
 		## With user
-		"$(file[$(index)][path])"
-			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
-			perms => mo("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][owner])"),
-			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_userset_$(index).!manageFilesAndFolders_groupset_$(index)";
+		"${file[${index}][path]}"
+			depth_search => recurse_withroot("${file[${index}][recursive]}"),
+			perms => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
+			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}";
 		## With group
-		"$(file[$(index)][path])"
-			depth_search => recurse_withroot("$(file[$(index)][recursive])"),
-			perms => mg("${extended_modes_${index}}$(file[$(index)][mode])", "$(file[$(index)][group])"),
-			classes => kept_if_else("manageFilesAndFolders_perms_$(index)_kept", "manageFilesAndFolders_perms_$(index)_modified", "manageFilesAndFolders_perms_$(index)_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_isrecursive_$(index).manageFilesAndFolders_groupset_$(index).!manageFilesAndFolders_userset_$(index)";
+		"${file[${index}][path]}"
+			depth_search => recurse_withroot("${file[${index}][recursive]}"),
+			perms => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
+			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}";
 
 		# This will not delete the parent
-		"$(file[$(index)][path])" 
+		"${file[${index}][path]}" 
 			delete => tidy,
-			file_select => date_pattern("$(file[$(index)][ttl])", "$(file[$(index)][pattern])"),
-			ifvarclass => "manageFilesAndFolders_clean_$(index).manageFilesAndFolders_deletion_single_recursive_$(index)",
+			file_select => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
+			ifvarclass => "manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
 			depth_search => recurse("0"),
-			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
+			classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
 
 		# This will not delete the parent
-		"$(file[$(index)][path])" 
+		"${file[${index}][path]}" 
 			delete => tidy,
-			file_select => date_pattern("$(file[$(index)][ttl])", "$(file[$(index)][pattern])"),
+			file_select => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
 			depth_search => recurse("inf"),
-			ifvarclass => "manageFilesAndFolders_clean_$(index).(manageFilesAndFolders_deletion_full_recursive_$(index)|manageFilesAndFolders_deletion_exterminate_$(index))",
-			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
+			ifvarclass => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_full_recursive_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+			classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
 
 		# This WILL delete the parent
-		"$(file[$(index)][path])" 
+		"${file[${index}][path]}" 
 			delete => tidy,
-			file_select => date_pattern("$(file[$(index)][ttl])", "$(file[$(index)][pattern])"),
-			ifvarclass => "manageFilesAndFolders_clean_$(index).(manageFilesAndFolders_deletion_simple_$(index)|manageFilesAndFolders_deletion_exterminate_$(index))",
-			classes => kept_if_else("manageFilesAndFolders_delete_$(index)_kept", "manageFilesAndFolders_delete_$(index)_modified", "manageFilesAndFolders_delete_$(index)_failed");
+			file_select => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
+			ifvarclass => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+			classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
 
 	commands:
-		"$(file[$(index)][post_hook_command])"
-			classes => if_else("manageFilesAndFolders_$(index)_command_run_ok", "manageFilesAndFolders_$(index)_command_run_failed"),
+		"${file[${index}][post_hook_command]}"
+			classes => if_else("manageFilesAndFolders_${index}_command_run_ok", "manageFilesAndFolders_${index}_command_run_failed"),
 			contain => in_shell,
-			ifvarclass => "manageFilesAndFolders_post_hook_run_$(index).(manageFiles_$(index)_modified|manageFolders_$(index)_modified|manageCp_$(index)_modified|manageSyms_$(index)_modified|manageFilesAndFolders_perms_$(index)_modified)";
+			ifvarclass => "manageFilesAndFolders_post_hook_run_${index}.(manageFiles_${index}_modified|manageFolders_${index}_modified|manageCp_${index}_modified|manageSyms_${index}_modified|manageFilesAndFolders_perms_${index}_modified)";
 
 	reports:
 
@@ -218,95 +218,95 @@ bundle agent manageFilesAndFolders {
 
 			# Reporting for creation
 			## Reporting for directory creation
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) already exists"
-				ifvarclass => "manageFolders_$(index)_kept.!manageFolders_$(index)_modified.manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_islink_$(index)";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The folder ${file[${index}][path]} already exists"
+				ifvarclass => "manageFolders_${index}_kept.!manageFolders_${index}_modified.manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_islink_${index}";
 
-			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) was successfully created"
-				ifvarclass => "manageFolders_$(index)_modified";
+			"@@manageFilesAndFolders@@result_repaired@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The folder ${file[${index}][path]} was successfully created"
+				ifvarclass => "manageFolders_${index}_modified";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The folder $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageFolders_$(index)_failed|manageFolders_$(index)_kept.(manageFilesAndFolders_isfile_$(index)|manageFilesAndFolders_islink_$(index))";
+			"@@manageFilesAndFolders@@result_error@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The folder ${file[${index}][path]} could not be created"
+				ifvarclass => "manageFolders_${index}_failed|manageFolders_${index}_kept.(manageFilesAndFolders_isfile_${index}|manageFilesAndFolders_islink_${index})";
 
 			## Reporting for file creation
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) already exists"
-				ifvarclass => "manageFiles_$(index)_kept.!manageFiles_$(index)_modified.manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_islink_$(index)";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The file ${file[${index}][path]} already exists"
+				ifvarclass => "manageFiles_${index}_kept.!manageFiles_${index}_modified.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
 
-			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) was successfully created"
-				ifvarclass => "manageFiles_$(index)_modified";
+			"@@manageFilesAndFolders@@result_repaired@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The file ${file[${index}][path]} was successfully created"
+				ifvarclass => "manageFiles_${index}_modified";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageFiles_$(index)_failed|manageFiles_$(index)_kept.(manageFilesAndFolders_isdir_$(index)|manageFilesAndFolders_islink_$(index))";
+			"@@manageFilesAndFolders@@result_error@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The file ${file[${index}][path]} could not be created"
+				ifvarclass => "manageFiles_${index}_failed|manageFiles_${index}_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
 
 			## Reporting for local cp
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) already exists and is up to date"
-				ifvarclass => "manageCp_$(index)_kept.!manageCp_$(index)_modified.manageFilesAndFolders_isfile_$(index).!manageFilesAndFolders_isdir_$(index).!manageFilesAndFolders_islink_$(index)";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The file ${file[${index}][path]} already exists and is up to date"
+				ifvarclass => "manageCp_${index}_kept.!manageCp_${index}_modified.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
 
-			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) was successfully copied from $(file[$(index)][source])"
-				ifvarclass => "manageCp_$(index)_modified";
+			"@@manageFilesAndFolders@@result_repaired@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The file ${file[${index}][path]} was successfully copied from ${file[${index}][source]}"
+				ifvarclass => "manageCp_${index}_modified";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The file $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageCp_$(index)_failed|manageCp_$(index)_kept.(manageFilesAndFolders_isdir_$(index)|manageFilesAndFolders_islink_$(index))";
+			"@@manageFilesAndFolders@@result_error@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The file ${file[${index}][path]} could not be created"
+				ifvarclass => "manageCp_${index}_failed|manageCp_${index}_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
 
 			## Reporting for symlink creation
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) already exists"
-				ifvarclass => "manageSyms_$(index)_kept.!manageSyms_$(index)_modified";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The symlink ${file[${index}][path]} already exists"
+				ifvarclass => "manageSyms_${index}_kept.!manageSyms_${index}_modified";
 
-			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) was successfully created"
-				ifvarclass => "manageSyms_$(index)_modified";
+			"@@manageFilesAndFolders@@result_repaired@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The symlink ${file[${index}][path]} was successfully created"
+				ifvarclass => "manageSyms_${index}_modified";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The symlink $(file[$(index)][path]) could not be created"
-				ifvarclass => "manageSyms_$(index)_failed";
+			"@@manageFilesAndFolders@@result_error@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The symlink ${file[${index}][path]} could not be created"
+				ifvarclass => "manageSyms_${index}_failed";
 
 			## Reporting for no change
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#No file creation action specified for $(file[$(index)][path])"
-                                ifvarclass => "manageFilesAndFolders_nocreate_$(index)";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#No file creation action specified for ${file[${index}][path]}"
+                                ifvarclass => "manageFilesAndFolders_nocreate_${index}";
 			
 			# Reporting for the permissions
 			## Success if not set
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was not requested to have its permission enforced"
-				ifvarclass => "!manageFilesAndFolders_check_permissions_$(index)";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@Permissions@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The item ${file[${index}][path]} was not requested to have its permission enforced"
+				ifvarclass => "!manageFilesAndFolders_check_permissions_${index}";
 
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The permission of the item $(file[$(index)][path]) were correct"
-				ifvarclass => "manageFilesAndFolders_perms_$(index)_kept.!manageFilesAndFolders_perms_$(index)_modified";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@Permissions@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The permission of the item ${file[${index}][path]} were correct"
+				ifvarclass => "manageFilesAndFolders_perms_${index}_kept.!manageFilesAndFolders_perms_${index}_modified";
 
-			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The permissions of the item $(file[$(index)][path]) have been corrected"
-				ifvarclass => "manageFilesAndFolders_perms_$(index)_modified.!manageFilesAndFolders_perms_$(index)_failed";
+			"@@manageFilesAndFolders@@result_repaired@@${file[${index}][uuid]}@@Permissions@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The permissions of the item ${file[${index}][path]} have been corrected"
+				ifvarclass => "manageFilesAndFolders_perms_${index}_modified.!manageFilesAndFolders_perms_${index}_failed";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The permissions of the item $(file[$(index)][path]) could not be set"
-				ifvarclass => "manageFilesAndFolders_perms_$(index)_failed";
+			"@@manageFilesAndFolders@@result_error@@${file[${index}][uuid]}@@Permissions@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The permissions of the item ${file[${index}][path]} could not be set"
+				ifvarclass => "manageFilesAndFolders_perms_${index}_failed";
 
 
-			"@@manageFilesAndFolders@@log_info@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) will be handled recursively"
-				ifvarclass => "manageFilesAndFolders_check_permissions_$(index).manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_recursive_$(index)";
+			"@@manageFilesAndFolders@@log_info@@${file[${index}][uuid]}@@Permissions@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The item ${file[${index}][path]} will be handled recursively"
+				ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_recursive_${index}";
 
-			"@@manageFilesAndFolders@@log_warn@@$(file[$(index)][uuid])@@Permissions@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) will NOT be handled recursively, because it is either a file or a symlink"
-				ifvarclass => "manageFilesAndFolders_check_permissions_$(index).!manageFilesAndFolders_createdir_$(index).manageFilesAndFolders_recursive_$(index)";
+			"@@manageFilesAndFolders@@log_warn@@${file[${index}][uuid]}@@Permissions@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The item ${file[${index}][path]} will NOT be handled recursively, because it is either a file or a symlink"
+				ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_recursive_${index}";
 
 			# Reporting for the deletion
 			## Report in the general component of the file
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#File cleaning was requested for $(file[$(index)][path]). Check specific reporting in the 'File cleaning options' component."
-				ifvarclass => "manageFilesAndFolders_clean_$(index)";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#File cleaning was requested for ${file[${index}][path]}. Check specific reporting in the 'File cleaning options' component."
+				ifvarclass => "manageFilesAndFolders_clean_${index}";
 			## Success if not set
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was not requested to be deleted"
-				ifvarclass => "!manageFilesAndFolders_clean_$(index)";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File cleaning options@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The item ${file[${index}][path]} was not requested to be deleted"
+				ifvarclass => "!manageFilesAndFolders_clean_${index}";
 
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) was in conformity with the deletion policy"
-				ifvarclass => "manageFilesAndFolders_clean_$(index).!manageFilesAndFolders_delete_$(index)_modified.!manageFilesAndFolders_delete_$(index)_failed";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@File cleaning options@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The item ${file[${index}][path]} was in conformity with the deletion policy"
+				ifvarclass => "manageFilesAndFolders_clean_${index}.!manageFilesAndFolders_delete_${index}_modified.!manageFilesAndFolders_delete_${index}_failed";
 
-			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) has been put in conformity with the deletion policy"
-				ifvarclass => "manageFilesAndFolders_delete_$(index)_modified";
+			"@@manageFilesAndFolders@@result_repaired@@${file[${index}][uuid]}@@File cleaning options@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The item ${file[${index}][path]} has been put in conformity with the deletion policy"
+				ifvarclass => "manageFilesAndFolders_delete_${index}_modified";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@File cleaning options@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The item $(file[$(index)][path]) deletion policy could not be enforced"
-				ifvarclass => "manageFilesAndFolders_delete_$(index)_failed";
+			"@@manageFilesAndFolders@@result_error@@${file[${index}][uuid]}@@File cleaning options@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#The item ${file[${index}][path]} deletion policy could not be enforced"
+				ifvarclass => "manageFilesAndFolders_delete_${index}_failed";
 
 			# Reporting for post-command execution
-			"@@manageFilesAndFolders@@result_success@@$(file[$(index)][uuid])@@Post-modification hook@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Post-execution hook did not need running"
-				ifvarclass => "!manageFilesAndFolders_post_hook_run_$(index)|((manageFiles_$(index)_kept|manageFolders_$(index)_kept|manageSyms_$(index)_kept|manageFilesAndFolders_perms_$(index)_kept).!(manageFiles_$(index)_modified|manageFolders_$(index)_modified|manageSyms_$(index)_modified|manageFilesAndFolders_perms_$(index)_modified))";
+			"@@manageFilesAndFolders@@result_success@@${file[${index}][uuid]}@@Post-modification hook@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#Post-execution hook did not need running"
+				ifvarclass => "!manageFilesAndFolders_post_hook_run_${index}|((manageFiles_${index}_kept|manageFolders_${index}_kept|manageSyms_${index}_kept|manageFilesAndFolders_perms_${index}_kept).!(manageFiles_${index}_modified|manageFolders_${index}_modified|manageSyms_${index}_modified|manageFilesAndFolders_perms_${index}_modified))";
 
-			"@@manageFilesAndFolders@@result_repaired@@$(file[$(index)][uuid])@@Post-modification hook@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Post-execution hook successfully run"
-				ifvarclass => "manageFilesAndFolders_$(index)_command_run_ok";
+			"@@manageFilesAndFolders@@result_repaired@@${file[${index}][uuid]}@@Post-modification hook@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#Post-execution hook successfully run"
+				ifvarclass => "manageFilesAndFolders_${index}_command_run_ok";
 
-			"@@manageFilesAndFolders@@result_error@@$(file[$(index)][uuid])@@Post-modification hook@@$(file[$(index)][path])@@$(g.execRun)##$(g.uuid)@#An error occured when running the post-execution hook"
-				ifvarclass => "manageFilesAndFolders_$(index)_command_run_failed";
+			"@@manageFilesAndFolders@@result_error@@${file[${index}][uuid]}@@Post-modification hook@@${file[${index}][path]}@@${g.execRun}##${g.uuid}@#An error occured when running the post-execution hook"
+				ifvarclass => "manageFilesAndFolders_${index}_command_run_failed";
 
 }
