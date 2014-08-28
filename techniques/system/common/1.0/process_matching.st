@@ -109,7 +109,7 @@ bundle agent process_matching
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 &if(NOVA)&
 
-    nova_edition.!aix::
+    nova_edition.!aix.!windows::
 
       "/etc/cron.d/rudder-agent-nova"
         create        => "true",
