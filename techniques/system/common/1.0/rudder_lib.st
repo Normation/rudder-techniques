@@ -65,9 +65,9 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge)
 # running on a policy server instead of copying from a localhost remote blindly.
 body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
 
-    source   => "$(from)";
+    source   => "${from}";
 
-    compare  => "$(compare)";
+    compare  => "${compare}";
     encrypt  => "true";
     verify   => "true";
     trustkey => "${trustkey}";
@@ -474,7 +474,7 @@ body package_method rudder_yum
  package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
  package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
  package_installed_regex => ".*";
- package_name_convention => "$(name)";
+ package_name_convention => "${name}";
  package_list_update_command => "/usr/bin/yum --quiet check-update";
  package_list_update_ifelapsed => "240";
  package_patch_name_regex    => "([^.]+).*";

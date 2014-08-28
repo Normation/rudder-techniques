@@ -47,17 +47,17 @@ bundle agent monitor_partition_size {
 
     storage:
 
-        "$(partition[$(index)][path])"
-            volume  => freespacecheck("$(partition[$(index)][freesize])"),
-            classes => if_notkept("monitorPartitionSize_partition_$(index)_full"),
-            comment => "Check free space available on $(partition[$(index)][path])";
+        "${partition[${index}][path]}"
+            volume  => freespacecheck("${partition[${index}][freesize]}"),
+            classes => if_notkept("monitorPartitionSize_partition_${index}_full"),
+            comment => "Check free space available on ${partition[${index}][path]}";
 
 
     commands:
-        "$(partition[$(index)][repaired_cmd])"
-            classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_$(index)"),
+        "${partition[${index}][repaired_cmd]}"
+            classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_${index}"),
             contain => in_shell,
-            ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).monitorPartitionSize_partition_$(index)_full";
+            ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_partition_${index}_full";
 
 
     reports:
@@ -66,33 +66,33 @@ bundle agent monitor_partition_size {
 
             # Partition status reporting
             # Success
-            "@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The partition $(partition[$(index)][path]) has enough free space"
-                ifvarclass => "!monitorPartitionSize_partition_$(index)_full";
+            "@@monitorPartitionSize@@result_success@@${partition[${index}][uuid]}@@Partition@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#The partition ${partition[${index}][path]} has enough free space"
+                ifvarclass => "!monitorPartitionSize_partition_${index}_full";
 
             # Error
-            "@@monitorPartitionSize@@result_error@@$(partition[$(index)][uuid])@@Partition@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#The partition $(partition[$(index)][path]) has not enough free space"
-                ifvarclass => "monitorPartitionSize_partition_$(index)_full";
+            "@@monitorPartitionSize@@result_error@@${partition[${index}][uuid]}@@Partition@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#The partition ${partition[${index}][path]} has not enough free space"
+                ifvarclass => "monitorPartitionSize_partition_${index}_full";
 
             # Repaired command execution reporting
             # Success not set
-            "@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command execution was not set"
-                ifvarclass => "!monitorPartitionSize_repaired_cmd_run_$(index)";
+            "@@monitorPartitionSize@@result_success@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command execution was not set"
+                ifvarclass => "!monitorPartitionSize_repaired_cmd_run_${index}";
 
             # Success not needed
-            "@@monitorPartitionSize@@result_success@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command execution was not needed"
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).!monitorPartitionSize_partition_$(index)_full";
+            "@@monitorPartitionSize@@result_success@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command execution was not needed"
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_full";
 
             # Repaired
-            "@@monitorPartitionSize@@result_repaired@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command executed - $(partition[$(index)][repaired_cmd])"
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).monitorPartitionSize_repaired_cmd_$(index)_repaired";
+            "@@monitorPartitionSize@@result_repaired@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command executed - ${partition[${index}][repaired_cmd]}"
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_repaired";
 
             # Error
-            "@@monitorPartitionSize@@result_error@@$(partition[$(index)][uuid])@@Command execution on threshold@@$(partition[$(index)][path])@@$(g.execRun)##$(g.uuid)@#Under threshold command failed to execute"
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).monitorPartitionSize_repaired_cmd_$(index)_error";
+            "@@monitorPartitionSize@@result_error@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command failed to execute"
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_error";
 
 }
 
 body volume freespacecheck(threshold) {
-    freespace => "$(threshold)";
+    freespace => "${threshold}";
 }
 
