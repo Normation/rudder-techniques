@@ -59,7 +59,7 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
   reports:
 
     # File downloading part
-    !curl_installed:
+    !curl_installed::
       "@@downloadFile@@log_info@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#No usable cURL binary detected, falling back to miniperl instead";
 
     !file_not_found.!file_download_ok.!file_download_fail::
