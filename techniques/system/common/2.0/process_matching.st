@@ -40,51 +40,6 @@ bundle agent process_matching
 
       "restart_cf" expression => "Hr05.Min00_05";
 
-  processes:
-
-    windows::
-      # Always stop cf-monitord
-      "${g.escaped_workdir}\/bin\/cf-monitord" signals => { "${stop_signal}" };
-
-    !windows::
-      # Always stop cf-monitord
-      "${sys.workdir}/bin/cf-monitord"         signals => { "${stop_signal}" };
-
-    restart_cf.!policy_server::
-      "${cf_components}"                       signals => { "${stop_signal}" };
-
-    # Policy servers have both Nova and Community, don't blindly kill the wrong processes
-    restart_cf.policy_server::
-      "${sys.workdir}/bin/${cf_components}"    signals => { "${stop_signal}" };
-
-    restart_cf.!windows::
-      "${sys.workdir}/bin/cf-execd"            signals => { "${stop_signal}" };
-
-    # Note: cron will get restarted automatically by init (respawn directive in inittab)
-    aix.rudder_aix_crontab_insertion::
-      "^/usr/sbin/cron"                         signals => { "${stop_signal}" };
-
-  commands:
-
-    restart_cf.!windows::
-
-      "${sys.cf_serverd}";
-      "${sys.cf_execd}";
-
-&if(NOVA)&
-  services:
-
-    restart_cf.windows::
-      "CfengineNovaExec"
-        service_policy => "stop",
-        comment        => "Stop the executor service, part of scheduled restart";
-
-      "CfengineNovaExec"
-        service_policy => "start",
-        comment        => "Start the executor service, part of scheduled restart";
-
-&endif&
-
   files:
 
     linux::
@@ -126,6 +81,51 @@ bundle agent process_matching
         edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * if [ -x /opt/rudder/bin/check-rudder-agent ]; then /opt/rudder/bin/check-rudder-agent; fi"),
         classes       => rudder_common_classes("rudder_aix_crontab_insertion"),
         comment       => "Insert an AIX-compatible user crontab to run /opt/rudder/bin/check-rudder-agent";
+
+  processes:
+
+    windows::
+      # Always stop cf-monitord
+      "${g.escaped_workdir}\/bin\/cf-monitord" signals => { "${stop_signal}" };
+
+    !windows::
+      # Always stop cf-monitord
+      "${sys.workdir}/bin/cf-monitord"         signals => { "${stop_signal}" };
+
+    restart_cf.!policy_server::
+      "${cf_components}"                       signals => { "${stop_signal}" };
+
+    # Policy servers have both Nova and Community, don't blindly kill the wrong processes
+    restart_cf.policy_server::
+      "${sys.workdir}/bin/${cf_components}"    signals => { "${stop_signal}" };
+
+    restart_cf.!windows::
+      "${sys.workdir}/bin/cf-execd"            signals => { "${stop_signal}" };
+
+    # Note: cron will get restarted automatically by init (respawn directive in inittab)
+    aix.rudder_aix_crontab_insertion::
+      "^/usr/sbin/cron"                         signals => { "${stop_signal}" };
+
+&if(NOVA)&
+  services:
+
+    restart_cf.windows::
+      "CfengineNovaExec"
+        service_policy => "stop",
+        comment        => "Stop the executor service, part of scheduled restart";
+
+      "CfengineNovaExec"
+        service_policy => "start",
+        comment        => "Start the executor service, part of scheduled restart";
+
+&endif&
+
+  commands:
+
+    restart_cf.!windows::
+
+      "${sys.cf_serverd}";
+      "${sys.cf_execd}";
 
   reports:
 

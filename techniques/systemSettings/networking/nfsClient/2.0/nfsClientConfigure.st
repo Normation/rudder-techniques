@@ -21,15 +21,6 @@
 bundle agent check_nfs_client_configuration
 {
 
-  classes:
-
-      "begin_evaluation" expression => isvariable("nfs_client_index");
-
-    begin_evaluation::
-
-      "index_${nfs_client_index}_add" expression => strcmp("${nfs_client_umount[${nfs_client_index}]}", "no");
-      "index_${nfs_client_index}_remove" expression => strcmp("${nfs_client_umount[${nfs_client_index}]}", "yes");
-
   vars:
 
     &NFS_CLIENT_REMOTE_PATH:{remote_path |"nfs_client_remote_path[&i&]" string => "&remote_path&";
@@ -47,6 +38,15 @@ bundle agent check_nfs_client_configuration
     &TRACKINGKEY:{uuid |"nfs_client_uuid[&i&]" string => "&uuid&";
 }&
       "nfs_client_index" slist => getindices("nfs_client_remote_path");
+
+  classes:
+
+      "begin_evaluation" expression => isvariable("nfs_client_index");
+
+    begin_evaluation::
+
+      "index_${nfs_client_index}_add" expression => strcmp("${nfs_client_umount[${nfs_client_index}]}", "no");
+      "index_${nfs_client_index}_remove" expression => strcmp("${nfs_client_umount[${nfs_client_index}]}", "yes");
 
   storage:
 

@@ -23,20 +23,6 @@
 bundle agent check_apt_settings
 {
 
-  classes:
-
-    # Repositories edition ?
-      "apt_repositories_edit" not => strcmp("&APT_ADDREPOSITORIES&","false");
-
-    # Disable repositories ?
-      "apt_disablerepositories" not => strcmp("&APT_DISABLEREPOSITORIES&","false");
-
-    # InstallRecommends edition ?
-      "apt_installrecommends_edit" not => strcmp("&APT_INSTALLRECOMMENDS&","dontchange");
-
-    # InstallSuggests edition ?
-      "apt_installsuggests_edit" not => strcmp("&APT_INSTALLSUGGESTS&","dontchange");
-
   vars:
 
     debian_4::
@@ -122,6 +108,20 @@ bundle agent check_apt_settings
 
     &APT_DISTRIBUTION, APT_DISTRO_AUTODETECT:{apt_distro, apt_autodetect |"apt_distro[&i&]" string => "&if (apt_autodetect)&${apt_detected_distro}&else&&apt_distro&&endif&";
 }&
+
+  classes:
+
+    # Repositories edition ?
+      "apt_repositories_edit" not => strcmp("&APT_ADDREPOSITORIES&","false");
+
+    # Disable repositories ?
+      "apt_disablerepositories" not => strcmp("&APT_DISABLEREPOSITORIES&","false");
+
+    # InstallRecommends edition ?
+      "apt_installrecommends_edit" not => strcmp("&APT_INSTALLRECOMMENDS&","dontchange");
+
+    # InstallSuggests edition ?
+      "apt_installsuggests_edit" not => strcmp("&APT_INSTALLSUGGESTS&","dontchange");
 
   files:
 

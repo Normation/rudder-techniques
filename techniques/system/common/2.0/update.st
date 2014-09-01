@@ -241,6 +241,16 @@ bundle agent update_action
     config.!windows::
       "cf-execd"   restart_class => "start_exec";
 
+&if(NOVA)&
+  services:
+    windows::
+      "CfengineNovaExec"
+        service_policy => "start",
+        service_method => u_bootstart,
+        classes        => outcome("executor"),
+        comment        => "Start the executor windows service now and at boot time";
+&endif&
+
   commands:
     start_exec.(!windows|cygwin)::
       "${sys.cf_execd}"
@@ -253,16 +263,6 @@ bundle agent update_action
         classes => outcome("server");
 
 #########################################################
-&if(NOVA)&
-  services:
-    windows::
-      "CfengineNovaExec"
-        service_policy => "start",
-        service_method => u_bootstart,
-        classes        => outcome("executor"),
-        comment        => "Start the executor windows service now and at boot time";
-&endif&
-
   reports:
     server_ok::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";

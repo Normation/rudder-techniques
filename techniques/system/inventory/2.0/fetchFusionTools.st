@@ -23,21 +23,6 @@
 bundle agent fetchFusionTools
 {
 
-  packages:
-
-    debian::
-      "curl"
-        package_policy  => "add",
-        package_method  => apt,
-        classes => rudder_common_classes("fetchFusionTools_install_curl"),
-        comment => "Installing curl using apt";
-    redhat::
-      "curl"
-        package_policy  => "add",
-        package_method  => rudder_yum,
-        classes => rudder_common_classes("fetchFusionTools_install_curl"),
-        comment => "Installing curl using yum";
-
 &if(NOVA)&
   files:
 
@@ -52,6 +37,21 @@ bundle agent fetchFusionTools
         classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
         comment => "Copying PERL userland";
 &endif&
+
+  packages:
+
+    debian::
+      "curl"
+        package_policy  => "add",
+        package_method  => apt,
+        classes => rudder_common_classes("fetchFusionTools_install_curl"),
+        comment => "Installing curl using apt";
+    redhat::
+      "curl"
+        package_policy  => "add",
+        package_method  => rudder_yum,
+        classes => rudder_common_classes("fetchFusionTools_install_curl"),
+        comment => "Installing curl using yum";
 
   reports:
     fusion_tools_copied::
