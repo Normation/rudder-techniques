@@ -157,7 +157,7 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
         classes => kept_if_else("line_${index}_kept", "line_${index}_added", "line_${index}_add_failed");
   reports:
 
-    linux::
+    cfengine::
 
       "@@fstabConfiguration@@result_error@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][destination]} is invalid, for it doesn't contain an origin : how can it be updated/inserted?"
         ifvarclass => "invalid_${index}";

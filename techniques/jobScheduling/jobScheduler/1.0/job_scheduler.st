@@ -62,7 +62,7 @@ bundle agent job_scheduler
       "${job_scheduler_command[${iterator}]}"
         action     => bg("10", "${job_scheduler_timeout[${iterator}]}"),
         contain    => in_shell,
-        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time",
+        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time.!job_scheduler_lock_${iterator}",
         classes    => kept_if_else_exclusive_persist("${job_scheduler_canon_name[${iterator}]}_ok",
       "${job_scheduler_canon_name[${iterator}]}_repaired",
       "${job_scheduler_canon_name[${iterator}]}_failed",
@@ -72,7 +72,7 @@ bundle agent job_scheduler
       "@{job_scheduler.error_returncodes_${iterator}}");
 
   reports:
-    (linux|windows).nos2::
+    nos2::
       # Note: if the command has not been executed (ever or since > frequency), no report will be sent until the splayclass is defined
       # This will cause Rudder to report an "Unknown" status, and is by design
       "@@jobScheduler@@result_success@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#Job returned a success return code after the last completed execution (${job_scheduler_command[${iterator}]})"
@@ -83,7 +83,10 @@ bundle agent job_scheduler
         ifvarclass => "${job_scheduler_canon_name[${iterator}]}_failed";
 
       "@@jobScheduler@@log_info@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#Job has been launched (${job_scheduler_command[${iterator}]}), result will be reported on next run"
-        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time";
+        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time.!job_scheduler_lock_${iterator}",
+        # we define here the persistent class, as the command exection is done on the last iteration
+        comment    => "Define a persistent class to prevent multiple job executions",
+        classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}", "5");
 
       "@@jobScheduler@@log_info@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#The command will be run at a random time after ${all_hours}:00 on this node (${job_scheduler_command[${iterator}]})"
         ifvarclass => "job_scheduler_${all_hours}_${iterator}";

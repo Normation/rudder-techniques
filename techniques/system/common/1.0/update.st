@@ -60,35 +60,151 @@ body copy_from remote_unsecured(server, path)
 
 }
 
+body copy_from copy_digest_without_perms(from)
+{
+        source      => "${from}";
+        copy_backup => "false";
+        preserve    => "false";
+        compare     => "digest";
+        purge       => "true";
+}
+
+body copy_from remote_unsecured_without_perms(server, path)
+{
+
+        servers    => {
+          "${server}"
+        };
+        encrypt    => "false";
+        trustkey   => "true";
+        source     => "${path}";
+        compare    => "digest";
+        preserve   => "false";
+        verify     => "true";
+        purge      => "true";
+    community_edition::
+        portnumber => "&COMMUNITYPORT&";
+
+}
+
 bundle common server_info
 {
   vars:
     any::
       "policy_files" string => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
 
-    policy_server::
-      "cfserved"     string => "&POLICYSERVER&";
-
-    !policy_server::
       "policy_server_file"
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
-      "cfserved"     string =>  readfile("${policy_server_file}", 2048);
+
+   # Use localhost as default policy_server if no policy_server.dat exists
+    policy_server_set::
+      "cfserved" string => readfile("${policy_server_file}", 2048);
+    !policy_server_set::
+      "cfserved" string => "rudder";
+
+  classes:
+      "policy_server_set" expression => fileexists("${server_info.policy_server_file}");
 }
 
+# The update is now split in two parts
+# - the action part, only launched during failsafe
+#   it copies files, restarts deamons, defines persistent classes
+# - the report part, not done during failsafe but during regular run
+#   note that if in verbose_mode, then the reporting will be done
+#   as well during failsafe
+#
+# Since the defined class are persistent, the classes are still
+# available during the "normal" agent execution, for reporting
 bundle agent update
 {
+  methods:
+    failsafe::
+      "update" usebundle => update_action;
+    (!failsafe|verbose_mode)::
+      "report" usebundle => update_reports;
+
+  reports:
+    # We want to have always reports if something goes bad
+    rudder_promises_generated_error|no_update::
+      "*********************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
+* This can be caused by a network issue, an unavailable server, or if this      *
+* node was deleted from the Rudder root server.                                 *
+* Any existing configuration policy will continue to be applied without change. *
+*********************************************************************************"
+      action => immediate;
+}
+
+bundle agent update_action
+{
   vars:
+
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
       "file_to_check_update" string => "rudder_promises_generated";
+      "list_compatible_inputs" string => "${g.rudder_ncf}/common/10_ncf_internals/list-compatible-inputs";
     nova_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
     community_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
 
-
   files:
+
+    any::
+      "${g.rudder_ncf}/."
+        create  => "true",
+        comment => "Make sure the ncf directory exists";
+
+    root_server::
+      "${g.rudder_ncf}/common"
+        copy_from    => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        file_select  => exclude("list-compatible-inputs"),
+        perms        => u_mog("644", "root", "root"),
+        action       => immediate,
+        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment      => "Update the common Rudder ncf instance";
+
+      "${list_compatible_inputs}"
+        copy_from    => copy_digest_without_perms("${list_compatible_inputs}"),
+        perms        => u_mog("755", "root", "root"),
+        action       => immediate,
+        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment      => "Update the common Rudder ncf instance";
+
+      "${g.rudder_ncf}/local"
+        copy_from    => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        perms        => u_mog("644", "root", "root"),
+        action       => immediate,
+        classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
+        comment      => "Update the local Rudder ncf instance";
+
     !root_server::
+      "${g.rudder_ncf}/common"
+        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        file_select  => exclude("list-compatible-inputs"),
+        perms        => u_mog("644", "root", "0"),
+        action       => immediate,
+        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment      => "Update the common Rudder ncf instance";
+
+      "${list_compatible_inputs}"
+        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${list_compatible_inputs}"),
+        perms        => u_mog("755", "root", "root"),
+        action       => immediate,
+        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment      => "Update the common Rudder ncf instance";
+
+      "${g.rudder_ncf}/local"
+        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        perms        => u_mog("644", "root", "0"),
+        action       => immediate,
+        classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
+        comment      => "Update the local Rudder ncf instance";
+
       "${client_inputs}/${file_to_check_update}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
         action       => immediate,
@@ -109,23 +225,14 @@ bundle agent update
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
 
-    # same here, if the dependencies have been updated, we can skup this part 
-    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
-      "${g.rudder_dependencies}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-        #depth_search => recurse("inf"),
+    # same here, if the tools have been updated, we can skip this part
+    rudder_promises_generated_repaired.!rudder_tools_updated.!rudder_tools_updated_ok::
+      "${g.rudder_tools}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
-        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
-
-    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
-      "${g.rudder_sbin}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-        #depth_search => recurse("inf"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action       => immediate,
-        classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
-
+        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
+        comment      => "Update the Rudder tools";
 
   processes:
     config.!windows::
@@ -135,12 +242,7 @@ bundle agent update
       "cf-execd"   restart_class => "start_exec";
 
   commands:
-    start_exec.!windows::
-      "${sys.cf_execd}"
-        action  => u_ifwin_bg,
-        classes => outcome("executor");
-
-    start_exec.cygwin::
+    start_exec.(!windows|cygwin)::
       "${sys.cf_execd}"
         action  => u_ifwin_bg,
         classes => outcome("executor");
@@ -162,45 +264,54 @@ bundle agent update
 &endif&
 
   reports:
-    # The use of the failsafe class here is to prevent the failsafe to do reports
-    # (except in verbose mode) as it may prevent the normal execution to report due to lock
     server_ok::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";
     executor_ok::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the scheduler (cf-execd)";
+}
 
-    (!failsafe|verbose_mode).no_update::
+# This bundle is responsible for the reporting of what happened in the update
+# It can work because the classes defined during the update are persistent, so
+# the classes are available for the next 4 minutes
+bundle agent update_reports
+{
+  reports:
+    no_update::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
 
-    (!failsafe|verbose_mode).rudder_dependencies_update_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update dependencies";
+    rudder_tools_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools";
 
-    (!failsafe|verbose_mode).rudder_promises_generated_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy or dependencies";
+    rudder_ncf_common_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update common Rudder ncf instance";
 
-    (!failsafe|verbose_mode).((rudder_promises_generated_ok|(rudder_dependencies_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_dependencies_updated|rudder_dependencies_update_error|config|no_update))::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy and dependencies already up to date. No action required.";
+    rudder_ncf_local_update_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update local Rudder ncf instance";
 
-    (!failsafe|verbose_mode).rudder_dependencies_updated::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Dependencies updated";
+    rudder_promises_generated_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
 
-    (!failsafe|verbose_mode).config::
+    (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
+
+    rudder_tools_updated::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder tools updated";
+
+    rudder_ncf_common_updated::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf common instance updated";
+
+    rudder_ncf_local_updated::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf local instance updated";
+
+    config::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
 
-    (!failsafe|verbose_mode).(rudder_promises_generated_repaired|config|rudder_dependencies_updated|server_ok|executor_ok)::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy or dependencies were updated or CFEngine service restarted";
+    rudder_promises_generated_repaired|config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok::
+      "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools or ncf instance were updated or CFEngine service restarted";
 
-    (!failsafe|verbose_mode).policy_server::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Policy server doesn't need to be updated";
+    policy_server::
+      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy server doesn't need to be updated";
 
-
-    (!failsafe|verbose_mode).(rudder_promises_generated_error|no_update)::
-				"*********************************************************************************
-* rudder-agent could not get an updated configuration from the policy server.   *
-* This can be caused by a network issue, an unavailable server, or if this      *
-* node was deleted from the Rudder root server.                                 *
-* Any existing configuration policy will continue to be applied without change. *
-*********************************************************************************";
 }
 
 
@@ -208,11 +319,6 @@ bundle agent update
 body classes outcome(x)
 {
         promise_repaired => {"${x}_ok"};
-}
-############################################
-body action u_background
-{
-        background => "true";
 }
 ############################################
 body classes success(if, else, kept)
@@ -241,3 +347,10 @@ body service_method u_bootstart
         service_autostart_policy => "boot_time";
 }
 &endif&
+
+body perms u_mog(mode,user,group)
+{
+owners => { "$(user)" };
+groups => { "$(group)" };
+mode   => "$(mode)";
+}

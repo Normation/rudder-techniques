@@ -40,7 +40,10 @@ bundle common g
       "rudder_base_sbin" string  => "${rudder_base}\sbin"; #folder where tools are installed
       "rudder_inventories"  string => "${rudder_var}\inventories";
       "rudder_base_sbin_arg" string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
+      "rudder_ncf" string  => "${rudder_var}\ncf";
 
+      # DEPRECATED: This variable is used in pre-2.9 Techniques.
+      "rudder_dependencies"        string => "${rudder_sbin}";
 
     windows.!cygwin::
       "cfengine_share_directory" string => "c:\opt\hive\cf-served";
@@ -56,11 +59,45 @@ bundle common g
       "rudder_base_sbin" string  => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_inventories" string  => "${rudder_var}/inventories";
       "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+      "rudder_ncf" string  => "${rudder_var}/ncf";
+
+      # DEPRECATED: This variable is used in pre-2.9 Techniques.
+      "rudder_dependencies"        string => "${rudder_var}/tools";
+
+    aix::
+
+      "gzip"                       string => "/usr/bin/gzip";
+
+    !aix.!windows::
+
+      "gzip"                       string => "/bin/gzip";
 
     any::
 
       "uuid" string => "root";
       "server_shares_folder" string  => "/var/rudder/share/${uuid}/share";
-      "rudder_dependencies" string => "/var/rudder/tools";
+      "rudder_tools" string => "/var/rudder/tools";
+
+      "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
+      "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
+
+      "uncompressed_inventory_file_types" slist => { ".*.ocs" };
+      "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
+
+      # DEPRECATED: This variable is used in pre-2.9 Techniques.
+      "rudder_dependencies_origin"  string => "/var/rudder/tools";
+
+  classes:
+
+    # Utilities
+    "gzip_installed"                 expression => isexecutable("${rudder_gzip}");
+
+    # Roles
+    "role_rudder_server_root"        expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root");
+    "role_rudder_inventory_ldap"     expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-ldap");
+    "role_rudder_jetty"              expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-jetty");
+    "role_rudder_webapp"             expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
+    "role_rudder_inventory_endpoint" expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-endpoint");
+    "role_rudder_reports"            expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
 
 }

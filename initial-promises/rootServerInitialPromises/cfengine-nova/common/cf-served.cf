@@ -38,18 +38,24 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-      "${g.rudder_dependencies}"
+      "${g.rudder_tools}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+      "${g.rudder_ncf_origin_common}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
+      "${g.rudder_ncf_origin_local}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
 
     any::
 
       # the policy server must have access to the cfengine folder
       "${sys.workdir}"
-        maproot => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  },
-        admit   => { host2ip("%%POLICY_SERVER_HOSTNAME%%"), escape("%%POLICY_SERVER_HOSTNAME%%")  };
-
+        maproot => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  },
+        admit   => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  };
 
   roles:
       # Allow user root to set any class
@@ -59,7 +65,11 @@ bundle server access_rules
 bundle common def
 {
   vars:
-      "policy_server"      string => "%%POLICY_SERVER_HOSTNAME%%";
+      "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
+        comment => "Path to file containing address to policy server";
+
+      "policy_server"      string => readfile("${policy_server_file}", 2048),
+        comment => "IP address or hostname to locate your policy host.";
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
@@ -81,20 +91,19 @@ body server control
         trustkeysfrom     => {
       "127.0.0.0/8" , "::1",
         @{def.acl} ,
-          host2ip("%%POLICY_SERVER_HOSTNAME%%"), "%%POLICY_SERVER_HOSTNAME%%"
-    }; #trustkey allows the exchange of keys
+          host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
+  }; #trustkey allows the exchange of keys
         allowconnects     => {
        @{def.acl} ,
-         host2ip("%%POLICY_SERVER_HOSTNAME%%"), "%%POLICY_SERVER_HOSTNAME%%"
-    };
+          host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
+  };
+
 
         maxconnections    => "1000";
         logallconnections => "true";
 
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf && ${sys.workdir}/bin/cf-agent";
         allowusers        => { "root" };
-
-        skipverify            => { "127.0.0.0/8" , "::1",  @{def.acl}  };
 
     community_edition::
         port => "5309";

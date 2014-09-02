@@ -23,7 +23,7 @@ bundle agent process_matching
  # This deliberately excludes cf-execd which is handled separately below
       "cf_components"       slist => { "cf-key",
                                   # "cf-monitord", Disabled
-      "cf-promises", "cf-report",
+      "cf-promises",
       "cf-runagent", "cf-serverd" };
 
     windows::
@@ -35,39 +35,12 @@ bundle agent process_matching
 
   classes:
 
-      "restart_cf" expression => "Hr05.Min00_05.!disable_agent";
+      "restart_cf" expression => "Hr05.Min00_05";
 
-
-  processes:
-
-    windows::
-  # Always stop cf-monitord
-      "${g.escaped_workdir}\/bin\/cf-monitord"  signals => { "${stop_signal}" };
-
-    linux::
-  # Always stop cf-monitord
-      "${sys.workdir}/bin/cf-monitord"  signals => { "${stop_signal}" };
-
-    restart_cf.!policy_server::
-      "${cf_components}" signals => { "${stop_signal}" };
-
-  # Policy servers have both Nova and Community, don't blindly kill the wrong processes
-    restart_cf.policy_server::
-      "${sys.workdir}/bin/${cf_components}" signals => { "${stop_signal}" };
-
-    restart_cf.!windows::
-      "${sys.workdir}/bin/cf-execd"  signals => { "${stop_signal}" };
-
-  commands:
-
-    restart_cf.!windows::
-
-      "${sys.cf_serverd}";
-      "${sys.cf_execd}";
 
   files:
 
-    linux::
+    !windows.!android::
 
       # This is to cleanup /etc/crontab from pre-2.5 usage
       # and initial promises before 2.7
@@ -77,13 +50,58 @@ bundle agent process_matching
         edit_defaults => noempty_backup,
         edit_line => cron_cleanup;
 
-    community_edition::
+      # Temporary cron file added by rudder-agent postinst to prevent from UUID removal.
+      # When this promise will be generated, this cron will be useless then removed.
+      # (see http://www.rudder-project.org/redmine/issues/3925 and http://www.rudder-project.org/redmine/issues/3930).
+      "/etc/cron.d/rudder-agent-uuid" delete => tidy;
+
+    community_edition.!aix::
 
       "/etc/cron.d/rudder-agent"
         create        => "true",
         perms         => mog("644", "root", "root"),
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
+
+    aix::
+
+      "/var/spool/cron/crontabs/root"
+        create        => "true",
+        perms         => mog("600", "root", "cron"),
+        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * if [ -x /opt/rudder/bin/check-rudder-agent ]; then /opt/rudder/bin/check-rudder-agent; fi"),
+        classes       => rudder_common_classes("rudder_aix_crontab_insertion"),
+        comment       => "Insert an AIX-compatible user crontab to run /opt/rudder/bin/check-rudder-agent";
+
+  processes:
+
+    windows::
+      # Always stop cf-monitord
+      "${g.escaped_workdir}\/bin\/cf-monitord"  signals => { "${stop_signal}" };
+
+    !windows::
+      # Always stop cf-monitord
+      "${sys.workdir}/bin/cf-monitord"      signals => { "${stop_signal}" };
+
+    restart_cf.!policy_server::
+      "${cf_components}"                    signals => { "${stop_signal}" };
+
+    # Policy servers have both Nova and Community, don't blindly kill the wrong processes
+    restart_cf.policy_server::
+      "${sys.workdir}/bin/${cf_components}" signals => { "${stop_signal}" };
+
+    restart_cf.!windows::
+      "${sys.workdir}/bin/cf-execd"         signals => { "${stop_signal}" };
+
+    # Note: cron will get restarted automatically by init (respawn directive in inittab)
+    aix.rudder_aix_crontab_insertion::
+      "^/usr/sbin/cron"                         signals => { "${stop_signal}" };
+
+  commands:
+
+    restart_cf.!windows::
+
+      "${sys.cf_serverd}";
+      "${sys.cf_execd}";
 
   reports:
     restart_cf::

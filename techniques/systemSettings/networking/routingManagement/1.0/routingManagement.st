@@ -49,13 +49,13 @@ bundle agent check_routing_parameters
 
   classes:
 
-      "checkroute_present" expression => fileexists("${g.rudder_dependencies}/checkroute.pl");
+      "checkroute_present" expression => fileexists("${g.rudder_tools}/checkroute.pl");
 
   commands:
 
-    linux.checkroute_present::
+    !windows.checkroute_present::
 
-      "${g.rudder_dependencies}/checkroute.pl ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} linux"
+      "${g.rudder_tools}/checkroute.pl ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} linux"
         contain => in_shell,
         module => "true",
         comment => "Analysing routes";
@@ -74,7 +74,7 @@ bundle agent check_routing_parameters
     windows.checkroute_present::
 
       "\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
-        args => "\"${g.rudder_dependencies}\checkroute.pl\" ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} windows",
+        args => "\"${g.rudder_tools}\checkroute.pl\" ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} windows",
         contain => in_shell,
         module => "true",
         comment => "Analysing routes";
@@ -93,7 +93,7 @@ bundle agent check_routing_parameters
 
   reports:
 
-    (windows|linux).checkroute_present::
+    checkroute_present::
 
       "@@routingManagement@@result_success@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} found, as expected."
         ifvarclass => canonify("route_${routing_index}_found");
@@ -124,7 +124,7 @@ bundle agent check_routing_parameters
       "@@routingManagement@@result_error@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Could not delete route ${displayName[${routing_index}]}!"
         ifvarclass => canonify("route_${routing_index}_delete_failed");
 
-    (windows|linux).!checkroute_present::
+    !checkroute_present::
 
       "@@routingManagement@@result_error@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Could not add route ${displayName[${routing_index}]}: helper program checkroute.pl not found!";
 

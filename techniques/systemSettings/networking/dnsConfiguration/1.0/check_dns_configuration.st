@@ -46,7 +46,7 @@ bundle agent check_dns_configuration
 
   files:
 
-    linux::
+    !windows::
 
       "${sys.resolv}"
         create        => "true",
@@ -87,7 +87,7 @@ bundle agent check_dns_configuration
     dns_searchlist_edit::
       "@@ConfigureDNS@@log_debug@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Settings are to edit DNS searchlist";
 
-    (linux.dns_repaired)|(windows.dns_repaired_resolver.!cant_repair_dns_resolver.dns_repaired_searchlist.!cant_repair_dns_searchlist)::
+    (!windows.dns_repaired)|(windows.dns_repaired_resolver.!cant_repair_dns_resolver.dns_repaired_searchlist.!cant_repair_dns_searchlist)::
       "@@ConfigureDNS@@result_repaired@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#DNS settings were updated";
 
     cant_repair_dns::
@@ -99,7 +99,7 @@ bundle agent check_dns_configuration
     cant_repair_dns_resolver::
       "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Could not set DNS resolver list in the Windows registry";
 
-    linux.dns_kept.!dns_repaired.!cant_repair_dns::
+    !windows.dns_kept.!dns_repaired.!cant_repair_dns::
       "@@ConfigureDNS@@result_success@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#The DNS is correctly configured";
 
         #windows and something to do
@@ -157,14 +157,7 @@ bundle edit_line resolv_edition(search, list)
       "nameserver.*";
 
   insert_lines:
-
-"#############################################################
-### This file is protected by your Rudder infrastructure. ###
-### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server's            ###
-### configuration and/or to raise a compliance alert.     ###
-#############################################################
-"
+      "${rudder_parameters.rudder_file_edit_header}"
         location => start,
         insert_type => "preserve_block";
 

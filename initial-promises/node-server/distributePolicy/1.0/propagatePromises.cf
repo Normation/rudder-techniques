@@ -26,13 +26,12 @@ bundle agent propagatePromises
 {
 
   vars:
-    any::
       "server_data" string => "${server_info.policy_files}/share"; #actual directory with data to propagate
-      "client_data" string => "/var/rudder/share/";  #where to put the files on the client when downloaded
+      "client_data" string => "${g.rudder_var}/share/";  #where to put the files on the client when downloaded
 
   files:
     root_server::
-      "${g.rudder_dependencies}"
+      "${g.rudder_tools}"
         copy_from    => copy("${g.rudder_base}/share/tools"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
@@ -44,8 +43,8 @@ bundle agent propagatePromises
         comment => "Fetching the promises to propagate",
         classes => if_else("promises_propagated", "could_not_propagate_promise");
 
-      "${g.rudder_dependencies}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_dependencies}"),
+      "${g.rudder_tools}"
+        copy_from    => remote("${server_info.cfserved}","${g.rudder_tools}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
         classes => if_else("tools_propagated", "could_not_propagate_tools");
@@ -79,25 +78,29 @@ bundle agent propagatePromises
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
 bundle agent sendInventoryToCmdb
 {
+  vars:
+      "rudder_inventory_endpoint_server" string => "localhost",
+        ifvarclass => "!role_rudder_inventory_endpoint_server_defined";
+      "rudder_inventory_endpoint_server" string => "${rudder_servers_by_role.roles[rudder-inventory-endpoint]}",
+        ifvarclass => "role_rudder_inventory_endpoint_server_defined";
 
   files:
 
     root_server::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "${g.rudder_dependencies}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/",
+        transformer => "${g.rudder_tools}/send-clean.sh http://${rudder_inventory_endpoint_server}:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
         classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
         comment => "Sending the inventory to the cmdb";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "${g.rudder_dependencies}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/",
+        transformer => "${g.rudder_tools}/send-clean.sh http://${rudder_inventory_endpoint_server}:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
         file_select => all_files,
         classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
         comment => "Sending the inventory to the cmdb";
-
 
 # NEED TO DO THE RSYNC PART
 

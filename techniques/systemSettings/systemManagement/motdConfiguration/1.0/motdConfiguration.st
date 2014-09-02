@@ -41,6 +41,11 @@ bundle agent check_motd_configuration
 
       "motd_file" slist => { "/etc/motd" };
 
+    aix::
+      "rudder_motd_group" string => "bin";
+    !aix::
+      "rudder_motd_group" string => "root";
+
   files:
 
     !windows::
@@ -49,7 +54,7 @@ bundle agent check_motd_configuration
 
         create => "true",
         edit_defaults => rudder_empty_select("${motd_empty}"),
-        perms  => mog("644", "root", "root"),
+        perms  => mog("644", "root", "${rudder_motd_group}"),
         edit_line => insert_lines("${motd}"),
         classes => kept_if_else("motd_file_kept", "motd_file_edited", "motd_file_failed");
 

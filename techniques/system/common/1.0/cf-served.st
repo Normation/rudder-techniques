@@ -24,7 +24,7 @@
 
 bundle server access_rules
 {
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
@@ -42,7 +42,15 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-      "${g.rudder_dependencies}"
+      "${g.rudder_tools}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
+      "${g.rudder_ncf_origin_common}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
+      "${g.rudder_ncf_origin_local}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
@@ -56,18 +64,22 @@ bundle server access_rules
 
 
     any::
-    &POLICYCHILDREN, CHILDRENID : {host, uuid |
+  &if(SKIPIDENTIFY)&
+    &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
+      "/var/rudder/share/&uuid&/"
+        maproot => { escape("&host&")  },
+        admit   => { escape("&host&")  };
+
+     } &
+  &else&
+    &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
         maproot => { host2ip("&host&"), escape("&host&")  },
         admit   => { host2ip("&host&"), escape("&host&")  };
 
      } &
+  &endif&
 
-
-      # the policy server must have access to the cfengine folder
-      "${sys.workdir}"
-        maproot => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  },
-        admit   => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  };
 &endif&
 
   roles:
@@ -82,66 +94,101 @@ bundle common def
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
+   # Use localhost as default policy_server if no policy_server.dat exists
+    policy_server_set::
       "policy_server"
         string  => readfile("${policy_server_file}", 2048),
         comment => "IP address or hostname to locate your policy host.";
+    !policy_server_set::
+      "policy_server"
+        string  => "rudder",
+        comment => "IP address by default without ${def.policy_server_file} file";
+
+    any::
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
    # List here the IP masks that we grant access to on the server
 
-&if(CLIENTSLIST)&
+&if(AUTHORIZED_NETWORKS)&
     policy_server::
       "acl" slist => {
-      &ALLOWEDNETWORK:{net|"&net&",}&
+      "127.0.0.0/8" , "::1",
+      "${def.policy_server}", # the policy server can connect to a relay
+      &AUTHORIZED_NETWORKS:{net|"&net&",}&
     };
 &endif&
     !policy_server::
       "acl" slist => {
       "${def.policy_server}"
     };
+
+  classes:
+      "policy_server_set" expression => fileexists("${def.policy_server_file}");
 }
 
 
 body server control
 {
+&if(SKIPIDENTIFY)&
         trustkeysfrom     => {
-          "127.0.0.0/8" , "::1",
           @{def.acl} ,
-          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
-          &if(CLIENTSLIST)&
-          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          "&it&"};separator=", "&
           &endif&
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
           @{def.acl} ,
-          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
-          &if(CLIENTSLIST)&
-          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          "&it&"};separator=", "&
           &endif&
         };
 
         allowallconnects  => {
           @{def.acl} ,
-          &ALLOWCONNECT: { host2ip("&it&"), "&it&", }&
-          &if(CLIENTSLIST)&
-          &POLICYCHILDREN: { host2ip("&it&"), "&it&"};separator=", "&
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          "&it&"};separator=", "&
+          &endif&
+        };
+&else&
+        trustkeysfrom     => {
+          @{def.acl} ,
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          host2ip("&it&"), "&it&"};separator=", "&
+          &endif&
+        }; #trustkey allows the exchange of keys
+
+        allowconnects     => {
+          @{def.acl} ,
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         };
 
+        allowallconnects  => {
+          @{def.acl} ,
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          host2ip("&it&"), "&it&"};separator=", "&
+          &endif&
+        };
+&endif&
         maxconnections    => "1000";
         logallconnections => "true";
 
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf \&\& ${sys.workdir}/bin/cf-agent";
         allowusers        => {
           "&POLICYSERVER_ADMIN&",
-&if(CLIENTSLIST)&
-          &ADMIN : {admin | "&admin&" };separator=", "&
-&endif&
+          &MANAGED_NODES_ADMIN : {admin | "&admin&" };separator=", "&
         };
 
-        skipverify        => { "127.0.0.0/8" , "::1",  @{def.acl}  };
+        denybadclocks => "&DENYBADCLOCKS&";
 
     community_edition::
         port => "&COMMUNITYPORT&";
@@ -150,11 +197,12 @@ body server control
 
 #######################################################
 
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
 body runagent control
 {
         hosts => {
-          &CLIENTSLIST: { "&it&",}&
+          &MANAGED_NODES_NAME: {
+          "&it&",}&
         };
 
         max_children => "25";

@@ -81,13 +81,7 @@ body classes rudder_always_classes_persist(always, persist)
 bundle edit_line rudder_common_disclaimer
 {
   insert_lines:
-    "#############################################################
-### This file is protected by your Rudder infrastructure. ###
-### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server's            ###
-### configuration and/or to raise a compliance alert.     ###
-#############################################################
-"
+      "${rudder_parameters.rudder_file_edit_header}"
         location    => start,
         insert_type => "preserve_block";
 }
@@ -188,7 +182,7 @@ body select_region rudder_section_selector(section_start, section_end)
 bundle agent rudder_common_report(technique_name, status, identifier, component_name, component_key, message)
 {
   reports:
-    linux|!linux::
+    cfengine_3::
       "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}";
 }
 

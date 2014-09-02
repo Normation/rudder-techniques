@@ -88,7 +88,7 @@ bundle agent check_openvpn_client_configuration
 
   processes:
 
-    (SuSE|debian|redhat).ovpn_client_autostart::
+    ovpn_client_autostart::
 
       "/usr/sbin/openvpn"
         restart_class => "openvpn_down",
@@ -262,14 +262,7 @@ bundle edit_line set_openvpn_config_values_tier2(tab)
         classes => if_ok("not_${cindex[${index}]}");
 
   insert_lines:
-
-"#############################################################
-### This file is protected by your Rudder infrastructure. ###
-### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server's            ###
-### configuration and/or to raise a compliance alert.     ###
-#############################################################
-"
+      "${rudder_parameters.rudder_file_edit_header}"
         location => start,
         insert_type => "preserve_block";
 

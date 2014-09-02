@@ -37,6 +37,10 @@ given parameters.
     <TML name="fstabConfiguration"/>
   </TMLS>
 
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>FSTAB_DESTINATION</SAMESIZEAS>
   </TRACKINGVARIABLE>

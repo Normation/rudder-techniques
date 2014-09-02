@@ -25,7 +25,7 @@ bundle common virtualMachines
     # Files names for the installed VM lists
       "VBoxListFile" string => "${g.rudder_var_tmp}/VBoxList.list";
       "VMWareListFile" string => "${g.rudder_var_tmp}/VMWareList.list";
-      "VMWareScript_ServerLocation" string => "${g.rudder_dependencies}/vmware_info.sh";
+      "VMWareScript_ServerLocation" string => "${g.rudder_tools}/vmware_info.sh";
 
     # Attribut name for the VM tag in the inventory file
       "VBoxAttr" string => "VBox";
@@ -47,7 +47,7 @@ bundle common virtualMachines
 
 
   classes:
-    linux::
+    !windows::
       "VirtualBoxInstalled" expression => fileexists("/usr/bin/VBoxManage"),
         comment => "Checking installation of VirtualBox";
 

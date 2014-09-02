@@ -31,7 +31,6 @@ bundle agent check_apt_settings
     # Disable repositories ?
       "apt_disablerepositories" not => strcmp("&APT_DISABLEREPOSITORIES&","false");
 
-
     # InstallRecommends edition ?
       "apt_installrecommends_edit" not => strcmp("&APT_INSTALLRECOMMENDS&","dontchange");
 
@@ -52,13 +51,13 @@ bundle agent check_apt_settings
 
       "apt_detected_distro" string => "squeeze";
 
-		debian_7::
+    debian_7::
 
-			"apt_detected_distro" string => "wheezy";
+        "apt_detected_distro" string => "wheezy";
 
-		debian_8::
+    debian_8::
 
-			"apt_detected_distro" string => "jessie";
+        "apt_detected_distro" string => "jessie";
 
     ubuntu_karmic::
 
@@ -72,25 +71,25 @@ bundle agent check_apt_settings
 
       "apt_detected_distro" string => "maverick";
 
-		ubuntu_natty::
+    ubuntu_natty::
 
-			"apt_detected_distro" string => "natty";
+        "apt_detected_distro" string => "natty";
 
-		ubuntu_oneiric::
+    ubuntu_oneiric::
 
-			"apt_detected_distro" string => "oneiric";
+        "apt_detected_distro" string => "oneiric";
 
-		ubuntu_precise::
+    ubuntu_precise::
 
-			"apt_detected_distro" string => "precise";
+        "apt_detected_distro" string => "precise";
 
-		ubuntu_quantal::
+    ubuntu_quantal::
 
-			"apt_detected_distro" string => "quantal";
+        "apt_detected_distro" string => "quantal";
 
-		ubuntu_raring::
+    ubuntu_raring::
 
-			"apt_detected_distro" string => "raring";
+        "apt_detected_distro" string => "raring";
 
     apt_installrecommends_edit::
 
@@ -140,7 +139,7 @@ bundle agent check_apt_settings
       "/etc/apt/apt.conf.d/99rudder"
         create => "true",
         perms => m("644"),
-        edit_defaults => noempty_backup,
+        edit_defaults => empty_backup,
         edit_line => set_apt_config_values_tier2("check_apt_settings.aptconf"),
         classes => kept_if_else("apt_tier2_kept", "apt_tier2_validated", "apt_tier2_failed");
 
@@ -224,14 +223,7 @@ bundle edit_line set_apt_config_values_tier1(apt_url, apt_distro, apt_components
       "apt_index" slist => getindices("${apt_url}");
 
   insert_lines:
-
-        "#############################################################
-### This file is protected by your Rudder infrastructure. ###
-### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server's            ###
-### configuration and/or to raise a compliance alert.     ###
-#############################################################
-"
+      "${rudder_parameters.rudder_file_edit_header}"
         location => start,
         insert_type => "preserve_block";
 
@@ -270,15 +262,8 @@ bundle edit_line set_apt_config_values_tier2(tab)
 
   insert_lines:
 
-  "// #############################################################
-// ### This file is protected by your Rudder infrastructure. ###
-// ### Manually editing the file might lead your Rudder      ###
-// ### infrastructure to change back the server's            ###
-// ### configuration and/or to raise a compliance alert.     ###
-// #############################################################
-"
-        location => start,
-        insert_type => "preserve_block";
+  "// ### File managed by Rudder, edit with care ###"
+        location => start;
 
       "${index} ${${tab}[${index}]}"
         ifvarclass => "!not_${cindex[${index}]}";

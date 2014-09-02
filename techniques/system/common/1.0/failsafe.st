@@ -26,47 +26,62 @@ body common control
 
         inputs             => { "common/1.0/update.cf" };
         output_prefix      => "rudder";
+}
 
-&if(NOVA)&
-        host_licenses_paid => "&LICENSESPAID&";
-
-&endif&
+body agent control {
+        skipidentify => "&SKIPIDENTIFY&";
 }
 
 bundle common g
 {
   vars:
-    any::
-      "uuid"                       string => "&UUID&";
-      "excludedreps"               slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_dependencies_origin" string => "/var/rudder/tools";
+    android::
+      "rudder_base"              string => "/data/rudder";
+      "rudder_var"               string => "/data/rudder";
+
+    !windows.!android::
+      "rudder_base"              string => "/opt/rudder";
+
+    solaris::
+      "rudder_var"               string => "/opt/rudder/var";
+
+    !windows.!android.!solaris::
+      "rudder_var"               string => "/var/rudder";
+
+    !windows::
+      "rudder_bin"               string => "${rudder_base}/bin";
+      "rudder_sbin"              string => "${rudder_base}/sbin";
+      "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_tools"             string => "${rudder_var}/tools";
+      "rudder_ncf"               string => "${rudder_var}/ncf";
 
 &if(NOVA)&
     windows::
-      "rudder_base"                string => "${sys.winprogdir}\Rudder";
-      "rudder_var"                 string => "${sys.winprogdir}\Rudder\var";
-      "rudder_bin"                 string => "${rudder_base}\bin";
-      "rudder_sbin"                string => "${rudder_base}\sbin";
-      "rudder_dependencies"        string => "${rudder_sbin}";
-
-    windows.!cygwin::
-      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+      "rudder_base"              string => "${sys.winprogdir}\Rudder";
+      "rudder_var"               string => "${sys.winprogdir}\Rudder\var";
+      "rudder_bin"               string => "${rudder_base}\bin";
+      "rudder_sbin"              string => "${rudder_base}\sbin";
+      "rudder_tools"             string => "${rudder_sbin}";
+      "rudder_ncf"               string => "${rudder_var}\ncf";
 &endif&
 
-    linux|cygwin::
-      "rudder_base"                string => "/opt/rudder";
-      "rudder_var"                 string => "/var/rudder";
-      "rudder_bin"                 string => "${rudder_base}/bin";
-      "rudder_sbin"                string => "${rudder_base}/sbin";
-      "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_dependencies"        string => "/var/rudder/tools";
+    any::
+      "uuid"                     string => "&UUID&";
+      "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "rudder_tools_origin"      string => "/var/rudder/tools";
+      "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
+      "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
     # The time at which the execution started
-    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                    string => execresult("/bin/date --rfc-3339=second", "noshell");
-    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
-
+&if(NOVA)&
+    windows.!cygwin::
+      "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+&endif&
+    android::
+      "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
+    (!windows|cygwin).!android::
+      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
+      "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
 # definition of the node roles
   &NODEROLE&
@@ -92,18 +107,18 @@ bundle common rudder_roles
 bundle agent init_files
 {
   vars:
-      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "cf-hub" };
 
     nova_edition::
       "cfengine_install_path" string => "/usr/local";
     community_edition::
-      "cfengine_install_path" string => "/opt/rudder";
+      "cfengine_install_path" string => "${g.rudder_base}";
 
   classes:
       "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
   files:
-    cfengine_community.(linux|cygwin)::
+    cfengine_community.!windows::
       "${sys.workdir}/bin/${components}"
         perms     => u_p("700"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
@@ -119,7 +134,7 @@ bundle agent init_files
       "\"${sys.workdir}\bin\cf-key\"";
 &endif&
 
-    linux.missing_key::
+    !windows.!cygwin.missing_key::
       "${sys.workdir}/bin/cf-key";
 }
 
@@ -189,6 +204,14 @@ body copy_from cp(from,server)
 
 }
 
+body copy_from copy_digest(from)
+{
+        source      => "${from}";
+        copy_backup => "false";
+        preserve    => "true";
+        compare     => "digest";
+}
+
 body action immediate
 {
         ifelapsed => "0";
@@ -210,3 +233,10 @@ body action WarnOnly
 {
         action_policy => "warn";
 }
+
+body file_select exclude(name)
+{
+        leaf_name  => { "$(name)"};
+        file_result => "!leaf_name";
+}
+

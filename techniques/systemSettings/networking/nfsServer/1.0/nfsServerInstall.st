@@ -25,7 +25,7 @@ bundle agent check_nfs_server_installation
 
   packages:
 
-    (debian|SuSE)::
+    linux.!redhat::
       "nfs-kernel-server"
         package_policy  => "add",
         package_method  => generic,
@@ -48,4 +48,7 @@ bundle agent check_nfs_server_installation
 
     cant_install_nfs_server::
       "@@nfsServer@@result_error@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#Can't install NFS server package";
+
+    !linux::
+      "@@nfsServer@@result_success@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#Support to check if NFS server is installed not available on this platform";
 }

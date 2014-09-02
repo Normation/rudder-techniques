@@ -35,7 +35,15 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-      "${g.rudder_dependencies}"
+      "${g.rudder_tools}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
+      "${g.rudder_ncf_origin_common}"
+        maproot => {  @{def.acl}  },
+        admit   => {  @{def.acl}  };
+
+      "${g.rudder_ncf_origin_local}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
@@ -61,8 +69,17 @@ bundle common def
       "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-      "policy_server"      string => readfile("${policy_server_file}", 2048),
+   # Use localhost as default policy_server if no policy_server.dat exists
+    policy_server_set::
+      "policy_server"
+        string  => readfile("${policy_server_file}", 2048),
         comment => "IP address or hostname to locate your policy host.";
+    !policy_server_set::
+      "policy_server"
+        string  => "rudder",
+        comment => "IP address by default without ${def.policy_server_file} file";
+
+    any::
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
@@ -76,6 +93,10 @@ bundle common def
       "acl" slist => {
       "${def.policy_server}"
     };
+
+  classes:
+      "policy_server_set" expression => fileexists("${def.policy_server_file}");
+
 }
 
 
@@ -96,8 +117,6 @@ body server control
 
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf && ${sys.workdir}/bin/cf-agent";
         allowusers        => { "root" };
-
-        skipverify            => { "127.0.0.0/8" , "::1",  @{def.acl}  };
 
     community_edition::
         port => "5309";

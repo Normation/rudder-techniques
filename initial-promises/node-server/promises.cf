@@ -29,8 +29,12 @@ bundle common rudder_roles
       "rudder_base" string  => "${sys.winprogdir}\Rudder";
       "uuid_file" string => "${rudder_base}\etc\uuid.hive";
 
-    linux|cygwin::
+    !windows.!android::
       "rudder_base" string => "/opt/rudder";
+      "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+
+    android::
+      "rudder_base" string => "/data/rudder";
       "uuid_file" string => "${rudder_base}/etc/uuid.hive";
 
     any::
@@ -39,13 +43,6 @@ bundle common rudder_roles
   classes:
         # Abort if no uuid is defined
       "should_not_continue" not => fileexists("${uuid_file}");
-
-      "disable_agent" expression => fileexists("${rudder_base}/etc/disable-agent");
-
-        # Policy Server is a machine which delivers promises
-      "policy_server" expression => strcmp("root","${uuid)");
-        # Root Server is the top policy server machine
-      "root_server" expression => strcmp("root","${uuid}");
 }
 
 body common control
@@ -60,13 +57,11 @@ body common control
 
     policy_server::
 
-        bundlesequence => { @(va.bs),"setup_debian_backports","install_rsyslogd","propagatePromises","root_init_check","root_postgres_check","root_logrotate_check","root_integrity_check","root_technique_reload","root_networks_check","root_alive_check","root_password_check_file","root_password_check_ldap","root_password_check_psql","root_password_check_dav","root_password_restart_jetty", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @(va.end)};
+        bundlesequence => { @{va.bs}, "install_rsyslogd", "propagatePromises", "root_component_check", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @{va.end}};
 
     !policy_server::
 
         bundlesequence => { @{va.bs} , "fetchFusionTools", "virtualMachines", "doInventory" , @{va.end}};
-
-        host_licenses_paid => "1";
 
 }
 
@@ -75,15 +70,15 @@ bundle common va
 
   vars:
     policy_server::
-      "bs" slist => { "startExecution", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
+      "bs" slist => { "startExecution", "check_disable_agent", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
      };
 
       "inputs_list" slist => {
-        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","distributePolicy/1.0/initCheck.cf","distributePolicy/1.0/postgresCheck.cf","distributePolicy/1.0/logrotateCheck.cf","distributePolicy/1.0/integrityCheck.cf","distributePolicy/1.0/techniqueReload.cf","distributePolicy/1.0/networkCheck.cf","distributePolicy/1.0/aliveCheck.cf","distributePolicy/1.0/passwordCheck.cf"
+        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/init-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf"
      };
 
     !policy_server::
-      "bs" slist => { "startExecution",  "update", "internal_security", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
+      "bs" slist => { "startExecution", "check_disable_agent", "update", "internal_security", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
      };
 
       "inputs_list" slist => {
@@ -98,6 +93,11 @@ bundle common va
      };
 
 # definition of the machine roles
+  classes:
+        # Policy Server is a machine which delivers promises
+        "policy_server" expression => strcmp("root", "${rudder_roles.uuid}");
+        # Root Server is the top policy server machine
+        "root_server"   expression => strcmp("root", "${rudder_roles.uuid}");
 }
 
 #########################################################
@@ -106,14 +106,14 @@ bundle common va
 bundle agent startExecution
 {
   reports:
-    linux|windows::
+    cfengine_3::
       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution";
 }
 
 bundle agent endExecution
 {
   reports:
-    linux|windows::
+    cfengine_3::
       "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution";
 
     rudder_promises_generated_error|no_update::
@@ -122,6 +122,36 @@ bundle agent endExecution
 * This can be caused by a network issue, an unavailable server, or if this      *
 * node has not yet been accepted in the Rudder root server.                     *
 *********************************************************************************";
+}
+
+
+##########################################################
+# Check for "disable-agent" file and cleanly stop and
+# warn about this if it is present
+##########################################################
+bundle agent check_disable_agent
+{
+  vars:
+      "components" slist => { "cf-serverd", "cf-execd", "cf-monitord" };
+
+  classes:
+      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
+
+      # Only define this class when we're ready to die - this is a special class name in "abortclasses"
+      "should_not_continue"
+        expression => "should_disable_agent",
+        ifvarclass => "abort_report_done";
+
+  processes:
+    should_disable_agent::
+      "${sys.workdir}/bin/${components}"
+        signals       => { "term", "kill" };
+
+  reports:
+    should_disable_agent::
+      "FATAL: The file ${g.rudder_disable_agent_file} is present. Rudder will kill all running daemons and halt immediately."
+        classes => if_ok("abort_report_done");
+
 }
 
 ##########################################################
@@ -223,7 +253,7 @@ bundle agent check_cf_processes
 
   processes:
 
-    linux::
+    !windows::
 
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
@@ -285,12 +315,12 @@ bundle agent check_cf_processes
 
   commands:
 
-    start_server.!disable_agent::
+    start_server::
       "${sys.cf_serverd}"
         action => u_ifwin_bg,
         classes => outcome("server");
 
-    start_executor.!disable_agent::
+    start_executor::
       "${sys.cf_execd}"
         action => u_ifwin_bg,
         classes => outcome("executor");
@@ -299,26 +329,23 @@ bundle agent check_cf_processes
 
     !execd_has_gone_wild.!execd_has_gone_really_wild.!agent_has_gone_wild.!agent_has_gone_really_wild::
 
-      "@@Common@@result_success@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#There is an acceptable number of cf-execd processes (between 0 and 2) and cf-agent processes (between 0 and 5)";
+      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#There is an acceptable number of cf-execd processes (between 0 and 2) and cf-agent processes (between 0 and 5)";
 
     execd_has_gone_wild.!execd_has_gone_really_wild::
 
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than 2 cf-execd processes were detected. They have been sent a graceful termination signal.";
+      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than 2 cf-execd processes were detected. They have been sent a graceful termination signal.";
 
     execd_has_gone_really_wild::
 
-      "@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than 5 cf-execd processes were detected. Killing processes that do not respect graceful termination signals.";
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than 5 cf-execd processes were detected. Killing processes that do not respect graceful termination signals.";
 
     agent_has_gone_wild.!agent_has_gone_really_wild::
 
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than 5 cf-agent processes were detected. They have been sent a graceful termination signal.";
+      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than 5 cf-agent processes were detected. They have been sent a graceful termination signal.";
 
     agent_has_gone_really_wild::
 
-      "@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than 8 cf-agent processes were detected. Killing processes that do not respect graceful termination signals.";
-
-    disable_agent::
-      "@@Common@@log_info@@hasPolicyServer-root@@common-root@@2@@Process checking@@None@@${g.execRun}##${g.uuid}@#The disable-agent configuration file is present, no CFEngine processes will be started";
+      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than 8 cf-agent processes were detected. Killing processes that do not respect graceful termination signals.";
 
 }
 
@@ -360,6 +387,7 @@ bundle agent check_cron_daemon
 
   processes:
 
+    !android::
       "${cron_bin}"
         restart_class => "restart_crond";
 
@@ -380,8 +408,11 @@ bundle agent check_cron_daemon
     crond_restarted::
       "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
 
-    !restart_crond.!crond_restarted.!crond_failed::
+    !restart_crond.!crond_restarted.!crond_failed.!android::
       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
+
+     android::
+       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is an android machine: CRON verifications skipped !";
 
 }
 
@@ -397,7 +428,7 @@ bundle agent garbage_collection
       "${sys.workdir}/outputs"
 
         delete => tidy,
-        file_select => days_old("30"),
+        file_select => days_old("7"),
         depth_search => recurse("inf");
 
       "${g.rudder_var}/modified-files"
@@ -419,14 +450,15 @@ bundle agent check_binaries_freshness
 
     community_edition::
 
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-report", "cf-key" };
+      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key" };
 
     nova_edition::
 
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-report", "cf-key", "cf-hub" };
+      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "cf-hub" };
 
   files:
 
+    !android::
       "${sys.workdir}/bin/${components}"
         perms => u_p("700"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
@@ -445,6 +477,9 @@ bundle agent check_binaries_freshness
     binaries_missing::
       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
 
+    android::
+      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an android machine: no CFEngine binaries update needed";
+
 }
 
 #######################################################
@@ -462,9 +497,12 @@ body agent control
         agentfacility => "LOG_LOCAL6";
 
   # Repository where to put the copy of modified files
-    linux::
+    !windows::
         default_repository => "/var/rudder/modified-files";
 
+    # we can not depend on DNS for mobile devices or NATed device
+    any::
+        skipidentify => "true";
 }
 
 #######################################################

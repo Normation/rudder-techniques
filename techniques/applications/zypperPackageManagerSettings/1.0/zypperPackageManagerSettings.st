@@ -75,7 +75,7 @@ bundle agent check_zypper_settings
       "/etc/zypp/repos.d/rudder-${zypper_name[${zypper_index}]}.repo"
         create => "true",
         perms => m("644"),
-        edit_line => set_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${g.rudder_dependencies}/zypper-repo.tpl"),
+        edit_line => set_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${g.rudder_tools}/zypper-repo.tpl"),
         edit_defaults => empty_backup,
         classes => kept_if_else("zypper_${zypper_index}_kept", "zypper_${zypper_index}_validated", "zypper_${zypper_index}_failed");
 
@@ -160,14 +160,7 @@ bundle edit_line set_zypper_repos_BROKEN(zypper_name, zypper_url, zypper_enabled
       "zypper_index" slist => getindices("${zypper_name}");
 
   insert_lines:
-
-        "#############################################################
-### This file is protected by your Rudder infrastructure. ###
-### Manually editing the file might lead your Rudder      ###
-### infrastructure to change back the server's            ###
-### configuration and/or to raise a compliance alert.     ###
-#############################################################
-"
+        "${rudder_parameters.rudder_file_edit_header}"
         location => start,
         insert_type => "preserve_block";
 

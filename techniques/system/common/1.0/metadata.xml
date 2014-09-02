@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <TMLS>
     <TML name="cf-served"/>
-    <TML name="cfengine_stdlib" />
     <TML name="rudder_lib" />
     <TML name="rudder_stdlib" />
     <TML name="process_matching" />
@@ -48,14 +47,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>rudder_promises_generated</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="rudder_parameters"/>
     <TML name="check_zypper"/>
+    <TML name="run_interval">
+      <OUTPATH>run_interval</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
+    <TML name="minicurl">
+      <OUTPATH>common/utilities/minicurl</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
 
   <SYSTEMVARS>
-    <NAME>ALLOWCONNECT</NAME>
-    <NAME>CLIENTSLIST</NAME>
+    <NAME>AUTHORIZED_NETWORKS</NAME>
     <NAME>INPUTLIST</NAME>
-    <NAME>LICENSESPAID</NAME>
     <NAME>BUNDLELIST</NAME>
     <NAME>NOVA</NAME>
     <NAME>COMMUNITY</NAME>
@@ -65,6 +71,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>DAVUSER</NAME>
     <NAME>DAVPASSWORD</NAME>
     <NAME>SYSLOGPORT</NAME>
+    <NAME>MANAGED_NODES_NAME</NAME>
+    <NAME>MANAGED_NODES_ID</NAME>
+    <NAME>MANAGED_NODES_ADMIN</NAME> 
+    <NAME>DENYBADCLOCKS</NAME>
+    <NAME>SKIPIDENTIFY</NAME>
+    <NAME>AGENT_RUN_INTERVAL</NAME>
+    <NAME>AGENT_RUN_SPLAYTIME</NAME>
+    <NAME>AGENT_RUN_SCHEDULE</NAME>
+    <NAME>MODIFIED_FILES_TTL</NAME>
+    <NAME>CFENGINE_OUTPUTS_TTL</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
@@ -100,24 +116,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <NAME>POLICYSERVER_ID</NAME>
         <DESCRIPTION>UUID of the policy server</DESCRIPTION>
       </INPUT>
-      <SECTION name="policyChildrenSection" multivalued="true">
-      <INPUT>
-        <NAME>POLICYCHILDREN</NAME>
-        <DESCRIPTION>List of node that receive policies from this machine</DESCRIPTION>
-      </INPUT>
-      </SECTION>
-      <SECTION name="childrenIdSection" multivalued="true">
-      <INPUT>
-        <NAME>CHILDRENID</NAME>
-        <DESCRIPTION>List of uids of nodes that receive policies from this machine</DESCRIPTION>
-      </INPUT>
-      </SECTION>
-      <SECTION name="adminSection" multivalued="true">
-      <INPUT>
-        <NAME>ADMIN</NAME>
-        <DESCRIPTION>List of admins of nodes that receive policies from this machine</DESCRIPTION>
-      </INPUT>
-      </SECTION>
       <SECTION name="authorizedNetworkSection" multivalued="true">
       <INPUT>
         <NAME>ALLOWEDNETWORK</NAME>

@@ -266,6 +266,9 @@ bundle agent check_sudo_installation(directiveId)
     sudoconfiguration_sudo_install_error::
       "@@sudoParameters@@result_error@@${directiveId}@@Install@@None@@${g.execRun}##${g.uuid}@#Can't install sudo";
 
+    !linux::
+      "@@sudoParameters@@result_success@@${directiveId}@@Install@@None@@${g.execRun}##${g.uuid}@#Support to check if sudo is installed not available on this platform";
+
 }
 
 body delete_select sudo_select_nomatch(s)

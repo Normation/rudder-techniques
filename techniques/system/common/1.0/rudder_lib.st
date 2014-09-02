@@ -571,7 +571,32 @@ bundle edit_line insert_rudder_disclaimer
 {
   insert_lines:
 
-      "## File managed by Rudder - Edit with caution, some changes may disappear (especially passwords) ##"
+      "${rudder_parameters.rudder_file_edit_header}"
         location => start;
 
+}
+
+###################################################
+# edit_line rudder_change_aix_password_entry
+###################################################
+
+bundle edit_line rudder_change_aix_password_entry(user, entry, content)
+{
+
+  field_edits:
+
+    "\s*${entry}\s*=.*"
+      select_region => rudder_aix_user_section("${user}"),
+      edit_field    => col("=","2"," ${content}","set");
+
+}
+
+###################################################
+# select_region rudder_aix_user_section
+###################################################
+
+body select_region rudder_aix_user_section(x)
+{
+select_start => "${x}:\s*";
+select_end => "\S*:\s*";
 }

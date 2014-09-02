@@ -13,11 +13,11 @@
 
 
 function usage() {
-	echo "Usage: $0 server filename archiveDir"
+	echo "Usage: $0 server filename archiveDir failedDir"
 }
 
 # Check number of arguments
-if [ $# -ne 3 ]; then
+if [ $# -ne 4 ]; then
 	usage
 	exit -1
 fi
@@ -26,14 +26,30 @@ fi
 SERVER=$1
 FILENAME=$2
 ARCHIVEDIR=$3
+FAILEDDIR=$4
+BASENAME=$(basename ${2})
 CURL_BINARY="/usr/bin/curl"
+GZIP_BINARY="/bin/gzip"
+
+# If the file appears to be compressed, attempt to uncompress it
+# ${VARIABLE##*.} extracts the file extension
+if [ "z${BASENAME##*.}" = "zgz" ]; then
+	${GZIP_BINARY} -q -d ${FILENAME}
+	# ${VARIABLE%.*} removes the last extension of the file, here: .gz
+        FILENAME="${FILENAME%.*}"
+fi
 
 # Attempt to send the file
-${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} ${SERVER}
+HTTP_CODE=`${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} -o /dev/null -w '%{http_code}' ${SERVER}`
 SEND_COMMAND_RET=$?
 
 # Abort if sending failed
-if [ ${SEND_COMMAND_RET} -ne 0 ]; then
+if [ ${SEND_COMMAND_RET} -eq 7 -o "z${HTTP_CODE}" = "z503" ]; then
+	# Endpoint is unavailable (ret == 7) or too busy (HTTP_CODE == 503), try again later
+	# Just leave this file in the incoming directory, it will be retried soon
+	exit ${SEND_COMMAND_RET}
+elif [ ${SEND_COMMAND_RET} -ne 0 ]; then
+	mv "${FILENAME}" "${FAILEDDIR}/${BASENAME}-$(date --rfc-3339=date)"
 	exit ${SEND_COMMAND_RET}
 fi
 
