@@ -226,7 +226,7 @@ bundle agent update_action
         touch      => "true";
 
     # same here, if the tools have been updated, we can skip this part
-    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
+    !root_server.(!windows|cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
       "${g.rudder_tools}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         #depth_search => recurse("inf"),
@@ -235,7 +235,7 @@ bundle agent update_action
         classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
         comment      => "Update the Rudder tools";
 
-    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
+    !root_server.(windows.!cygwin).!rudder_tools_updated.!rudder_tools_updated_ok::
       "${g.rudder_sbin}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         #depth_search => recurse("inf"),
