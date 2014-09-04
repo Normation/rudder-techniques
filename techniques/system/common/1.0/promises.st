@@ -146,14 +146,14 @@ bundle agent startExecution
 {
   reports:
     cfengine_3::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution";
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]";
 }
 
 bundle agent endExecution
 {
   reports:
     cfengine_3::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution";
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
 
     rudder_promises_generated_error|no_update::
 		"*********************************************************************************
