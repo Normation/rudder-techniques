@@ -56,6 +56,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>distributePolicy/rsyslog.conf/rudder.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="logrotate.old-debian">
+      <OUTPATH>distributePolicy/logrotate.conf/rudder.old-debian</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
     <TML name="logrotate.debian">
       <OUTPATH>distributePolicy/logrotate.conf/rudder.debian</OUTPATH>
       <INCLUDED>false</INCLUDED>
