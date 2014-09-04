@@ -181,8 +181,17 @@ body select_region rudder_section_selector(section_start, section_end)
 #
 bundle agent rudder_common_report(technique_name, status, identifier, component_name, component_key, message)
 {
+  classes:
+    changes_only::
+      "send_reports" or => {
+                            strcmp("${status}", "result_error") ,
+                            strcmp("${status}", "result_repaired") ,
+                            strcmp("${status}", "log_warn") ,
+                            strcmp("${status}", "log_repaired") ,
+                           };
+
   reports:
-    cfengine_3::
+    full_compliance|send_reports::
       "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}";
 }
 
