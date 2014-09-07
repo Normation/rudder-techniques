@@ -82,6 +82,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>MODIFIED_FILES_TTL</NAME>
     <NAME>CFENGINE_OUTPUTS_TTL</NAME>
     <NAME>RUDDER_NODE_CONFIG_ID</NAME>
+    <NAME>RUDDER_REPORT_MODE</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>

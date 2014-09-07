@@ -137,6 +137,13 @@ bundle common rudder_roles
       "policy_server" expression => strcmp("root","${g.uuid}");
       # Root Server is the top policy server machine
       "root_server" expression => strcmp("root","${g.uuid}");
+
+
+      # on changes only, we only reports on repaired or error message
+      "changes_only" expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+
+      # full compliance is the default mode
+      "full_compliance" not => "changes_only";
 }
 
 #########################################################
