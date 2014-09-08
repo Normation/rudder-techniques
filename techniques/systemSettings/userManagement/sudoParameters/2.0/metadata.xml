@@ -1,0 +1,99 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the sudoParameters PT.
+    Compatibility : Linux like, BSD like
+
+It is intended to configure the /etc/sudoers file.
+-->
+<TECHNIQUE name="Sudo utility configuration">
+  <DESCRIPTION>This technique configures the sudo utility.
+
+  It will ensure that the defined rights for given users and groups are correctly defined.</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_sudo_parameters</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="sudoParameters"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>SUDO_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+
+    <SECTION name="Install" component="true" />
+    <SECTION name="sudoersFile" component="true" />
+
+    <!-- permissions Section , index 1-->
+    <SECTION name="Permissions" multivalued="true" component="true" componentKey="SUDO_NAME">
+      <SELECT1>
+        <NAME>SUDO_TYPE</NAME>
+        <DESCRIPTION>Entity type</DESCRIPTION>
+        <ITEM>
+          <VALUE>user</VALUE>
+          <LABEL>User</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>group</VALUE>
+          <LABEL>Group</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>user</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>SUDO_NAME</NAME>
+        <DESCRIPTION>Entity name</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>SUDO_NOPASSWD</NAME>
+        <DESCRIPTION>Allow the entity to execute the given commands without entering his password</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>SUDO_ALL</NAME>
+        <DESCRIPTION>Allow the entity to execute all commands</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>SUDO_COMMAND</NAME>
+        <DESCRIPTION>Commands allowed to this entity</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

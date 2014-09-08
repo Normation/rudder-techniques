@@ -1,0 +1,99 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+This is the Apache reverse proxy installation Technique.
+Compatibility : Linux Red Hat like, Debian like
+
+It is intended to set up Apache as a reverse proxy server, for example to expose
+application server data to the outside or to centralize HTTP ressources in one point.
+-->
+<TECHNIQUE name="HTTP Reverse Proxy (Apache)">
+  <DESCRIPTION>This technique will configure the Apache HTTP server as a reverse proxy.
+
+  It will ensure the Apache HTTPd package is installed (via the appropriate packaging tool for each OS), ensure the service is running and configure it to act as a reverse proxy server.
+  </DESCRIPTION>
+  <COMPATIBLE>
+    <OS version=">= 5 (Lenny)">Debian</OS>
+    <OS version=">= 5 (Tikanga)">RHEL / CentOS</OS>
+    <OS version=">= 11 SP1 (Celadon)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>rudder_reverse_proxy_apache</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="main"/>
+    <TML name="bodies"/>
+    <TML name="installation"/>
+    <TML name="configuration"/>
+  </TMLS>
+  
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>APACHE_REVERSE_PROXY_URL_SRC</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+    <SECTION name="Module parameters" component="true" />
+    <!-- This is a dedicated section because I just want ONE report, and
+          the dedicated entry below is multivalued. -->
+    <SECTION name="Reverse proxy parameters" component="true" />
+    <!-- general Section , index 1 -->
+    <SECTION name="General settings">
+      <SECTION name="Installation parameters" component="true">
+        <INPUT>
+          <NAME>APACHE_REVERSE_PROXY_INSTALL</NAME>
+          <DESCRIPTION>Install Apache from system repositories?</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>true</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+      <SECTION name="SELinux parameters" component="true">
+        <INPUT>
+          <NAME>APACHE_REVERSE_PROXY_ADJUST_SELINUX</NAME>
+          <DESCRIPTION>Is SELinux active on the targeted systems?</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>true</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+      <SECTION name="Reverse proxy configuration" multivalued="true">
+        <INPUT>
+          <NAME>APACHE_REVERSE_PROXY_URL_SRC</NAME>
+          <DESCRIPTION>URL to listen to incoming requests on</DESCRIPTION>
+        </INPUT>
+        <INPUT>
+          <NAME>APACHE_REVERSE_PROXY_URL_DST</NAME>
+          <DESCRIPTION>URL to proxy requests to</DESCRIPTION>
+        </INPUT>
+        <INPUT>
+          <NAME>APACHE_REVERSE_PROXY_TIMEOUT</NAME>
+          <DESCRIPTION>Proxy request timeout</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>integer</TYPE>
+            <DEFAULT>60</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
