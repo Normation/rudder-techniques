@@ -194,7 +194,7 @@ bundle agent fusionAgent
 
 &if(NOVA)&
     windows::
-      "\"C:\Program Files\FusionInventory-Agent\fusioninventory-inventory.bat\""
+      "\"C:\Program Files\Rudder\sbin\run-inventory.bat\""
         args => "--local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
         contain => in_shell,
         classes => cf2_if_else("run_inventory", "inventory_failed"),
