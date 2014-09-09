@@ -1,0 +1,190 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the NFS Server configuration PT.
+    Compatibility : Debian like, RedHat like, SuSE like
+
+It is intended to check if the NFS server is installed and if the
+required mount points are set with the right options.
+-->
+<TECHNIQUE name="NFS Server">
+  <DESCRIPTION>Configure a NFS server</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_nfs_server_installation</NAME>
+    <NAME>check_nfs_server_configuration</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="nfsServerConfigure"/>
+    <TML name="nfsServerInstall"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>NFS_SERVER_PATH</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="NFS server package install" component="true"/>
+    <!-- NFS client settings , index 1-->
+    <SECTION name="NFS server settings" multivalued="true" component="true" componentKey="NFS_SERVER_PATH">
+      <INPUT>
+        <NAME>NFS_SERVER_PATH</NAME>
+        <DESCRIPTION>Path to be shared</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>NFS_SERVER_NETWORK</NAME>
+        <DESCRIPTION>Which target should be allowed to connect</DESCRIPTION>
+        <LONGDESCRIPTION>You can input either a hostname, an IP or an IP network and a mask (eg. 192.168.1.0/24)</LONGDESCRIPTION>
+      </INPUT>
+      <SELECT1>
+        <NAME>NFS_SERVER_SECURE</NAME>
+        <DESCRIPTION>Should the usage of a reserved port be enforced</DESCRIPTION>
+        <ITEM>
+          <LABEL>Secure</LABEL>
+          <VALUE>secure</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Insecure</LABEL>
+          <VALUE>insecure</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>secure</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_SERVER_READWRITE</NAME>
+        <DESCRIPTION>Which access policy do you want to apply</DESCRIPTION>
+        <ITEM>
+          <LABEL>Read/Write</LABEL>
+          <VALUE>rw</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Read only</LABEL>
+          <VALUE>ro</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>rw</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_SERVER_SYNC</NAME>
+        <DESCRIPTION>Which writing policy do you want to apply</DESCRIPTION>
+        <LONGDESCRIPTION>Synchronized mode is advised for a safe usage and is the default, Asynchronized mode is mainly used if performance is required over all (This violates the plain NFS protocol and might not be compatible with all implementations)</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Synchronized</LABEL>
+          <VALUE>sync</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Asynchronized</LABEL>
+          <VALUE>async</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>async</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_SERVER_WDELAY</NAME>
+        <DESCRIPTION>If synchronized, do you want to optimize the writing by grouping the requests</DESCRIPTION>
+        <LONGDESCRIPTION>This is generally safe, but might tamper with performance if a lot of tiny independant requests are made</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>wdelay</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>no_wdelay</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>wdelay</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_SERVER_HIDE</NAME>
+        <DESCRIPTION>Should a nested filesystem be accessible to the client</DESCRIPTION>
+        <LONGDESCRIPTION>This is a little trick that should normally not be used (might create inode conflicts and be incompatible with some NFS implementations)</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>nohide</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>hide</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>hide</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_SERVER_SUBTREECHECK</NAME>
+        <DESCRIPTION>Do you need a strict security checking on every access</DESCRIPTION>
+        <LONGDESCRIPTION>Normally, NFS won't do a strict checking on subdirectories for performance (especially on home directories), but you might want to enable this on other cases</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>subtree_check</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>no_subtree_check</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>no_subtree_check</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_SERVER_SECURELOCKS</NAME>
+        <DESCRIPTION>Do you want to require authentication for every lock request</DESCRIPTION>
+        <LONGDESCRIPTION>This is enabled by default, but might not be desired with old NFS clients</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>acl</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>no_acl</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>acl</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_SERVER_ACL</NAME>
+        <DESCRIPTION>Should the filesystem ACLs be exposed through NFS</DESCRIPTION>
+        <LONGDESCRIPTION>This is enabled by default, you might want to disable it on old NFS clients</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>acl</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>no_acl</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>acl</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

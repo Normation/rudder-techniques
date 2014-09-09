@@ -1,0 +1,82 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<TECHNIQUE name="Generic CFEngine Command variable definition">
+  <DESCRIPTION>Configures a generic CFEngine variable in a common bundle from the output of an executable, to be used in another Technique. This Technique does nothing by itself, you must reuse the variable(s) you will create here in another Technique with the form: $(generic_cmd_var_def.variablename)</DESCRIPTION>
+  <COMPATIBLE>
+    <OS>Every OS</OS>
+    <AGENT version=">= 3.2.4">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <BUNDLES>
+    <NAME>generic_cmd_var_def_report</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="genericCommandVariableDefinition"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>GENERIC_COMMAND_VARIABLE_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+  
+  <SECTIONS>
+    <!-- general Section -->
+    <SECTION name="Variable command definition" component="true" multivalued="true" componentKey="GENERIC_COMMAND_VARIABLE_NAME">
+      <INPUT>
+        <NAME>GENERIC_COMMAND_VARIABLE_NAME</NAME>
+        <DESCRIPTION>Variable name for the output of this command</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid CFEngine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>GENERIC_COMMAND_VARIABLE_BINARY</NAME>
+        <DESCRIPTION>Executable whose output is to be stored as a variable</DESCRIPTION>
+        <LONGDESCRIPTION>Be careful, the absolute path to the binary must be specified here. Example: /bin/uname instead of uname</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <!-- Hidden sub-section containing advanced settings -->
+      <SECTION name="Advanced settings" displayPriority="low">
+        <SELECT1>
+        <NAME>GENERIC_COMMAND_VARIABLE_SHELL</NAME>
+        <DESCRIPTION>Use system shell or CFEngine system</DESCRIPTION>
+        <LONGDESCRIPTION>
+Use of a shell has both resource and security consequences. A shell consumes an extra process and inherits environment variables,
+reads commands from files and performs other actions beyond the control of CFEngine.
+If one does not need shell functionality such as piping through multiple commands then it is best to manage without it.</LONGDESCRIPTION>
+        <ITEM>
+          <VALUE>useshell</VALUE>
+          <LABEL>shell</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>noshell</VALUE>
+          <LABEL>no shell</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>useshell</DEFAULT>
+        </CONSTRAINT>
+        </SELECT1>
+      </SECTION>
+      <!-- End of hidden sub-section -->
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
