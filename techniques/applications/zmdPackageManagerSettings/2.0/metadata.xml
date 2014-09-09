@@ -1,0 +1,210 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+<TECHNIQUE name="RUG / YaST package manager configuration (ZMD)">
+  <DESCRIPTION>This technique configures the RUG and YaST package manager using Novell's ZMD.</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_zmd_settings</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="zmdPackageManagerSettings"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>ZMD_URL</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="ZMD process" component="true" />
+    <!-- General settings Section , index 1-->
+    <SECTION name="General settings" component="true">
+      <SELECT1>
+        <NAME>ZMD_SOURCEPOLICY</NAME>
+        <DESCRIPTION>Security level</DESCRIPTION>
+        <LONGDESCRIPTION>This option defines which component of a repository is used as a trusted reference for the packages. Signature checks the package against the repository PGP key and Checksum only checks the package integrity. None installs the packages blindly without checking them.</LONGDESCRIPTION>
+        <ITEM>
+          <VALUE>signature</VALUE>
+          <LABEL>Signature</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>checksum</VALUE>
+          <LABEL>Checksum</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>none</VALUE>
+          <LABEL>Nothing</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>dontchange</VALUE>
+          <LABEL>Don't change</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>dontchange</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
+    <!-- Proxy settings Section , index 10 -->
+      <INPUT>
+        <NAME>ZMD_PROXY_URL</NAME>
+        <DESCRIPTION>Proxy URL</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: http://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>ZMD_PROXY_USER</NAME>
+        <DESCRIPTION>Proxy username</DESCRIPTION>
+        <LONGDESCRIPTION>This should be the username used to connect to the proxy, if required</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>ZMD_PROXY_PASSWORD</NAME>
+        <DESCRIPTION>Proxy password</DESCRIPTION>
+        <LONGDESCRIPTION>This should be the password used to connect to the proxy, if required</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+          <TYPE>password</TYPE>
+          <PASSWORDHASH>plain</PASSWORDHASH>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+    <!-- Repository settings Section , index 20 -->
+    <SECTION name="Repository settings">
+      <INPUT>
+        <NAME>ZMD_ADDREPOSITORIES</NAME>
+        <DESCRIPTION>Add the following repository(ies)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SECTION name="Repository" multivalued="true" component="true" componentKey="ZMD_URL" displayPriority="low">
+    <INPUT>
+          <NAME>ZMD_URL</NAME>
+          <DESCRIPTION>Repository URL</DESCRIPTION>
+            <CONSTRAINT>
+              <MAYBEEMPTY>true</MAYBEEMPTY>
+            </CONSTRAINT>
+    </INPUT>
+        <INPUT>
+          <NAME>ZMD_NAME</NAME>
+          <DESCRIPTION>Repository local name</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+
+    <SECTION name="Advanced repository settings">
+    <INPUT>
+        <NAME>ZMD_SET_REFRESH_INTERVAL</NAME>
+        <DESCRIPTION>Set the refresh interval</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+    </INPUT>
+
+        <INPUT>
+          <NAME>ZMD_REFRESH_INTERVAL</NAME>
+          <DESCRIPTION>How long between refreshes, in seconds</DESCRIPTION>
+          <CONSTRAINT>
+      <TYPE>integer</TYPE>
+      <DEFAULT>86400</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+
+    <SELECT1>
+          <NAME>ZMD_REMOTE_ENABLED</NAME>
+          <DESCRIPTION>Allow clients to connect remotely to this daemon</DESCRIPTION>
+          <ITEM>
+          <LABEL>True</LABEL>
+          <VALUE>True</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>False</LABEL>
+          <VALUE>False</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>Don't change</LABEL>
+          <VALUE>dontchange</VALUE>
+      </ITEM>
+      <CONSTRAINT>
+        <DEFAULT>dontchange</DEFAULT>
+      </CONSTRAINT>
+        </SELECT1>
+
+    <SELECT1>
+          <NAME>ZMD_SYSLOG_LEVEL</NAME>
+          <DESCRIPTION>Logging level (off, fatal, error, warn, info, debug)</DESCRIPTION>
+          <ITEM>
+          <LABEL>Off</LABEL>
+          <VALUE>off</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>Fatal</LABEL>
+          <VALUE>fatal</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>Error</LABEL>
+          <VALUE>error</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>Warn</LABEL>
+          <VALUE>warn</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>Info</LABEL>
+          <VALUE>info</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>Debug</LABEL>
+          <VALUE>debug</VALUE>
+      </ITEM>
+      <ITEM>
+          <LABEL>Don't change</LABEL>
+          <VALUE>dontchange</VALUE>
+      </ITEM>
+      <CONSTRAINT>
+        <DEFAULT>dontchange</DEFAULT>
+      </CONSTRAINT>
+        </SELECT1>
+    </SECTION>
+
+      <!--
+      <INPUT>
+        <NAME>ZMD_DISABLEREPOSITORIES</NAME>
+        <DESCRIPTION>Disable all other repositories than these (potentially dangerous)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    -->
+
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

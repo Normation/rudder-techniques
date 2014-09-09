@@ -1,0 +1,243 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the APT Package Manager Configuration PT.
+    Compatibility : Debian like
+
+It is intended to set a bunch of options commonly
+appreciated by administrators on the APT package
+manager, and eventually enforce them.
+-->
+<TECHNIQUE name="APT package manager configuration">
+  <DESCRIPTION>This technique configure the APT package manager.</DESCRIPTION>
+
+  <BUNDLES>
+    <NAME>check_apt_settings</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="aptPackageManagerSettings"/>
+  </TMLS>
+
+  <SECTIONS>
+    <!-- General settings Section , index 1-->
+    <SECTION name="General settings">
+      <SELECT1>
+        <NAME>APT_INSTALLRECOMMENDS</NAME>
+        <DESCRIPTION>Install 'recommended' packages automatically</DESCRIPTION>
+        <ITEM>
+          <VALUE>dontchange</VALUE>
+          <LABEL>Don't change</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"1\";</VALUE>
+          <LABEL>Yes</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"0\";</VALUE>
+          <LABEL>No</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>dontchange</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>APT_INSTALLSUGGESTS</NAME>
+        <DESCRIPTION>Install 'suggested' packages automatically</DESCRIPTION>
+        <ITEM>
+          <VALUE>dontchange</VALUE>
+          <LABEL>Don't change</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"1\";</VALUE>
+          <LABEL>Yes</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>\"0\";</VALUE>
+          <LABEL>No</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>dontchange</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+
+    <!-- Proxy settings Section , index 10-->
+    <SECTION name="Proxy settings" displayPriority="low">
+      <INPUT>
+        <NAME>APT_HTTPPROXY_URL</NAME>
+        <DESCRIPTION>HTTP proxy URL</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: http://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APT_FTPPROXY_URL</NAME>
+        <DESCRIPTION>FTP proxy URL</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: ftp://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+    <!-- Repository settings Section , index 20 -->
+    <SECTION name="Repository settings">
+      <INPUT>
+        <NAME>APT_ADDREPOSITORIES</NAME>
+        <DESCRIPTION>Also add the following package repositories</DESCRIPTION>
+        <LONGDESCRIPTION>Tick this box if you want to add/edit the package repositories apt uses.</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SECTION name="Repository" multivalued="true" displayPriority="low">
+        <INPUT>
+          <NAME>APT_URL</NAME>
+          <DESCRIPTION>Repository URL</DESCRIPTION>
+      <CONSTRAINT>
+        <MAYBEEMPTY>true</MAYBEEMPTY>
+      </CONSTRAINT>
+    </INPUT>
+        <INPUT>
+          <NAME>APT_DISTRO_AUTODETECT</NAME>
+          <DESCRIPTION>Automatically detect the distribution</DESCRIPTION>
+          <LONGDESCRIPTION>Tick this box to use the distribution's name (ie, squeeze, lenny, lucid, ...) as the "path" on this repository. This is the default usage for apt repositories, but you may want to specify a different name (ie, squeeze-backports, stable, ...)</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>APT_DISTRIBUTION</NAME>
+          <DESCRIPTION>Distribution</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+        <SELECT1>
+          <NAME>APT_COMPONENT_MAIN</NAME>
+          <DESCRIPTION>Use main</DESCRIPTION>
+          <ITEM>
+            <VALUE>main</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>main</DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_CONTRIB</NAME>
+          <DESCRIPTION>Use contrib</DESCRIPTION>
+          <ITEM>
+            <VALUE>contrib</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_NON_FREE</NAME>
+          <DESCRIPTION>Use non-free</DESCRIPTION>
+          <ITEM>
+            <VALUE>non-free</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_RESTRICTED</NAME>
+          <DESCRIPTION>Use restricted</DESCRIPTION>
+          <ITEM>
+            <VALUE>restricted</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_UNIVERSE</NAME>
+          <DESCRIPTION>Use universe</DESCRIPTION>
+          <ITEM>
+            <VALUE>universe</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_COMPONENT_MULTIVERSE</NAME>
+          <DESCRIPTION>Use multiverse</DESCRIPTION>
+          <ITEM>
+            <VALUE>multiverse</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE></VALUE>
+            <LABEL>No</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+      </SECTION>
+
+      <INPUT>
+        <NAME>APT_DISABLEREPOSITORIES</NAME>
+        <DESCRIPTION>Disable all other repositories than these (potentially dangerous)</DESCRIPTION>
+        <LONGDESCRIPTION>If you tick this box, Rudder will remove all repositories defined in apt's settings, and only add in the ones above. Use with caution!</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

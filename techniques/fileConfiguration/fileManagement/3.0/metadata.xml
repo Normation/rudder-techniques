@@ -1,0 +1,234 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<TECHNIQUE name="Manage files and folders">
+  <DESCRIPTION>Make sure that files and folders exist, and set their permissions</DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <OS version=">= XP/5.1 (Whistler)">Windows</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>manageFilesAndFolders</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="manageFilesAndFolders"/>
+  </TMLS>
+    
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>FILE_AND_FOLDER_MANAGEMENT_PATH</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+    <SECTION name="File to manage" multivalued="true">
+		<SECTION name="File" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+			<INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_PATH</NAME>
+				<DESCRIPTION>Path</DESCRIPTION>
+			</INPUT>
+		</SECTION>
+		<SELECT1>
+			<NAME>FILE_AND_FOLDER_MANAGEMENT_ACTION</NAME>
+			<DESCRIPTION>Set action on file or folder</DESCRIPTION>
+			<ITEM>
+				<VALUE>none</VALUE>
+				<LABEL>Do nothing</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>file</VALUE>
+				<LABEL>Create an empty file</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>dir</VALUE>
+				<LABEL>Create an empty directory</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>symlink</VALUE>
+				<LABEL>Create a symbolic link</LABEL>
+			</ITEM>
+			<ITEM>
+			        <VALUE>copy</VALUE>
+			        <LABEL>Copy from local file</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>clean</VALUE>
+				<LABEL>Clean (see below)</LABEL>
+			</ITEM>
+			<CONSTRAINT>
+				<DEFAULT>none</DEFAULT>
+			</CONSTRAINT>
+		</SELECT1>
+		<INPUT>
+		        <!-- We had to keep the name FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE so that people could migrate from previous version automatically-->
+			<NAME>FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE</NAME>
+			<DESCRIPTION>Source for symbolic link or local copy</DESCRIPTION>
+			<LONGDESCRIPTION>If a symbolic link is to be created or a local file copied, please specify its source here</LONGDESCRIPTION>
+			<CONSTRAINT>
+				<MAYBEEMPTY>true</MAYBEEMPTY>
+			</CONSTRAINT>
+		</INPUT>
+		<SELECT1>
+			<NAME>FILE_AND_FOLDER_MANAGEMENT_SYMLINK_ENFORCE</NAME>
+			<DESCRIPTION>Force symlink to be created</DESCRIPTION>
+			<LONGDESCRIPTION>By default, the symlink won't be created if it replaces a file or folder with the same name. With this option, you can force Rudder to create the symlink to replace existing files or folders</LONGDESCRIPTION>
+			<ITEM>
+				<VALUE>false</VALUE>
+				<LABEL>No, don't create the symlink if a file or folder with the same name already exists</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>true</VALUE>
+				<LABEL>Yes, force the creation of the symlink. </LABEL>
+			</ITEM>
+			<CONSTRAINT>
+				<DEFAULT>false</DEFAULT>
+			</CONSTRAINT>
+		</SELECT1>
+		<SECTION name="Permissions" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH" displayPriority="low">
+			<SELECT1>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_CHECK_PERMISSIONS</NAME>
+				<DESCRIPTION>Set permissions</DESCRIPTION>
+				<ITEM>
+				  <VALUE>false</VALUE>
+				  <LABEL>No, don't change any permissions</LABEL>
+				</ITEM>
+				<ITEM>
+				  <VALUE>true</VALUE>
+				  <LABEL>Yes, enforce permissions described below</LABEL>
+				</ITEM>
+				<CONSTRAINT>
+					<DEFAULT>false</DEFAULT>
+				</CONSTRAINT>
+			</SELECT1>
+			  <INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_PERM</NAME>
+				<DESCRIPTION>File mode</DESCRIPTION>
+				<CONSTRAINT>
+				  <TYPE>perm</TYPE>
+				</CONSTRAINT>
+			  </INPUT>
+			 <INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_OWNER</NAME>
+				<DESCRIPTION>File Owner</DESCRIPTION>
+				<CONSTRAINT>
+				  <MAYBEEMPTY>true</MAYBEEMPTY>
+				</CONSTRAINT>
+			  </INPUT>
+			  <INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_GROUP</NAME>
+				<DESCRIPTION>File Group</DESCRIPTION>
+				<CONSTRAINT>
+				  <MAYBEEMPTY>true</MAYBEEMPTY>
+				</CONSTRAINT>
+			  </INPUT>
+			<SELECT1>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_RECURSIVE</NAME>
+				<DESCRIPTION>Set these permissions</DESCRIPTION>
+				<ITEM>
+					<VALUE>1</VALUE>
+					<LABEL>On this path only</LABEL>
+				</ITEM>
+				<ITEM>
+					<VALUE>inf</VALUE>
+					<LABEL>Recursively from this path</LABEL>
+				</ITEM>
+				<CONSTRAINT>
+					<DEFAULT>1</DEFAULT>
+				</CONSTRAINT>
+			</SELECT1>
+			<INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_SUID</NAME>
+				<DESCRIPTION>Set SetUID bit?</DESCRIPTION>
+				<LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
+				<CONSTRAINT>
+					<TYPE>boolean</TYPE>
+				</CONSTRAINT>
+			</INPUT>
+			<INPUT>
+				<NAME>FILE_AND_FOLDER_MANAGEMENT_SGID</NAME>
+				<DESCRIPTION>Set SetGID bit?</DESCRIPTION>
+				<LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
+				<CONSTRAINT>
+					<TYPE>boolean</TYPE>
+				</CONSTRAINT>
+			</INPUT>
+		</SECTION>
+	  <SECTION name="Post-modification hook" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH" displayPriority="low">
+		  <INPUT>
+			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN</NAME>
+			  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the path above?</DESCRIPTION>
+			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND</NAME>
+			  <DESCRIPTION>Command(s) to run</DESCRIPTION>
+			  <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
+			  <CONSTRAINT>
+				<TYPE>textarea</TYPE>
+				<MAYBEEMPTY>true</MAYBEEMPTY>
+			</CONSTRAINT>
+		  </INPUT>
+	  </SECTION>
+	  <SECTION name="File cleaning options" multivalued="false" component="true" componentKey="FILE_AND_FOLDER_MANAGEMENT_PATH">
+		<SELECT1>
+			<DESCRIPTION>Deletion operation</DESCRIPTION>
+			<NAME>FILE_AND_FOLDER_DELETION_OPTION</NAME>
+			<ITEM>
+				<VALUE>none</VALUE>
+				<LABEL>This file or directory only</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>single</VALUE>
+				<LABEL>This file or directory content only</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>full</VALUE>
+				<LABEL>Everything in this directory (full recursion)</LABEL>
+			</ITEM>
+			<ITEM>
+				<VALUE>exterminate</VALUE>
+				<LABEL>Everything in this directory and the directory itself</LABEL>
+			</ITEM>
+			<CONSTRAINT>
+				<DEFAULT>none</DEFAULT>
+			</CONSTRAINT>
+		</SELECT1>
+		<INPUT>
+			<DESCRIPTION>File selection pattern</DESCRIPTION>
+			<LONGDESCRIPTION>A regular expression to use as a pattern</LONGDESCRIPTION>
+			<NAME>FILE_AND_FOLDER_DELETION_PATTERN</NAME>
+			<CONSTRAINT>
+				<DEFAULT>.*</DEFAULT>
+			</CONSTRAINT>
+		</INPUT>
+		<INPUT>
+			<DESCRIPTION>Suppress if older than (days)</DESCRIPTION>
+			<LONGDESCRIPTION>A time to live for the object(s). 0 means everything without any time constraint</LONGDESCRIPTION>
+			<NAME>FILE_AND_FOLDER_DELETION_DAYS</NAME>
+			<CONSTRAINT>
+				<DEFAULT>0</DEFAULT>
+			</CONSTRAINT>
+		</INPUT>
+	  </SECTION>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
