@@ -148,48 +148,6 @@ bundle agent check_usergroup_user_parameters
 
       "showtime" expression => isvariable("nameopt[1]");
 
-  commands:
-
-&if(NOVA)&
-    windows.showtime::
-
-      "\"${sys.winsysdir}\net.exe\""
-        args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]} /ADD ${nameopt[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
-        comment => "Create the user ${usergroup_user_login[${usergroup_user_index}]}",
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}";
-
-      "\"${sys.winsysdir}\net.exe\""
-        args => "USER ${usergroup_user_login[${usergroup_user_index}]} /DELETE",
-        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
-        comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
-
-      "\"${sys.winsysdir}\net.exe\""
-        args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]}",
-        ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
-&endif&
-
-    !windows.showtime::
-
-      "/usr/sbin/useradd"
-        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
-        comment => "Create the user",
-        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
-
-      "/usr/sbin/useradd"
-        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
-        comment => "Create the user with a custom home directory",
-        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
-
-      "/usr/sbin/userdel"
-        args => "${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
-        comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
-
   files:
 
       "/etc/passwd"
@@ -235,6 +193,48 @@ bundle agent check_usergroup_user_parameters
         classes       => kept_if_else("usermanagement_user_password_timestamp_ok_${usergroup_user_index}", "usermanagement_aix_password_timestamp_repaired_${usergroup_user_index}", "usermanagement_aix_password_timestamp_failed_${usergroup_user_index}"),
         ifvarclass    => "usermanagement_user_password_repaired_${usergroup_user_index}";
 
+
+  commands:
+
+&if(NOVA)&
+    windows.showtime::
+
+      "\"${sys.winsysdir}\net.exe\""
+        args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]} /ADD ${nameopt[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user ${usergroup_user_login[${usergroup_user_index}]}",
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}";
+
+      "\"${sys.winsysdir}\net.exe\""
+        args => "USER ${usergroup_user_login[${usergroup_user_index}]} /DELETE",
+        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
+        comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
+
+      "\"${sys.winsysdir}\net.exe\""
+        args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]}",
+        ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+&endif&
+
+    !windows.showtime::
+
+      "/usr/sbin/useradd"
+        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user",
+        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
+
+      "/usr/sbin/useradd"
+        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        comment => "Create the user with a custom home directory",
+        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+
+      "/usr/sbin/userdel"
+        args => "${usergroup_user_login[${usergroup_user_index}]}",
+        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
+        comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
 
   reports:
 
