@@ -1,0 +1,121 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the NFS Client configuration PT.
+    Compatibility : Debian like, RedHat like, SuSE like
+
+It is intended to check if the NFS client is installed and if the
+required mount points are set with the right options.
+-->
+<TECHNIQUE name="NFS Client">
+  <DESCRIPTION>Configure an NFS Client</DESCRIPTION>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <BUNDLES>
+    <NAME>check_nfs_client_installation</NAME>
+    <NAME>check_nfs_client_configuration</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="nfsClientConfigure"/>
+    <TML name="nfsClientInstall"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>NFS_CLIENT_REMOTE_PATH</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="NFS Client package install" component="true"/>
+    <!-- NFS client settings , index 1-->
+    <SECTION name="NFS mountpoint" multivalued="true" component="true" componentKey="NFS_CLIENT_LOCAL_PATH">
+      <SELECT1>
+        <NAME>NFS_CLIENT_UMOUNT</NAME>
+        <DESCRIPTION>Which operation should be done on this mountpoint</DESCRIPTION>
+        <ITEM>
+          <LABEL>Mount</LABEL>
+          <VALUE>no</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Unmount</LABEL>
+          <VALUE>yes</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>no</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>NFS_CLIENT_LOCAL_PATH</NAME>
+        <DESCRIPTION>Local path to mount the remote on</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>NFS_CLIENT_REMOTE_SERVER</NAME>
+        <DESCRIPTION>Remote server</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>NFS_CLIENT_REMOTE_PATH</NAME>
+        <DESCRIPTION>Remote path to mount locally</DESCRIPTION>
+      </INPUT>
+      <SELECT1>
+        <NAME>NFS_CLIENT_REMOTE_TYPE</NAME>
+        <DESCRIPTION>NFS server version</DESCRIPTION>
+        <ITEM>
+          <LABEL>Automatic</LABEL>
+          <VALUE>nfs</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>NFSv2</LABEL>
+          <VALUE>nfs2</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>NFSv3</LABEL>
+          <VALUE>nfs3</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>NFSv4</LABEL>
+          <VALUE>nfs4</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>nfs</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>NFS_CLIENT_ADDFSTAB</NAME>
+        <DESCRIPTION>Do you want this NFS mount to be persistent upon reboot</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

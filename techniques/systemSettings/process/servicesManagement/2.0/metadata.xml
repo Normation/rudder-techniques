@@ -1,0 +1,151 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This it a process management PT.
+    It takes multivalued arguments to get name, min instances, max instances,
+    restart command and args of the processes to monitor.
+    It then accepts a global process blacklist to kill mercilessly.
+
+It then reports out of bounds process count numbers, restarts them if
+necessary and kill undesired processes.
+-->
+<TECHNIQUE name="Services Management">
+  <DESCRIPTION>Check and enforce the state of processes and services</DESCRIPTION>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.2">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <BUNDLES>
+    <NAME>services_management</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="servicesManagement"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>SERVICE_MANAGED_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="Service to manage" multivalued="true" >
+    <INPUT>
+        <NAME>SERVICE_MANAGED_NAME</NAME>
+        <DESCRIPTION>Service name (as seen in init.d)</DESCRIPTION>
+    </INPUT>
+    <SECTION name="Process"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
+      <INPUT>
+        <NAME>PROCESS_MANAGED_NAME</NAME>
+        <DESCRIPTION>Process name  (full path to the executable, to be check in 'ps' output)</DESCRIPTION>
+      <LONGDESCRIPTION>Accepts regular expression, not necessarily the full path)</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>PROCESS_MANAGED_RUNNING</NAME>
+        <DESCRIPTION>This process should be</DESCRIPTION>
+        <ITEM>
+          <LABEL>Running</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Stopped</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Don't change</LABEL>
+          <VALUE>ignore</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>ignore</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+    <SECTION name="Service starting parameters"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
+      <SELECT1>
+        <NAME>PROCESS_MANAGED_BOOTSTART</NAME>
+        <DESCRIPTION>This service should be set to start on boot</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Don't change</LABEL>
+          <VALUE>ignore</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+    <SECTION name="Advanced options"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
+      <SELECT1>
+        <NAME>PROCESS_MANAGED_KILLING_METHOD</NAME>
+        <DESCRIPTION>When stopping this process</DESCRIPTION>
+        <ITEM>
+          <LABEL>Stop gracefully (/etc/init.d/xxx stop)</LABEL>
+          <VALUE>graceful</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Kill (SIGTERM)</LABEL>
+          <VALUE>term</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Kill (SIGKILL)</LABEL>
+          <VALUE>kill</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>graceful</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
+      <INPUT>
+          <NAME>PROCESS_MANAGED_CHECK_RANGE</NAME>
+          <DESCRIPTION>Check range of process instances number ?</DESCRIPTION>
+          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>PROCESS_MANAGED_MIN_INSTANCES</NAME>
+        <DESCRIPTION>Restart this service if the number of process instances is less than :</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>integer</TYPE>
+        <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>PROCESS_MANAGED_MAX_INSTANCES</NAME>
+        <DESCRIPTION>Restart this service if the number of process instances is more than :</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>integer</TYPE>
+        <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTION>
+
+  </SECTIONS>
+
+</TECHNIQUE>

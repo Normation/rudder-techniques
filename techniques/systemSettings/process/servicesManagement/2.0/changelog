@@ -1,0 +1,15 @@
+Version 1.2:
+
+  * Fixed support for CentOS/RHEL
+  * Reworked variables and commands promises to be DRY-er
+
+ -- Jonathan CLARKE <jonathan.clarke@normation.com>  Fri, 31 Aug 2012 18:19:00 +0100
+
+Version 1.1:
+
+  * Added a correct Debian support
+
+ -- Matthieu CERDA <matthieu.cerda@normation.com>  Thu, 26 Jan 2012 16:22:00 +0100
+ -- Benoit PECCATTE <benoit.peccatte@normation.com> Tue Sep  9 08:17:55 CEST 2014
+  * Version 2.0
+  ** Rewrite with normal ordering and {}

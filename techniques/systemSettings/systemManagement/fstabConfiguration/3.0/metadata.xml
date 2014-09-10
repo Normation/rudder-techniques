@@ -1,0 +1,413 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the fstab configuration PT.
+    Compatibility : UNIX like
+
+It is intended to check if the fstab is up to date with the
+given parameters.
+-->
+<TECHNIQUE name="Fstab configuration">
+  <DESCRIPTION>Configures the system fstab</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version="System V and related">UNIX</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_fstab_configuration</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="fstabConfiguration"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>FSTAB_DESTINATION</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="Mountpoint" multivalued="true">
+      <SELECT1>
+        <NAME>FSTAB_ALTERONLY</NAME>
+        <DESCRIPTION>Do you want to add the entry if missing, alter it only or delete it</DESCRIPTION>
+        <ITEM>
+          <LABEL>Add</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Alter only</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Delete</LABEL>
+          <VALUE>delete</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
+      <SELECT1>
+        <NAME>FSTAB_MOUNT_SELECTOR</NAME>
+        <DESCRIPTION>Use the Origin or the Destination as reference</DESCRIPTION>
+        <ITEM>
+          <LABEL>Origin</LABEL>
+          <VALUE>origin</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Destination</LABEL>
+          <VALUE>destination</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>destination</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
+      <INPUT>
+        <NAME>FSTAB_ORIGIN</NAME>
+        <DESCRIPTION>Mountpoint origin</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+          <REGEX error="Can't use space in the origin">[^\s]*</REGEX>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>FSTAB_DESTINATION</NAME>
+        <DESCRIPTION>Mountpoint destination</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>FSTAB_FILESYSTEM</NAME>
+        <DESCRIPTION>Mountpoint filesystem</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>ext3</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>FSTAB_DEFAULTS</NAME>
+        <DESCRIPTION>Do you want to use the filesystem defaults ("defaults")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>defaults</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_ASYNC</NAME>
+        <DESCRIPTION>Should all the operations on the filesystem be asynchronous ("async")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>async</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>sync,dirsync</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_ATIME</NAME>
+        <DESCRIPTION>Should every access on a file update its last access inode access time ("atime/relatime/noatime")</DESCRIPTION>
+        <LONGDESCRIPTION>If set to "No", there is a fair chance that your incremental backup sofware will fail. "Only if modified" is recommended</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>atime</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>noatime,nodiratime</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Only if modified</LABEL>
+          <VALUE>relatime</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_NOAUTO</NAME>
+        <DESCRIPTION>Should the filesystem be allowed to be mounted automatically ("auto")</DESCRIPTION>
+        <LONGDESCRIPTION>When enabled, the filesystem will mount automatically on boot</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>auto</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>noauto</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_DEV</NAME>
+        <DESCRIPTION>Should the filesystem allow special devices nodes to be interpreted ("dev")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>dev</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>nodev</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_EXEC</NAME>
+        <DESCRIPTION>Should the filesystem allow binaries to execute ("exec")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>exec</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>noexec</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_SUID</NAME>
+        <DESCRIPTION>Should the filesystem honor suid or sgid bits ("suid")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>suid</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>nosuid</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_USER</NAME>
+        <DESCRIPTION>Should any user be allowed to mount the filesystem ("user")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>user</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>nouser</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_USERS</NAME>
+        <DESCRIPTION>Should every user be allowed to mount the filesystem ("users")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>users</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_GROUP</NAME>
+        <DESCRIPTION>Allow an ordinary (i.e., non-root) user to mount the file system if one of his groups matches the group of the device ("group")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>group</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>nogroup</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_MAND</NAME>
+        <DESCRIPTION>Should the filesystem allow mandatory locks ("mand")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>mand</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>nomand</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>System default</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_NETDEV</NAME>
+        <DESCRIPTION>Should the filesystem be mounted only after network interfaces ("_netdev")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>_netdev</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_OWNER</NAME>
+        <DESCRIPTION>Should the owner of the mountpoint origin be allowed to mount the filesystem ("owner")</DESCRIPTION>
+        <LONGDESCRIPTION>This option is Linux specific, it will NOT work on other UNIXes</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>owner</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_READWRITE</NAME>
+        <DESCRIPTION>Should the filesystem be mounted read-only ("ro")</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>ro</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>rw</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>rw</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>FSTAB_MISCOPTIONS</NAME>
+        <DESCRIPTION>Additionnal options if required</DESCRIPTION>
+        <LONGDESCRIPTION>Please refer to the mount(8) manual for further reference</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>FSTAB_DUMP</NAME>
+        <DESCRIPTION>Should the filesystem be dumpable via dump(8)</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>1</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>0</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>1</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>FSTAB_FSCKORDER</NAME>
+        <DESCRIPTION>Which order should be applied for the boot time fsck if required</DESCRIPTION>
+        <LONGDESCRIPTION>This value should be 1 for a root filesystem and 2 for any other one</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Disabled</LABEL>
+          <VALUE>0</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>1</LABEL>
+          <VALUE>1</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>2</LABEL>
+          <VALUE>2</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>2</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+</TECHNIQUE>
