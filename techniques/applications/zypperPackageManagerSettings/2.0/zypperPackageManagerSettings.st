@@ -201,7 +201,7 @@ bundle edit_line set_zypper_repos_BROKEN(zypper_name, zypper_url, zypper_enabled
   reports:
 
   # Repositories
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository@@$(zypper_url[${zypper_index}])@@${g.execRun}##${g.uuid}@#The ZYPPER source $(zypper_name[${zypper_index}]) was already here. Skipping..."
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} was already here. Skipping..."
         ifvarclass => "source_${zypper_index}_kept.!source_${zypper_index}_ok";
 
       "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} has been successfully added"

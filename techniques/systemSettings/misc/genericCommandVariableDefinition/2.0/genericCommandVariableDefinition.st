@@ -38,6 +38,6 @@ bundle agent generic_cmd_var_def_report {
 
 		(linux|!linux)::
 
-			"@@genericCommandVariableDefinition@@result_success@@$(generic_command_name_uuid[$(generic_cmd_variable_name_index)])@@Variable command definition@@$(generic_cmd_variable_name[$(generic_cmd_variable_name_index)])@@$(g.execRun)##$(g.uuid)@#A generic command variable definition is set for variable $(generic_cmd_variable_name[$(generic_cmd_variable_name_index)])";
+			"@@genericCommandVariableDefinition@@result_success@@${generic_command_name_uuid[${generic_cmd_variable_name_index}]}@@Variable command definition@@${generic_cmd_variable_name[${generic_cmd_variable_name_index}]}@@${g.execRun}##${g.uuid}@#A generic command variable definition is set for variable ${generic_cmd_variable_name[${generic_cmd_variable_name_index}]}";
 
 }

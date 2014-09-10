@@ -36,7 +36,7 @@ bundle agent rudder_reverse_proxy_apache
       string => "&APACHE_REVERSE_PROXY_INSTALL&";
 
     "rudder_reverse_proxy_params[proxies]"
-      string => "&APACHE_REVERSE_PROXY_URL_SRC,APACHE_REVERSE_PROXY_URL_DST,APACHE_REVERSE_PROXY_TIMEOUT:{src, dst, timeout|ProxyPass &src& &dst& connectiontimeout=5 timeout=&timeout&$(const.n)ProxyPassReverse &src& &dst&
+      string => "&APACHE_REVERSE_PROXY_URL_SRC,APACHE_REVERSE_PROXY_URL_DST,APACHE_REVERSE_PROXY_TIMEOUT:{src, dst, timeout|ProxyPass &src& &dst& connectiontimeout=5 timeout=&timeout&${const.n}ProxyPassReverse &src& &dst&
 }&";
     "rudder_reverse_proxy_params[selinux]"
       string => "&APACHE_REVERSE_PROXY_ADJUST_SELINUX&";
