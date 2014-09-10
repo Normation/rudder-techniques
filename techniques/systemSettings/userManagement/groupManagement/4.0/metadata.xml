@@ -1,0 +1,95 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the groupManagement PT.
+    Compatibility : Linux like, Windows like
+
+It is intended to check the group parameters on the target host.
+-->
+
+<TECHNIQUE name="Group management">
+  <DESCRIPTION>This technique manages the target host(s) groups.
+
+  It will ensure that the defined groups are present on the system.</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <BUNDLES>
+    <NAME>check_usergroup_grp_parameters</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="groupManagement"/>
+  </TMLS>
+  
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>USERGROUP_GROUP_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+    
+  <SECTIONS>
+    <!-- groups section , index 1 -->
+    <SECTION name="Groups" multivalued="true" component="true" componentKey="USERGROUP_GROUP_NAME">
+      <INPUT>
+        <NAME>USERGROUP_GROUP_NAME</NAME>
+        <DESCRIPTION>Name</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_GROUP_CREATE</NAME>
+        <DESCRIPTION>Create the group if it doesn't exist</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_GROUP_SET_GID</NAME>
+        <DESCRIPTION>Set GID ?</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_GROUP_GID</NAME>
+        <DESCRIPTION>Group ID</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_GROUP_ENFORCE_CONTENT</NAME>
+        <DESCRIPTION>Enforce content of the group</DESCRIPTION>
+        <LONGDESCRIPTION>Group content will be enforced even if you don't specify a user list</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+       <INPUT>
+        <NAME>USERGROUP_GROUP_CONTENT</NAME>
+        <DESCRIPTION>Users included in the group</DESCRIPTION>
+        <LONGDESCRIPTION>This should be input as a comma separated list</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

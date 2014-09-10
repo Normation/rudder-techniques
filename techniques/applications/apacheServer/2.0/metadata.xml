@@ -1,0 +1,262 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the Apache installation PT.
+    Compatibility : Linux Red Hat like, Debian like
+
+It is intended to check if Apache is installed and install it if not,
+then check if it is started on boot.
+-
+It then adds apache to the boot init scripts if not already set to start on boot.
+-->
+<TECHNIQUE name="Apache 2 HTTP server">
+  <DESCRIPTION>This technique will configure the Apache HTTP server and ensure it is running.
+
+  It will ensure the "apache2" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.
+
+  Configuration will create a rudder vhost file.
+  </DESCRIPTION>
+  <COMPATIBLE>
+    <OS version=">= 5 (Lenny)">Debian</OS>
+    <OS version=">= 5 (Tikanga)">RHEL / CentOS</OS>
+    <OS version=">= 11 SP1 (Celadon)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+
+  <BUNDLES>
+    <NAME>check_apache_installation</NAME>
+    <NAME>check_apache_configuration</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="apacheServerConfiguration"/>
+    <TML name="apacheServerInstall"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>APACHE_AUTOSTART</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="Apache2 installation" component="true" />
+    <SECTION name="Apache bootstart" component="true" />
+    <SECTION name="SELinux context" component="true" componentKey="APACHE_VHOST_FQDN"/>
+    <SECTION name="Port settings edition" component="true" />
+    <SECTION name="Security settings edition" component="true" />
+    <!-- general Section , index 1 -->
+    <SECTION name="General settings">
+      <INPUT>
+        <NAME>APACHE_AUTOSTART</NAME>
+        <DESCRIPTION>Start Apache automatically on boot</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SECTION name="Apache Ports" multivalued="true">
+        <INPUT>
+          <NAME>APACHE_PORTS</NAME>
+          <DESCRIPTION>On which port should apache listen</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>integer</TYPE>
+            <DEFAULT>80</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+    </SECTION>
+
+
+    <!-- security Section , index 5 -->
+    <SECTION name="Security settings">
+      <SELECT1>
+        <NAME>APACHE_SERVERTOKENS</NAME>
+        <DESCRIPTION>Which level of detail should the server give about itself (ServerTokens)</DESCRIPTION>
+        <LONGDESCRIPTION>This controls the response of the HTTP Server type header and what will be printed on index pages. For developers, Verbose is advised, whereas Minimal is better for a production usage</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Full (Every module plus full server version)</LABEL>
+          <VALUE>Full</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Output operating system type</LABEL>
+          <VALUE>OS</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Major version only</LABEL>
+          <VALUE>Major</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Minor version only</LABEL>
+          <VALUE>Minor</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Minimal (Recommended for production)</LABEL>
+          <VALUE>Prod</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>Prod</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>APACHE_SERVERSIGNATURE</NAME>
+        <DESCRIPTION>How should the server report site specific values (ServerSignature)</DESCRIPTION>
+        <ITEM>
+          <LABEL>Report site name (with E-mail)</LABEL>
+          <VALUE>Email</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Report site name</LABEL>
+          <VALUE>On</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Report nothing</LABEL>
+          <VALUE>Off</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>On</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>APACHE_TRACEENABLE</NAME>
+        <DESCRIPTION>Should the server allow the use of the TRACE method (TraceEnable)</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes (Development)</LABEL>
+          <VALUE>On</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No (Production)</LABEL>
+          <VALUE>Off</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>Off</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>APACHE_SELINUX</NAME>
+        <DESCRIPTION>Adjust the SELinux context of every virtualhost folder to permit file serving</DESCRIPTION>
+        <LONGDESCRIPTION>By default, on a SELinux enabled machine (for example RedHat like OSes), there is only one directory allowed to serve files via HTTP, any other request will result in a 403 Forbidden response. This option will take care of adjusting the directory permissions as needed. Please only use it on SELinux enabled hosts or the policy will never succeed</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+
+
+
+    <!-- modules Section , index 10 -->
+    <SECTION name="Module settings" multivalued="true"  component="true" componentKey="APACHE_MODULES">
+      <INPUT>
+        <NAME>APACHE_MODULES</NAME>
+        <DESCRIPTION>Which custom modules do you want to enable</DESCRIPTION>
+        <LONGDESCRIPTION>This is Debian specific, as RedHat Apaches enable all their modules by default</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>none</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+    <!-- virtual host Section , index 20 -->
+    <SECTION name="Virtual host settings" multivalued="true" component="true" componentKey="APACHE_VHOST_FQDN">
+      <INPUT>
+        <NAME>APACHE_VHOST_FQDN</NAME>
+        <DESCRIPTION>On which host name is the virtual host to be reachable</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_PORT</NAME>
+        <DESCRIPTION>On which port should the virtual host be reachable</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <DEFAULT>80</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_ROOT</NAME>
+        <DESCRIPTION>Where is the base directory for the files to be served</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/var/www</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>APACHE_VHOST_EXPIRES</NAME>
+        <DESCRIPTION>Do you want to set an expiration delay for the content</DESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>APACHE_VHOST_EXPIRES_TTL</NAME>
+        <DESCRIPTION>Expiration delay for the content</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>access plus 30 days</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_ALIAS_ONE_SRC</NAME>
+        <DESCRIPTION>Alias 1 source path</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>Disabled</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_ALIAS_ONE_DST</NAME>
+        <DESCRIPTION>Alias 1 destination path</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_ALIAS_TWO_SRC</NAME>
+        <DESCRIPTION>Alias 2 source path</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>Disabled</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_ALIAS_TWO_DST</NAME>
+        <DESCRIPTION>Alias 2 destination path</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_ALIAS_THREE_SRC</NAME>
+        <DESCRIPTION>Alias 3 source path</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>Disabled</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>APACHE_VHOST_ALIAS_THREE_DST</NAME>
+        <DESCRIPTION>Alias 3 destination path</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
