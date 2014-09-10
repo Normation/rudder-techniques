@@ -34,6 +34,26 @@ bundle agent check_nfs_server_configuration
       "nfs_server_index" slist => getindices("nfs_server_path");
 
 
+  files:
+
+    (debian|redhat|SuSE)::
+
+      "/etc/rc2.d/S.*nfs.*"
+
+        create => "true",
+                                #depth_search => recurse("0"),
+                                #file_select => ssh_startlink,
+        action => WarnOnly,
+        classes => cf2_if_else("nfs_server_bootstarted", "nfs_server_unbootstarted");
+
+      "/etc/exports"
+
+        create => "true",
+        perms => m("644"),
+        edit_defaults => noempty_backup,
+        edit_line => set_nfs_server_values("${nfs_server_path[${nfs_server_index}]}", "${nfs_server_network[${nfs_server_index}]}", "${nfs_server_options[${nfs_server_index}]}"),
+        classes => kept_if_else("nfs_server_${nfs_server_index}_kept", "nfs_server_${nfs_server_index}_done", "nfs_server_${nfs_server_index}_failed");
+
   commands:
 
     debian::
@@ -85,26 +105,6 @@ bundle agent check_nfs_server_configuration
         ifvarclass => canonify("nfs_server_${nfs_server_index}_done"),
         classes => cf2_if_else("nfs_server_${nfs_server_index}_restarted", "nfs_server_${nfs_server_index}_not_restarted"),
         comment => "Restarting the NFS server";
-
-  files:
-
-    (debian|redhat|SuSE)::
-
-      "/etc/rc2.d/S.*nfs.*"
-
-        create => "true",
-                                #depth_search => recurse("0"),
-                                #file_select => ssh_startlink,
-        action => WarnOnly,
-        classes => cf2_if_else("nfs_server_bootstarted", "nfs_server_unbootstarted");
-
-      "/etc/exports"
-
-        create => "true",
-        perms => m("644"),
-        edit_defaults => noempty_backup,
-        edit_line => set_nfs_server_values("${nfs_server_path[${nfs_server_index}]}", "${nfs_server_network[${nfs_server_index}]}", "${nfs_server_options[${nfs_server_index}]}"),
-        classes => kept_if_else("nfs_server_${nfs_server_index}_kept", "nfs_server_${nfs_server_index}_done", "nfs_server_${nfs_server_index}_failed");
 
   reports:
 

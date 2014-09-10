@@ -114,6 +114,15 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
   # Cannot handle an addition without the origin, nor handle a reference on the origin if there aren't any
       "invalid_${index}" expression => "empty_origin_${index}.(use_origin_${index}|addentry_${index})";
 
+  delete_lines:
+
+      "^${${data_array}[${index}][origin]}[ \t]+.*"
+        ifvarclass => "delentry_${index}.use_origin_${index}.!invalid_${index}",
+        classes => kept_if_else("line_${index}_kept", "line_${index}_handled", "line_${index}_handle_failed");
+
+      "^[^#]+[ \t]+${${data_array}[${index}][destination]}[ \t]+.*"
+        ifvarclass => "delentry_${index}.!use_origin_${index}",
+        classes => kept_if_else("line_${index}_kept", "line_${index}_handled", "line_${index}_handle_failed");
   field_edits:
 
       "^${${data_array}[${index}][origin]}[ \t].*"
@@ -132,15 +141,6 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
         ifvarclass => "addentry_${index}.!line_${index}_handled.!invalid_${index}",
         classes => kept_if_else("line_${index}_kept", "line_${index}_handled", "line_${index}_handle_failed");
 
-  delete_lines:
-
-      "^${${data_array}[${index}][origin]}[ \t]+.*"
-        ifvarclass => "delentry_${index}.use_origin_${index}.!invalid_${index}",
-        classes => kept_if_else("line_${index}_kept", "line_${index}_handled", "line_${index}_handle_failed");
-
-      "^[^#]+[ \t]+${${data_array}[${index}][destination]}[ \t]+.*"
-        ifvarclass => "delentry_${index}.!use_origin_${index}",
-        classes => kept_if_else("line_${index}_kept", "line_${index}_handled", "line_${index}_handle_failed");
   reports:
 
     linux::

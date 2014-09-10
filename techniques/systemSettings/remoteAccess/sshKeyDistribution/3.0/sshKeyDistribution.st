@@ -21,14 +21,6 @@
 bundle agent check_ssh_key_distribution
 {
 
-  classes:
-
-      "begin_evaluation" expression => isvariable("sshkey_distribution_index");
-
-    begin_evaluation::
-
-      "user_${sshkey_distribution_index}_exists" expression => userexists("${sshkey_distribution_name[${sshkey_distribution_index}]}");
-
   vars:
 
     any::
@@ -69,6 +61,14 @@ bundle agent check_ssh_key_distribution
     SuSE::
       "gid[${sshkey_distribution_index}]"
         string  => "users";
+
+  classes:
+
+      "begin_evaluation" expression => isvariable("sshkey_distribution_index");
+
+    begin_evaluation::
+
+      "user_${sshkey_distribution_index}_exists" expression => userexists("${sshkey_distribution_name[${sshkey_distribution_index}]}");
 
   files:
 

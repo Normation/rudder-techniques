@@ -19,35 +19,6 @@
 bundle agent check_openvpn_client_configuration
 {
 
-  classes:
-
-    # Security : if not there, OpenVPN too, so don't bother anymore
-      "openvpn_bin_present" expression => fileexists("/usr/sbin/openvpn");
-
-    # Autostart ?
-      "ovpn_client_autostart" expression => strcmp("&OVPN_CLIENT_AUTOSTART&","true");
-
-    # PSK mode ?
-      "ovpn_client_pskmode" expression => strcmp("&OVPN_CLIENT_KEYMODE&","psk");
-
-    # Randomize remotes ?
-      "ovpn_client_randomize" expression => strcmp("&OVPN_CLIENT_REMOTE_RANDOMIZE&","true");
-
-    # Use user/password ?
-      "ovpn_client_pwauth" expression => strcmp("&OVPN_CLIENT_REMOTE_AUTH&","true");
-
-    # Do not use user/password ?
-      "ovpn_client_nopwauth" expression => strcmp("&OVPN_CLIENT_REMOTE_AUTH&","false");
-
-    # Log to file ?
-      "ovpn_client_logtofile" expression => strcmp("&OVPN_CLIENT_LOGGING_TARGET&","file");
-
-    # Append logs ?
-      "ovpn_client_appendfile" expression => strcmp("&OVPN_CLIENT_LOGGING_BEHAVIOR&","true");
-
-    # Keep retrying connection ?
-      "ovpn_client_keepretrying" expression => strcmp("&OVPN_CLIENT_REMOTE_KEEPTRYING&","true");
-
   vars:
 
       &OVPN_CLIENT_REMOTE_SERVER, OVPN_CLIENT_REMOTE_PORT:{server, port |"ovpn_client_remote[&i&]" string => "&server& &port&";
@@ -86,40 +57,34 @@ bundle agent check_openvpn_client_configuration
       "ovpn_client[log]" string => "&OVPN_CLIENT_LOGGING_FILE&";
 
 
-  processes:
+  classes:
 
-    (SuSE|debian|redhat).ovpn_client_autostart::
+    # Security : if not there, OpenVPN too, so don't bother anymore
+      "openvpn_bin_present" expression => fileexists("/usr/sbin/openvpn");
 
-      "/usr/sbin/openvpn"
-        restart_class => "openvpn_down",
-        comment => "Ensuring openvpn is up";
+    # Autostart ?
+      "ovpn_client_autostart" expression => strcmp("&OVPN_CLIENT_AUTOSTART&","true");
 
-  commands:
+    # PSK mode ?
+      "ovpn_client_pskmode" expression => strcmp("&OVPN_CLIENT_KEYMODE&","psk");
 
-    (openvpn_tier1_validated|openvpn_tier2_validated|openvpn_keyring_validated|openvpn_down).ovpn_client_autostart::
-      "/etc/init.d/openvpn"
-        args => "restart",
-        classes => cf2_if_else("openvpn_restarted", "cant_restart_openvpn"),
-        comment => "restarting openvpn";
+    # Randomize remotes ?
+      "ovpn_client_randomize" expression => strcmp("&OVPN_CLIENT_REMOTE_RANDOMIZE&","true");
 
-    (debian.openvpn_unbootstarted).openvpn_bin_present::
-      "/usr/sbin/update-rc.d"
-        args => "openvpn defaults",
-        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
-        comment => "adding openvpn to the startup scripts";
+    # Use user/password ?
+      "ovpn_client_pwauth" expression => strcmp("&OVPN_CLIENT_REMOTE_AUTH&","true");
 
-    (redhat.openvpn_unbootstarted).openvpn_bin_present::
-      "/sbin/chkconfig"
-        args => "--add openvpn",
-        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
-        comment => "adding openvpn to the startup scripts";
+    # Do not use user/password ?
+      "ovpn_client_nopwauth" expression => strcmp("&OVPN_CLIENT_REMOTE_AUTH&","false");
 
-    # YES I know this isn't DRY but CF3 does not support nested parenthesis yet
-    (SuSE.openvpn_unbootstarted).openvpn_bin_present::
-      "/sbin/chkconfig"
-        args => "--add openvpn",
-        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
-        comment => "adding openvpn to the startup scripts";
+    # Log to file ?
+      "ovpn_client_logtofile" expression => strcmp("&OVPN_CLIENT_LOGGING_TARGET&","file");
+
+    # Append logs ?
+      "ovpn_client_appendfile" expression => strcmp("&OVPN_CLIENT_LOGGING_BEHAVIOR&","true");
+
+    # Keep retrying connection ?
+      "ovpn_client_keepretrying" expression => strcmp("&OVPN_CLIENT_REMOTE_KEEPTRYING&","true");
 
   files:
 
@@ -155,6 +120,41 @@ bundle agent check_openvpn_client_configuration
         edit_line => set_openvpn_config_values_keyring("&OVPN_CLIENT_REMOTE_USER&", "&OVPN_CLIENT_REMOTE_PASS&"),
         edit_defaults => noempty_backup,
         classes => kept_if_else("openvpn_keyring_kept", "openvpn_keyring_validated", "openvpn_keyring_failed");
+
+  processes:
+
+    (SuSE|debian|redhat).ovpn_client_autostart::
+
+      "/usr/sbin/openvpn"
+        restart_class => "openvpn_down",
+        comment => "Ensuring openvpn is up";
+
+  commands:
+
+    (openvpn_tier1_validated|openvpn_tier2_validated|openvpn_keyring_validated|openvpn_down).ovpn_client_autostart::
+      "/etc/init.d/openvpn"
+        args => "restart",
+        classes => cf2_if_else("openvpn_restarted", "cant_restart_openvpn"),
+        comment => "restarting openvpn";
+
+    (debian.openvpn_unbootstarted).openvpn_bin_present::
+      "/usr/sbin/update-rc.d"
+        args => "openvpn defaults",
+        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
+        comment => "adding openvpn to the startup scripts";
+
+    (redhat.openvpn_unbootstarted).openvpn_bin_present::
+      "/sbin/chkconfig"
+        args => "--add openvpn",
+        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
+        comment => "adding openvpn to the startup scripts";
+
+    # YES I know this isn't DRY but CF3 does not support nested parenthesis yet
+    (SuSE.openvpn_unbootstarted).openvpn_bin_present::
+      "/sbin/chkconfig"
+        args => "--add openvpn",
+        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
+        comment => "adding openvpn to the startup scripts";
 
   reports:
 

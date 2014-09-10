@@ -55,35 +55,6 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
     "rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded" expression => fileexists("/etc/apache2/mods-enabled/${rudder_reverse_proxy_apache_debian_modules}.load");
 
-  processes:
-	
-      "${rudder_reverse_proxy_apache_binary_name}"
-        restart_class => "rudder_reverse_proxy_apache_process_down",
-        comment       => "Ensuring apache is up";
-
-  commands:
-
-    debian::
-      "/usr/sbin/a2enmod ${rudder_reverse_proxy_apache_debian_modules}"
-        classes    => rudder_common_classes("rudder_reverse_proxy_apache_modules"),
-        ifvarclass => "!rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded",
-        comment    => "Enable Apache modules on Debian";
-
-    rudder_reverse_proxy_apache_selinux_adjust.!rudder_reverse_proxy_apache_selinux_proxy_policy::
-      "/usr/sbin/setsebool httpd_can_network_relay on"
-        classes => rudder_common_classes("rudder_reverse_proxy_apache_selinux"),
-        comment => "Enable SELinux Apache entry to let Apache proxy entries";
-
-    rudder_reverse_proxy_apache_configuration_repaired::
-      "${rudder_reverse_proxy_apache_restart_command} reload"
-        classes => rudder_common_classes("rudder_reverse_proxy_apache_reload"),
-        comment => "reloading apache";
-
-    (rudder_reverse_proxy_apache_process_down|rudder_reverse_proxy_apache_modules_repaired)::
-      "${rudder_reverse_proxy_apache_restart_command} restart"
-        classes => rudder_common_classes("rudder_reverse_proxy_apache_restart"),
-        comment => "restarting apache";
-
   files:
 
       "${reverse_proxy_configuration_file}"
@@ -113,6 +84,35 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
     "any"
       usebundle  => rudder_common_report("${internal_name}", "result_error", "${${params}[tracking_key]}", "Daemon status", "None", "Unable to restart or reload ${service_name}"),
       ifvarclass => "rudder_reverse_proxy_apache_restart_error|rudder_reverse_proxy_apache_reload_error";
+  processes:
+	
+      "${rudder_reverse_proxy_apache_binary_name}"
+        restart_class => "rudder_reverse_proxy_apache_process_down",
+        comment       => "Ensuring apache is up";
+
+  commands:
+
+    debian::
+      "/usr/sbin/a2enmod ${rudder_reverse_proxy_apache_debian_modules}"
+        classes    => rudder_common_classes("rudder_reverse_proxy_apache_modules"),
+        ifvarclass => "!rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded",
+        comment    => "Enable Apache modules on Debian";
+
+    rudder_reverse_proxy_apache_selinux_adjust.!rudder_reverse_proxy_apache_selinux_proxy_policy::
+      "/usr/sbin/setsebool httpd_can_network_relay on"
+        classes => rudder_common_classes("rudder_reverse_proxy_apache_selinux"),
+        comment => "Enable SELinux Apache entry to let Apache proxy entries";
+
+    rudder_reverse_proxy_apache_configuration_repaired::
+      "${rudder_reverse_proxy_apache_restart_command} reload"
+        classes => rudder_common_classes("rudder_reverse_proxy_apache_reload"),
+        comment => "reloading apache";
+
+    (rudder_reverse_proxy_apache_process_down|rudder_reverse_proxy_apache_modules_repaired)::
+      "${rudder_reverse_proxy_apache_restart_command} restart"
+        classes => rudder_common_classes("rudder_reverse_proxy_apache_restart"),
+        comment => "restarting apache";
+
 }
 
 # The reporting is made on separate bundles to abstract the complexity

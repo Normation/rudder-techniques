@@ -104,78 +104,6 @@ bundle agent check_apache_configuration
       # Check if the variable apache_modules is defined so that they can be managed
       "apache_module_list_defined" expression => isvariable("apache_modules");
 
-  processes:
-
-    debian.apache_autostart::
-
-      "/usr/sbin/apache2"
-        restart_class => "apache_down",
-        comment => "Ensuring apache is up";
-
-    redhat.apache_autostart::
-
-      "/usr/sbin/httpd"
-        restart_class => "apache_down",
-        comment => "Ensuring apache is up";
-
-    SuSE.apache_bin_prefork.apache_autostart::
-
-      "/usr/sbin/httpd2-prefork"
-        restart_class => "apache_down",
-        comment => "Ensuring apache is up";
-
-    SuSE.!apache_bin_prefork.apache_autostart::
-
-      "/usr/sbin/httpd2-worker"
-        restart_class => "apache_down",
-        comment => "Ensuring apache is up";
-
-  commands:
-
-    debian.apache_module_list_defined::
-
-      "/usr/sbin/a2enmod"
-        args => "${apache_modules}",
-        classes => cf2_if_else("apache_module_${apache_modules}_enabled", "apache_module_${apache_vhost_index}_not_apache_modules"),
-        comment => "Enable Apache modules on Debian";
-
-    apache_selinux_adjust.selinux_bin_present::
-
-      "/usr/bin/chcon"
-        args => "-R --type=httpd_sys_content_t \"${apache_vhost_root[${apache_vhost_index}]}\"",
-        classes => cf2_if_else("apache_selinux_${apache_vhost_index}_adjusted", "apache_selinux_${apache_vhost_index}_not_adjusted"),
-        comment => "Set SELinux context for Apache VHosts";
-
-    (SuSE|debian).(apache_down|apache_change)::
-      "/etc/init.d/apache2"
-        args => "restart",
-        classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
-        comment => "restarting apache";
-
-    redhat.(apache_down|apache_change)::
-      "/etc/init.d/httpd"
-        args => "restart",
-        classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
-        comment => "restarting apache";
-
-    (debian.apache_unbootstarted).apache_bin_present::
-      "/usr/sbin/update-rc.d"
-        args => "apache2 defaults",
-        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
-        comment => "adding apache to the startup scripts";
-
-    (redhat.apache_unbootstarted).apache_bin_present::
-      "/sbin/chkconfig"
-        args => "--add httpd",
-        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
-        comment => "adding apache to the startup scripts";
-
-    (SuSE.apache_unbootstarted).apache_bin_present::
-      "/sbin/chkconfig"
-        args => "--add apache2",
-        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
-        comment => "adding apache to the startup scripts";
-
   files:
 
     debian::
@@ -321,6 +249,78 @@ bundle agent check_apache_configuration
         create => "true",
         classes => if_repaired("root_${apache_vhost_root[${apache_vhost_index}]}_created"),
         comment => "Make sure the root directory exists";
+
+  processes:
+
+    debian.apache_autostart::
+
+      "/usr/sbin/apache2"
+        restart_class => "apache_down",
+        comment => "Ensuring apache is up";
+
+    redhat.apache_autostart::
+
+      "/usr/sbin/httpd"
+        restart_class => "apache_down",
+        comment => "Ensuring apache is up";
+
+    SuSE.apache_bin_prefork.apache_autostart::
+
+      "/usr/sbin/httpd2-prefork"
+        restart_class => "apache_down",
+        comment => "Ensuring apache is up";
+
+    SuSE.!apache_bin_prefork.apache_autostart::
+
+      "/usr/sbin/httpd2-worker"
+        restart_class => "apache_down",
+        comment => "Ensuring apache is up";
+
+  commands:
+
+    debian.apache_module_list_defined::
+
+      "/usr/sbin/a2enmod"
+        args => "${apache_modules}",
+        classes => cf2_if_else("apache_module_${apache_modules}_enabled", "apache_module_${apache_vhost_index}_not_apache_modules"),
+        comment => "Enable Apache modules on Debian";
+
+    apache_selinux_adjust.selinux_bin_present::
+
+      "/usr/bin/chcon"
+        args => "-R --type=httpd_sys_content_t \"${apache_vhost_root[${apache_vhost_index}]}\"",
+        classes => cf2_if_else("apache_selinux_${apache_vhost_index}_adjusted", "apache_selinux_${apache_vhost_index}_not_adjusted"),
+        comment => "Set SELinux context for Apache VHosts";
+
+    (SuSE|debian).(apache_down|apache_change)::
+      "/etc/init.d/apache2"
+        args => "restart",
+        classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
+        comment => "restarting apache";
+
+    redhat.(apache_down|apache_change)::
+      "/etc/init.d/httpd"
+        args => "restart",
+        classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
+        comment => "restarting apache";
+
+    (debian.apache_unbootstarted).apache_bin_present::
+      "/usr/sbin/update-rc.d"
+        args => "apache2 defaults",
+        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
+        comment => "adding apache to the startup scripts";
+
+    (redhat.apache_unbootstarted).apache_bin_present::
+      "/sbin/chkconfig"
+        args => "--add httpd",
+        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
+        comment => "adding apache to the startup scripts";
+
+    (SuSE.apache_unbootstarted).apache_bin_present::
+      "/sbin/chkconfig"
+        args => "--add apache2",
+        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
+        comment => "adding apache to the startup scripts";
 
   reports:
     # if the list is not defined, there is nothing to report !
@@ -475,6 +475,10 @@ bundle edit_line set_apache_config_security(tab)
   # Be careful if the index string contains funny chars
       "cindex[${index}]" string => canonify("${index}");
 
+  delete_lines:
+
+      "^.*${index}.*$";
+
   field_edits:
 
   # If the line is there, but commented out, first uncomment it
@@ -486,10 +490,6 @@ bundle edit_line set_apache_config_security(tab)
         edit_field => col("\s+","2","${${tab}[${index}]}","set"),
         classes => if_ok("not_${cindex[${index}]}");
 
-  delete_lines:
-
-      "^.*${index}.*$";
-
   insert_lines:
 
       "${index} ${${tab}[${index}]}"
@@ -499,22 +499,6 @@ bundle edit_line set_apache_config_security(tab)
 
 bundle edit_line set_apache_config_vhost(fqdn, port, root, exp, exp_ttl, alias_one_src, alias_one_dst, alias_two_src, alias_two_dst, alias_three_src, alias_three_dst, template)
 {
-
-  classes:
-
-      "set_expires" expression => strcmp("${exp}","true");
-      "unset_expires" expression => strcmp("${exp}","false");
-
-      "set_alias_one" not => strcmp("${alias_one_src}","Disabled");
-      "set_alias_two" not => strcmp("${alias_two_src}","Disabled");
-      "set_alias_three" not => strcmp("${alias_three_src}","Disabled");
-      "unset_alias_one" expression => strcmp("${alias_one_src}","Disabled");
-      "unset_alias_two" expression => strcmp("${alias_two_src}","Disabled");
-      "unset_alias_three" expression => strcmp("${alias_three_src}","Disabled");
-
-      "mylock1" expression => "any";
-
-      "mylock" expression => strcmp("mylock", "${mylock}");
 
   vars:
 
@@ -562,6 +546,22 @@ bundle edit_line set_apache_config_vhost(fqdn, port, root, exp, exp_ttl, alias_o
 
       "finalias_three" string => "# Alias 3 disabled",
         policy => "overridable";
+
+  classes:
+
+      "set_expires" expression => strcmp("${exp}","true");
+      "unset_expires" expression => strcmp("${exp}","false");
+
+      "set_alias_one" not => strcmp("${alias_one_src}","Disabled");
+      "set_alias_two" not => strcmp("${alias_two_src}","Disabled");
+      "set_alias_three" not => strcmp("${alias_three_src}","Disabled");
+      "unset_alias_one" expression => strcmp("${alias_one_src}","Disabled");
+      "unset_alias_two" expression => strcmp("${alias_two_src}","Disabled");
+      "unset_alias_three" expression => strcmp("${alias_three_src}","Disabled");
+
+      "mylock1" expression => "any";
+
+      "mylock" expression => strcmp("mylock", "${mylock}");
 
   insert_lines:
 

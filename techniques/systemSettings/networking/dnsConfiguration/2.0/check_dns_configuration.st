@@ -21,17 +21,6 @@
 
 bundle agent check_dns_configuration
 {
-  classes:
-
-                  # DNS Resolver edition ?
-      "dns_resolver_edit" not => strcmp("&DNS_RESOLVERS_EDIT&","false");
-
-                  # DNS Search suffix edition ?
-      "dns_searchlist_edit" not => strcmp("&DNS_SEARCHLIST_EDIT&","false");
-
-                  # DNS options edition ?
-      "dns_options_edit" not => strcmp("&DNS_OPTIONS_EDIT&","false");
-
   vars:
 
       "resolvers" slist => {&DNS_RESOLVERS: { "&it&" };separator=", "&};
@@ -52,6 +41,17 @@ bundle agent check_dns_configuration
         comment => "Fetching all the adapter";
       "adapterslist" slist => splitstring("${adapters}", ";", "15");
 &endif&
+
+  classes:
+
+                  # DNS Resolver edition ?
+      "dns_resolver_edit" not => strcmp("&DNS_RESOLVERS_EDIT&","false");
+
+                  # DNS Search suffix edition ?
+      "dns_searchlist_edit" not => strcmp("&DNS_SEARCHLIST_EDIT&","false");
+
+                  # DNS options edition ?
+      "dns_options_edit" not => strcmp("&DNS_OPTIONS_EDIT&","false");
 
   files:
 

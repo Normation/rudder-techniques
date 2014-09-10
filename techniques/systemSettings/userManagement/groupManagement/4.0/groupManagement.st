@@ -61,31 +61,17 @@ bundle agent check_usergroup_grp_parameters {
 
 bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, gid, enforce_content, content, index, directiveId) {
 
+    vars:
+
+        "userlist" slist => splitstring("$(content)",",","16");
+
+
     classes:
 
         "groupmanagement_group_${index}_absent"          not => groupexists("$(name)");
         "groupmanagement_group_${index}_create"          expression => strcmp("${create}", "true");
         "groupmanagement_group_${index}_setgid"          expression => strcmp("${setgid}", "true");
         "groupmanagement_group_${index}_enforce_content" expression => strcmp("${enforce_content}", "true");
-
-    vars:
-
-        "userlist" slist => splitstring("$(content)",",","16");
-
-
-    commands:
-
-        "/usr/sbin/groupadd"
-            args => "-f \"${name}\"",
-            classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
-            ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.!groupmanagement_group_${index}_setgid",
-            comment => "Add the group ${name} if it doesn't exists";
-
-        "/usr/sbin/groupadd"
-            args => "-f \"${name}\" -g \"${gid}\"",
-            classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
-            ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.groupmanagement_group_${index}_setgid",
-            comment => "Add the group ${name} with GID ${gid} if it doesn't exists";
 
     files:
 
@@ -103,6 +89,20 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
             edit_line  => set_user_field("${name}", 3, "${gid}"),
             classes    => rudder_common_classes("groupmanagement_group_gid_${index}"),
             ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
+
+    commands:
+
+        "/usr/sbin/groupadd"
+            args => "-f \"${name}\"",
+            classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
+            ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.!groupmanagement_group_${index}_setgid",
+            comment => "Add the group ${name} if it doesn't exists";
+
+        "/usr/sbin/groupadd"
+            args => "-f \"${name}\" -g \"${gid}\"",
+            classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
+            ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.groupmanagement_group_${index}_setgid",
+            comment => "Add the group ${name} with GID ${gid} if it doesn't exists";
 
     reports:
 

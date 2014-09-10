@@ -64,12 +64,6 @@ bundle agent check_sudo_parameters
 
       "pass_1" expression => "any";
       "pass_2" expression => isvariable("strict_mode");
-  methods:
-
-      "any"
-
-        usebundle => check_sudo_installation("${sudo_directive_id[${sudo_index}]}");
-
   files:
 
     # Only copy /etc/sudoers if it exists (this is to avoid falling into an
@@ -109,6 +103,12 @@ bundle agent check_sudo_parameters
         perms => mog("0440", "root", "root"),
         classes => kept_if_else("sudoconfiguration_sudoers_copy_kept", "sudoconfiguration_sudoers_copy_repaired", "sudoconfiguration_sudoers_copy_error"),
         comment => "Copying sudoers to its final home";
+
+  methods:
+
+      "any"
+
+        usebundle => check_sudo_installation("${sudo_directive_id[${sudo_index}]}");
 
   commands:
 
@@ -201,11 +201,13 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "all_lines_defined"    expression => isvariable("all_lines");
 
 
-  replace_patterns:
-	"^(?!Defaults	env_reset$)Defaults\s+env_reset$"
-		comment => "Normalize env_reset setting",
-		replace_with => value("Defaults	env_reset"),
-		classes => always("replace_attempted_env_reset");
+  delete_lines:
+
+    all_lines_defined.force::
+
+      ".*"
+        delete_select => sudo_select_nomatch("${all_lines}"),
+        classes => if_repaired("line_deleted");
 
   insert_lines:
     replace_attempted_env_reset::
@@ -215,13 +217,11 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "${lines[${index}]}"
         classes => kept_if_else("line_${index}_kept", "line_${index}_added", "line_${index}_add_failed");
 
-  delete_lines:
-
-    all_lines_defined.force::
-
-      ".*"
-        delete_select => sudo_select_nomatch("${all_lines}"),
-        classes => if_repaired("line_deleted");
+  replace_patterns:
+	"^(?!Defaults	env_reset$)Defaults\s+env_reset$"
+		comment => "Normalize env_reset setting",
+		replace_with => value("Defaults	env_reset"),
+		classes => always("replace_attempted_env_reset");
 
   reports:
 

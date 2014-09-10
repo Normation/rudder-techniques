@@ -45,19 +45,19 @@ bundle agent monitor_partition_size {
 }&
 
 
+    commands:
+        "$(partition[$(index)][repaired_cmd])"
+            classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_$(index)"),
+            contain => in_shell,
+            ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).monitorPartitionSize_partition_$(index)_full";
+
+
     storage:
 
         "$(partition[$(index)][path])"
             volume  => freespacecheck("$(partition[$(index)][freesize])"),
             classes => if_notkept("monitorPartitionSize_partition_$(index)_full"),
             comment => "Check free space available on $(partition[$(index)][path])";
-
-
-    commands:
-        "$(partition[$(index)][repaired_cmd])"
-            classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_$(index)"),
-            contain => in_shell,
-            ifvarclass => "monitorPartitionSize_repaired_cmd_run_$(index).monitorPartitionSize_partition_$(index)_full";
 
 
     reports:

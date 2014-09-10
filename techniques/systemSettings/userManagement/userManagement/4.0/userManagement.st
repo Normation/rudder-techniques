@@ -143,6 +143,29 @@ bundle agent check_usergroup_user_parameters
 
       "showtime" expression => isvariable("nameopt[1]");
 
+  files:
+
+      "/etc/passwd"
+        create => "false",
+        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
+
+      "/etc/passwd"
+        create => "false",
+        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        action => WarnOnly,
+        ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
+
+      # Define password when user has already been created
+      "/etc/shadow"
+        create     => "false",
+        edit_line  => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
+        ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+
   commands:
 
 &if(NOVA)&
@@ -184,29 +207,6 @@ bundle agent check_usergroup_user_parameters
         classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
         comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
-
-  files:
-
-      "/etc/passwd"
-        create => "false",
-        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
-        edit_defaults => noempty_backup,
-        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
-
-      "/etc/passwd"
-        create => "false",
-        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
-        edit_defaults => noempty_backup,
-        action => WarnOnly,
-        ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
-
-      # Define password when user has already been created
-      "/etc/shadow"
-        create     => "false",
-        edit_line  => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
-        edit_defaults => noempty_backup,
-        classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
-        ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
   reports:
 

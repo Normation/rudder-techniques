@@ -21,18 +21,6 @@
 bundle agent check_cron_configuration
 {
 
-  classes:
-
-      "crontab_absent" not => fileexists("/etc/crontab");
-
-      "normalorderingtwist" expression => strcmp("${normalorderingtwist}", "done");
-
-    normalorderingtwist::
-
-      "${cron_index}_manual" expression => strcmp("${cron_frequency[${cron_index}]}", "d");
-
-      "showtime" expression => strcmp("true", "true");
-
   vars:
 
     &CRON_NAME:{cron_name |"cron_name[&i&]" string => "&cron_name&";
@@ -69,10 +57,17 @@ bundle agent check_cron_configuration
       "cron_bin"        string => "/usr/sbin/cron$";
       "cron_restartcmd" string => "/etc/init.d/cron restart";
 
-  processes:
+  classes:
 
-      "${cron_bin}"
-        restart_class => "cron_restart";
+      "crontab_absent" not => fileexists("/etc/crontab");
+
+      "normalorderingtwist" expression => strcmp("${normalorderingtwist}", "done");
+
+    normalorderingtwist::
+
+      "${cron_index}_manual" expression => strcmp("${cron_frequency[${cron_index}]}", "d");
+
+      "showtime" expression => strcmp("true", "true");
 
   files:
 
@@ -93,6 +88,11 @@ bundle agent check_cron_configuration
         edit_line => insert_lines("${cron_command[${cron_index}]}"),
         ifvarclass => "!${cron_index}_manual",
         classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
+
+  processes:
+
+      "${cron_bin}"
+        restart_class => "cron_restart";
 
   commands:
 
