@@ -142,19 +142,40 @@ bundle agent check_clock_configuration
       "clock_set_norway" expression => strcmp("&CLOCK_TIMEZONE&","norway");
       "clock_set_beijing" expression => strcmp("&CLOCK_TIMEZONE&","beijing");
 
-&if(NOVA)&
-  databases:
+  files:
 
-    windows::
+    # Adjust ntp.conf (Add the servers)
+    !windows::
+      "/etc/ntp.conf"
+        edit_line => setNtpServer("@{this.ntpServers}"),
+        edit_defaults => noempty_backup,
+        classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
-      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Parameters"
+    # Copy the correct localtime file (distro independant)
+    !clock_timezone_noedit.!windows.clock_vardef::
+      "/etc/localtime"
+        copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),
+        comment => "Updating the /etc/localtime file",
+        classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
 
-        database_operation => "create",
-        database_rows => { "Type,REG_SZ,NTP", "NtpServer,REG_SZ,${serverskey}"},
-        database_type => "ms_registry",
-        comment => "Editing the windows registry to set the required NTP entries",
-        classes => kept_if_else("ntp_regkept", "ntp_regset", "ntp_regfail");
-&endif&
+    # Edit the distro dependant files to set the TZ on boot
+    (redhat.!clock_timezone_noedit).clock_vardef::
+      "/etc/sysconfig/clock"
+        edit_line => EditCentOSTimezone("${linux_timezone}"),
+        edit_defaults => noempty_backup,
+        classes => kept_if_else("redhattz_kept", "repaired_redhattz", "not_repaired_redhattz");
+
+    (SuSE.!clock_timezone_noedit).clock_vardef::
+      "/etc/sysconfig/clock"
+        edit_line => EditSuSETimezone("${linux_timezone}"),
+        edit_defaults => noempty_backup,
+        classes => kept_if_else("susetz_kept", "repaired_susetz", "not_repaired_susetz");
+
+    (debian.!clock_timezone_noedit).clock_vardef::
+      "/etc/timezone"
+        edit_defaults => empty_backup,
+        edit_line => EditDebianTimezone("${linux_timezone}"),
+        classes => kept_if_else("debiantz_kept", "repaired_debiantz", "not_repaired_debiantz");
 
   # Install the NTP package
   packages:
@@ -228,40 +249,19 @@ bundle agent check_clock_configuration
         classes => cf2_if_else("ntp_hwclock_synced", "ntp_hwclock_sync_error"),
         comment => "synchronizing hardware clock";
 
-  files:
+&if(NOVA)&
+  databases:
 
-    # Adjust ntp.conf (Add the servers)
-    !windows::
-      "/etc/ntp.conf"
-        edit_line => setNtpServer("@{this.ntpServers}"),
-        edit_defaults => noempty_backup,
-        classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
+    windows::
 
-    # Copy the correct localtime file (distro independant)
-    !clock_timezone_noedit.!windows.clock_vardef::
-      "/etc/localtime"
-        copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),
-        comment => "Updating the /etc/localtime file",
-        classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
+      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Parameters"
 
-    # Edit the distro dependant files to set the TZ on boot
-    (redhat.!clock_timezone_noedit).clock_vardef::
-      "/etc/sysconfig/clock"
-        edit_line => EditCentOSTimezone("${linux_timezone}"),
-        edit_defaults => noempty_backup,
-        classes => kept_if_else("redhattz_kept", "repaired_redhattz", "not_repaired_redhattz");
-
-    (SuSE.!clock_timezone_noedit).clock_vardef::
-      "/etc/sysconfig/clock"
-        edit_line => EditSuSETimezone("${linux_timezone}"),
-        edit_defaults => noempty_backup,
-        classes => kept_if_else("susetz_kept", "repaired_susetz", "not_repaired_susetz");
-
-    (debian.!clock_timezone_noedit).clock_vardef::
-      "/etc/timezone"
-        edit_defaults => empty_backup,
-        edit_line => EditDebianTimezone("${linux_timezone}"),
-        classes => kept_if_else("debiantz_kept", "repaired_debiantz", "not_repaired_debiantz");
+        database_operation => "create",
+        database_rows => { "Type,REG_SZ,NTP", "NtpServer,REG_SZ,${serverskey}"},
+        database_type => "ms_registry",
+        comment => "Editing the windows registry to set the required NTP entries",
+        classes => kept_if_else("ntp_regkept", "ntp_regset", "ntp_regfail");
+&endif&
 
   reports:
 
