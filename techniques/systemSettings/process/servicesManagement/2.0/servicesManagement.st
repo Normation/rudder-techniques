@@ -76,6 +76,15 @@ bundle agent services_management
     &PROCESS_MANAGED_BOOTSTART:{bootstart |"bootstart_prevent_process_&i&" expression => strcmp("&bootstart&", "false");
 }&
 
+  files:
+
+    debian::
+
+      "/etc/rc2.d/S.*${service[${index}][name]}.*"
+        create => "true",
+        action => WarnOnly,
+        classes => if_else("service_${index}_bootstarted", "service_${index}_unbootstarted");
+
   processes:
 
     # check the service status
@@ -109,15 +118,6 @@ bundle agent services_management
         process_count => check_range("${service[${index}][name]}", "${service[${index}][min_instance]}", "${service[${index}][max_instance]}"),
         ifvarclass => "defined_process_name_${index}.check_process_range_${index}";
 
-
-  files:
-
-    debian::
-
-      "/etc/rc2.d/S.*${service[${index}][name]}.*"
-        create => "true",
-        action => WarnOnly,
-        classes => if_else("service_${index}_bootstarted", "service_${index}_unbootstarted");
 
   commands:
 

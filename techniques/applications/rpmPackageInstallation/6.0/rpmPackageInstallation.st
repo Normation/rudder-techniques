@@ -87,23 +87,6 @@ bundle agent check_rpm_package_installation {
 
 		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
 
-	processes:
-
-		SuSE_10.!zypper_version_ok::
-
-			"/usr/lib/zmd/zmd.exe"
-				restart_class => "zmd_restart";
-
-	commands:
-
-		zmd_restart::
-
-			"/etc/init.d/novell-zmd"
-				args       => "restart",
-        classes    => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
-        ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok",
-				comment    => "Restart the ZMD daemon";
-
 	packages:
 
 		redhat|SuSE::
@@ -122,6 +105,23 @@ bundle agent check_rpm_package_installation {
         classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
         ifvarclass => "${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
 				comment => "Handling $(rpm_package[$(index_rpmpkg)]) using yum_nobulk, policy : $(rpm_data[$(index_rpmpkg)][0])";
+
+	processes:
+
+		SuSE_10.!zypper_version_ok::
+
+			"/usr/lib/zmd/zmd.exe"
+				restart_class => "zmd_restart";
+
+	commands:
+
+		zmd_restart::
+
+			"/etc/init.d/novell-zmd"
+				args       => "restart",
+        classes    => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
+        ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok",
+				comment    => "Restart the ZMD daemon";
 
 	reports:
 
