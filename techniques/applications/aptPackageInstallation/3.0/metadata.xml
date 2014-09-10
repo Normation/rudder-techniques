@@ -1,0 +1,150 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the aptPackageInstallation PT.
+    Compatibility : Linux Debian like
+
+It is intended to install the defined packages, by OS,
+and to ensure certain parameters are met, such as the
+presence of a package, and if not met to enforce them.
+-->
+
+<TECHNIQUE name="Package management for Debian / Ubuntu / APT systems">
+  <DESCRIPTION>This technique operates on individual packages.
+
+  It will ensure that the defined packages are installed, up-to-date or removed using the APT package manager.</DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <BUNDLES>
+    <NAME>check_apt_package_installation</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="aptPackageInstallation"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>APT_PACKAGE_DEBLIST</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+
+    <SECTION name="Debian/Ubuntu packages" multivalued="true" component="true" componentKey="APT_PACKAGE_DEBLIST">
+      <!-- debian like related Section , index 1-->
+      <INPUT>
+        <NAME>APT_PACKAGE_DEBLIST</NAME>
+        <DESCRIPTION>Package name</DESCRIPTION>
+      </INPUT>
+      <SELECT1>
+        <NAME>APT_PACKAGE_ALLOW_UNTRUSTED</NAME>
+        <DESCRIPTION>Allow untrusted package installation</DESCRIPTION>
+        <LONGDESCRIPTION>Allow the installation of unsigned / wrongly signed packages. This option should be used with care and only on some very special cases</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>APT_PACKAGE_DEBACTION</NAME>
+        <DESCRIPTION>Action to perform on this package</DESCRIPTION>
+        <ITEM>
+          <LABEL>Install only (don't update)</LABEL>
+          <VALUE>add</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Update only (don't install)</LABEL>
+          <VALUE>update</VALUE>
+        </ITEM>
+        <!--<ITEM> # CURRENTLY BROKEN IN CFENGINE #
+          <LABEL>Install and update automatically</LABEL>
+          <VALUE>addupdate</VALUE>
+        </ITEM>-->
+        <ITEM>
+          <LABEL>Remove</LABEL>
+          <VALUE>delete</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>add</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SECTION name="Package version" component="false">
+        <SELECT1>
+          <NAME>APT_PACKAGE_VERSION_DEFINITION</NAME>
+          <DESCRIPTION>Define package version to install</DESCRIPTION>
+          <ITEM>
+            <LABEL>Use package manager default version</LABEL>
+            <VALUE>default</VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL>Define version criteria below</LABEL>
+            <VALUE>specific</VALUE>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>default</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
+        <SELECT1>
+          <NAME>APT_PACKAGE_VERSION_CRITERION</NAME>
+          <DESCRIPTION>Package version match</DESCRIPTION>
+          <ITEM>
+            <LABEL><![CDATA[==]]> This exact version only</LABEL>
+            <VALUE><![CDATA[==]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[!=]]> Anything but this version</LABEL>
+            <VALUE><![CDATA[!=]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[>=]]> This version or any later one</LABEL>
+            <VALUE><![CDATA[>=]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[<=]]> This version or any earlier one</LABEL>
+            <VALUE><![CDATA[<=]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[>]]> Any later version</LABEL>
+            <VALUE><![CDATA[>]]></VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL><![CDATA[<]]> Any earlier version</LABEL>
+            <VALUE><![CDATA[<]]></VALUE>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>==</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
+        <INPUT>
+          <NAME>APT_PACKAGE_VERSION</NAME>
+          <DESCRIPTION>Package version number</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
