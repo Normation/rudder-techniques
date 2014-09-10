@@ -31,22 +31,45 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
   vars:
     # OS Specific parameters
+
     debian::
-      "rudder_openssh_server_startup_init_name"
-        string => "/etc/init.d/ssh";
-      "rudder_openssh_server_startup_init_activation_command"
+      "rudder_openssh_server_startup_command"
+        string => "/etc/init.d/ssh restart";
+      "rudder_openssh_server_startup_activation_command"
         string => "/usr/sbin/update-rc.d -f ssh remove \&\& /usr/sbin/update-rc.d ssh defaults";
+
     SuSE::
       "rudder_openssh_server_startup_script_regex"
         string => "/etc/init.d/rc3.d/S.*ssh.*";
+
     (debian|redhat)::
       "rudder_openssh_server_startup_script_regex"
         string => "/etc/rc2.d/S.*ssh.*";
+
     (SuSE|redhat)::
-      "rudder_openssh_server_startup_init_name"
-        string => "/etc/init.d/sshd";
-      "rudder_openssh_server_startup_init_activation_command"
+      "rudder_openssh_server_startup_command"
+        string => "/etc/init.d/sshd restart";
+      "rudder_openssh_server_startup_activation_command"
         string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
+
+    aix::
+
+      "rudder_openssh_server_startup_command"
+        string => "/usr/bin/startsrc -s sshd";
+
+      # Here are the details about the arguments given to mkssys:
+      ## -p: Specifies the absolute path to the subsystem executable program.
+      ## -s: Specifies a name that uniquely identifies the subsystem.
+      ## -G: Specifies that the subsystem belongs to the Group specified.
+      ## -u: Specifies the user ID for the subsystem.
+      ## -S: Specifies that the subsystem uses the signals communication method.
+      ## -f: Specifies the signal sent to the subsystem when a forced stop of the subsystem is requested.
+      ## -n: Specifies the signal sent to the subsystem when a normal stop of the subsystem is requested.
+      ## -a: Specifies any arguments that must be passed to the command, started as the subsystem.
+      ## -R: Specifies that the subsystem is restarted if the subsystem stops abnormally.
+      ## -Q: Specifies that multiple instances of the subsystem are not allowed to run at the same time.
+      "rudder_openssh_server_startup_activation_command"
+        string => "/usr/bin/mkssys -p /usr/sbin/sshd -s sshd -G ssh -u 0 -S -f 9 -n 15 -a '-D' -R -Q >/dev/null ; /usr/sbin/mkitab 'sshd:2:once:/usr/bin/startsrc -s sshd'";
 
     any::
       # Copy the list of Ports in the local bundle
@@ -55,9 +78,14 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         slist => { "@{${params}[sshd_config_ports]}" };
 
   classes:
+
       "rudder_openssh_server_ports_edit"
         not => strcmp("${${params}[edit_ports]}","false");
 
+    aix::
+
+      "rudder_openssh_inactive_on_boot_aix"
+        not => returnszero("lssrc -a|grep -q sshd", "useshell");
 
   files:
 
@@ -92,18 +120,17 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         comment       => "Checking whether OpenSSH is up or not";
 
   commands:
-    debian|redhat|SuSE::
-      "${rudder_openssh_server_startup_init_name}"
-        args       => "restart",
+    debian|redhat|SuSE|aix::
+      "${rudder_openssh_server_startup_command}"
         classes    => cf2_if_else("${class_prefix}_daemon_restart_repaired", "${class_prefix}_daemon_restart_error"),
         ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down",
         comment    => "Restarting the OpenSSH server daemon";
 
-    debian|redhat|SuSE::
-      "${rudder_openssh_server_startup_init_activation_command}"
+    debian|redhat|SuSE|aix::
+      "${rudder_openssh_server_startup_activation_command}"
         contain => in_shell,
         classes => cf2_if_else("${class_prefix}_activated_on_boot_repaired", "${class_prefix}_activated_on_boot_error"),
-        ifvarclass => "!${class_prefix}_activated_on_boot_kept.${class_prefix}_binary_present",
+        ifvarclass => "(!${class_prefix}_activated_on_boot_kept|rudder_openssh_inactive_on_boot_aix).${class_prefix}_binary_present",
         comment => "Adding the OpenSSH daemon to the startup scripts";
 }
 
