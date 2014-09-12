@@ -13,3 +13,4 @@
  -- Benoit PECCATTE <benoit.peccatte@normation.com> Tue Sep  9 08:17:55 CEST 2014
   * Version 6.0
   ** Rewrite with normal ordering and {}
+  ** Added possibility to check only a zone of file
