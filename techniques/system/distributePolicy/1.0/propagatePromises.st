@@ -30,6 +30,10 @@ bundle agent propagatePromises
       "server_data" string => "${server_info.policy_files}/share"; #actual directory with data to propagate
       "client_data" string => "${g.rudder_var}/share/";  #where to put the files on the client when downloaded
 
+  classes:
+    root_server::
+      "rudder_tools_updated_exists" expression => fileexists("${g.rudder_tools_updated_origin}");
+
   files:
 
     root_server::
@@ -38,7 +42,7 @@ bundle agent propagatePromises
         copy_from    => copy("${g.rudder_base}/share/tools"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
-        classes => if_else("tools_propagated", "could_not_propagate_tools");
+        classes => classes_generic("propagate_tools");
 
     policy_server.!root_server::
 
@@ -86,11 +90,20 @@ bundle agent propagatePromises
         classes => if_else("license_copied", "could_not_copy_license");
 &endif&
 
+    # If rudder_tools_updated doesn't exist, or if the tools have been updated,
+    # set rudder_tools_updated content to current timestamp
+    root_server.(!rudder_tools_updated_exists|propagate_tools_repaired)::
+      "${g.rudder_tools_updated_origin}"
+        create        => "true",
+        edit_defaults => empty,
+        edit_line     => insert_lines("${sys.date}"),
+        comment       => "Update the timestamp in the rudder tool updated file";
+
   reports:
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder and licenses to be updated.
-    ((root_server.tools_propagated)|(!root_server.tools_propagated.promises_propagated.masterfiles_propagated.license_copied.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(could_not_propagate_tools|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise)::
+    ((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.license_copied.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise)::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#All files have been propagated";
     could_not_propagate_promise::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate policy files";
@@ -98,7 +111,7 @@ bundle agent propagatePromises
     could_not_propagate_files::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate shared files";
 
-    could_not_propagate_tools::
+    propagate_tools_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate tools";
 
     could_not_propagate_ncf_local_promise::
