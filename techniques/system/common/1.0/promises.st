@@ -103,7 +103,7 @@ bundle common va
       "ncf_path"       string => "${rudder_base}\ncf";
 
     any::
-      "list_compatible_inputs" string => "${rudder_tools}/list-compatible-inputs";
+      "list_compatible_inputs" string => "/bin/sh ${rudder_tools}/list-compatible-inputs";
 
       "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
 
