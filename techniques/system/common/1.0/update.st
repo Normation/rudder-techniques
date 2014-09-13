@@ -109,19 +109,17 @@ bundle agent update
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
 
-    # same here, if the dependencies have been updated, we can skup this part 
-    rudder_promises_generated_repaired.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
+    # same here, if the dependencies have been updated, we can skip this part
+    !root_server.(!windows|cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
       "${g.rudder_dependencies}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-        #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
         classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
 
-    rudder_promises_generated_repaired.(windows.!cygwin).!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
+    !root_server.(windows.!cygwin)i.!rudder_dependencies_updated.!rudder_dependencies_updated_ok::
       "${g.rudder_sbin}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_dependencies_origin}"),
-        #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action       => immediate,
         classes      => success("rudder_dependencies_updated", "rudder_dependencies_update_error", "rudder_dependencies_updated_ok");
