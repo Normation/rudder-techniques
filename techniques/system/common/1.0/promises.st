@@ -103,7 +103,7 @@ bundle common va
       "ncf_path"       string => "${rudder_base}\ncf";
 
     any::
-      "list_compatible_inputs" string => "${rudder_tools}/list-compatible-inputs";
+      "list_compatible_inputs" string => "/bin/sh ${rudder_tools}/list-compatible-inputs";
 
       "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
 
@@ -613,7 +613,7 @@ bundle agent check_cron_daemon
 
   processes:
 
-    !android::
+    !android.!windows::
       "${cron_bin}"
         restart_class => "restart_crond";
 
@@ -634,11 +634,11 @@ bundle agent check_cron_daemon
     crond_restarted::
       "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
 
-    !restart_crond.!crond_restarted.!crond_failed.!android::
+    !restart_crond.!crond_restarted.!crond_failed.!android.!windows::
       "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
 
-    android::
-      "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is an android machine: CRON verifications skipped !";
+    android|windows::
+      "@@Common@@result_na@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is a system without CRON: CRON verifications skipped !";
 
 }
 

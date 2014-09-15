@@ -387,7 +387,7 @@ bundle agent check_cron_daemon
 
   processes:
 
-    !android::
+    !android.!windows::
       "${cron_bin}"
         restart_class => "restart_crond";
 
@@ -411,8 +411,8 @@ bundle agent check_cron_daemon
     !restart_crond.!crond_restarted.!crond_failed.!android::
       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
 
-     android::
-       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is an android machine: CRON verifications skipped !";
+    android|windows::
+       "@@Common@@result_na@@hasPolicyServer-root@@common-root@@00@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is a system without CRON: CRON verifications skipped !";
 
 }
 
