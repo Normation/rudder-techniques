@@ -220,19 +220,19 @@ bundle agent update_action
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
 
-    # same here, if the tools have been updated, we can skip this part
-    rudder_promises_generated_repaired.!root_server.(!windows|cygwin)::
+    # Copy the tools only if the file rudder_tools_updated is not up to date
+    any::
+      "${g.rudder_tools_updated}"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
+        action       => immediate,
+        classes      => success("rudder_tools_updated_repaired", "rudder_tools_updated_error", "rudder_tools_updated_kept"),
+        comment      => "Check if we need to update the tools";
+
+    # We copy only if we have the class rudder_tools_updated_repaired and not kept, because this class is persistant
+    # so it could copy during the failsafe and normal run.
+    rudder_tools_updated_repaired.!rudder_tools_updated_kept::
       "${g.rudder_tools}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
-      #depth_search => recurse("inf"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action => immediate,
-        classes => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
-
-    rudder_promises_generated_repaired.!root_server.(windows.!cygwin)::
-      "${g.rudder_sbin}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
-      #depth_search => recurse("inf"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
         action => immediate,
         classes => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");

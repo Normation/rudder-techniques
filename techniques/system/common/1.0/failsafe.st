@@ -72,6 +72,9 @@ bundle common g
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
+      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
+      "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
+
     # The time at which the execution started
     (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
       "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
