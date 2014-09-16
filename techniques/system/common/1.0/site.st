@@ -120,6 +120,9 @@ bundle common g
 
       "server_roles_path"           string => "${rudder_base}/etc/server-roles.d/";
 
+      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
+      "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
+
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin"  string => "/var/rudder/tools";
 

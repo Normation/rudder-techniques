@@ -75,15 +75,17 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
     rudder_openssh_server_ports_edit::
       "${${params}[sshd_config_file]}"
-        edit_line => rudder_openssh_server_port_configuration("@{this.rudder_openssh_server_config_ports}"),
-        classes   => rudder_common_classes("${class_prefix}_ports"),
-        comment   => "Edit the OpenSSH listening ports in the configuration file";
+        edit_line     => rudder_openssh_server_port_configuration("@{this.rudder_openssh_server_config_ports}"),
+        edit_defaults => noempty_backup,
+        classes       => rudder_common_classes("${class_prefix}_ports"),
+        comment       => "Edit the OpenSSH listening ports in the configuration file";
 
     any::
       "${${params}[sshd_config_file]}"
-        edit_line => set_config_values("${params}[config]"),
-        classes   => rudder_common_classes("${class_prefix}_configuration"),
-        comment   => "Edit the OpenSSH configuration file";
+        edit_line     => set_config_values("${params}[config]"),
+        edit_defaults => noempty_backup,
+        classes       => rudder_common_classes("${class_prefix}_configuration"),
+        comment       => "Edit the OpenSSH configuration file";
 
   processes:
     any::

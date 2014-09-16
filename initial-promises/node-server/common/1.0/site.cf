@@ -105,27 +105,29 @@ bundle common g
       "rudder_gzip"                       string => "/bin/gzip";
 
     any::
-      "uuid"                       string => readfile("${g.uuid_file}", 60);
-      "server_shares_folder"       string => "/var/rudder/share/${uuid}/promises/shares";
-      "rudder_var_reports"         string => "${rudder_var}/reports";
-      "davuser"                    string => "rudder";
-      "davpw"                      string => "rudder";
-      "minicurl"                   string => "${rudder_bin}/rudder-perl ${sys.workdir}/inputs/common/utilities/minicurl";
-      "excludedreps"                slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "rudder_tools_origin"        string => "/var/rudder/tools";
-      "rudder_ncf_common_origin"   string => "/var/rudder/ncf/common";
+      "uuid"                              string => readfile("${g.uuid_file}", 60);
+      "server_shares_folder"              string => "/var/rudder/share/${uuid}/promises/shares";
+      "rudder_var_reports"                string => "${rudder_var}/reports";
+      "davuser"                           string => "rudder";
+      "davpw"                             string => "rudder";
+      "minicurl"                          string => "${rudder_bin}/rudder-perl ${sys.workdir}/inputs/common/utilities/minicurl";
+      "excludedreps"                       slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "rudder_tools_origin"               string => "/var/rudder/tools";
+      "rudder_tools_updated_origin"       string => "${rudder_tools_origin}/rudder_tools_updated";
+      "rudder_tools_updated"              string => "${rudder_tools}/rudder_tools_updated";
 
-      "rudder_ncf_origin_common"   string => "/usr/share/ncf/tree";
-      "rudder_ncf_origin_local"    string => "/var/rudder/configuration-repository/ncf";
+      "rudder_ncf_common_origin"          string => "/var/rudder/ncf/common";
+      "rudder_ncf_origin_common"          string => "/usr/share/ncf/tree";
+      "rudder_ncf_origin_local"           string => "/var/rudder/configuration-repository/ncf";
 
-      "uncompressed_inventory_file_types" slist => { ".*.ocs" };
-      "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
-      "inventory_upload_protocol"  string => "http";
+      "uncompressed_inventory_file_types"  slist => { ".*.ocs" };
+      "inventory_file_types"               slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
+      "inventory_upload_protocol"         string => "http";
 
-      "server_roles_path"          string => "${rudder_base}/etc/server-roles.d/";
+      "server_roles_path"                 string => "${rudder_base}/etc/server-roles.d/";
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies_origin" string => "/var/rudder/tools";
+      "rudder_dependencies_origin"        string => "/var/rudder/tools";
 
     # The time at which the execution started
     windows.!cygwin::
