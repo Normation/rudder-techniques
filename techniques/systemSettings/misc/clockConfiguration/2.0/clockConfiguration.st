@@ -44,6 +44,7 @@ bundle agent check_clock_configuration
       "serverskey" string => join(" ", ntpServers);
       &endif&
 
+      "current_timezone" string => execresult("\"${sys.winsysdir}\tzutil.exe\" /g", "useshell");
 
     clock_set_france::
 
@@ -142,6 +143,11 @@ bundle agent check_clock_configuration
       "clock_set_norway" expression => strcmp("&CLOCK_TIMEZONE&","norway");
       "clock_set_beijing" expression => strcmp("&CLOCK_TIMEZONE&","beijing");
 
+
+    clock_vardef.windows::
+      # check if we need to change the windows timezone
+      "need_to_change_timezone" not => strcmp("${windows_timezone}", "${current_timezone}");
+
   files:
 
     # Adjust ntp.conf (Add the servers)
@@ -221,10 +227,11 @@ bundle agent check_clock_configuration
         classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
         comment => "restarting ntp";
 
-    (windows.!clock_timezone_noedit).clock_vardef::
-      "\"${sys.winsysdir}\rundll32.exe\""
-        args => "shell32.dll,Control_RunDLL %SystemRoot%\system32\TIMEDATE.cpl,,/Z ${windows_timezone}",
+    (windows.!clock_timezone_noedit).clock_vardef.need_to_change_timezone::
+      "\"${sys.winsysdir}\tzutil.exe\""
+        args => "/s \"${windows_timezone}\"",
         contain => in_shell,
+        classes => rudder_common_classes("timezone_change"),
         comment => "set the windows time zone";
 
     (windows.!clock_timezone_noedit).ntp_regset::
@@ -332,10 +339,13 @@ bundle agent check_clock_configuration
       "@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time zone@@None@@${g.execRun}##${g.uuid}@#Time zone edition disabled";
 
     # Individual reports for the "Time zone" component's parts
-    repaired_localtime::
+    (windows.!clock_timezone_noedit).clock_vardef.!need_to_change_timezone::
+      "@@ntpConfiguration@@result_success@@&TRACKINGKEY&@@Time zone@@None@@${g.execRun}##${g.uuid}@#Time zone was already correctly configured";
+
+    timezone_change_repaired|repaired_localtime::
       "@@ntpConfiguration@@log_repaired@@&TRACKINGKEY&@@Time zone@@None@@${g.execRun}##${g.uuid}@#Time zone was reset (localtime file changed)";
 
-    not_repaired_localtime::
+    not_repaired_localtime|timezone_change_failed::
       "@@ntpConfiguration@@result_error@@&TRACKINGKEY&@@Time zone@@None@@${g.execRun}##${g.uuid}@#Time zone could not be set (localtime file could not be changed)";
 
     localtime_kept::
