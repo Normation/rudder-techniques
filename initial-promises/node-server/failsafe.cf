@@ -86,6 +86,9 @@ bundle common g
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
 
+      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
+      "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
+
 }
 
 bundle common rudder_roles
