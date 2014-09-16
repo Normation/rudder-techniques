@@ -149,7 +149,7 @@ bundle agent check_usergroup_user_parameters
       "showtime" expression => isvariable("nameopt[1]");
 
   files:
-
+    !windows::
       "/etc/passwd"
         create => "false",
         edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
@@ -165,7 +165,7 @@ bundle agent check_usergroup_user_parameters
 
       # Define password when user has already been created
 
-    !aix::
+    !aix.!windows::
 
       "/etc/shadow"
         create     => "false",
@@ -243,7 +243,7 @@ bundle agent check_usergroup_user_parameters
       # Add user
       ## Does exist (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system"
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept|windows)";
 
       ## Seems to exist with a wrong Full Name (Repaired)
       "@@userGroupManagement@@result_repaired@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) had a wrong fullname"
