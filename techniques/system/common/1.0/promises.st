@@ -103,15 +103,15 @@ bundle common va
       "ncf_path"       string => "${rudder_base}\ncf";
 
     any::
-      "list_compatible_inputs" string => "/bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
+      "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
 
-      "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
+      "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "useshell"), "\n", 10000);
 
-      "ncf_common_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 50_techniques 60_services", "noshell"), "\n", 10000);
+      "ncf_common_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 50_techniques 60_services", "useshell"), "\n", 10000);
 
-      "ncf_local_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "noshell"), "\n", 10000);
+      "ncf_local_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "useshell"), "\n", 10000);
 
-      "ncf_local_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques 60_services", "noshell"), "\n", 10000);
+      "ncf_local_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques 60_services", "useshell"), "\n", 10000);
 
       # ncf_inputs contains all the files of ncf, and ignore the empty lists
       "ncf_inputs" slist => {
