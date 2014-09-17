@@ -23,6 +23,19 @@
 bundle agent fetchFusionTools
 {
 
+  files:
+
+    windows::
+
+        # This won't work anymore now we've removed Perl from tools
+        # See http://www.rudder-project.org/redmine/issues/2177
+      "${g.rudder_sbin}/perl"
+        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}/perl"),
+        depth_search => recurse("inf"),
+        action => if_elapsed("2880"),
+        classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
+        comment => "Copying PERL userland";
+
   packages:
 
     debian::
@@ -37,19 +50,6 @@ bundle agent fetchFusionTools
         package_method  => yum,
         classes => rudder_common_classes("fetchFusionTools_install_curl"),
         comment => "Installing curl using yum";
-
-  files:
-
-    windows::
-
-        # This won't work anymore now we've removed Perl from tools
-        # See http://www.rudder-project.org/redmine/issues/2177
-      "${g.rudder_sbin}/perl"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}/perl"),
-        depth_search => recurse("inf"),
-        action => if_elapsed("2880"),
-        classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
-        comment => "Copying PERL userland";
 
   reports:
     fusion_tools_copied::
