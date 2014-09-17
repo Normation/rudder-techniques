@@ -47,14 +47,14 @@ bundle agent root_technique_reload
 
     root_technique_reload_trigger::
 
-      "@@DistributePolicy@@log_info@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The ${g.rudder_base}/etc/force_technique_reload file is present. Reloading Technique library...";
+      "@@DistributePolicy@@log_info@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_base}/etc/force_technique_reload file is present. Reloading Technique library...";
 
     root_technique_reload_rest_call_repaired::
 
-      "@@DistributePolicy@@log_repaired@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Technique library has been reloaded.";
+      "@@DistributePolicy@@log_repaired@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The Technique library has been reloaded.";
 
     root_technique_reload_rest_call_failed::
 
-      "@@DistributePolicy@@log_warn@@root-DP@@root-distributePolicy@@00@@reports@@None@@$(g.execRun)##$(g.uuid)@#The Technique library failed to reload. Will try again next time";
+      "@@DistributePolicy@@log_warn@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#The Technique library failed to reload. Will try again next time";
 
 }
