@@ -140,7 +140,6 @@ bundle agent update_action
   vars:
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
       "file_to_check_update" string => "rudder_promises_generated";
-      "list_compatible_inputs" string => "${g.rudder_ncf}/common/10_ncf_internals/list-compatible-inputs";
     nova_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
     community_edition::
@@ -158,15 +157,7 @@ bundle agent update_action
       "${g.rudder_ncf}/common"
         copy_from    => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        file_select  => exclude("list-compatible-inputs"),
         perms        => u_mog("644", "root", "root"),
-        action       => immediate,
-        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
-        comment      => "Update the common Rudder ncf instance";
-
-      "${list_compatible_inputs}"
-        copy_from    => copy_digest_without_perms("${list_compatible_inputs}"),
-        perms        => u_mog("755", "root", "root"),
         action       => immediate,
         classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
         comment      => "Update the common Rudder ncf instance";
@@ -183,15 +174,7 @@ bundle agent update_action
       "${g.rudder_ncf}/common"
         copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        file_select  => exclude("list-compatible-inputs"),
         perms        => u_mog("644", "root", "root"),
-        action       => immediate,
-        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
-        comment      => "Update the common Rudder ncf instance";
-
-      "${list_compatible_inputs}"
-        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${list_compatible_inputs}"),
-        perms        => u_mog("755", "root", "root"),
         action       => immediate,
         classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
         comment      => "Update the common Rudder ncf instance";
