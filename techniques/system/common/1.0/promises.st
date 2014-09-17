@@ -568,19 +568,19 @@ bundle agent check_rsyslog_version {
    
   reports:
     rsyslogd.!check_rsyslog_version_present::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#The file  ${g.rudder_tools}/check_rsyslog_version is missing";
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#The file  ${g.rudder_tools}/check_rsyslog_version is missing";
 
     rsyslog_limit_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not remove limitation of message in rsyslog";
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not remove limitation of message in rsyslog";
 
     rsyslog_limit_repaired::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Updated the rsyslog configuration to remove limitation of messages";
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Updated the rsyslog configuration to remove limitation of messages";
 
     rsyslog_restarted::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Configured logging system for report centralization";
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Configured logging system for report centralization";
 
     cant_restart_rsyslog::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@$(g.execRun)##$(g.uuid)@#Could not restart the logging system";
+      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not restart the logging system";
 
 
 
