@@ -64,9 +64,9 @@ bundle common g
       "execRun_cmd"                string => "/bin/date -u \"+%Y-%m-%d %T+00:00\"";
 
    any::
-     "uuid"                        string => readfile("$(g.uuid_file)", 60);
+     "uuid"                        string => readfile("${g.uuid_file}", 60);
      "server_shares_folder"        string  => "/var/rudder/share/${uuid}/promises/shares";
-     "rudder_var_reports"          string => "$(rudder_var)/reports";
+     "rudder_var_reports"          string => "${rudder_var}/reports";
      "davuser"                     string => "&DAVUSER&";
      "davpw"                       string => "&DAVPASSWORD&";
      "excludedreps"                slist => { "\.X11", ".*kde.*", "\.svn", "perl" };

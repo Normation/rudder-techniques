@@ -318,11 +318,11 @@ bundle agent generateExtraInformations
 
     !rudder_inventory_userlist_tool_present::
 
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The user list generation tool is not present yet. Skipping...";
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The user list generation tool is not present yet. Skipping...";
 
     !rudder_inventory_cpuid_tool_present::
 
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The CPUID generation tool is not present yet. Skipping...";
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The CPUID generation tool is not present yet. Skipping...";
 
 }
 
@@ -356,7 +356,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"";
       "USER"           string => getenv("USERNAME", 40);
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
 
     windows.!cygwin.rudder_inventory_userlist_tool_present::
 
@@ -368,7 +368,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
 
     cygwin.rudder_inventory_userlist_tool_present::
 
@@ -394,7 +394,7 @@ bundle agent addInformationsToInventory
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users"          slist => getindices("userslist");
 
