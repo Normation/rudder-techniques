@@ -292,11 +292,6 @@ bundle edit_line manage_variable_values_ini(tab, sectionName)
       "edit_$(cindex[$(index)])"     not => strcmp("$($(tab)[$(sectionName)][$(index)])","dontchange"),
         comment => "Create conditions to make changes";
 
-  delete_lines:
-      ".*"
-        select_region => INI_section("$(sectionName)"),
-        comment       => "Remove all entries in the region so there are no extra entries";
-
   field_edits:
 
     # If the line is there, but commented out, first uncomment it
@@ -311,6 +306,11 @@ bundle edit_line manage_variable_values_ini(tab, sectionName)
         select_region => INI_section("$(sectionName)"),
         classes => if_ok("manage_variable_values_ini_not_$(cindex[$(index)])"),
         ifvarclass => "edit_$(cindex[$(index)])";
+
+  delete_lines:
+      ".*"
+        select_region => INI_section("$(sectionName)"),
+        comment       => "Remove all entries in the region so there are no extra entries";
 
   insert_lines:
       "[$(sectionName)]"
@@ -490,10 +490,6 @@ bundle edit_line set_config_values(v)
   # Be careful if the index string contains funny chars
       "cindex[$(index)]" string => canonify("$(index)");
 
-  insert_lines:
-      "$(index) $($(v)[$(index)])"
-        ifvarclass => "replace_attempted_$(cindex[$(index)])";
-
   replace_patterns:
   # If the line is there, maybe commented out, uncomment and replace with
   # the correct value
@@ -501,6 +497,10 @@ bundle edit_line set_config_values(v)
         comment => "Correct the value",
         replace_with => value("$(index) $($(v)[$(index)])"),
         classes => always("replace_attempted_$(cindex[$(index)])");
+
+  insert_lines:
+      "$(index) $($(v)[$(index)])"
+        ifvarclass => "replace_attempted_$(cindex[$(index)])";
 
 }
 
@@ -521,10 +521,6 @@ bundle edit_line set_config_values_matching(v,pat)
   # Be careful if the index string contains funny chars
       "cindex[$(index)]" string => canonify("$(index)");
 
-  insert_lines:
-      "$(index) $($(v)[$(index)])"
-        ifvarclass => "replace_attempted_$(cindex[$(index)])";
-
   replace_patterns:
     # If the line is there, maybe commented out, uncomment and replace with
     # the correct value
@@ -532,6 +528,10 @@ bundle edit_line set_config_values_matching(v,pat)
         comment => "Correct the value",
         replace_with => value("$(index) $($(v)[$(index)])"),
         classes => always("replace_attempted_$(cindex[$(index)])");
+
+  insert_lines:
+      "$(index) $($(v)[$(index)])"
+        ifvarclass => "replace_attempted_$(cindex[$(index)])";
 
 }
 
@@ -558,10 +558,6 @@ bundle edit_line maintain_key_values(v,sep)
         comment => "Dynamic Class created if patterns matching",
         expression => regline("^$(keypat[$(index)]).*", "$(edit.filename)");
 
-  insert_lines:
-      "$(index)$(sep)$($(v)[$(index)])"
-        comment => "Insert definition of $(index)",
-        ifvarclass => "!$(cindex[$(index)])_key_in_file";
   replace_patterns:
     # For convergence need to use negative lookahead on value:
     # "key sep (?!value).*"
@@ -569,6 +565,10 @@ bundle edit_line maintain_key_values(v,sep)
         comment => "Replace definition of $(index)",
         replace_with => value("$(match.1)$($(v)[$(index)])");
 
+  insert_lines:
+      "$(index)$(sep)$($(v)[$(index)])"
+        comment => "Insert definition of $(index)",
+        ifvarclass => "!$(cindex[$(index)])_key_in_file";
 }
 
 ##
@@ -704,15 +704,15 @@ bundle edit_line replace_or_add(pattern,line)
       "cline" string => canonify("$(line)");
   "eline" string => escape("$(line)");
 
-  insert_lines:
-      "$(line)"
-        ifvarclass => "replace_done_$(cline)";
   replace_patterns:
   "^(?!$(eline)$)$(pattern)$"
         comment => "Replace a pattern here",
         replace_with => value("$(line)"),
         classes => always("replace_done_$(cline)");
 
+  insert_lines:
+      "$(line)"
+        ifvarclass => "replace_done_$(cline)";
 }
 
 ##
