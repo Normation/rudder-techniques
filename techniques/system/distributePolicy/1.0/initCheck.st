@@ -117,6 +117,15 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
       "check_command"     string => "/sbin/chkconfig --list ${initscript} | grep -q on";
       "bootstart_command" string => "/sbin/chkconfig ${initscript} on";
 
+  files:
+
+    debian::
+
+      "/etc/rc2.d/S.*${initscript}.*"
+        create => "true",
+        action => WarnOnly,
+        classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}");
+
 	commands:
 
     (SuSE|redhat)::
@@ -139,15 +148,6 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
         classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
         ifvarclass => "service_unbootstarted_${canoname}",
         comment => "Set the service ${name} to start on boot";
-
-  files:
-
-    debian::
-
-      "/etc/rc2.d/S.*${initscript}.*"
-        create => "true",
-        action => WarnOnly,
-        classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}");
 
   reports:
 

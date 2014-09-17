@@ -134,6 +134,16 @@ bundle agent update
     config.!windows::
       "cf-execd"   restart_class => "start_exec";
 
+&if(NOVA)&
+  services:
+    windows::
+      "CfengineNovaExec"
+        service_policy => "start",
+        service_method => u_bootstart,
+        classes        => outcome("executor"),
+        comment        => "Start the executor windows service now and at boot time";
+&endif&
+
   commands:
     start_exec.!windows::
       "${sys.cf_execd}"
@@ -151,16 +161,6 @@ bundle agent update
         classes => outcome("server");
 
 #########################################################
-&if(NOVA)&
-  services:
-    windows::
-      "CfengineNovaExec"
-        service_policy => "start",
-        service_method => u_bootstart,
-        classes        => outcome("executor"),
-        comment        => "Start the executor windows service now and at boot time";
-&endif&
-
   reports:
     # The use of the failsafe class here is to prevent the failsafe to do reports
     # (except in verbose mode) as it may prevent the normal execution to report due to lock

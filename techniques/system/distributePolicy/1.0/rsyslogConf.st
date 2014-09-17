@@ -62,6 +62,28 @@ bundle agent setup_debian_backports
 
 
 bundle agent install_rsyslogd {
+	files:
+		policy_server::
+			"/etc/rsyslog.d/rudder.conf"
+				create    => "true",
+				edit_defaults => empty_backup,
+				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/rudder.conf"),
+        			classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
+			        comment => "Copying rsyslog conf";	
+
+			"/etc/rsyslog.conf"
+				edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
+        edit_defaults => noempty_backup,
+				comment => "Add the rsyslog.conf.d include if not already present",
+				classes => cf2_if_else("rsyslog_inc_ok" , "rsyslog_inc_failed");
+
+		policy_server.debian::
+			"/etc/rsyslog.d/pgsql.conf"
+				edit_line => comment_all(),
+        edit_defaults => noempty_backup,
+				classes => cf2_if_else("rudder_rsyslog_pgsql", "cannot_update_rudder_rsyslog_pgsql"),
+			        comment => "Removing the logging of all in the database";	
+
 	packages:
 
                 policy_server.debian_5.!SuSE::
@@ -102,28 +124,6 @@ bundle agent install_rsyslogd {
                                 package_method  => rudder_yum,
                                 classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
                                 comment => "Installing rsyslog_pgsql using apt backports";
-
-	files:
-		policy_server::
-			"/etc/rsyslog.d/rudder.conf"
-				create    => "true",
-				edit_defaults => empty_backup,
-				edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/rudder.conf"),
-        			classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
-			        comment => "Copying rsyslog conf";	
-
-			"/etc/rsyslog.conf"
-				edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
-        edit_defaults => noempty_backup,
-				comment => "Add the rsyslog.conf.d include if not already present",
-				classes => cf2_if_else("rsyslog_inc_ok" , "rsyslog_inc_failed");
-
-		policy_server.debian::
-			"/etc/rsyslog.d/pgsql.conf"
-				edit_line => comment_all(),
-        edit_defaults => noempty_backup,
-				classes => cf2_if_else("rudder_rsyslog_pgsql", "cannot_update_rudder_rsyslog_pgsql"),
-			        comment => "Removing the logging of all in the database";	
 
 	commands:
 

@@ -27,21 +27,6 @@
 
 bundle agent doInventory
 {
-  commands:
-    linux::
-      "/usr/bin/curl"
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
-&if(NOVA)&
-    windows::
-      "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-&endif&
-
   vars:
     linux.uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
@@ -84,6 +69,21 @@ bundle agent doInventory
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => sendInventory;
+
+  commands:
+    linux::
+      "/usr/bin/curl"
+        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
+        comment => "Getting the uuid from the server",
+        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+
+&if(NOVA)&
+    windows::
+      "\"${g.rudder_base_sbin}\curl\curl.exe\""
+        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
+        comment => "Getting the uuid from the server",
+        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+&endif&
 
   reports:
     could_not_download_uuid::
@@ -220,6 +220,20 @@ bundle agent fusionAgent
 # CAUTION : Issue with path containing a whitespace, it's not working with windows
 bundle agent listInstalledVM
 {
+  files:
+    VirtualBoxInstalled::
+      "${virtualMachines.VBoxListFile}"
+        create => "true",
+        edit_line => xmlify(${virtualMachines.VBoxAttr}),
+        comment => "Converting file into pseudo XML";
+
+    VMWareInstalled::
+      "${virtualMachines.VMWareListFile}"
+        create => "true",
+        edit_line => xmlify(${virtualMachines.VMWareAttr}),
+        comment => "Converting file into pseudo XML";
+
+
   commands:
     linux.VirtualBoxInstalled::
       "/usr/bin/VBoxManage"
@@ -252,20 +266,6 @@ bundle agent listInstalledVM
         classes => cf2_if_else("vm_listed", "cant_list_vm"),
         comment => "Generating file with list of VM";
 &endif&
-
-  files:
-    VirtualBoxInstalled::
-      "${virtualMachines.VBoxListFile}"
-        create => "true",
-        edit_line => xmlify(${virtualMachines.VBoxAttr}),
-        comment => "Converting file into pseudo XML";
-
-    VMWareInstalled::
-      "${virtualMachines.VMWareListFile}"
-        create => "true",
-        edit_line => xmlify(${virtualMachines.VMWareAttr}),
-        comment => "Converting file into pseudo XML";
-
 
   reports:
     cant_list_vm::
