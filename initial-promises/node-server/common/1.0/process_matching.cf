@@ -38,6 +38,26 @@ bundle agent process_matching
       "restart_cf" expression => "Hr05.Min00_05.!disable_agent";
 
 
+  files:
+
+    linux::
+
+      # This is to cleanup /etc/crontab from pre-2.5 usage
+      # and initial promises before 2.7
+      "${g.crontab}"
+
+        create  => "true",
+        edit_defaults => noempty_backup,
+        edit_line => cron_cleanup;
+
+    community_edition::
+
+      "/etc/cron.d/rudder-agent"
+        create        => "true",
+        perms         => mog("644", "root", "root"),
+        edit_defaults => empty_backup,
+        edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
+
   processes:
 
     windows::
@@ -64,26 +84,6 @@ bundle agent process_matching
 
       "${sys.cf_serverd}";
       "${sys.cf_execd}";
-
-  files:
-
-    linux::
-
-      # This is to cleanup /etc/crontab from pre-2.5 usage
-      # and initial promises before 2.7
-      "${g.crontab}"
-
-        create  => "true",
-        edit_defaults => noempty_backup,
-        edit_line => cron_cleanup;
-
-    community_edition::
-
-      "/etc/cron.d/rudder-agent"
-        create        => "true",
-        perms         => mog("644", "root", "root"),
-        edit_defaults => empty_backup,
-        edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 
   reports:
     restart_cf::

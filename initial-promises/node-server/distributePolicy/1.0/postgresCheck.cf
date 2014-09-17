@@ -25,15 +25,6 @@ bundle agent root_postgres_check
 
       "configuration_statements" slist => { "host    all             rudder             ::1/128              md5", "host    all             rudder          127.0.0.1/32            md5" };
 
-  commands:
-
-    SuSE::
-
-      "/etc/init.d/postgresql"
-        args => "restart",
-        classes => kept_if_else("psql_restart_ok", "psql_restart_ok", "psql_restart_error"),
-        ifvarclass => "psql_conf_updated";
-
   files:
 
     SuSE::
@@ -43,6 +34,15 @@ bundle agent root_postgres_check
         edit_defaults => noempty_backup,
         classes => kept_if_else("psql_conf_ok", "psql_conf_updated", "psql_conf_update_error"),
         comment => "Edit the SuSE postgresql configuration to enable account-less logins";
+
+  commands:
+
+    SuSE::
+
+      "/etc/init.d/postgresql"
+        args => "restart",
+        classes => kept_if_else("psql_restart_ok", "psql_restart_ok", "psql_restart_error"),
+        ifvarclass => "psql_conf_updated";
 
   reports:
 
