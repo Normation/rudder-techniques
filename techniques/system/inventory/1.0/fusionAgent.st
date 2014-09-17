@@ -59,12 +59,6 @@ bundle agent doInventory
         expression => "any",
         comment    => "This dummy class is just used for ordering the report using !uuid_valid below";
 
-  commands:
-
-      "${download_command}"
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
   methods:
 
     uuid_valid.force_inventory::
@@ -86,6 +80,12 @@ bundle agent doInventory
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => sendInventory;
+
+  commands:
+
+      "${download_command}"
+        comment => "Getting the uuid from the server",
+        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
 
   reports:
     could_not_download_uuid::
@@ -227,6 +227,20 @@ bundle agent fusionAgent
 # CAUTION : Issue with path containing a whitespace, it's not working with windows
 bundle agent listInstalledVM
 {
+  files:
+    VirtualBoxInstalled::
+      "${virtualMachines.VBoxListFile}"
+        create => "true",
+        edit_line => xmlify(${virtualMachines.VBoxAttr}),
+        comment => "Converting file into pseudo XML";
+
+    VMWareInstalled::
+      "${virtualMachines.VMWareListFile}"
+        create => "true",
+        edit_line => xmlify(${virtualMachines.VMWareAttr}),
+        comment => "Converting file into pseudo XML";
+
+
   commands:
     !windows.VirtualBoxInstalled::
       "/usr/bin/VBoxManage"
@@ -259,20 +273,6 @@ bundle agent listInstalledVM
         classes => cf2_if_else("vm_listed", "cant_list_vm"),
         comment => "Generating file with list of VM";
 &endif&
-
-  files:
-    VirtualBoxInstalled::
-      "${virtualMachines.VBoxListFile}"
-        create => "true",
-        edit_line => xmlify(${virtualMachines.VBoxAttr}),
-        comment => "Converting file into pseudo XML";
-
-    VMWareInstalled::
-      "${virtualMachines.VMWareListFile}"
-        create => "true",
-        edit_line => xmlify(${virtualMachines.VMWareAttr}),
-        comment => "Converting file into pseudo XML";
-
 
   reports:
     cant_list_vm::
