@@ -19,37 +19,29 @@
 bundle agent root_logrotate_check
 {
 
-  files:
+  vars:
 
     (debian_5|debian_6).!ubuntu::
-      "/etc/logrotate.d/rudder"
-        copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.old-debian"),
-        classes => kept_if_else("rudder_logrotate_conf_ok", "rudder_logrotate_conf_copied", "cannot_copy_rudder_logrotate_conf"),
-        comment => "Copying the logrotate configuration for Debian-like system (except Ubuntu)";
+      "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.old-debian";
 
     debian.!(debian_5|debian_6).!ubuntu::
-      "/etc/logrotate.d/rudder"
-        copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.debian"),
-        classes => kept_if_else("rudder_logrotate_conf_ok", "rudder_logrotate_conf_copied", "cannot_copy_rudder_logrotate_conf"),
-        comment => "Copying the logrotate configuration for Debian-like system (except Ubuntu)";
+      "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.debian";
 
     ubuntu::
-      "/etc/logrotate.d/rudder"
-        copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.ubuntu"),
-        classes => kept_if_else("rudder_logrotate_conf_ok", "rudder_logrotate_conf_copied", "cannot_copy_rudder_logrotate_conf"),
-        comment => "Copying the logrotate configuration for Ubuntu system";
+      "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.ubuntu";
 
     redhat::
-      "/etc/logrotate.d/rudder"
-        copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.rhel"),
-        classes => kept_if_else("rudder_logrotate_conf_ok", "rudder_logrotate_conf_copied", "cannot_copy_rudder_logrotate_conf"),
-        comment => "Copying the logrotate configuration for not Debian-like system";
+      "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.rhel";
 
-    !debian.!redhat::
+    !debian.!ubuntu.!redhat::
+      "logrotate_file" string => "${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.suse";
+
+  files:
+
       "/etc/logrotate.d/rudder"
-        copy_from => copy_digest("${sys.workdir}/inputs/distributePolicy/logrotate.conf/rudder.suse"),
+        copy_from => copy_digest("${logrotate_file}"),
         classes => kept_if_else("rudder_logrotate_conf_ok", "rudder_logrotate_conf_copied", "cannot_copy_rudder_logrotate_conf"),
-        comment => "Copying the logrotate configuration for not Debian-like system";
+        comment => "Copying the logrotate configuration";
 
   reports:
 
