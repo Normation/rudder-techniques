@@ -57,6 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>common/utilities/minicurl</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="environment-variables"/>
   </TMLS>
 
   <SYSTEMVARS>
