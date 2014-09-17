@@ -207,12 +207,6 @@ bundle agent check_disable_agent
 ##########################################################
 bundle agent clean_red_button()
 {
-  commands:
-    safe.policy_server::
-      "${sys.workdir}/bin/cf-runagent"
-        args => "-Dsafe",
-        comment => "Propagate the safe information to children";
-
   files:
     safe.policy_server::
       "${g.rudder_var}/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
@@ -223,6 +217,12 @@ bundle agent clean_red_button()
       "${sys.workdir}/inputs/stopFile"
         delete => tidy,
         comment => "Deleting the stop file, cfengine is good to go";
+
+  commands:
+    safe.policy_server::
+      "${sys.workdir}/bin/cf-runagent"
+        args => "-Dsafe",
+        comment => "Propagate the safe information to children";
 
   reports:
     safe::
