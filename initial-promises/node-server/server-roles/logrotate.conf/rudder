@@ -50,7 +50,7 @@
         delaycompress
         sharedscripts
         postrotate
-          ${root_logrotate_check.service_restart_utility} ${root_logrotate_check.syslog_service_name} reload > /dev/null
+          ${root_logrotate_check.service_restart_utility} ${root_logrotate_check.syslog_service_name} ${root_logrotate_check.syslog_rotation_method} > /dev/null
         endscript
 }
 
@@ -64,6 +64,6 @@
         create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
         delaycompress
         postrotate
-          ${root_logrotate_check.service_restart_utility} ${root_logrotate_check.syslog_service_name} reload > /dev/null
+          ${root_logrotate_check.service_restart_utility} ${root_logrotate_check.syslog_service_name} ${root_logrotate_check.syslog_rotation_method} > /dev/null
         endscript
 }

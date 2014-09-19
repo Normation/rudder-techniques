@@ -44,9 +44,9 @@ bundle agent root_logrotate_check
         string => "rsyslog",
         policy => "overridable";
 
-    debian|ubuntu::
-
-      "service_restart_utility" string => "/usr/sbin/service";
+      "syslog_rotation_method"
+        string => "reload",
+        policy => "overridable";
 
     ubuntu::
       "syslog_user"             string => "syslog";
@@ -59,6 +59,14 @@ bundle agent root_logrotate_check
 
     SuSE::
       "syslog_service_name"     string => "syslog";
+
+    debian|ubuntu::
+
+      "service_restart_utility" string => "/usr/sbin/service";
+
+    debian.!debian_5.!debian_6::
+
+      "syslog_rotation_method"  string => "rotate";
 
   files:
 
