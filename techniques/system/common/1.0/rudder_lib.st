@@ -95,6 +95,7 @@ body copy_from copy_digest(from)
         copy_backup => "timestamp";
         preserve    => "true";
         compare     => "digest";
+
 }
 
 #########################################################

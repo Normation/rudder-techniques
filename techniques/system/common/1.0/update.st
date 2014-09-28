@@ -67,6 +67,8 @@ body copy_from copy_digest_without_perms(from)
         preserve    => "false";
         compare     => "digest";
         purge       => "true";
+    community_edition::
+        portnumber => "&COMMUNITYPORT&";
 }
 
 body copy_from remote_unsecured_without_perms(server, path)
