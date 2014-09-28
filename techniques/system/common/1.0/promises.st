@@ -729,9 +729,10 @@ body agent control
         default_repository => "${g.rudder_var}/modified-files";
 
 &if(NOVA)&
-#    windows::
-#	default_repository => "c:\Program Files\Rudder\modified-files";
+    windows::
+	default_repository => "c:\Program Files\Rudder\modified-files";
 &endif&
+
 }
 
 #######################################################
