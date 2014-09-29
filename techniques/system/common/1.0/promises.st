@@ -725,13 +725,7 @@ body agent control
         skipidentify => "&SKIPIDENTIFY&";
 
   # Repository where to put the copy of modified files
-    !windows::
         default_repository => "${g.rudder_var}/modified-files";
-
-&if(NOVA)&
-    windows::
-	default_repository => "c:\Program Files\Rudder\modified-files";
-&endif&
 
 }
 
