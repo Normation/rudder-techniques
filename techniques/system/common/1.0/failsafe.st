@@ -196,7 +196,7 @@ body action WarnOnly
 
 body file_select exclude(name)
 {
-        leaf_name  => { "$(name)"};
+        leaf_name  => { "${name}"};
         file_result => "!leaf_name";
 }
 
