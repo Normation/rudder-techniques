@@ -27,21 +27,6 @@
 
 bundle agent doInventory
 {
-  commands:
-    linux::
-      "/usr/bin/curl"
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
-&if(NOVA)&
-    windows::
-      "\"${g.rudder_base_sbin}\curl\curl.exe\""
-        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-&endif&
-
   vars:
     linux.uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
@@ -84,6 +69,21 @@ bundle agent doInventory
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => sendInventory;
+
+  commands:
+    linux::
+      "/usr/bin/curl"
+        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid",
+        comment => "Getting the uuid from the server",
+        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+
+&if(NOVA)&
+    windows::
+      "\"${g.rudder_base_sbin}\curl\curl.exe\""
+        args => "-s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid",
+        comment => "Getting the uuid from the server",
+        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+&endif&
 
   reports:
     could_not_download_uuid::
@@ -220,6 +220,20 @@ bundle agent fusionAgent
 # CAUTION : Issue with path containing a whitespace, it's not working with windows
 bundle agent listInstalledVM
 {
+  files:
+    VirtualBoxInstalled::
+      "${virtualMachines.VBoxListFile}"
+        create => "true",
+        edit_line => xmlify(${virtualMachines.VBoxAttr}),
+        comment => "Converting file into pseudo XML";
+
+    VMWareInstalled::
+      "${virtualMachines.VMWareListFile}"
+        create => "true",
+        edit_line => xmlify(${virtualMachines.VMWareAttr}),
+        comment => "Converting file into pseudo XML";
+
+
   commands:
     linux.VirtualBoxInstalled::
       "/usr/bin/VBoxManage"
@@ -252,20 +266,6 @@ bundle agent listInstalledVM
         classes => cf2_if_else("vm_listed", "cant_list_vm"),
         comment => "Generating file with list of VM";
 &endif&
-
-  files:
-    VirtualBoxInstalled::
-      "${virtualMachines.VBoxListFile}"
-        create => "true",
-        edit_line => xmlify(${virtualMachines.VBoxAttr}),
-        comment => "Converting file into pseudo XML";
-
-    VMWareInstalled::
-      "${virtualMachines.VMWareListFile}"
-        create => "true",
-        edit_line => xmlify(${virtualMachines.VMWareAttr}),
-        comment => "Converting file into pseudo XML";
-
 
   reports:
     cant_list_vm::
@@ -318,11 +318,11 @@ bundle agent generateExtraInformations
 
     !rudder_inventory_userlist_tool_present::
 
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The user list generation tool is not present yet. Skipping...";
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The user list generation tool is not present yet. Skipping...";
 
     !rudder_inventory_cpuid_tool_present::
 
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@$(g.execRun)##$(g.uuid)@#The CPUID generation tool is not present yet. Skipping...";
+      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The CPUID generation tool is not present yet. Skipping...";
 
 }
 
@@ -356,7 +356,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"";
       "USER"           string => getenv("USERNAME", 40);
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_dependencies}/uuid.vbs\"";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)\uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
 
     windows.!cygwin.rudder_inventory_userlist_tool_present::
 
@@ -368,7 +368,7 @@ bundle agent addInformationsToInventory
       "CFKEY_cmd"      string => "/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
       "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_dependencies}/uuid.vbs";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
 
     cygwin.rudder_inventory_userlist_tool_present::
 
@@ -394,7 +394,7 @@ bundle agent addInformationsToInventory
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "USER_cmd"       string => "/usr/bin/whoami";
-      "polserv_uuid"   string => readfile( "$(g.rudder_var_tmp)/uuid.txt" , "50" );
+      "polserv_uuid"   string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users"          slist => getindices("userslist");
 

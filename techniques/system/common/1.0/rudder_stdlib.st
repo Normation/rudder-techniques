@@ -132,28 +132,28 @@ body file_select rudder_common_minutes_old(minutes)
 bundle edit_line rudder_ensure_section_content(section_start, section_end, content)
 {
   vars:
-      "csection"              string => canonify("$(section_start)");
+      "csection"              string => canonify("${section_start}");
       "escaped_section_start" string => escape(${section_start});
       "escaped_section_end"   string => escape(${section_end});
 
   classes:
       # Detect if section is already there
-      "has_$(csection)" expression => regline("${escaped_section_start}", "$(edit.filename)");
+      "has_${csection}" expression => regline("${escaped_section_start}", "${edit.filename}");
 
   delete_lines:
       ".*"
         select_region => rudder_section_selector("${escaped_section_start}", "${escaped_section_end}"),
-        ifvarclass => "has_$(csection)";
+        ifvarclass => "has_${csection}";
 
   insert_lines:
       # Insert new, empty section if it doesn't exist already.
       "${section_start}
 ${section_end}"
         insert_type => "preserve_block",
-        ifvarclass => "!has_$(csection)";
+        ifvarclass => "!has_${csection}";
 
       # Insert missing lines into the section
-      "$(content)"
+      "${content}"
         select_region => rudder_section_selector("${escaped_section_start}", "${escaped_section_end}");
 }
 

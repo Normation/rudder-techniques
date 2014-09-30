@@ -41,47 +41,6 @@ bundle agent process_matching
 
       "restart_cf" expression => "Hr05.Min00_05.!disable_agent";
 
-  processes:
-
-    windows::
-      # Always stop cf-monitord
-      "${g.escaped_workdir}\/bin\/cf-monitord" signals => { "${stop_signal}" };
-
-    linux::
-      # Always stop cf-monitord
-      "${sys.workdir}/bin/cf-monitord"         signals => { "${stop_signal}" };
-
-    restart_cf.!policy_server::
-      "${cf_components}" signals => { "${stop_signal}" };
-
-    # Policy servers have both Nova and Community, don't blindly kill the wrong processes
-    restart_cf.policy_server::
-      "${sys.workdir}/bin/${cf_components}" signals => { "${stop_signal}" };
-
-    restart_cf.!windows::
-      "${sys.workdir}/bin/cf-execd"         signals => { "${stop_signal}" };
-
-  commands:
-
-    restart_cf.!windows::
-
-      "${sys.cf_serverd}";
-      "${sys.cf_execd}";
-
-&if(NOVA)&
-  services:
-
-    restart_cf.windows::
-      "CfengineNovaExec"
-        service_policy => "stop",
-        comment        => "Stop the executor service, part of scheduled restart";
-
-      "CfengineNovaExec"
-        service_policy => "start",
-        comment        => "Start the executor service, part of scheduled restart";
-
-&endif&
-
   files:
 
     linux::
@@ -109,6 +68,47 @@ bundle agent process_matching
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
 &endif&
+
+  processes:
+
+    windows::
+      # Always stop cf-monitord
+      "${g.escaped_workdir}\/bin\/cf-monitord" signals => { "${stop_signal}" };
+
+    linux::
+      # Always stop cf-monitord
+      "${sys.workdir}/bin/cf-monitord"         signals => { "${stop_signal}" };
+
+    restart_cf.!policy_server::
+      "${cf_components}" signals => { "${stop_signal}" };
+
+    # Policy servers have both Nova and Community, don't blindly kill the wrong processes
+    restart_cf.policy_server::
+      "${sys.workdir}/bin/${cf_components}" signals => { "${stop_signal}" };
+
+    restart_cf.!windows::
+      "${sys.workdir}/bin/cf-execd"         signals => { "${stop_signal}" };
+
+&if(NOVA)&
+  services:
+
+    restart_cf.windows::
+      "CfengineNovaExec"
+        service_policy => "stop",
+        comment        => "Stop the executor service, part of scheduled restart";
+
+      "CfengineNovaExec"
+        service_policy => "start",
+        comment        => "Start the executor service, part of scheduled restart";
+
+&endif&
+
+  commands:
+
+    restart_cf.!windows::
+
+      "${sys.cf_serverd}";
+      "${sys.cf_execd}";
 
   reports:
 
