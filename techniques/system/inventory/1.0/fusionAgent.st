@@ -129,7 +129,7 @@ bundle common inventory
 
     windows::
 
-      "rudder_inventory_userlist_tool_present" expression => fileexists("\"${g.rudder_tools}\userlist.bat\"");
+      "rudder_inventory_userlist_tool_present" expression => fileexists("${g.rudder_tools}\userlist.bat");
 
     any::
 
@@ -531,7 +531,7 @@ bundle agent sendInventory
 &if(NOVA)&
     # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl.exe\" -f -s --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -f -s --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 &endif&
 
