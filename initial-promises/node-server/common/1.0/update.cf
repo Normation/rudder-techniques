@@ -67,6 +67,9 @@ body copy_from copy_digest_without_perms(from)
         preserve    => "false";
         compare     => "digest";
         purge       => "true";
+    community_edition::
+        portnumber => "5309";
+
 }
 
 body copy_from remote_unsecured_without_perms(server, path)
@@ -82,6 +85,7 @@ body copy_from remote_unsecured_without_perms(server, path)
         preserve   => "false";
         verify     => "true";
         purge      => "true";
+    community_edition::
         portnumber => "5309";
 
 }
