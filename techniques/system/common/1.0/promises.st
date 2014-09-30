@@ -683,7 +683,7 @@ bundle agent check_binaries_freshness
 
     community_edition::
 
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key" };
+      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "rpmvercmp" };
 
     nova_edition::
 
