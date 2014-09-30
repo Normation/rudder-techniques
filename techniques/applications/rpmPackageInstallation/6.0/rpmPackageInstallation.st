@@ -153,47 +153,57 @@ bundle agent check_rpm_package_installation {
 
 body package_method generic_nobulk(rpm_pkg_timeout) {
 
-	package_changes => "individual";
+    any::
 
-redhat::
-  package_list_command => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+        # make correct version comparisons
+        package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
+        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
 
-  package_list_name_regex    => "^(\S+?)\s\S+?\s\S+$";
-  package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
-  package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
+	package_changes               => "individual";
 
-	package_installed_regex => ".*";
-	package_name_convention => "${name}-${version}";
+    redhat::
+
+        package_list_command          => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+
+        package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
+        package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
+        package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
+
+	package_installed_regex       => ".*";
+	package_name_convention       => "${name}-${version}";
 	package_list_update_ifelapsed => "${rpm_pkg_timeout}";
-	package_add_command => "/usr/bin/yum -y install";
-	package_delete_command => "/bin/rpm -e";
-	package_verify_command => "/bin/rpm -V";
+	package_add_command           => "/usr/bin/yum -y install";
+	package_delete_command        => "/bin/rpm -e";
+	package_verify_command        => "/bin/rpm -V";
 
-zypper_version_ok::
-	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+    zypper_version_ok::
+
+	package_list_command          => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
 	package_list_update_ifelapsed => "${rpm_pkg_timeout}";
-	package_installed_regex => "i.*";
-	package_list_name_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
-	package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
-	package_list_arch_regex => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
-	package_name_convention => "${name}";
-	package_add_command => "/usr/bin/zypper --non-interactive install";
-	package_delete_command => "/usr/bin/zypper --non-interactive remove --force-resolution";
-	package_update_command => "/usr/bin/zypper --non-interactive update";
-	package_verify_command => "/usr/bin/zypper --non-interactive verify$";
+	package_installed_regex       => "i.*";
+	package_list_name_regex       => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_version_regex    => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_arch_regex       => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_name_convention       => "${name}";
+	package_add_command           => "/usr/bin/zypper --non-interactive install";
+	package_delete_command        => "/usr/bin/zypper --non-interactive remove --force-resolution";
+	package_update_command        => "/usr/bin/zypper --non-interactive update";
+	package_verify_command        => "/usr/bin/zypper --non-interactive verify$";
 
-SuSE_10.!zypper_version_ok::
-	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+    SuSE_10.!zypper_version_ok::
+
+	package_list_command          => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
 	package_list_update_ifelapsed => "${rpm_pkg_timeout}";
-	package_installed_regex => "i.*";
-	package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
-	package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
-	package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_installed_regex       => "i.*";
+	package_list_name_regex       => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_version_regex    => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+	package_list_arch_regex       => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
 
-	package_name_convention => "${name}";
-	package_add_command => "/usr/bin/rug install -y";
-	package_delete_command => "/usr/bin/rug remove -y";
-	package_update_command => "/usr/bin/rug update -y";
+	package_name_convention       => "${name}";
+	package_add_command           => "/usr/bin/rug install -y";
+	package_delete_command        => "/usr/bin/rug remove -y";
+	package_update_command        => "/usr/bin/rug update -y";
 
-	package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+	package_verify_command        => "/usr/bin/rug verify -y$"; # $ means no args
+
 }

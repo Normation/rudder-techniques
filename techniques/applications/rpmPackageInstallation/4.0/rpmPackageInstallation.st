@@ -168,6 +168,13 @@ bundle agent check_rpm_package_installation {
 
 body package_method generic_nobulk(rpm_pkg_timeout) {
 
+any::
+
+        # make correct version comparisons
+        package_version_less_command => "${rudder_rpm_knowledge.rpm_compare_less}";
+        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+
+
 redhat::
 	package_changes => "individual";
 
