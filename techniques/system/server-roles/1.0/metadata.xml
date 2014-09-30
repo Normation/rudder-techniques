@@ -60,7 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Check logrotate configuration" component="true"/>
     <SECTION name="Check configuration-repository folder" component="true"/>
     <SECTION name="Check configuration-repository GIT lock" component="true"/>
-    <SECTION name="Check rudder-networks.conf file" component="true"/>
+    <SECTION name="Check allowed networks configuration" component="true"/>
     <SECTION name="Check rudder status" component="true"/>
     <SECTION name="Check endpoint status" component="true"/>
     <SECTION name="Check rudder-passwords.conf and pgpass files" component="true"/>

@@ -93,7 +93,7 @@ bundle agent root_component_check
 
     !(root_server|policy_server)::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "Check rudder-networks.conf file", "None", "Checking rudder-networks.conf is unnecessary on this machine, skipping..."
+          "Check allowed networks configuration", "None", "Checking the allowed networks configuration is unnecessary on this machine, skipping..."
         );
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check WebDAV credentials", "None", "Checking WebDAV credentials is unnecessary on this machine, skipping..."
