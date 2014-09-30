@@ -21,51 +21,58 @@ bundle agent root_networks_check
 
   vars:
 
-      "networks" string => join("${const.n}Allow from ","def.acl");
-      "file_path" string => "/opt/rudder/etc/rudder-networks.conf";
+      "acl_generate_22"  string => join("${const.n}Allow from ","def.acl");
+      "acl_generate_24"  string => join("${const.n}Require ip ","def.acl");
+
+      "network_file[22]" string => "${g.rudder_base}/etc/rudder-networks.conf";
+      "network_acl[22]"  string => "Allow from ${acl_generate_22}";
+
+      "network_file[24]" string => "${g.rudder_base}/etc/rudder-networks-24.conf";
+      "network_acl[24]"  string => "Require ip ${acl_generate_24}";
+
+      "index"             slist => getindices("network_file");
 
     redhat::
-      "apache_init" string => "httpd";
+      "apache_service" string => "httpd";
 
     !redhat::
-      "apache_init" string => "apache2";
+      "apache_service" string => "apache2";
 
   files:
 
-      "${file_path}"
-        create => "true",
-        perms => mog("644", "root", "root"),
+      "${network_file[${index}]}"
+        create        => "true",
+        perms         => mog("644", "root", "root"),
         edit_defaults => empty_backup,
-        edit_line => insert_lines("Allow from 127.0.0.0/8${const.n}Allow from ${networks}"),
-        classes => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
-        comment => "Copying rudder apache configuration";
-
+        edit_line     => insert_lines("${network_acl[${index}]}"),
+        classes       => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
+        comment       => "Copying rudder apache configuration";
 
   commands:
 
     rudder_networks_repaired::
 
-      "/etc/init.d/${apache_init}"
-        args => "reload",
-        classes => if_else("apache_restarted", "apache_restart_failed");
+      "${paths.path[service]}"
+        args => "${apache_service} reload",
+        classes => if_else("apache_reloaded", "apache_reload_failed");
 
   reports:
 
     cfengine::
 
-      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file is OK"
+      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#The Rudder allowed networks configuration is OK"
         ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";
 
-      "@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@0@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file has been corrected"
+      "@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@0@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#The Rudder allowed networks configuration has been corrected"
         ifvarclass => "rudder_networks_repaired.!rudder_networks_failed";
 
-      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The ${file_path} apache configuration file was NOT edited because of an error"
+      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#The Rudder allowed networks configuration was NOT edited because of an error"
         ifvarclass => "rudder_networks_failed";
 
-      "@@server-roles@@log_info@@server-roles@@server-roles-directive@@0@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd has been reloaded successfully"
-        ifvarclass => "apache_restarted.!apache_restart_failed";
+      "@@server-roles@@log_info@@server-roles@@server-roles-directive@@0@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#Apache has been reloaded successfully"
+        ifvarclass => "apache_reloaded.!apache_reload_failed";
 
-      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check rudder-networks.conf file@@None@@${g.execRun}##${g.uuid}@#The Apache HTTPd failed to restart"
-        ifvarclass => "apache_restart_failed";
+      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#Apache failed to reload"
+        ifvarclass => "apache_reload_failed";
 
 }
