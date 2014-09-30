@@ -132,6 +132,10 @@ body package_method yum_nobulk(rpm_pkg_timeout)
         package_delete_command => "/bin/rpm -e";
         package_verify_command => "/bin/rpm -V";
 
+        # make correct version comparisons
+        package_version_less_command => "${rudder_rpm_knowledge.rpm_compare_less}";
+        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+
 }
 
 body package_method zypper_nobulk(rpm_pkg_timeout)
@@ -150,6 +154,11 @@ body package_method zypper_nobulk(rpm_pkg_timeout)
         package_delete_command => "/usr/bin/zypper --non-interactive remove --force-resolution";
         package_update_command => "/usr/bin/zypper --non-interactive update";
         package_verify_command => "/usr/bin/zypper --non-interactive verify$";
+
+        # make correct version comparisons
+        package_version_less_command => "${rudder_rpm_knowledge.rpm_compare_less}";
+        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+
 }
 
 body package_method rug_nobulk(rpm_pkg_timeout)
@@ -170,6 +179,11 @@ body package_method rug_nobulk(rpm_pkg_timeout)
         package_update_command => "/usr/bin/rug update -y";
 
         package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+
+        # make correct version comparisons
+        package_version_less_command => "${rudder_rpm_knowledge.rpm_compare_less}";
+        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+
 }
 
 body classes class_trigger_rpm_retcodes(if,else,kept)
