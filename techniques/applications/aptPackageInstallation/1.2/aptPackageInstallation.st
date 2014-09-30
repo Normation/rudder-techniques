@@ -95,6 +95,12 @@ bundle agent check_apt_package_installation
 body package_method apt_nobulk(apt_pkg_timeout, allow_untrusted)
 {
 
+    any::
+
+        # make correct version comparisons
+        package_version_less_command  => "${rudder_debian_knowledge.dpkg_compare_less}";
+        package_version_equal_command => "${rudder_debian_knowledge.dpkg_compare_equal}";
+
     debian::
         package_changes => "individual";
         package_list_update_ifelapsed => "${apt_pkg_timeout}";

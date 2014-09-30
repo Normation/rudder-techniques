@@ -22,6 +22,42 @@
 #
 #####################################################################################
 
+###################################################
+# Knowledge from the original stdlib
+###################################################
+# Uses a specific prefix to avoid collision
+# when the stdlib will be updated
+###################################################
+
+bundle common rudder_debian_knowledge
+# @depends paths
+# @brief common Rudder Debian knowledge bundle
+#
+# This common bundle has useful information about Debian.
+{
+  vars:
+
+      "dpkg_compare_equal" string => "/usr/bin/dpkg --compare-versions '${v1}' eq '${v2}'";
+      "dpkg_compare_less"  string => "/usr/bin/dpkg --compare-versions '${v1}' lt '${v2}'";
+
+}
+
+
+bundle common rudder_rpm_knowledge
+# @depends paths
+# @brief common Rudder RPM knowledge bundle
+#
+# This common bundle has useful information about platforms using RPM
+{
+  vars:
+
+      "rpm_compare_equal" string => "${sys.workdir}/bin/rpmvercmp '${v1}' eq '${v2}'";
+      "rpm_compare_less"  string => "${sys.workdir}/bin/rpmvercmp '${v1}' lt '${v2}'";
+
+}
+
+###################################################
+
 body depth_search recurse_visible(d)
 {
         depth        => "${d}";
@@ -119,17 +155,19 @@ body location append
 #########################################################
 body package_method yum_remi
 {
-        package_changes            => "bulk";
-        package_list_command       => "/usr/bin/yum list installed";
-        package_list_name_regex    => "([^.]+).*";
-        package_list_version_regex => "[^\s]\s+([^\s]+).*";
-        package_list_arch_regex    => "[^.]+\.([^\s]+).*";
-        package_installed_regex    => ".*installed.*";
-        package_name_convention    => "${name}.${arch}";
-        package_delete_convention  => "${name}";
-        package_add_command        => "/usr/bin/yum --enablerepo=remi -y install";
-        package_delete_command     => "/bin/rpm -e";
-        package_verify_command     => "/bin/rpm -V";
+
+        package_changes               => "bulk";
+        package_list_command          => "/usr/bin/yum list installed";
+        package_list_name_regex       => "([^.]+).*";
+        package_list_version_regex    => "[^\s]\s+([^\s]+).*";
+        package_list_arch_regex       => "[^.]+\.([^\s]+).*";
+        package_installed_regex       => ".*installed.*";
+        package_name_convention       => "${name}.${arch}";
+        package_delete_convention     => "${name}";
+        package_add_command           => "/usr/bin/yum --enablerepo=remi -y install";
+        package_delete_command        => "/bin/rpm -e";
+        package_verify_command        => "/bin/rpm -V";
+
 }
 
 #perms validation
@@ -446,7 +484,7 @@ body file_select date_pattern(age, pattern)
 body package_method rudder_rug
 {
 
-        package_changes => "individual";
+        package_changes               => "individual";
 
         package_list_command          => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
         package_list_update_ifelapsed => "240";
@@ -461,6 +499,11 @@ body package_method rudder_rug
         package_update_command        => "/usr/bin/rug update -y";
 
         package_verify_command        => "/usr/bin/rug verify -y$"; # $ means no args
+
+        # make correct version comparisons
+        package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
+        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+
 }
 
 ########################################################################
@@ -469,23 +512,27 @@ body package_method rudder_rug
 body package_method rudder_yum
 {
 
- package_changes => "bulk";
- package_list_command => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
- package_list_name_regex    => "^(\S+?)\s\S+?\s\S+$";
- package_list_version_regex => "^\S+?\s(\S+?)\s\S+$";
- package_list_arch_regex    => "^\S+?\s\S+?\s(\S+)$";
- package_installed_regex => ".*";
- package_name_convention => "${name}";
- package_list_update_command => "/usr/bin/yum --quiet check-update";
- package_list_update_ifelapsed => "240";
- package_patch_name_regex    => "([^.]+).*";
- package_patch_version_regex => "[^\s]\s+([^\s]+).*";
- package_patch_arch_regex    => "[^.]+\.([^\s]+).*";
- package_add_command    => "/usr/bin/yum -y install";
- package_update_command => "/usr/bin/yum -y update";
- package_patch_command => "/usr/bin/yum -y update";
- package_delete_command => "/bin/rpm -e --nodeps --allmatches";
- package_verify_command => "/bin/rpm -V";
+  package_changes               => "bulk";
+  package_list_command          => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+  package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
+  package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
+  package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
+  package_installed_regex       => ".*";
+  package_name_convention       => "${name}";
+  package_list_update_command   => "/usr/bin/yum --quiet check-update";
+  package_list_update_ifelapsed => "240";
+  package_patch_name_regex      => "([^.]+).*";
+  package_patch_version_regex   => "[^\s]\s+([^\s]+).*";
+  package_patch_arch_regex      => "[^.]+\.([^\s]+).*";
+  package_add_command           => "/usr/bin/yum -y install";
+  package_update_command        => "/usr/bin/yum -y update";
+  package_patch_command         => "/usr/bin/yum -y update";
+  package_delete_command        => "/bin/rpm -e --nodeps --allmatches";
+  package_verify_command        => "/bin/rpm -V";
+
+  # make correct version comparisons
+  package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
+  package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
 
 }
 
