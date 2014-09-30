@@ -141,12 +141,12 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
   field_edits:
 
       "^${${data_array}[${index}][origin]}[ \t].*"
-        edit_field => col("[ \t]+","${${fields}[${indices_fields}]}","${${data_array}[${index}][${indices_fields}]}","set"),
+        edit_field => fstab_col("[ \t]+","${${fields}[${indices_fields}]}","${${data_array}[${index}][${indices_fields}]}","set"),
         classes => kept_if_else("line_${index}_kept", "line_${index}_added", "line_${index}_add_failed"),
         ifvarclass => "use_origin_${index}.!invalid_${index}";
 
       "^[^#]*[ \t]${${data_array}[${index}][destination]}[ \t].*"
-        edit_field => col("[ \t]+","${${fields}[${indices_fields}]}","${${data_array}[${index}][${indices_fields}]}","set"),
+        edit_field => fstab_col("[ \t]+","${${fields}[${indices_fields}]}","${${data_array}[${index}][${indices_fields}]}","set"),
         classes => kept_if_else("line_${index}_kept", "line_${index}_added", "line_${index}_add_failed"),
         ifvarclass => "!use_origin_${index}";
 
@@ -180,3 +180,17 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
       "@@fstabConfiguration@@result_success@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][destination]} was not present but policy required alteration only. This line will be ignored"
         ifvarclass => "!addentry_${index}.!line_${index}_added.!line_${index}_kept.!line_${index}_add_failed.!use_origin_${index}";
 }
+
+
+# Workaround for https://dev.cfengine.com/issues/6467
+body edit_field fstab_col(split,col,newval,method)
+{
+ field_separator    => "$(split)";
+ select_field       => "$(col)";
+ value_separator    => ";";
+ field_value        => "$(newval)";
+ field_operation    => "$(method)";
+ extend_fields      => "true";
+ allow_blank_fields => "true";
+}
+
