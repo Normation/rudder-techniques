@@ -39,7 +39,7 @@ bundle agent doInventory
 
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --proxy '' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_curl} -s -f -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
 
     uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
@@ -106,7 +106,7 @@ bundle common inventory
 
       "rudder_inventory_cpuid_tool_present"    expression => fileexists("\"${g.rudder_tools}\cpuid-windows-V1.0.vbs\"");
 
-      "rudder_inventory_userlist_tool_present" expression => fileexists("\"${g.rudder_tools}\userlist.bat\"");
+      "rudder_inventory_userlist_tool_present" expression => fileexists("${g.rudder_tools}\userlist.bat");
 
     !windows::
 
