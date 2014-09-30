@@ -27,9 +27,9 @@
         create 640 root adm
         postrotate
         if [ -x /usr/sbin/invoke-rc.d ]; then
-          invoke-rc.d rsyslog rotate > /dev/null
+          invoke-rc.d rsyslog reload > /dev/null
         else
-          /etc/init.d/rsyslog rotate > /dev/null
+          /etc/init.d/rsyslog reload > /dev/null
         fi
         endscript
 }
@@ -45,9 +45,9 @@
         sharedscripts
         postrotate
         if [ -x /usr/sbin/invoke-rc.d ]; then
-          invoke-rc.d rsyslog rotate > /dev/null
+          invoke-rc.d rsyslog reload > /dev/null
         else
-          /etc/init.d/rsyslog rotate > /dev/null
+          /etc/init.d/rsyslog reload > /dev/null
         fi
         endscript
 }
