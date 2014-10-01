@@ -53,7 +53,7 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
 
     # File downloading part
     !file_not_found.!file_download_ok.!file_download_fail::
-      "@@downloadFile@@result_success@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#The file &DOWNLOADFILE_SOURCE& already present";
+      "@@downloadFile@@result_success@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The file &DOWNLOADFILE_SOURCE& already present";
 
     file_download_ok.!file_download_fail::
       "@@downloadFile@@result_repaired@@&TRACKINGKEY&@@Download a file@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The file &DOWNLOADFILE_SOURCE& has been successfully downloaded";
@@ -72,6 +72,6 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
       "@@downloadFile@@result_error@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#The permissions on file &DOWNLOADFILE_SOURCE& were could not be fixed";
 
     windows::
-      "@@downloadFile@@result_success@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@$(g.execRun)##$(g.uuid)@#This is a windows machine. The &DOWNLOADFILE_SOURCE& file permissions will not be altered.";
+      "@@downloadFile@@result_success@@&TRACKINGKEY&@@Permissions (on UNIX systems)@@&DOWNLOADFILE_SOURCE&@@${g.execRun}##${g.uuid}@#This is a windows machine. The &DOWNLOADFILE_SOURCE& file permissions will not be altered.";
 
 }
