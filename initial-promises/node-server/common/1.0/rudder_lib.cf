@@ -522,7 +522,7 @@ body package_method rudder_yum
         package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
         package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
         package_installed_regex       => ".*";
-        package_name_convention       => "$(name)";
+        package_name_convention       => "${name}";
         package_list_update_command   => "/usr/bin/yum --quiet check-update";
         package_list_update_ifelapsed => "240";
         package_patch_name_regex      => "([^.]+).*";
