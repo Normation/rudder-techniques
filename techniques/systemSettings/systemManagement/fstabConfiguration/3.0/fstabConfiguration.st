@@ -170,11 +170,11 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
 # Workaround for https://dev.cfengine.com/issues/6467
 body edit_field fstab_col(split,col,newval,method)
 {
- field_separator    => "$(split)";
- select_field       => "$(col)";
+ field_separator    => "${split}";
+ select_field       => "${col}";
  value_separator    => ";";
- field_value        => "$(newval)";
- field_operation    => "$(method)";
+ field_value        => "${newval}";
+ field_operation    => "${method}";
  extend_fields      => "true";
  allow_blank_fields => "true";
 }
