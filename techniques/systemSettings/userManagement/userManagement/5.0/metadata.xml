@@ -53,7 +53,7 @@ It is intended to check the user parameters on the target host.
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_USER_GROUP</NAME>
-        <DESCRIPTION>Primary group for this user</DESCRIPTION>
+        <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
         <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group (at creation only)</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -125,6 +125,14 @@ It is intended to check the user parameters on the target host.
         <LONGDESCRIPTION>Will be used only on UNIX systems</LONGDESCRIPTION>
         <CONSTRAINT>
           <DEFAULT>/bin/bash</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_UID</NAME>
+        <DESCRIPTION>User ID (enforced at user creation only)</DESCRIPTION>
+        <LONGDESCRIPTION>Numeric user id, only on UNIX systems</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="Password" component="true" componentKey="USERGROUP_USER_LOGIN">

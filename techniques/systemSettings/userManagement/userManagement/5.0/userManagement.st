@@ -45,6 +45,9 @@ bundle agent check_usergroup_user_parameters
     &USERGROUP_USER_ACTION:{action |"usergroup_user_action[&i&]" string => "&action&";
 }&
 
+    &USERGROUP_USER_UID:{uid |"usergroup_user_uid[&i&]" string => "&uid&";
+}&
+
     &USERGROUP_USER_HOME_PERSONNALIZE:{homeperso |"usergroup_user_home_perso[&i&]" string => "&homeperso&";
 }&
 
@@ -95,6 +98,16 @@ bundle agent check_usergroup_user_parameters
         string => "-g ${usergroup_user_groupname[${usergroup_user_index}]}",
         ifvarclass => "!usermanagement_user_groupempty_${usergroup_user_index}";
 
+      # 3 - on UNIX force user id if provided
+      "useropt[${usergroup_user_index}]"
+        string => "",
+        ifvarclass => "usermanagement_user_uid_empty_${usergroup_user_index}";
+
+      "useropt[${usergroup_user_index}]"
+        string => "-u ${usergroup_user_uid[${usergroup_user_index}]}",
+        ifvarclass => "!usermanagement_user_uid_empty_${usergroup_user_index}";
+
+
   classes:
 
     # Actions
@@ -133,9 +146,22 @@ bundle agent check_usergroup_user_parameters
       "usermanagement_user_group_no_value_${usergroup_user_index}" expression =>  strcmp("", "${usergroup_user_groupname[${usergroup_user_index}]}");
       "usermanagement_user_groupempty_${usergroup_user_index}"     expression => "usermanagement_user_group_no_variable_${usergroup_user_index}|usermanagement_user_group_no_value_${usergroup_user_index}";
 
+      "usermanagement_user_uid_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_uid[${usergroup_user_index}]");
+      "usermanagement_user_uid_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_uid[${usergroup_user_index}]}");
+      "usermanagement_user_uid_empty_${usergroup_user_index}"     expression => "usermanagement_user_uid_no_variable_${usergroup_user_index}|usermanagement_user_uid_no_value_${usergroup_user_index}";
+
       "usermanagement_user_groupmatchesname_${usergroup_user_index}" expression => strcmp("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}");
 
+      # Group doesn't exist and group name is defined
       "usermanagement_user_group_definition_error_${usergroup_user_index}" expression => "(!usermanagement_group_exists_${usergroup_user_index}.usermanagement_user_groupmatchesname_${usergroup_user_index})|(!usermanagement_user_groupempty_${usergroup_user_index}.!usermanagement_group_exists_${usergroup_user_index})";
+
+      # check if user exists when enforcing ids
+      "usermanagement_uid_exists_${usergroup_user_index}" expression => userexists("${usergroup_user_uid[${usergroup_user_index}]}"),
+                                                          ifvarclass => "!usermanagement_user_uid_empty_${usergroup_user_index}";
+      
+      # UID is defined and already exists
+      "usermanagement_user_uid_definition_error_${usergroup_user_index}" expression => "!usermanagement_user_uid_empty_${usergroup_user_index}.usermanagement_uid_exists_${usergroup_user_index}";
+
 
     # Class 'any' is executed before others classes defined.
     # Same as 'any' but execution will be after all classes defined
@@ -191,16 +217,16 @@ bundle agent check_usergroup_user_parameters
     linux.showtime::
 
       "/usr/sbin/useradd"
-        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        args => "${useropt[${usergroup_user_index}]} ${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user",
-        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_uid_definition_error_${usergroup_user_index}.!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
 
       "/usr/sbin/useradd"
-        args => "${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        args => "${useropt[${usergroup_user_index}]} ${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
         classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
         comment => "Create the user with a custom home directory",
-        ifvarclass => "!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_uid_definition_error_${usergroup_user_index}.!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
       "/usr/sbin/userdel"
         args => "${usergroup_user_login[${usergroup_user_index}]}",
@@ -236,6 +262,10 @@ bundle agent check_usergroup_user_parameters
       ## Could not be added, as a custom group was asked for and did not exist on the system
       "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the custom group \"${usergroup_user_groupname[${usergroup_user_index}]}\" does not exist"
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_group_definition_error_${usergroup_user_index}";
+
+      ## Could not be added, as a custom uid was asked for and did exist on the system
+      "@@userGroupManagement@@result_error@@${usergroup_directive_id[${usergroup_user_index}]}@@Users@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the custom uid \"${usergroup_user_uid[${usergroup_user_index}]}\" already exists"
+        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_uid_definition_error_${usergroup_user_index}";
 
       # Remove user
       ## Does not exist (Success)
@@ -287,7 +317,7 @@ bundle agent check_usergroup_user_parameters
 
       ## Change not needed (Success)
       "@@userGroupManagement@@result_success@@${usergroup_directive_id[${usergroup_user_index}]}@@Password@@${usergroup_user_login[${usergroup_user_index}]}@@${g.execRun}##${g.uuid}@#The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"
-        ifvarclass => "((!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_pwempty_${usergroup_user_index}|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_group_definition_error_${usergroup_user_index})))|usermanagement_user_remove_${usergroup_user_index}";
+        ifvarclass => "((!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_pwempty_${usergroup_user_index}|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.(usermanagement_user_group_definition_error_${usergroup_user_index}|usermanagement_user_uid_definition_error_${usergroup_user_index}))))|usermanagement_user_remove_${usergroup_user_index}";
 
 }
 
