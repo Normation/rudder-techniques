@@ -181,6 +181,7 @@ redhat::
 	package_list_update_ifelapsed => "$(rpm_pkg_timeout)";
 	package_add_command => "/usr/bin/yum -y install";
 	package_delete_command => "/bin/rpm -e";
+        package_update_command => "/usr/bin/yum -y update";
 	package_verify_command => "/bin/rpm -V";
 
 SuSE_11::
