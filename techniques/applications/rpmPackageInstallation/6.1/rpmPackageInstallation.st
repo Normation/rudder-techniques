@@ -44,6 +44,13 @@ bundle agent check_rpm_package_installation {
 
       "index_rpmpkg" slist => getindices("rpm_package");
 
+    # File containing the list of available packages to install
+      "available_updates_file" string => "${sys.workdir}/state/software_available_updates.csv";
+
+    redhat::
+      "available_updates_command" string => "/usr/bin/yum --quiet check-update | /bin/sed 's%[0-9]\+:%%g' > ${available_updates_file}";
+    zypper_version_ok::
+      "available_updates_command" string => "/usr/bin/zypper list-updates -a | grep '|' | /bin/awk -F '|' '{print $3 $5}' | /bin/sed 's%[0-9]\+:%%g' > ${available_updates_file}";
 
     # If the promises have been updated, we need to remove previously
     # defined persistent classes (by setting there persistence to 1 minutes)
@@ -83,19 +90,56 @@ bundle agent check_rpm_package_installation {
         string  => "undefine",
         classes => cancel_all_classes("${zmd_classes_to_cancel_on_update}");
 
+      # Generate the list of avalable package if it has been done more than xx minutes ago, or if the file is not there
+      # Do it on redhat, or if the version of zypper is valid
+      (redhat|zypper_version_ok).first_pass::
+        "get_update_list" string => execresult("${available_updates_command}", "useshell"),
+          classes => rudder_common_classes_persist("rpm_package_installation_updated_available_packages", "${rpm_package_check_interval}"),
+          ifvarclass => "!(rpm_package_installation_updated_available_packages_repaired|rpm_package_installation_updated_available_packages_kept)|!update_file_exists";
+
+      # If the update file exist, then gather the version of the packages in it
+      update_file_exists::
+        "${index_rpmpkg}_update_version" string => execresult("/bin/grep \"${rpm_package[${index_rpmpkg}]}.\" ${available_updates_file} | /bin/awk 'END {print $2}'", "useshell"),
+          classes => rudder_common_classes("${index_rpmpkg}_update_version_fetched"),
+          ifvarclass => "!(${index_rpmpkg}_update_version_fetched_kept|${index_rpmpkg}_update_version_fetched_repaired|${index_rpmpkg}_update_version_fetched_failed)";
+
+
   classes:
+      # Check if update file exists
+      "update_file_exists" expression => fileexists("${available_updates_file}");
+
+      # Detect if we want to update the package
+      "is_update_action_${index_rpmpkg}" expression => strcmp("${rpm_data[${index_rpmpkg}][0]}", "update");
+
+      # Gather the version of the aailable package
+      "${index_rpmpkg}_update_version_valid" not => strcmp("", "${${index_rpmpkg}_update_version}"),
+        ifvarclass => "(${index_rpmpkg}_update_version_fetched_kept|${index_rpmpkg}_update_version_fetched_repaired)";
 
       "${index_rpmpkg}_package_version_defined" not => strcmp("${rpm_data[${index_rpmpkg}][1]}", "default");
 
+      "first_pass" expression => "any";
+
   packages:
     redhat|SuSE::
+      # Case 1: Not an update, or an update on SuSE without proper Zypper
       "${rpm_package[${index_rpmpkg}]}"
         package_policy  => "${rpm_data[${index_rpmpkg}][0]}",
         package_method  => generic_nobulk("30"),
         classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
-        ifvarclass => "!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
+        ifvarclass => "(!is_update_action_${index_rpmpkg}|(SuSE.!zypper_version_ok)).!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
         comment => "Handling ${rpm_package[${index_rpmpkg}]} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][0]}";
 
+      # Case 2: It is an update, on RedHat or SuSE with Zypper, and we didn't give a version, but we could fetch it
+      "${rpm_package[${index_rpmpkg}]}"
+        package_policy  => "${rpm_data[${index_rpmpkg}][0]}",
+        package_method  => generic_nobulk("30"),
+        package_select  => "==",
+        package_version => "${${index_rpmpkg}_update_version}",
+        classes         => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
+        ifvarclass      => "is_update_action_${index_rpmpkg}.${index_rpmpkg}_update_version_valid.!${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
+        comment         => "Handling ${rpm_package[${index_rpmpkg}]} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][0]}";
+
+      # Case 3: We do have a version defined
       "${rpm_package[${index_rpmpkg}]}"
         package_policy   => "${rpm_data[${index_rpmpkg}][0]}",
         package_method   => generic_nobulk("30"),
@@ -135,6 +179,13 @@ bundle agent check_rpm_package_installation {
       "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"
         ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_kept");
 
+      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update"
+        ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.rpm_package_installation_updated_available_packages_error";
+
+      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"
+        ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.(rpm_package_installation_updated_available_packages_kept|rpm_package_installation_updated_available_packages_repaired).!${index_rpmpkg}_update_version_valid";
+
+
     # ZMD Process presence related reports
     (redhat|SuSE).!(SuSE_10.!zypper_version_ok)::
       "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#ZMD process presence verification not necessary. Skipping ...";
@@ -155,17 +206,20 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
 	package_changes => "individual";
 
 redhat::
-	package_list_command => "/usr/bin/yum list installed";
-	package_list_name_regex    => "([^.]+).*";
-	package_list_version_regex => "[^\s]\s+([^\s]+).*";
-	package_list_arch_regex    => "[^.]+\.([^\s]+).*";
-	package_installed_regex => ".*installed.*";
-	package_name_convention => "${name}";
-	package_list_update_ifelapsed => "${rpm_pkg_timeout}";
-	package_add_command => "/usr/bin/yum -y install";
-	package_delete_command => "/bin/rpm -e";
-        package_update_command => "/usr/bin/yum -y update";
-	package_verify_command => "/bin/rpm -V";
+        package_list_command          => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+
+        package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
+        package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
+        package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
+
+        package_installed_regex       => ".*";
+        package_name_convention       => "${name}-${version}";
+        package_list_update_ifelapsed => "${rpm_pkg_timeout}";
+        package_add_command           => "/usr/bin/yum -y install";
+        package_delete_command        => "/bin/rpm -e";
+        package_update_command        => "/usr/bin/yum -y update";
+        package_verify_command        => "/bin/rpm -V";
+
 
 zypper_version_ok::
 	package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
