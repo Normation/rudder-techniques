@@ -6,3 +6,6 @@
   * Version 1.2
    ** Accept empty variables
    ** Variables are now overridable
+-- Olivier Mauras <olivier@mauras.ch> Wed, 01 Oct 2014
+  * Version 1.2
+   ** Do not forbid & character
