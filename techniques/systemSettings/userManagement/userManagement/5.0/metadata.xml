@@ -1,0 +1,152 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the userManagement PT.
+    Compatibility : Linux like, Windows like
+
+It is intended to check the user parameters on the target host.
+-->
+<TECHNIQUE name="User management">
+  <DESCRIPTION>This technique manages the target host(s) users.
+
+  It will ensure that the defined users are present on the system.</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_usergroup_user_parameters</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="userManagement"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>USERGROUP_USER_LOGIN</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <!-- users section , index 1 -->
+    <SECTION name="Users" multivalued="true" component="true" componentKey="USERGROUP_USER_LOGIN">
+      <INPUT>
+        <NAME>USERGROUP_USER_LOGIN</NAME>
+        <DESCRIPTION>Login name for this account</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_GROUP</NAME>
+        <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
+        <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group (at creation only)</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_NAME</NAME>
+        <DESCRIPTION>Full name for this account</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>USERGROUP_USER_ACTION</NAME>
+        <DESCRIPTION>Policy to apply on this account</DESCRIPTION>
+        <ITEM>
+          <LABEL>Create / update</LABEL>
+          <VALUE>add</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Remove</LABEL>
+          <VALUE>remove</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Check only (account should exist)</LABEL>
+          <VALUE>checkhere</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Check only (account should not exist)</LABEL>
+          <VALUE>checknothere</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>add</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>USERGROUP_USER_PASSWORD_POLICY</NAME>
+        <DESCRIPTION>How often do you want to want to check the password</DESCRIPTION>
+        <ITEM>
+          <LABEL>At account creation</LABEL>
+          <VALUE>oneshot</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Everytime</LABEL>
+          <VALUE>everytime</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>everytime</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
+        <DESCRIPTION>Use the default home directory</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_HOME</NAME>
+        <DESCRIPTION>Home directory, if not default</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_SHELL</NAME>
+        <DESCRIPTION>Shell for this account</DESCRIPTION>
+        <LONGDESCRIPTION>Will be used only on UNIX systems</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/bin/bash</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>USERGROUP_USER_UID</NAME>
+        <DESCRIPTION>User ID (enforced at user creation only)</DESCRIPTION>
+        <LONGDESCRIPTION>Numeric user id, only on UNIX systems</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <SECTION name="Password" component="true" componentKey="USERGROUP_USER_LOGIN">
+        <INPUT>
+          <NAME>USERGROUP_USER_PASSWORD</NAME>
+          <DESCRIPTION>Password for this account</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+            <TYPE>password</TYPE>
+            <PASSWORDHASH>linux-shadow-md5,linux-shadow-sha256,linux-shadow-sha512</PASSWORDHASH> 
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
