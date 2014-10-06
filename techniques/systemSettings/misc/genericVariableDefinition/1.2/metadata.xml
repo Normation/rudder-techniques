@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable content</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEX error="Please enter a valid CFengine variable content"><![CDATA[ [^"&]*[^"&\\] ]]></REGEX>
+          <REGEX error="Please enter a valid CFengine variable content"><![CDATA[ [^"]*[^"\\] ]]></REGEX>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
