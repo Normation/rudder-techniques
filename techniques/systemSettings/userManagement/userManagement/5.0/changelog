@@ -1,0 +1,6 @@
+ -- Benoit PECCATTE <benoit.peccatte@normation.com> Tue Sep  9 08:17:55 CEST 2014
+  * Version 4.0
+  ** Rewrite with normal ordering and {}
+ -- Benoît Peccatte <benoit.peccatte@normation.com> Thu Oct  2 10:00:32 CEST 2014
+  * Version 5.0
+  ** Handle gid/uid at user creation

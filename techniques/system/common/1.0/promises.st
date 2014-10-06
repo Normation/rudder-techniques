@@ -685,13 +685,9 @@ bundle agent check_binaries_freshness
 
       "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "rpmvercmp" };
 
-    nova_edition::
-
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "cf-hub" };
-
   files:
 
-    !android::
+    !android.!nova_edition::
       "${sys.workdir}/bin/${components}"
         perms => u_p("700"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
@@ -712,6 +708,9 @@ bundle agent check_binaries_freshness
 
     android::
       "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an android machine: no CFEngine binaries update needed";
+
+    nova_edition::
+      "@@Common@@result_na@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an CFEngine enterprise system: binaries update are handled differently";
 
 }
 
