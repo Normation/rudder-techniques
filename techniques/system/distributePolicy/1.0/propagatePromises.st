@@ -30,9 +30,17 @@ bundle agent propagatePromises
       "server_data" string => "${server_info.policy_files}/share"; #actual directory with data to propagate
       "client_data" string => "${g.rudder_var}/share/";  #where to put the files on the client when downloaded
 
+    rudder_tools_updated_exists::
+      "tools_timestamp"   string => readfile("${g.rudder_tools_updated_origin}", 2048);
+
   classes:
+    # Ensure the validity of the timestamp file for tools
+    rudder_tools_updated_exists::
+      "tools_timestamp_invalid" not => regcmp("[0-9]+", "${tools_timestamp}");
+
     root_server::
       "rudder_tools_updated_exists" expression => fileexists("${g.rudder_tools_updated_origin}");
+
 
   files:
 
@@ -92,11 +100,11 @@ bundle agent propagatePromises
 
     # If rudder_tools_updated doesn't exist, or if the tools have been updated,
     # set rudder_tools_updated content to current timestamp
-    root_server.(!rudder_tools_updated_exists|propagate_tools_repaired)::
+    root_server.(!rudder_tools_updated_exists|propagate_tools_repaired|tools_timestamp_invalid)::
       "${g.rudder_tools_updated_origin}"
         create        => "true",
         edit_defaults => empty,
-        edit_line     => insert_lines("${sys.date}"),
+        edit_line     => insert_lines("${sys.systime}"),
         comment       => "Update the timestamp in the rudder tool updated file";
 
   reports:
