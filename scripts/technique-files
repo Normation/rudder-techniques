@@ -1,0 +1,129 @@
+#!/bin/bash
+
+#
+# Find files or directories specific to techniques
+# Features:
+# - can list files by types
+# - can list only directory
+# - can list all versions or only the last one
+# - can filter file list with a command
+# - knows about .placeholder files
+#
+
+# safemode
+set -euo pipefail
+
+# parameters
+LAST=0
+HELP=0
+DIR_ONLY=0
+PATTERN=""
+FILTER=""
+PLACEHOLDER=1
+
+# parameter parsing
+while getopts "hldf:s:p" opt
+do
+  case ${opt} in
+    h)
+      HELP=1
+      ;;
+    l)
+      LAST=1
+      ;;
+    d)
+      DIR_ONLY=1
+      ;;
+    f)
+      [ -n "${PATTERN}" ] && PATTERN="${PATTERN} -o "
+      PATTERN="${PATTERN}-name ${OPTARG}"
+      ;;
+    s)
+      FILTER="${OPTARG}"
+      ;;
+    p)
+      PLACEHOLDER=0
+      ;;
+    h)
+      HELP=1
+      ;;
+    \?)
+      HELP=1
+      ;;
+  esac
+done
+shift $((OPTIND-1))
+[ -n "${PATTERN}" ] && PATTERN="( ${PATTERN} )"
+
+
+# usage
+if [ ${HELP} -eq 1 -o $# -eq 0 ]
+then
+  echo "Usage $0 [-l] [-d] [-f <pattern> [-f <pattern>] ...] <technique directory> [<technique directory> ...]"
+  echo "  Find and filter files or directories for techniques under a specified directory"
+  echo ""
+  echo "  <technique directory> : specify the root of technique directories"
+  echo "  -p : force including placeholder versions (default is to ignore them)"
+  echo "  -l : list last version of each technique only"
+  echo "  -d : list only base directories of techniques"
+  echo "  -f <pattern> : list files matching a pattern (may be repeated for multiple patterns)"
+  echo "  -s '<command line>' : command to filter results, {} will be replaced by the file name"
+  echo "     example : $0 -d -f '*.cf' -s 'grep edit_line {}' techniques"
+  echo "               will list directories having .cf files that match edit_line"
+  exit 1
+fi
+
+# find version directories of techniques
+find_directories() {
+  directory_regex='.*/[[:digit:]]+\.[[:digit:]]+'
+
+  # indentation is important here for readability, be careful with pipes '|'
+  find "${directory}" -type d -regextype posix-egrep -regex "${directory_regex}" |
+    if [ "${PLACEHOLDER}" -eq 1 ]
+    then
+      xargs -r -n1 -I{} bash -c "test -f {}/.placeholder || echo {}"
+    else
+      cat
+    fi |
+
+      if [ "${LAST}" -eq 1 ]
+      then
+        perl -pe 's|/(\d+)\.(\d+)| $1 $2|' |
+          sort -k 1,1d -k 2,2nr -k 3,3nr | 
+          perl -ne '/(.*) (\d+) (\d+)/;print "$1/$2.$3\n" unless($n eq $1);$n=$1'
+      else
+        cat
+      fi
+}
+
+
+# main script
+for directory in "$@"
+do
+  if [ ! -d "${directory}" ]
+  then
+    echo "No such directory ${directory}"
+    exit 2
+  fi
+  
+  if [ "${FILTER}" != "" ]
+  then
+    if [ ${DIR_ONLY} -eq 1 ]
+    then
+      # filter but keep only directory names
+      find $(find_directories) -type f ${PATTERN} -exec /bin/bash -c "${FILTER} > /dev/null && echo {}" \; | xargs -r -n1 dirname | sort -u
+    else
+      # filter and show all file names
+      find $(find_directories) -type f ${PATTERN} -exec /bin/bash -c "${FILTER} > /dev/null && echo {}" \; | sort -u
+    fi
+  else
+    if [ ${DIR_ONLY} -eq 1 ]
+    then
+      # just list directories
+      find_directories
+    else
+      # list files within directories
+      find $(find_directories) -type f ${PATTERN}
+    fi
+  fi
+done
