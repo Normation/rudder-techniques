@@ -39,7 +39,7 @@ bundle agent doInventory
 
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_curl} -s -f -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
 
     uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
@@ -452,7 +452,7 @@ bundle agent sendInventory
 
     # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl.exe\" -f -s --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
   files:
