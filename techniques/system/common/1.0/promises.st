@@ -733,10 +733,16 @@ body agent control
 body executor control
 {
         splaytime => "&AGENT_RUN_SPLAYTIME&";
-
-        exec_command => "${sys.cf_agent} -f failsafe.cf \&\& ${sys.cf_agent}";
         schedule         => { &AGENT_RUN_SCHEDULE& };
         executorfacility => "LOG_DAEMON";
+
+   windows::
+        # CFEngine best practice is to use full paths on Windows
+        exec_command => "${sys.cf_agent} -f \"${sys.workdir}\inputs\failsafe.cf\" \& ${sys.cf_agent}";
+
+   !windows::
+        exec_command => "${sys.cf_agent} -f failsafe.cf \&\& ${sys.cf_agent}";
+
 }
 
 ########################################################

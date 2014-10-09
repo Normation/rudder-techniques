@@ -511,9 +511,16 @@ body executor control
 {
         splaytime => "1";
 
-        exec_command => "${sys.cf_agent} -f failsafe.cf && ${sys.cf_agent}";
         schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
         executorfacility => "LOG_DAEMON";
+
+  windows::
+        # CFEngine best practice is to use full paths on Windows
+        exec_command => "${sys.cf_agent} -f \"${sys.workdir}\inputs\failsafe.cf\" & ${sys.cf_agent}";
+
+  !windows::
+        exec_command => "${sys.cf_agent} -f failsafe.cf && ${sys.cf_agent}";
+
 }
 
 ########################################################
