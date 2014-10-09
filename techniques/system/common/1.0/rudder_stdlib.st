@@ -181,6 +181,10 @@ body select_region rudder_section_selector(section_start, section_end)
 #
 bundle agent rudder_common_report(technique_name, status, identifier, component_name, component_key, message)
 {
+  vars:
+    changes_only.send_reports::
+      "dummy_string" string => "dummy_content",
+                    classes => always("must_send_heartbeat");
   classes:
     changes_only::
       "send_reports" or => {
@@ -189,6 +193,10 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
                             strcmp("${status}", "log_warn") ,
                             strcmp("${status}", "log_repaired") ,
                            };
+
+  methods:
+    must_send_heartbeat::
+      "Send start message" usebundle => startExecution;
 
   reports:
     full_compliance|send_reports::
