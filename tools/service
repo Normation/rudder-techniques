@@ -1,0 +1,14 @@
+#!/bin/sh
+
+# This script mimics the behavior of the native "service" utility.
+# It basically tries to run systemctl, and fallbacks to /etc/init.d
+# if unavailable.
+
+if [ -x "$(which systemctl)" ]
+then
+  echo "INFO: systemctl found, executing \"systemctl ${2} ${1}.service\"..."
+  exit $?
+fi
+
+/etc/init.d/${1} ${2}
+exit $?

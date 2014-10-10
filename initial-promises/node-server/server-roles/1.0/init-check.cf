@@ -44,7 +44,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
     root_server|process_exception_on_relay::
 
-      "/etc/init.d/${initscript}"
+      "${g.service_utility} ${initscript}"
         args => "restart </dev/null >/dev/null 2>/dev/null",
         contain => in_shell_silent,
       # action => bg("0", "120"),
@@ -79,28 +79,33 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
       "canoname" string => canonify("${binary}");
 
-    SuSE::
+    SuSE.!systemctl_installed::
 
       "check_command"     string => "/sbin/chkconfig --check ${initscript}";
       "bootstart_command" string => "/sbin/insserv -d ${initscript}";
 
-    redhat::
+    redhat.!systemctl_installed::
 
       "check_command"     string => "/sbin/chkconfig --list ${initscript} | grep -q on";
       "bootstart_command" string => "/sbin/chkconfig ${initscript} on";
 
+    systemctl_installed::
+
+      "check_command"     string => "${paths.path[systemctl]} is-enabled ${initscript}";
+      "bootstart_command" string => "${paths.path[systemctl]} enable ${initscript}";
+
   files:
 
-    debian::
+    debian.!systemctl_installed::
 
       "/etc/rc2.d/S.*${initscript}.*"
         create => "true",
         action => WarnOnly,
         classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}");
 
-	commands:
+  commands:
 
-    (SuSE|redhat)::
+    systemctl_installed|SuSE|redhat::
 
       "${check_command}"
         contain => in_shell_silent,
@@ -113,7 +118,7 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
         ifvarclass => "service_unbootstarted_${canoname}",
         comment => "Set the service ${name} to start on boot";
 
-    debian::
+    debian.!systemctl_installed::
 
       "/usr/sbin/update-rc.d ${initscript} remove && /usr/sbin/update-rc.d ${initscript} defaults"
         contain => in_shell,

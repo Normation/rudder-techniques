@@ -128,7 +128,7 @@ bundle agent root_password_check_ldap
 
     rudder_ldap_password_integrity_changed::
 
-      "/etc/init.d/rudder-slapd restart"
+      "${g.service_utility} rudder-slapd restart"
         contain => in_shell,
         classes => if_else("slapd_restarted", "slapd_restart_failed");
 
@@ -237,7 +237,7 @@ bundle agent root_password_restart_jetty
 
     rudder_web_password_integrity_changed::
 
-      "/etc/init.d/rudder-jetty restart </dev/null >/dev/null 2>/dev/null"
+      "${g.service_utility} rudder-jetty restart </dev/null >/dev/null 2>/dev/null"
         contain => in_shell,
         classes => if_else("jetty_restarted", "jetty_restart_failed");
 

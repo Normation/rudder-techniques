@@ -140,6 +140,7 @@ bundle common g
                                               "cpuid-linux-V1.0.sh",
                                               "vmware_info.sh",
                                               "check_rsyslog_version",
+                                              "service",
                                               "apache-vhost.tpl",
                                             };
 
@@ -157,6 +158,16 @@ bundle common g
                                               @{rudder_tools_files_suse},
                                               "checkroute.pl",
                                             }, policy => "ifdefined";
+
+    # Is the "service" utility available ?
+    _stdlib_has_path_service::
+
+      "service_utility"           string => "${g.service_utility}"
+
+    !_stdlib_has_path_service::
+
+      "service_utility"           string => "${rudder_tools}/service"
+
   classes:
 
     # Utilities
