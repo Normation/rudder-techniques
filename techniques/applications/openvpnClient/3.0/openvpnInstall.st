@@ -24,7 +24,7 @@ bundle agent check_openvpn_installation
 {
 
   classes:
-      "openvpn_present" expression => fileexists("/etc/init.d/openvpn");
+      "openvpn_present" expression => fileexists("/usr/bin/openvpn");
 
   packages:
     linux.!SuSE::

@@ -165,6 +165,7 @@ bundle common g
     # Utilities
     "gzip_installed"                 expression => isexecutable("${rudder_gzip}");
     "curl_installed"                 expression => isexecutable("${rudder_curl}");
+    "systemctl_installed"            expression => isexecutable("${paths.path[systemctl]}")
 
     # Roles
     "rudder_server_roles_dir_exists" expression => isdir("${server_roles_path}");

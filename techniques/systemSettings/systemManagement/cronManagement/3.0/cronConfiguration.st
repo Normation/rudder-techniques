@@ -47,15 +47,15 @@ bundle agent check_cron_configuration
 
     redhat::
       "cron_bin"        string => "crond$";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
+      "cron_restartcmd" string => "${g.service_utility} crond restart";
 
     ubuntu::
       "cron_bin"        string => "cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+      "cron_restartcmd" string => "${g.service_utility} cron restart";
 
     !(redhat|ubuntu)::
       "cron_bin"        string => "/usr/sbin/cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+      "cron_restartcmd" string => "${g.service_utility} cron restart";
 
   classes:
 

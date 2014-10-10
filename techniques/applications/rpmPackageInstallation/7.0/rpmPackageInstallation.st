@@ -117,7 +117,7 @@ bundle agent check_rpm_package_installation {
 
 		zmd_restart::
 
-			"/etc/init.d/novell-zmd"
+			"${g.service_utility} novell-zmd"
 				args       => "restart",
         classes    => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
         ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok",

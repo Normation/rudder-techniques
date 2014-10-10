@@ -98,7 +98,7 @@ bundle agent services_management
     # Should be using process stop, but du to https://cfengine.com/bugtracker/view.php?id=758, it does not work now
     #"${service[${index}][process]}"
     #		comment => "Stop gracefully the process",
-    #		process_stop => "/etc/init.d/${service[${index}][name]} stop",
+    #		process_stop => "${g.service_utility} ${service[${index}][name]} stop",
     #		classes => kept_if_else("service_${index}_already_stopped", "service_${index}_stopped", "service_${index}_error"),
     #		ifvarclass => "defined_process_name_${index}.stop_process_${index}.graceful_stop_process_${index}";
 
@@ -121,18 +121,18 @@ bundle agent services_management
 
   commands:
 
-      "/etc/init.d/${service[${index}][name]}"
+      "${g.service_utility} ${service[${index}][name]}"
         args => "start",
         classes => kept_if_else("process_${index}_restart_ok", "process_${index}_restart_ok", "process_${index}_restart_error"),
         ifvarclass => "process_${index}_restart.start_process_${index}";
 
 
-      "/etc/init.d/${service[${index}][name]}"
+      "${g.service_utility} ${service[${index}][name]}"
         args => "stop",
         classes => kept_if_else("process_${index}_stopped_ok", "process_${index}_stopped_ok", "process_${index}_stop_error"),
         ifvarclass => "!process_${index}_restart.stop_process_${index}";
 
-      "/etc/init.d/${service[${index}][name]}"
+      "${g.service_utility} ${service[${index}][name]}"
         args => "restart",
         classes => kept_if_else("process_${index}_out_of_range_restart_ok", "process_${index}_out_of_range_restart_ok", "process_${index}_out_of_range_restart_error"),
         ifvarclass => canonify("${service[${index}][name]}_out_of_range");

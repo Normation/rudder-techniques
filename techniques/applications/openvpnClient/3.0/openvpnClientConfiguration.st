@@ -132,7 +132,7 @@ bundle agent check_openvpn_client_configuration
   commands:
 
     (openvpn_tier1_validated|openvpn_tier2_validated|openvpn_keyring_validated|openvpn_down).ovpn_client_autostart::
-      "/etc/init.d/openvpn"
+      "${g.service_utility} openvpn"
         args => "restart",
         classes => cf2_if_else("openvpn_restarted", "cant_restart_openvpn"),
         comment => "restarting openvpn";

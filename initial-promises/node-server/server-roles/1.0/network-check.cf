@@ -52,7 +52,7 @@ bundle agent root_networks_check
 
     rudder_networks_repaired::
 
-      "${paths.path[service]}"
+      "${g.service_utility}"
         args => "${apache_service} reload",
         classes => if_else("apache_reloaded", "apache_reload_failed");
 
