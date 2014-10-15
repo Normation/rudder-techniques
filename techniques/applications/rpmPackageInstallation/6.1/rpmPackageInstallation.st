@@ -48,9 +48,9 @@ bundle agent check_rpm_package_installation {
       "available_updates_file" string => "${sys.workdir}/state/software_available_updates.csv";
 
     redhat::
-      "available_updates_command" string => "/usr/bin/yum --quiet check-update | /bin/sed 's%[0-9]\+:%%g' > ${available_updates_file}";
+      "available_updates_command" string => "/usr/bin/yum --quiet check-update | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
     zypper_version_ok::
-      "available_updates_command" string => "/usr/bin/zypper list-updates -a | grep '|' | /bin/awk -F '|' '{print $3 $5}' | /bin/sed 's%[0-9]\+:%%g' > ${available_updates_file}";
+      "available_updates_command" string => "/usr/bin/zypper list-updates -a | ${paths.path[grep]} '|' | ${paths.path[awk]} -F '|' '{print $3 $5}' | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
 
     # If the promises have been updated, we need to remove previously
     # defined persistent classes (by setting there persistence to 1 minutes)
@@ -99,7 +99,7 @@ bundle agent check_rpm_package_installation {
 
       # If the update file exist, then gather the version of the packages in it
       update_file_exists::
-        "${index_rpmpkg}_update_version" string => execresult("/bin/grep \"${rpm_package[${index_rpmpkg}]}.\" ${available_updates_file} | /bin/awk 'END {print $2}'", "useshell"),
+        "${index_rpmpkg}_update_version" string => execresult("${paths.path[grep]} \"${rpm_package[${index_rpmpkg}]}.\" ${available_updates_file} | ${paths.path[awk]} 'END {print $2}'", "useshell"),
           classes => rudder_common_classes("${index_rpmpkg}_update_version_fetched"),
           ifvarclass => "!(${index_rpmpkg}_update_version_fetched_kept|${index_rpmpkg}_update_version_fetched_repaired|${index_rpmpkg}_update_version_fetched_failed)";
 
@@ -202,6 +202,9 @@ bundle agent check_rpm_package_installation {
 }
 
 body package_method generic_nobulk(rpm_pkg_timeout) {
+
+        package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
+        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
 
 	package_changes => "individual";
 
