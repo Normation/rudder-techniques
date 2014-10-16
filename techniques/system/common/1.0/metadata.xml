@@ -57,6 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>common/utilities/minicurl</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="environment_variable"/>
   </TMLS>
 
   <SYSTEMVARS>
@@ -95,6 +96,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="CRON Daemon" component="true" />
     <SECTION name="Binaries update" component="true" />
     <SECTION name="Process checking" component="true" />
+
 
     <SECTION name="common">
       <INPUT>
