@@ -1,0 +1,271 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!--
+    This is the OpenVPN installation PT.
+    Compatibility : Linux Red Hat like, Debian like
+
+It is intended to check if OpenVPN is installed and install it if not,
+then check if it is started on boot.
+
+It then adds openvpn to the boot init scripts if not already set to start on boot.
+-->
+<TECHNIQUE name="OpenVPN client">
+  <DESCRIPTION>This technique will configure the OpenVPN client service and ensure it is running.
+
+  It will ensure the "openvpn" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.
+
+  Configuration will create a rudder.conf file.
+
+  As of this version, only the PSK peer identification method is supported, please use the "Download File" Technique to distribute the secret key.
+  </DESCRIPTION>
+
+  <BUNDLES>
+    <NAME>check_openvpn_installation</NAME>
+    <NAME>check_openvpn_client_configuration</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="openvpnClientConfiguration"/>
+    <TML name="openvpnInstall"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>OVPN_CLIENT_REMOTE_SERVER</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+  <SECTION name="OpenVPN install" component="true" />
+  <SECTION name="OpenVPN configuration" component="true" />
+
+    <!-- general Section , index 1-->
+    <SECTION name="General settings">
+      <INPUT>
+        <NAME>OVPN_CLIENT_AUTOSTART</NAME>
+        <DESCRIPTION>Start OpenVPN automatically on boot</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>OVPN_CLIENT_KEYMODE</NAME>
+        <DESCRIPTION>Which peer authentication method is desired</DESCRIPTION>
+        <LONGDESCRIPTION>The keys for the choosed method should be present for openvpn to function</LONGDESCRIPTION>
+        <ITEM>
+          <VALUE>psk</VALUE>
+          <LABEL>Pre-shared key</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>psk</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>OVPN_CLIENT_PSKFILE</NAME>
+        <DESCRIPTION>Which file should be used as psk shared
+        secret</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/etc/openvpn/secret.key</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>OVPN_CLIENT_TUNTAP</NAME>
+        <DESCRIPTION>TUN/TAP virtual network device type</DESCRIPTION>
+        <ITEM>
+          <VALUE>tun</VALUE>
+          <LABEL>Routed mode (tun)</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>tap</VALUE>
+          <LABEL>Bridged mode (tap)</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>tun</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+
+    <SECTION name="Remote server settings" multivalued="true">
+      <INPUT>
+        <NAME>OVPN_CLIENT_REMOTE_SERVER</NAME>
+        <DESCRIPTION>Remote host name or IP address to connect to</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>OVPN_CLIENT_REMOTE_PORT</NAME>
+        <DESCRIPTION>Remote port to connect to</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <DEFAULT>1194</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>OVPN_CLIENT_REMOTE_RANDOMIZE</NAME>
+        <DESCRIPTION>Randomize the remotes usage (basic load-balancing measure)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>OVPN_CLIENT_REMOTE_AUTH</NAME>
+        <DESCRIPTION>Authenticate with server using username/password (ENABLE WITH CERTIFICATE MODE ONLY)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>OVPN_CLIENT_REMOTE_USER</NAME>
+        <DESCRIPTION>Remote user</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>OVPN_CLIENT_REMOTE_PASSWORD</NAME>
+        <DESCRIPTION>Remote password</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+          <TYPE>password</TYPE>
+          <PASSWORDHASH>plain</PASSWORDHASH>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>OVPN_CLIENT_REMOTE_PROTOCOL</NAME>
+        <DESCRIPTION>Which protocol should be used to communicate with the server</DESCRIPTION>
+        <ITEM>
+          <VALUE>tcp</VALUE>
+          <LABEL>TCP</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>udp</VALUE>
+          <LABEL>UDP</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>udp</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>OVPN_CLIENT_REMOTE_KEEPTRYING</NAME>
+        <DESCRIPTION>Keep trying indefinitely to resolve the host name of the OpenVPN server</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+    <SECTION name="Logging settings">
+      <!-- logging settings Section , index 20 -->
+      <SELECT1>
+        <NAME>OVPN_CLIENT_LOGGING_TARGET</NAME>
+        <DESCRIPTION>Log destination</DESCRIPTION>
+        <ITEM>
+          <VALUE>file</VALUE>
+          <LABEL>File</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>syslog</VALUE>
+          <LABEL>Syslog</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>syslog</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>OVPN_CLIENT_LOGGING_FILE</NAME>
+        <DESCRIPTION>Output logging messages to this file, including output to stdout/stderr which is generated by called scripts</DESCRIPTION>
+        <CONSTRAINT>
+          <DEFAULT>/var/log/openvpn-rudder.log</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>OVPN_CLIENT_LOGGING_BEHAVIOR</NAME>
+        <DESCRIPTION>Log file behavior on restart</DESCRIPTION>
+        <ITEM>
+          <VALUE>append</VALUE>
+          <LABEL>Append</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>truncate</VALUE>
+          <LABEL>Truncate</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>append</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>OVPN_CLIENT_LOGGING_VERBOSITY</NAME>
+        <DESCRIPTION>Log verbosity</DESCRIPTION>
+        <ITEM>
+          <VALUE>0</VALUE>
+          <LABEL>0 (No output except fatal errors)</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>1</VALUE>
+          <LABEL>1</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>2</VALUE>
+          <LABEL>2</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>3</VALUE>
+          <LABEL>3 (Recommended)</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>4</VALUE>
+          <LABEL>4</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>5</VALUE>
+          <LABEL>5 (Output R and W characters for each packet read and write)</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>6</VALUE>
+          <LABEL>6 (WARNING : As of this value, logging becomes HIGHLY verbose)</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>7</VALUE>
+          <LABEL>7</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>8</VALUE>
+          <LABEL>8</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>9</VALUE>
+          <LABEL>9</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>10</VALUE>
+          <LABEL>10</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>11</VALUE>
+          <LABEL>11</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>3</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

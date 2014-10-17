@@ -1,0 +1,263 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<TECHNIQUE name="Enforce a file content">
+  <DESCRIPTION>Checks if a file matches a given content and if not, updates it</DESCRIPTION>
+
+  <!--  <CONFIGURATIONPOLICY>false</CONFIGURATIONPOLICY> -->
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <OS version=">= XP/5.1 (Whistler)">Windows</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>check_generic_file_content</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="checkGenericFileContent"/>
+  </TMLS>
+    
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>GENERIC_FILE_CONTENT_PATH</SAMESIZEAS>
+</TRACKINGVARIABLE>
+
+  <SECTIONS>
+	<SECTION name="File to manage" multivalued="true">
+		<SECTION name="File" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_PATH</NAME>
+		    <DESCRIPTION>Path or file name</DESCRIPTION>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_ENFORCE</NAME>
+		    <DESCRIPTION>Enforce the content of the file</DESCRIPTION>
+		    <LONGDESCRIPTION>If yes, the file will exactly contains what is in the "Content of the file" field, otherwise the content will be added, leaving the rest of the file untouched</LONGDESCRIPTION>
+		    <CONSTRAINT>
+	          <TYPE>boolean</TYPE>
+		      <DEFAULT>false</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+                <INPUT>
+                  <NAME>GENERIC_FILE_CONTENT_DELETION_BOOLEAN</NAME>
+                  <DESCRIPTION>Enable the deletion of lines using a regexp</DESCRIPTION>
+                  <CONSTRAINT>
+                    <TYPE>boolean</TYPE>
+                    <DEFAULT>false</DEFAULT>
+                  </CONSTRAINT>
+                </INPUT>
+                <INPUT>
+                  <NAME>GENERIC_FILE_CONTENT_CREATE_BOOLEAN</NAME>
+                  <DESCRIPTION>Enable the creation of the file if it doesn't exist</DESCRIPTION>
+                  <CONSTRAINT>
+                    <TYPE>boolean</TYPE>
+                    <DEFAULT>true</DEFAULT>
+                  </CONSTRAINT>
+                </INPUT>
+                <INPUT>
+                  <NAME>GENERIC_FILE_CONTENT_ENFORCE_CREATE_ONLY_BOOLEAN</NAME>
+                  <DESCRIPTION>Enforce the content of the file only at creation</DESCRIPTION>
+                  <LONGDESCRIPTION>If true, the file will be created if it doesn't exist, and only then. If the file already exists, it will be left untouched.
+                  </LONGDESCRIPTION>
+                  <CONSTRAINT>
+                    <TYPE>boolean</TYPE>
+                    <DEFAULT>false</DEFAULT>
+                  </CONSTRAINT>
+                </INPUT>
+                <INPUT>
+                  <NAME>GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN</NAME>
+                  <DESCRIPTION>Enable the replacement of lines using a regexp</DESCRIPTION>
+                  <CONSTRAINT>
+                    <TYPE>boolean</TYPE>
+                    <DEFAULT>false</DEFAULT>
+                  </CONSTRAINT>
+                </INPUT>
+                <INPUT>
+                  <NAME>GENERIC_FILE_CONTENT_ONLY_ZONE_BOOLEAN</NAME>
+                  <DESCRIPTION>Limit file modification to a zone of the file</DESCRIPTION>
+                  <LONGDESCRIPTION>If yes, all modification in the file will be only in the zone described in section "Enforce content only in zone", except for "Enforce the content of a section in the file". If you select also "Migrate lines to zone", every line added in this zone will be removed from the rest of the file (and section moved to this zone), otherwise the rest of the file remains untouched</LONGDESCRIPTION>
+                  <CONSTRAINT>
+                    <TYPE>boolean</TYPE>
+                    <DEFAULT>false</DEFAULT>
+                  </CONSTRAINT>
+                </INPUT>
+		</SECTION>
+		<SECTION name="File content" component="false">
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
+		    <DESCRIPTION>Content of the file</DESCRIPTION>
+		    <LONGDESCRIPTION>Be careful to escape double quotes in the text you are entering, as this Technique does not support automatic escaping yet. Example: use \"hello\" instead of "hello"</LONGDESCRIPTION>
+		    <CONSTRAINT>
+		        <TYPE>textarea</TYPE>
+		        <MAYBEEMPTY>true</MAYBEEMPTY>
+		    </CONSTRAINT>
+		  </INPUT>
+		</SECTION>
+		<SECTION name="Line deletion regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_DELETION_REGEXP</NAME>
+		    <DESCRIPTION>Regular expression</DESCRIPTION>
+		    <LONGDESCRIPTION>Regular expression used to match a line to be deleted</LONGDESCRIPTION>
+		    <CONSTRAINT>
+		      <TYPE>string</TYPE>
+		      <DEFAULT>deleteme.*</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		</SECTION>
+		<SECTION name="Line replacement regular expressions" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_MODIFICATION_REGEXP</NAME>
+		    <DESCRIPTION>Regular expression</DESCRIPTION>
+		    <LONGDESCRIPTION>Regular expression used to match a line to be replaced</LONGDESCRIPTION>
+		    <CONSTRAINT>
+		      <TYPE>string</TYPE>
+		      <DEFAULT>replaceme.*</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION</NAME>
+		    <DESCRIPTION>String used as a replacement</DESCRIPTION>
+		    <CONSTRAINT>
+		      <TYPE>string</TYPE>
+		      <DEFAULT></DEFAULT>
+		      <MAYBEEMPTY>true</MAYBEEMPTY>
+		    </CONSTRAINT>
+		  </INPUT>
+		</SECTION>
+                <SECTION name="Enforce content by section" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+                  <INPUT>
+                    <NAME>GENERIC_FILE_CONTENT_SECTION_MANAGEMENT</NAME>
+                    <DESCRIPTION>Enforce the content of a section in the file</DESCRIPTION>
+                    <LONGDESCRIPTION>Match a portion of the file between two lines (header/footer) and enforce the content between those lines. If they don't exist, the whole section will be added at the end of the file.</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>boolean</TYPE>
+                      <DEFAULT>false</DEFAULT>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_HEADER</NAME>
+                    <DESCRIPTION>Header of the section to enforce</DESCRIPTION>
+                    <LONGDESCRIPTION>First line of the section to enforce content in. If not found, this line and the section content will be added at the end of the file. If left empty, no sections will be edited.</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>string</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_CONTENT</NAME>
+                    <DESCRIPTION>Content of the section</DESCRIPTION>
+                    <LONGDESCRIPTION>The exact content of the section (without the header and footer).</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>textarea</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                  <INPUT>
+                    <NAME>GENERIC_FILE_SECTION_FOOTER</NAME>
+                    <DESCRIPTION>Footer of the section to enforce</DESCRIPTION>
+                    <LONGDESCRIPTION>Last  line of the section to enforce content in. If not found, this line and the section content will be added at the end of the file. If left empty, no sections will be edited.</LONGDESCRIPTION>
+                    <CONSTRAINT>  
+                      <TYPE>string</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                    </CONSTRAINT>
+                  </INPUT>
+                </SECTION>
+
+                <SECTION name="Enforce content only in zone">
+                  <INPUT>
+                    <NAME>GENERIC_FILE_CONTENT_ZONE_HEADER</NAME>
+                    <DESCRIPTION>Begin marker of the zone to manage</DESCRIPTION>
+                    <LONGDESCRIPTION>If not found, this line and the section content will be added at the end of the file.</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>string</TYPE>
+                      <DEFAULT>### Beginning of section managed by Rudder</DEFAULT>
+                    </CONSTRAINT>
+                  </INPUT>
+
+                  <INPUT>
+                    <NAME>GENERIC_FILE_CONTENT_ZONE_FOOTER</NAME>
+                    <DESCRIPTION>End marker of the zone to manage</DESCRIPTION>
+                    <LONGDESCRIPTION>If not found, this line and the section content will be added at the end of the file. If left empty, end of file will be assumed</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>string</TYPE>
+                      <MAYBEEMPTY>true</MAYBEEMPTY>
+                      <DEFAULT>### End of section managed by Rudder</DEFAULT>
+                    </CONSTRAINT>
+                  </INPUT>
+
+                  <INPUT>
+                    <NAME>GENERIC_FILE_CONTENT_MIGRATE_TO_ZONE_BOOLEAN</NAME>
+                    <DESCRIPTION>Migrate all the lines added to the zone from the rest of the file</DESCRIPTION>
+                    <LONGDESCRIPTION>If yes, all lines defined in "Content of the file" field and  "Enforce content by section" section will be added in the zone, and removed from the rest of the file, otherwise only the zone will be edited, leaving the rest of the file untouched (and allowing the possibility of duplicated lines). The lines modifications and lines deletion will still apply only in the zone if zone modification is defined.</LONGDESCRIPTION>
+                    <CONSTRAINT>
+                      <TYPE>boolean</TYPE>
+                      <DEFAULT>false</DEFAULT>
+                    </CONSTRAINT>
+                  </INPUT>
+                </SECTION>
+
+		<SECTION name="Permission adjustment" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+			<INPUT>
+				  <NAME>GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT</NAME>
+				  <DESCRIPTION>Set explicit permissions to apply on the file</DESCRIPTION>
+				  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+			</INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_OWNER</NAME>
+		    <DESCRIPTION>Owner of the file</DESCRIPTION>
+		    <CONSTRAINT>
+		      <DEFAULT>root</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_GROUP</NAME>
+		    <DESCRIPTION>Group of the file</DESCRIPTION>
+		    <CONSTRAINT>
+		      <DEFAULT>root</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		  <INPUT>
+		    <NAME>GENERIC_FILE_CONTENT_PERM</NAME>
+		    <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
+		    <CONSTRAINT>
+				<TYPE>perm</TYPE>
+				<DEFAULT>644</DEFAULT>
+		    </CONSTRAINT>
+		  </INPUT>
+		</SECTION>
+		<SECTION name="Post-modification hook" component="true" componentKey="GENERIC_FILE_CONTENT_PATH">
+			<INPUT>
+				  <NAME>GENERIC_FILE_CONTENT_POST_HOOK_RUN</NAME>
+				  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the path above?</DESCRIPTION>
+				  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+			</INPUT>
+			<INPUT>
+				  <NAME>GENERIC_FILE_CONTENT_POST_HOOK_COMMAND</NAME>
+				  <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
+				  <CONSTRAINT>
+						<TYPE>textarea</TYPE>
+						<MAYBEEMPTY>true</MAYBEEMPTY>
+				  </CONSTRAINT>
+			</INPUT>
+		</SECTION>
+	</SECTION>
+	
+  </SECTIONS>
+</TECHNIQUE>
