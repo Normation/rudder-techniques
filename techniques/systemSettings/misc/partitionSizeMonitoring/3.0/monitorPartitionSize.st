@@ -45,6 +45,41 @@ bundle agent monitor_partition_size {
 }&
 
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.cfengine::
+
+            # Partition status reporting
+            # Success
+      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has enough free space")
+                ifvarclass => "!monitorPartitionSize_partition_${index}_full";
+
+            # Error
+      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has not enough free space")
+                ifvarclass => "monitorPartitionSize_partition_${index}_full";
+
+            # Repaired command execution reporting
+            # Success not set
+      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not set")
+                ifvarclass => "!monitorPartitionSize_repaired_cmd_run_${index}";
+
+            # Success not needed
+      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not needed")
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_full";
+
+            # Repaired
+      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_repaired", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command executed - ${partition[${index}][repaired_cmd]}")
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_repaired";
+
+            # Error
+      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command failed to execute")
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_error";
+
     commands:
         "${partition[${index}][repaired_cmd]}"
             classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_${index}"),
@@ -59,36 +94,6 @@ bundle agent monitor_partition_size {
             classes => if_notkept("monitorPartitionSize_partition_${index}_full"),
             comment => "Check free space available on ${partition[${index}][path]}";
 
-
-    reports:
-
-        cfengine::
-
-            # Partition status reporting
-            # Success
-            "@@monitorPartitionSize@@result_success@@${partition[${index}][uuid]}@@Partition@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#The partition ${partition[${index}][path]} has enough free space"
-                ifvarclass => "!monitorPartitionSize_partition_${index}_full";
-
-            # Error
-            "@@monitorPartitionSize@@result_error@@${partition[${index}][uuid]}@@Partition@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#The partition ${partition[${index}][path]} has not enough free space"
-                ifvarclass => "monitorPartitionSize_partition_${index}_full";
-
-            # Repaired command execution reporting
-            # Success not set
-            "@@monitorPartitionSize@@result_success@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command execution was not set"
-                ifvarclass => "!monitorPartitionSize_repaired_cmd_run_${index}";
-
-            # Success not needed
-            "@@monitorPartitionSize@@result_success@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command execution was not needed"
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_full";
-
-            # Repaired
-            "@@monitorPartitionSize@@result_repaired@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command executed - ${partition[${index}][repaired_cmd]}"
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_repaired";
-
-            # Error
-            "@@monitorPartitionSize@@result_error@@${partition[${index}][uuid]}@@Command execution on threshold@@${partition[${index}][path]}@@${g.execRun}##${g.uuid}@#Under threshold command failed to execute"
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_error";
 
 }
 

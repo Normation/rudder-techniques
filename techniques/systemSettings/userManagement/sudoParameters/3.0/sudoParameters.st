@@ -64,6 +64,11 @@ bundle agent check_sudo_parameters
 
       "pass_1" expression => "any";
       "pass_2" expression => isvariable("strict_mode");
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     # Only copy /etc/sudoers if it exists (this is to avoid falling into an
@@ -110,6 +115,22 @@ bundle agent check_sudo_parameters
 
         usebundle => check_sudo_installation("${sudo_directive_id[${sudo_index}]}");
 
+
+    pass3.(sudoconfiguration_sudoers_copy_kept.!sudoconfiguration_sudoers_copy_repaired)::
+
+      "any" usebundle => rudder_common_report("sudoParameters", "result_success", "${sudo_directive_id[${sudo_index}]}", "sudoersFile", "None", "The sudoers file did not require any modification");
+
+    pass3.sudoconfiguration_sudoers_copy_repaired::
+
+      "any" usebundle => rudder_common_report("sudoParameters", "result_repaired", "${sudo_directive_id[${sudo_index}]}", "sudoersFile", "None", "The sudoers file was fixed and successfully updated");
+
+    pass3.(sudoconfiguration_sudoers_tmp_edit_error|sudoconfiguration_sudoers_copy_error|sudoconfiguration_sudoers_tmp_copy_error)::
+
+      "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "sudoersFile", "None", "The sudoers file could NOT be edited!");
+
+    pass3.sudoconfiguration_sudoers_invalid::
+      "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "sudoersFile", "None", "The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.");
+
   commands:
 
     (sudoconfiguration_sudoers_tmp_edit_repair|sudoconfiguration_sudoers_tmp_edit_kept).pass_2::
@@ -118,23 +139,6 @@ bundle agent check_sudo_parameters
         args => "-c ${strict_mode} -f /etc/sudoers.rudder",
         classes => cf2_if_else("sudoconfiguration_sudoers_valid", "sudoconfiguration_sudoers_invalid"),
         comment => "Checking new sudoers validity";
-
-  reports:
-
-    sudoconfiguration_sudoers_copy_kept.!sudoconfiguration_sudoers_copy_repaired::
-
-      "@@sudoParameters@@result_success@@${sudo_directive_id[${sudo_index}]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file did not require any modification";
-
-    sudoconfiguration_sudoers_copy_repaired::
-
-      "@@sudoParameters@@result_repaired@@${sudo_directive_id[${sudo_index}]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file was fixed and successfully updated";
-
-    sudoconfiguration_sudoers_tmp_edit_error|sudoconfiguration_sudoers_copy_error|sudoconfiguration_sudoers_tmp_copy_error::
-
-      "@@sudoParameters@@result_error@@${sudo_directive_id[${sudo_index}]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The sudoers file could NOT be edited!";
-
-    sudoconfiguration_sudoers_invalid::
-      "@@sudoParameters@@result_error@@${sudo_directive_id[${sudo_index}]}@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.";
 
 }
 
@@ -248,6 +252,12 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
 bundle agent check_sudo_installation(directiveId)
 {
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   packages:
     linux::
       "sudo"
@@ -256,18 +266,18 @@ bundle agent check_sudo_installation(directiveId)
         classes => kept_if_else("sudoconfiguration_sudo_install_kept", "sudoconfiguration_sudo_install_repaired", "sudoconfiguration_sudo_install_error"),
         comment => "Installing sudo using generic interface";
 
-  reports:
-    sudoconfiguration_sudo_install_kept::
-      "@@sudoParameters@@result_success@@${directiveId}@@Install@@None@@${g.execRun}##${g.uuid}@#sudo already installed";
+  methods:
+    pass3.sudoconfiguration_sudo_install_kept::
+      "any" usebundle => rudder_common_report("sudoParameters", "result_success", "${directiveId}", "Install", "None", "sudo already installed");
 
-    sudoconfiguration_sudo_install_repaired::
-      "@@sudoParameters@@result_repaired@@${directiveId}@@Install@@None@@${g.execRun}##${g.uuid}@#sudo has been successfully installed";
+    pass3.sudoconfiguration_sudo_install_repaired::
+      "any" usebundle => rudder_common_report("sudoParameters", "result_repaired", "${directiveId}", "Install", "None", "sudo has been successfully installed");
 
-    sudoconfiguration_sudo_install_error::
-      "@@sudoParameters@@result_error@@${directiveId}@@Install@@None@@${g.execRun}##${g.uuid}@#Can't install sudo";
+    pass3.sudoconfiguration_sudo_install_error::
+      "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${directiveId}", "Install", "None", "Can't install sudo");
 
-    !linux::
-      "@@sudoParameters@@result_success@@${directiveId}@@Install@@None@@${g.execRun}##${g.uuid}@#Support to check if sudo is installed not available on this platform";
+    pass3.(!linux)::
+      "any" usebundle => rudder_common_report("sudoParameters", "result_success", "${directiveId}", "Install", "None", "Support to check if sudo is installed not available on this platform");
 
 }
 

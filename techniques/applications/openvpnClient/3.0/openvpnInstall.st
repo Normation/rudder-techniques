@@ -26,6 +26,11 @@ bundle agent check_openvpn_installation
   classes:
       "openvpn_present" expression => fileexists("/etc/init.d/openvpn");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   packages:
     linux.!SuSE::
       "openvpn"
@@ -33,6 +38,19 @@ bundle agent check_openvpn_installation
         package_method  => generic,
         classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
         comment => "Installing openvpn using generic interface";
+
+  methods:
+    pass3.((openvpn_here|openvpn_present))::
+      "any" usebundle => rudder_common_report("openvpnConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN install", "None", "openvpn already installed");
+
+    pass3.openvpn_installed::
+      "any" usebundle => rudder_common_report("openvpnConfiguration", "result_repaired", "&TRACKINGKEY&", "OpenVPN install", "None", "openvpn installed");
+
+    pass3.cant_install_openvpn::
+      "any" usebundle => rudder_common_report("openvpnConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN install", "None", "Can't install openvpn");
+
+    pass3.(!linux)::
+      "any" usebundle => rudder_common_report("openvpnConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN install", "None", "Support to check if openvpn is installed not available on this platform");
 
   commands:
     SuSE.!openvpn_present.64_bit::
@@ -46,18 +64,5 @@ bundle agent check_openvpn_installation
         args => "-Uvh ${g.rudder_var}/tools/openvpn-2.2.1-1.i686.rpm",
         classes => kept_if_else("openvpn_here", "openvpn_installed", "cant_install_openvpn"),
         comment => "Installing openvpn using plain RPM";
-
-  reports:
-    (openvpn_here|openvpn_present)::
-      "@@openvpnConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#openvpn already installed";
-
-    openvpn_installed::
-      "@@openvpnConfiguration@@result_repaired@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#openvpn installed";
-
-    cant_install_openvpn::
-      "@@openvpnConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#Can't install openvpn";
-
-    !linux::
-      "@@openvpnConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN install@@None@@${g.execRun}##${g.uuid}@#Support to check if openvpn is installed not available on this platform";
 
 }

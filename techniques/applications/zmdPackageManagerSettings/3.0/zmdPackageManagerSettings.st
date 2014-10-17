@@ -82,6 +82,11 @@ bundle agent check_zmd_settings
 
       "showtime" expression => isvariable("zmd_sections");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     showtime.SuSE::
@@ -92,6 +97,56 @@ bundle agent check_zmd_settings
         edit_line => set_advanced_zmd_config_values("check_zmd_settings.zmdconf", "${zmd_sections}"),
         classes => kept_if_else("zmd_conf_kept", "zmd_conf_validated", "zmd_conf_failed");
 
+
+  methods:
+
+
+    # ZMD settings edition
+
+    pass3.zmd_conf_kept::
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "General settings", "None", "ZMD settings were all already correct");
+
+    pass3.zmd_conf_validated::
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_repaired", "${zmdconf_uuid[${zmd_index}]}", "General settings", "None", "Some ZMD settings were reset");
+
+    pass3.zmd_conf_failed::
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "General settings", "None", "ZMD repositories could not be edited");
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "&TRACKINGKEY&", "General settings", "None", "ZMD repositories could not be edited");
+
+    # Ignore non-SuSE OSes
+
+    pass3.(!SuSE)::
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "zmdPackageManagerSettings", "None", "ZMD cannot be configured on non SuSE OSes");
+
+    pass3.SuSE::
+
+      # Repositories
+
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} is not here but no edition required. Skipping...")
+        ifvarclass => "index_${zmd_index}_not_matched.!zmd_repositories_edit";
+
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was already here. Skipping...")
+        ifvarclass => "index_${zmd_index}_matched.!source_${zmd_index}_subscribed";
+
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_repaired", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} has been successfully added")
+        ifvarclass => "index_${zmd_index}_not_matched.source_${zmd_index}_subscribed";
+
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not register the source !")
+        ifvarclass => "source_${zmd_index}_failed";
+
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not subscribe to the source !")
+        ifvarclass => "source_${zmd_index}_subfailed";
+
+      # ZMD Process presence related reports
+
+    pass3.(SuSE.!zmd_restart)::
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "ZMD process", "None", "The ZMD process is present. Skipping ...");
+
+    pass3.(SuSE.zmd_restarted)::
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_repaired", "${zmdconf_uuid[${zmd_index}]}", "ZMD process", "None", "The ZMD daemon was successfully restarted");
+
+    pass3.(SuSE.could_not_restart_zmd)::
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "ZMD process", "None", "The ZMD daemon failed to restart");
 
   processes:
 
@@ -127,56 +182,6 @@ bundle agent check_zmd_settings
         args => "restart",
         classes => kept_if_else("zmd_kept", "zmd_restarted", "could_not_restart_zmd"),
         comment => "Restart the ZMD daemon";
-  reports:
-
-
-    # ZMD settings edition
-
-    zmd_conf_kept::
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#ZMD settings were all already correct";
-
-    zmd_conf_validated::
-      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Some ZMD settings were reset";
-
-    zmd_conf_failed::
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#ZMD repositories could not be edited";
-      "@@zmdPackageManagerSettings@@result_error@@&TRACKINGKEY&@@General settings@@None@@${g.execRun}##${g.uuid}@#ZMD repositories could not be edited";
-
-    # Ignore non-SuSE OSes
-
-    !SuSE::
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@zmdPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#ZMD cannot be configured on non SuSE OSes";
-
-    SuSE::
-
-      # Repositories
-
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} is not here but no edition required. Skipping..."
-        ifvarclass => "index_${zmd_index}_not_matched.!zmd_repositories_edit";
-
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was already here. Skipping..."
-        ifvarclass => "index_${zmd_index}_matched.!source_${zmd_index}_subscribed";
-
-      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} has been successfully added"
-        ifvarclass => "index_${zmd_index}_not_matched.source_${zmd_index}_subscribed";
-
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not register the source !"
-        ifvarclass => "source_${zmd_index}_failed";
-
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@Repository@@${zmd_url[${zmd_index}]}@@${g.execRun}##${g.uuid}@#The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not subscribe to the source !"
-        ifvarclass => "source_${zmd_index}_subfailed";
-
-      # ZMD Process presence related reports
-
-    SuSE.!zmd_restart::
-      "@@zmdPackageManagerSettings@@result_success@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ...";
-
-    SuSE.zmd_restarted::
-      "@@zmdPackageManagerSettings@@result_repaired@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted";
-
-    SuSE.could_not_restart_zmd::
-      "@@zmdPackageManagerSettings@@result_error@@${zmdconf_uuid[${zmd_index}]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart";
-
 }
 
 

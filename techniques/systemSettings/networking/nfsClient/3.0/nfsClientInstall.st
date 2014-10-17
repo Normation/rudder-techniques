@@ -23,6 +23,12 @@
 bundle agent check_nfs_client_installation
 {
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   packages:
 
     linux.!redhat.!SuSE::
@@ -46,16 +52,17 @@ bundle agent check_nfs_client_installation
         classes => kept_if_else("nfs_client_here", "nfs_client_installed", "cant_install_nfs_client"),
         comment => "Installing NFS client using generic interface";
 
-  reports:
-    nfs_client_here::
-      "@@nfsClient@@result_success@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#NFS client already installed";
+  methods:
+    pass3.nfs_client_here::
+      "any" usebundle => rudder_common_report("nfsClient", "result_success", "&TRACKINGKEY&", "NFS Client package install", "None", "NFS client already installed");
 
-    nfs_client_installed::
-      "@@nfsClient@@result_repaired@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#NFS client installed";
+    pass3.nfs_client_installed::
+      "any" usebundle => rudder_common_report("nfsClient", "result_repaired", "&TRACKINGKEY&", "NFS Client package install", "None", "NFS client installed");
 
-    cant_install_nfs_client::
-      "@@nfsClient@@result_error@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#Can't install the NFS client package";
+    pass3.cant_install_nfs_client::
+      "any" usebundle => rudder_common_report("nfsClient", "result_error", "&TRACKINGKEY&", "NFS Client package install", "None", "Can't install the NFS client package");
 
-    !linux::
-      "@@nfsClient@@result_success@@&TRACKINGKEY&@@NFS Client package install@@None@@${g.execRun}##${g.uuid}@#Support to check if NFS client is installed not available on this platform";
+    pass3.(!linux)::
+      "any" usebundle => rudder_common_report("nfsClient", "result_success", "&TRACKINGKEY&", "NFS Client package install", "None", "Support to check if NFS client is installed not available on this platform");
+
 }

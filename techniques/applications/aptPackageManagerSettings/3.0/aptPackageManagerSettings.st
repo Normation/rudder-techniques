@@ -123,6 +123,11 @@ bundle agent check_apt_settings
     # InstallSuggests edition ?
       "apt_installsuggests_edit" not => strcmp("&APT_INSTALLSUGGESTS&","dontchange");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     debian.apt_repositories_edit::
@@ -159,7 +164,7 @@ bundle agent check_apt_settings
         classes => kept_if_else("apt_disabled_kept", "apt_disabled_validated", "apt_disabled_failed");
 
 
-  reports:
+  methods:
 
     # SUCCESS if:
     ## Do not need to edit repositories or repositories good = ((apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated)
@@ -169,8 +174,8 @@ bundle agent check_apt_settings
     ## No need to disable other repositories (not require or already disabled) = ((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated)
     ## and
     ## No error = !(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)
-    ((apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated).(apt_tier2_kept.!apt_tier2_validated).((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated).!(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)::
-      "@@aptPackageManagerSettings@@result_success@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT settings were all already correct";
+    pass3.(((apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated).(apt_tier2_kept.!apt_tier2_validated).((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated).!(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed))::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_success", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT settings were all already correct");
 
     # REPAIRED if:
     ## Need to edit repositories and no error= apt_tier1_validated
@@ -180,38 +185,38 @@ bundle agent check_apt_settings
     ## Need to disable other repositories and no error= apt_disabled_validated
     ## and
     ## No error = !(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)
-    (apt_tier1_validated|apt_tier2_validated|apt_disabled_validated).(!apt_tier1_failed|!apt_tier2_failed|!apt_disabled_failed)::
-      "@@aptPackageManagerSettings@@result_repaired@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#Some APT settings were reset";
+    pass3.((apt_tier1_validated|apt_tier2_validated|apt_disabled_validated).(!apt_tier1_failed|!apt_tier2_failed|!apt_disabled_failed))::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_repaired", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "Some APT settings were reset");
 
-    apt_tier1_kept::
-      "@@aptPackageManagerSettings@@log_info@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT repositories already correct";
+    pass3.apt_tier1_kept::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "log_info", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT repositories already correct");
 
-    apt_tier2_kept::
-      "@@aptPackageManagerSettings@@log_info@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT configuration parameters already correct";
+    pass3.apt_tier2_kept::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "log_info", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT configuration parameters already correct");
 
-    apt_tier1_validated::
-      "@@aptPackageManagerSettings@@log_repaired@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT repositories have been reset";
+    pass3.apt_tier1_validated::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "log_repaired", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT repositories have been reset");
 
-    apt_tier2_validated::
-      "@@aptPackageManagerSettings@@log_repaired@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT configuration parameters have been reset";
+    pass3.apt_tier2_validated::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "log_repaired", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT configuration parameters have been reset");
 
-    apt_tier1_failed::
-      "@@aptPackageManagerSettings@@result_error@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT repositories could not be edited";
+    pass3.apt_tier1_failed::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_error", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT repositories could not be edited");
 
-    apt_tier2_failed::
-      "@@aptPackageManagerSettings@@result_error@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT configuration could not be set";
+    pass3.apt_tier2_failed::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_error", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT configuration could not be set");
 
-    apt_disablerepositories::
-      "@@aptPackageManagerSettings@@log_info@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT repository purge has been requested";
+    pass3.apt_disablerepositories::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "log_info", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT repository purge has been requested");
 
-    apt_disabled_validated::
-      "@@aptPackageManagerSettings@@log_repaired@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT repositories deactivation is done";
+    pass3.apt_disabled_validated::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "log_repaired", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT repositories deactivation is done");
 
-    apt_disabled_failed::
-      "@@aptPackageManagerSettings@@result_error@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT repositories deactivation is failed";
+    pass3.apt_disabled_failed::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_error", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT repositories deactivation is failed");
 
-    !debian::
-      "@@aptPackageManagerSettings@@result_error@@&TRACKINGKEY&@@aptPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#APT cannot be configured on non Debian OSes";
+    pass3.(!debian)::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_error", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT cannot be configured on non Debian OSes");
 
 }
 

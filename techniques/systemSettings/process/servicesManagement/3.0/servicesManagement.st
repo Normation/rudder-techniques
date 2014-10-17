@@ -76,6 +76,11 @@ bundle agent services_management
     &PROCESS_MANAGED_BOOTSTART:{bootstart |"bootstart_prevent_process_&i&" expression => strcmp("&bootstart&", "false");
 }&
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     debian::
@@ -84,6 +89,89 @@ bundle agent services_management
         create => "true",
         action => WarnOnly,
         classes => if_else("service_${index}_bootstarted", "service_${index}_unbootstarted");
+
+  methods:
+    pass3.cfengine::
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]} didn't need to have its process checked")
+        ifvarclass => "!start_process_${index}.!stop_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Cannot check the status of ${service[${index}][name]}: the process name is not filed")
+        ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was indeed running")
+        ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was not running and has been restarted")
+        ifvarclass => "process_${index}_restart.process_${index}_restart_ok.start_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process couldn't be started")
+        ifvarclass => "process_${index}_restart_error";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was indeed not running")
+        ifvarclass => "stop_process_${index}.process_${index}_restart.graceful_stop_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped")
+        ifvarclass => "stop_process_${index}.!process_${index}_restart.process_${index}_stopped_ok.graceful_stop_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process could't be stopped")
+        ifvarclass => "stop_process_${index}.!process_${index}_restart.process_${index}_stop_error.graceful_stop_process_${index}";
+
+
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was indeed not running")
+        ifvarclass => "stop_process_${index}.service_${index}_already_stopped.!service_${index}_stopped.!graceful_stop_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped")
+        ifvarclass => "stop_process_${index}.service_${index}_stopped.!graceful_stop_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process count could't be stopped")
+        ifvarclass => "stop_process_${index}.service_${index}_error.!graceful_stop_process_${index}";
+
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range is not to be checked for service ${service[${index}][name]}")
+        ifvarclass => "!check_process_range_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} cannot to be checked, for the process name is not set")
+        ifvarclass => "check_process_range_${index}.!defined_process_name_${index}";
+
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} is correct")
+        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.!${service[${index}][canon_name]}_out_of_range";
+
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired")
+        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.process_${index}_out_of_range_restart_ok";
+
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired")
+        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.process_${index}_out_of_range_restart_error";
+
+
+    # Service boot starting parameters
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required")
+        ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} is started on boot as required")
+        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} has been set to start on boot")
+        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted_ok";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Could not set ${service[${index}][name]} to start on boot!")
+        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted_fail";
+
+
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} is not started on boot as required")
+        ifvarclass => "!bootstart_process_${index}.bootstart_prevent_process_${index}";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} has been prevented to start on boot")
+        ifvarclass => "bootstart_prevent_process_${index}.service_${index}_unbootstarted_ok";
+
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Could not prevent ${service[${index}][name]} to start on boot!")
+        ifvarclass => "bootstart_prevent_process_${index}.service_${index}_unbootstarted_fail";
 
   processes:
 
@@ -160,89 +248,5 @@ bundle agent services_management
         classes => if_else("service_${index}_unbootstarted_ok", "service_${index}_unbootstarted_fail"),
         ifvarclass => "service_${index}_bootstarted.bootstart_prevent_process_${index}",
         comment => "Set the service ${service[${index}][name]} to not be started on boot";
-
-  reports:
-    cfengine::
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} didn't need to have its process checked"
-        ifvarclass => "!start_process_${index}.!stop_process_${index}";
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Cannot check the status of ${service[${index}][name]}: the process name is not filed"
-        ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Process of ${service[${index}][name]} was indeed running"
-        ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
-
-      "@@ServicesManagement@@result_repaired@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Process of ${service[${index}][name]} was not running and has been restarted"
-        ifvarclass => "process_${index}_restart.process_${index}_restart_ok.start_process_${index}";
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]}: the process couldn't be started"
-        ifvarclass => "process_${index}_restart_error";
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Process of ${service[${index}][name]} was indeed not running"
-        ifvarclass => "stop_process_${index}.process_${index}_restart.graceful_stop_process_${index}";
-
-      "@@ServicesManagement@@result_repaired@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Process of ${service[${index}][name]} was stopped"
-        ifvarclass => "stop_process_${index}.!process_${index}_restart.process_${index}_stopped_ok.graceful_stop_process_${index}";
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]}: the process could't be stopped"
-        ifvarclass => "stop_process_${index}.!process_${index}_restart.process_${index}_stop_error.graceful_stop_process_${index}";
-
-
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Process of ${service[${index}][name]} was indeed not running"
-        ifvarclass => "stop_process_${index}.service_${index}_already_stopped.!service_${index}_stopped.!graceful_stop_process_${index}";
-
-      "@@ServicesManagement@@result_repaired@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Process of ${service[${index}][name]} was stopped"
-        ifvarclass => "stop_process_${index}.service_${index}_stopped.!graceful_stop_process_${index}";
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]}: the process count could't be stopped"
-        ifvarclass => "stop_process_${index}.service_${index}_error.!graceful_stop_process_${index}";
-
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range is not to be checked for service ${service[${index}][name]}"
-        ifvarclass => "!check_process_range_${index}";
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range for service ${service[${index}][name]} cannot to be checked, for the process name is not set"
-        ifvarclass => "check_process_range_${index}.!defined_process_name_${index}";
-
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range for service ${service[${index}][name]} is correct"
-        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.!${service[${index}][canon_name]}_out_of_range";
-
-
-      "@@ServicesManagement@@result_repaired@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range for service ${service[${index}][name]} was not correct, but was repaired"
-        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.process_${index}_out_of_range_restart_ok";
-
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range for service ${service[${index}][name]} was not correct, but was repaired"
-        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.process_${index}_out_of_range_restart_error";
-
-
-    # Service boot starting parameters
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} starting parameters check not required"
-        ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} is started on boot as required"
-        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted";
-
-      "@@ServicesManagement@@result_repaired@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} has been set to start on boot"
-        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted_ok";
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Could not set ${service[${index}][name]} to start on boot!"
-        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted_fail";
-
-
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} is not started on boot as required"
-        ifvarclass => "!bootstart_process_${index}.bootstart_prevent_process_${index}";
-
-      "@@ServicesManagement@@result_repaired@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} has been prevented to start on boot"
-        ifvarclass => "bootstart_prevent_process_${index}.service_${index}_unbootstarted_ok";
-
-      "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Could not prevent ${service[${index}][name]} to start on boot!"
-        ifvarclass => "bootstart_prevent_process_${index}.service_${index}_unbootstarted_fail";
-
 
 }

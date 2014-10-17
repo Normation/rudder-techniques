@@ -37,11 +37,17 @@ bundle agent generic_variable_def_report
 
       "generic_variable_name_index" slist => getindices("generic_name_uuid");
 
-  reports:
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
-    (linux|!linux)::
+  methods:
 
-      "@@genericVariableDefinition@@result_success@@${generic_name_uuid[${generic_variable_name_index}]}@@Variable definition@@${generic_variable_name[${generic_variable_name_index}]}@@${g.execRun}##${g.uuid}@#A generic variable definition is set for variable ${generic_variable_name[${generic_variable_name_index}]}";
+    pass3.((linux|!linux))::
+
+      "any" usebundle => rudder_common_report("genericVariableDefinition", "result_success", "${generic_name_uuid[${generic_variable_name_index}]}", "Variable definition", "${generic_variable_name[${generic_variable_name_index}]}", "A generic variable definition is set for variable ${generic_variable_name[${generic_variable_name_index}]}");
 
 }
 

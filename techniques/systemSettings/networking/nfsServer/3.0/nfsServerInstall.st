@@ -23,6 +23,12 @@
 bundle agent check_nfs_server_installation
 {
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   packages:
 
     linux.!redhat::
@@ -39,16 +45,17 @@ bundle agent check_nfs_server_installation
         classes => kept_if_else("nfs_server_here", "nfs_server_installed", "cant_install_nfs_server"),
         comment => "Installing NFS server using generic interface";
 
-  reports:
-    nfs_server_here::
-      "@@nfsServer@@result_success@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#NFS server package already installed";
+  methods:
+    pass3.nfs_server_here::
+      "any" usebundle => rudder_common_report("nfsServer", "result_success", "&TRACKINGKEY&", "NFS server package install", "None", "NFS server package already installed");
 
-    nfs_server_installed::
-      "@@nfsServer@@result_repaired@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#NFS server package installed";
+    pass3.nfs_server_installed::
+      "any" usebundle => rudder_common_report("nfsServer", "result_repaired", "&TRACKINGKEY&", "NFS server package install", "None", "NFS server package installed");
 
-    cant_install_nfs_server::
-      "@@nfsServer@@result_error@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#Can't install NFS server package";
+    pass3.cant_install_nfs_server::
+      "any" usebundle => rudder_common_report("nfsServer", "result_error", "&TRACKINGKEY&", "NFS server package install", "None", "Can't install NFS server package");
 
-    !linux::
-      "@@nfsServer@@result_success@@&TRACKINGKEY&@@NFS server package install@@None@@${g.execRun}##${g.uuid}@#Support to check if NFS server is installed not available on this platform";
+    pass3.(!linux)::
+      "any" usebundle => rudder_common_report("nfsServer", "result_success", "&TRACKINGKEY&", "NFS server package install", "None", "Support to check if NFS server is installed not available on this platform");
+
 }

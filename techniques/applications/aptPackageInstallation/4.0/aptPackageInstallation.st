@@ -58,6 +58,11 @@ bundle agent check_apt_package_installation
 
       "${index_aptpkg}_package_version_defined" not => strcmp("${apt_version_definition[${index_aptpkg}]}", "default");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   packages:
 
     debian::
@@ -77,17 +82,17 @@ bundle agent check_apt_package_installation
         ifvarclass => "${index_aptpkg}_package_version_defined",
         comment => "Handling ${apt_package[${index_aptpkg}]} using apt_nobulk, policy : ${apt_action[${index_aptpkg}]}";
 
-  reports:
+  methods:
 
-    debian::
+    pass3.debian::
 
-      "@@packageInstallation@@result_repaired@@${apt_policy_instance_uuid[${index_aptpkg}]}@@Debian/Ubuntu packages@@${apt_package[${index_aptpkg}]}@@${g.execRun}##${g.uuid}@#Performed repair action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}"
+      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "Performed repair action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}")
         ifvarclass => canonify("debian_installed_${apt_package[${index_aptpkg}]}");
 
-      "@@packageInstallation@@result_error@@${apt_policy_instance_uuid[${index_aptpkg}]}@@Debian/Ubuntu packages@@${apt_package[${index_aptpkg}]}@@${g.execRun}##${g.uuid}@#Error taking action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}"
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "Error taking action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}")
         ifvarclass => canonify("debian_install_failed_${apt_package[${index_aptpkg}]}");
 
-      "@@packageInstallation@@result_success@@${apt_policy_instance_uuid[${index_aptpkg}]}@@Debian/Ubuntu packages@@${apt_package[${index_aptpkg}]}@@${g.execRun}##${g.uuid}@#No action required for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}"
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "No action required for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}")
         ifvarclass => canonify("debian_install_kept_${apt_package[${index_aptpkg}]}");
 
 }

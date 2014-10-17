@@ -51,6 +51,48 @@ bundle agent check_routing_parameters
 
       "checkroute_present" expression => fileexists("${g.rudder_tools}/checkroute.pl");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.checkroute_present::
+
+      "any" usebundle => rudder_common_report("routingManagement", "result_success", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Route ${displayName[${routing_index}]} found, as expected.")
+        ifvarclass => canonify("route_${routing_index}_found");
+
+      # This should be a log_warn, when it's supported
+      "any" usebundle => rudder_common_report("routingManagement", "result_error", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Route ${displayName[${routing_index}]} found, and policy is: Check absence!")
+        ifvarclass => canonify("route_${routing_index}_found_warn");
+
+      "any" usebundle => rudder_common_report("routingManagement", "result_success", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Route ${displayName[${routing_index}]} not found, as expected")
+        ifvarclass => canonify("route_${routing_index}_notfound");
+
+      # This should be a log_warn, when it's supported
+      "any" usebundle => rudder_common_report("routingManagement", "result_error", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Route ${displayName[${routing_index}]} not found , and policy is: Check presence!")
+        ifvarclass => canonify("route_${routing_index}_notfound_warn");
+
+      "any" usebundle => rudder_common_report("routingManagement", "log_info", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Route ${displayName[${routing_index}]} not found, attempting to add route...")
+        ifvarclass => canonify("route_${routing_index}_add");
+
+      "any" usebundle => rudder_common_report("routingManagement", "result_repaired", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Route ${displayName[${routing_index}]} added successfully!")
+        ifvarclass => canonify("route_${routing_index}_added");
+
+      "any" usebundle => rudder_common_report("routingManagement", "result_error", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Could not add route ${displayName[${routing_index}]}!")
+        ifvarclass => canonify("route_${routing_index}_add_failed");
+
+      "any" usebundle => rudder_common_report("routingManagement", "result_repaired", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Route ${displayName[${routing_index}]} deleted successfully!")
+        ifvarclass => canonify("route_${routing_index}_deleted");
+
+      "any" usebundle => rudder_common_report("routingManagement", "result_error", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Could not delete route ${displayName[${routing_index}]}!")
+        ifvarclass => canonify("route_${routing_index}_delete_failed");
+
+    pass3.(!checkroute_present)::
+
+      "any" usebundle => rudder_common_report("routingManagement", "result_error", "${routing_directive_id[${routing_index}]}", "IPv4 routing parameters", "${route[${routing_index}]}", "Could not add route ${displayName[${routing_index}]}: helper program checkroute.pl not found!");
+
   commands:
 
     !windows.checkroute_present::
@@ -90,42 +132,5 @@ bundle agent check_routing_parameters
         contain => in_shell,
         ifvarclass => canonify("route_${routing_index}_delete"),
         classes => cf2_if_else("route_${routing_index}_deleted", "route_${routing_index}_delete_failed");
-
-  reports:
-
-    checkroute_present::
-
-      "@@routingManagement@@result_success@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} found, as expected."
-        ifvarclass => canonify("route_${routing_index}_found");
-
-      # This should be a log_warn, when it's supported
-      "@@routingManagement@@result_error@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} found, and policy is: Check absence!"
-        ifvarclass => canonify("route_${routing_index}_found_warn");
-
-      "@@routingManagement@@result_success@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} not found, as expected"
-        ifvarclass => canonify("route_${routing_index}_notfound");
-
-      # This should be a log_warn, when it's supported
-      "@@routingManagement@@result_error@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} not found , and policy is: Check presence!"
-        ifvarclass => canonify("route_${routing_index}_notfound_warn");
-
-      "@@routingManagement@@log_info@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} not found, attempting to add route..."
-        ifvarclass => canonify("route_${routing_index}_add");
-
-      "@@routingManagement@@result_repaired@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} added successfully!"
-        ifvarclass => canonify("route_${routing_index}_added");
-
-      "@@routingManagement@@result_error@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Could not add route ${displayName[${routing_index}]}!"
-        ifvarclass => canonify("route_${routing_index}_add_failed");
-
-      "@@routingManagement@@result_repaired@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Route ${displayName[${routing_index}]} deleted successfully!"
-        ifvarclass => canonify("route_${routing_index}_deleted");
-
-      "@@routingManagement@@result_error@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Could not delete route ${displayName[${routing_index}]}!"
-        ifvarclass => canonify("route_${routing_index}_delete_failed");
-
-    !checkroute_present::
-
-      "@@routingManagement@@result_error@@${routing_directive_id[${routing_index}]}@@IPv4 routing parameters@@${route[${routing_index}]}@@${g.execRun}##${g.uuid}@#Could not add route ${displayName[${routing_index}]}: helper program checkroute.pl not found!";
 
 }

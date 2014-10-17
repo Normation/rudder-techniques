@@ -62,6 +62,12 @@ bundle agent check_fstab_configuration
       "fields[dump]" string => "5";
       "fields[fsckorder]" string => "6";
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     !windows::
@@ -74,24 +80,24 @@ bundle agent check_fstab_configuration
         classes => kept_if_else("fstab_kept", "fstab_edited", "fstab_failed"),
         comment => "Editing the fstab file";
 
-  reports:
+  methods:
 
-    fstab_kept.!fstab_edited::
+    pass3.(fstab_kept.!fstab_edited)::
 
-      "@@fstabConfiguration@@log_info@@${fstab[${fstab_index}][uuid]}@@fstabConfiguration@@None@@${g.execRun}##${g.uuid}@#The fstab file was in accordance with the required policy";
+      "any" usebundle => rudder_common_report("fstabConfiguration", "log_info", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstab file was in accordance with the required policy");
 
-    fstab_edited::
+    pass3.fstab_edited::
 
-      "@@fstabConfiguration@@log_info@@${fstab[${fstab_index}][uuid]}@@fstabConfiguration@@None@@${g.execRun}##${g.uuid}@#The fstab file was edited by at least one instance of this technique";
+      "any" usebundle => rudder_common_report("fstabConfiguration", "log_info", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstab file was edited by at least one instance of this technique");
 
-    fstab_failed::
+    pass3.fstab_failed::
 
-      "@@fstabConfiguration@@log_warn@@${fstab[${fstab_index}][uuid]}@@fstabConfiguration@@None@@${g.execRun}##${g.uuid}@#The fstab file could NOT be edited by at least one instance of this technique!";
+      "any" usebundle => rudder_common_report("fstabConfiguration", "log_warn", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstab file could NOT be edited by at least one instance of this technique!");
 
 &if(NOVA)&
-    windows::
+    pass3.windows::
 
-      "@@fstabConfiguration@@result_error@@${fstab[${fstab_index}][uuid]}@@fstabConfiguration@@None@@${g.execRun}##${g.uuid}@#The fstabConfiguration Technique is not intended to be run on windows. Skipping.";
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstabConfiguration Technique is not intended to be run on windows. Skipping.");
 &endif&
 
 }

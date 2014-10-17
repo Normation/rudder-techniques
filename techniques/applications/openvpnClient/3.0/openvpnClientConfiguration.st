@@ -86,6 +86,11 @@ bundle agent check_openvpn_client_configuration
     # Keep retrying connection ?
       "ovpn_client_keepretrying" expression => strcmp("&OVPN_CLIENT_REMOTE_KEEPTRYING&","true");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     (debian|redhat|SuSE)::
@@ -121,6 +126,63 @@ bundle agent check_openvpn_client_configuration
         edit_defaults => noempty_backup,
         classes => kept_if_else("openvpn_keyring_kept", "openvpn_keyring_validated", "openvpn_keyring_failed");
 
+  methods:
+
+    pass3.openvpn_tier1_kept::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_info", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN remotes list edition not needed");
+
+    pass3.openvpn_tier2_kept::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_info", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN general configuration is OK");
+
+    pass3.openvpn_keyring_kept::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_info", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN password keyring present");
+
+    pass3.openvpn_tier1_validated::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN remotes list edition done");
+
+    pass3.openvpn_tier2_validated::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN general configuration done");
+
+    pass3.openvpn_keyring_validated::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN keyring written");
+
+    pass3.openvpn_tier1_failed::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN remotes list edition failed");
+
+    pass3.openvpn_tier2_failed::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN general configuration failed");
+
+    pass3.openvpn_keyring_failed::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN keyring could not be written");
+
+    pass3.(ovpn_client_nopwauth.((openvpn_tier1_validated.openvpn_tier2_validated)|(openvpn_tier1_kept.openvpn_tier2_kept)))::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN configuration is set correctly");
+
+    pass3.(ovpn_client_pwauth.((openvpn_tier1_validated.openvpn_tier2_validated.openvpn_keyring_validated)|(openvpn_tier1_kept.openvpn_tier2_kept.openvpn_keyring_kept)))::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN configuration is set correctly");
+
+    pass3.((openvpn_tier1_validated.openvpn_tier2_validated.openvpn_keyring_validated)|(openvpn_tier1_kept.openvpn_tier2_kept.openvpn_keyring_kept))::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN configuration is set correctly")
+        ifvarclass => canonify("ovpn_client_pwauth");
+
+    pass3.(ovpn_client_autostart.openvpn_bootstarted_ok)::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN is now starting on boot");
+
+    pass3.(ovpn_client_autostart.openvpn_still_unbootstarted)::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN could not be set to start on boot");
+
+    pass3.(ovpn_client_autostart.openvpn_bootstarted)::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_info", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN already set to start on boot");
+
+    pass3.openvpn_restarted::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN restarted");
+
+    pass3.cant_restart_openvpn::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "Could not restart OpenVPN");
+
+    pass3.(!openvpn_bin_present)::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN binary is not present. Something is wrong (installation failure?)");
+
   processes:
 
     ovpn_client_autostart::
@@ -155,63 +217,6 @@ bundle agent check_openvpn_client_configuration
         args => "--add openvpn",
         classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
         comment => "adding openvpn to the startup scripts";
-
-  reports:
-
-    openvpn_tier1_kept::
-      "@@openvpnClientConfiguration@@log_info@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN remotes list edition not needed";
-
-    openvpn_tier2_kept::
-      "@@openvpnClientConfiguration@@log_info@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN general configuration is OK";
-
-    openvpn_keyring_kept::
-      "@@openvpnClientConfiguration@@log_info@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN password keyring present";
-
-    openvpn_tier1_validated::
-      "@@openvpnClientConfiguration@@log_repaired@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN remotes list edition done";
-
-    openvpn_tier2_validated::
-      "@@openvpnClientConfiguration@@log_repaired@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN general configuration done";
-
-    openvpn_keyring_validated::
-      "@@openvpnClientConfiguration@@log_repaired@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN keyring written";
-
-    openvpn_tier1_failed::
-      "@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN remotes list edition failed";
-
-    openvpn_tier2_failed::
-      "@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN general configuration failed";
-
-    openvpn_keyring_failed::
-      "@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN keyring could not be written";
-
-    ovpn_client_nopwauth.((openvpn_tier1_validated.openvpn_tier2_validated)|(openvpn_tier1_kept.openvpn_tier2_kept))::
-      "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN configuration is set correctly";
-
-    ovpn_client_pwauth.((openvpn_tier1_validated.openvpn_tier2_validated.openvpn_keyring_validated)|(openvpn_tier1_kept.openvpn_tier2_kept.openvpn_keyring_kept))::
-      "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN configuration is set correctly";
-
-    (openvpn_tier1_validated.openvpn_tier2_validated.openvpn_keyring_validated)|(openvpn_tier1_kept.openvpn_tier2_kept.openvpn_keyring_kept)::
-      "@@openvpnClientConfiguration@@result_success@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN configuration is set correctly"
-        ifvarclass => canonify("ovpn_client_pwauth");
-
-    ovpn_client_autostart.openvpn_bootstarted_ok::
-      "@@openvpnClientConfiguration@@result_repaired@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN is now starting on boot";
-
-    ovpn_client_autostart.openvpn_still_unbootstarted::
-      "@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN could not be set to start on boot";
-
-    ovpn_client_autostart.openvpn_bootstarted::
-      "@@openvpnClientConfiguration@@log_info@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN already set to start on boot";
-
-    openvpn_restarted::
-      "@@openvpnClientConfiguration@@log_repaired@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN restarted";
-
-    cant_restart_openvpn::
-      "@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#Could not restart OpenVPN";
-
-    !openvpn_bin_present::
-      "@@openvpnClientConfiguration@@result_error@@&TRACKINGKEY&@@OpenVPN configuration@@None@@${g.execRun}##${g.uuid}@#OpenVPN binary is not present. Something is wrong (installation failure?)";
 
 }
 

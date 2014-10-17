@@ -36,6 +36,12 @@ bundle agent check_hosts_configuration
 
       "hosts_base_template" string => "&HOSTS_BASE_TEMPLATE&";
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     !windows::
@@ -69,22 +75,21 @@ bundle agent check_hosts_configuration
         classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
 
 
-  reports:
+  methods:
 
-    cfengine::
+    pass3.cfengine::
 &if (HOSTS_ENFORCE)&
-      "@@hostsConfiguration@@log_debug@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file content enforcement requested";
+      "any" usebundle => rudder_common_report("hostsConfiguration", "log_debug", "&TRACKINGKEY&", "hostsConfiguration", "None", "Hosts file content enforcement requested");
 &endif&
 
-    hosts_edition_done::
-      "@@hostsConfiguration@@result_repaired@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file was updated";
+    pass3.hosts_edition_done::
+      "any" usebundle => rudder_common_report("hostsConfiguration", "result_repaired", "&TRACKINGKEY&", "hostsConfiguration", "None", "Hosts file was updated");
 
-    hosts_edition_kept.!hosts_edition_done::
-      "@@hostsConfiguration@@result_success@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file already OK";
+    pass3.(hosts_edition_kept.!hosts_edition_done)::
+      "any" usebundle => rudder_common_report("hostsConfiguration", "result_success", "&TRACKINGKEY&", "hostsConfiguration", "None", "Hosts file already OK");
 
-    hosts_edition_failed::
-      "@@hostsConfiguration@@result_error@@&TRACKINGKEY&@@hostsConfiguration@@None@@${g.execRun}##${g.uuid}@#Hosts file could not be edited";
-
+    pass3.hosts_edition_failed::
+      "any" usebundle => rudder_common_report("hostsConfiguration", "result_error", "&TRACKINGKEY&", "hostsConfiguration", "None", "Hosts file could not be edited");
 
 }
 

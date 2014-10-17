@@ -104,6 +104,11 @@ bundle agent check_apache_configuration
       # Check if the variable apache_modules is defined so that they can be managed
       "apache_module_list_defined" expression => isvariable("apache_modules");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     debian::
@@ -250,6 +255,91 @@ bundle agent check_apache_configuration
         classes => if_repaired("root_${apache_vhost_root[${apache_vhost_index}]}_created"),
         comment => "Make sure the root directory exists";
 
+  methods:
+    # if the list is not defined, there is nothing to report !
+    pass3.apache_modules_nok::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Module settings", "none", "No Apache modules configured to be enabled, no changes made");
+
+    # if the list if defined by the user, we report on each element of this list
+    pass3.(debian.apache_module_list_defined.apache_modules_ok)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Module settings", "${apache_modules_defined}", "The Apache module ${apache_modules_defined} was successfully enabled")
+        ifvarclass => canonify("apache_module_${apache_modules_defined}_enabled");
+
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Module settings", "${apache_modules_defined}", "Could not enable apache module ${apache_modules_defined} !")
+        ifvarclass => canonify("apache_module_${apache_modules_defined}_not_enabled");
+
+    pass3.(!debian.apache_modules_ok)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Module settings", "${apache_modules_defined}", "The module verification only applies on Debian systems !");
+
+
+    pass3.(apache_selinux_adjust.selinux_bin_present)::
+
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The SELinux context definition was successful for directory ${apache_vhost_root[${apache_vhost_index}]}")
+        ifvarclass => canonify("apache_selinux_${apache_vhost_index}_adjusted");
+
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The SELinux context definition for directory ${apache_vhost_root[${apache_vhost_index}]} has failed !")
+        ifvarclass => canonify("apache_selinux_${apache_vhost_index}_not_adjusted");
+
+    pass3.(apache_selinux_adjust.!selinux_bin_present)::
+
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The automatic SELinux context definition was enabled but SELinux binaries");
+
+    pass3.(!apache_selinux_adjust)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "No SELinux context definition required for ${apache_vhost_root[${apache_vhost_index}]}");
+
+    pass3.(apache_ports_kept.!apache_ports_repaired.!apache_ports_failed)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Port settings edition", "None", "Apache HTTPD port settings OK");
+
+    pass3.(apache_ports_repaired.!apache_ports_failed)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Port settings edition", "None", "Apache HTTPD port settings reset");
+
+    pass3.apache_ports_failed::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Port settings edition", "None", "Apache HTTPD port settings could not be set !");
+
+    pass3.(apache_security_kept.!apache_security_repaired.!apache_security_failed)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Security settings edition", "None", "Apache HTTPD security settings OK");
+
+    pass3.(apache_security_repaired.!apache_security_failed)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Security settings edition", "None", "Apache HTTPD security settings reset");
+
+    pass3.apache_security_failed::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Security settings edition", "None", "Apache HTTPD security settings could not be set !");
+
+    pass3.cfengine::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} already set")
+        ifvarclass => "apache_vhost_${apache_vhost_index}_kept.!apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
+
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} reset")
+        ifvarclass => "apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
+
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} could not be set !")
+        ifvarclass => "apache_vhost_${apache_vhost_index}_failed";
+
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "log_info", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The root directory ${apache_vhost_root[${apache_vhost_index}]} was created")
+        ifvarclass => canonify("root_${apache_vhost_root[${apache_vhost_index}]}_created");
+
+    pass3.(apache_autostart.apache_bootstarted.!apache_unboostarted)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Apache bootstart", "None", "Apache HTTPD is correctly set to start on boot");
+
+    pass3.(apache_autostart.apache_unboostarted.apache_bootstarted_ok.!apache_still_unbootstarted)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Apache bootstart", "None", "Apache HTTPD is now starting on boot");
+
+    pass3.(apache_autostart.apache_still_unbootstarted.apache_still_unbootstarted)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Apache bootstart", "None", "Apache HTTPD could not be set to start on boot");
+
+    pass3.(!apache_autostart)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Apache bootstart", "None", "Don't have to check if Apache HTTPD should be started automatically");
+
+
+    pass3.apache_restarted::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "log_info", "&TRACKINGKEY&", "apacheServer", "None", "Apache HTTPD restarted");
+
+    pass3.cant_restart_apache::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "apacheServer", "None", "Could not restart Apache HTTPD");
+
+    pass3.(!apache_bin_present)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Apache2 installation", "None", "Apache binary is not present. Something is wrong (installation failure ?)");
+
   processes:
 
     !redhat.!SuSE.apache_autostart::
@@ -321,91 +411,6 @@ bundle agent check_apache_configuration
         args => "--add apache2",
         classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
         comment => "adding apache to the startup scripts";
-
-  reports:
-    # if the list is not defined, there is nothing to report !
-    apache_modules_nok::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Module settings@@none@@${g.execRun}##${g.uuid}@#No Apache modules configured to be enabled, no changes made";
-
-    # if the list if defined by the user, we report on each element of this list
-    debian.apache_module_list_defined.apache_modules_ok::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Module settings@@${apache_modules_defined}@@${g.execRun}##${g.uuid}@#The Apache module ${apache_modules_defined} was successfully enabled"
-        ifvarclass => canonify("apache_module_${apache_modules_defined}_enabled");
-
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Module settings@@${apache_modules_defined}@@${g.execRun}##${g.uuid}@#Could not enable apache module ${apache_modules_defined} !"
-        ifvarclass => canonify("apache_module_${apache_modules_defined}_not_enabled");
-
-    !debian.apache_modules_ok::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Module settings@@${apache_modules_defined}@@${g.execRun}##${g.uuid}@#The module verification only applies on Debian systems !";
-
-
-    apache_selinux_adjust.selinux_bin_present::
-
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The SELinux context definition was successful for directory ${apache_vhost_root[${apache_vhost_index}]}"
-        ifvarclass => canonify("apache_selinux_${apache_vhost_index}_adjusted");
-
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The SELinux context definition for directory ${apache_vhost_root[${apache_vhost_index}]} has failed !"
-        ifvarclass => canonify("apache_selinux_${apache_vhost_index}_not_adjusted");
-
-    apache_selinux_adjust.!selinux_bin_present::
-
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The automatic SELinux context definition was enabled but SELinux binaries";
-
-    !apache_selinux_adjust::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@SELinux context@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#No SELinux context definition required for ${apache_vhost_root[${apache_vhost_index}]}";
-
-    apache_ports_kept.!apache_ports_repaired.!apache_ports_failed::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Port settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD port settings OK";
-
-    apache_ports_repaired.!apache_ports_failed::
-      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Port settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD port settings reset";
-
-    apache_ports_failed::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Port settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD port settings could not be set !";
-
-    apache_security_kept.!apache_security_repaired.!apache_security_failed::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Security settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD security settings OK";
-
-    apache_security_repaired.!apache_security_failed::
-      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Security settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD security settings reset";
-
-    apache_security_failed::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Security settings edition@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD security settings could not be set !";
-
-    cfengine::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} already set"
-        ifvarclass => "apache_vhost_${apache_vhost_index}_kept.!apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
-
-      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} reset"
-        ifvarclass => "apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
-
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} could not be set !"
-        ifvarclass => "apache_vhost_${apache_vhost_index}_failed";
-
-      "@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@Virtual host settings@@${apache_vhost_fqdn[${apache_vhost_index}]}@@${g.execRun}##${g.uuid}@#The root directory ${apache_vhost_root[${apache_vhost_index}]} was created"
-        ifvarclass => canonify("root_${apache_vhost_root[${apache_vhost_index}]}_created");
-
-    apache_autostart.apache_bootstarted.!apache_unboostarted::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache bootstart@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD is correctly set to start on boot";
-
-    apache_autostart.apache_unboostarted.apache_bootstarted_ok.!apache_still_unbootstarted::
-      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache bootstart@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD is now starting on boot";
-
-    apache_autostart.apache_still_unbootstarted.apache_still_unbootstarted::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache bootstart@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD could not be set to start on boot";
-
-    !apache_autostart::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache bootstart@@None@@${g.execRun}##${g.uuid}@#Don't have to check if Apache HTTPD should be started automatically";
-
-
-    apache_restarted::
-      "@@apacheServerConfiguration@@log_info@@&TRACKINGKEY&@@apacheServer@@None@@${g.execRun}##${g.uuid}@#Apache HTTPD restarted";
-
-    cant_restart_apache::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@apacheServer@@None@@${g.execRun}##${g.uuid}@#Could not restart Apache HTTPD";
-
-    !apache_bin_present::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Apache binary is not present. Something is wrong (installation failure ?)";
 
 }
 

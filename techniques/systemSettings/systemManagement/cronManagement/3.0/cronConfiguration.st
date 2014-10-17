@@ -69,6 +69,11 @@ bundle agent check_cron_configuration
 
       "showtime" expression => strcmp("true", "true");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     showtime::
@@ -89,6 +94,40 @@ bundle agent check_cron_configuration
         ifvarclass => "!${cron_index}_manual",
         classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
 
+  methods:
+
+    pass3.(!windows)::
+
+    # Reports about the creation of the cron entries
+
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was present. Skipping...")
+        ifvarclass => "cron_file_${cron_index}_kept.!cron_file_${cron_index}_edited";
+
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was created successfully")
+        ifvarclass => "cron_file_${cron_index}_edited";
+
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "Could not create the cron file ${cron_name[${cron_index}]}")
+        ifvarclass => "cron_file_${cron_index}_failed";
+
+    # Reports about the cron process presence
+
+    pass3.(!cron_restart)::
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process is running. Skipping...");
+
+    pass3.cron_restarted::
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process has been restarted");
+
+    pass3.could_not_restart_cron::
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "Could not restart the cron process!");
+
+    pass3.(!windows.cron_absent)::
+
+      "any" usebundle => rudder_common_report("cronConfiguration", "log_warn", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "The crontab is absent");
+
+    pass3.windows::
+
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "This is a Windows machine. This Technique currently incompatible with it");
+
   processes:
 
       "${cron_bin}"
@@ -101,39 +140,5 @@ bundle agent check_cron_configuration
         args => "restart",
         classes => kept_if_else("cron_kept", "cron_restarted", "could_not_restart_cron"),
         comment => "Restart the cron daemon";
-
-  reports:
-
-    !windows::
-
-    # Reports about the creation of the cron entries
-
-      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron entry@@${cron_name[${cron_index}]}@@${g.execRun}##${g.uuid}@#The cron file ${cron_name[${cron_index}]} was present. Skipping..."
-        ifvarclass => "cron_file_${cron_index}_kept.!cron_file_${cron_index}_edited";
-
-      "@@cronConfiguration@@result_repaired@@${cron_uuid[${cron_index}]}@@Cron entry@@${cron_name[${cron_index}]}@@${g.execRun}##${g.uuid}@#The cron file ${cron_name[${cron_index}]} was created successfully"
-        ifvarclass => "cron_file_${cron_index}_edited";
-
-      "@@cronConfiguration@@result_error@@${cron_uuid[${cron_index}]}@@Cron entry@@${cron_name[${cron_index}]}@@${g.execRun}##${g.uuid}@#Could not create the cron file ${cron_name[${cron_index}]}"
-        ifvarclass => "cron_file_${cron_index}_failed";
-
-    # Reports about the cron process presence
-
-    !cron_restart::
-      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process is running. Skipping...";
-
-    cron_restarted::
-      "@@cronConfiguration@@result_repaired@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#The cron process has been restarted";
-
-    could_not_restart_cron::
-      "@@cronConfiguration@@result_success@@${cron_uuid[${cron_index}]}@@Cron process@@None@@${g.execRun}##${g.uuid}@#Could not restart the cron process!";
-
-    !windows.cron_absent::
-
-      "@@cronConfiguration@@log_warn@@${cron_uuid[${cron_index}]}@@cronConfiguration@@None@@${g.execRun}##${g.uuid}@#The crontab is absent";
-
-    windows::
-
-      "@@cronConfiguration@@result_error@@${cron_uuid[${cron_index}]}@@cronConfiguration@@None@@${g.execRun}##${g.uuid}@#This is a Windows machine. This Technique currently incompatible with it";
 
 }

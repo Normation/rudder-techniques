@@ -45,6 +45,33 @@ bundle agent check_process(directiveId, name, maxInst, minInst, command, args)
       "${name}_command_empty" expression => strcmp("command","");
       "${name}_arg_empty" expression => strcmp("args","");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.cfengine_3::
+
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_error", "${directiveId}", "Process", "${name}", "${name}: the process count could't be checked")
+        ifvarclass => canonify("${name}_error");
+
+      "any" usebundle => rudder_common_report("ProcessManagement", "log_info", "${directiveId}", "Process", "${name}", "${name}: the process instance count is out of the permitted range")
+        ifvarclass => canonify("${name}_anomaly");
+
+      "any" usebundle => rudder_common_report("ProcessManagement", "log_info", "${directiveId}", "Process", "${name}", "${name}: the process will be restarted")
+        ifvarclass => canonify("${name}_restart");
+
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_success", "${directiveId}", "Process", "${name}", "${name}: the process was in range (${minInst}-${maxInst})")
+        ifvarclass => canonify("${name}_ok");
+
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_repaired", "${directiveId}", "Process", "${name}", "${name}: the process has been restarted")
+        ifvarclass => canonify("${name}_restart_ok");
+
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_error", "${directiveId}", "Process", "${name}", "${name}: the process could not be restarted")
+        ifvarclass => canonify("${name}_restart_error");
+
   processes:
 
       "${name}"
@@ -71,29 +98,6 @@ bundle agent check_process(directiveId, name, maxInst, minInst, command, args)
         args => "restart",
         classes => kept_if_else("${name}_restart_ok", "${name}_restart_ok", "${name}_restart_error"),
         ifvarclass => and( canonify("${name}_restart"), canonify("${name}_command_empty") );
-
-  reports:
-
-    cfengine_3::
-
-      "@@ProcessManagement@@result_error@@${directiveId}@@Process@@${name}@@${g.execRun}##${g.uuid}@#${name}: the process count could't be checked"
-        ifvarclass => canonify("${name}_error");
-
-      "@@ProcessManagement@@log_info@@${directiveId}@@Process@@${name}@@${g.execRun}##${g.uuid}@#${name}: the process instance count is out of the permitted range"
-        ifvarclass => canonify("${name}_anomaly");
-
-      "@@ProcessManagement@@log_info@@${directiveId}@@Process@@${name}@@${g.execRun}##${g.uuid}@#${name}: the process will be restarted"
-        ifvarclass => canonify("${name}_restart");
-
-      "@@ProcessManagement@@result_success@@${directiveId}@@Process@@${name}@@${g.execRun}##${g.uuid}@#${name}: the process was in range (${minInst}-${maxInst})"
-        ifvarclass => canonify("${name}_ok");
-
-      "@@ProcessManagement@@result_repaired@@${directiveId}@@Process@@${name}@@${g.execRun}##${g.uuid}@#${name}: the process has been restarted"
-        ifvarclass => canonify("${name}_restart_ok");
-
-      "@@ProcessManagement@@result_error@@${directiveId}@@Process@@${name}@@${g.execRun}##${g.uuid}@#${name}: the process could not be restarted"
-        ifvarclass => canonify("${name}_restart_error");
-
 
 }
 

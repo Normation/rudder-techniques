@@ -23,6 +23,12 @@
 bundle agent check_apache_installation
 {
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   packages:
 
     linux.!SuSE_10.!redhat::
@@ -49,16 +55,17 @@ bundle agent check_apache_installation
         classes => kept_if_else("apache_here", "apache_installed", "cant_install_apache"),
         comment => "Installing apache using generic interface";
 
-  reports:
-    apache_here.!apache_installed.!cant_install_apache::
-      "@@apacheServerConfiguration@@result_success@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Apache already installed";
+  methods:
+    pass3.(apache_here.!apache_installed.!cant_install_apache)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Apache2 installation", "None", "Apache already installed");
 
-    apache_installed.!cant_install_apache::
-      "@@apacheServerConfiguration@@result_repaired@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Apache installed";
+    pass3.(apache_installed.!cant_install_apache)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Apache2 installation", "None", "Apache installed");
 
-    cant_install_apache::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Can't install Apache";
+    pass3.cant_install_apache::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Apache2 installation", "None", "Can't install Apache");
 
-    !linux::
-      "@@apacheServerConfiguration@@result_error@@&TRACKINGKEY&@@Apache2 installation@@None@@${g.execRun}##${g.uuid}@#Support to check if Apache is installed not available on this platform";
+    pass3.(!linux)::
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Apache2 installation", "None", "Support to check if Apache is installed not available on this platform");
+
 }

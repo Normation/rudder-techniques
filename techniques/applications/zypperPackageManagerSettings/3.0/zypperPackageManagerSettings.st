@@ -53,6 +53,11 @@ bundle agent check_zypper_settings
     # Disable repositories ?
       "zypper_disablerepositories" not => strcmp("&ZYPPER_DISABLEREPOSITORIES&","false");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     SuSE::
@@ -88,56 +93,55 @@ bundle agent check_zypper_settings
         classes => kept_if_else("repos_disabled_kept", "repos_disabled_ok", "repos_disabled_fail"),
         comment => "Delete the unwanted repos as requested";
 
-  reports:
+  methods:
 
     # ZYPPER settings edition
 
-    zypper_conf_kept.!zypper_conf_validated.!zypper_conf_failed::
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Zypper settings were all already correct";
+    pass3.(zypper_conf_kept.!zypper_conf_validated.!zypper_conf_failed)::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Zypper settings were all already correct");
 
-    zypper_conf_validated::
-      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Some Zypper settings were reset";
+    pass3.zypper_conf_validated::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_repaired", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Some Zypper settings were reset");
 
-    zypper_conf_failed::
-      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Zypper repositories could not be edited";
+    pass3.zypper_conf_failed::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Zypper repositories could not be edited");
 
     # Zypper repositories desactivation
 
-    zypper_disablerepositories.!repos_disabled_ok.!repos_disabled_fail::
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were already disabled";
+    pass3.(zypper_disablerepositories.!repos_disabled_ok.!repos_disabled_fail)::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Every repository other than the defined ones were already disabled");
 
-    zypper_disablerepositories.repos_disabled_ok::
-      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were disabled";
+    pass3.(zypper_disablerepositories.repos_disabled_ok)::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_repaired", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Every repository other than the defined ones were disabled");
 
-    zypper_disablerepositories.repos_disabled_fail::
-      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Could not disable the other repositories!";
+    pass3.(zypper_disablerepositories.repos_disabled_fail)::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Could not disable the other repositories!");
 
-    !zypper_disablerepositories::
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#The repository desactivation has not been requested. Skipping...";
+    pass3.(!zypper_disablerepositories)::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "The repository desactivation has not been requested. Skipping...");
 
 
     # Ignore non-SuSE OSes
 
-    !SuSE::
-      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@zypperPackageManagerSettings@@None@@${g.execRun}##${g.uuid}@#ZYPPER cannot be configured on non SuSE OSes";
+    pass3.(!SuSE)::
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "zypperPackageManagerSettings", "None", "ZYPPER cannot be configured on non SuSE OSes");
 
-    !zypper_repositories_edit::
+    pass3.(!zypper_repositories_edit)::
 
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The source ${zypper_name[${zypper_index}]} will NOT be added as the repository addition parameter is off in the Policy Instance. Skipping...";
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The source ${zypper_name[${zypper_index}]} will NOT be added as the repository addition parameter is off in the Policy Instance. Skipping...");
 
-    SuSE::
+    pass3.SuSE::
 
                 # Repositories
 
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The Zypper source ${zypper_name[${zypper_index}]} was already here. Skipping..."
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} was already here. Skipping...")
         ifvarclass => "zypper_${zypper_index}_kept.!zypper_${zypper_index}_validated";
 
-      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The Zypper source ${zypper_name[${zypper_index}]} has been successfully added"
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_repaired", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} has been successfully added")
         ifvarclass => "zypper_${zypper_index}_validated";
 
-      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_name[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The Zypper source ${zypper_name[${zypper_index}]} was NOT added!"
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} was NOT added!")
         ifvarclass => "zypper_${zypper_index}_error";
-
 
 }
 

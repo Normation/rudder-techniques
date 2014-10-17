@@ -108,6 +108,11 @@ bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_us
   # and SGID bits.
       "can_edit_suid_sgid" expression => isvariable("extended_modes");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     file_exists.edit_owner.!user_absent.!edit_recurse.!is_symlink::
@@ -155,69 +160,69 @@ bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_us
         comment => "Setting the file mode",
         classes => kept_if_else("${identifier}_mode_ok", "${identifier}_mode_repaired", "${identifier}_mode_not_repaired");
 
-  reports:
+  methods:
 
-    is_symlink::
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Will not adjust permissions on ${fileName}, because it is a symlink";
+    pass3.is_symlink::
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Will not adjust permissions on ${fileName}, because it is a symlink");
 
-    !file_exists::
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#File or directory not found: ${fileName}";
+    pass3.(!file_exists)::
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "File or directory not found: ${fileName}");
 
-    user_absent::
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#The requested user (${user}) was not found on this machine: ${fileName}'s owner can't be set";
+    pass3.user_absent::
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested user (${user}) was not found on this machine: ${fileName}'s owner can't be set");
 
-    group_absent::
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#The requested group (${group}) was not found on this machine: ${fileName}'s group can't be set";
+    pass3.group_absent::
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested group (${group}) was not found on this machine: ${fileName}'s group can't be set");
 
-    edit_recurse::
-      "@@FilesPermissions@@log_info@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Permissions will be applied recursively for ${fileName}";
+    pass3.edit_recurse::
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Permissions will be applied recursively for ${fileName}");
 
-    file_exists.can_edit_suid_sgid::
+    pass3.(file_exists.can_edit_suid_sgid)::
 
       # User
 
-      "@@FilesPermissions@@log_info@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Owner ${user} already matches current owner for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} already matches current owner for: ${fileName}")
         ifvarclass => "${identifier}_owner_ok.!${identifier}_owner_repaired";
 
-      "@@FilesPermissions@@log_repaired@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Owner reset to ${user} for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner reset to ${user} for: ${fileName}")
         ifvarclass => "${identifier}_owner_repaired";
 
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Owner ${user} could not be set for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} could not be set for: ${fileName}")
         ifvarclass => "${identifier}_owner_not_repaired";
 
       # Group
 
-      "@@FilesPermissions@@log_info@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Group ${group} already matches current group for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Group ${group} already matches current group for: ${fileName}")
         ifvarclass => "${identifier}_group_ok.!${identifier}_group_repaired";
 
-      "@@FilesPermissions@@log_repaired@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Group reset to ${group} for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Group reset to ${group} for: ${fileName}")
         ifvarclass => "${identifier}_group_repaired";
 
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Group ${group} could not be set for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Group ${group} could not be set for: ${fileName}")
         ifvarclass => "${identifier}_group_not_repaired";
 
       # Mode
 
-      "@@FilesPermissions@@log_info@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Mode ${extended_modes}${mode} already matches current mode for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} already matches current mode for: ${fileName}")
         ifvarclass => "${identifier}_mode_ok.!${identifier}_mode_repaired";
 
-      "@@FilesPermissions@@log_repaired@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Mode reset to ${extended_modes}${mode} for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Mode reset to ${extended_modes}${mode} for: ${fileName}")
         ifvarclass => "${identifier}_mode_repaired";
 
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Mode ${extended_modes}${mode} could not be set for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} could not be set for: ${fileName}")
         ifvarclass => "${identifier}_mode_not_repaired";
 
   # Final report
 
-      "@@FilesPermissions@@result_success@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Owner, group and permissions already correct for ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "Owner, group and permissions already correct for ${fileName}")
         # Success if nothing in error AND nothing repaired
         ifvarclass => "(!${identifier}_owner_not_repaired.!${identifier}_group_not_repaired.!${identifier}_mode_not_repaired).(!${identifier}_owner_repaired.!${identifier}_group_repaired.!${identifier}_mode_repaired)";
 
-      "@@FilesPermissions@@result_repaired@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Owner, group or permissions were fixed for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions were fixed for: ${fileName}")
         # Repaired if nothing in error AND something repaired
         ifvarclass => "!${identifier}_owner_not_repaired.!${identifier}_group_not_repaired.!${identifier}_mode_not_repaired.(${identifier}_owner_repaired|${identifier}_group_repaired|${identifier}_mode_repaired)";
 
-      "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#Owner, group or permissions could not be set for: ${fileName}"
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions could not be set for: ${fileName}")
         # Error if something in error
         ifvarclass => "${identifier}_owner_not_repaired|${identifier}_group_not_repaired|${identifier}_mode_not_repaired";
 

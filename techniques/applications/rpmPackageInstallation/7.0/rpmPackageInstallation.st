@@ -119,6 +119,11 @@ bundle agent check_rpm_package_installation {
 
       "first_pass" expression => "any";
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   packages:
     redhat|SuSE::
       # Case 1: Not an update, or an update on SuSE without proper Zypper
@@ -149,6 +154,39 @@ bundle agent check_rpm_package_installation {
         ifvarclass => "${index_rpmpkg}_package_version_defined.!(rpm_package_installation_${index_rpmpkg}_repaired|rpm_package_installation_${index_rpmpkg}_error|rpm_package_installation_${index_rpmpkg}_kept)",
         comment => "Handling ${rpm_package[${index_rpmpkg}]} using yum_nobulk, policy : ${rpm_data[${index_rpmpkg}][0]}";
 
+  methods:
+
+    pass3.(redhat|SuSE)::
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Performed repair action for RPM package ${rpm_package[${index_rpmpkg}]} to comply with policy: ${rpm_data[${index_rpmpkg}][0]}")
+        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_repaired");
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}")
+        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_error");
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}")
+        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_kept");
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update")
+        ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.rpm_package_installation_updated_available_packages_error";
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}")
+        ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.(rpm_package_installation_updated_available_packages_kept|rpm_package_installation_updated_available_packages_repaired).!${index_rpmpkg}_update_version_valid";
+
+
+    # ZMD Process presence related reports
+    pass3.((redhat|SuSE).!(SuSE_10.!zypper_version_ok))::
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "ZMD process presence verification not necessary. Skipping ...");
+
+    pass3.((redhat|SuSE).SuSE_10.!zmd_restart.!zypper_version_ok)::
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD process is present. Skipping ...");
+
+    pass3.((redhat|SuSE).SuSE_10.zmd_restarted.!zypper_version_ok)::
+      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon was successfully restarted");
+
+    pass3.((redhat|SuSE).SuSE_10.could_not_restart_zmd.!zypper_version_ok)::
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon failed to restart");
+
   processes:
 
     SuSE_10.!zypper_version_ok::
@@ -165,39 +203,6 @@ bundle agent check_rpm_package_installation {
         classes    => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
         ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok",
         comment    => "Restart the ZMD daemon";
-
-  reports:
-
-    redhat|SuSE::
-
-      "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#Performed repair action for RPM package ${rpm_package[${index_rpmpkg}]} to comply with policy: ${rpm_data[${index_rpmpkg}][0]}"
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_repaired");
-
-      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_error");
-
-      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_kept");
-
-      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update"
-        ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.rpm_package_installation_updated_available_packages_error";
-
-      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"
-        ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.(rpm_package_installation_updated_available_packages_kept|rpm_package_installation_updated_available_packages_repaired).!${index_rpmpkg}_update_version_valid";
-
-
-    # ZMD Process presence related reports
-    (redhat|SuSE).!(SuSE_10.!zypper_version_ok)::
-      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#ZMD process presence verification not necessary. Skipping ...";
-
-    (redhat|SuSE).SuSE_10.!zmd_restart.!zypper_version_ok::
-      "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ...";
-
-    (redhat|SuSE).SuSE_10.zmd_restarted.!zypper_version_ok::
-      "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted";
-
-    (redhat|SuSE).SuSE_10.could_not_restart_zmd.!zypper_version_ok::
-      "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart";
 
 }
 

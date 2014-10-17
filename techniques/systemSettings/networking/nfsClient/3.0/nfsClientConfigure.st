@@ -48,6 +48,33 @@ bundle agent check_nfs_client_configuration
       "index_${nfs_client_index}_add" expression => strcmp("${nfs_client_umount[${nfs_client_index}]}", "no");
       "index_${nfs_client_index}_remove" expression => strcmp("${nfs_client_umount[${nfs_client_index}]}", "yes");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.(!windows)::
+
+      "any" usebundle => rudder_common_report("nfsClient", "result_repaired", "${nfs_client_uuid[${nfs_client_index}]}", "NFS mountpoint", "${nfs_client_local_path[${nfs_client_index}]}", "The path ${nfs_client_local_path[${nfs_client_index}]} was successfully mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}")
+        ifvarclass => "${nfs_client_index}_operation_ok.index_${nfs_client_index}_add";
+
+      "any" usebundle => rudder_common_report("nfsClient", "result_repaired", "${nfs_client_uuid[${nfs_client_index}]}", "NFS mountpoint", "${nfs_client_local_path[${nfs_client_index}]}", "The path ${nfs_client_local_path[${nfs_client_index}]} was successfully unmounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}")
+        ifvarclass => "${nfs_client_index}_operation_ok.index_${nfs_client_index}_remove";
+
+      "any" usebundle => rudder_common_report("nfsClient", "result_success", "${nfs_client_uuid[${nfs_client_index}]}", "NFS mountpoint", "${nfs_client_local_path[${nfs_client_index}]}", "The path ${nfs_client_local_path[${nfs_client_index}]} was already mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}")
+        ifvarclass => "${nfs_client_index}_operation_kept.index_${nfs_client_index}_add";
+
+      "any" usebundle => rudder_common_report("nfsClient", "result_success", "${nfs_client_uuid[${nfs_client_index}]}", "NFS mountpoint", "${nfs_client_local_path[${nfs_client_index}]}", "The path ${nfs_client_local_path[${nfs_client_index}]} was not mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}")
+        ifvarclass => "${nfs_client_index}_operation_kept.index_${nfs_client_index}_remove";
+
+      "any" usebundle => rudder_common_report("nfsClient", "result_error", "${nfs_client_uuid[${nfs_client_index}]}", "NFS mountpoint", "${nfs_client_local_path[${nfs_client_index}]}", "The path ${nfs_client_local_path[${nfs_client_index}]} was NOT mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}. This could be an error in the mount definition or an nfs failure")
+        ifvarclass => "${nfs_client_index}_operation_failed.!${nfs_client_index}_operation_ok.index_${nfs_client_index}_add";
+
+      "any" usebundle => rudder_common_report("nfsClient", "result_error", "${nfs_client_uuid[${nfs_client_index}]}", "NFS mountpoint", "${nfs_client_local_path[${nfs_client_index}]}", "The path ${nfs_client_local_path[${nfs_client_index}]} was NOT unmounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}. This could be an error in the mount definition or an nfs failure")
+        ifvarclass => "${nfs_client_index}_operation_failed.!${nfs_client_index}_operation_ok.index_${nfs_client_index}_remove";
+
   storage:
 
     !windows::
@@ -61,27 +88,5 @@ bundle agent check_nfs_client_configuration
         mount => unmount,
         classes => kept_if_else("${nfs_client_index}_operation_kept", "${nfs_client_index}_operation_ok", "${nfs_client_index}_operation_failed"),
         ifvarclass => "index_${nfs_client_index}_remove";
-
-  reports:
-
-    !windows::
-
-      "@@nfsClient@@result_repaired@@${nfs_client_uuid[${nfs_client_index}]}@@NFS mountpoint@@${nfs_client_local_path[${nfs_client_index}]}@@${g.execRun}##${g.uuid}@#The path ${nfs_client_local_path[${nfs_client_index}]} was successfully mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}"
-        ifvarclass => "${nfs_client_index}_operation_ok.index_${nfs_client_index}_add";
-
-      "@@nfsClient@@result_repaired@@${nfs_client_uuid[${nfs_client_index}]}@@NFS mountpoint@@${nfs_client_local_path[${nfs_client_index}]}@@${g.execRun}##${g.uuid}@#The path ${nfs_client_local_path[${nfs_client_index}]} was successfully unmounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}"
-        ifvarclass => "${nfs_client_index}_operation_ok.index_${nfs_client_index}_remove";
-
-      "@@nfsClient@@result_success@@${nfs_client_uuid[${nfs_client_index}]}@@NFS mountpoint@@${nfs_client_local_path[${nfs_client_index}]}@@${g.execRun}##${g.uuid}@#The path ${nfs_client_local_path[${nfs_client_index}]} was already mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}"
-        ifvarclass => "${nfs_client_index}_operation_kept.index_${nfs_client_index}_add";
-
-      "@@nfsClient@@result_success@@${nfs_client_uuid[${nfs_client_index}]}@@NFS mountpoint@@${nfs_client_local_path[${nfs_client_index}]}@@${g.execRun}##${g.uuid}@#The path ${nfs_client_local_path[${nfs_client_index}]} was not mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}"
-        ifvarclass => "${nfs_client_index}_operation_kept.index_${nfs_client_index}_remove";
-
-      "@@nfsClient@@result_error@@${nfs_client_uuid[${nfs_client_index}]}@@NFS mountpoint@@${nfs_client_local_path[${nfs_client_index}]}@@${g.execRun}##${g.uuid}@#The path ${nfs_client_local_path[${nfs_client_index}]} was NOT mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}. This could be an error in the mount definition or an nfs failure"
-        ifvarclass => "${nfs_client_index}_operation_failed.!${nfs_client_index}_operation_ok.index_${nfs_client_index}_add";
-
-      "@@nfsClient@@result_error@@${nfs_client_uuid[${nfs_client_index}]}@@NFS mountpoint@@${nfs_client_local_path[${nfs_client_index}]}@@${g.execRun}##${g.uuid}@#The path ${nfs_client_local_path[${nfs_client_index}]} was NOT unmounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}. This could be an error in the mount definition or an nfs failure"
-        ifvarclass => "${nfs_client_index}_operation_failed.!${nfs_client_index}_operation_ok.index_${nfs_client_index}_remove";
 
 }
