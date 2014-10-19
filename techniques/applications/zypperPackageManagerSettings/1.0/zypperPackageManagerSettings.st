@@ -104,16 +104,16 @@ bundle agent check_zypper_settings
     # Zypper repositories desactivation
 
     zypper_disablerepositories.!repos_disabled_ok.!repos_disabled_fail::
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were already disabled";
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were already disabled";
 
     zypper_disablerepositories.repos_disabled_ok::
-      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were disabled";
+      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were disabled";
 
     zypper_disablerepositories.repos_disabled_fail::
-      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Could not disable the other repositories!";
+      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#Could not disable the other repositories!";
 
     !zypper_disablerepositories::
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#The repository desactivation has not been requested. Skipping...";
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#The repository desactivation has not been requested. Skipping...";
 
 
     # Ignore non-SuSE OSes
