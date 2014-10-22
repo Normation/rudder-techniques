@@ -139,6 +139,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </SECTION>
     <SECTION name="Hardware clock (RTC)" component="true">
       <INPUT>
+        <NAME>CLOCK_HWSYNC_ENABLE</NAME>
+        <DESCRIPTION>Synchronize the system clock periodically with the hardware clock</DESCRIPTION>
+        <LONGDESCRIPTION>Save the system clock to the hardware clock periodically. Can cause problems with Xen DomU's!</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
         <NAME>CLOCK_SYNCSCHED</NAME>
         <DESCRIPTION>Set hardware clock from system clock every (minutes)</DESCRIPTION>
         <LONGDESCRIPTION>This is the time to wait between each synchronisation of the system clock to the the hardware clock.</LONGDESCRIPTION>
