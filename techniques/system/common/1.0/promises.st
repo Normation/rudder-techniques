@@ -61,7 +61,8 @@ bundle common va
         "garbage_collection",
         "check_binaries_freshness",
         "e2s_enable",
-        "check_zypper"
+        "check_zypper",
+        "configure_ncf"
       };
 
     !policy_server::
@@ -82,7 +83,8 @@ bundle common va
         "check_rsyslog_version",
         "e2s_enable",
         "check_zypper",
-        "check_uuid"
+        "check_uuid",
+        "configure_ncf"
       };
 
     any::
@@ -819,4 +821,12 @@ bundle edit_line ensure_rsyslogd_on_suse
       "^SYSLOG_DAEMON=.*$"
         edit_field => col("=","2","\"rsyslogd\"","set"),
         comment => "Match a line starting like key = something";
+}
+
+################################################
+# Configure ncf
+
+bundle agent configure_ncf {
+  methods:
+    "configure_ncf" usebundle => configuration("${g.ncf_config_filename}");
 }
