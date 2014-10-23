@@ -156,59 +156,6 @@ bundle edit_line set_zypper_repos(zypper_name, zypper_url, zypper_enabled, zyppe
 
 }
 
-bundle edit_line set_zypper_repos_BROKEN(zypper_name, zypper_url, zypper_enabled, zypper_type)
-{
-
-  vars:
-
-      "zypper_index" slist => getindices("${zypper_name}");
-
-  insert_lines:
-        "${rudder_parameters.rudder_file_edit_header}"
-        location => start,
-        insert_type => "preserve_block";
-
-      "[${${zypper_name}[${zypper_index}]}]"
-        classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
-
-      "name=${${zypper_name}[${zypper_index}]}"
-        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
-        classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
-
-      "enabled=${${zypper_enabled}[${zypper_index}]}"
-        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
-        classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
-
-      "autorefresh=0"
-        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
-        classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
-
-      "baseurl=${${zypper_url}[${zypper_index}]}"
-        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
-        classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
-
-      "type=${${zypper_type}[${zypper_index}]}"
-        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
-        classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
-
-      "keeppackages=0"
-        select_region => INI_section("${${zypper_name}[${zypper_index}]}"),
-        classes => kept_if_else("source_${zypper_index}_kept", "source_${zypper_index}_ok", "source_${zypper_index}_failed");
-
-  reports:
-
-  # Repositories
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} was already here. Skipping..."
-        ifvarclass => "source_${zypper_index}_kept.!source_${zypper_index}_ok";
-
-      "@@zypperPackageManagerSettings@@result_repaired@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} has been successfully added"
-        ifvarclass => "source_${zypper_index}_ok";
-
-      "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@Repository@@${zypper_url[${zypper_index}]}@@${g.execRun}##${g.uuid}@#The ZYPPER source ${zypper_name[${zypper_index}]} was NOT added!"
-        ifvarclass => "source_${zypper_index}_failed";
-
-}
-
 bundle edit_line set_advanced_zypper_config_values(tab, sectionName)
 {
  # Sets the RHS of configuration items in the file of the form

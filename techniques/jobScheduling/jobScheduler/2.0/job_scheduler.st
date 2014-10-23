@@ -31,15 +31,8 @@ bundle agent job_scheduler
 
     nos::
 
-      "test_hours_${iterator}[${all_hours}]" string => "job_scheduler_${all_hours}_${iterator}",
-        ifvarclass => "test_${all_hours}_${iterator}";
-
         # This should work, but produces errors when CFEngine checks the promises like: "Unable to parse class expression: [garbage]"
         # ifvarclass => or(and(isgreaterthan("${all_hours}", "${job_scheduler_time_min[${iterator}]}"), islessthan("${all_hours}", "${job_scheduler_time_max[${iterator}]}")), strcmp("${job_scheduler_time_min[${iterator}]}", "${all_hours}"));
-
-    nos2::
-
-      "test_hours_list_${iterator}" slist => getvalues("test_hours_${iterator}");
 
   classes:
 
@@ -49,12 +42,33 @@ bundle agent job_scheduler
       "test_${all_hours}_enclosed_${iterator}" and => { isgreaterthan("${all_hours}", "${job_scheduler_time_min[${iterator}]}"), islessthan("${all_hours}", "${job_scheduler_time_max[${iterator}]}") };
       "test_${all_hours}_${iterator}"          or  => { "test_${all_hours}_enclosed_${iterator}", strcmp("${job_scheduler_time_min[${iterator}]}", "${all_hours}") };
 
-    nos2::
-      "run_time_${iterator}" select_class => { "@{test_hours_list_${iterator}}" };
-
     any::
+      "nos3" expression => "nos2";
       "nos2" expression => "nos";
       "nos" expression => "any";
+
+  methods:
+    nos3::
+      # Note: if the command has not been executed (ever or since > frequency), no report will be sent until the splayclass is defined
+      # This will cause Rudder to report an "Unknown" status, and is by design
+
+      "any" usebundle => rudder_common_report("jobScheduler", "result_success", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job returned a success return code after the last completed execution (${job_scheduler_command[${iterator}]})"),
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_ok";
+
+      "any" usebundle => rudder_common_report("jobScheduler", "result_repaired", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job returned a repaired return code on last completed execution (${job_scheduler_command[${iterator}]})"),
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_repaired";
+
+      "any" usebundle => rudder_common_report("jobScheduler", "result_error", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job failed on last completed execution (${job_scheduler_command[${iterator}]})"),
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_failed";
+
+      "any" usebundle => rudder_common_report("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job has been launched (${job_scheduler_command[${iterator}]}), result will be reported on next run"),
+        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time.!job_scheduler_lock_${iterator}",
+        # we define here the persistent class, as the command exection is done on the last iteration
+        comment    => "Define a persistent class to prevent multiple job executions",
+        classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}", "5");
+
+      "any" usebundle => rudder_common_report("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "The command will be run at a random time after ${all_hours}:00 on this node (${job_scheduler_command[${iterator}]})"),
+        ifvarclass => "job_scheduler_${all_hours}_${iterator}";
 
   commands:
 
@@ -70,26 +84,6 @@ bundle agent job_scheduler
       "@{job_scheduler.kept_returncodes_${iterator}}",
       "@{job_scheduler.repaired_returncodes_${iterator}}",
       "@{job_scheduler.error_returncodes_${iterator}}");
-
-  reports:
-    nos2::
-      # Note: if the command has not been executed (ever or since > frequency), no report will be sent until the splayclass is defined
-      # This will cause Rudder to report an "Unknown" status, and is by design
-      "@@jobScheduler@@result_success@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#Job returned a success return code after the last completed execution (${job_scheduler_command[${iterator}]})"
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_ok";
-      "@@jobScheduler@@result_repaired@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#Job returned a repaired return code on last completed execution (${job_scheduler_command[${iterator}]})"
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_repaired";
-      "@@jobScheduler@@result_error@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#Job failed on last completed execution (${job_scheduler_command[${iterator}]})"
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_failed";
-
-      "@@jobScheduler@@log_info@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#Job has been launched (${job_scheduler_command[${iterator}]}), result will be reported on next run"
-        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time.!job_scheduler_lock_${iterator}",
-        # we define here the persistent class, as the command exection is done on the last iteration
-        comment    => "Define a persistent class to prevent multiple job executions",
-        classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}", "5");
-
-      "@@jobScheduler@@log_info@@${job_scheduler_uuids[${iterator}]}@@Job@@${job_scheduler_command[${iterator}]}@@${g.execRun}##${g.uuid}@#The command will be run at a random time after ${all_hours}:00 on this node (${job_scheduler_command[${iterator}]})"
-        ifvarclass => "job_scheduler_${all_hours}_${iterator}";
 
 }
 
