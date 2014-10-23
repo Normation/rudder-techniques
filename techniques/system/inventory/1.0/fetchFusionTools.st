@@ -53,15 +53,15 @@ bundle agent fetchFusionTools
         classes => rudder_common_classes("fetchFusionTools_install_curl"),
         comment => "Installing curl using yum";
 
-  reports:
+  methods:
     fusion_tools_copied::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@tools@@None@@${g.execRun}##${g.uuid}@#Copied fusion related utilities";
+      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "tools", "None", "Copied fusion related utilities");
 
     cannot_copy_fusion_tools::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@tools@@None@@${g.execRun}##${g.uuid}@#Can't copy fusion utilities. Fusion might not work";
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "tools", "None", "Can't copy fusion utilities. Fusion might not work");
 
     fetchFusionTools_install_curl_error::
-      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@tools@@None@@${g.execRun}##${g.uuid}@#Installing 'curl' failed. Inventory registration will fail if curl is unavailable";
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "inventory-all", "inventory-all", "00", "Installing 'curl' failed. Inventory registration will fail if curl is unavailable");
 
 }
 

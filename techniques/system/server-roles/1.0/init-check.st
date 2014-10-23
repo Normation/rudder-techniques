@@ -30,6 +30,31 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
       # relay servers.
       "process_exception_on_relay" expression => strcmp("${check_on_relay_server}", "true");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.(root_server|process_exception_on_relay)::
+
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process is already running")
+        ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
+
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process was not running and has been restarted")
+        ifvarclass => "process_restart_${canoname}.process_restart_ok_${canoname}.!forced_trigger_${canoname}";
+
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process has been restarted")
+        ifvarclass => "process_restart_ok_${canoname}.forced_trigger_${canoname}";
+
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process couldn't be restarted")
+        ifvarclass => "process_restart_error_${canoname}";
+
+    pass3.(policy_server.!root_server.!process_exception_on_relay)::
+
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process do not need to be checked on relay servers. Skipping...");
+
   processes:
 
     root_server|process_exception_on_relay::
@@ -51,26 +76,6 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
         classes => kept_if_else("process_restart_ok_${canoname}", "process_restart_ok_${canoname}", "process_restart_error_${canoname}"),
         ifvarclass => "process_restart_${canoname}|forced_trigger_${canoname}";
 
-  reports:
-
-    root_server|process_exception_on_relay::
-
-		"@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process is already running"
-			ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
-
-		"@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process was not running and has been restarted"
-			ifvarclass => "process_restart_${canoname}.process_restart_ok_${canoname}.!forced_trigger_${canoname}";
-
-		"@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process has been restarted"
-			ifvarclass => "process_restart_ok_${canoname}.forced_trigger_${canoname}";
-
-		"@@server-roles@@result_error@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process couldn't be restarted"
-			ifvarclass => "process_restart_error_${canoname}";
-
-    policy_server.!root_server.!process_exception_on_relay::
-
-		"@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process do not need to be checked on relay servers. Skipping...";
-
 }
 
 bundle agent generic_process_check_bootstart(binary, initscript, name) {
@@ -89,6 +94,12 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
       "check_command"     string => "/sbin/chkconfig --list ${initscript} | grep -q on";
       "bootstart_command" string => "/sbin/chkconfig ${initscript} on";
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     debian::
@@ -98,7 +109,20 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
         action => WarnOnly,
         classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}");
 
-	commands:
+  methods:
+
+    pass3.cfengine::
+
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} boot script", "None", "${name} is started on boot as required")
+        ifvarclass => "service_bootstarted_${canoname}";
+
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} boot script", "None", "${name} has been set to start on boot")
+        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_ok_${canoname}";
+
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${name} boot script", "None", "Could not set ${name} to start on boot!")
+        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_fail_${canoname}";
+
+  commands:
 
     (SuSE|redhat)::
 
@@ -120,18 +144,5 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
         classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
         ifvarclass => "service_unbootstarted_${canoname}",
         comment => "Set the service ${name} to start on boot";
-
-  reports:
-
-    cfengine::
-
-      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} is started on boot as required"
-        ifvarclass => "service_bootstarted_${canoname}";
-
-      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} has been set to start on boot"
-        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_ok_${canoname}";
-
-      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#Could not set ${name} to start on boot!"
-        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_fail_${canoname}";
 
 }
