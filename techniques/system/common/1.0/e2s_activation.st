@@ -29,6 +29,12 @@
 bundle agent e2s_enable
 {
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   methods:
 
     windows::
@@ -40,12 +46,11 @@ bundle agent e2s_enable
       "any" usebundle => e2sLaunch;
 &endif&
 
-  reports:
-    e2s_tool_copied|e2s_installed|e2s_configure_repaired|e2s_service_repaired::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Centreon E2S service was not installed, configured and running. Fixed.";
+    pass3.(e2s_tool_copied|e2s_installed|e2s_configure_repaired|e2s_service_repaired)::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Centreon E2S service was not installed, configured and running. Fixed.");
 
-    e2s_tool_kept.!e2s_tool_copied.!cannot_copy_e2s.!e2s_installed.!e2s_install_failed.e2s_configure_kept.!e2s_configure_repaired.!e2s_configure_error.e2s_service_kept.!e2s_service_repaired.!e2s_service_error::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Centreon E2S service already installed, configured and running as expected.";
+    pass3.(e2s_tool_kept.!e2s_tool_copied.!cannot_copy_e2s.!e2s_installed.!e2s_install_failed.e2s_configure_kept.!e2s_configure_repaired.!e2s_configure_error.e2s_service_kept.!e2s_service_repaired.!e2s_service_error)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "Centreon E2S service already installed, configured and running as expected.");
 
 }
 
@@ -62,6 +67,12 @@ bundle common e2sCommon
 bundle agent e2sGet
 {
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
     windows::
       "${g.rudder_sbin}/centreon_e2s.exe"
@@ -76,13 +87,13 @@ bundle agent e2sGet
         classes   => kept_if_else("e2s_tool_kept", "e2s_tool_copied", "cannot_copy_e2s"),
         comment   => "Copying tool for e2s conversion";
 
-  reports:
+  methods:
 
-    e2s_tool_copied::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Copied E2S utilities";
+    pass3.e2s_tool_copied::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Copied E2S utilities");
 
-    cannot_copy_e2s::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not copy E2S utilities";
+    pass3.cannot_copy_e2s::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not copy E2S utilities");
 
 }
 
@@ -97,6 +108,18 @@ bundle agent e2sInstall
     x86_64::
       "e2s_ok" expression => fileexists("${sys.winprogdir86}\Centreon\Centreon E2S\Centreon-EventLog-2-Syslog.exe");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.e2s_installed::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Installed Centreon E2S");
+    pass3.e2s_install_failed::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Failed to install Centreon E2S");
+
   commands:
 
     windows.!e2s_ok::
@@ -106,13 +129,6 @@ bundle agent e2sInstall
         contain => outputable_dir("${g.rudder_sbin}"),
         classes => cf2_if_else("e2s_installed", "e2s_install_failed"),
         comment => "Installing Centreon E2S";
-
-  reports:
-
-    e2s_installed::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Installed Centreon E2S";
-    e2s_install_failed::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Failed to install Centreon E2S";
 
 }
 
@@ -125,6 +141,12 @@ bundle agent e2sConfigure
     x86_64::
       "e2s_config_file" string => "${sys.winprogdir86}\Centreon\Centreon E2S\Configuration.xml";
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
       "${e2s_config_file}"
@@ -133,17 +155,32 @@ bundle agent e2sConfigure
         edit_line     => e2s_parameters("${server_info.cfserved}", "&SYSLOGPORT&", "TCP", "${e2sCommon.e2s_tpl}"),
         edit_defaults => empty_backup;
 
-  reports:
-    e2s_configure_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Failed to configure Centreon E2S";
-    e2s_configure_repaired::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Update Centreon E2S configuration";
+  methods:
+    pass3.e2s_configure_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Failed to configure Centreon E2S");
+    pass3.e2s_configure_repaired::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Update Centreon E2S configuration");
 
 }
 
 &if(NOVA)&
 bundle agent e2sLaunch
 {
+
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+    pass3.e2s_service_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Error while checking or restarting Centreon E2S service");
+    pass3.e2s_service_repaired::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Centreon E2S was restarted");
+
+    pass3.(e2s_service_kept.!e2s_configure_repaired)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "Centreon E2S was correctly configured");
 
   services:
 
@@ -152,14 +189,6 @@ bundle agent e2sLaunch
         service_method => u_bootstart,
         classes        => kept_if_else("e2s_service_kept", "e2s_service_repaired", "e2s_service_error");
 
-  reports:
-    e2s_service_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Error while checking or restarting Centreon E2S service";
-    e2s_service_repaired::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Centreon E2S was restarted";
-
-    e2s_service_kept.!e2s_configure_repaired::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Centreon E2S was correctly configured";
 }
 &endif&
 

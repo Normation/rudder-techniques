@@ -27,12 +27,31 @@ bundle agent root_technique_reload
 
       "root_technique_reload_trigger" expression => fileexists("${g.rudder_base}/etc/force_technique_reload");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     root_technique_reload_rest_call_repaired::
       "${g.rudder_base}/etc/force_technique_reload"
         delete => tidy,
         comment => "Deleting the force_technique_reload file because it is no longer relevant";
+
+  methods:
+
+    pass3.root_technique_reload_trigger::
+
+      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check Technique library reloading file", "None", "The ${g.rudder_base}/etc/force_technique_reload file is present. Reloading Technique library...");
+
+    pass3.root_technique_reload_rest_call_repaired::
+
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check Technique library reloading file", "None", "The Technique library has been reloaded.");
+
+    pass3.root_technique_reload_rest_call_failed::
+
+      "any" usebundle => rudder_common_report("server-roles", "log_warn", "&TRACKINGKEY&", "Check Technique library reloading file", "None", "The Technique library failed to reload. Will try again next time");
 
   commands:
 
@@ -42,19 +61,5 @@ bundle agent root_technique_reload
         contain => in_shell_silent,
         classes => rudder_common_classes("root_technique_reload_rest_call"),
         comment => "Reload the Technique library using the Rudder API";
-
-  reports:
-
-    root_technique_reload_trigger::
-
-      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_base}/etc/force_technique_reload file is present. Reloading Technique library...";
-
-    root_technique_reload_rest_call_repaired::
-
-      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library has been reloaded.";
-
-    root_technique_reload_rest_call_failed::
-
-      "@@server-roles@@log_warn@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library failed to reload. Will try again next time";
 
 }
