@@ -24,6 +24,7 @@ It then reports out of bounds process count numbers, restarts them if
 necessary and kill undesired processes.
 -->
 <TECHNIQUE name="Process Management">
+  <DEPRECATED>This Technique has been replaced by the "Services Management" technique. It will no longer be available in the next stable version of Rudder. Please replace this Directive by an instance of "Services Management".</DEPRECATED>
   <DESCRIPTION>Enforce defined parameters on system processes</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>

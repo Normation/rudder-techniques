@@ -24,6 +24,7 @@ It then reports out of bounds process count numbers, restarts them if
 necessary and kill undesired processes.
 -->
 <TECHNIQUE name="Services Management">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>Check and enforce the state of processes and services</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>

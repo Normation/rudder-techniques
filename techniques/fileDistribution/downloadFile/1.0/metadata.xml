@@ -24,6 +24,7 @@ the given destination.
 -->
 
 <TECHNIQUE name="Download a file">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique downloads a file from a server.
 
   It takes a cURL compatible source (HTTP/FTP/...) and a destination on the target host.

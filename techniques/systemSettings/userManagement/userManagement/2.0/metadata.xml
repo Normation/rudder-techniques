@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check the user parameters on the target host.
 -->
 <TECHNIQUE name="User management">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique manages the target host(s) users.
 
   It will ensure that the defined users are present on the system.</DESCRIPTION>
