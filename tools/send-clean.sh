@@ -30,6 +30,12 @@ FAILEDDIR=$4
 BASENAME=$(basename ${2})
 CURL_BINARY="/usr/bin/curl"
 
+# Create the necessary directories if needed
+for i in "${ARCHIVEDIR}" "${FAILEDDIR}"
+do
+  mkdir -p ${i}
+done
+
 # Attempt to send the file
 HTTP_CODE=`${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} -o /dev/null -w '%{http_code}' ${SERVER}`
 SEND_COMMAND_RET=$?
