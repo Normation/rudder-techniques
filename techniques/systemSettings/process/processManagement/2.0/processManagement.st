@@ -54,22 +54,22 @@ bundle agent check_process(directiveId, name, maxInst, minInst, command, args)
 
     pass3.cfengine_3::
 
-      "any" usebundle => rudder_common_report("ProcessManagement", "result_error", "${directiveId}", "Process", "${name}", "${name}: the process count could't be checked")
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_error", "${directiveId}", "Process", "${name}", "${name}: the process count could't be checked"),
         ifvarclass => canonify("${name}_error");
 
-      "any" usebundle => rudder_common_report("ProcessManagement", "log_info", "${directiveId}", "Process", "${name}", "${name}: the process instance count is out of the permitted range")
+      "any" usebundle => rudder_common_report("ProcessManagement", "log_info", "${directiveId}", "Process", "${name}", "${name}: the process instance count is out of the permitted range"),
         ifvarclass => canonify("${name}_anomaly");
 
-      "any" usebundle => rudder_common_report("ProcessManagement", "log_info", "${directiveId}", "Process", "${name}", "${name}: the process will be restarted")
+      "any" usebundle => rudder_common_report("ProcessManagement", "log_info", "${directiveId}", "Process", "${name}", "${name}: the process will be restarted"),
         ifvarclass => canonify("${name}_restart");
 
-      "any" usebundle => rudder_common_report("ProcessManagement", "result_success", "${directiveId}", "Process", "${name}", "${name}: the process was in range (${minInst}-${maxInst})")
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_success", "${directiveId}", "Process", "${name}", "${name}: the process was in range (${minInst}-${maxInst})"),
         ifvarclass => canonify("${name}_ok");
 
-      "any" usebundle => rudder_common_report("ProcessManagement", "result_repaired", "${directiveId}", "Process", "${name}", "${name}: the process has been restarted")
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_repaired", "${directiveId}", "Process", "${name}", "${name}: the process has been restarted"),
         ifvarclass => canonify("${name}_restart_ok");
 
-      "any" usebundle => rudder_common_report("ProcessManagement", "result_error", "${directiveId}", "Process", "${name}", "${name}: the process could not be restarted")
+      "any" usebundle => rudder_common_report("ProcessManagement", "result_error", "${directiveId}", "Process", "${name}", "${name}: the process could not be restarted"),
         ifvarclass => canonify("${name}_restart_error");
 
   processes:

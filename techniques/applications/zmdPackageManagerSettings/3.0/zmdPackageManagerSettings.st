@@ -122,19 +122,19 @@ bundle agent check_zmd_settings
 
       # Repositories
 
-      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} is not here but no edition required. Skipping...")
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} is not here but no edition required. Skipping..."),
         ifvarclass => "index_${zmd_index}_not_matched.!zmd_repositories_edit";
 
-      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was already here. Skipping...")
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was already here. Skipping..."),
         ifvarclass => "index_${zmd_index}_matched.!source_${zmd_index}_subscribed";
 
-      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_repaired", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} has been successfully added")
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_repaired", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} has been successfully added"),
         ifvarclass => "index_${zmd_index}_not_matched.source_${zmd_index}_subscribed";
 
-      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not register the source !")
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not register the source !"),
         ifvarclass => "source_${zmd_index}_failed";
 
-      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not subscribe to the source !")
+      "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "Repository", "${zmd_url[${zmd_index}]}", "The ZMD source ${zmd_name[${zmd_index}]} was NOT added : Could not subscribe to the source !"),
         ifvarclass => "source_${zmd_index}_subfailed";
 
       # ZMD Process presence related reports

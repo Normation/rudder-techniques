@@ -158,19 +158,19 @@ bundle agent check_rpm_package_installation {
 
     pass3.(redhat|SuSE)::
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Performed repair action for RPM package ${rpm_package[${index_rpmpkg}]} to comply with policy: ${rpm_data[${index_rpmpkg}][0]}")
+      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Performed repair action for RPM package ${rpm_package[${index_rpmpkg}]} to comply with policy: ${rpm_data[${index_rpmpkg}][0]}"),
         ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_repaired");
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}")
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"),
         ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_error");
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}")
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"),
         ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_kept");
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update")
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update"),
         ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.rpm_package_installation_updated_available_packages_error";
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}")
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"),
         ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.(rpm_package_installation_updated_available_packages_kept|rpm_package_installation_updated_available_packages_repaired).!${index_rpmpkg}_update_version_valid";
 
 

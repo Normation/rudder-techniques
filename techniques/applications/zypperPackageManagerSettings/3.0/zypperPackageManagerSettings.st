@@ -134,13 +134,13 @@ bundle agent check_zypper_settings
 
                 # Repositories
 
-      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} was already here. Skipping...")
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} was already here. Skipping..."),
         ifvarclass => "zypper_${zypper_index}_kept.!zypper_${zypper_index}_validated";
 
-      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_repaired", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} has been successfully added")
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_repaired", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} has been successfully added"),
         ifvarclass => "zypper_${zypper_index}_validated";
 
-      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} was NOT added!")
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "Repository", "${zypper_name[${zypper_index}]}", "The Zypper source ${zypper_name[${zypper_index}]} was NOT added!"),
         ifvarclass => "zypper_${zypper_index}_error";
 
 }

@@ -168,49 +168,49 @@ bundle agent download_from_shared_folder
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "There is no shared folder on the Rudder Server, so it's not possible to copy a file from it");
 
     pass3.is_valid::
-      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The content of the file(s) is valid")
+      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The content of the file(s) is valid"),
         ifvarclass => "copy_file_${index}_kept.!copy_file_${index}_repaired.!copy_file_${index}_error";
 
-      "any" usebundle => rudder_common_report("copyFile", "result_repaired", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The content or permissions of the file(s) has been repaired")
+      "any" usebundle => rudder_common_report("copyFile", "result_repaired", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The content or permissions of the file(s) has been repaired"),
         ifvarclass => "copy_file_${index}_repaired.!copy_file_${index}_error";
 
       # Error conditons
 
       ## The destination is not an existing directory
-      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The copy of the file failed: the destination (${copyfile[${index}][destination]}) is not stored in a valid directory")
+      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The copy of the file failed: the destination (${copyfile[${index}][destination]}) is not stored in a valid directory"),
         ifvarclass => "copy_file_${index}_dest_notdir";
 
       ## File access denied
-      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The copy of the file failed: access to ${copyfile[${index}][name]} denied by the server")
+      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The copy of the file failed: access to ${copyfile[${index}][name]} denied by the server"),
         ifvarclass => "copy_file_${index}_denied";
 
       ## User does not exist
-      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The permissions could not be applied on the file: user \"${copyfile[${index}][owner]}\" not found")
+      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The permissions could not be applied on the file: user \"${copyfile[${index}][owner]}\" not found"),
         ifvarclass => "copy_file_${index}_user_absent";
 
       ## Group does not exist
-      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The permissions could not be applied on the file: group \"${copyfile[${index}][group]}\" not found")
+      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The permissions could not be applied on the file: group \"${copyfile[${index}][group]}\" not found"),
         ifvarclass => "copy_file_${index}_group_absent";
 
       ## Generic failure
-      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The content or permissions of the file(s) could not have been repaired (file not found?)")
+      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The content or permissions of the file(s) could not have been repaired (file not found?)"),
         ifvarclass => "copy_file_${index}_error.!copy_file_${index}_dest_notdir.!copy_file_${index}_denied.!copy_file_${index}_user_absent.!copy_file_${index}_group_absent";
 
     #posthook reports
-      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "No post-hook command for ${copyfile[${index}][destination]} was defined, not executing")
+      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "No post-hook command for ${copyfile[${index}][destination]} was defined, not executing"),
         ifvarclass => "!execute_command_${index}";
 
-      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "${copyfile[${index}][destination]} was already in the desired state, so no command was executed")
+      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "${copyfile[${index}][destination]} was already in the desired state, so no command was executed"),
         ifvarclass => "execute_command_${index}.copy_file_${index}_kept.!copy_file_${index}_repaired";
 
-      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "The post-hook command for ${copyfile[${index}][destination]} was correctly executed")
+      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "The post-hook command for ${copyfile[${index}][destination]} was correctly executed"),
         ifvarclass => "copyfile_posthook_${index}_command_run_ok";
 
-      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "The post-hook command for ${copyfile[${index}][destination]} couldn't be executed")
+      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "The post-hook command for ${copyfile[${index}][destination]} couldn't be executed"),
         ifvarclass => "copyfile_posthook_${index}_command_run_failed";
 
       # A copy_from + perms could result in any combinaision of success/repaired/failed, so we have to cover the failed.modified which results in no copy
-      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "${copyfile[${index}][destination]} couldn't be copied, so the post-hook command is not executed")
+      "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "${copyfile[${index}][destination]} couldn't be copied, so the post-hook command is not executed"),
         ifvarclass => "execute_command_${index}.copy_file_${index}_error";
 
   commands:
