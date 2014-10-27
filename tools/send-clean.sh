@@ -39,6 +39,12 @@ if [ "z${BASENAME##*.}" = "zgz" ]; then
         FILENAME="${FILENAME%.*}"
 fi
 
+# Create the necessary directories if needed
+for i in "${ARCHIVEDIR}" "${FAILEDDIR}"
+do
+  mkdir -p ${i}
+done
+
 # Attempt to send the file
 HTTP_CODE=`${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} -o /dev/null -w '%{http_code}' ${SERVER}`
 SEND_COMMAND_RET=$?
