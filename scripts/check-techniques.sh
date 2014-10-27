@@ -108,10 +108,10 @@ do
 done
 
 # Check that techniques are written in normal ordering
-./technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | xargs ./ordering.pl || exit 9
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | xargs ${REPOSITORY_PATH}/scripts/ordering.pl || exit 9
 
 # Check that techniques do not contain $()
-./technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | while read filename
 do
   if grep '$(' "${filename}" >/dev/null; then
     echo "The file ${filename} contains deprecated \$() syntax"
