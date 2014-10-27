@@ -162,7 +162,7 @@ bundle agent check_openvpn_client_configuration
       "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN configuration is set correctly");
 
     pass3.((openvpn_tier1_validated.openvpn_tier2_validated.openvpn_keyring_validated)|(openvpn_tier1_kept.openvpn_tier2_kept.openvpn_keyring_kept))::
-      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN configuration is set correctly")
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN configuration is set correctly"),
         ifvarclass => canonify("ovpn_client_pwauth");
 
     pass3.(ovpn_client_autostart.openvpn_bootstarted_ok)::

@@ -262,10 +262,10 @@ bundle agent check_apache_configuration
 
     # if the list if defined by the user, we report on each element of this list
     pass3.(debian.apache_module_list_defined.apache_modules_ok)::
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Module settings", "${apache_modules_defined}", "The Apache module ${apache_modules_defined} was successfully enabled")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Module settings", "${apache_modules_defined}", "The Apache module ${apache_modules_defined} was successfully enabled"),
         ifvarclass => canonify("apache_module_${apache_modules_defined}_enabled");
 
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Module settings", "${apache_modules_defined}", "Could not enable apache module ${apache_modules_defined} !")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Module settings", "${apache_modules_defined}", "Could not enable apache module ${apache_modules_defined} !"),
         ifvarclass => canonify("apache_module_${apache_modules_defined}_not_enabled");
 
     pass3.(!debian.apache_modules_ok)::
@@ -274,10 +274,10 @@ bundle agent check_apache_configuration
 
     pass3.(apache_selinux_adjust.selinux_bin_present)::
 
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The SELinux context definition was successful for directory ${apache_vhost_root[${apache_vhost_index}]}")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The SELinux context definition was successful for directory ${apache_vhost_root[${apache_vhost_index}]}"),
         ifvarclass => canonify("apache_selinux_${apache_vhost_index}_adjusted");
 
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The SELinux context definition for directory ${apache_vhost_root[${apache_vhost_index}]} has failed !")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "SELinux context", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The SELinux context definition for directory ${apache_vhost_root[${apache_vhost_index}]} has failed !"),
         ifvarclass => canonify("apache_selinux_${apache_vhost_index}_not_adjusted");
 
     pass3.(apache_selinux_adjust.!selinux_bin_present)::
@@ -306,16 +306,16 @@ bundle agent check_apache_configuration
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Security settings edition", "None", "Apache HTTPD security settings could not be set !");
 
     pass3.cfengine::
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} already set")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} already set"),
         ifvarclass => "apache_vhost_${apache_vhost_index}_kept.!apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
 
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} reset")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} reset"),
         ifvarclass => "apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
 
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} could not be set !")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} could not be set !"),
         ifvarclass => "apache_vhost_${apache_vhost_index}_failed";
 
-      "any" usebundle => rudder_common_report("apacheServerConfiguration", "log_info", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The root directory ${apache_vhost_root[${apache_vhost_index}]} was created")
+      "any" usebundle => rudder_common_report("apacheServerConfiguration", "log_info", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The root directory ${apache_vhost_root[${apache_vhost_index}]} was created"),
         ifvarclass => canonify("root_${apache_vhost_root[${apache_vhost_index}]}_created");
 
     pass3.(apache_autostart.apache_bootstarted.!apache_unboostarted)::

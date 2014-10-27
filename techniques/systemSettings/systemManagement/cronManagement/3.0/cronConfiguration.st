@@ -100,13 +100,13 @@ bundle agent check_cron_configuration
 
     # Reports about the creation of the cron entries
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was present. Skipping...")
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was present. Skipping..."),
         ifvarclass => "cron_file_${cron_index}_kept.!cron_file_${cron_index}_edited";
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was created successfully")
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was created successfully"),
         ifvarclass => "cron_file_${cron_index}_edited";
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "Could not create the cron file ${cron_name[${cron_index}]}")
+      "any" usebundle => rudder_common_report("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "Could not create the cron file ${cron_name[${cron_index}]}"),
         ifvarclass => "cron_file_${cron_index}_failed";
 
     # Reports about the cron process presence

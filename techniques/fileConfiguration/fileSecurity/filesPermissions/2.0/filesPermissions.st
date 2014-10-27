@@ -181,48 +181,48 @@ bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_us
 
       # User
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} already matches current owner for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} already matches current owner for: ${fileName}"),
         ifvarclass => "${identifier}_owner_ok.!${identifier}_owner_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner reset to ${user} for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner reset to ${user} for: ${fileName}"),
         ifvarclass => "${identifier}_owner_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} could not be set for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} could not be set for: ${fileName}"),
         ifvarclass => "${identifier}_owner_not_repaired";
 
       # Group
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Group ${group} already matches current group for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Group ${group} already matches current group for: ${fileName}"),
         ifvarclass => "${identifier}_group_ok.!${identifier}_group_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Group reset to ${group} for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Group reset to ${group} for: ${fileName}"),
         ifvarclass => "${identifier}_group_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Group ${group} could not be set for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Group ${group} could not be set for: ${fileName}"),
         ifvarclass => "${identifier}_group_not_repaired";
 
       # Mode
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} already matches current mode for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} already matches current mode for: ${fileName}"),
         ifvarclass => "${identifier}_mode_ok.!${identifier}_mode_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Mode reset to ${extended_modes}${mode} for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Mode reset to ${extended_modes}${mode} for: ${fileName}"),
         ifvarclass => "${identifier}_mode_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} could not be set for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} could not be set for: ${fileName}"),
         ifvarclass => "${identifier}_mode_not_repaired";
 
   # Final report
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "Owner, group and permissions already correct for ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "Owner, group and permissions already correct for ${fileName}"),
         # Success if nothing in error AND nothing repaired
         ifvarclass => "(!${identifier}_owner_not_repaired.!${identifier}_group_not_repaired.!${identifier}_mode_not_repaired).(!${identifier}_owner_repaired.!${identifier}_group_repaired.!${identifier}_mode_repaired)";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions were fixed for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions were fixed for: ${fileName}"),
         # Repaired if nothing in error AND something repaired
         ifvarclass => "!${identifier}_owner_not_repaired.!${identifier}_group_not_repaired.!${identifier}_mode_not_repaired.(${identifier}_owner_repaired|${identifier}_group_repaired|${identifier}_mode_repaired)";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions could not be set for: ${fileName}")
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions could not be set for: ${fileName}"),
         # Error if something in error
         ifvarclass => "${identifier}_owner_not_repaired|${identifier}_group_not_repaired|${identifier}_mode_not_repaired";
 

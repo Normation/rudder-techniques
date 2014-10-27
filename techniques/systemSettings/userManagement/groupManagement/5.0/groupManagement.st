@@ -99,19 +99,19 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
     pass3.cfengine::
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and compliant with the policy")
+      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and compliant with the policy"),
                 ifvarclass => "groupmanagement_group_add_${index}_kept.!(groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and doesn't require to have its content enforced")
+      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and doesn't require to have its content enforced"),
                 ifvarclass => "!groupmanagement_group_${index}_enforce_content.!(groupmanagement_group_add_${index}_kept.groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_repaired", "${directiveId}", "Groups", "${name}", "The group ${name} has been updated")
+      "any" usebundle => rudder_common_report("groupManagement", "result_repaired", "${directiveId}", "Groups", "${name}", "The group ${name} has been updated"),
                 ifvarclass => "groupmanagement_group_add_${index}_repaired.!(groupmanagement_group_add_${index}_kept|groupmanagement_group_add_${index}_error)";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_error", "${directiveId}", "Groups", "${name}", "The group ${name} could not be created or updated")
+      "any" usebundle => rudder_common_report("groupManagement", "result_error", "${directiveId}", "Groups", "${name}", "The group ${name} could not be created or updated"),
                 ifvarclass => "groupmanagement_group_add_${index}_error";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is not present and not set to be created")
+      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is not present and not set to be created"),
                 ifvarclass => "groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_create";
 
     commands:

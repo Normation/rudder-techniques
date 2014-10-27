@@ -66,21 +66,21 @@ bundle agent check_nfs_server_configuration
 
     pass3.(!windows)::
 
-      "any" usebundle => rudder_common_report("nfsServer", "result_repaired", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} was successfully added")
+      "any" usebundle => rudder_common_report("nfsServer", "result_repaired", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} was successfully added"),
         ifvarclass => canonify("nfs_server_${nfs_server_index}_done");
 
-      "any" usebundle => rudder_common_report("nfsServer", "result_success", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} is already present")
+      "any" usebundle => rudder_common_report("nfsServer", "result_success", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} is already present"),
         ifvarclass => canonify("nfs_server_${nfs_server_index}_kept");
 
-      "any" usebundle => rudder_common_report("nfsServer", "result_error", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} could not be added")
+      "any" usebundle => rudder_common_report("nfsServer", "result_error", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} could not be added"),
         ifvarclass => canonify("nfs_server_${nfs_server_index}_failed");
 
     pass3.((debian|redhat|SuSE))::
 
-      "any" usebundle => rudder_common_report("nfsServer", "log_repaired", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Restarted the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}")
+      "any" usebundle => rudder_common_report("nfsServer", "log_repaired", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Restarted the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}"),
         ifvarclass => canonify("nfs_server_${nfs_server_index}_restarted");
 
-      "any" usebundle => rudder_common_report("nfsServer", "result_error", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Could not restart the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}")
+      "any" usebundle => rudder_common_report("nfsServer", "result_error", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Could not restart the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}"),
         ifvarclass => canonify("nfs_server_${nfs_server_index}_not_restarted");
 
   commands:
