@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if the required hosts entries are set.
 -->
 <TECHNIQUE name="Hosts settings">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique configures the machine hosts file. Be careful: The IP address is used as the key reference for any edition and if multiple hosts have been specified with the same IP in the hosts file, the matching entry defined here will take precedence and erase all the other occurrences of the same IP</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>

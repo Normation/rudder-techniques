@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to configure the /etc/sudoers file.
 -->
 <TECHNIQUE name="Sudo utility configuration">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique configures the sudo utility.
 
   It will ensure that the defined rights for given users and groups are correctly defined.</DESCRIPTION>

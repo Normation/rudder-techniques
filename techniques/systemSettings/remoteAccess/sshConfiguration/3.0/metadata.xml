@@ -28,6 +28,7 @@ It then adds ssh to the boot init scripts if not already set to start on boot.
 This implemenation is intended as a reference for Technique development best practices.
 -->
 <TECHNIQUE name="OpenSSH server">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
 
   <DESCRIPTION>This technique will configure the SSH service and ensure it is running.
 

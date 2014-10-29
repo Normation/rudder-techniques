@@ -24,6 +24,7 @@ then check if it is started on boot.
 It then adds openvpn to the boot init scripts if not already set to start on boot.
 -->
 <TECHNIQUE name="OpenVPN client">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique will configure the OpenVPN client service and ensure it is running.
 
   It will ensure the "openvpn" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.
