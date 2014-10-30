@@ -93,7 +93,7 @@ bundle agent check_ssh_key_distribution
         create        => "true",
         edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
         perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
-        edit_line     => append_or_replace_ssh_key("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
+        edit_line     => append_or_replace_ssh_key("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_index}"),
         ifvarclass    => canonify("user_${sshkey_distribution_index}_exists"),
         classes       => rudder_common_classes("${key_class_prefix[${sshkey_distribution_index}]}");
 
@@ -134,7 +134,7 @@ bundle agent check_ssh_key_distribution
 #   - key value ends with "="
 #   - no spaces are allowed in options, except in double-quoted strings
 #
-bundle edit_line append_or_replace_ssh_key(keyspec)
+bundle edit_line append_or_replace_ssh_key(keyspec, index)
 {
   vars:
     any::
@@ -161,12 +161,12 @@ bundle edit_line append_or_replace_ssh_key(keyspec)
       # NOTE: this is only to ensure that insert is attempted *after* the replace,
       # as normally insert step precedes the replace, see
       # (https://cfengine.com/docs/3.5/manuals-language-concepts-normal-ordering.html)
-      ifvarclass    => canonify("replace_step_attempted_${ckey}");
+      ifvarclass    => canonify("ssh_key_distribution_replace_step_attempted_${index}");
 
   replace_patterns:
     "^(?!${eline}$)(.*${ekey}.*)$"
       comment       => "Replace a key here",
       replace_with  => value("${keyspec}"),
       ifvarclass    => "key_parsed",
-      classes       => always("replace_step_attempted_${ckey}");
+      classes       => always("ssh_key_distribution_replace_step_attempted_${index}");
 }
