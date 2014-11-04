@@ -143,6 +143,7 @@ bundle agent check_clock_configuration
       "clock_set_norway" expression => strcmp("&CLOCK_TIMEZONE&","norway");
       "clock_set_beijing" expression => strcmp("&CLOCK_TIMEZONE&","beijing");
 
+      "clock_hwclock_sync" expression => strcmp("&CLOCK_HWSYNC_ENABLE&","true");
 
     clock_vardef.windows::
       # check if we need to change the windows timezone
@@ -320,7 +321,7 @@ bundle agent check_clock_configuration
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "SuSE-style time zone parameters already correct (/etc/sysconfig/clock)");
 
     # Global reports for the "Hardware clock (RTC)" component
-    pass3.((!windows.!ntp_hwclock_sync_error.!ntp_hwclock_synced))::
+    pass3.(!windows.!ntp_hwclock_sync_error.!ntp_hwclock_synced.clock_hwclock_sync)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "It is not yet time to synchronize the hardware clock with the NTP time. Skipping...");
 
     pass3.ntp_hwclock_synced::
@@ -331,6 +332,9 @@ bundle agent check_clock_configuration
 
     pass3.windows::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "The hardware clock is automatically synchronized with the NTP time on Windows");
+
+    pass3.!clock_hwclock_sync::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "No synchronization with the hardware clock was requested");
 
   processes:
 
@@ -375,7 +379,7 @@ bundle agent check_clock_configuration
         comment => "Restart the windows NTP service";
 
     # HW clock sync command
-    !windows::
+    !windows.clock_hwclock_sync::
       "/sbin/hwclock"
         args => "--systohc",
         action => if_elapsed("&CLOCK_SYNCSCHED&"),
