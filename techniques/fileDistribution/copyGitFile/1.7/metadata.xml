@@ -115,6 +115,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <VALUE>true</VALUE>
           <LABEL>True</LABEL>
         </ITEM>
+        <CONSTRAINT>
+                <DEFAULT>False</DEFAULT>
+        </CONSTRAINT>
       </SELECT1> 
       <SELECT1>
         <NAME>COPYFILE_COMPARE_METHOD</NAME>
