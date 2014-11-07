@@ -36,7 +36,7 @@ bundle agent files_permissions
 
       "any" usebundle => check_permissions("${file[${filePerms}][0]}",
       "${file[${filePerms}][1]}",
-      "${file[${filePerms}][2]}")
+      "${file[${filePerms}][2]}");
 
 }
 
