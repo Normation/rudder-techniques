@@ -36,25 +36,33 @@ bundle agent files_permissions
 
       "any" usebundle => check_permissions("${file[${filePerms}][0]}",
       "${file[${filePerms}][1]}",
-      "${file[${filePerms}][2]}",
-      "${file[${filePerms}][3]}",
-      "${file[${filePerms}][4]}",
-      "${file[${filePerms}][5]}",
-      "${file[${filePerms}][6]}",
-      "${file[${filePerms}][7]}",
-      "${file[${filePerms}][8]}",
-      "${file[${filePerms}][9]}",
-      "${file[${filePerms}][10]}");
+      "${file[${filePerms}][2]}")
 
 }
 
-bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_user, edit_group, edit_mode, suid, sgid, recursion)
+bundle agent check_permissions(directiveId, fileName, action_parameters)
 {
 
 
   vars:
 
       "identifier" string => canonify("${directiveId}${fileName}");
+
+      # Splitting the action parameters
+      # we need to do the split in two pass, as we cannot reliably use array with more than 10 column in CFEngine 3.6
+      # See https://dev.cfengine.com/issues/6674
+      "dim_array" int => parsestringarrayidx("permission_parameters", "${action_parameters}", "\s*#[^\n]*", ";;", 10, 4096);
+
+      # directly get the content of the value for ease of use in the technique
+      "user" string => "${permission_parameters[0][0]}";
+      "group" string => "${permission_parameters[0][1]}";
+      "mode" string => "${permission_parameters[0][2]}";
+      "edit_user" string => "${permission_parameters[0][3]}";
+      "edit_group" string => "${permission_parameters[0][4]}";
+      "edit_mode" string => "${permission_parameters[0][5]}";
+      "suid" string => "${permission_parameters[0][6]}";
+      "sgid" string => "${permission_parameters[0][7]}";
+      "recursion" string => "${permission_parameters[0][8]}";
 
     # See the explication below, before the "classes_defined" class definition
     classes_defined.enable_suid.!enable_sgid::
