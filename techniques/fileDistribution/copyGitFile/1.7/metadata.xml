@@ -104,6 +104,19 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </SELECT1>
       <SELECT1>
+        <NAME>COPYFILE_PURGE</NAME>
+        <DESCRIPTION>Purge the destination directory</DESCRIPTION>
+        <LONGDESCRIPTION>If this is enabled, all other content than the source in the destination directory will be purged.</LONGDESCRIPTION>
+        <ITEM>
+          <VALUE>false</VALUE>
+          <LABEL>False</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>true</VALUE>
+          <LABEL>True</LABEL>
+        </ITEM>
+      </SELECT1> 
+      <SELECT1>
         <NAME>COPYFILE_COMPARE_METHOD</NAME>
         <DESCRIPTION>File comparison method</DESCRIPTION>
         <LONGDESCRIPTION>This is the method to use for comparison between source and destination files.
