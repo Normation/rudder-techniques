@@ -116,7 +116,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <LABEL>True</LABEL>
         </ITEM>
         <CONSTRAINT>
-                <DEFAULT>False</DEFAULT>
+                <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </SELECT1> 
       <SELECT1>
