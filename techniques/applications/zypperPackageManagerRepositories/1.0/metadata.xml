@@ -49,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <NAME>ZYPPER_REPO_URL</NAME>
         <DESCRIPTION>Repository URL</DESCRIPTION>
       </INPUT>
-      <SELECT>
+      <SELECT1>
         <NAME>ZYPPER_REPO_TYPE</NAME>
         <DESCRIPTION>Repository type</DESCRIPTION>
         <LONGDESCRIPTION>You should not modify this entry, do it only if you know what you are doing</LONGDESCRIPTION>
@@ -64,7 +64,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <CONSTRAINT>
          <DEFAULT>yast2</DEFAULT>
         </CONSTRAINT>
-      </SELECT>
+      </SELECT1>
       <SELECT1>
         <NAME>ZYPPER_REPO_ENABLED</NAME>
         <DESCRIPTION>Enabled</DESCRIPTION>
