@@ -1,0 +1,4 @@
+  -- Nicolas CHARLES <nicolas.charles@normation.com> Tue Oct 21 18:00:00 CEST 2014
+   * Version 1.0
+   ** Creation to replace zypperPackageManagerSettings, which is now split in
+   ** Zypper Package Manager Setup, and Zypper Package Manager Repositories
