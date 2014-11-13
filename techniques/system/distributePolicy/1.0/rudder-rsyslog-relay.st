@@ -29,6 +29,13 @@ $UDPServerRun &SYSLOGPORT&
 # for Snare client
 $EscapeControlCharactersOnReceive off
 
+# for AIX clients
+# (strips "Message forwarded from" from the message)
+$ModLoad pmaixforwardedfrom
+$RulesetParser rsyslog.aixforwardedfrom
+$RulesetParser rsyslog.rfc5424
+$RulesetParser rsyslog.rfc3164
+
 # Log everything
 *.*	/var/log/rudder/reports/all.log
 
