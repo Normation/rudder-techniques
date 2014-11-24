@@ -140,7 +140,6 @@ bundle common va
 
 bundle common rudder_roles
 {
-
   classes:
       # Abort if no uuid is defined
       "should_not_continue" not => fileexists("${g.uuid_file}");
@@ -156,6 +155,10 @@ bundle common rudder_roles
 
       # full compliance is the default mode
       "full_compliance" not => "changes_only";
+
+      # heartbeat mode
+      "heartbeat_enabled" expression => strcmp("&RUDDER_HEARTBEAT_MODE&", "true");
+
 }
 
 #########################################################
@@ -164,15 +167,23 @@ bundle common rudder_roles
 bundle agent startExecution
 {
   reports:
-    cfengine_3::
+    full_compliance|(!heartbeat_enabled.must_send_heartbeat)::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]";
+
+    !full_compliance.heartbeat_enabled.(must_send_heartbeat|!start_report_sent)::
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]"
+         classes => rudder_always_classes_persist("start_report_sent", "${g.heartbeat_interval}");
 }
 
 bundle agent endExecution
 {
   reports:
-    cfengine_3::
+    full_compliance|(!heartbeat_enabled.must_send_heartbeat)::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
+
+    !full_compliance.heartbeat_enabled.(must_send_heartbeat|!end_report_sent)::
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]"
+         classes => rudder_always_classes_persist("end_report_sent", "${g.heartbeat_interval}");
 
     rudder_promises_generated_error|no_update::
 		"*********************************************************************************

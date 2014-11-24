@@ -25,6 +25,8 @@
 bundle common g
 {
   vars:
+      # Heartbeat interval, in minutes. Only used heartbeat mode is defined
+      "heartbeat_interval"         string => "&RUDDER_HEARTBEAT_INTERVAL&";
 
     android::
       "rudder_base"                string => "/data/rudder";
