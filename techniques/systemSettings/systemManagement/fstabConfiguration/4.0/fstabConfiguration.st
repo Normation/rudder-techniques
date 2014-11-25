@@ -62,12 +62,6 @@ bundle agent check_fstab_configuration
       "fields[dump]" string => "5";
       "fields[fsckorder]" string => "6";
 
-  classes:
-    any::
-      "pass3" expression => "pass2";
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
-
   files:
 
     !windows::
@@ -82,24 +76,45 @@ bundle agent check_fstab_configuration
 
   methods:
 
-    pass3.(fstab_kept.!fstab_edited)::
+    fstab_kept.!fstab_edited::
 
       "any" usebundle => rudder_common_report("fstabConfiguration", "log_info", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstab file was in accordance with the required policy");
 
-    pass3.fstab_edited::
+    fstab_edited::
 
       "any" usebundle => rudder_common_report("fstabConfiguration", "log_info", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstab file was edited by at least one instance of this technique");
 
-    pass3.fstab_failed::
+    fstab_failed::
 
       "any" usebundle => rudder_common_report("fstabConfiguration", "log_warn", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstab file could NOT be edited by at least one instance of this technique!");
 
 &if(NOVA)&
-    pass3.windows::
+    windows::
 
       "any" usebundle => rudder_common_report("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstabConfiguration Technique is not intended to be run on windows. Skipping.");
 &endif&
 
+    any::
+      rudder_common_report("fstabConfiguration", "result_error", "${${fstab}[${fstab_index}][uuid]}", "fstabConfiguration", "${${fstab}[${fstab_index}][destination]}", "The entry for ${${fstab}[${fstab_index}][destination]} is invalid, for it doesn't contain an origin : how can it be updated/inserted/deleted?"),
+        ifvarclass => "invalid_${fstab_index}";
+
+      rudder_common_report("fstabConfiguration", "result_repaired", "${${fstab}[${fstab_index}][uuid]}", "fstabConfiguration", "${${fstab}[${fstab_index}][destination]}", "The entry for ${${fstab}[${fstab_index}][origin]} to ${${fstab}[${fstab_index}][destination]} has been handled"),
+        ifvarclass => "line_${fstab_index}_handled";
+
+      rudder_common_report("fstabConfiguration", "result_success", "${${fstab}[${fstab_index}][uuid]}", "fstabConfiguration", "${${fstab}[${fstab_index}][destination]}", "The entry for ${${fstab}[${fstab_index}][origin]} to ${${fstab}[${fstab_index}][destination]} is already in accordance with the policy"),
+        ifvarclass => "line_${fstab_index}_kept.!line_${fstab_index}_handled.!empty_origin_${fstab_index}";
+
+      rudder_common_report("fstabConfiguration", "result_success", "${${fstab}[${fstab_index}][uuid]}", "fstabConfiguration", "${${fstab}[${fstab_index}][destination]}", "The entry for ${${fstab}[${fstab_index}][destination]} contained the proper fields"),
+        ifvarclass => "line_${fstab_index}_kept.!line_${fstab_index}_handled.empty_origin_${fstab_index}";
+
+      rudder_common_report("fstabConfiguration", "result_error", "${${fstab}[${fstab_index}][uuid]}", "fstabConfiguration", "${${fstab}[${fstab_index}][destination]}", "The entry for ${${fstab}[${fstab_index}][origin]} to ${${fstab}[${fstab_index}][destination]} could not be handled"),
+        ifvarclass => "line_${fstab_index}_handle_failed";
+
+      rudder_common_report("fstabConfiguration", "result_success", "${${fstab}[${fstab_index}][uuid]}", "fstabConfiguration", "${${fstab}[${fstab_index}][destination]}", "The entry for ${${fstab}[${fstab_index}][origin]} to ${${fstab}[${fstab_index}][destination]} was not present but policy required alteration only. This line will be ignored"),
+        ifvarclass => "!addentry_${fstab_index}.!line_${fstab_index}_handled.!line_${fstab_index}_kept.!line_${fstab_index}_handle_failed.use_origin_${fstab_index}";
+
+      rudder_common_report("fstabConfiguration", "result_success", "${${fstab}[${fstab_index}][uuid]}", "fstabConfiguration", "${${fstab}[${fstab_index}][destination]}", "The entry for ${${fstab}[${fstab_index}][destination]} was not present but policy required alteration only. This line will be ignored"),
+        ifvarclass => "!addentry_${fstab_index}.!line_${fstab_index}_handled.!line_${fstab_index}_kept.!line_${fstab_index}_handle_failed.!use_origin_${fstab_index}";
 }
 
 bundle edit_line fstab_add_line(data_array, fields, alteronly)
@@ -112,10 +127,16 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
 
   classes:
 
-      "addentry_${index}" expression => strcmp("${${alteronly}[${index}]}", "false");
-      "delentry_${index}" expression => strcmp("${${alteronly}[${index}]}", "delete");
-      "empty_origin_${index}" expression => strcmp("${${data_array}[${index}][origin]}", "");
-      "use_origin_${index}" expression => strcmp("${${data_array}[${index}][selector]}", "origin");
+      # export variables to use them for reporting in parent bundle
+      # we can do that even with ${index} because this bundle is called only once
+      "addentry_${index}" expression => strcmp("${${alteronly}[${index}]}", "false"),
+                          scope => "namespace";
+      "delentry_${index}" expression => strcmp("${${alteronly}[${index}]}", "delete"),
+                          scope => "namespace";
+      "empty_origin_${index}" expression => strcmp("${${data_array}[${index}][origin]}", ""),
+                          scope => "namespace";
+      "use_origin_${index}" expression => strcmp("${${data_array}[${index}][selector]}", "origin"),
+                          scope => "namespace";
 
   # Cannot handle an addition without the origin, nor handle a reference on the origin if there aren't any
       "invalid_${index}" expression => "empty_origin_${index}.(use_origin_${index}|addentry_${index})";
@@ -147,30 +168,6 @@ bundle edit_line fstab_add_line(data_array, fields, alteronly)
         ifvarclass => "addentry_${index}.!line_${index}_handled.!invalid_${index}",
         classes => kept_if_else("line_${index}_kept", "line_${index}_handled", "line_${index}_handle_failed");
 
-  reports:
-
-    cfengine::
-
-      "@@fstabConfiguration@@result_error@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][destination]} is invalid, for it doesn't contain an origin : how can it be updated/inserted/deleted?"
-        ifvarclass => "invalid_${index}";
-
-      "@@fstabConfiguration@@result_repaired@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][origin]} to ${${data_array}[${index}][destination]} has been handled"
-        ifvarclass => "line_${index}_handled";
-
-      "@@fstabConfiguration@@result_success@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][origin]} to ${${data_array}[${index}][destination]} is already in accordance with the policy"
-        ifvarclass => "line_${index}_kept.!line_${index}_handled.!empty_origin_${index}";
-
-      "@@fstabConfiguration@@result_success@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][destination]} contained the proper fields"
-        ifvarclass => "line_${index}_kept.!line_${index}_handled.empty_origin_${index}";
-
-      "@@fstabConfiguration@@result_error@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][origin]} to ${${data_array}[${index}][destination]} could not be handled"
-        ifvarclass => "line_${index}_handle_failed";
-
-      "@@fstabConfiguration@@result_success@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][origin]} to ${${data_array}[${index}][destination]} was not present but policy required alteration only. This line will be ignored"
-        ifvarclass => "!addentry_${index}.!line_${index}_handled.!line_${index}_kept.!line_${index}_handle_failed.use_origin_${index}";
-
-      "@@fstabConfiguration@@result_success@@${${data_array}[${index}][uuid]}@@fstabConfiguration@@${${data_array}[${index}][destination]}@@${g.execRun}##${g.uuid}@#The entry for ${${data_array}[${index}][destination]} was not present but policy required alteration only. This line will be ignored"
-        ifvarclass => "!addentry_${index}.!line_${index}_handled.!line_${index}_kept.!line_${index}_handle_failed.!use_origin_${index}";
 }
 
 # Workaround for https://dev.cfengine.com/issues/6467

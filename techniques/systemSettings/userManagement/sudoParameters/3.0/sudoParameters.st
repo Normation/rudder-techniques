@@ -46,10 +46,10 @@ bundle agent check_sudo_parameters
 
       "sudo_index" slist => getindices("sudo_entity_type");
 
-    pass_1.visudo_use_strict_mode::
+    pass1.visudo_use_strict_mode::
       "strict_mode" string => "-s ";
 
-    pass_1.!visudo_use_strict_mode::
+    pass1.!visudo_use_strict_mode::
       "strict_mode" string => "";
 
   classes:
@@ -62,8 +62,6 @@ bundle agent check_sudo_parameters
       # visudo -V can returns several lines, so we need to keep only the visudo version line
       "visudo_use_strict_mode" expression => returnszero("/usr/sbin/visudo  -V | grep 'visudo version' | /bin/sed -e 's/visudo version \([0-9]\+\)\.\([0-9]\+\)\..*/\1 \2/p' | /usr/bin/awk '{ if(($1<1)||($1==1 \&\& $2<=6)) { exit 0 }; exit 1 }'", "useshell");
 
-      "pass_1" expression => "any";
-      "pass_2" expression => isvariable("strict_mode");
     any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
@@ -131,9 +129,26 @@ bundle agent check_sudo_parameters
     pass3.sudoconfiguration_sudoers_invalid::
       "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "sudoersFile", "None", "The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.");
 
+    pass3.sudo_all_lines_defined::
+      "any" usebundle => rudder_common_report("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "Entry for ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} is invalid (no command given), and has been ignored"), 
+        ifvarclass => "!sudo_${sudo_index}_command_notempty.!sudo_${sudo_index}_alldo";
+
+      "any" usebundle => rudder_common_report("sudoParameters", "result_repaired", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "The ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} has been handled"),
+        ifvarclass => canonify("line_${sudo_index}_added");
+
+      "any" usebundle => rudder_common_report("sudoParameters", "result_success", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "The ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} is already present"),
+        ifvarclass => canonify("line_${sudo_index}_kept");
+
+      "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "The ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} could not be handled"),
+        ifvarclass => canonify("line_${sudo_index}_add_failed");
+
+    pass3.sudo_all_lines_defined.force.sudo_all_lines_deleted::
+
+      "any" usebundle => rudder_common_report("sudoParameters", "result_repaired", "sudoersFile", "None", "None", "Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt");
+
   commands:
 
-    (sudoconfiguration_sudoers_tmp_edit_repair|sudoconfiguration_sudoers_tmp_edit_kept).pass_2::
+    (sudoconfiguration_sudoers_tmp_edit_repair|sudoconfiguration_sudoers_tmp_edit_kept).pass2::
 
       "/usr/sbin/visudo"
         args => "-c ${strict_mode} -f /etc/sudoers.rudder",
@@ -180,38 +195,43 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "all_lines" slist => getvalues("lines");
 
   classes:
+      # some classes are used by reporting from parent bundle (scope namespace)
+      # sudoParameters is declared as unique so this bundle can be called only once 
 
       "sudo_force_content" expression => strcmp("true", "${force}");
 
-  # Is it a group ?
+      # Is it a group ?
       "sudo_${index}_isgroup" expression => strcmp("${${type}[${index}]}","group");
 
-  # Is it a user ?
+      # Is it a user ?
       "sudo_${index}_isuser" expression => strcmp("${${type}[${index}]}","user");
 
-  # Disable password asking ?
+      # Disable password asking ?
       "sudo_${index}_nopasswd" expression => strcmp("${${nopasswd}[${index}]}","true");
 
-  # Should we enable ALL as command ?
-      "sudo_${index}_alldo" expression => strcmp("${${alldo}[${index}]}","true");
+      # Should we enable ALL as command ?
+      "sudo_${index}_alldo" expression => strcmp("${${alldo}[${index}]}","true"),
+                            scope => "namespace";
 
-  # Is command empty ?
-      "sudo_${index}_command_notempty" not => strcmp("${${command}[${index}]}","");
+      # Is command empty ?
+      "sudo_${index}_command_notempty" not => strcmp("${${command}[${index}]}",""),
+                                       scope => "namespace";
 
       "check_sudo_parameters_sudo_add_line_classes_defined" expression => "any";
 
       "check_sudo_parameters_sudo_add_line_vars_defined"    expression => isvariable("lines[${index}]");
 
-      "all_lines_defined"    expression => isvariable("all_lines");
+      "sudo_all_lines_defined"    expression => isvariable("all_lines"),
+                                  scope => "namespace";
 
 
   delete_lines:
 
-    all_lines_defined.force::
+    sudo_all_lines_defined.force::
 
       ".*"
         delete_select => sudo_select_nomatch("${all_lines}"),
-        classes => if_repaired("line_deleted");
+        classes => if_repaired("sudo_all_lines_deleted");
 
   insert_lines:
     replace_attempted_env_reset::
@@ -222,30 +242,10 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
         classes => kept_if_else("line_${index}_kept", "line_${index}_added", "line_${index}_add_failed");
 
   replace_patterns:
-	"^(?!Defaults	env_reset$)Defaults\s+env_reset$"
-		comment => "Normalize env_reset setting",
-		replace_with => value("Defaults	env_reset"),
-		classes => always("replace_attempted_env_reset");
-
-  reports:
-
-    all_lines_defined::
-
-      "@@sudoParameters@@log_warn@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#Entry for ${${type}[${index}]} ${${name}[${index}]} is invalid (no command given), and has been ignored"
-        ifvarclass => "!sudo_${index}_command_notempty.!sudo_${index}_alldo";
-
-      "@@sudoParameters@@result_repaired@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} has been handled"
-        ifvarclass => canonify("line_${index}_added");
-
-      "@@sudoParameters@@result_success@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} is already present"
-        ifvarclass => canonify("line_${index}_kept");
-
-      "@@sudoParameters@@result_error@@${${directiveId}[${index}]}@@Permissions@@${${name}[${index}]}@@${g.execRun}##${g.uuid}@#The ${${type}[${index}]} ${${name}[${index}]} could not be handled"
-        ifvarclass => canonify("line_${index}_add_failed");
-
-    all_lines_defined.force.line_deleted::
-
-      "@@sudoParameters@@result_repaired@@sudoersFile@@None@@${g.execRun}##${g.uuid}@#Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt";
+    "^(?!Defaults	env_reset$)Defaults\s+env_reset$"
+      comment => "Normalize env_reset setting",
+      replace_with => value("Defaults	env_reset"),
+      classes => always("replace_attempted_env_reset");
 
 }
 
