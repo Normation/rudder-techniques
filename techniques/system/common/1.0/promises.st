@@ -164,15 +164,27 @@ bundle common rudder_roles
 bundle agent startExecution
 {
   reports:
-    cfengine_3::
+    # In full compliance, we always send start reports
+    full_compliance::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]";
+
+    # In non full compliance mode, start/stop are sent only if there is a change, or if it has been sent too long ago
+    !full_compliance.(must_send_heartbeat|!start_heartbeat_sent)::
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]"
+        classes => rudder_always_classes_persist("start_heartbeat_sent", "${g.heartbeat_interval}");
 }
 
 bundle agent endExecution
 {
   reports:
-    cfengine_3::
+    # In full compliance, we always send end reports
+    full_compliance::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
+
+    # In non full compliance mode, start/stop are sent only if there is a change, or if it has been sent too long ago
+    !full_compliance.(must_send_heartbeat|!stop_heartbeat_sent)::
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]"
+        classes => rudder_always_classes_persist("stop_heartbeat_sent", "${g.heartbeat_interval}");
 
     rudder_promises_generated_error|no_update::
 		"*********************************************************************************
