@@ -45,7 +45,7 @@ bundle common va
   vars:
     policy_server::
       "bs" slist => {
-        "startExecution",
+        "startup",
         "check_disable_agent",
         "clean_red_button",
         "update",
@@ -66,7 +66,7 @@ bundle common va
 
     !policy_server::
       "bs" slist => {
-        "startExecution",
+        "startup",
         "check_disable_agent",
         "clean_red_button",
         "update",
@@ -161,17 +161,39 @@ bundle common rudder_roles
 #########################################################
 # Control execution
 #########################################################
+bundle agent startup
+{
+  methods:
+    # Should we send a message stating this agent is starting up?
+    # Always do it in "full_compliance" mode
+    # In other modes, only do it here if we need to send it as a "heartbeat", that is if it hasn't already been sent recently enough
+    full_compliance|!heartbeat_sent::
+      "Send start message" usebundle => startExecution;
+}
+
 bundle agent startExecution
 {
+  vars:
+    second_pass:: # This is necessary to work around a CFEngine bug that causes this to be defined all the time
+      # Define a global class to show we have sent a "StartRun" report
+      "dummy_string" string => "dummy_content",
+        classes => always("start_run_message_sent");
+
+  classes:
+      # Dummy class to work around a CFEngine bug
+      "second_pass" expression => "any";
+
   reports:
     cfengine_3::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]";
+      # Send the report and define a persistant class to store the last "heartbeat" time
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]"
+        classes => rudder_always_classes_persist("heartbeat_sent", "${g.heartbeat_interval}");
 }
 
 bundle agent endExecution
 {
   reports:
-    cfengine_3::
+    start_run_message_sent::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
 
     rudder_promises_generated_error|no_update::
