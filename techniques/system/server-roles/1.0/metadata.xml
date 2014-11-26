@@ -37,10 +37,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>rudder-server-roles.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="metrics-reporting"/>
   </TMLS>
 
   <BUNDLES>
     <NAME>root_component_check</NAME>
+    <NAME>metrics_reporting</NAME>
   </BUNDLES>
 
   <SYSTEMVARS>
@@ -69,6 +71,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Check SQL credentials" component="true"/>
     <SECTION name="Check SQL in rudder-webapp.properties" component="true"/>
     <SECTION name="Check WebDAV credentials" component="true"/>
+    <SECTION name="Send metrics to rudder-project" component="true"/>
   </SECTIONS>
 
 </TECHNIQUE>
