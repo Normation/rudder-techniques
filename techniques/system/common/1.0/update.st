@@ -149,6 +149,12 @@ bundle agent update_action
     community_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     any::
@@ -227,6 +233,12 @@ bundle agent update_action
         classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
         comment      => "Update the Rudder tools";
 
+  methods:
+    pass3.server_ok::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
+    pass3.executor_ok::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the scheduler (cf-execd)");
+
   processes:
     config.!windows::
       "cf-serverd" restart_class => "start_server";
@@ -256,11 +268,6 @@ bundle agent update_action
         classes => outcome("server");
 
 #########################################################
-  reports:
-    server_ok::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";
-    executor_ok::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the scheduler (cf-execd)";
 }
 
 # This bundle is responsible for the reporting of what happened in the update
@@ -268,42 +275,42 @@ bundle agent update_action
 # the classes are available for the next 4 minutes
 bundle agent update_reports
 {
-  reports:
+  methods:
     no_update::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update node's policy (CFEngine promises)");
 
     rudder_tools_update_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update Rudder tools");
 
     rudder_ncf_common_update_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update common Rudder ncf instance";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common Rudder ncf instance");
 
     rudder_ncf_local_update_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update local Rudder ncf instance";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update local Rudder ncf instance");
 
     rudder_promises_generated_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update node's policy");
 
     (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools and ncf instance are already up to date. No action required.");
 
     rudder_tools_updated::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder tools updated";
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder tools updated");
 
     rudder_ncf_common_updated::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf common instance updated";
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder ncf common instance updated");
 
     rudder_ncf_local_updated::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder ncf local instance updated";
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder ncf local instance updated");
 
     config::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Node's policy (CFEngine promises) updated");
 
     rudder_promises_generated_repaired|config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools or ncf instance were updated or CFEngine service restarted";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools or ncf instance were updated or CFEngine service restarted");
 
     policy_server::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy server doesn't need to be updated";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Rudder policy server doesn't need to be updated");
 
 }
 

@@ -59,6 +59,11 @@ bundle agent doInventory
         expression => "any",
         comment    => "This dummy class is just used for ordering the report using !uuid_valid below";
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   methods:
 
     uuid_valid.force_inventory::
@@ -83,25 +88,24 @@ bundle agent doInventory
       "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
 
+    pass3.could_not_download_uuid::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server");
+
+    pass3.(uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid)::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve a valid UUID from the policy server");
+
+      # Send reports to confirm this PT's success even if we don't need to send an inventory
+    pass3.inventory_sent::
+      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "An inventory was already sent less than 8 hours ago");
+
+    pass3.(!(Night.splaying).!force_inventory)::
+      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "inventory", "None", "Next inventory scheduled between 00:00 and 06:00");
+
   commands:
 
       "${download_command}"
         comment => "Getting the uuid from the server",
         classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
-
-  reports:
-    could_not_download_uuid::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not retrieve the UUID of the policy server";
-
-    uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not retrieve a valid UUID from the policy server";
-
-      # Send reports to confirm this PT's success even if we don't need to send an inventory
-    inventory_sent::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#An inventory was already sent less than 8 hours ago";
-
-    !(Night.splaying).!force_inventory::
-      "@@Inventory@@result_success@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Next inventory scheduled between 00:00 and 06:00";
 
 }
 
@@ -150,6 +154,12 @@ bundle agent fusionAgent
       "xen_tools_package" string => "xen";
 
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
     !windows|cygwin::
       "${g.rudder_var_tmp}/inventory/."
@@ -186,6 +196,28 @@ bundle agent fusionAgent
         classes        => cf2_if_else("xen_installed", "cant_install_xen"),
         comment        => "Installing xen package for extended data";
 
+  methods:
+    pass3.run_inventory::
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Running inventory");
+
+    pass3.inventory_failed::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not execute the inventory");
+
+    pass3.cant_install_curl::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install curl");
+
+    pass3.cant_install_ocs::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install ocs");
+
+    pass3.cant_install_xen::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install xen utils on xen systems");
+
+    pass3.xen_installed::
+      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Xen utils installed");
+
+    pass3.curl_installed::
+      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Curl installed");
+
   commands:
     !windows.inventoryfoldercreated::
       "${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs"
@@ -201,34 +233,18 @@ bundle agent fusionAgent
         comment => "Generating inventory";
 &endif&
 
-  reports:
-    run_inventory::
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Running inventory";
-
-    inventory_failed::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not execute the inventory";
-
-    cant_install_curl::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not install curl";
-
-    cant_install_ocs::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not install ocs";
-
-    cant_install_xen::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not install xen utils on xen systems";
-
-    xen_installed::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Xen utils installed";
-
-    curl_installed::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Curl installed";
-
 }
 
 # List all installed VM on the machine (based on VirtualBox)
 # CAUTION : Issue with path containing a whitespace, it's not working with windows
 bundle agent listInstalledVM
 {
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
     VirtualBoxInstalled::
       "${virtualMachines.VBoxListFile}"
@@ -242,6 +258,13 @@ bundle agent listInstalledVM
         edit_line => xmlify(${virtualMachines.VMWareAttr}),
         comment => "Converting file into pseudo XML";
 
+
+  methods:
+    pass3.cant_list_vm::
+      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Could not list installed VMWare machines");
+
+    pass3.cant_list_vb::
+      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Could not list installed VirtualBox machines");
 
   commands:
     !windows.VirtualBoxInstalled::
@@ -276,16 +299,37 @@ bundle agent listInstalledVM
         comment => "Generating file with list of VM";
 &endif&
 
-  reports:
-    cant_list_vm::
-      "@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not list installed VMWare machines";
-
-    cant_list_vb::
-      "@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not list installed VirtualBox machines";
 }
 
 bundle agent generateExtraInformations
 {
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+    pass3.userlist::
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Generated the userlist");
+    pass3.cpuid::
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Generated the CPUID");
+
+
+    pass3.userlist_fail::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the user list");
+
+    pass3.cpuid_fail::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the cpuid");
+
+    pass3.(!rudder_inventory_userlist_tool_present)::
+
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "The user list generation tool is not present yet. Skipping...");
+
+    pass3.(!rudder_inventory_cpuid_tool_present)::
+
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "The CPUID generation tool is not present yet. Skipping...");
+
   commands:
 
 &if(NOVA)&
@@ -312,33 +356,23 @@ bundle agent generateExtraInformations
         classes => cf2_if_else("cpuid", "cpuid_fail"),
         comment => "Generating file with CPUID information";
 
-  reports:
-    userlist::
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Generated the userlist";
-    cpuid::
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Generated the CPUID";
-
-
-    userlist_fail::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not generate the user list";
-
-    cpuid_fail::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not generate the cpuid";
-
-    !rudder_inventory_userlist_tool_present::
-
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The user list generation tool is not present yet. Skipping...";
-
-    !rudder_inventory_cpuid_tool_present::
-
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The CPUID generation tool is not present yet. Skipping...";
-
 }
 
 bundle agent turnUsersToUnicode
 {
 
 &if(NOVA)&
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.windows::
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "This is a windows machine. User list has been converted to Unicode");
+
   commands:
     windows::
       "\"${g.rudder_tools}\iconv.exe\""
@@ -348,10 +382,6 @@ bundle agent turnUsersToUnicode
         comment => "Generating file with list of users in UTF";
 
 &endif&
-  reports:
-
-    windows::
-      "@@Inventory@@log_debug@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#This is a windows machine. User list has been converted to Unicode";
 }
 
 # adding data to the inventory :
@@ -535,6 +565,12 @@ bundle agent sendInventory
       "download_command_suffix"   string => "${download_endpoint}";
 &endif&
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     !windows::
@@ -572,15 +608,16 @@ bundle agent sendInventory
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
-  reports:
-    inventory_sent::
-      "@@Inventory@@result_success@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#The inventory has been successfully sent";
+  methods:
+    pass3.inventory_sent::
+      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "inventory", "None", "The inventory has been successfully sent");
 
-    cant_send_inventory::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not send the inventory";
+    pass3.cant_send_inventory::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not send the inventory");
 
-    cant_delete_inventory_file::
-      "@@Inventory@@log_warn@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not delete inventory file after sending to server";
+    pass3.cant_delete_inventory_file::
+      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Could not delete inventory file after sending to server");
+
 }
 
 #####################################################
