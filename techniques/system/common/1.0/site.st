@@ -157,6 +157,10 @@ bundle common g
                                               @{rudder_tools_files_suse},
                                               "checkroute.pl",
                                             }, policy => "ifdefined";
+
+      # Heartbeat interval, in minutes. Only used when in non-compliance mode
+      "heartbeat_interval" string => "&RUDDER_HEARTBEAT_INTERVAL&";
+
   classes:
 
     # Utilities
