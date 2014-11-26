@@ -190,6 +190,11 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
                             strcmp("${status}", "log_repaired") ,
                            };
 
+  methods:
+    # If we need to send a report, make sure we have sent the "StartRun" message first
+    send_reports.!start_run_message_sent::
+      "Send start message" usebundle => startExecution;
+
   reports:
     full_compliance|send_reports::
       "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}";
