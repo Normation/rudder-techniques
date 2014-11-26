@@ -32,11 +32,11 @@
 #
 body classes rudder_common_classes(prefix)
 {
-        promise_kept     => { "${prefix}_kept" };
-        promise_repaired => { "${prefix}_repaired" };
-        repair_failed    => { "${prefix}_failed" , "${prefix}_error" };
-        repair_denied    => { "${prefix}_denied" , "${prefix}_error" };
-        repair_timeout   => { "${prefix}_timeout", "${prefix}_error" };
+        promise_kept     => { "${prefix}_kept"    , "${prefix}_ok" };
+        promise_repaired => { "${prefix}_repaired", "${prefix}_ok" };
+        repair_failed    => { "${prefix}_failed"  , "${prefix}_error" };
+        repair_denied    => { "${prefix}_denied"  , "${prefix}_error" };
+        repair_timeout   => { "${prefix}_timeout" , "${prefix}_error" };
 }
 
 #
@@ -46,11 +46,11 @@ body classes rudder_common_classes(prefix)
 #
 body classes rudder_common_classes_persist(prefix, persist)
 {
-        promise_kept     => { "${prefix}_kept" };
-        promise_repaired => { "${prefix}_repaired" };
-        repair_failed    => { "${prefix}_failed" , "${prefix}_error" };
-        repair_denied    => { "${prefix}_denied" , "${prefix}_error" };
-        repair_timeout   => { "${prefix}_timeout", "${prefix}_error" };
+        promise_kept     => { "${prefix}_kept"    , "${prefix}_ok" };
+        promise_repaired => { "${prefix}_repaired", "${prefix}_ok" };
+        repair_failed    => { "${prefix}_failed"  , "${prefix}_error" };
+        repair_denied    => { "${prefix}_denied"  , "${prefix}_error" };
+        repair_timeout   => { "${prefix}_timeout" , "${prefix}_error" };
 
         persist_time     => ${persist};
 }
