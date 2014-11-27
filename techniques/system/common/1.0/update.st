@@ -142,12 +142,72 @@ bundle agent update_action
 {
   vars:
 
-      "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
-      "file_to_check_update" string => "rudder_promises_generated";
+      "client_inputs"            string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
+
+    # The check is in two phase:
+    # First copy rudder_promises_timestamp_tmp from the policy server, and check is it's newer
+    # (based on the timestamp written in it) than rudder_promises_timestamp.
+    # If so, copy all the promises
+      "rudder_promises_timestamp"     string => "rudder_promises_generated";
+      "rudder_promises_timestamp_tmp" string => "rudder_promises_generated.tmp";
+
+
+    # Same for rudder-tools
+      "rudder_tools_updated_tmp"   string => "${g.rudder_tools_updated_filename}.tmp";
+
+    current_promise_timestamp_defined::
+      "current_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp}", 2048);
+    current_tools_timestamp_defined::
+      "current_tools_timestamp"   string => readfile("${g.rudder_tools_updated}", 2048);
+
+    # File ought to be there only in second pass, but since classes are persistent, we need to 
+    # enforce the check on pass_2
+    pass_2.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
+      "target_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp_tmp}", 2048);
+
+    pass_2.(rudder_tools_updated_repaired|rudder_tools_updated_kept)::
+      "target_tools_timestamp"    string => readfile("${g.rudder_tools}/${rudder_tools_updated_tmp}", 2048);
+
+
     nova_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
     community_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
+
+
+  classes:
+    current_promise_timestamp_defined::
+      "current_promise_timestamp_valid" expression => regcmp("[0-9]+", "${current_promises_timestamp}");
+
+    current_tools_timestamp_defined::
+      "current_tools_timestamp_valid" expression => regcmp("[0-9]+", "${current_tools_timestamp}");
+
+    any::
+      "current_promise_timestamp_defined" expression => fileexists("${client_inputs}/${rudder_promises_timestamp}");
+      "current_tools_timestamp_defined"   expression => fileexists("${g.rudder_tools_updated}");
+
+    # Check for the validity of the content of the files, and check if we ought to update the promises/tools
+
+    pass_2.current_promise_timestamp_valid.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
+      "new_promises_available" expression => isgreaterthan("${target_promises_timestamp}", "${current_promises_timestamp}");
+
+    # always update if current promise timestamp is not valid
+    pass_2.!current_promise_timestamp_valid.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
+      "new_promises_available" expression => "any";
+
+    pass_2.current_tools_timestamp_valid.(rudder_tools_updated_repaired|rudder_tools_updated_kept)::
+      "new_tools_available"    expression => isgreaterthan("${target_tools_timestamp}", "${current_tools_timestamp}");
+
+    pass_2.!current_tools_timestamp_valid.(rudder_tools_updated_repaired|rudder_tools_updated_kept)::
+      "new_tools_available"    expression => "any";
+
+    # We need the pass_2 otherwise CFEngine tries to be clever, defines pass_1 and go back to define all other vars, including those that
+    # shouldn't yet (notably target_promises_timestamp)
+    pass_1::
+      "pass_2" expression => "pass_1";
+
+    any::
+      "pass_1" expression => "any";
 
   files:
 
@@ -190,39 +250,44 @@ bundle agent update_action
         classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment      => "Update the local Rudder ncf instance";
 
-      "${client_inputs}/${file_to_check_update}"
-        copy_from    => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
+      "${client_inputs}/${rudder_promises_timestamp_tmp}"
+        copy_from    => remote("${server_info.cfserved}","${server_inputs}/${rudder_promises_timestamp}"),
         action       => immediate,
-        classes      => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
+        classes      => success("rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept");
 
     # The defined class are persistent, so if they are already set, promises has already been updated
     # a short while ago
-    rudder_promises_generated_repaired.!root_server:: 
+    new_promises_available.!root_server::
       "${client_inputs}"
         copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
         depth_search => recurse("inf"),
+        file_select  => exclude("${rudder_promises_timestamp_tmp}"),
         action       => immediate,
         classes      => success("config", "no_update", "config_ok");
 
-    root_server|(rudder_promises_generated_ok|(rudder_promises_generated_repaired.(config|config_ok)).!no_update.!rudder_promises_generated_error)::
+
+    root_server|(rudder_promises_generated_tmp_file_ok|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error)::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
 
+
+# this file will always be copied
     # Copy the tools only if the file rudder_tools_updated is not up to date
-    any::
-      "${g.rudder_tools_updated}"
+    !root_server::
+      "${g.rudder_tools}/${rudder_tools_updated_tmp}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
         action       => immediate,
         classes      => success("rudder_tools_updated_repaired", "rudder_tools_updated_error", "rudder_tools_updated_kept"),
         comment      => "Check if we need to update the tools";
 
-    # We copy only if we have the class rudder_tools_updated_repaired
-    rudder_tools_updated_repaired::
+    # We copy only if we have new tools based on the timestamp
+    new_tools_available::
       "${g.rudder_tools}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
+        file_select  => exclude("${rudder_tools_updated_tmp}"),
         action       => immediate,
         classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
         comment      => "Update the Rudder tools";
@@ -272,7 +337,7 @@ bundle agent update_reports
     no_update::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
 
-    rudder_tools_update_error::
+    rudder_tools_updated_error|rudder_tools_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools";
 
     rudder_ncf_common_update_error::
@@ -281,10 +346,10 @@ bundle agent update_reports
     rudder_ncf_local_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update local Rudder ncf instance";
 
-    rudder_promises_generated_error::
+    rudder_promises_generated_tmp_file_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
 
-    (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
+    (rudder_promises_generated_tmp_file_kept|rudder_tools_updated_kept|(rudder_tools_updated_ok.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.config_ok)).!(rudder_promises_generated_tmp_file_repaired|rudder_promises_generated_tmp_file_error|rudder_tools_updated_repaired|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
       "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
 
     rudder_tools_updated::
@@ -299,7 +364,8 @@ bundle agent update_reports
     config::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
 
-    rudder_promises_generated_repaired|config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok::
+
+    rudder_promises_generated_tmp_file_repaired|rudder_tools_updated_repaired|config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok::
       "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools or ncf instance were updated or CFEngine service restarted";
 
     policy_server::
