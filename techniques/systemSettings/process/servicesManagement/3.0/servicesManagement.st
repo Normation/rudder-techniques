@@ -41,21 +41,6 @@ bundle agent services_management
 
       "index" slist => getindices("service");
 
-    SuSE::
-      "service_check_boot_status_cmd_${index}" string => "/sbin/chkconfig --check ${service[${index}][name]}";
-      "service_add_boot_cmd_${index}"          string => "/sbin/insserv -d ${service[${index}][name]}";
-      "service_remove_boot_cmd_${index}"       string => "/sbin/insserv -rd ${service[${index}][name]}";
-
-    redhat::
-      "service_check_boot_status_cmd_${index}" string => "/sbin/chkconfig ${service[${index}][name]}";
-      "service_add_boot_cmd_${index}"          string => "/sbin/chkconfig ${service[${index}][name]} on";
-      "service_remove_boot_cmd_${index}"       string => "/sbin/chkconfig ${service[${index}][name]} off";
-
-    debian::
-      "service_add_boot_cmd_${index}"          string => "/usr/sbin/update-rc.d ${service[${index}][name]} remove \&\& /usr/sbin/update-rc.d ${service[${index}][name]} defaults";
-      "service_remove_boot_cmd_${index}"       string => "/usr/sbin/update-rc.d -f ${service[${index}][name]} remove \&\& /usr/sbin/update-rc.d ${service[${index}][name]} stop 20 2 3 4 5 .";
-
-
   classes:
     &PROCESS_MANAGED_NAME:{name |"defined_process_name_&i&" not => strcmp("&name&", "");
 }&
@@ -91,7 +76,25 @@ bundle agent services_management
         classes => if_else("service_${index}_bootstarted", "service_${index}_unbootstarted");
 
   methods:
-    pass3.cfengine::
+
+    pass2::
+
+      "bootstart_process"   usebundle => service_ensure_started_at_boot("${service[${index}][name]}"),
+                           ifvarclass => "bootstart_process_${index}";
+
+      "unbootstart_process" usebundle => service_ensure_stopped("${service[${index}][name]}"),
+                           ifvarclass => "bootstart_prevent_process_${index}|stop_process_${index}";
+
+      "start_process"       usebundle => service_start("${service[${index}][name]}"),
+                           ifvarclass => "process_${index}_restart.start_process_${index}";
+
+      "stop_process"        usebundle => service_stop("${service[${index}][name]}"),
+                           ifvarclass => "!process_${index}_restart.stop_process_${index}";
+
+      "restart_process"     usebundle => service_restart("${service[${index}][name]}"),
+                           ifvarclass => canonify("${service[${index}][name]}_out_of_range");
+
+    pass3::
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]} didn't need to have its process checked"),
         ifvarclass => "!start_process_${index}.!stop_process_${index}";
@@ -99,27 +102,26 @@ bundle agent services_management
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Cannot check the status of ${service[${index}][name]}: the process name is not filed"),
         ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
 
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was indeed running"),
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is running"),
         ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was not running and has been restarted"),
-        ifvarclass => "process_${index}_restart.process_${index}_restart_ok.start_process_${index}";
+        ifvarclass => canonify("process_${index}_restart.start_process_${index}.service_start_${service[${index}][name]}_repaired");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process couldn't be started"),
-        ifvarclass => "process_${index}_restart_error";
+        ifvarclass => canonify("service_start_${service[${index}][name]}_not_ok");
 
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was indeed not running"),
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running"),
         ifvarclass => "stop_process_${index}.process_${index}_restart.graceful_stop_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped"),
-        ifvarclass => "stop_process_${index}.!process_${index}_restart.process_${index}_stopped_ok.graceful_stop_process_${index}";
+        ifvarclass => canonify("stop_process_${index}.!process_${index}_restart.service_stop_${service[${index}][name]}_repaired.graceful_stop_process_${index}");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process could't be stopped"),
-        ifvarclass => "stop_process_${index}.!process_${index}_restart.process_${index}_stop_error.graceful_stop_process_${index}";
+        ifvarclass => canonify("stop_process_${index}.!process_${index}_restart.service_stop_${service[${index}][name]}_not_ok");
 
 
-
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was indeed not running"),
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running"),
         ifvarclass => "stop_process_${index}.service_${index}_already_stopped.!service_${index}_stopped.!graceful_stop_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped"),
@@ -141,11 +143,11 @@ bundle agent services_management
 
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired"),
-        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.process_${index}_out_of_range_restart_ok";
+        ifvarclass => canonify("check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][name]}_repaired");
 
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired"),
-        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.process_${index}_out_of_range_restart_error";
+        ifvarclass => canonify("check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][name]}_not_ok");
 
 
     # Service boot starting parameters
@@ -154,24 +156,24 @@ bundle agent services_management
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} is started on boot as required"),
-        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted";
+        ifvarclass => canonify("bootstart_process_${index}.service_ensure_started_at_boot_${service[${index}][name]}_ok");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} has been set to start on boot"),
-        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted_ok";
+        ifvarclass => canonify("bootstart_process_${index}.service_ensure_started_at_boot_${service[${index}][name]}_repaired");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Could not set ${service[${index}][name]} to start on boot!"),
-        ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted_fail";
+        ifvarclass => canonify("bootstart_process_${index}.service_ensure_started_at_boot_${service[${index}][name]}_not_ok");
 
 
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} is not started on boot as required"),
-        ifvarclass => "!bootstart_process_${index}.bootstart_prevent_process_${index}";
+        ifvarclass => canonify("!bootstart_process_${index}.service_ensure_stopped_${service[${index}][name]}_ok");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} has been prevented to start on boot"),
-        ifvarclass => "bootstart_prevent_process_${index}.service_${index}_unbootstarted_ok";
+        ifvarclass => canonify("bootstart_prevent_process_${index}.service_ensure_stopped_${service[${index}][name]}_repaired");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Could not prevent ${service[${index}][name]} to start on boot!"),
-        ifvarclass => "bootstart_prevent_process_${index}.service_${index}_unbootstarted_fail";
+        ifvarclass => canonify("bootstart_prevent_process_${index}.service_ensure_stopped_${service[${index}][name]}_not_ok");
 
   processes:
 
@@ -182,16 +184,6 @@ bundle agent services_management
         classes => kept_if_else("service_${index}_running", "service_${index}_anomaly", "service_${index}_error"),
         ifvarclass => "defined_process_name_${index}.(start_process_${index}|(stop_process_${index}.graceful_stop_process_${index}))";
 
-    # enforce that the process is stopped gracefully
-    # Should be using process stop, but du to https://cfengine.com/bugtracker/view.php?id=758, it does not work now
-    #"${service[${index}][process]}"
-    #		comment => "Stop gracefully the process",
-    #		process_stop => "/etc/init.d/${service[${index}][name]} stop",
-    #		classes => kept_if_else("service_${index}_already_stopped", "service_${index}_stopped", "service_${index}_error"),
-    #		ifvarclass => "defined_process_name_${index}.stop_process_${index}.graceful_stop_process_${index}";
-
-
-
     # enforce that the process is stopped not so gracefully
       "${service[${index}][process]}"
         comment => "Stop not so gracefully the process",
@@ -199,54 +191,10 @@ bundle agent services_management
         classes => kept_if_else("service_${index}_already_stopped", "service_${index}_stopped", "service_${index}_error"),
         ifvarclass => "defined_process_name_${index}.stop_process_${index}.(term_stop_process_${index}|kill_stop_process_${index})";
 
-
     # check the range
       "${service[${index}][process]}"
         comment => "Check the range of process",
         process_count => check_range("${service[${index}][name]}", "${service[${index}][min_instance]}", "${service[${index}][max_instance]}"),
         ifvarclass => "defined_process_name_${index}.check_process_range_${index}";
-
-
-  commands:
-
-      "/etc/init.d/${service[${index}][name]}"
-        args => "start",
-        classes => kept_if_else("process_${index}_restart_ok", "process_${index}_restart_ok", "process_${index}_restart_error"),
-        ifvarclass => "process_${index}_restart.start_process_${index}";
-
-
-      "/etc/init.d/${service[${index}][name]}"
-        args => "stop",
-        classes => kept_if_else("process_${index}_stopped_ok", "process_${index}_stopped_ok", "process_${index}_stop_error"),
-        ifvarclass => "!process_${index}_restart.stop_process_${index}";
-
-      "/etc/init.d/${service[${index}][name]}"
-        args => "restart",
-        classes => kept_if_else("process_${index}_out_of_range_restart_ok", "process_${index}_out_of_range_restart_ok", "process_${index}_out_of_range_restart_error"),
-        ifvarclass => canonify("${service[${index}][name]}_out_of_range");
-
-
-    # Check whether the service is already configured to start on boot
-
-    !debian:: # Debian uses a files promise for this, see above
-
-      "${service_check_boot_status_cmd_${index}}"
-        classes => if_else("service_${index}_bootstarted", "service_${index}_unbootstarted"),
-        ifvarclass => "bootstart_process_${index}|bootstart_prevent_process_${index}",
-        comment => "Check if the service ${service[${index}][name]} is started on boot";
-
-    any::
-
-      "${service_add_boot_cmd_${index}}"
-        contain => in_shell,
-        classes => if_else("service_${index}_bootstarted_ok", "service_${index}_bootstarted_fail"),
-        ifvarclass => "service_${index}_unbootstarted.bootstart_process_${index}",
-        comment => "Set the service ${service[${index}][name]} to start on boot";
-
-      "${service_remove_boot_cmd_${index}}"
-        contain => in_shell,
-        classes => if_else("service_${index}_unbootstarted_ok", "service_${index}_unbootstarted_fail"),
-        ifvarclass => "service_${index}_bootstarted.bootstart_prevent_process_${index}",
-        comment => "Set the service ${service[${index}][name]} to not be started on boot";
 
 }

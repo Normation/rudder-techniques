@@ -30,11 +30,14 @@
 bundle agent rudder_openssh_server_configuration(class_prefix, service_name, params) {
 
   vars:
+
     # OS Specific parameters
 
     debian::
+
       "rudder_openssh_server_startup_command"
         string => "/etc/init.d/ssh restart";
+
       "rudder_openssh_server_startup_activation_command"
         string => "/usr/sbin/update-rc.d -f ssh remove \&\& /usr/sbin/update-rc.d ssh defaults";
 
@@ -113,25 +116,74 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         classes   => rudder_common_classes("${class_prefix}_configuration"),
         comment   => "Edit the OpenSSH configuration file";
 
+  methods:
+
+    !aix.debian::
+
+      "bootstart_ssh" usebundle => service_ensure_started_at_boot("ssh"),
+                     ifvarclass => "${class_prefix}_binary_present";
+
+      "restart_ssh"   usebundle => service_restart("ssh"),
+                     ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down";
+    !aix.!debian::
+
+      "bootstart_ssh" usebundle => service_ensure_started_at_boot("sshd"),
+                     ifvarclass => "${class_prefix}_binary_present";
+
+      "restart_ssh"   usebundle => service_restart("sshd"),
+                     ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down";
+
+    !aix::
+
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_repaired", "${${params}[report]}", "SSH process", "None", "The ${service_name} was not running, trying to restart..."),
+        ifvarclass => "${class_prefix}_down";
+
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH process", "None", "The ${service_name} service is running"),
+        ifvarclass => "!${class_prefix}_down.(service_restart_ssh_repaired|service_restart_sshd_repaired)";
+
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_repaired", "${${params}[report]}", "SSH process", "None", "Restarted the ${service_name}"),
+        ifvarclass => "service_restart_ssh_ok|service_restart_sshd_ok";
+
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_error", "${${params}[report]}", "SSH process", "None", "Could not restart the ${service_name}"),
+        ifvarclass => "service_restart_ssh_not_ok|service_restart_sshd_not_ok";
+
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_info", "${${params}[report]}", "SSH start at boot", "None", "OpenSSH is starting on boot as required"),
+        ifvarclass => "service_ensure_started_at_boot_ssh_ok|service_ensure_started_at_boot_sshd_ok";
+
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_info", "${${params}[report]}", "SSH start at boot", "None", "OpenSSH has been set to start on boot"),
+        ifvarclass => "service_ensure_started_at_boot_ssh_repaired|service_ensure_started_at_boot_sshd_repaired";
+
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_info", "${${params}[report]}", "SSH start at boot", "None", "Can not set OpenSSH to start on boot"),
+        ifvarclass => "service_ensure_started_at_boot_ssh_not_ok|service_ensure_started_at_boot_sshd_not_ok";
+
   processes:
-    any::
+
       "/usr/sbin/sshd"
         restart_class => "${class_prefix}_down",
         comment       => "Checking whether OpenSSH is up or not";
 
   commands:
-    debian|redhat|SuSE|aix::
+
+    aix::
+
       "${rudder_openssh_server_startup_command}"
         classes    => cf2_if_else("${class_prefix}_daemon_restart_repaired", "${class_prefix}_daemon_restart_error"),
         ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down",
         comment    => "Restarting the OpenSSH server daemon";
 
-    debian|redhat|SuSE|aix::
       "${rudder_openssh_server_startup_activation_command}"
         contain => in_shell,
         classes => cf2_if_else("${class_prefix}_activated_on_boot_repaired", "${class_prefix}_activated_on_boot_error"),
         ifvarclass => "(!${class_prefix}_activated_on_boot_kept|rudder_openssh_inactive_on_boot_aix).${class_prefix}_binary_present",
         comment => "Adding the OpenSSH daemon to the startup scripts";
+
 }
 
 bundle agent rudder_openssh_server_configuration_reporting(class_prefix, service_name, params)
@@ -147,6 +199,9 @@ bundle agent rudder_openssh_server_configuration_reporting(class_prefix, service
 
       # SSH configuration
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_configuration", "${${params}[report]}", "SSH configuration", "None", "The ${service_name} configuration");
+
+    aix::
+
       # SSH start on boot
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_activated_on_boot", "${${params}[report]}", "SSH start at boot", "None", "The ${service_name} boot starting configuration");
 
@@ -169,4 +224,5 @@ bundle agent rudder_openssh_server_configuration_reporting(class_prefix, service
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_info", "${${params}[report]}", "SSH start at boot", "None", "Error checking if the ${service_name} is set to be started on boot"),
         ifvarclass => "${class_prefix}_activation_detection_failed";      
+
 }
