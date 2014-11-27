@@ -43,6 +43,10 @@ bundle agent root_postgres_check
 
   methods:
 
+    pass2.SuSE.psql_conf_updated::
+
+      "restart_postgresql" usebundle => service_restart("postgresql");
+
     pass3.SuSE::
 
     # Report about the configuration file edition
@@ -57,22 +61,13 @@ bundle agent root_postgres_check
 
     # Reports about Postgres restart status
       "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "PostgreSQL has been restarted")
-        ifvarclass => "psql_restart_ok";
+        ifvarclass => "service_restart_postgresql_repaired";
 
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "PostgreSQL restart has failed! Rudder is most certainly broken...")
-        ifvarclass => "psql_restart_error";
+        ifvarclass => "service_restart_postgresql_not_ok";
 
     pass3.(!SuSE)::
 
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "Their is no need of specific postgresql configuration on this system");
-
-  commands:
-
-    SuSE::
-
-      "/etc/init.d/postgresql"
-        args => "restart",
-        classes => kept_if_else("psql_restart_ok", "psql_restart_ok", "psql_restart_error"),
-        ifvarclass => "psql_conf_updated";
 
 }

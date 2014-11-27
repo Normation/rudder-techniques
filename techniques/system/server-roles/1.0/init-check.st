@@ -20,7 +20,8 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
   vars:
 
-      "canoname" string => canonify("${binary}");
+      "canoname"     string => canonify("${binary}");
+      "c_initscript" string => canonify("${initscript}");
 
   classes:
 
@@ -31,11 +32,20 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
       "process_exception_on_relay" expression => strcmp("${check_on_relay_server}", "true");
 
     any::
+
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
   methods:
+
+    pass2.(root_server|process_exception_on_relay)::
+
+      "start_process" usebundle => service_ensure_running("${initscript}"),
+                     ifvarclass => "!forced_trigger_${canoname}";
+
+      "start_process" usebundle => service_restart("${initscript}"),
+                     ifvarclass => "forced_trigger_${canoname}";
 
     pass3.(root_server|process_exception_on_relay)::
 
@@ -43,13 +53,13 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
         ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
 
       "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process was not running and has been restarted")
-        ifvarclass => "process_restart_${canoname}.process_restart_ok_${canoname}.!forced_trigger_${canoname}";
+        ifvarclass => "process_restart_${canoname}.service_restart_${c_initscript}_repaired.!forced_trigger_${canoname}";
 
       "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process has been restarted")
-        ifvarclass => "process_restart_ok_${canoname}.forced_trigger_${canoname}";
+        ifvarclass => "service_restart_${c_initscript}_repaired.forced_trigger_${canoname}";
 
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process couldn't be restarted")
-        ifvarclass => "process_restart_error_${canoname}";
+        ifvarclass => "service_restart_${c_initscript}_not_ok";
 
     pass3.(policy_server.!root_server.!process_exception_on_relay)::
 
@@ -65,34 +75,14 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
         restart_class => "process_restart_${canoname}",
         classes => kept_if_else("service_running_${canoname}", "service_anomaly_${canoname}", "service_error_${canoname}");
 
-  commands:
-
-    root_server|process_exception_on_relay::
-
-      "/etc/init.d/${initscript}"
-        args => "restart </dev/null >/dev/null 2>/dev/null",
-        contain => in_shell_silent,
-      # action => bg("0", "120"),
-        classes => kept_if_else("process_restart_ok_${canoname}", "process_restart_ok_${canoname}", "process_restart_error_${canoname}"),
-        ifvarclass => "process_restart_${canoname}|forced_trigger_${canoname}";
-
 }
 
 bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
   vars:
 
-      "canoname" string => canonify("${binary}");
-
-    SuSE::
-
-      "check_command"     string => "/sbin/chkconfig --check ${initscript}";
-      "bootstart_command" string => "/sbin/insserv -d ${initscript}";
-
-    redhat::
-
-      "check_command"     string => "/sbin/chkconfig --list ${initscript} | grep -q on";
-      "bootstart_command" string => "/sbin/chkconfig ${initscript} on";
+      "canoname"     string => canonify("${binary}");
+      "c_initscript" string => canonify("${initscript}");
 
   classes:
     any::
@@ -100,49 +90,14 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
-  files:
-
-    debian::
-
-      "/etc/rc2.d/S.*${initscript}.*"
-        create => "true",
-        action => WarnOnly,
-        classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}");
-
   methods:
 
-    pass3.cfengine::
+    pass2::
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} boot script", "None", "${name} is started on boot as required")
-        ifvarclass => "service_bootstarted_${canoname}";
+      "bootstart_service" usebundle => service_ensure_started_at_boot("${initscript}");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} boot script", "None", "${name} has been set to start on boot")
-        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_ok_${canoname}";
+    pass3::
 
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${name} boot script", "None", "Could not set ${name} to start on boot!")
-        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_fail_${canoname}";
-
-  commands:
-
-    (SuSE|redhat)::
-
-      "${check_command}"
-        contain => in_shell_silent,
-        classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}"),
-        comment => "Check if the service ${name} is started on boot";
-
-
-      "${bootstart_command}"
-        classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
-        ifvarclass => "service_unbootstarted_${canoname}",
-        comment => "Set the service ${name} to start on boot";
-
-    debian::
-
-      "/usr/sbin/update-rc.d ${initscript} remove \&\& /usr/sbin/update-rc.d ${initscript} defaults"
-        contain => in_shell,
-        classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
-        ifvarclass => "service_unbootstarted_${canoname}",
-        comment => "Set the service ${name} to start on boot";
+      "any" usebundle => rudder_common_reports_generic("server-roles", "service_ensure_started_at_boot_${c_initscript}", "&TRACKINGKEY&", "Check ${name} boot script", "None", "Check ${service_name} boot starting parameters");
 
 }

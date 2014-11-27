@@ -132,6 +132,10 @@ bundle agent root_password_check_ldap
 
   methods:
 
+    pass2.rudder_ldap_password_integrity_changed::
+
+      "restart_slapd" usebundle => service_restart("rudder-slapd");
+
     pass3.root_server::
 
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files are OK (checked LDAP password)")
@@ -153,21 +157,13 @@ bundle agent root_password_check_ldap
         ifvarclass => "rudder_ldap_password_integrity_failed";
 
       "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check rudder-passwords.conf file", "None", "rudder-slapd has been restarted")
-        ifvarclass => "slapd_restarted";
+        ifvarclass => "service_restart_rudder_slapd_repaired";
 
     pass3.(policy_server.!root_server)::
 
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...");
 
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file do not need to be checked on relay servers. Skipping...");
-
-  commands:
-
-    rudder_ldap_password_integrity_changed::
-
-      "/etc/init.d/rudder-slapd restart"
-        contain => in_shell,
-        classes => if_else("slapd_restarted", "slapd_restart_failed");
 
 }
 
@@ -252,17 +248,13 @@ bundle agent root_password_restart_jetty
 
   methods:
 
+    pass2.rudder_web_password_integrity_changed::::
+
+      "restart_jetty" usebundle => service_restart("rudder-jetty");
+
     pass3::
       "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check rudder-webapp.properties", "None", "Jetty has been restarted")
-        ifvarclass => "jetty_restarted";
-
-  commands:
-
-    rudder_web_password_integrity_changed::
-
-      "/etc/init.d/rudder-jetty restart </dev/null >/dev/null 2>/dev/null"
-        contain => in_shell,
-        classes => if_else("jetty_restarted", "jetty_restart_failed");
+        ifvarclass => "service_restart_rudder_jetty_repaired";
 
 }
 
