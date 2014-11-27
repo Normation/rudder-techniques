@@ -165,6 +165,7 @@ bundle common rudder_roles
 #########################################################
 bundle agent startup
 {
+<<<<<<< HEAD
   methods:
     # Should we send a message stating this agent is starting up?
     # Always do it in "full_compliance" mode
@@ -198,8 +199,12 @@ bundle agent endExecution
     start_run_message_sent::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
 
+  reports:
+    cfengine_3::
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
+
     rudder_promises_generated_error|no_update::
-		"*********************************************************************************
+      "*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by a network issue, an unavailable server, or if this      *
 * node was deleted from the Rudder root server.                                 *
@@ -236,6 +241,7 @@ bundle agent check_disable_agent
 
 }
 
+
 ##########################################################
 # Red Button part.
 # When the file ${sys.workdir}/inputs/stop exists, we must stop the
@@ -254,15 +260,16 @@ bundle agent clean_red_button()
         delete => tidy,
         comment => "Deleting the stop file, cfengine is good to go";
 
+  methods:
+    safe::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Authorizing Cfengine to restart");
+
   commands:
     safe.policy_server::
       "${sys.workdir}/bin/cf-runagent"
         args => "-Dsafe",
         comment => "Propagate the safe information to children";
 
-  reports:
-    safe::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Authorizing Cfengine to restart";
 }
 
 bundle agent set_red_button()
@@ -290,11 +297,11 @@ bundle agent setStopFile
 
 
 
-  reports:
+  methods:
     danger.!policy_server::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Creating local stop file for this node";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Creating local stop file for this node");
     danger.policy_server::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Creating stop files for all clients of this policy server";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Creating stop files for all clients of this policy server");
 
 }
 
@@ -304,15 +311,15 @@ bundle agent stopClients
     policy_server::
       "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
 
+  methods:
+    danger.policy_server::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Red Button", "None", "Actively stopping CFEngine operations on all clients of this policy server (via cf-runagent)");
+
   commands:
     danger.policy_server::
       "${sys.workdir}/bin/cf-runagent"
         args => "-Ddanger",
         comment => "Propagate the danger information to children";
-
-  reports:
-    danger.policy_server::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Actively stopping CFEngine operations on all clients of this policy server (via cf-runagent)";
 
 }
 
@@ -322,9 +329,10 @@ bundle agent check_red_button_status()
     !policy_server::
       "should_not_continue" expression => fileexists("${sys.workdir}/inputs/stopFile");
 
-  reports:
+  methods:
     !should_not_continue::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Red Button is not in effect, continuing as normal...";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Red Button", "None", "Red Button is not in effect, continuing as normal...");
+
 }
 
 
@@ -336,8 +344,8 @@ bundle agent check_cf_processes
   vars:
 
       # process_term defines how many maximum instances of this
-      # binary should be running before attempting to SIGTERM them.
-      # process_kill is the same for SIGKILL.
+      # binary should be running before attempting to SIGTERM them.
+      # process_kill is the same for SIGKILL.
 
       "process_term[execd]" string => "2";
       "process_kill[execd]" string => "5";
@@ -347,6 +355,25 @@ bundle agent check_cf_processes
 
       "binaries"            slist  => getindices("process_term");
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+    pass3::
+
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of CFEngine processes running on the machine")
+      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
+        ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
+
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Process checking", "None", "Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal.")
+        ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
+
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Process checking", "None", "ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals.")
+        ifvarclass => "${binaries}_has_gone_really_wild";
+
   processes:
 
     !windows::
@@ -354,7 +381,7 @@ bundle agent check_cf_processes
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
 
-      # If there are more than 2 cf-execd's, it means cf-execd is starting to
+      # If there are more than 2 cf-execd's, it means cf-execd is starting to
       # go crazy, so we ask politely to these processes to shut down.
 
       "${sys.workdir}/bin/cf-${binaries}"
@@ -363,14 +390,14 @@ bundle agent check_cf_processes
         classes       => if_repaired("${binaries}_has_gone_wild"),
         comment       => "Checking if cf-${binaries} has gone wild";
 
-      # If there are too much cf-execd's/cf-agents running, it means that they are really
+      # If there are too much cf-execd's/cf-agents running, it means that they are really
       # going crazy. Let's be a bit less polite and more violent about killing them.
       #
       # These two promises overlap, because when you go past the 2/5-limit treshold,
       # you still leave a chance for them to die with SIGTERM before the SIGKILL.
       #
-      # Reason: The backend databases that stores the classes and some runtime
-      # parameters do really not appreciate beeing killed violently and may prevent
+      # Reason: The backend databases that stores the classes and some runtime
+      # parameters do really not appreciate beeing killed violently and may prevent
       # the agent from operating properly.
 
       "${sys.workdir}/bin/cf-${binaries}"
@@ -407,19 +434,6 @@ bundle agent check_cf_processes
       "${sys.cf_execd}"
         action  => u_ifwin_bg,
         classes => outcome("executor");
-
-  reports:
-    cfengine_3::
-
-      "@@Common@@result_success@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#There is an acceptable number of CFEngine processes running on the machine"
-      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
-        ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
-
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."
-        ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
-
-      "@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."
-        ifvarclass => "${binaries}_has_gone_really_wild";
 
 }
 
@@ -475,6 +489,11 @@ bundle agent check_log_system
 
       "syslogd" expression => fileexists("/etc/syslog.conf");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
     !windows.rsyslogd::
       "/etc/rsyslog.conf"
@@ -495,7 +514,7 @@ bundle agent check_log_system
       "/etc/sysconfig/syslog"
         edit_line => ensure_rsyslogd_on_suse,
         edit_defaults => noempty_backup,
-				classes   => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
+        classes   => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
     !windows.syslogng.!policy_server::
       "/etc/syslog-ng/syslog-ng.conf"
@@ -510,6 +529,27 @@ bundle agent check_log_system
         classes => kept_if_else("syslogd_kept", "syslogd_repaired" , "syslogd_failed");
       #Probably, we want to do something if it is repaired ?
 
+
+  methods:
+
+    pass3.syslogd::
+      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslogd");
+    pass3.syslogng::
+      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslog-ng");
+    pass3.rsyslogd::
+      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as rsyslog");
+
+    pass3.(syslogd_failed|syslog_ng_failed|rsyslog_failed)::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system could not be configured for report centralization");
+
+    pass3.(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired)::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Configured logging system for report centralization");
+
+    pass3.((syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired))::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system for report centralization is already correctly configured");
+
+    pass3.android::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "This is an android machine: Logging system configuration skipped.");
 
   commands:
     SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
@@ -542,26 +582,6 @@ bundle agent check_log_system
     aix.syslogd_repaired::
       "/usr/bin/refresh -s syslogd";
 
-  reports:
-
-    syslogd::
-      "@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Detected running syslog as syslogd";
-    syslogng::
-      "@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Detected running syslog as syslog-ng";
-    rsyslogd::
-      "@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Detected running syslog as rsyslog";
-
-    syslogd_failed|syslog_ng_failed|rsyslog_failed::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Logging system could not be configured for report centralization";
-
-    syslogd_repaired|syslog_ng_repaired|rsyslog_repaired::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Configured logging system for report centralization";
-
-    (syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired)::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Logging system for report centralization is already correctly configured";
-
-    android::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#This is an android machine: Logging system configuration skipped.";
 }
 
 #######################################################
@@ -587,6 +607,11 @@ bundle agent check_rsyslog_version {
       "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check_rsyslog_version");
       "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
     rsyslogd.rsyslog_greater_than_5_7_1::
       "/etc/rsyslog.d/remove_limit.conf"
@@ -595,6 +620,22 @@ bundle agent check_rsyslog_version {
         create    => "true",
         comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
         classes   => rudder_common_classes("rsyslog_limit");
+
+  methods:
+    pass3.(rsyslogd.!check_rsyslog_version_present)::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file  ${g.rudder_tools}/check_rsyslog_version is missing");
+
+    pass3.rsyslog_limit_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not remove limitation of message in rsyslog");
+
+    pass3.rsyslog_limit_repaired::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Updated the rsyslog configuration to remove limitation of messages");
+
+    pass3.rsyslog_restarted::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Configured logging system for report centralization");
+
+    pass3.cant_restart_rsyslog::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system");
 
   commands:
     rsyslogd.check_rsyslog_version_present::
@@ -609,24 +650,6 @@ bundle agent check_rsyslog_version {
         classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
         comment => "restarting rsyslog";
    
-  reports:
-    rsyslogd.!check_rsyslog_version_present::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#The file  ${g.rudder_tools}/check_rsyslog_version is missing";
-
-    rsyslog_limit_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not remove limitation of message in rsyslog";
-
-    rsyslog_limit_repaired::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Updated the rsyslog configuration to remove limitation of messages";
-
-    rsyslog_restarted::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Configured logging system for report centralization";
-
-    cant_restart_rsyslog::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not restart the logging system";
-
-
-
 }
 
 #######################################################
@@ -654,6 +677,26 @@ bundle agent check_cron_daemon
       "cron_bin" string => "/usr/sbin/cron$";
       "cron_restartcmd" string => "/etc/init.d/cron restart";
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+
+    pass3.crond_failed::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon was not running and could not be restarted");
+
+    pass3.crond_restarted::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon has been successfully restarted");
+
+    pass3.(!restart_crond.!crond_restarted.!crond_failed.!android.!windows)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon is running");
+
+    pass3.(android|windows)::
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "This is a system without CRON: CRON verifications skipped !");
+
   processes:
 
     !android.!windows::
@@ -668,20 +711,6 @@ bundle agent check_cron_daemon
 
         comment => "Restarting crond",
         classes => kept_if_else("crond_ok" ,"crond_restarted" , "crond_failed");
-
-  reports:
-
-    crond_failed::
-      "@@Common@@result_error@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon was not running and could not be restarted";
-
-    crond_restarted::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
-
-    !restart_crond.!crond_restarted.!crond_failed.!android.!windows::
-      "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
-
-    android|windows::
-      "@@Common@@result_na@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is a system without CRON: CRON verifications skipped !";
 
 }
 
@@ -731,22 +760,22 @@ bundle agent check_binaries_freshness
         action => immediate,
         comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
 
-  reports:
+  methods:
 
     binaries_fresh.!binaries_rotten.!binaries_missing::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#The CFengine binaries in ${sys.workdir}/bin are up to date";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "The CFengine binaries in ${sys.workdir}/bin are up to date");
 
     binaries_rotten.!binaries_missing::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#The CFengine binaries have been updated in ${sys.workdir}/bin";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Binaries update", "None", "The CFengine binaries have been updated in ${sys.workdir}/bin");
 
     binaries_missing::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the CFengine binaries in ${sys.workdir}/bin");
 
     android::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an android machine: no CFEngine binaries update needed";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "This is an android machine: no CFEngine binaries update needed");
 
     nova_edition::
-      "@@Common@@result_na@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an CFEngine enterprise system: binaries update are handled differently";
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
 
 }
 

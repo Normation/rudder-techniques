@@ -9,7 +9,8 @@ my $xmlfile;
 
 if($ARGV[0] ne "")
 {
-    print "Opening $ARGV[0]...\n";
+# stop beeing too verbose
+#    print "Opening $ARGV[0]...\n";
     $xmlfile = shift @ARGV;              # the file to parse
 }
 else
@@ -27,6 +28,7 @@ if( $@ ) {
     print STDERR "\nERROR in '$xmlfile':\n$@\n";
     exit 1;
 } else {
-    print STDERR "'$xmlfile' is well-formed\n";
+# stop beeing too verbose
+#    print STDERR "'$xmlfile' is well-formed\n";
     exit 0;
 }
