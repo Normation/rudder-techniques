@@ -189,7 +189,7 @@ bundle agent startExecution
   reports:
     cfengine_3::
       # Send the report and define a persistant class to store the last "heartbeat" time
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [&RUDDER_NODE_CONFIG_ID&]"
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution with config [${g.rudder_node_config_id}]"
         classes => rudder_always_classes_persist("heartbeat_sent", "${g.heartbeat_interval}");
 }
 
@@ -197,11 +197,11 @@ bundle agent endExecution
 {
   reports:
     start_run_message_sent::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [${g.rudder_node_config_id}]";
 
   reports:
     cfengine_3::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [&RUDDER_NODE_CONFIG_ID&]";
+      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [${g.rudder_node_config_id}]";
 
     rudder_promises_generated_error|no_update::
       "*********************************************************************************
