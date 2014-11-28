@@ -531,12 +531,30 @@ bundle agent check_log_system
 
   methods:
 
-    pass3.syslogd::
+    pass2.syslogd::
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslogd");
-    pass3.syslogng::
+
+    pass2.syslogng::
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslog-ng");
-    pass3.rsyslogd::
+
+    pass2.rsyslogd::
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as rsyslog");
+
+    pass2.((SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired))|((!SuSE.!aix.!solaris).syslogd_repaired))::
+
+      "restart_syslog"    usebundle => service_restart("syslog");
+
+    pass2.!SuSE.syslog_ng_repaired::
+
+      "restart_syslog_ng" usebundle => service_restart("syslog-ng");
+
+    pass2.!SuSE.rsyslog_repaired::
+
+      "restart_syslog_ng" usebundle => service_restart("rsyslog");
+
+    pass2.!SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
+
+      "restart_syslog" usebundle => service_restart("syslog");
 
     pass3.(syslogd_failed|syslog_ng_failed|rsyslog_failed)::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system could not be configured for report centralization");
@@ -551,32 +569,9 @@ bundle agent check_log_system
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "This is an android machine: Logging system configuration skipped.");
 
   commands:
-    SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "/etc/init.d/syslog"
-        args => "restart",
-        comment => "Restarting syslog-ng after it's been updated";
-    syslog_ng_repaired.!SuSE::
-      "/etc/init.d/syslog-ng"
-        args => "restart",
-        comment => "Restarting syslog-ng after it's been updated";
-
-    rsyslog_repaired.!(SuSE|fedora)::
-      "/etc/init.d/rsyslog"
-        args => "restart",
-        comment => "Restarting rsyslog after it's been updated";
-
-    rsyslog_repaired.fedora::
-      "/bin/systemctl"
-        args => "restart rsyslog",
-        comment => "Restarting rsyslog after it's been updated";
-
-    syslogd_repaired.!SuSE.!solaris.!aix::
-      "/etc/init.d/syslog"
-        args => "restart",
-        comment => "Restarting rsyslog after it's been updated";
 
     solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "svcadm refresh svc:/system/system-log:default";
+      "${paths.path[svcadm]} refresh svc:/system/system-log:default";
 
     aix.syslogd_repaired::
       "/usr/bin/refresh -s syslogd";
@@ -592,15 +587,6 @@ bundle agent check_log_system
 # at later iteration)
 
 bundle agent check_rsyslog_version {
-  vars:
-    SuSE::
-      "syslog_restart_cmd" string => "/etc/init.d/syslog restart";
-
-    fedora::
-      "syslog_restart_cmd" string => "/bin/systemctl restart rsyslog";
-
-    !(SuSE|fedora)::
-      "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
 
   classes:
       "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check_rsyslog_version");
@@ -621,6 +607,15 @@ bundle agent check_rsyslog_version {
         classes   => rudder_common_classes("rsyslog_limit");
 
   methods:
+
+    pass2.!SuSE.rsyslog_limit_repaired::
+
+      "restart_syslog_ng" usebundle => service_restart("rsyslog");
+
+    pass2.SuSE.rsyslog_limit_repaired::
+
+      "restart_syslog_ng" usebundle => service_restart("syslog");
+
     pass3.(rsyslogd.!check_rsyslog_version_present)::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file  ${g.rudder_tools}/check_rsyslog_version is missing");
 
@@ -630,10 +625,10 @@ bundle agent check_rsyslog_version {
     pass3.rsyslog_limit_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Updated the rsyslog configuration to remove limitation of messages");
 
-    pass3.rsyslog_restarted::
+    pass3.(service_restart_rsyslog_repaired|service_restart_syslog_repaired)::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Configured logging system for report centralization");
 
-    pass3.cant_restart_rsyslog::
+    pass3.(service_restart_rsyslog_not_ok|service_restart_syslog_not_ok)::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system");
 
   commands:
@@ -643,12 +638,6 @@ bundle agent check_rsyslog_version {
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
 
-    rsyslog_limit_repaired::
-      "${syslog_restart_cmd}"
-        args => "restart",
-        classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
-        comment => "restarting rsyslog";
-   
 }
 
 #######################################################
@@ -662,21 +651,18 @@ bundle agent check_cron_daemon
 
     redhat.!fedora::
       "cron_bin" string => "crond$";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
 
     fedora::
       "cron_bin" string => "/usr/sbin/crond -n$";
-      "cron_restartcmd" string => "/bin/systemctl restart crond.service";
 
     ubuntu::
       "cron_bin" string => "cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
 
     !(redhat|fedora|ubuntu)::
       "cron_bin" string => "/usr/sbin/cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
 
   classes:
+
     any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
@@ -684,13 +670,21 @@ bundle agent check_cron_daemon
 
   methods:
 
-    pass3.crond_failed::
+    pass2.!redhat.!fedora.restart_crond::
+
+      "restart_cron" usebundle => service_restart("cron");
+
+    pass2.(redhat|fedora).restart_crond::
+
+      "restart_cron" usebundle => service_restart("crond");
+
+    pass3.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon was not running and could not be restarted");
 
-    pass3.crond_restarted::
+    pass3.(service_restart_cron_repaired|service_restart_crond_repaired)::
       "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon has been successfully restarted");
 
-    pass3.(!restart_crond.!crond_restarted.!crond_failed.!android.!windows)::
+    pass3.!restart_crond.!android.!windows)::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon is running");
 
     pass3.(android|windows)::
@@ -698,18 +692,9 @@ bundle agent check_cron_daemon
 
   processes:
 
-    !android.!windows::
+    !android.!windows.!aix::
       "${cron_bin}"
         restart_class => "restart_crond";
-
-  commands:
-
-    restart_crond::
-
-      "${cron_restartcmd}"
-
-        comment => "Restarting crond",
-        classes => kept_if_else("crond_ok" ,"crond_restarted" , "crond_failed");
 
 }
 

@@ -90,20 +90,18 @@ bundle agent install_rsyslogd {
         classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
         comment => "Installing rsyslog_pgsql using apt backports";
 
-  commands:
+  methods:
 
     policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql).!SuSE::
-      "/etc/init.d/rsyslog"
-        args => "restart",
-                                classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
-                                comment => "restarting rsyslog";
+
+      "rsyslog_restart" usebundle => service_restart("rsyslog");
+
     policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql).SuSE::
-      "/etc/init.d/syslog"
-        args => "restart",
-                                classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
-                                comment => "restarting rsyslog";
+
+      "rsyslog_restart" usebundle => service_restart("syslog");
 
   reports:
+
     cant_install_rsyslog|cant_install_rsyslog_pgsql::
       "Fatal : Can't install rsyslog or rsyslog_pgsql on the Rudder root server !";
 
@@ -113,14 +111,14 @@ bundle agent install_rsyslogd {
     rsyslog_inc_failed::
       "Fatal : Can't enable the rsyslog include directory !";
 
-    cant_restart_rsyslog::
-      "Fatal : Can't restart rsyslog !";
-
     cannot_update_rudder_rsyslog_pgsql::
       "Fatal : Cannot update the pgsql configuration !";
 
-    rsyslog_restarted::
+    service_restart_rsyslog_repaired|service_restart_syslog_repaired::
       "Info : Restarted rsyslog";
+
+    service_restart_rsyslog_not_ok|service_restart_syslog_not_ok::
+      "Fatal : Can't restart rsyslog !";
 
 }
 
