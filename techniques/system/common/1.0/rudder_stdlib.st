@@ -215,6 +215,10 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 bundle agent rudder_common_reports_generic(technique_name, class_prefix, identifier, component_name, component_key, message_prefix)
 {
   methods:
+      "na"
+        usebundle  => _rudder_common_report("${technique_name}", "result_na", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not applicable"),
+        ifvarclass => "${class_prefix}_noop.!${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
+
       "success"
         usebundle  => rudder_common_report("${technique_name}", "result_success", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct"),
         ifvarclass => "${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
