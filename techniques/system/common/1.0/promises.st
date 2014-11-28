@@ -165,7 +165,6 @@ bundle common rudder_roles
 #########################################################
 bundle agent startup
 {
-<<<<<<< HEAD
   methods:
     # Should we send a message stating this agent is starting up?
     # Always do it in "full_compliance" mode
