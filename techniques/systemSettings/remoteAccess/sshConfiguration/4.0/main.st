@@ -86,9 +86,10 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         not => strcmp("${${params}[edit_ports]}","false");
 
     aix::
-
-      "rudder_openssh_inactive_on_boot_aix"
-        not => returnszero("/usr/bin/lssrc -a | /usr/bin/grep -q sshd", "useshell");
+      # lssrc is clever, and kept in a cache the entry if the daemon is still running, so grepping
+      # /etc/inittab instead, to be sure that service is defined at boot
+      "${class_prefix}_activated_on_boot_kept"
+        expression => returnszero("/usr/bin/grep -q -E ^sshd: /etc/inittab", "useshell");
 
   files:
 
@@ -181,7 +182,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
       "${rudder_openssh_server_startup_activation_command}"
         contain => in_shell,
         classes => cf2_if_else("${class_prefix}_activated_on_boot_repaired", "${class_prefix}_activated_on_boot_error"),
-        ifvarclass => "(!${class_prefix}_activated_on_boot_kept|rudder_openssh_inactive_on_boot_aix).${class_prefix}_binary_present",
+        ifvarclass => "(!${class_prefix}_activated_on_boot_kept).${class_prefix}_binary_present",
         comment => "Adding the OpenSSH daemon to the startup scripts";
 
 }
