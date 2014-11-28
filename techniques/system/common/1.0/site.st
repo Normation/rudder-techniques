@@ -163,6 +163,8 @@ bundle common g
       # or if this interval has elapsed since we last sent one
       "heartbeat_interval" string => "&RUDDER_HEARTBEAT_INTERVAL&";
 
+      "rudder_node_config_id" string => "&RUDDER_NODE_CONFIG_ID&";
+
   classes:
 
     # Utilities
