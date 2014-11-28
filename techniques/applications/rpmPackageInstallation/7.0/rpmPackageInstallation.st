@@ -120,12 +120,15 @@ bundle agent check_rpm_package_installation {
       "first_pass" expression => "any";
 
     any::
+
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
   packages:
+
     redhat|SuSE::
+
       # Case 1: Not an update, or an update on SuSE without proper Zypper
       "${rpm_package[${index_rpmpkg}]}"
         package_policy  => "${rpm_data[${index_rpmpkg}][0]}",
@@ -156,6 +159,12 @@ bundle agent check_rpm_package_installation {
 
   methods:
 
+    pass2.zmd_restart.!zypper_version_ok::
+
+      "restart_zmd" usebundle => service_restart("novell-zmd"),
+                      classes => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
+                   ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok"
+
     pass3.(redhat|SuSE)::
 
       "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Performed repair action for RPM package ${rpm_package[${index_rpmpkg}]} to comply with policy: ${rpm_data[${index_rpmpkg}][0]}"),
@@ -175,16 +184,16 @@ bundle agent check_rpm_package_installation {
 
 
     # ZMD Process presence related reports
-    pass3.((redhat|SuSE).!(SuSE_10.!zypper_version_ok))::
-      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "ZMD process presence verification not necessary. Skipping ...");
+    pass3.!(SuSE_10.!zypper_version_ok)::
+      "any" usebundle => rudder_common_report("packageInstallation", "result_na", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "ZMD process presence verification not necessary. Skipping ...");
 
-    pass3.((redhat|SuSE).SuSE_10.!zmd_restart.!zypper_version_ok)::
+    pass3.SuSE_10.!zmd_restart.zypper_version_ok::
       "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD process is present. Skipping ...");
 
-    pass3.((redhat|SuSE).SuSE_10.zmd_restarted.!zypper_version_ok)::
+    pass3.service_restart_novell_zmd_ok.zypper_version_ok::
       "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon was successfully restarted");
 
-    pass3.((redhat|SuSE).SuSE_10.could_not_restart_zmd.!zypper_version_ok)::
+    pass3.service_restart_novell_zmd_not_ok.zypper_version_ok::
       "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon failed to restart");
 
   processes:
@@ -193,16 +202,6 @@ bundle agent check_rpm_package_installation {
 
       "/usr/lib/zmd/zmd.exe"
         restart_class => "zmd_restart";
-
-  commands:
-
-    zmd_restart::
-
-      "/etc/init.d/novell-zmd"
-        args       => "restart",
-        classes    => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
-        ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok",
-        comment    => "Restart the ZMD daemon";
 
 }
 

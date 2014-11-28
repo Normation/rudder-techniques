@@ -100,6 +100,9 @@ bundle agent check_zmd_settings
 
   methods:
 
+    showtime.SuSE.(zmd_restart|zmd_conf_validated)::
+
+      "restart_zmd" usebundle => service_restart("novell-zmd");
 
     # ZMD settings edition
 
@@ -139,13 +142,13 @@ bundle agent check_zmd_settings
 
       # ZMD Process presence related reports
 
-    pass3.(SuSE.!zmd_restart)::
+    pass3.SuSE.!zmd_restart::
       "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_success", "${zmdconf_uuid[${zmd_index}]}", "ZMD process", "None", "The ZMD process is present. Skipping ...");
 
-    pass3.(SuSE.zmd_restarted)::
+    pass3.SuSE.service_restart_novell_zmd_ok::
       "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_repaired", "${zmdconf_uuid[${zmd_index}]}", "ZMD process", "None", "The ZMD daemon was successfully restarted");
 
-    pass3.(SuSE.could_not_restart_zmd)::
+    pass3.SuSE.service_restart_novell_zmd_not_ok::
       "any" usebundle => rudder_common_report("zmdPackageManagerSettings", "result_error", "${zmdconf_uuid[${zmd_index}]}", "ZMD process", "None", "The ZMD daemon failed to restart");
 
   processes:
@@ -176,12 +179,6 @@ bundle agent check_zmd_settings
         classes => kept_if_else("source_${zmd_index}_subkept", "source_${zmd_index}_subscribed", "source_${zmd_index}_subfailed"),
         comment => "Subscribe ${zmd_index} as a new source";
 
-    showtime.SuSE.(zmd_restart|zmd_conf_validated)::
-
-      "/etc/init.d/novell-zmd"
-        args => "restart",
-        classes => kept_if_else("zmd_kept", "zmd_restarted", "could_not_restart_zmd"),
-        comment => "Restart the ZMD daemon";
 }
 
 

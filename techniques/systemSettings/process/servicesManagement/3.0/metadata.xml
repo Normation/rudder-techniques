@@ -49,12 +49,12 @@ necessary and kill undesired processes.
     <SECTION name="Service to manage" multivalued="true" >
     <INPUT>
         <NAME>SERVICE_MANAGED_NAME</NAME>
-        <DESCRIPTION>Service name (as seen in init.d)</DESCRIPTION>
+        <DESCRIPTION>Service name (as seen in chkconfig or systemctl)</DESCRIPTION>
     </INPUT>
     <SECTION name="Process"  multivalued="false"  component="true" componentKey="SERVICE_MANAGED_NAME">
       <INPUT>
         <NAME>PROCESS_MANAGED_NAME</NAME>
-        <DESCRIPTION>Process name  (full path to the executable, to be check in 'ps' output)</DESCRIPTION>
+        <DESCRIPTION>Process name (full path to the executable, to be check in 'ps' output)</DESCRIPTION>
       <LONGDESCRIPTION>Accepts regular expression, not necessarily the full path)</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -106,7 +106,7 @@ necessary and kill undesired processes.
         <NAME>PROCESS_MANAGED_KILLING_METHOD</NAME>
         <DESCRIPTION>When stopping this process</DESCRIPTION>
         <ITEM>
-          <LABEL>Stop gracefully (/etc/init.d/xxx stop)</LABEL>
+          <LABEL>Stop gracefully (service xxx stop)</LABEL>
           <VALUE>graceful</VALUE>
         </ITEM>
         <ITEM>

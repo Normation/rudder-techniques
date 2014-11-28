@@ -19,7 +19,6 @@
 bundle agent check_apache_configuration
 {
 
-
   vars:
 
       # Ports
@@ -113,13 +112,6 @@ bundle agent check_apache_configuration
 
     debian::
 
-      "/etc/rc2.d/S.*apache2.*"
-        create => "true",
-                                #depth_search => recurse("0"),
-                                #file_select => apache_startlink,
-        action => WarnOnly,
-        classes => if_else("apache_bootstarted", "apache_unbootstarted");
-
       "/etc/apache2/ports.conf"
         create => "true",
         perms => m("644"),
@@ -148,13 +140,6 @@ bundle agent check_apache_configuration
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     redhat::
-
-      "/etc/rc2.d/S.*httpd.*"
-        create => "true",
-                                #depth_search => recurse("0"),
-                                #file_select => apache_startlink,
-        action => WarnOnly,
-        classes => if_else("apache_bootstarted", "apache_unbootstarted");
 
       "/etc/httpd/rudder.conf.d"
         delete => tidy,
@@ -200,13 +185,6 @@ bundle agent check_apache_configuration
         classes => kept_if_else_hook("apache_vhost_${apache_vhost_index}_kept", "apache_vhost_${apache_vhost_index}_repaired", "apache_vhost_${apache_vhost_index}_failed", "apache_change");
 
     SuSE::
-
-      "/etc/rc.d/rc3.d/S.*apache2.*"
-        create => "true",
-                                #depth_search => recurse("0"),
-                                #file_select => apache_startlink,
-        action => WarnOnly,
-        classes => if_else("apache_bootstarted", "apache_unbootstarted");
 
       "/etc/apache2/rudder.conf.d"
         delete => tidy,
@@ -256,6 +234,23 @@ bundle agent check_apache_configuration
         comment => "Make sure the root directory exists";
 
   methods:
+
+    !redhat.(apache_down|apache_change)::
+
+      "restart_apache" usebundle => service_restart("apache2");
+
+    redhat.(apache_down|apache_change)::
+
+      "restart_apache" usebundle => service_restart("httpd");
+
+    !redhat.apache_bin_present::
+
+      "bootstart_apache" usebundle => service_ensure_started_at_boot("apache2");
+
+    redhat.apache_bin_present::
+
+      "bootstart_apache" usebundle => service_ensure_started_at_boot("httpd");
+
     # if the list is not defined, there is nothing to report !
     pass3.apache_modules_nok::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Module settings", "none", "No Apache modules configured to be enabled, no changes made");
@@ -305,7 +300,7 @@ bundle agent check_apache_configuration
     pass3.apache_security_failed::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Security settings edition", "None", "Apache HTTPD security settings could not be set !");
 
-    pass3.cfengine::
+    pass3::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "Apache HTTPD virtualhost ${apache_vhost_fqdn[${apache_vhost_index}]} already set"),
         ifvarclass => "apache_vhost_${apache_vhost_index}_kept.!apache_vhost_${apache_vhost_index}_repaired.!apache_vhost_${apache_vhost_index}_failed";
 
@@ -318,23 +313,23 @@ bundle agent check_apache_configuration
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "log_info", "&TRACKINGKEY&", "Virtual host settings", "${apache_vhost_fqdn[${apache_vhost_index}]}", "The root directory ${apache_vhost_root[${apache_vhost_index}]} was created"),
         ifvarclass => canonify("root_${apache_vhost_root[${apache_vhost_index}]}_created");
 
-    pass3.(apache_autostart.apache_bootstarted.!apache_unboostarted)::
+    pass3.apache_autostart.(service_ensure_started_at_boot_apache2_ok|service_ensure_started_at_boot_httpd_ok)::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Apache bootstart", "None", "Apache HTTPD is correctly set to start on boot");
 
-    pass3.(apache_autostart.apache_unboostarted.apache_bootstarted_ok.!apache_still_unbootstarted)::
+    pass3.apache_autostart.(service_ensure_started_at_boot_apache2_repaired|service_ensure_started_at_boot_httpd_repaired)::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_repaired", "&TRACKINGKEY&", "Apache bootstart", "None", "Apache HTTPD is now starting on boot");
 
-    pass3.(apache_autostart.apache_still_unbootstarted.apache_still_unbootstarted)::
+    pass3.apache_autostart.(service_ensure_started_at_boot_apache2_not_ok|service_ensure_started_at_boot_httpd_not_ok)::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "Apache bootstart", "None", "Apache HTTPD could not be set to start on boot");
 
     pass3.(!apache_autostart)::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_success", "&TRACKINGKEY&", "Apache bootstart", "None", "Don't have to check if Apache HTTPD should be started automatically");
 
 
-    pass3.apache_restarted::
+    pass3.(service_restart_apache2_ok|service_restart_httpd_ok)::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "log_info", "&TRACKINGKEY&", "apacheServer", "None", "Apache HTTPD restarted");
 
-    pass3.cant_restart_apache::
+    pass3.(service_restart_apache2_not_ok|service_restart_httpd_not_ok)::
       "any" usebundle => rudder_common_report("apacheServerConfiguration", "result_error", "&TRACKINGKEY&", "apacheServer", "None", "Could not restart Apache HTTPD");
 
     pass3.(!apache_bin_present)::
@@ -381,36 +376,6 @@ bundle agent check_apache_configuration
         args => "-R --type=httpd_sys_content_t \"${apache_vhost_root[${apache_vhost_index}]}\"",
         classes => cf2_if_else("apache_selinux_${apache_vhost_index}_adjusted", "apache_selinux_${apache_vhost_index}_not_adjusted"),
         comment => "Set SELinux context for Apache VHosts";
-
-    !redhat.(apache_down|apache_change)::
-      "/etc/init.d/apache2"
-        args => "restart",
-        classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
-        comment => "restarting apache";
-
-    redhat.(apache_down|apache_change)::
-      "/etc/init.d/httpd"
-        args => "restart",
-        classes => cf2_if_else("apache_restarted", "cant_restart_apache"),
-        comment => "restarting apache";
-
-    (debian.apache_unbootstarted).apache_bin_present::
-      "/usr/sbin/update-rc.d"
-        args => "apache2 defaults",
-        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
-        comment => "adding apache to the startup scripts";
-
-    (redhat.apache_unbootstarted).apache_bin_present::
-      "/sbin/chkconfig"
-        args => "--add httpd",
-        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
-        comment => "adding apache to the startup scripts";
-
-    (SuSE.apache_unbootstarted).apache_bin_present::
-      "/sbin/chkconfig"
-        args => "--add apache2",
-        classes => cf2_if_else("apache_bootstarted_ok", "apache_still_unbootstarted"),
-        comment => "adding apache to the startup scripts";
 
 }
 

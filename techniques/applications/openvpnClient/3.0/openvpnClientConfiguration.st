@@ -95,13 +95,6 @@ bundle agent check_openvpn_client_configuration
 
     (debian|redhat|SuSE)::
 
-      "/etc/rc2.d/S.*openvpn.*"
-        create => "true",
-                                #depth_search => recurse("0"),
-                                #file_select => openvpn_startlink,
-        action => WarnOnly,
-        classes => if_else("openvpn_bootstarted", "openvpn_unbootstarted");
-
       "/etc/openvpn/rudder.conf"
         create => "true",
         perms => m("644"),
@@ -127,6 +120,14 @@ bundle agent check_openvpn_client_configuration
         classes => kept_if_else("openvpn_keyring_kept", "openvpn_keyring_validated", "openvpn_keyring_failed");
 
   methods:
+
+    openvpn_bin_present.ovpn_client_autostart::
+
+      "autostart_openvpn" usebundle => service_ensure_started_at_boot("openvpn");
+
+    ovpn_client_autostart.(openvpn_tier1_validated|openvpn_tier2_validated|openvpn_keyring_validated|openvpn_down)::
+
+      "restart_openvpn"   usebundle => service_restart("openvpn");
 
     pass3.openvpn_tier1_kept::
       "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_info", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN remotes list edition not needed");
@@ -165,19 +166,19 @@ bundle agent check_openvpn_client_configuration
       "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_success", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN configuration is set correctly"),
         ifvarclass => canonify("ovpn_client_pwauth");
 
-    pass3.(ovpn_client_autostart.openvpn_bootstarted_ok)::
-      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN is now starting on boot");
+    pass3.ovpn_client_autostart.service_ensure_started_at_boot_openvpn_repaired::
+      "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN is now starting on boot");
 
-    pass3.(ovpn_client_autostart.openvpn_still_unbootstarted)::
+    pass3.ovpn_client_autostart.service_ensure_started_at_boot_openvpn_not_ok::
       "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN could not be set to start on boot");
 
-    pass3.(ovpn_client_autostart.openvpn_bootstarted)::
+    pass3.ovpn_client_autostart.service_ensure_started_at_boot_openvpn_ok::
       "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_info", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN already set to start on boot");
 
-    pass3.openvpn_restarted::
+    pass3.service_restart_openvpn_ok::
       "any" usebundle => rudder_common_report("openvpnClientConfiguration", "log_repaired", "&TRACKINGKEY&", "OpenVPN configuration", "None", "OpenVPN restarted");
 
-    pass3.cant_restart_openvpn::
+    pass3.service_restart_openvpn_not_ok::
       "any" usebundle => rudder_common_report("openvpnClientConfiguration", "result_error", "&TRACKINGKEY&", "OpenVPN configuration", "None", "Could not restart OpenVPN");
 
     pass3.(!openvpn_bin_present)::
@@ -190,33 +191,6 @@ bundle agent check_openvpn_client_configuration
       "/usr/sbin/openvpn"
         restart_class => "openvpn_down",
         comment => "Ensuring openvpn is up";
-
-  commands:
-
-    (openvpn_tier1_validated|openvpn_tier2_validated|openvpn_keyring_validated|openvpn_down).ovpn_client_autostart::
-      "/etc/init.d/openvpn"
-        args => "restart",
-        classes => cf2_if_else("openvpn_restarted", "cant_restart_openvpn"),
-        comment => "restarting openvpn";
-
-    (debian.openvpn_unbootstarted).openvpn_bin_present::
-      "/usr/sbin/update-rc.d"
-        args => "openvpn defaults",
-        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
-        comment => "adding openvpn to the startup scripts";
-
-    (redhat.openvpn_unbootstarted).openvpn_bin_present::
-      "/sbin/chkconfig"
-        args => "--add openvpn",
-        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
-        comment => "adding openvpn to the startup scripts";
-
-    # YES I know this isn't DRY but CF3 does not support nested parenthesis yet
-    (SuSE.openvpn_unbootstarted).openvpn_bin_present::
-      "/sbin/chkconfig"
-        args => "--add openvpn",
-        classes => cf2_if_else("openvpn_bootstarted_ok", "openvpn_still_unbootstarted"),
-        comment => "adding openvpn to the startup scripts";
 
 }
 

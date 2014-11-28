@@ -42,16 +42,6 @@ bundle agent check_nfs_server_configuration
 
   files:
 
-    (debian|redhat|SuSE)::
-
-      "/etc/rc2.d/S.*nfs.*"
-
-        create => "true",
-                                #depth_search => recurse("0"),
-                                #file_select => ssh_startlink,
-        action => WarnOnly,
-        classes => cf2_if_else("nfs_server_bootstarted", "nfs_server_unbootstarted");
-
     !windows::
 
       "/etc/exports"
@@ -64,6 +54,30 @@ bundle agent check_nfs_server_configuration
 
   methods:
 
+    pass2.(debian|ubuntu)::
+
+      "bootstart_nfs" usebundle => service_ensure_started_at_boot("nfs-kernel-server");
+
+      "restart_nfs"   usebundle => service_restart("nfs-kernel-server"),
+                     ifvarclass => "nfs_server_${nfs_server_index}_done";
+
+    pass2.redhat::
+
+      "bootstart_nfs" usebundle => service_ensure_started_at_boot("nfs");
+      "bootstart_nfs" usebundle => service_ensure_started_at_boot("nfslock");
+
+      "restart_nfs"   usebundle => service_restart("nfs"),
+                     ifvarclass => "nfs_server_${nfs_server_index}_done";
+      "restart_nfs"   usebundle => service_restart("nfslock"),
+                     ifvarclass => "nfs_server_${nfs_server_index}_done";
+
+    pass2.SuSE::
+
+      "bootstart_nfs" usebundle => service_ensure_started_at_boot("nfsserver");
+
+      "restart_nfs"   usebundle => service_restart("nfsserver"),
+                     ifvarclass => "nfs_server_${nfs_server_index}_done";
+
     pass3.(!windows)::
 
       "any" usebundle => rudder_common_report("nfsServer", "result_repaired", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} was successfully added"),
@@ -75,65 +89,13 @@ bundle agent check_nfs_server_configuration
       "any" usebundle => rudder_common_report("nfsServer", "result_error", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "The export ${nfs_server_path[${nfs_server_index}]} could not be added"),
         ifvarclass => canonify("nfs_server_${nfs_server_index}_failed");
 
-    pass3.((debian|redhat|SuSE))::
+    pass3.(service_restart_nfs_kernel_server_ok|service_restart_nfs_ok|service_restart_nfslock_ok|service_restart_nfsserver_ok)::
 
-      "any" usebundle => rudder_common_report("nfsServer", "log_repaired", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Restarted the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}"),
-        ifvarclass => canonify("nfs_server_${nfs_server_index}_restarted");
+      "any" usebundle => rudder_common_report("nfsServer", "log_repaired", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Restarted the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}");
 
-      "any" usebundle => rudder_common_report("nfsServer", "result_error", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Could not restart the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}"),
-        ifvarclass => canonify("nfs_server_${nfs_server_index}_not_restarted");
+    pass3.(service_restart_nfs_kernel_server_not_ok|service_restart_nfs_not_ok|service_restart_nfslock_not_ok|service_restart_nfsserver_not_ok)::
 
-  commands:
-
-    debian::
-
-      "/etc/init.d/nfs-kernel-server"
-        args => "restart",
-        ifvarclass => canonify("nfs_server_${nfs_server_index}_done"),
-        classes => cf2_if_else("nfs_server_${nfs_server_index}_restarted", "nfs_server_${nfs_server_index}_not_restarted"),
-        comment => "Restarting the NFS server";
-
-      "/usr/sbin/update-rc.d"
-        args => "nfs-kernel-server defaults",
-        ifvarclass => canonify("nfs_server_unbootstarted"),
-        comment => "adding nfs to the startup scripts";
-
-    redhat::
-
-      "/sbin/chkconfig"
-        args => "--add nfs",
-        ifvarclass => canonify("nfs_server_unbootstarted"),
-        comment => "adding nfs to the startup scripts";
-
-      "/sbin/chkconfig"
-        args => "--add nfslock",
-        ifvarclass => canonify("nfs_server_unbootstarted"),
-        comment => "adding nfslock to the startup scripts";
-
-      "/sbin/service"
-        args => "nfs restart",
-        ifvarclass => canonify("nfs_server_${nfs_server_index}_done"),
-        classes => cf2_if_else("nfs_server_${nfs_server_index}_restarted", "nfs_server_${nfs_server_index}_not_restarted"),
-        comment => "Restarting the NFS server";
-
-      "/sbin/service"
-        args => "nfslock restart",
-        ifvarclass => canonify("nfs_server_${nfs_server_index}_done"),
-        classes => cf2_if_else("nfs_server_${nfs_server_index}_restarted", "nfs_server_${nfs_server_index}_not_restarted"),
-        comment => "Restarting the NFS lock server";
-
-    SuSE::
-
-      "/sbin/chkconfig"
-        args => "--add nfsserver",
-        ifvarclass => canonify("nfs_server_unbootstarted"),
-        comment => "adding nfs to the startup scripts";
-
-      "/sbin/service"
-        args => "nfsserver restart",
-        ifvarclass => canonify("nfs_server_${nfs_server_index}_done"),
-        classes => cf2_if_else("nfs_server_${nfs_server_index}_restarted", "nfs_server_${nfs_server_index}_not_restarted"),
-        comment => "Restarting the NFS server";
+      "any" usebundle => rudder_common_report("nfsServer", "result_error", "${nfs_server_uuid[${nfs_server_index}]}", "NFS server settings", "${nfs_server_path[${nfs_server_index}]}", "Could not restart the NFS server because of the export ${nfs_server_path[${nfs_server_index}]}");
 
 }
 

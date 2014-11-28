@@ -47,15 +47,12 @@ bundle agent check_cron_configuration
 
     redhat::
       "cron_bin"        string => "crond$";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
 
     ubuntu::
       "cron_bin"        string => "cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
 
     !(redhat|ubuntu)::
       "cron_bin"        string => "/usr/sbin/cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
 
   classes:
 
@@ -96,6 +93,14 @@ bundle agent check_cron_configuration
 
   methods:
 
+    pass3.cron_restart.!redhat::
+
+      "restart_cron" usebundle => service_restart("cron");
+
+    pass3.cron_restart.redhat::
+
+      "restart_cron" usebundle => service_restart("crond");
+
     pass3.(!windows)::
 
     # Reports about the creation of the cron entries
@@ -111,13 +116,13 @@ bundle agent check_cron_configuration
 
     # Reports about the cron process presence
 
-    pass3.(!cron_restart)::
+    pass3.!cron_restart::
       "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process is running. Skipping...");
 
-    pass3.cron_restarted::
+    pass3.(service_restart_cron_ok|service_restart_crond_ok)::
       "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process has been restarted");
 
-    pass3.could_not_restart_cron::
+    pass3.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
       "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "Could not restart the cron process!");
 
     pass3.(!windows.cron_absent)::
@@ -132,13 +137,5 @@ bundle agent check_cron_configuration
 
       "${cron_bin}"
         restart_class => "cron_restart";
-
-  commands:
-
-    cron_restart::
-      "${cron_restartcmd}"
-        args => "restart",
-        classes => kept_if_else("cron_kept", "cron_restarted", "could_not_restart_cron"),
-        comment => "Restart the cron daemon";
 
 }
