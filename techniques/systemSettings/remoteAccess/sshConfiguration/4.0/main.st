@@ -85,7 +85,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
     aix::
 
       "rudder_openssh_inactive_on_boot_aix"
-        not => returnszero("lssrc -a|grep -q sshd", "useshell");
+        not => returnszero("/usr/bin/lssrc -a | /usr/bin/grep -q sshd", "useshell");
 
   files:
 
