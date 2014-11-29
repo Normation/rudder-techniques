@@ -200,10 +200,6 @@ bundle agent endExecution
     start_run_message_sent::
       "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [${g.rudder_node_config_id}]";
 
-  reports:
-    cfengine_3::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution with config [${g.rudder_node_config_id}]";
-
     rudder_promises_generated_error|no_update::
       "*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
