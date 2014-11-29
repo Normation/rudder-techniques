@@ -32,7 +32,7 @@ env | sed 's/=/]=/' |sed 's/^/=node.env[/'";
 
     windows::
      "script" string => "@echo off
-for /F  "tokens=1,2* delims==" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
+for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
 
   files:
     !windows::
