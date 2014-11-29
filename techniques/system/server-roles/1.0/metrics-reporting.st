@@ -27,9 +27,11 @@ bundle agent metrics_reporting
 
   methods:
     run_metrics.pass2.metrics_ok::
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Send metrics to rudder-project", "None", "Sending metrics to rudder-project succeded");
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Send metrics to rudder-project", "None", "Sending metrics to rudder-project succeeded");
     run_metrics.pass2.metrics_error::
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Send metrics to rudder-project", "None", "Sending metrics to rudder-project failed");
+    !run_metrics::
+      "any" usebundle => rudder_common_report("server-roles", "result_na", "&TRACKINGKEY&", "Send metrics to rudder-project", "None", "Sending metrics to rudder-project is not enabled. Skipping.");
 
   commands:
     run_metrics.!(metrics_ok|metrics_error)::
