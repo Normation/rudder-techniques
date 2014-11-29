@@ -47,6 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <SYSTEMVARS>
     <NAME>RUDDER_SERVER_ROLES</NAME>
+    <NAME>SEND_METRICS</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>

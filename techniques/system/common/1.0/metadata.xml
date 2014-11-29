@@ -85,6 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>CFENGINE_OUTPUTS_TTL</NAME>
     <NAME>RUDDER_NODE_CONFIG_ID</NAME>
     <NAME>RUDDER_REPORT_MODE</NAME>
+    <NAME>RUDDER_HEARTBEAT_INTERVAL</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
