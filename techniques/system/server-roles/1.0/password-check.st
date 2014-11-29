@@ -80,19 +80,16 @@ bundle agent root_password_check_file
 
   methods:
 
-    root_server::
+    root_server.file_ok.!file_repaired.!file_error::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Rudder passwords file is present and secure");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Rudder passwords file is present and secure")
-        ifvarclass => "file_ok.!file_repaired.!file_error";
+    root_server.file_repaired.!file_error::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Rudder passwords file permissions were fixed");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Rudder passwords file permissions were fixed")
-        ifvarclass => "file_repaired.!file_error";
-
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "EMERGENCY: THE ${g.rudder_base}/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY.")
-        ifvarclass => "file_error";
+    root_server.file_error::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "EMERGENCY: THE ${g.rudder_base}/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY.");
 
     policy_server.!root_server::
-
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Rudder passwords file does not need to be checked on relay servers. Skipping...");
 
 }
@@ -136,33 +133,29 @@ bundle agent root_password_check_ldap
 
       "restart_slapd" usebundle => service_restart("rudder-slapd");
 
-    pass3.root_server::
+    pass3.root_server.rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files are OK (checked LDAP password)");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files are OK (checked LDAP password)")
-        ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
+    pass3.root_server.rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files were updated with a new LDAP password");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files were updated with a new LDAP password")
-        ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
+    pass3.root_server.rudder_web_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files could not be updated to set the LDAP password");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files could not be updated to set the LDAP password")
-        ifvarclass => "rudder_web_password_integrity_failed";
+    pass3.root_server.rudder_ldap_password_integrity_ok.!rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file is OK (checked rootdn password)");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file is OK (checked rootdn password)")
-        ifvarclass => "rudder_ldap_password_integrity_ok.!rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
+    pass3.root_server.rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file was updated with a new rootdn password");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file was updated with a new rootdn password")
-        ifvarclass => "rudder_ldap_password_integrity_changed.!rudder_ldap_password_integrity_failed";
+    pass3.root_server.rudder_ldap_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file could not be updated to set the rootdn password");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file could not be updated to set the rootdn password")
-        ifvarclass => "rudder_ldap_password_integrity_failed";
-
-      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check rudder-passwords.conf file", "None", "rudder-slapd has been restarted")
-        ifvarclass => "service_restart_rudder_slapd_repaired";
+    pass3.root_server.service_restart_rudder_slapd_repaired::
+      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check rudder-passwords.conf file", "None", "rudder-slapd has been restarted");
 
     pass3.(policy_server.!root_server)::
-
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...");
-
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP credentials", "None", "The OpenLDAP configuration file do not need to be checked on relay servers. Skipping...");
 
 }
@@ -201,30 +194,26 @@ bundle agent root_password_check_psql
 
   methods:
 
-    pass3.root_server::
+    pass3.root_server.rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check SQL in rudder-webapp.properties", "None", "The Rudder Webapp configuration files are OK (checked SQL password)");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check SQL in rudder-webapp.properties", "None", "The Rudder Webapp configuration files are OK (checked SQL password)")
-        ifvarclass => "rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
+    pass3.root_server.rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check SQL in rudder-webapp.properties", "None", "The Rudder Webapp configuration files were updated with a new SQL password");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check SQL in rudder-webapp.properties", "None", "The Rudder Webapp configuration files were updated with a new SQL password")
-        ifvarclass => "rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed";
+    pass3.root_server.rudder_web_password_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check SQL in rudder-webapp.properties", "None", "The Rudder Webapp configuration files could not be updated to set the SQL password");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check SQL in rudder-webapp.properties", "None", "The Rudder Webapp configuration files could not be updated to set the SQL password")
-        ifvarclass => "rudder_web_password_integrity_failed";
+    pass3.root_server.!psql_cant_connect::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check SQL credentials", "None", "The Rudder PostgreSQL user account's password is correct and works");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check SQL credentials", "None", "The Rudder PostgreSQL user account's password is correct and works")
-        ifvarclass => "!psql_cant_connect";
+    pass3.root_server.postgres_updated::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check SQL credentials", "None", "The Rudder PostgreSQL user account's password has been changed");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check SQL credentials", "None", "The Rudder PostgreSQL user account's password has been changed")
-        ifvarclass => "postgres_updated";
-
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check SQL credentials", "None", "The Rudder PostgreSQL user account's password could not be changed!")
-        ifvarclass => "postgres_update_failed";
+    pass3.root_server.postgres_update_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check SQL credentials", "None", "The Rudder PostgreSQL user account's password could not be changed!");
 
     pass3.(policy_server.!root_server)::
-
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check SQL in rudder-webapp.properties", "None", "The Rudder Webapp configuration files do not need to be checked on relay servers. Skipping...");
-
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check SQL credentials", "None", "The Rudder PostgreSQL user account's do not need to be checked on relay servers. Skipping...");
 
   commands:
@@ -248,13 +237,12 @@ bundle agent root_password_restart_jetty
 
   methods:
 
-    pass2.rudder_web_password_integrity_changed::::
+    pass2.rudder_web_password_integrity_changed::
 
       "restart_jetty" usebundle => service_restart("rudder-jetty");
 
-    pass3::
-      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check rudder-webapp.properties", "None", "Jetty has been restarted")
-        ifvarclass => "service_restart_rudder_jetty_repaired";
+    pass3.service_restart_rudder_jetty_repaired::
+      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check rudder-webapp.properties", "None", "Jetty has been restarted");
 
 }
 
@@ -296,16 +284,14 @@ bundle agent root_password_check_dav
 
   methods:
 
-    pass3.cfengine::
+    pass3.!dav_cant_connect::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check WebDAV credentials", "None", "The Rudder WebDAV user and password are OK");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check WebDAV credentials", "None", "The Rudder WebDAV user and password are OK")
-        ifvarclass => "!dav_cant_connect";
+    pass3.rudder_apache_davpassword_changed.!rudder_apache_davpassword_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check WebDAV credentials", "None", "The Rudder WebDAV user and password were updated");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check WebDAV credentials", "None", "The Rudder WebDAV user and password were updated")
-        ifvarclass => "rudder_apache_davpassword_changed.!rudder_apache_davpassword_failed";
-
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check WebDAV credentials", "None", "The Rudder WebDAV user and password could not be updated")
-        ifvarclass => "rudder_apache_davpassword_failed";
+    pass3.rudder_apache_davpassword_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check WebDAV credentials", "None", "The Rudder WebDAV user and password could not be updated");
 
   commands:
 

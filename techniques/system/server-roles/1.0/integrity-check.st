@@ -42,13 +42,11 @@ bundle agent root_integrity_check
 
   methods:
 
-    pass3.root_server::
+    pass3.root_server.rudder_integrity_ok.!rudder_integrity_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "The ${g.rudder_var}/configuration-repository directory is present");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "The ${g.rudder_var}/configuration-repository directory is present")
-        ifvarclass => "rudder_integrity_ok.!rudder_integrity_failed";
-
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "EMERGENCY: THE ${g.rudder_var}/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.")
-        ifvarclass => "!rudder_integrity_ok|rudder_integrity_failed";
+    pass3.root_server.(!rudder_integrity_ok|rudder_integrity_failed)::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "EMERGENCY: THE ${g.rudder_var}/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.");
 
     pass3.(root_server.!rudder_git_lock_repaired.!rudder_git_lock_failed)::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "The ${g.rudder_var}/configuration-repository GIT lock file is not present or not older than 5 minutes");
@@ -60,9 +58,7 @@ bundle agent root_integrity_check
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "TheEMERGENCY: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE IS OLDER THAN 5 MINUTES AND COULD NOT BE DELETED. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.");
 
     pass3.(policy_server.!root_server)::
-
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "Nothing to check about the configuration-repository on relay servers");
-
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "Nothing to check about configuration-repository GIT locking on relay servers");
 
 }
