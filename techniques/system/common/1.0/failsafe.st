@@ -24,7 +24,7 @@ body common control
 {
         bundlesequence     => { "init_files", "update" };
 
-        inputs             => { "common/1.0/update.cf" };
+        inputs             => { "common/1.0/update.cf", "common/1.0/rudder_stdlib_core.cf" };
         output_prefix      => "rudder";
 }
 
@@ -200,3 +200,15 @@ body file_select exclude(name)
         file_result => "!leaf_name";
 }
 
+# Copied from CFEngine stdlib
+body classes always(x)
+
+# Define a class no matter what the outcome of the promise is
+
+{
+  promise_repaired => { "$(x)" };
+  promise_kept => { "$(x)" };
+  repair_failed => { "$(x)" };
+  repair_denied => { "$(x)" };
+  repair_timeout => { "$(x)" };
+}
