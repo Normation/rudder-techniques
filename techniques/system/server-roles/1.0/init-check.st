@@ -49,16 +49,16 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
     pass3.(root_server|process_exception_on_relay)::
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process is already running")
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process is already running"),
         ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process was not running and has been restarted")
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process was not running and has been restarted"),
         ifvarclass => "process_restart_${canoname}.service_restart_${c_initscript}_repaired.!forced_trigger_${canoname}";
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process has been restarted")
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process has been restarted"),
         ifvarclass => "service_restart_${c_initscript}_repaired.forced_trigger_${canoname}";
 
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process couldn't be restarted")
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process couldn't be restarted"),
         ifvarclass => "service_restart_${c_initscript}_not_ok";
 
     pass3.(policy_server.!root_server.!process_exception_on_relay)::

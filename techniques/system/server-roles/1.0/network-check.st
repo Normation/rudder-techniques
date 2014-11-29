@@ -56,22 +56,20 @@ bundle agent root_networks_check
 
   methods:
 
-    pass3.cfengine::
+    pass3.rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration is OK");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration is OK")
-        ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";
+    pass3.rudder_networks_repaired.!rudder_networks_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration has been corrected");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration has been corrected")
-        ifvarclass => "rudder_networks_repaired.!rudder_networks_failed";
+    pass3.rudder_networks_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration was NOT edited because of an error");
 
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration was NOT edited because of an error")
-        ifvarclass => "rudder_networks_failed";
+    pass3.apache_reloaded.!apache_reload_failed::
+      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Apache has been reloaded successfully");
 
-      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Apache has been reloaded successfully")
-        ifvarclass => "apache_reloaded.!apache_reload_failed";
-
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Apache failed to reload")
-        ifvarclass => "apache_reload_failed";
+    pass3.apache_reload_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Apache failed to reload");
 
   commands:
 
