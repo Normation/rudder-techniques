@@ -193,7 +193,9 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
   methods:
     # If we need to send a report, make sure we have sent the "StartRun" message first
     send_reports.!start_run_message_sent::
-      "Send start message" usebundle => startExecution;
+      "Send start message"
+        usebundle => startExecution,
+        action    => immediate;
 
   reports:
     full_compliance|send_reports::
