@@ -111,6 +111,11 @@ bundle common g
     !linux.!cygwin.!windows.!android.!aix::
       "execRun"                    string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
+    community_edition::
+      "ncf_config_filename"        string => "ncf.conf";
+    nova_edition::
+      "ncf_config_filename"        string => "ncf.enterprise.conf";
+
   classes:
 
     "curl_installed"           expression => isexecutable("${rudder_curl}");
