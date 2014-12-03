@@ -88,8 +88,10 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
     aix::
       # lssrc is clever, and kept in a cache the entry if the daemon is still running, so grepping
       # /etc/inittab instead, to be sure that service is defined at boot
+      # Adding scope namespace so that the class is available for the reporting also
       "${class_prefix}_activated_on_boot_kept"
-        expression => returnszero("/usr/bin/grep -q -E ^sshd: /etc/inittab", "useshell");
+        expression => returnszero("/usr/bin/grep -q -E ^sshd: /etc/inittab", "useshell"),
+        scope      => "namespace";
 
   files:
 
