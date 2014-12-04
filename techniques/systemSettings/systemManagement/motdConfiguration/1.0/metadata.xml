@@ -46,7 +46,6 @@ It is intended to check if the required motd is installed.
       <INPUT>
         <NAME>MOTD</NAME>
         <DESCRIPTION>Message of the day (MOTD) to display</DESCRIPTION>
-          <REGEX error="Please enter a valid motd, without quotes"><![CDATA[ ([^"]|(?<=\\)")* ]]></REGEX>
         <CONSTRAINT>
           <TYPE>textarea</TYPE>
         </CONSTRAINT>
