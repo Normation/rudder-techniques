@@ -49,6 +49,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="check_zypper"/>
+    <TML name="ignore_interfaces">
+      <OUTPATH>ignore_interfaces.rx</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
   </TMLS>
 
   <SYSTEMVARS>
