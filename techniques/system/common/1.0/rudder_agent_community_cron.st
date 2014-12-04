@@ -9,4 +9,4 @@
 # /opt/rudder/etc/rudder-restart-message.txt file with your custom message inside. It will be sent by mail
 # instead of the default one.
 
-0,5,10,15,20,25,30,35,40,45,50,55 * * * * root /opt/rudder/bin/check-rudder-agent
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * root /opt/rudder/bin/check-rudder-agent >/dev/null
