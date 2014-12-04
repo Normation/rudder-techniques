@@ -54,8 +54,8 @@ bundle server access_rules
 
       # the policy server must have access to the cfengine folder
       "${sys.workdir}"
-        maproot => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  },
-        admit   => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}")  };
+        maproot => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}"))  },
+        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}"))  };
 
   roles:
       # Allow user root to set any class
