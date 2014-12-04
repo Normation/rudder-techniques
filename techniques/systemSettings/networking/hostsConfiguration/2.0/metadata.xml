@@ -71,18 +71,19 @@ ff02::3 ip6-allhosts
     </SECTION>
     <!-- resolver settings , index 1-->
     <SECTION name="Hosts settings" multivalued="true">
-      <INPUT>
-        <NAME>HOSTS_HOST</NAME>
-        <DESCRIPTION>Hostname</DESCRIPTION>
-      </INPUT>
-      <INPUT>
+     <INPUT>
         <NAME>HOSTS_IP</NAME>
         <DESCRIPTION>Host IP address</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
+          <REGEX error="This field must be a valid IPv4 or IPv6 address">^[0-9a-f.:]+$</REGEX>
         </CONSTRAINT>
       </INPUT>
-    </SECTION>
+      <INPUT>
+        <NAME>HOSTS_HOST</NAME>
+        <DESCRIPTION>Hostname</DESCRIPTION>
+      </INPUT>
+     </SECTION>
   </SECTIONS>
 
 </TECHNIQUE>
