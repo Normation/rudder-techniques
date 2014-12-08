@@ -214,3 +214,16 @@ bundle agent rudder_common_reports_generic(technique_name, class_prefix, identif
         ifvarclass => "${class_prefix}_error";
 }
 
+# Define the content of a specific field
+# Text to set must not contain the separator, otherwise it will always define a "repair" state
+# see https://dev.cfengine.com/issues/6467
+body edit_field rudder_field_set(split,col,newval,separator)
+{
+  field_separator => "${split}";
+  select_field => "${col}";
+  value_separator => "${separator}";
+  field_value => "${newval}";
+  field_operation => "set";
+  extend_fields => "true";
+  allow_blank_fields => "true";
+}

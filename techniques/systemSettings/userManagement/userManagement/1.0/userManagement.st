@@ -257,7 +257,7 @@ bundle edit_line set_user_fullname(user,user_index,fullname)
   field_edits:
       "${user}:.*"
       # Edit GECOS on /etc/passwd
-        edit_field => col(":", "5", "${fullname}", "set"),
+        edit_field => rudder_field_set(":", "5", "${fullname}", "#"),
         classes => kept_if_else("usermanagement_fullname_edit_${user_index}_kept","usermanagement_fullname_edit_${user_index}_repaired","usermanagement_fullname_edit_${user_index}_error");
 
 }
