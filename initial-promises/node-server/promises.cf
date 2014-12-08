@@ -297,21 +297,21 @@ bundle agent check_cf_processes
 
     windows::
 
-      "${g.escaped_workdir}\/bin\/cf-serverd"  restart_class => "start_server";
-      "cf-execd"    restart_class => "start_executor";
-
     # Windows does only implement SIGTERM. Using SIGKILL here makes no sense
-      "cf-execd"
-        process_count => check_range("execd", "0","2"),
-        signals => { "term" },
-        classes => if_repaired("execd_has_gone_wild"),
-        comment => "Checking if cf-execd has gone wild";
 
       "cf-agent"
         process_count => check_range("agent", "0","5"),
         signals => { "term" },
         classes => if_repaired("agent_has_gone_wild"),
         comment => "Checking if cf-agent has gone wild";
+
+  services:
+    # By design, there can be only one cf-execd service running on Windows
+    windows::
+      "CfengineNovaExec"
+        service_policy => "start",
+        service_method => u_bootstart,
+        comment => "Start the executor windows service now and at boot time";
 
   commands:
 

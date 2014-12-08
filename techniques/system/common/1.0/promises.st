@@ -307,16 +307,22 @@ bundle agent check_cf_processes
       # process_term defines how many maximum instances of this
       # binary should be running before attempting to SIGTERM them.
       # process_kill is the same for SIGKILL.
-
+    !windows::
+      # On windows, cf-execd is a service, and there can be only one instance of it running (by design)
       "process_term[execd]" string => "2";
       "process_kill[execd]" string => "5";
 
+    any::
       "process_term[agent]" string => "5";
       "process_kill[agent]" string => "8";
 
       "binaries"            slist  => getindices("process_term");
 
   processes:
+    windows::
+      # Using the path on windows fails, as process are not reported the same way
+      # And unfortunately, the cf-serverd is not a service.
+      "cf-serverd"  restart_class => "start_server";
 
     !windows::
 
@@ -359,10 +365,14 @@ bundle agent check_cf_processes
         classes       => if_repaired("${binaries}_has_gone_wild"),
         comment       => "Checking if cf-${binaries} has gone wild";
 
-      "${g.escaped_workdir}\/bin\/cf-serverd"
-        restart_class => "start_server";
-      "cf-execd"
-        restart_class => "start_executor";
+  services:
+    # By design, there can be only one cf-execd service running on Windows
+    windows::
+      "CfengineNovaExec"
+        service_policy => "start",
+        service_method => u_bootstart,
+        comment => "Start the executor windows service now and at boot time";
+
 &endif&
 
   commands:
