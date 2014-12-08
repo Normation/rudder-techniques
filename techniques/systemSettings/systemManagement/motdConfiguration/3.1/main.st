@@ -50,6 +50,24 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
         edit_line     => rudder_line_insertion("${rudder_motd_payload}", "${rudder_motd_location}"),
         classes       => rudder_common_classes("${class_prefix}_file_edition");
 
+&if(NOVA)&
+
+  databases:
+    windows::
+      "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+        database_operation => "create",
+        database_rows => { "legalnoticecaption,REG_SZ,Notice"},
+        database_type => "ms_registry",
+        comment => "Editing the windows registry";
+
+      "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
+        database_operation => "create",
+        database_rows => { "legalnoticetext,REG_SZ,${rudder_motd_payload}"},
+        database_type => "ms_registry",
+        comment => "Editing the windows registry",
+        classes => rudder_common_classes("${class_prefix}_file_edition");
+&endif&
+
   methods:
     # Here, we will define reports for elements which only have a local visibility (like the MOTD file presence detection).
     !windows.rudder_motd_absent::
