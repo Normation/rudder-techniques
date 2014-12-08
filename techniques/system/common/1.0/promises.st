@@ -61,7 +61,8 @@ bundle common va
         "garbage_collection",
         "check_binaries_freshness",
         "e2s_enable",
-        "check_zypper"
+        "check_zypper",
+        "configuration"
       };
 
     !policy_server::
@@ -82,7 +83,8 @@ bundle common va
         "check_rsyslog_version",
         "e2s_enable",
         "check_zypper",
-        "check_uuid"
+        "check_uuid",
+        "configuration"
       };
 
     any::
