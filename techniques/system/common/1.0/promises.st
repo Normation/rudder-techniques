@@ -62,7 +62,8 @@ bundle common va
         "check_binaries_freshness",
         "e2s_enable",
         "check_zypper",
-        "get_environment_variables"
+        "get_environment_variables",
+        "configuration"
       };
 
     !policy_server::
@@ -84,7 +85,8 @@ bundle common va
         "e2s_enable",
         "check_zypper",
         "check_uuid",
-        "get_environment_variables"
+        "get_environment_variables",
+        "configuration"
       };
 
     any::

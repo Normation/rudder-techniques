@@ -23,20 +23,6 @@
 bundle agent fetchFusionTools
 {
 
-&if(NOVA)&
-  files:
-
-    windows::
-
-        # This won't work anymore now we've removed Perl from tools
-        # See http://www.rudder-project.org/redmine/issues/2177
-      "${g.rudder_sbin}/perl"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}/perl"),
-        depth_search => recurse("inf"),
-        action => if_elapsed("2880"),
-        classes => cf2_if_else("fusion_tools_copied", "cannot_copy_fusion_tools"),
-        comment => "Copying PERL userland";
-&endif&
 
   packages:
 
@@ -54,12 +40,6 @@ bundle agent fetchFusionTools
         comment => "Installing curl using yum";
 
   methods:
-    fusion_tools_copied::
-      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "tools", "None", "Copied fusion related utilities");
-
-    cannot_copy_fusion_tools::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "tools", "None", "Can't copy fusion utilities. Fusion might not work");
-
     fetchFusionTools_install_curl_error::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "inventory-all", "inventory-all", "00", "Installing 'curl' failed. Inventory registration will fail if curl is unavailable");
 
