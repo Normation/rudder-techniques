@@ -85,8 +85,8 @@ bundle common g
                                               "curl/libeay32.dll",
                                               "cpuid-windows-v1.0.vbs",
                                               "fusionagent.exe",
-                                              "centreon-e2s.exe",
-                                              "e2s.tpl",
+                                              "nxlog-ce-2.8.1248.msi",
+                                              "nxlog.conf",
                                             };
 
 
