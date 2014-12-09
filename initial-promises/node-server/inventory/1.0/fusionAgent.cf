@@ -31,18 +31,18 @@ bundle agent doInventory
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # If not, use minicurl instead
     !windows.!curl_installed::
-      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.minicurl} --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" http://${server_info.cfserved}/uuid";
 
     uuid_succesfully_downloaded::
-      "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
+      "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
 
   classes:
 
@@ -347,7 +347,7 @@ bundle agent addInformationsToInventory
       "CFKEY" string => execresult("${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"", "noshell");
       "USER" string => getenv("USERNAME", 40);
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_tools}/uuid.vbs\"","noshell");
-      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
+      "polserv_uuid" string => readfile( "${sys.workdir}\rudder-server-uuid.txt" , "50" );
       # Somehow, using the variable rather than the path fails with readstringlist
       "users" slist => { readstringlist("C:\Program Files\Rudder\var\tmp\UserList.list","#.*","[\n| |\r]",50,4000) };
 
@@ -356,7 +356,7 @@ bundle agent addInformationsToInventory
       "CFKEY" string => execresult("/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
       "USER" string => execresult("/usr/bin/whoami", "noshell");
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_tools}/uuid.vbs","noshell");
-      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
+      "polserv_uuid" string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
 
       "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
@@ -385,7 +385,7 @@ bundle agent addInformationsToInventory
       "users" slist => getindices("userslist");
 
     !windows::
-      "polserv_uuid"          string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
+      "polserv_uuid"          string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
 
     android::
       "RUDDERUUID"            string => execresult("/system/xbin/sqlite3 /data/data/com.android.providers.settings/databases/settings.db \"select value from secure where name = 'android_id'\"", "noshell");
