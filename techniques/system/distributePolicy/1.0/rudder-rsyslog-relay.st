@@ -41,8 +41,18 @@ $ActionQueueSaveOnShutdown on
 
 # Filtering by content
 # Process :
-# We forward the log to the root server, and we drop the message
-if $programname startswith 'rudder' then @@${server_info.cfserved}:&SYSLOGPORT&
+# We first forward the data to the root server, then we drop it to prevent
+# it from reaching local storage in .log files.
+# The report format is @@Policy@@State@@RuleId@@DirectiveId@@VersionId@@Component@@Key@@ExecutionTimeStamp##NodeId@#HumanReadableMessage
+#
 
-# We shouldn't have any rudder message here left
-if $programname startswith 'rudder' then ~
+# 1 - Send every matching report to the root server
+:msg, ereregex, "R: @@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*" @@${server_info.cfserved}:&SYSLOGPORT&
+
+# 2 - Drop the remaining rudder logs to prevent local storage cluttering
+
+## Syslog messages from "rudder"
+:programname, contains, "rudder" ~
+
+## Syslog messages from "rudder" forwarded from AIX
+:msg, ereregex, "from .*: rudder:" ~
