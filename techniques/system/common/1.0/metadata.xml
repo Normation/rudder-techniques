@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="rudder_stdlib" />
     <TML name="process_matching" />
     <TML name="internal_security" />
-    <TML name="e2s_activation"/>
+    <TML name="nxlog_activation"/>
     <TML name="site"/>
     <TML name="update"/>
     <TML name="failsafe">
