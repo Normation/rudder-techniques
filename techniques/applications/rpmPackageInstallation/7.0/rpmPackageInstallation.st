@@ -163,7 +163,7 @@ bundle agent check_rpm_package_installation {
 
       "restart_zmd" usebundle => service_restart("novell-zmd"),
                       classes => kept_if_else_persist("zmd_kept", "zmd_restarted", "could_not_restart_zmd", "${rpm_package_check_interval}"),
-                   ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok"
+                   ifvarclass => "!(zmd_kept|zmd_restarted|could_not_restart_zmd).!zypper_version_ok";
 
     pass3.(redhat|SuSE)::
 
