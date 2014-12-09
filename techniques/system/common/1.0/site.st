@@ -86,8 +86,13 @@ bundle common g
       "minicurl"                    string => "${rudder_bin}/rudder-perl ${sys.workdir}/inputs/common/utilities/minicurl";
       "excludedreps"                slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"         string => "/var/rudder/tools";
+
+      # Path where all the configurations (git with techniques, groups, ncf, etc) are stored
+      "rudder_configuration_repository"
+                                    string => "&CONFIGURATION_REPOSITORY_FOLDER&";
+
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
-      "rudder_ncf_origin_local"     string => "/var/rudder/configuration-repository/ncf";
+      "rudder_ncf_origin_local"     string => "${rudder_configuration_repository}/ncf";
 
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
       "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
