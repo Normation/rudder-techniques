@@ -60,9 +60,9 @@ bundle common va
         "check_cron_daemon",
         "garbage_collection",
         "check_binaries_freshness",
-        "e2s_enable",
         "check_zypper",
         "get_environment_variables",
+        "nxlog_enable",
         "configuration"
       };
 
@@ -82,7 +82,7 @@ bundle common va
         "check_binaries_freshness",
         "check_log_system",
         "check_rsyslog_version",
-        "e2s_enable",
+        "nxlog_enable",
         "check_zypper",
         "check_uuid",
         "get_environment_variables",

@@ -29,12 +29,12 @@ bundle agent root_integrity_check
 
     root_server::
 
-      "${g.rudder_var}/configuration-repository"
+      "${g.rudder_configuration_repository}"
         create => "true",
         action => WarnOnly,
         classes => if_else("rudder_integrity_ok", "rudder_integrity_failed");
 
-      "${g.rudder_var}/configuration-repository/.git/index.lock"
+      "${g.rudder_configuration_repository}/.git/index.lock"
         delete       => tidy,
         file_select  => rudder_common_minutes_old("5"),
         classes      => rudder_common_classes("rudder_git_lock"),
@@ -43,19 +43,19 @@ bundle agent root_integrity_check
   methods:
 
     pass3.root_server.rudder_integrity_ok.!rudder_integrity_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "The ${g.rudder_var}/configuration-repository directory is present");
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "The ${g.rudder_configuration_repository} directory is present");
 
     pass3.root_server.(!rudder_integrity_ok|rudder_integrity_failed)::
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "EMERGENCY: THE ${g.rudder_var}/configuration-repository DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.");
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "EMERGENCY: THE ${g.rudder_configuration_repository} DIRECTORY IS *ABSENT*. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.");
 
     pass3.(root_server.!rudder_git_lock_repaired.!rudder_git_lock_failed)::
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "The ${g.rudder_var}/configuration-repository GIT lock file is not present or not older than 5 minutes");
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "The ${g.rudder_configuration_repository} GIT lock file is not present or not older than 5 minutes");
 
     pass3.(root_server.rudder_git_lock_repaired.!rudder_git_lock_failed)::
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "WARNING: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE WAS OLDER THAN 5 MINUTES AND HAS BEEN DELETED");
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "WARNING: THE ${g.rudder_configuration_repository} GIT LOCK FILE WAS OLDER THAN 5 MINUTES AND HAS BEEN DELETED");
 
     pass3.(root_server.rudder_git_lock_failed)::
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "TheEMERGENCY: THE ${g.rudder_var}/configuration-repository GIT LOCK FILE IS OLDER THAN 5 MINUTES AND COULD NOT BE DELETED. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.");
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check configuration-repository GIT lock", "None", "TheEMERGENCY: THE ${g.rudder_configuration_repository} GIT LOCK FILE IS OLDER THAN 5 MINUTES AND COULD NOT BE DELETED. THIS ORCHESTRATOR WILL *NOT* OPERATE CORRECTLY.");
 
     pass3.(policy_server.!root_server)::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "Nothing to check about the configuration-repository on relay servers");

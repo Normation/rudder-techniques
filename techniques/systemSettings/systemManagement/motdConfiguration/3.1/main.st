@@ -50,8 +50,13 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
         edit_line     => rudder_line_insertion("${rudder_motd_payload}", "${rudder_motd_location}"),
         classes       => rudder_common_classes("${class_prefix}_file_edition");
 
-&if(NOVA)&
+  methods:
+    # Here, we will define reports for elements which only have a local visibility (like the MOTD file presence detection).
+    !windows.rudder_motd_absent::
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "log_repaired", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file was absent, it will be created");
 
+&if(NOVA)&
   databases:
     windows::
       "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
@@ -68,11 +73,6 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
         classes => rudder_common_classes("${class_prefix}_file_edition");
 &endif&
 
-  methods:
-    # Here, we will define reports for elements which only have a local visibility (like the MOTD file presence detection).
-    !windows.rudder_motd_absent::
-      "any"
-        usebundle  => rudder_common_report("${service_name}", "log_repaired", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file was absent, it will be created");
 
 }
 

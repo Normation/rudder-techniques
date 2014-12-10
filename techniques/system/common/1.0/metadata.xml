@@ -25,7 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="rudder_stdlib_core" />
     <TML name="process_matching" />
     <TML name="internal_security" />
-    <TML name="e2s_activation"/>
+    <TML name="nxlog_activation"/>
     <TML name="site"/>
     <TML name="update"/>
     <TML name="failsafe">
@@ -86,6 +86,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>RUDDER_NODE_CONFIG_ID</NAME>
     <NAME>RUDDER_REPORT_MODE</NAME>
     <NAME>RUDDER_HEARTBEAT_INTERVAL</NAME>
+    <NAME>CONFIGURATION_REPOSITORY_FOLDER</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
