@@ -86,7 +86,7 @@ bundle agent services_management
         classes => if_else("service_${index}_bootstarted", "service_${index}_unbootstarted");
 
   processes:
-
+   !windows::
     # check the service status
       "${service[${index}][process]}"
         comment => "Check the process status",
@@ -120,7 +120,7 @@ bundle agent services_management
 
 
   commands:
-
+    !windows::
       "/etc/init.d/${service[${index}][name]}"
         args => "start",
         classes => kept_if_else("process_${index}_restart_ok", "process_${index}_restart_ok", "process_${index}_restart_error"),
@@ -140,14 +140,14 @@ bundle agent services_management
 
     # Check whether the service is already configured to start on boot
 
-    !debian:: # Debian uses a files promise for this, see above
+    !debian.!windows:: # Debian uses a files promise for this, see above
 
       "${service_check_boot_status_cmd_${index}}"
         classes => if_else("service_${index}_bootstarted", "service_${index}_unbootstarted"),
         ifvarclass => "bootstart_process_${index}|bootstart_prevent_process_${index}",
         comment => "Check if the service ${service[${index}][name]} is started on boot";
 
-    any::
+    !windows::
 
       "${service_add_boot_cmd_${index}}"
         contain => in_shell,
@@ -161,15 +161,49 @@ bundle agent services_management
         ifvarclass => "service_${index}_bootstarted.bootstart_prevent_process_${index}",
         comment => "Set the service ${service[${index}][name]} to not be started on boot";
 
+  services:
+    windows::
+     "${service[${index}][name]}"
+       service_policy => "start",
+       classes => rudder_common_classes("process_${index}_started"),
+       ifvarclass =>"start_process_${index}";
+
+     "${service[${index}][name]}"
+       service_method => u_bootstart,
+       classes => rudder_common_classes("process_${index}_bootstarted"),
+       ifvarclass => "bootstart_process_${index}";
+
+     "${service[${index}][name]}"
+       service_policy => "stop",
+       classes => rudder_common_classes("process_${index}_stopped"),
+       ifvarclass =>"stop_process_${index}";
+
+     "${service[${index}][name]}"
+       service_method => no_bootstart,
+       classes => rudder_common_classes("process_${index}_unbootstarted"),
+       ifvarclass => "bootstart_prevent_process_${index}";
+
+  methods:
+    windows::
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "process_${index}_started", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Service ${service[${index}][name]} start" ),
+            ifvarclass => "process_${index}_started_kept|process_${index}_started_repaired|process_${index}_started_error";
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "process_${index}_stopped", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Service ${service[${index}][name]} stop" ),
+            ifvarclass => "process_${index}_stopped_kept|process_${index}_stopped_repaired|process_${index}_stopped_error";
+
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "process_${index}_bootstarted", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Service ${service[${index}][name]} started at boot" ),
+            ifvarclass => "process_${index}_bootstarted_kept|process_${index}_bootstarted_repaired|process_${index}_bootstarted_error";
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "process_${index}_unbootstarted", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Service ${service[${index}][name]} started at boot" ),
+            ifvarclass => "process_${index}_unbootstarted_kept|process_${index}_unbootstarted_repaired|process_${index}_unbootstarted_error";
+
   reports:
     cfengine::
 
       "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} didn't need to have its process checked"
         ifvarclass => "!start_process_${index}.!stop_process_${index}";
 
+    !windows::
       "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Cannot check the status of ${service[${index}][name]}: the process name is not filed"
         ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
-
       "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Process of ${service[${index}][name]} was indeed running"
         ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
 
@@ -199,10 +233,12 @@ bundle agent services_management
       "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Process@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]}: the process count could't be stopped"
         ifvarclass => "stop_process_${index}.service_${index}_error.!graceful_stop_process_${index}";
 
-
+    cfengine::
       "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range is not to be checked for service ${service[${index}][name]}"
         ifvarclass => "!check_process_range_${index}";
 
+
+    !windows::
       "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range for service ${service[${index}][name]} cannot to be checked, for the process name is not set"
         ifvarclass => "check_process_range_${index}.!defined_process_name_${index}";
 
@@ -220,10 +256,11 @@ bundle agent services_management
 
 
     # Service boot starting parameters
-
-      "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} starting parameters check not required"
+    cfengine::
+      "@@ServicesManagement@@result_na@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} starting parameters check not required"
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
 
+    !windows::
       "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} is started on boot as required"
         ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted";
 
@@ -232,7 +269,6 @@ bundle agent services_management
 
       "@@ServicesManagement@@result_error@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#Could not set ${service[${index}][name]} to start on boot!"
         ifvarclass => "bootstart_process_${index}.service_${index}_bootstarted_fail";
-
 
 
       "@@ServicesManagement@@result_success@@${service[${index}][uuid]}@@Service starting parameters@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#${service[${index}][name]} is not started on boot as required"
@@ -245,4 +281,14 @@ bundle agent services_management
         ifvarclass => "bootstart_prevent_process_${index}.service_${index}_unbootstarted_fail";
 
 
+    windows::
+      "@@ServicesManagement@@result_na@@${service[${index}][uuid]}@@Advanced options@@${service[${index}][name]}@@${g.execRun}##${g.uuid}@#The process range is not implemented on Windows"
+        ifvarclass => "check_process_range_${index}";
+
+}
+
+
+body service_method no_bootstart
+{
+        service_autostart_policy => "none";
 }
