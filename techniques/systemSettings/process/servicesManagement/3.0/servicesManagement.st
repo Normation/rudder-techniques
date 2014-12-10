@@ -85,11 +85,14 @@ bundle agent services_management
       "unbootstart_process" usebundle => service_ensure_stopped("${service[${index}][name]}"),
                            ifvarclass => "bootstart_prevent_process_${index}|stop_process_${index}";
 
+
+    # On Windows, we can't use processes: promises to detect the current status, so
+    # we just call the service_{start,stop} bundles to ensure service state
       "start_process"       usebundle => service_start("${service[${index}][name]}"),
-                           ifvarclass => "process_${index}_restart.start_process_${index}";
+                           ifvarclass => "(process_${index}_restart|windows).start_process_${index}";
 
       "stop_process"        usebundle => service_stop("${service[${index}][name]}"),
-                           ifvarclass => "!process_${index}_restart.stop_process_${index}";
+                           ifvarclass => "(!process_${index}_restart|windows).stop_process_${index}";
 
       "restart_process"     usebundle => service_restart("${service[${index}][name]}"),
                            ifvarclass => canonify("${service[${index}][name]}_out_of_range");
@@ -99,6 +102,8 @@ bundle agent services_management
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]} didn't need to have its process checked"),
         ifvarclass => "!start_process_${index}.!stop_process_${index}";
 
+    # On windows, we don't use processes promises type to check if process are running, as we rely directly on services
+    !windows::
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Cannot check the status of ${service[${index}][name]}: the process name is not filed"),
         ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
 
@@ -130,10 +135,19 @@ bundle agent services_management
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process count could't be stopped"),
         ifvarclass => "stop_process_${index}.service_${index}_error.!graceful_stop_process_${index}";
 
+  # on windows, the generic methods are directly defining the correct classes, without relying on the process check before hand
+    windows::
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_start_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Service ${service[${index}][name]} start" ),
+           ifvarclass => "start_process_${index}";
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_stop_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Service ${service[${index}][name]} stop" ),
+           ifvarclass => "stop_process_${index}";
 
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range is not to be checked for service ${service[${index}][name]}"),
+    any::
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range is not to be checked for service ${service[${index}][name]}"),
         ifvarclass => "!check_process_range_${index}";
 
+    # The number of process range is not checked on windows
+    !windows::
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} cannot to be checked, for the process name is not set"),
         ifvarclass => "check_process_range_${index}.!defined_process_name_${index}";
 
@@ -149,10 +163,14 @@ bundle agent services_management
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired"),
         ifvarclass => canonify("check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][name]}_not_ok");
 
+    windows::
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "Checking the number of processes within a range is not implemened on Windows"),
+        ifvarclass => "check_process_range_${index}";
+
 
     # Service boot starting parameters
-
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required"),
+    any::
+      "any" usebundle => rudder_common_report("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required"),
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} is started on boot as required"),
@@ -176,7 +194,7 @@ bundle agent services_management
         ifvarclass => canonify("bootstart_prevent_process_${index}.service_ensure_stopped_${service[${index}][name]}_not_ok");
 
   processes:
-
+    !windows::
     # check the service status
       "${service[${index}][process]}"
         comment => "Check the process status",
