@@ -44,6 +44,11 @@ bundle agent propagatePromises
         comment => "Fetching the tools for the promises execution",
         classes => classes_generic("propagate_tools");
 
+      "${g.rudder_ncf_origin_local}/ncf.conf"
+        copy_from    => copy_digest("${sys.workdir}/inputs/distributePolicy/ncf/ncf.conf"),
+        comment      => "Enforce the ncf configuration file",
+        classes      => classes_generic("configure_ncf_config");
+
     policy_server.!root_server::
 
       "${client_data}"  #that's a loop on each files in client_inputs
@@ -98,6 +103,13 @@ bundle agent propagatePromises
         edit_defaults => empty,
         edit_line     => insert_lines("${sys.date}"),
         comment       => "Update the timestamp in the rudder tool updated file";
+
+  methods:
+    root_server::
+      "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "&TRACKINGKEY&", "Configure ncf", "None", "Configure ncf");
+    !root_server::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure ncf", "None", "Configuration of ncf is not necessary on non root servers");
+
 
   reports:
     # Success if files are updated or not changed (kept or repaired).
