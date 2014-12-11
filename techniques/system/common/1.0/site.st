@@ -179,3 +179,9 @@ bundle common g
     "role_rudder_relay_top"          expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-relay-top");
 
 }
+
+# defines the path to the ncf configuration file
+bundle common ncf_configuration {
+  vars:
+    "ncf_configuration_file" string => "${g.rudder_ncf_origin_local}/ncf.conf";
+}
