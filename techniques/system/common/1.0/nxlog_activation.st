@@ -77,7 +77,7 @@ bundle agent nxlog_install
 
     windows.!nxlog_ok::
 
-      "\"$(sys.winsysdir)\msiexec.exe\""
+      "\"${sys.winsysdir}\msiexec.exe\""
         args    => "/q /i  \"${g.rudder_sbin}\nxlog-ce-2.8.1248.msi",
         classes => rudder_common_classes("nxlog_install"),
         comment => "Installing nxlog";
