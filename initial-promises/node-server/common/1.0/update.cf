@@ -336,6 +336,12 @@ body action u_ifwin_bg
         background => "true";
 }
 
+body service_method u_bootstart
+{
+        service_autostart_policy => "boot_time";
+}
+
+
 body perms u_mog(mode,user,group)
 {
 owners => { "${user}" };
