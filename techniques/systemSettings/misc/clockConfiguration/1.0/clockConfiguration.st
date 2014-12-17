@@ -143,6 +143,8 @@ bundle agent check_clock_configuration
       "clock_set_norway" expression => strcmp("&CLOCK_TIMEZONE&","norway");
       "clock_set_beijing" expression => strcmp("&CLOCK_TIMEZONE&","beijing");
 
+      "ntp_config_file_exists" expression => fileexists("/etc/ntp.conf");
+
     clock_vardef.windows::
       # check if we need to change the windows timezone
       "need_to_change_timezone" not => strcmp("${windows_timezone}", "${current_timezone}");
@@ -236,7 +238,7 @@ bundle agent check_clock_configuration
   files:
 
     # Adjust ntp.conf (Add the servers)
-    !windows::
+    !windows.(ntp_config_file_exists|ntp_installed)::
       "/etc/ntp.conf"
         edit_line => setNtpServer("@{this.ntpServers}"),
         edit_defaults => noempty_backup,
