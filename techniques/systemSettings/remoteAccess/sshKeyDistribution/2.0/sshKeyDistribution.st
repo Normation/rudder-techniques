@@ -158,7 +158,6 @@ bundle edit_line append_or_replace_ssh_key(keyspec, index)
     "^(?!${eline}$)(.*${ekey}.*)$"
       comment       => "Replace a key here",
       replace_with  => value("${keyspec}"),
-      ifvarclass    => "key_parsed",
       classes       => always("ssh_key_distribution_replace_step_attempted_${index}");
 
 }
