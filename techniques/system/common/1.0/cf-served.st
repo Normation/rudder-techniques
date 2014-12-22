@@ -67,15 +67,15 @@ bundle server access_rules
   &if(SKIPIDENTIFY)&
     &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
-        maproot => { escape("&host&")  },
-        admit   => { escape("&host&")  };
+        maproot => { string_downcase(escape("&host&"))  },
+        admit   => { string_downcase(escape("&host&"))  };
 
      } &
   &else&
     &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
-        maproot => { host2ip("&host&"), escape("&host&")  },
-        admit   => { host2ip("&host&"), escape("&host&")  };
+        maproot => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit   => { host2ip("&host&"), string_downcase(escape("&host&"))  };
 
      } &
   &endif&
