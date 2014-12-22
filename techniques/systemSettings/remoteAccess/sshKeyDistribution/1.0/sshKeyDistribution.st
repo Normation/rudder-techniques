@@ -53,8 +53,6 @@ bundle agent check_ssh_key_distribution
 
   files:
 
-    !SuSE::
-
       "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/."
         create => "true",
         ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
@@ -64,21 +62,6 @@ bundle agent check_ssh_key_distribution
         create => "true",
         edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
         perms  => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}"),
-        edit_line => insert_lines("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
-        ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        classes => kept_if_else("line_${sshkey_distribution_index}_ok","line_${sshkey_distribution_index}_added","line_${sshkey_distribution_index}_failed");
-
-    SuSE::
-
-      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/."
-        create => "true",
-        ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
-        perms  => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "users");
-
-      "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}/.ssh/authorized_keys"
-        create => "true",
-        edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
-        perms  => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "users"),
         edit_line => insert_lines("${sshkey_distribution_key[${sshkey_distribution_index}]}"),
         ifvarclass => canonify("index_${sshkey_distribution_index}_exists"),
         classes => kept_if_else("line_${sshkey_distribution_index}_ok","line_${sshkey_distribution_index}_added","line_${sshkey_distribution_index}_failed");

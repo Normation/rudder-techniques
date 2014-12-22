@@ -72,13 +72,9 @@ bundle agent check_ssh_key_distribution
       "userdata_${sshkey_distribution_index}"
         string  => execresult("/usr/bin/grep ^${sshkey_distribution_name[${sshkey_distribution_index}]}: /etc/passwd", "noshell");
 
-    !SuSE::
+    any::
       "gid[${sshkey_distribution_index}]"
         string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}";
-
-    SuSE::
-      "gid[${sshkey_distribution_index}]"
-        string  => "users";
 
   files:
 
