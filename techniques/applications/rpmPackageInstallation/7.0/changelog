@@ -21,3 +21,4 @@
  -- Benoît Peccatte <benoit.peccatte@normation.com> Fri Oct 17 14:10:43 CEST 2014
   * Version 7.0
   ** Use rudder_common_report instead of reports:
+  ** Implement rpmPackageInstallation post hook commands 
