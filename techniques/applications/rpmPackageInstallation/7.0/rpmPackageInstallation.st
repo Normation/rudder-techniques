@@ -42,6 +42,9 @@ bundle agent check_rpm_package_installation {
       &RPM_PACKAGE_VERSION:{version |"rpm_version[&i0&]" string => "&version&";
 }&
 
+      &RPM_PACKAGE_POST_HOOK_COMMAND:{command |"rpm_posthook[&i0&]" string => "&command&";
+}&
+
       "index_rpmpkg" slist => getindices("rpm_package");
 
     # File containing the list of available packages to install
@@ -105,13 +108,16 @@ bundle agent check_rpm_package_installation {
 
 
   classes:
+      &RPM_PACKAGE_POST_HOOK_RUN:{run |"execute_command_&i0&" expression => strcmp("&run&", "true");
+}&
+
       # Check if update file exists
       "update_file_exists" expression => fileexists("${available_updates_file}");
 
       # Detect if we want to update the package
       "is_update_action_${index_rpmpkg}" expression => strcmp("${rpm_data[${index_rpmpkg}][0]}", "update");
 
-      # Gather the version of the aailable package
+      # Gather the version of the available package
       "${index_rpmpkg}_update_version_valid" not => strcmp("", "${${index_rpmpkg}_update_version}"),
         ifvarclass => "(${index_rpmpkg}_update_version_fetched_kept|${index_rpmpkg}_update_version_fetched_repaired)";
 
@@ -182,6 +188,23 @@ bundle agent check_rpm_package_installation {
       "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"),
         ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.(rpm_package_installation_updated_available_packages_kept|rpm_package_installation_updated_available_packages_repaired).!${index_rpmpkg}_update_version_valid";
 
+      # Post hooks reporting
+      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Successfully executed post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]}"),
+        ifvarclass => "rpm_posthook_${index_rpmpkg}_repaired";
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Error executing post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]}"),
+        ifvarclass => "rpm_posthook_${index_rpmpkg}_error";
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Can't executing post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]} as policy ${rpm_data[${index_rpmpkg}][0]} failed"),
+        ifvarclass => "rpm_package_installation_${index_rpmpkg}_error.execute_command_${index_rpmpkg}";
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "No hook executed since package promise was kept"),
+        ifvarclass => "rpm_package_installation_${index_rpmpkg}_kept.execute_command_${index_rpmpkg}";
+
+      "any" usebundle => rudder_common_report("packageInstallation", "result_na", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "No post hook execution set for RPM package ${rpm_package[${index_rpmpkg}]}"),
+        ifvarclass => "!execute_command_${index_rpmpkg}";
+
+      
 
     # ZMD Process presence related reports
     pass3.!(SuSE_10.!zypper_version_ok)::
@@ -202,6 +225,12 @@ bundle agent check_rpm_package_installation {
 
       "/usr/lib/zmd/zmd.exe"
         restart_class => "zmd_restart";
+
+  commands:
+    "${rpm_posthook[${index_rpmpkg}]}"
+      classes => rudder_common_classes("rpm_posthook_${index_rpmpkg}"),
+      contain => in_shell,
+      ifvarclass => "execute_command_${index_rpmpkg}.rpm_package_installation_${index_rpmpkg}_repaired.!rpm_package_installation_${index_rpmpkg}_error";
 
 }
 
@@ -255,4 +284,53 @@ SuSE_10.!zypper_version_ok::
 	package_update_command => "/usr/bin/rug update -y";
 
 	package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+=======
+    package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
+    package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+
+    package_changes => "individual";
+
+  redhat::
+    package_list_command          => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+    package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
+    package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
+    package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
+
+    package_installed_regex       => ".*";
+    package_name_convention       => "${name}-${version}";
+    package_list_update_ifelapsed => "${rpm_pkg_timeout}";
+    package_add_command           => "/usr/bin/yum -y install";
+    package_delete_command        => "/bin/rpm -e";
+    package_update_command        => "/usr/bin/yum -y update";
+    package_verify_command        => "/bin/rpm -V";
+
+
+  zypper_version_ok::
+    package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+    package_list_update_ifelapsed => "${rpm_pkg_timeout}";
+    package_installed_regex => "i.*";
+    package_list_name_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_arch_regex => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_name_convention => "${name}";
+    package_add_command => "/usr/bin/zypper --non-interactive install";
+    package_delete_command => "/usr/bin/zypper --non-interactive remove --force-resolution";
+    package_update_command => "/usr/bin/zypper --non-interactive update";
+    package_verify_command => "/usr/bin/zypper --non-interactive verify$";
+  
+  SuSE_10.!zypper_version_ok::
+    package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+    package_list_update_ifelapsed => "${rpm_pkg_timeout}";
+    package_installed_regex => "i.*";
+    package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    
+    package_name_convention => "${name}";
+    package_add_command => "/usr/bin/rug install -y";
+    package_delete_command => "/usr/bin/rug remove -y";
+    package_update_command => "/usr/bin/rug update -y";
+    
+    package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+>>>>>>> branches/rudder/2.11
 }

@@ -85,7 +85,7 @@ presence of a package, and if not met to enforce them.
         <!--<ITEM> # CURRENTLY BROKEN IN CFENGINE #
           <LABEL>Install and update automatically</LABEL>
           <VALUE>addupdate</VALUE>
-		</ITEM>-->
+        </ITEM>-->
         <ITEM>
           <LABEL>Remove</LABEL>
           <VALUE>delete</VALUE>
@@ -145,6 +145,21 @@ presence of a package, and if not met to enforce them.
           <NAME>RPM_PACKAGE_VERSION</NAME>
           <DESCRIPTION>Package version number</DESCRIPTION>
           <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+      <SECTION name="Post-modification hook" component="true" componentKey="RPM_PACKAGE_REDLIST">
+        <INPUT>
+          <NAME>RPM_PACKAGE_POST_HOOK_RUN</NAME> 
+          <DESCRIPTION>Should the command(s) below be run if the above package has been modified?</DESCRIPTION>
+          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>RPM_PACKAGE_POST_HOOK_COMMAND</NAME>
+          <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>textarea</TYPE>
             <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
         </INPUT>
