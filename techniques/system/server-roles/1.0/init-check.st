@@ -41,7 +41,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
     pass2.(root_server|process_exception_on_relay)::
 
-      "start_process" usebundle => service_ensure_running("${initscript}"),
+      "start_process" usebundle => service_ensure_running_path("${initscript}", "${binary}"),
                      ifvarclass => "!forced_trigger_${canoname}";
 
       "start_process" usebundle => service_restart("${initscript}"),
