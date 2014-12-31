@@ -98,6 +98,6 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
     pass3::
 
-      "any" usebundle => rudder_common_reports_generic("server-roles", "service_ensure_started_at_boot_${c_initscript}", "&TRACKINGKEY&", "Check ${name} boot script", "None", "Check ${service_name} boot starting parameters");
+      "any" usebundle => rudder_common_reports_generic("server-roles", "service_ensure_started_at_boot_${c_initscript}", "&TRACKINGKEY&", "Check ${name} boot script", "None", "Check ${name} boot starting parameters");
 
 }
