@@ -104,7 +104,7 @@ if ($put == 1) {
 
   # Send the file using the PUT method
   if ($authentication eq "") {
-    $response = $ua->request(PUT $url . $file_basename, Content => $message);
+    $response = $ua->request(PUT $url . "/" . $file_basename, Content => $message);
   } else {
     $response = $ua->request(PUT $url . "/" . $file_basename, Authorization => "Basic " . $authentication, Content => $message);
   }
