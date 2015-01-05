@@ -38,6 +38,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>root_password_check_dav</NAME>
     <NAME>root_password_restart_jetty</NAME>
     <NAME>sendInventoryToCmdb</NAME>
+    <NAME>compress_webapp_log</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -52,6 +53,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="networkCheck"/>
     <TML name="aliveCheck"/>
     <TML name="passwordCheck"/>
+    <TML name="logcompress"/>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
