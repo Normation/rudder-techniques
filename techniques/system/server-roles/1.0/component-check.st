@@ -109,6 +109,7 @@ bundle agent root_component_check
     role_rudder_jetty::
       "any" usebundle => generic_process_check_process("${service[rudder_jetty][binary]}", "${service[rudder_jetty][initscript]}", "${service[rudder_jetty][name]}", "false", "${service[rudder_jetty][check_on_relay_server]}");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_jetty][binary]}", "${service[rudder_jetty][initscript]}", "${service[rudder_jetty][name]}");
+      "any" usebundle => compress_webapp_log;
 
     !role_rudder_jetty::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
