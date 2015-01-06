@@ -55,6 +55,7 @@ bundle common g
       "rudder_tools"               string => "${rudder_var}/tools";
       "rudder_ncf"                 string => "${rudder_var}/ncf";
       "crontab"                    string => "/etc/crontab";
+      "gzip"                       string => "/bin/gzip";
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies"        string => "${rudder_var}/tools";
