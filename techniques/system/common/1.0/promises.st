@@ -55,7 +55,6 @@ bundle common va
         "process_matching",
         "check_cf_processes",
         "check_uuid",
-        "check_log_system",
         "check_rsyslog_version",
         "check_cron_daemon",
         "garbage_collection",
@@ -65,6 +64,10 @@ bundle common va
         "nxlog_enable",
         "configuration"
       };
+
+      # On the policy server, we do the check_log_system at the end, to ensure that rsyslog has been installed and configured before.
+
+      "end" slist => { "check_log_system", "endExecution" };
 
     !policy_server::
       "bs" slist => {
@@ -89,7 +92,6 @@ bundle common va
         "configuration"
       };
 
-    any::
       "end" slist => { "endExecution" };
 
     !android.!windows::::
