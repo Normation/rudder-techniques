@@ -90,7 +90,7 @@ bundle common va
     any::
       "end" slist => { "endExecution" };
 
-    !android.!windows::::
+    !android.!windows::
       "rudder_var"     string => "/var/rudder";
     android::
       "rudder_var"     string => "/data/rudder";
