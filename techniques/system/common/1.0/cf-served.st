@@ -185,8 +185,10 @@ body server control
 
         skipverify        => { "127.0.0.0/8" , "::1",  @{def.acl}  };
 
-    community_edition::
+    community_edition.!debug_port::
         port => "&COMMUNITYPORT&";
+    community_edition.debug_port::
+        port => "5310";
 
 }
 
@@ -202,8 +204,10 @@ body runagent control
 
         max_children => "25";
 
-    community_edition::
+    community_edition.!debug_port::
         port => "&COMMUNITYPORT&";
+    community_edition.debug_port::
+        port => "5310";
 }
 &endif&
 
