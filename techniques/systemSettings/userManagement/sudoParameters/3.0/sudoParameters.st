@@ -130,16 +130,16 @@ bundle agent check_sudo_parameters
       "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "sudoersFile", "None", "The generated sudoers file is invalid. Not updating /etc/sudoers. This should not happen.");
 
     pass3.sudo_all_lines_defined::
-      "any" usebundle => rudder_common_report("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "Entry for ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} is invalid (no command given), and has been ignored"), 
+      "any" usebundle => rudder_common_report("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "Entry for ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is invalid (no command given), and has been ignored"), 
         ifvarclass => "!sudo_${sudo_index}_command_notempty.!sudo_${sudo_index}_alldo";
 
-      "any" usebundle => rudder_common_report("sudoParameters", "result_repaired", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "The ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} has been handled"),
+      "any" usebundle => rudder_common_report("sudoParameters", "result_repaired", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} has been handled"),
         ifvarclass => canonify("line_${sudo_index}_added");
 
-      "any" usebundle => rudder_common_report("sudoParameters", "result_success", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "The ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} is already present"),
+      "any" usebundle => rudder_common_report("sudoParameters", "result_success", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is already present"),
         ifvarclass => canonify("line_${sudo_index}_kept");
 
-      "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${${sudo_entity_name}[${sudo_index}]}", "The ${${sudo_entity_type}[${sudo_index}]} ${${sudo_entity_name}[${sudo_index}]} could not be handled"),
+      "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} could not be handled"),
         ifvarclass => canonify("line_${sudo_index}_add_failed");
 
     pass3.sudo_all_lines_defined.force.sudo_all_lines_deleted::
