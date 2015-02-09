@@ -132,8 +132,13 @@ classes:
       # Check that value has been set before to edit the file
       "edit_content_${index}" expression => isvariable("generic_file_content_payload[${index}]");
 
-      "tier1" expression => "any";
+    tier1::
+      # if the file absent and we don't plan to create it, then there is nothing to do on it
+      "file_nothing_to_do_${index}" expression => strcmp("${generic_file_content_creation[${index}]}", "false"),
+        ifvarclass => "file_doesnt_exist_${index}";
 
+    any::
+      "tier1" expression => "any";
       "tier2" expression => isvariable("file_edit_go");
 
     any::
@@ -159,7 +164,7 @@ classes:
         ),
         create => "${generic_file_content_creation[${index}]}",
         edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
-        ifvarclass => "!creation_only_but_already_exists_${index}.!edit_only_in_a_zone_${index}",
+        ifvarclass => "!creation_only_but_already_exists_${index}.!edit_only_in_a_zone_${index}.!file_nothing_to_do_${index}",
         classes => kept_if_else("file_edition_global_files_status_${index}_kept", "file_edition_global_files_status_${index}_repaired", "file_edition_global_files_status_${index}_failed"),
         comment => "Editing ${generic_file_content_path[${index}]}...";
 
@@ -174,7 +179,7 @@ classes:
         ),
         create => "${generic_file_content_creation[${index}]}",
         edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
-        ifvarclass => "!creation_only_but_already_exists_${index}.edit_only_in_a_zone_${index}",
+        ifvarclass => "!creation_only_but_already_exists_${index}.edit_only_in_a_zone_${index}.!file_nothing_to_do_${index}",
         classes => kept_if_else("file_edition_global_files_status_${index}_kept", "file_edition_global_files_status_${index}_repaired", "file_edition_global_files_status_${index}_failed"),
         comment => "Editing ${generic_file_content_path[${index}]}...";
 
@@ -182,13 +187,18 @@ classes:
         create => "${generic_file_content_creation[${index}]}",
         perms => mog("${generic_file_content_perms[${index}]}", "${generic_file_content_owner[${index}]}", "${generic_file_content_group[${index}]}"),
         classes => kept_if_else("perms_${index}_kept", "perms_${index}_modified", "perms_${index}_failed"),
-        ifvarclass => "adjust_permissions_${index}.!creation_only_but_already_exists_${index}",
+        ifvarclass => "adjust_permissions_${index}.!creation_only_but_already_exists_${index}.!file_nothing_to_do_${index}",
         comment => "Setting ${generic_file_content_path[${index}]} permissions...";
 
   methods:
     pass3.tier2::
     # Files edition
+      "any" usebundle => rudder_common_report("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created"),
+        ifvarclass => "file_nothing_to_do_${index}";
+
+
       # No line migrations
+
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy"),
         ifvarclass => "!migrate_to_zone_${index}.edit_content_${index}.((content_${index}_kept.!content_${index}_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
 
@@ -210,11 +220,14 @@ classes:
 
 
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "No content was given to check file ${generic_file_content_path[${index}]}, skipping"),
-        ifvarclass => "!edit_content_${index}";
+        ifvarclass => "!edit_content_${index}.!file_nothing_to_do_${index}";
 
       # Files edition - deletion
+      "any" usebundle => rudder_common_report("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created"),
+        ifvarclass => "file_nothing_to_do_${index}";
+
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was not set for any line deletion"),
-        ifvarclass => "!delete_lines_${index}";
+        ifvarclass => "!delete_lines_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the deletion policy"),
         ifvarclass => "delete_lines_${index}.((content_deletion_kept_${index}.!content_deletion_modified_${index}.!content_deletion_failed_${index})|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
@@ -226,8 +239,11 @@ classes:
         ifvarclass => "content_deletion_failed_${index}";
 
       # Files edition - replacement
+      "any" usebundle => rudder_common_report("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created"),
+        ifvarclass => "file_nothing_to_do_${index}";
+
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was not set for any line replacement"),
-        ifvarclass => "!modify_lines_${index}";
+        ifvarclass => "!modify_lines_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the replacement policy"),
         ifvarclass => "content_modification_kept_${index}.!content_modification_modified_${index}.!content_modification_failed_${index}";
@@ -243,8 +259,11 @@ classes:
         ifvarclass => "edit_content_${index}.creation_only_but_already_exists_${index}";
 
       # Permissions edition
+      "any" usebundle => rudder_common_report("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created"),
+        ifvarclass => "file_nothing_to_do_${index}";
+
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} uses default permissions"),
-        ifvarclass => "!adjust_permissions_${index}";
+        ifvarclass => "!adjust_permissions_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} permissions are OK"),
         ifvarclass => "perms_${index}_kept";
@@ -260,8 +279,11 @@ classes:
         ifvarclass => "adjust_permissions_${index}.creation_only_but_already_exists_${index}";
 
       #Section edition
+      "any" usebundle => rudder_common_report("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created"),
+        ifvarclass => "file_nothing_to_do_${index}";
+
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was not set for section edition, skipping"),
-        ifvarclass => "!enforce_section_${index}";
+        ifvarclass => "!enforce_section_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was set for section edition, but no header or footer was defined"),
         ifvarclass => "enforce_section_${index}.!edit_section_valid_${index}";
@@ -292,8 +314,11 @@ classes:
 
 
       # Posthook report
+      "any" usebundle => rudder_common_report("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Post-modification hook", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created"),
+        ifvarclass => "file_nothing_to_do_${index}";
+
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Post-modification hook", "${generic_file_content_path[${index}]}", "No command for ${generic_file_content_path[${index}]} was to be executed"),
-        ifvarclass => "!execute_command_${index}";
+        ifvarclass => "!execute_command_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Post-modification hook", "${generic_file_content_path[${index}]}", "${generic_file_content_path[${index}]} was in the proper state, so no command to execute"),
         ifvarclass => "execute_command_${index}.file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired";
