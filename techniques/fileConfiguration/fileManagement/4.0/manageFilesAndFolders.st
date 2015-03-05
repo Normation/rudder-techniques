@@ -213,7 +213,7 @@ bundle agent manageFilesAndFolders {
 
   methods:
 
-    pass3.((linux|windows))::
+    pass3::
 
 			# Reporting for creation
 			## Reporting for directory creation
