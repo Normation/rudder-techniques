@@ -214,7 +214,7 @@ bundle agent manageFilesAndFolders {
 
 	reports:
 
-        (linux|windows)::
+          cfengine_3::
 
 			# Reporting for creation
 			## Reporting for directory creation
