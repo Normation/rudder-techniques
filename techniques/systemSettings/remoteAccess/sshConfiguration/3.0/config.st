@@ -54,7 +54,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[config][Protocol]"
         string => "&OPENSSH_SERVER_PROTOCOL&";
 
-    rudder_openssh_server_max_sessions_edit.!(redhat|SuSE|debian_3|debian_4)::
+    rudder_openssh_server_max_sessions_edit.!(redhat|SuSE|debian_3|debian_4|aix_5_3|aix_5_2|aix_5_1)::
       "rudder_openssh_server_config[config][MaxSessions]"
         string => "&OPENSSH_SERVER_MAXSESSIONS&";
 
@@ -260,7 +260,7 @@ bundle agent rudder_openssh_server
       ifvarclass => "rudder_openssh_server_allow_agent_forwarding_edit.(redhat|SuSE|debian_3|debian_4)";
     "any"
       usebundle  => rudder_common_report("${rudder_openssh_server_service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${rudder_openssh_server_service_name} parameter \"max sessions\" isn't implemented on Red Hat/CentOS/SuSE/Debian 3 and 4"),
-      ifvarclass => "rudder_openssh_server_max_sessions_edit.(redhat|SuSE|debian_3|debian_4)";
+      ifvarclass => "rudder_openssh_server_max_sessions_edit.(redhat|SuSE|debian_3|debian_4|aix_5_3|aix_5_2|aix_5_1)";
     "any"
       usebundle  => rudder_common_report("${rudder_openssh_server_service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${rudder_openssh_server_service_name} parameter \"permit tunnel\" isn't implemented on SuSE/Debian 3/Redhat/CentOS3 and 4"),
       ifvarclass => "rudder_openssh_server_permit_tunnel_edit.(SuSE|debian_3|redhat_3|redhat_4|centos_3|centos_4)";
