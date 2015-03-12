@@ -52,20 +52,3 @@
         endscript
 }
 
-/var/log/rudder/core/*.log {
-        daily
-        missingok
-        rotate 30
-        compress
-        notifempty
-        create 640 root adm
-}
-
-/var/log/rudder/compliance/non-compliant-reports.log {
-        daily
-        missingok
-        rotate 365
-        compress
-        notifempty
-        create 640 root adm
-}

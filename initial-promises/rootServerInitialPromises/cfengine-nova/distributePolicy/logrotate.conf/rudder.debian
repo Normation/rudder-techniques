@@ -38,12 +38,3 @@
 		create 640 root adm
 }
 
-/var/log/rudder/core/*.log {
-        daily
-        missingok
-        rotate 30
-        compress
-        delaycompress
-        notifempty
-        create 640 root adm
-}
