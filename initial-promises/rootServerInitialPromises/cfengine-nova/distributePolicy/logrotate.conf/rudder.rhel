@@ -56,12 +56,3 @@
         endscript
 }
 
-/var/log/rudder/core/*.log {
-        daily
-        missingok
-        rotate 30
-        compress
-        notifempty
-        create 640 root root
-        delaycompress
-}

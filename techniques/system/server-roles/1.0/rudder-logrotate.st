@@ -4,27 +4,6 @@
 # It will automatically be updated by Rudder itself if a new component to be managed
 # is added to the machine.
 
-[%CFEngine role_rudder_webapp:: %]
-/var/log/rudder/compliance/non-compliant-reports.log {
-        daily
-        missingok
-        rotate 365
-        compress
-        notifempty
-        create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
-        delaycompress
-}
-
-/var/log/rudder/core/*.log {
-        daily
-        missingok
-        rotate 30
-        compress
-        notifempty
-        create ${root_logrotate_check.syslog_file_mode} ${root_logrotate_check.syslog_user} ${root_logrotate_check.syslog_group}
-        delaycompress
-}
-
 [%CFEngine role_rudder_server_root|(policy_server.!root_server):: %]
 /var/log/rudder/apache2/*.log {
         daily
