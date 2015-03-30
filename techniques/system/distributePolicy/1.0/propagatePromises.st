@@ -79,7 +79,7 @@ bundle agent propagatePromises
         copy_from    => remote("${server_info.cfserved}","${g.rudder_tools}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
-        classes => if_else("tools_propagated", "could_not_propagate_tools");
+        classes => classes_generic("propagate_tools");
 
       "${sys.workdir}/masterfiles"
         copy_from    => remote("${server_info.cfserved}","${sys.workdir}/masterfiles"),
@@ -115,7 +115,7 @@ bundle agent propagatePromises
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder and licenses to be updated.
-    ((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.license_copied.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise)::
+    ((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise)::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#All files have been propagated";
     could_not_propagate_promise::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate policy files";
