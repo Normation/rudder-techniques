@@ -1,0 +1,31 @@
+#!/bin/sh
+
+# On SLES 10, Zypper is a technical preview which is not usable with
+# automatic tools. To be able to use it on SLES 10, we have to check
+# that the version is more recent than the one in SLES 10 SP4 (latest SLES 10).
+# The version of Zypper provided by SLES 10 SP4 is '0.6.201-0.4.1' and
+# '1.0.8' by the SLES 11.
+# We need to check that Zypper is at least as recent as on SLES 11 to be
+# able to use it with Rudder.
+
+# rpmvercmp location
+RPMVERCMP="/var/rudder/cfengine-community/bin/rpmvercmp"
+
+# Minimum supported Zypper version
+MINIMAL_ZYPPER_VERSION="1.0.8"
+
+if type zypper >/dev/null 2>&1; then
+
+  CURRENT_ZYPPER_VERSION=$(/usr/bin/zypper --version | cut -d' ' -f2)
+
+  if ${RPMVERCMP} ${CURRENT_ZYPPER_VERSION} lt ${MINIMAL_ZYPPER_VERSION}; then
+    echo "+zypper_version_not_ok"
+    # Also output the legacy variable name, just in case
+    echo "+zypper_version_unusable"
+  else
+    echo "+zypper_version_ok"
+  fi
+
+else
+  echo "ERROR: Unable to find zypper, cannot get the current zypper version"
+fi
