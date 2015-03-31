@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 It is intended to check if the required motd is installed.
 -->
 <TECHNIQUE name="MOTD configuration">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique will check if the required Message Of The Day is present on the system.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
