@@ -570,7 +570,7 @@ bundle agent check_log_system
 bundle agent check_rsyslog_version {
 
   classes:
-      "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check_rsyslog_version");
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check-rsyslog-version");
       "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
     any::
@@ -579,7 +579,7 @@ bundle agent check_rsyslog_version {
       "pass1" expression => "any";
 
   files:
-    rsyslogd.rsyslog_greater_than_5_7_1::
+    rsyslogd.rsyslog_version_ok::
       "/etc/rsyslog.d/remove_limit.conf"
         edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
         edit_defaults => noempty_backup,
@@ -598,7 +598,7 @@ bundle agent check_rsyslog_version {
       "restart_syslog_ng" usebundle => service_restart("syslog");
 
     pass3.(rsyslogd.!check_rsyslog_version_present)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file  ${g.rudder_tools}/check_rsyslog_version is missing");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file  ${g.rudder_tools}/check-rsyslog-version is missing");
 
     pass3.rsyslog_limit_error::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not remove limitation of message in rsyslog");
@@ -614,7 +614,7 @@ bundle agent check_rsyslog_version {
 
   commands:
     rsyslogd.check_rsyslog_version_present::
-      "${g.rudder_tools}/check_rsyslog_version"
+      "${g.rudder_tools}/check-rsyslog-version"
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
