@@ -126,7 +126,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_MODIFICATION_REGEXP</NAME>
 		    <DESCRIPTION>Regular expression</DESCRIPTION>
-		    <LONGDESCRIPTION>Regular expression used to match a line to be replaced</LONGDESCRIPTION>
+		    <LONGDESCRIPTION>Regular expression used to match a line to be replaced. This regular expression must not match the string used as a replacement. For example, to set kernel.shmmax = 5678, the Regular expression would be kernel.shmmax = (?!5678$).* and the string used as remplacement remplacement kernel.shmmax = 5678</LONGDESCRIPTION>
 		    <CONSTRAINT>
 		      <TYPE>string</TYPE>
 		      <DEFAULT>replaceme.*</DEFAULT>
