@@ -182,7 +182,7 @@ body select_region rudder_section_selector(section_start, section_end)
 bundle agent rudder_common_report(technique_name, status, identifier, component_name, component_key, message)
 {
   methods:
-    "report" usebundle => rudder_common_report("${technique_name}", "${status}", "${identifier}", "${component_name}", "${component_key}", "${message}", "");
+    "report" usebundle => rudder_common_report_index("${technique_name}", "${status}", "${identifier}", "${component_name}", "${component_key}", "${message}", "");
 }
 
 # Create and send a report to the server - to be used when dealing with multiinstance technique
@@ -226,7 +226,7 @@ bundle agent rudder_common_reports_generic(technique_name, class_prefix, identif
 {
   methods:
       "report"
-        usebundle  => rudder_common_report("${technique_name}", "${class_prefix}", "${identifier}", "${component_name}", "${component_key}", "${message_prefix}", "");
+        usebundle  => rudder_common_reports_generic_index("${technique_name}", "${class_prefix}", "${identifier}", "${component_name}", "${component_key}", "${message_prefix}", "");
 }
 #
 # Automatically create reports based on existing classes starting by
