@@ -97,6 +97,31 @@ body classes rudder_always_classes_persist(always, persist)
 #
 bundle agent rudder_common_report(technique_name, status, identifier, component_name, component_key, message)
 {
+  methods:
+    "report" usebundle => rudder_common_report_index("${technique_name}", "${status}", "${identifier}", "${component_name}", "${component_key}", "${message}", "");
+}
+
+#
+# Create and send a report to the server
+# This bundle takes 7 parameters :
+# technique_name : the name of the technique, human readable
+# status         : the status of the Component, among the following values
+#    result_na
+#    result_success
+#    result_error
+#    result_repaired
+#    log_repaired (for logging only)
+#    log_warn     (for logging only)
+#    log_info     (for logging only)
+#    log_debug    (for logging only)
+#    log_trace    (for logging only)
+# identifier     : the identifier of the current Rule and Directive
+# component_name : the name of the component within the Technique
+# component_key  : the value of the component reference variable (or None if undefined)
+# message        : An explanation message understandable by a human
+# index          : the current index, that will distinguish two identical reports and ensure they are both sent
+bundle agent rudder_common_report_index(technique_name, status, identifier, component_name, component_key, message, index)
+{
   classes:
     changes_only::
       "send_reports" or => {
@@ -115,7 +140,8 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 
   reports:
     full_compliance|send_reports::
-      "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}";
+      "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}"
+        comment => "Reporting for ${technique_name} message ${message} for index ${index}";
 }
 
 
@@ -133,20 +159,39 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 bundle agent rudder_common_reports_generic(technique_name, class_prefix, identifier, component_name, component_key, message_prefix)
 {
   methods:
+      "report"
+        usebundle  => rudder_common_reports_generic_index("${technique_name}", "${class_prefix}", "${identifier}", "${component_name}", "${component_key}", "${message_prefix}", "");
+}
+
+#
+# Automatically create reports based on existing classes starting by
+# class_prefix (as defined by the body classes rudder_common_classes)
+# Takes 7 parameters
+# technique_name : the name of the technique, human readable
+# class_prefix   : the prefix of a set of classes to reporting on (suffixes with "kept", "repaired" or "error")
+# identifier     : the identifier of the current Rule and Directive
+# component_name : the name of the component within the Technique
+# component_key  : the value of the component reference variable (None if it does not exists)
+# message_prefix : The begining of an explanation message understandable by a human
+# index          : the current index, that will distinguish two identical reports and ensure they are both sent
+#
+bundle agent rudder_common_reports_generic_index(technique_name, class_prefix, identifier, component_name, component_key, message_prefix, index)
+{
+  methods:
       "na"
-        usebundle  => rudder_common_report("${technique_name}", "result_na", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not applicable"),
+        usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not applicable", "${index}"),
         ifvarclass => "${class_prefix}_noop.!${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
 
       "success"
-        usebundle  => rudder_common_report("${technique_name}", "result_success", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct"),
+        usebundle  => rudder_common_report_index("${technique_name}", "result_success", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct", "${index}"),
         ifvarclass => "${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
 
       "repaired"
-        usebundle  => rudder_common_report("${technique_name}", "result_repaired", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired"),
+        usebundle  => rudder_common_report_index("${technique_name}", "result_repaired", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired", "${index}"),
         ifvarclass => "${class_prefix}_repaired.!${class_prefix}_error";
 
       "error"
-        usebundle  => rudder_common_report("${technique_name}", "result_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} could not be repaired"),
+        usebundle  => rudder_common_report_index("${technique_name}", "result_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} could not be repaired", "${index}"),
         ifvarclass => "${class_prefix}_error";
 }
 
