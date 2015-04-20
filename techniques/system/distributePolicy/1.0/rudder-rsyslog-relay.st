@@ -52,4 +52,4 @@ $ActionQueueSaveOnShutdown on
 :programname, contains, "rudder" ~
 
 ## Syslog messages from "rudder" forwarded from AIX
-:msg, ereregex, "from .*: rudder:" ~
+:msg, ereregex, "from .*: rudder" ~
