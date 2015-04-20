@@ -4,7 +4,7 @@
 # It will automatically be updated by Rudder itself if a new component to be managed
 # is added to the machine.
 
-[%CFEngine role_rudder_server_root|(policy_server.!root_server):: %]
+[%CFEngine role_rudder_server_root|policy_server:: %]
 /var/log/rudder/apache2/*.log {
         daily
         missingok
