@@ -75,20 +75,33 @@ bundle common g
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
-      "rudder_tools_files_windows" slist => { "uuid.vbs",
-                                              "iconv.dll",
+      "rudder_tools_files_windows" slist => {
+                                              # Rudder utilities
+                                              "uuid.vbs",
                                               "userlist.bat",
                                               "getDate.bat",
                                               "registrydns.bat",
-                                              "iconv.exe",
-                                              "curl/curl.exe",
-                                              "curl/libcurl.dll",
-                                              "curl/libssl32.dll",
-                                              "curl/libeay32.dll",
                                               "cpuid-windows-v1.0.vbs",
+
+                                              # GNU iconv
+                                              "iconv.exe",
+                                              "iconv.dll",
+
+                                              # cURL
+                                              "curl/curl.exe",
+                                              "curl/curl-ca-bundle.crt",
+
+                                              # OpenSSL
+                                              "openssl/openssl.exe",
+                                              "openssl/libeay32.dll",
+                                              "openssl/ssleay32.dll",
+
+                                              # Fusion inventory
                                               "fusionagent.exe",
+
+                                              # NXlog
                                               "nxlog-ce-2.8.1248.msi",
-                                              "nxlog.conf",
+                                              "nxlog.conf" 
                                             };
 
 
