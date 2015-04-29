@@ -52,6 +52,15 @@ then
   FILENAME="${FILENAME%.*}"
 fi
 
+# If the file is a signature, ignore it
+#    ${VARIABLE##*.} extracts the file extension
+if [ "${BASENAME##*.}" = "sign" ]
+then
+  rm "${FILENAME}"
+  logger -p local6.info "Ignoring signature file ${FILENAME} (deleted)"
+  exit 0
+fi
+
 # 3 - Send the file
 HTTP_CODE=$(${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} -o /dev/null -w '%{http_code}' ${SERVER})
 SEND_COMMAND_RET=$?
