@@ -38,7 +38,7 @@
         create 640 root root
         delaycompress
         postrotate
-          /etc/init.d/rsyslog reload > /dev/null
+          /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
         endscript
 }
 
@@ -52,7 +52,7 @@
         delaycompress
         sharedscripts
         postrotate
-          /etc/init.d/rsyslog reload > /dev/null
+          /bin/kill -HUP `cat /var/run/syslogd.pid 2> /dev/null` 2> /dev/null || true
         endscript
 }
 
