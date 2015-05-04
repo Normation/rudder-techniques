@@ -81,6 +81,10 @@ bundle server access_rules
   &endif&
 
 &endif&
+    any::
+      # Allow server to remotely run the agent
+      "/var/rudder/cfengine-community/bin/cf-agent"
+        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
   roles:
       # Allow user root to set any class
@@ -120,7 +124,7 @@ bundle common def
 &endif&
     !policy_server::
       "acl" slist => {
-      "${def.policy_server}"
+      "${def.policy_server}", host2ip("${def.policy_server}")
     };
 
   classes:
