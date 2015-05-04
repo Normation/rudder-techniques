@@ -74,6 +74,7 @@ bundle agent doInventory
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => compressInventories;
+      "any" usebundle => signInventories;
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
 
@@ -85,6 +86,7 @@ bundle agent doInventory
       "any" usebundle => turnUsersToUnicode;
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
+      "any" usebundle => signInventories;
       "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
 
@@ -540,6 +542,23 @@ bundle agent moveInventoryToFinalDestination
         comment      => "Moving inventory files to the final location";
 }
 
+# sign inventories
+bundle agent signInventories
+{
+  vars:
+    !windows::
+      "sign_script" string => "/opt/rudder/bin/signature.sh";
+    windows::
+      "sign_script" string => "C:\Program Files\Rudder\sbin\signature.bat";
+
+  files:
+      "${g.rudder_inventories}"
+        transformer  => "${sign_script} ${this.promiser}",
+        depth_search => recurse_visible(1),
+        file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
+        comment      => "Signing inventory files";
+}
+
 # compress inventories if possible
 bundle agent compressInventories
 {
@@ -548,7 +567,7 @@ bundle agent compressInventories
     !windows.gzip_installed::
 
       "${g.rudder_inventories}"
-	transformer  => "${g.rudder_gzip} -fq ${this.promiser}",
+        transformer  => "${g.rudder_gzip} -fq ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
         comment      => "gzip inventory files";
@@ -560,6 +579,7 @@ bundle agent sendInventory
 
   vars:
 
+      "signed_inventory_file_types"  slist => { "@{g.inventory_file_types}", ".*\.sign" };
       "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
 
     # If curl is available, use it
@@ -591,7 +611,7 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.inventory_file_types}"),
+        file_select  => by_name("@{signed_inventory_file_types}"),
         classes      => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment      => "Sending the inventory to the server";
 
@@ -601,7 +621,7 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
         depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
+        file_select => by_name("@{signed_inventory_file_types}"),
         classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment => "Sending the inventory to the server";
 &endif&
@@ -611,14 +631,14 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.inventory_file_types}"),
+        file_select  => by_name("@{signed_inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
       "${g.rudder_var_tmp}/inventory"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.inventory_file_types}"),
+        file_select  => by_name("@{signed_inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
