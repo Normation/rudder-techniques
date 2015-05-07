@@ -34,6 +34,8 @@ BASENAME=$(basename ${2})
 
 CURL_BINARY="/usr/bin/curl"
 GZIP_BINARY="/bin/gzip"
+# Maximum number of minute to wait before assuming the signature is missing
+MAX_SIGNATURE_WAIT=1
 
 # End of configuration
 
@@ -44,28 +46,32 @@ do
 done
 
 # 2 - If the file appears to be compressed, attempt to uncompress it
-#     ${VARIABLE##*.} extracts the file extension
+#    ${VARIABLE##*.} extracts the file extension
 if [ "${BASENAME##*.}" = "gz" ]
 then
   ${GZIP_BINARY} -q -d ${FILENAME}
-  # ${VARIABLE%.*} removes the last extension of the file, here: .gz
+  # ${VARIABLE%.*} removes the last extension of the file, here: .gz
   FILENAME="${FILENAME%.*}"
 fi
 
-# If the file is a signature, ignore it
-#    ${VARIABLE##*.} extracts the file extension
-if [ "${BASENAME##*.}" = "sign" ]
+# 3 - Look for signature file
+SIGNATURE_OPT=""
+if [ -f "${FILENAME}.sign" ]
 then
-  rm "${FILENAME}"
-  logger -p local6.info "Ignoring signature file ${FILENAME} (deleted)"
-  exit 0
+  SIGNATURE_OPT="-F signature=@${FILENAME}.sign"
+else
+  # 3.1 - No signature and file timestamp < 2mn -> wait for it
+  if [ $(find "${FILENAME}" -mmin "-${MAX_SIGNATURE_WAIT}" | wc -l) = "0" ]
+  then
+    exit 0
+  fi
 fi
 
-# 3 - Send the file
-HTTP_CODE=$(${CURL_BINARY} --proxy '' -f -F file=@${FILENAME} -o /dev/null -w '%{http_code}' ${SERVER})
+# 4 - Send the file
+HTTP_CODE=$(${CURL_BINARY} --proxy '' -f -F "file=@${FILENAME}" ${SIGNATURE_OPT} -o /dev/null -w '%{http_code}' ${SERVER})
 SEND_COMMAND_RET=$?
 
-# 4 - Abort if sending failed
+# 5 - Abort if sending failed
 if [ ${SEND_COMMAND_RET} -eq 7 -o "${HTTP_CODE}" = "503" ]
 then
   # Endpoint is unavailable (ret == 7) or too busy (HTTP_CODE == 503), try again later
@@ -80,8 +86,9 @@ then
   exit ${SEND_COMMAND_RET}
 fi
 
-# 5 - Sending succeeded, archive original file
-mv ${FILENAME} ${ARCHIVEDIR}
+# 6 - Sending succeeded, archive original file
+mv "${FILENAME}" "${ARCHIVEDIR}"
+[ -f "${FILENAME}.sign" ] && mv "${FILENAME}.sign" "${ARCHIVEDIR}"
 
-# 6 - That's all, folks
+# 7 - That's all, folks
 exit 0
