@@ -44,7 +44,7 @@ bundle agent install_rsyslogd {
 
       "/etc/rsyslog.d/rudder.conf"
         create    => "true",
-        edit_defaults => empty,
+        edit_defaults => empty_size("8388608"), # the template can get pretty big with a lot of entries
         edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/${rsyslog_source_file}"),
               classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
               comment => "Copying rsyslog conf";  
