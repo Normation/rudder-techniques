@@ -70,3 +70,25 @@ $template RudderReportsFormat,"insert into RudderSysEvents (executionDate, nodeI
 
 ## Syslog messages from "rudder" forwarded from AIX
 :msg, ereregex, "from .*: rudder" ~
+
+
+# Access Control list, localhost + all known agents 
+$AllowedSender UDP, 127.0.0.0/8
+$AllowedSender TCP, 127.0.0.0/8
+
+&if(SKIPIDENTIFY)&
+
+&AUTHORIZED_NETWORKS:{net|
+$AllowedSender UDP, &net&
+$AllowedSender TCP, &net&
+}&
+
+&else&
+
+&MANAGED_NODES_IP : {ip |
+$AllowedSender UDP, &ip&
+$AllowedSender TCP, &ip&
+} &
+
+&endif&
+

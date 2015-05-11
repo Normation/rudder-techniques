@@ -208,24 +208,53 @@ body action longjob
 
 body edit_defaults noempty_backup
 {
-        empty_file_before_editing => "false";
-        edit_backup               => "timestamp";  # we want to keep a track of everything
-        max_file_size             => "1024000";
+  empty_file_before_editing => "false";
+  edit_backup               => "timestamp";  # we want to keep a track of everything
+  max_file_size             => "1024000";
 }
 
 body edit_defaults empty_backup
 {
-        empty_file_before_editing => "true";
-        edit_backup               => "timestamp";
-        max_file_size             => "1024000";
+  empty_file_before_editing => "true";
+  edit_backup               => "timestamp";
+  max_file_size             => "1024000";
 }
 
 
 body edit_defaults def_no_backup
 {
-        empty_file_before_editing => "false";
-        edit_backup               => "false";
-        max_file_size             => "1024000";
+  empty_file_before_editing => "false";
+  edit_backup               => "false";
+  max_file_size             => "1024000";
+}
+
+body edit_defaults empty_size(size)
+{
+  empty_file_before_editing => "true";
+  edit_backup => "false";
+  max_file_size => "${size}";
+}
+
+body edit_defaults noempty_backup_size(size)
+{
+  empty_file_before_editing => "false";
+  edit_backup               => "timestamp";  # we want to keep a track of everything
+  max_file_size             => "${size}";
+}
+
+body edit_defaults empty_backup_size(size)
+{
+  empty_file_before_editing => "true";
+  edit_backup               => "timestamp";
+  max_file_size             => "${size}";
+}
+
+
+body edit_defaults def_no_backup_size(size)
+{
+  empty_file_before_editing => "false";
+  edit_backup               => "false";
+  max_file_size             => "${size}";
 }
 ########################################################
 
