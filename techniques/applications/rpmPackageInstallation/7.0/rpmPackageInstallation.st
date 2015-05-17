@@ -53,7 +53,7 @@ bundle agent check_rpm_package_installation {
     redhat::
       "available_updates_command" string => "/usr/bin/yum --quiet check-update | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
     zypper_version_ok::
-      "available_updates_command" string => "/usr/bin/zypper list-updates -a | ${paths.path[grep]} '|' | ${paths.path[awk]} -F '|' '{print $3 $5}' | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
+      "available_updates_command" string => "/usr/bin/zypper --non-interactive list-updates -a | ${paths.path[grep]} '|' | ${paths.path[awk]} -F '|' '{print $3 $5}' | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
 
     # If the promises have been updated, we need to remove previously
     # defined persistent classes (by setting there persistence to 1 minutes)
