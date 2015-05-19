@@ -24,10 +24,9 @@
 
 bundle server access_rules
 {
-&if(CLIENTSLIST)&
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
-
+  &if(CLIENTSLIST)&
     policy_server::
       &if(NOVA)&
       "&UUID&"
@@ -64,31 +63,32 @@ bundle server access_rules
 
 
     any::
-  &if(SKIPIDENTIFY)&
-    &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
+    &if(SKIPIDENTIFY)&
+      &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
         maproot => { escape("&host&")  },
         admit   => { escape("&host&")  };
 
-     } &
-  &else&
-    &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
+       } &
+    &else&
+      &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
         maproot => { host2ip("&host&"), escape("&host&")  },
         admit   => { host2ip("&host&"), escape("&host&")  };
 
-     } &
-  &endif&
+       } &
+    &endif&
 
       # the policy server must have access to the cfengine folder
       "${sys.workdir}"
         maproot => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  },
         admit   => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  };
-&endif&
-    any::
+  &endif&
+
+    policy_server_set::
       # Allow server to remotely run the agent
       "/var/rudder/cfengine-community/bin/cf-agent"
-        admit   => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}") };
+        admit   => { host2ip("${def.policy_server}"), escape("${def.policy_server}") };
 
   roles:
       # Allow user root to set any class
@@ -118,7 +118,7 @@ bundle common def
       &AUTHORIZED_NETWORKS:{net|"&net&",}&
     };
 &endif&
-    !policy_server::
+    !policy_server.policy_server_set::
       "acl" slist => {
       "${def.policy_server}", host2ip("${def.policy_server}")
     };
