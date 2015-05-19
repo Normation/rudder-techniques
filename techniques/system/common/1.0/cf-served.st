@@ -24,10 +24,14 @@
 
 bundle server access_rules
 {
+<<<<<<< HEAD
 &if(MANAGED_NODES_NAME)&
+=======
+>>>>>>> branches/rudder/2.10
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
+&if(CLIENTSLIST)&
     policy_server::
       &if(NOVA)&
       "&UUID&"
@@ -122,7 +126,7 @@ bundle common def
       &AUTHORIZED_NETWORKS:{net|"&net&",}&
     };
 &endif&
-    !policy_server::
+    !policy_server.policy_server_set::
       "acl" slist => {
       "${def.policy_server}", host2ip("${def.policy_server}")
     };
