@@ -24,14 +24,10 @@
 
 bundle server access_rules
 {
-<<<<<<< HEAD
-&if(MANAGED_NODES_NAME)&
-=======
->>>>>>> branches/rudder/2.10
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
     policy_server::
       &if(NOVA)&
       "&UUID&"
