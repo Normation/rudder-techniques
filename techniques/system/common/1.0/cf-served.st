@@ -81,7 +81,7 @@ bundle server access_rules
   &endif&
 
 &endif&
-    any::
+    policy_server_set::
       # Allow server to remotely run the agent
       "/var/rudder/cfengine-community/bin/cf-agent"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
