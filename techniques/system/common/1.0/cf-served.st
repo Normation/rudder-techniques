@@ -24,14 +24,10 @@
 
 bundle server access_rules
 {
-<<<<<<< HEAD
-&if(MANAGED_NODES_NAME)&
-=======
->>>>>>> branches/rudder/2.10
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
     policy_server::
       &if(NOVA)&
       "&UUID&"
@@ -85,7 +81,7 @@ bundle server access_rules
   &endif&
 
 &endif&
-    any::
+    policy_server_set::
       # Allow server to remotely run the agent
       "/var/rudder/cfengine-community/bin/cf-agent"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
