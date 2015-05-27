@@ -21,19 +21,14 @@ bundle agent compress_webapp_log
   vars:
     # compress files older than 2 days 
     "log_compress_delay"  int  => "2";
+    # compres file.log and file.log.1
+    "logs_patern" slist => { ".*\.log", ".*\.log\.\d+" };
 
   files:
     "/var/log/rudder/webapp"
-      file_select => jetty_logs("${log_compress_delay}"),
+      file_select => date_pattern("${log_compress_delay}", "@{logs_patern}"),
       depth_search => recurse("0"),
       transformer => "${g.gzip} \"${this.promiser}\"";
 
-}
-
-body file_select jetty_logs(days)
-{
-  leaf_name => { ".*\.log", ".*\.log\.\d+" };
-  mtime => irange(ago(0,0,"${days}",0,0,0),now);
-  file_result => "leaf_name.!mtime";
 }
 
