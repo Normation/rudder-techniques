@@ -106,7 +106,7 @@ bundle agent check_zypper_settings
     pass3.zypper_conf_failed::
       "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Zypper repositories could not be edited");
 
-    # Zypper repositories desactivation
+    # Zypper repositories deactivation
 
     pass3.(zypper_disablerepositories.!repos_disabled_ok.!repos_disabled_fail)::
       "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Every repository other than the defined ones were already disabled");
@@ -118,7 +118,7 @@ bundle agent check_zypper_settings
       "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_error", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "Could not disable the other repositories!");
 
     pass3.(!zypper_disablerepositories)::
-      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "The repository desactivation has not been requested. Skipping...");
+      "any" usebundle => rudder_common_report("zypperPackageManagerSettings", "result_success", "${zypper_uuid[${zypper_index}]}", "General settings", "None", "The repository deactivation has not been requested. Skipping...");
 
 
     # Ignore non-SuSE OSes
