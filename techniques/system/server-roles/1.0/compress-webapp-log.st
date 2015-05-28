@@ -31,5 +31,3 @@ bundle agent compress_webapp_log
       transformer => "${g.gzip} \"${this.promiser}\"";
 
 }
-
-

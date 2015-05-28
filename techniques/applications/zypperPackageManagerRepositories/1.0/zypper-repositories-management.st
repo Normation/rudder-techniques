@@ -93,7 +93,7 @@ bundle agent zypper_repositories_management
 
 
     SuSE.!zypper_disable_other_repositories::
-      "deletion_${zypper_reports_value}" usebundle => rudder_common_report("Zypper Repositories Management", "result_na", "${zypper_reports_value}", "Purge other repositories", "None", "The repository desactivation has not been requested. Skipping...");
+      "deletion_${zypper_reports_value}" usebundle => rudder_common_report("Zypper Repositories Management", "result_na", "${zypper_reports_value}", "Purge other repositories", "None", "The repository deactivation has not been requested. Skipping...");
 
     !SuSE::
       "deletion_${zypper_reports_value}" usebundle => rudder_common_report("Zypper Repositories Management", "result_na", "${zypper_reports_value}", "Purge other repositories", "None", "Deletion of others repositories is available only on SUSE/SLES systems");
