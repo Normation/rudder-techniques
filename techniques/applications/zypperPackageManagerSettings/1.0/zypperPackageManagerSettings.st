@@ -101,7 +101,7 @@ bundle agent check_zypper_settings
     zypper_conf_failed::
       "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@General settings@@None@@${g.execRun}##${g.uuid}@#Zypper repositories could not be edited";
 
-    # Zypper repositories desactivation
+    # Zypper repositories deactivation
 
     zypper_disablerepositories.!repos_disabled_ok.!repos_disabled_fail::
       "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#Every repository other than the defined ones were already disabled";
@@ -113,7 +113,7 @@ bundle agent check_zypper_settings
       "@@zypperPackageManagerSettings@@result_error@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#Could not disable the other repositories!";
 
     !zypper_disablerepositories::
-      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#The repository desactivation has not been requested. Skipping...";
+      "@@zypperPackageManagerSettings@@result_success@@${zypper_uuid[${zypper_index}]}@@Repository deactivation@@None@@${g.execRun}##${g.uuid}@#The repository deactivation has not been requested. Skipping...";
 
 
     # Ignore non-SuSE OSes
