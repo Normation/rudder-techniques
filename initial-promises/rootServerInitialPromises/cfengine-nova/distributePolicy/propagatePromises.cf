@@ -85,7 +85,7 @@ bundle agent sendInventoryToCmdb
       "${g.rudder_inventories}/incoming"
         transformer => "${g.rudder_tools}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
-        file_select => all_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => if_else("inventory_sent", "cant_send_inventory"),
         comment => "Sending the inventory to the cmdb";
 
