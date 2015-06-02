@@ -136,6 +136,7 @@ bundle common g
 
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
+      "signed_inventory_file_types"       slist => { "@{inventory_file_types}", ".*\.sign" }
 
       "server_roles_path"           string => "${rudder_base}/etc/server-roles.d/";
 
