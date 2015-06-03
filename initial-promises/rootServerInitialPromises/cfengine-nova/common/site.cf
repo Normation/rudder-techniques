@@ -83,7 +83,7 @@ bundle common g
 
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
-      "signed_inventory_file_types"       slist => { "@{inventory_file_types}", ".*\.sign" }
+      "signed_inventory_file_types"       slist => { "@{inventory_file_types}", ".*\.sign" };
 
       # DEPRECATED: This variable is used in pre-2.9 Techniques.
       "rudder_dependencies_origin"  string => "/var/rudder/tools";
