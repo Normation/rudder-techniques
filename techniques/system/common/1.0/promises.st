@@ -115,23 +115,21 @@ bundle common va
 
       "ncf_local_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques 60_services", "useshell"), "\n", 10000);
 
+    windows::
+      # Windows agent only exists in 3.6 version, so as a shortcut, we can load all files of ncf
+      # It should be replaced by a proper script, as explained in #5659
+      "ncf_common_inputs_10_40" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\common' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(10_ncf_internals|20_cfe_basics|30_generic_methods|40_it_ops_knowledge).*cf$'  \"", "useshell"), "\n", 10000);
+      "ncf_common_inputs_50_60" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\common' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(50_techniques|60_service).*cf$'  \"", "useshell"), "\n", 10000);
+      "ncf_local_inputs_10_40" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\local' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(10_ncf_internals|20_cfe_basics|30_generic_methods|40_it_ops_knowledge).*cf$'  \"", "useshell"), "\n", 10000);
+      "ncf_local_inputs_50_60" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\local' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(50_techniques|60_service).*cf$'  \"", "useshell"), "\n", 10000);
+
+    any::
       # ncf_inputs contains all the files of ncf, and ignore the empty lists
       "ncf_inputs" slist => {
                              "@{ncf_common_inputs_10_40}",
                              "@{ncf_common_inputs_50_60}",
                              "@{ncf_local_inputs_10_40}",
                              "@{ncf_local_inputs_50_60}",
-                            },
-                  policy => "ifdefined";
-    windows::
-      # Windows agent only exists in 3.6 version, so as a shortcut, we can load all files of ncf
-      # It should be replaced by a proper script, as explained in #5659
-      "ncf_common_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\common\$_ } \"", "useshell"), "\n", 10000);
-      "ncf_local_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\local\$_ } \"", "useshell"), "\n", 10000);
-      # ncf_inputs contains all the files of ncf, and ignore the empty lists
-      "ncf_inputs" slist => {
-                             "@{ncf_common_inputs}",
-                             "@{ncf_local_inputs}",
                             },
                   policy => "ifdefined";
 
