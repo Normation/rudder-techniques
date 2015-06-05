@@ -268,7 +268,8 @@ bundle agent root_password_check_dav
 
   classes:
 
-      "dav_cant_connect" not => returnszero("/usr/bin/curl -s -f -u ${g.davuser}:${g.davpw} -T /etc/motd http://localhost/inventory-updates/motd","noshell");
+      # check that inventory service is available
+      "dav_cant_connect" not => returnszero("/usr/bin/curl -k -s -f -u ${g.davuser}:${g.davpw} -T /etc/motd ${g.inventory_upload_protocol}://localhost/inventory-updates/motd","noshell");
 
 
     any::
