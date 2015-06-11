@@ -53,6 +53,15 @@ bundle common nxlog_common
       "nxlog_exe" string => "${g.rudder_tools}/nxlog-ce-2.8.1248.msi";
       "nxlog_tpl" string => "${g.rudder_tools}/nxlog.conf";
 
+    use_udp::
+      "transport_module"  string => "om_udp";
+    use_tcp::
+      "transport_module"  string => "om_tcp";
+
+  classes:
+    any::
+      "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP")
+      "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP")
 }
 
 
@@ -94,13 +103,15 @@ bundle agent nxlog_configure
       "nxlog_config_file" string => "${sys.winprogdir86}\nxlog\conf\nxlog.conf";
       "install_path"      string => "${sys.winprogdir86}";
 
+    any::
+      "transport_module"  string => "";
 
   files:
 
       "${nxlog_config_file}"
         create        => "true",
         classes       => rudder_common_classes("nxlog_configure"),
-        edit_line     => nxlog_parameters("${server_info.cfserved}", "&SYSLOGPORT&", "TCP", "${nxlog_common.nxlog_tpl}", "${nxlog_configure.install_path}"),
+        edit_line     => nxlog_parameters("${server_info.cfserved}", "&SYSLOGPORT&", "${nxlog_common.transport_module}", "${nxlog_common.nxlog_tpl}", "${nxlog_configure.install_path}"),
         edit_defaults => empty_backup;
 
   methods:
@@ -133,7 +144,7 @@ bundle agent nxlog_launch
 &endif&
 
 # Parameters are used in the template, expanded thanks to the expand_scalars => true
-bundle edit_line nxlog_parameters(server, port, protocol, template, install_path)
+bundle edit_line nxlog_parameters(server, port, transport_module, template, install_path)
 {
   insert_lines:
 
