@@ -73,22 +73,15 @@ $template RudderReportsFormat,"insert into RudderSysEvents (executionDate, nodeI
 
 
 # Access Control list, localhost + all known agents 
-$AllowedSender UDP, 127.0.0.0/8
-$AllowedSender TCP, 127.0.0.0/8
-
 &if(SKIPIDENTIFY)&
 
-&AUTHORIZED_NETWORKS:{net|
-$AllowedSender UDP, &net&
-$AllowedSender TCP, &net&
-}&
+$AllowedSender UDP, 127.0.0.1&AUTHORIZED_NETWORKS: {net |,&net&} &
+$AllowedSender TCP, 127.0.0.1&AUTHORIZED_NETWORKS: {net |,&net&} &
 
 &else&
 
-&MANAGED_NODES_IP : {ip |
-$AllowedSender UDP, &ip&
-$AllowedSender TCP, &ip&
-} &
+$AllowedSender UDP, 127.0.0.1&MANAGED_NODES_IP: {ip |,&ip&} &
+$AllowedSender TCP, 127.0.0.1&MANAGED_NODES_IP: {ip |,&ip&} &
 
 &endif&
 
