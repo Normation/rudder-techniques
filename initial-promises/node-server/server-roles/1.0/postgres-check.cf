@@ -39,7 +39,7 @@ bundle agent root_postgres_check
 
     SuSE::
 
-      "/etc/init.d/postgresql"
+      "/sbin/service postgresql"
         args => "restart",
         classes => kept_if_else("psql_restart_ok", "psql_restart_ok", "psql_restart_error"),
         ifvarclass => "psql_conf_updated";
