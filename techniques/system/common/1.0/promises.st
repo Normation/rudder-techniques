@@ -475,8 +475,8 @@ bundle agent check_log_system
       "syslogd" expression => fileexists("/etc/syslog.conf");
 
     any::
-      "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP")
-      "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP")
+      "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP");
+      "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP");
 
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";

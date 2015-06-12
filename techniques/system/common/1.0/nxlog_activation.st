@@ -60,8 +60,8 @@ bundle common nxlog_common
 
   classes:
     any::
-      "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP")
-      "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP")
+      "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP");
+      "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP");
 }
 
 

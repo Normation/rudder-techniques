@@ -87,6 +87,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>RUDDER_REPORT_MODE</NAME>
     <NAME>RUDDER_HEARTBEAT_INTERVAL</NAME>
     <NAME>CONFIGURATION_REPOSITORY_FOLDER</NAME>
+    <NAME>RUDDER_SYSLOG_PROTOCOL</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
