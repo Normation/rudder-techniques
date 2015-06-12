@@ -83,12 +83,12 @@ bundle agent install_rsyslogd
 
   commands:
     policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql).!SuSE::
-      "/etc/init.d/rsyslog"
+      "${paths.path[service]} rsyslog"
         args => "restart",
         classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
         comment => "restarting rsyslog";
     policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql).SuSE::
-      "/etc/init.d/syslog"
+      "${paths.path[service]} syslog"
         args => "restart",
         classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
         comment => "restarting rsyslog";
@@ -133,4 +133,3 @@ body replace_with comments
         replace_value => "#${match.1}"; # backreference 0
         occurrences => "all";  # first, last all
 }
-
