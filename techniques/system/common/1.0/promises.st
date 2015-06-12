@@ -620,26 +620,20 @@ bundle agent check_rsyslog_version {
 }
 
 #######################################################
+# Match all variants of cron proccesses
+
+body process_select cron_bin
+{
+  command => "(/usr/sbin/)?crond?( -n| -f)?";
+  process_result => "command";
+}
+
+#######################################################
 # Check if the cron daemon is running
 # This only works with unix flavoured systems too
 
 bundle agent check_cron_daemon
 {
-
-  vars:
-
-    redhat.!fedora::
-      "cron_bin" string => "crond$";
-
-    fedora::
-      "cron_bin" string => "/usr/sbin/crond -n$";
-
-    ubuntu::
-      "cron_bin" string => "cron$";
-
-    !(redhat|fedora|ubuntu)::
-      "cron_bin" string => "/usr/sbin/cron$";
-
   classes:
 
     any::
@@ -672,7 +666,8 @@ bundle agent check_cron_daemon
   processes:
 
     !android.!windows.!aix::
-      "${cron_bin}"
+      "cron"
+        process_select => cron_bin,
         restart_class => "restart_crond";
 
 }
