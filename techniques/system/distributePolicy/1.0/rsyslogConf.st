@@ -87,6 +87,13 @@ bundle agent install_rsyslogd {
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => cf2_if_else("rsyslog_inc_ok" , "rsyslog_inc_failed");
 
+
+      # We need to delete, if it exists, the historical rudder-agent.conf file from before the promotion of the node to relay
+      "/etc/rsyslog.d/rudder-agent.conf"
+        delete  => tidy,
+        classes => classes_generic("rudder_rsyslog_historical_conf_purged"),
+        comment => "Deleting historical rudder-agent.conf file if it is there";
+
     policy_server.debian::
       "/etc/rsyslog.d/pgsql.conf"
         edit_line => comment_all(),
@@ -137,12 +144,12 @@ bundle agent install_rsyslogd {
 
   commands:
 
-    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql).!SuSE::
+    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired).!SuSE::
       "/etc/init.d/rsyslog"
         args => "restart",
                                 classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
                                 comment => "restarting rsyslog";
-    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql).SuSE::
+    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired).SuSE::
       "/etc/init.d/syslog"
         args => "restart",
                                 classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
