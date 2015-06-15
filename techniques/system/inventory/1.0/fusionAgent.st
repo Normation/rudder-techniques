@@ -546,10 +546,11 @@ bundle agent moveInventoryToFinalDestination
 bundle agent signInventories
 {
   vars:
+
     !windows::
       "sign_script" string => "/opt/rudder/bin/signature.sh";
     windows::
-      "sign_script" string => "C:\Program Files\Rudder\sbin\signature.bat";
+      "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\Program Files\Rudder\sbin\signature.ps1 -file";
 
   files:
       "${g.rudder_inventories}"
