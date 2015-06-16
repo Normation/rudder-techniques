@@ -18,6 +18,15 @@
 #
 #####################################################################################
 
+#######################################################
+# Match all variants of cron proccesses
+
+body process_select cron_bin
+{
+  command => "(/usr/sbin/)?crond?( -n| -f)?";
+  process_result => "command";
+}
+
 bundle agent check_cron_configuration
 {
 
@@ -44,15 +53,6 @@ bundle agent check_cron_configuration
       "cron_index" slist => getindices("cron_name");
 
       "normalorderingtwist" string => "done";
-
-    redhat::
-      "cron_bin"        string => "crond$";
-
-    ubuntu::
-      "cron_bin"        string => "cron$";
-
-    !(redhat|ubuntu)::
-      "cron_bin"        string => "/usr/sbin/cron$";
 
   classes:
 
@@ -134,8 +134,8 @@ bundle agent check_cron_configuration
       "any" usebundle => rudder_common_report("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "This is a Windows machine. This Technique currently incompatible with it");
 
   processes:
-
-      "${cron_bin}"
+      "cron"
+        process_select => cron_bin,
         restart_class => "cron_restart";
 
 }
