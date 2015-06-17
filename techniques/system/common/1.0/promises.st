@@ -620,15 +620,6 @@ bundle agent check_rsyslog_version {
 }
 
 #######################################################
-# Match all variants of cron proccesses
-
-body process_select cron_bin
-{
-  command => "(/usr/sbin/)?crond?( -n| -f)?";
-  process_result => "command";
-}
-
-#######################################################
 # Check if the cron daemon is running
 # This only works with unix flavoured systems too
 
