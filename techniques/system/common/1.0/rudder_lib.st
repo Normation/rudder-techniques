@@ -677,3 +677,12 @@ body select_region rudder_aix_user_section(x)
 select_start => "${x}:\s*";
 select_end => "\S*:\s*";
 }
+
+#######################################################
+# Match all variants of cron proccesses
+
+body process_select cron_bin
+{
+  command => "(/usr/sbin/)?crond?( -n| -f)?";
+  process_result => "command";
+}
