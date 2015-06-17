@@ -18,15 +18,6 @@
 #
 #####################################################################################
 
-#######################################################
-# Match all variants of cron proccesses
-
-body process_select cron_bin
-{
-  command => "(/usr/sbin/)?crond?( -n| -f)?";
-  process_result => "command";
-}
-
 bundle agent check_cron_configuration
 {
 
