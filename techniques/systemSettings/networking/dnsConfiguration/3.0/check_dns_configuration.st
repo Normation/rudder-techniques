@@ -68,12 +68,24 @@ bundle agent check_dns_configuration
         edit_defaults => noempty_backup,
         classes    => kept_if_else("dns_kept", "dns_repaired", "cant_repair_dns");
 
+  methods:
 
 &if(NOVA)&
-  methods:
     windows.dns_resolver_edit::
       "any" usebundle => checkDNS(${adapterslist}, ${resolvkey});
 
+    pass3.(windows.((dns_repaired_resolver.!cant_repair_dns_resolver.dns_resolver_edit)|(dns_repaired_searchlist.!cant_repair_dns_searchlist.dns_searchlist_edit)))::
+      "any" usebundle => rudder_common_report("ConfigureDNS", "result_repaired", "&TRACKINGKEY&", "dnsConfiguration", "None", "DNS settings were updated");
+
+    pass3.(windows.((dns_resolver_edit.dns_resolver_kept.!dns_repaired_resolver)|!dns_resolver_edit).((dns_searchlist_edit.dns_searchlist_kept.!dns_repaired_searchlist)|!dns_searchlist_edit))::
+      "any" usebundle => rudder_common_report("ConfigureDNS", "result_success", "&TRACKINGKEY&", "dnsConfiguration", "None", "The DNS is correctly configured");
+
+    pass3.cant_repair_dns_searchlist::
+      "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not set DNS search list in the Windows registry");
+
+    pass3.cant_repair_dns_resolver::
+      "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not set DNS resolver list in the Windows registry");
+&endif&
 
     pass3.dns_resolver_edit::
       "any" usebundle => rudder_common_report("ConfigureDNS", "log_debug", "&TRACKINGKEY&", "dnsConfiguration", "None", "Settings are to edit DNS resolvers");
@@ -84,32 +96,13 @@ bundle agent check_dns_configuration
     pass3.((!windows.dns_repaired))::
       "any" usebundle => rudder_common_report("ConfigureDNS", "result_repaired", "&TRACKINGKEY&", "dnsConfiguration", "None", "DNS settings were updated");
 
-    pass3.(windows.((dns_repaired_resolver.!cant_repair_dns_resolver.dns_resolver_edit)|(dns_repaired_searchlist.!cant_repair_dns_searchlist.dns_searchlist_edit)))::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_repaired", "&TRACKINGKEY&", "dnsConfiguration", "None", "DNS settings were updated");
-
     pass3.cant_repair_dns::
       "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not edit the ${sys.resolv} configuration file");
-
-    pass3.cant_repair_dns_searchlist::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not set DNS search list in the Windows registry");
-
-    pass3.cant_repair_dns_resolver::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not set DNS resolver list in the Windows registry");
 
     pass3.(!windows.dns_kept.!dns_repaired.!cant_repair_dns)::
       "any" usebundle => rudder_common_report("ConfigureDNS", "result_success", "&TRACKINGKEY&", "dnsConfiguration", "None", "The DNS is correctly configured");
 
 &if(NOVA)&
-    #windows and something to do
-    pass3.(windows.((dns_resolver_edit.dns_resolver_kept.!dns_repaired_resolver)|!dns_resolver_edit).((dns_searchlist_edit.dns_searchlist_kept.!dns_repaired_searchlist)|!dns_searchlist_edit))::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_success", "&TRACKINGKEY&", "dnsConfiguration", "None", "The DNS is correctly configured");
-&endif&
-
-&if(COMMUNITY)&
-    pass3.windows::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Can't repair the dns configuration on a Windows with community edition");
-&endif&
-
   databases:
 
     windows.dns_resolver_edit::
