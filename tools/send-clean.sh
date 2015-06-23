@@ -45,26 +45,26 @@ do
   mkdir -p ${i}
 done
 
-# 2 - If the file appears to be compressed, attempt to uncompress it
-#    ${VARIABLE##*.} extracts the file extension
-if [ "${BASENAME##*.}" = "gz" ]
-then
-  ${GZIP_BINARY} -q -d ${FILENAME}
-  # ${VARIABLE%.*} removes the last extension of the file, here: .gz
-  FILENAME="${FILENAME%.*}"
-fi
-
-# 3 - Look for signature file
+# 2 - Look for signature file
 SIGNATURE_OPT=""
 if [ -f "${FILENAME}.sign" ]
 then
   SIGNATURE_OPT="-F signature=@${FILENAME}.sign"
 else
   # 3.1 - No signature and file timestamp < 2mn -> wait for it
-  if [ $(find "${FILENAME}" -mmin "-${MAX_SIGNATURE_WAIT}" | wc -l) = "0" ]
+  if [ $(find "${FILENAME}" -mmin "+${MAX_SIGNATURE_WAIT}" | wc -l) = "0" ]
   then
     exit 0
   fi
+fi
+
+# 3 - If the file appears to be compressed, attempt to uncompress it
+#    ${VARIABLE##*.} extracts the file extension
+if [ "${BASENAME##*.}" = "gz" ]
+then
+  ${GZIP_BINARY} --force --quiet --decompress ${FILENAME}
+  # ${VARIABLE%.*} removes the last extension of the file, here: .gz
+  FILENAME="${FILENAME%.*}"
 fi
 
 # 4 - Send the file
