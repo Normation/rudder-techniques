@@ -144,7 +144,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH process", "None", "The ${service_name} service is running"),
-        ifvarclass => "!${class_prefix}_down.(service_restart_ssh_repaired|service_restart_sshd_repaired)";
+        ifvarclass => "!${class_prefix}_down";
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "result_repaired", "${${params}[report]}", "SSH process", "None", "Restarted the ${service_name}"),
@@ -155,15 +155,15 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         ifvarclass => "service_restart_ssh_not_ok|service_restart_sshd_not_ok";
 
       "any"
-        usebundle  => rudder_common_report("${service_name}", "log_info", "${${params}[report]}", "SSH start at boot", "None", "OpenSSH is starting on boot as required"),
+        usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH start at boot", "None", "OpenSSH is starting on boot as required"),
         ifvarclass => "service_ensure_started_at_boot_ssh_ok|service_ensure_started_at_boot_sshd_ok";
 
       "any"
-        usebundle  => rudder_common_report("${service_name}", "log_info", "${${params}[report]}", "SSH start at boot", "None", "OpenSSH has been set to start on boot"),
+        usebundle  => rudder_common_report("${service_name}", "result_repaired", "${${params}[report]}", "SSH start at boot", "None", "OpenSSH has been set to start on boot"),
         ifvarclass => "service_ensure_started_at_boot_ssh_repaired|service_ensure_started_at_boot_sshd_repaired";
 
       "any"
-        usebundle  => rudder_common_report("${service_name}", "log_info", "${${params}[report]}", "SSH start at boot", "None", "Can not set OpenSSH to start on boot"),
+        usebundle  => rudder_common_report("${service_name}", "result_error", "${${params}[report]}", "SSH start at boot", "None", "Can not set OpenSSH to start on boot"),
         ifvarclass => "service_ensure_started_at_boot_ssh_not_ok|service_ensure_started_at_boot_sshd_not_ok";
 
   processes:
