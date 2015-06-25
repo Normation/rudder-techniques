@@ -111,6 +111,11 @@ bundle common g
     aix::
 
       "gzip"                       string => "/usr/bin/gzip";
+      "inventory_upload_protocol"  string => "http";
+
+    !aix::
+
+      "inventory_upload_protocol"  string => "https";
 
     !aix.!windows::
 
@@ -132,7 +137,6 @@ bundle common g
 
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "${rudder_configuration_repository}/ncf";
-      "inventory_upload_protocol"   string => "https";
 
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
