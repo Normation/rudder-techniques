@@ -91,7 +91,11 @@ $ENV{HTTPS_VERSION} = 3;
 # Create a new LWP object
 my $ua = LWP::UserAgent->new;
 if($no_verify) {
-  $ua->ssl_opts( verify_hostname => 0, SSL_verify_mode => 0 );
+
+  if ( LWP::UserAgent->can("ssl_opts") ) {
+    $ua->ssl_opts( verify_hostname => 0, SSL_verify_mode => 0 );
+  }
+
 }
 
 if ($put == 1) {
