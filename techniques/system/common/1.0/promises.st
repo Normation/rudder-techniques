@@ -454,9 +454,14 @@ bundle agent check_log_system
   classes:
 
     !android::
+
       "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
 
+    !android.!rsyslogd::
+
       "syslogng" expression => fileexists("/etc/syslog-ng/syslog-ng.conf");
+
+    !android.!rsyslogd.!syslogng::
 
       "syslogd" expression => fileexists("/etc/syslog.conf");
 
