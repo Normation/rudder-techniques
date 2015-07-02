@@ -206,10 +206,20 @@ body server control
 &if(MANAGED_NODES_NAME)&
 body runagent control
 {
+  &if(NOVA)&
+  # If using enterprise, the nodes to connect to are using default port
         hosts => {
           &MANAGED_NODES_NAME: {
           "&it&",}&
         };
+  &else&
+  # When using community, we must use the port &COMMUNITYPORT& to connect to nodes
+        hosts => {
+          &MANAGED_NODES_NAME: {
+          "&it&:&COMMUNITYPORT&",}&
+        };
+
+  &endif&
 
         max_children => "25";
 
