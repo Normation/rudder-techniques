@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="component-check"/>
     <TML name="alive-check"/>
-    <TML name="init-check"/>
+    <TML name="service-check"/>
     <TML name="integrity-check"/>
     <TML name="network-check"/>
     <TML name="password-check"/>
@@ -57,8 +57,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Check slapd process" component="true"/>
     <SECTION name="Check apache process" component="true"/>
     <SECTION name="Check postgresql boot script" component="true"/>
-    <SECTION name="Check jetty boot script" component="true"/>
-    <SECTION name="Check slapd boot script" component="true"/>
     <SECTION name="Check apache boot script" component="true"/>
     <SECTION name="Check PostgreSQL configuration" component="true"/>
     <SECTION name="Check logrotate configuration" component="true"/>
