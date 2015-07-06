@@ -132,27 +132,17 @@ bundle agent check_ssh_key_distribution
 #
 bundle edit_line append_or_replace_ssh_key(keyspec, index)
 {
-  vars:
-    any::
-      "eline"
-        comment     => "An escaped version of the keyspec - \Q..\E do not escape everything",
-        string      => escape("${keyspec}");
-    key_parsed::
-      "ckey" string => canonify("${keybits[3]}");
-      "ekey" string => escape("${keybits[3]}");
 
-  classes:
-    "key_parsed" 
-      # If the key hash happens to exceed 1000 chars $keybits[3] is going to be undefined because 
-      # of some weird cfengine bugs, probably this one: https://cfengine.com/dev/issues/1258
-      # Therefore we limit the regex to extract as much of the hash as possible to make it unique enough
-      # without exceeding 1000 charachter limit.
-      # The hashes of that length apparently correspond to DSS 2048 bits keys, generated i.e. on rhel 4,
-      # with openssh v3.9p1-redhat. I believe that since openssh v4 DSS bitlengh is limited to 1024,
-      # as required by FIPS.
-      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S{1,1000})\S*(\s+.+)?\Z", "${keyspec}", "keybits" );
+  vars:
+
+      "dim_array" int => parsestringarrayidx("keybits", "${keyspec}", "\s*#[^\n]*", "\s+", 1, 8192);
+
+      "eline" string => escape("${keyspec}");
+      "ckey"  string => canonify("${keybits[0][1]}");
+      "ekey"  string => escape("${keybits[0][1]}");
 
   insert_lines:
+
     "${keyspec}"
       # NOTE: this is only to ensure that insert is attempted *after* the replace,
       # as normally insert step precedes the replace, see
@@ -160,9 +150,10 @@ bundle edit_line append_or_replace_ssh_key(keyspec, index)
       ifvarclass    => canonify("ssh_key_distribution_replace_step_attempted_${index}");
 
   replace_patterns:
+
     "^(?!${eline}$)(.*${ekey}.*)$"
       comment       => "Replace a key here",
       replace_with  => value("${keyspec}"),
-      ifvarclass    => "key_parsed",
       classes       => always("ssh_key_distribution_replace_step_attempted_${index}");
+
 }

@@ -44,6 +44,11 @@ bundle agent propagatePromises
         comment => "Fetching the tools for the promises execution",
         classes => classes_generic("propagate_tools");
 
+      "${g.rudder_ncf_origin_local}/ncf.conf"
+        copy_from    => copy_digest("${sys.workdir}/inputs/distributePolicy/ncf/ncf.conf"),
+        comment      => "Enforce the ncf configuration file",
+        classes      => classes_generic("configure_ncf_config");
+
     policy_server.!root_server::
 
       "${client_data}"  #that's a loop on each files in client_inputs
@@ -99,6 +104,13 @@ bundle agent propagatePromises
         edit_line     => insert_lines("${sys.date}"),
         comment       => "Update the timestamp in the rudder tool updated file";
 
+  methods:
+    root_server::
+      "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "&TRACKINGKEY&", "Configure ncf", "None", "Configure ncf");
+    !root_server::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure ncf", "None", "Configuration of ncf is not necessary on non root servers");
+
+
   reports:
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
@@ -133,8 +145,8 @@ bundle agent propagatePromises
 bundle agent sendInventoryToCmdb
 {
   files:
-
-    root_server::
+    # Root server and relay-top send to the endpoint, every other send as usual to their policy server
+    root_server|role_rudder_relay_top::
 
       "${g.rudder_inventories}/incoming"
         transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
@@ -150,35 +162,35 @@ bundle agent sendInventoryToCmdb
         classes => rudder_common_classes("rudder_inventory_processing"),
         comment => "Processing a local inventory";
 
-    policy_server.!root_server::
+    policy_server.!(root_server|role_rudder_relay_top)::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "/usr/bin/curl -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  http://${server_info.cfserved}/inventories/",
+        transformer => "/usr/bin/curl -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  http://${server_info.cfserved}/inventory-updates/",
+        transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
-    policy_server.!root_server.!rudder_inventory_relay_error::
+    policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_error::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
@@ -190,7 +202,7 @@ bundle agent sendInventoryToCmdb
     rudder_inventory_processing_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Some inventories failed to add successfully to Rudder";
 
-    root_server.!rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
+    (root_server|role_rudder_relay_top).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to send";
 
     rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
@@ -199,7 +211,7 @@ bundle agent sendInventoryToCmdb
     rudder_inventory_relay_error::
       "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Cannot relay some inventories to the root server";
 
-    policy_server.!root_server.!rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
+    policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
       "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to relay";
 
     rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error::

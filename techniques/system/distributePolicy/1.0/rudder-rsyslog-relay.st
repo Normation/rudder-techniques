@@ -29,8 +29,11 @@ $UDPServerRun &SYSLOGPORT&
 # for Snare client
 $EscapeControlCharactersOnReceive off
 
+&if(STORE_ALL_CENTRALIZED_LOGS_IN_FILE)&
 # Log everything
 *.*	/var/log/rudder/reports/all.log
+&endif&
+
 
 # Direct to DB
 $ActionQueueType Direct

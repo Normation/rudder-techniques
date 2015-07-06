@@ -27,7 +27,7 @@ bundle server access_rules
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
     policy_server::
       &if(NOVA)&
       "&UUID&"
@@ -67,28 +67,24 @@ bundle server access_rules
   &if(SKIPIDENTIFY)&
     &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
-        maproot => { escape("&host&")  },
-        admit   => { escape("&host&")  };
+        maproot => { string_downcase(escape("&host&"))  },
+        admit   => { string_downcase(escape("&host&"))  };
 
      } &
   &else&
     &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
       "/var/rudder/share/&uuid&/"
-        maproot => { host2ip("&host&"), escape("&host&")  },
-        admit   => { host2ip("&host&"), escape("&host&")  };
+        maproot => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit   => { host2ip("&host&"), string_downcase(escape("&host&"))  };
 
      } &
   &endif&
 
-      # the policy server must have access to the cfengine folder
-      "${sys.workdir}"
-        maproot => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  },
-        admit   => { host2ip("&POLICYSERVER&"), escape("&POLICYSERVER&")  };
 &endif&
     policy_server_set::
       # Allow server to remotely run the agent
       "/var/rudder/cfengine-community/bin/cf-agent"
-        admit   => { host2ip("${server_info.cfserved}"), escape("${server_info.cfserved}") };
+        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
   roles:
       # Allow user root to set any class
@@ -102,9 +98,17 @@ bundle common def
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
+   # Use localhost as default policy_server if no policy_server.dat exists
+    policy_server_set::
       "policy_server"
         string  => readfile("${policy_server_file}", 2048),
         comment => "IP address or hostname to locate your policy host.";
+    !policy_server_set::
+      "policy_server"
+        string  => "rudder",
+        comment => "IP address by default without ${def.policy_server_file} file";
+
+    any::
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
@@ -122,9 +126,9 @@ bundle common def
       "acl" slist => {
       "${def.policy_server}", host2ip("${def.policy_server}")
     };
+
   classes:
       "policy_server_set" expression => fileexists("${def.policy_server_file}");
-
 }
 
 
@@ -190,8 +194,6 @@ body server control
 
         denybadclocks => "&DENYBADCLOCKS&";
 
-        skipverify        => { "127.0.0.0/8" , "::1",  @{def.acl}  };
-
     community_edition.!debug_port::
         port => "&COMMUNITYPORT&";
     community_edition.debug_port::
@@ -201,13 +203,23 @@ body server control
 
 #######################################################
 
-&if(CLIENTSLIST)&
+&if(MANAGED_NODES_NAME)&
 body runagent control
 {
+  &if(NOVA)&
+  # If using enterprise, the nodes to connect to are using default port
         hosts => {
-          &CLIENTSLIST: {
+          &MANAGED_NODES_NAME: {
           "&it&",}&
         };
+  &else&
+  # When using community, we must use the port &COMMUNITYPORT& to connect to nodes
+        hosts => {
+          &MANAGED_NODES_NAME: {
+          "&it&:&COMMUNITYPORT&",}&
+        };
+
+  &endif&
 
         max_children => "25";
 

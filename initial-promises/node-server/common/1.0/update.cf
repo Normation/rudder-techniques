@@ -96,14 +96,18 @@ bundle common server_info
     any::
       "policy_files"  string  => "/var/rudder/share/${g.uuid}";   #directory where to look for promises in the server for that client
 
-    policy_server::
-      "cfserved" string => "%%POLICY_SERVER_HOSTNAME%%";
-
-    !policy_server::
       "policy_server_file"
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
-      "cfserved" string =>  readfile("${policy_server_file}", 2048);
+
+   # Use localhost as default policy_server if no policy_server.dat exists
+    policy_server_set::
+      "cfserved" string => readfile("${policy_server_file}", 2048);
+    !policy_server_set::
+      "cfserved" string => "rudder";
+
+  classes:
+      "policy_server_set" expression => fileexists("${server_info.policy_server_file}");
 }
 
 # The update is now split in two parts
@@ -220,8 +224,8 @@ bundle agent update_action
       "${g.rudder_tools}"
         copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        action => immediate,
-        classes => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
+        action       => immediate,
+        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");
 
   processes:
     config.!windows::

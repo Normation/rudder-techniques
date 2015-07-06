@@ -32,16 +32,16 @@ bundle agent doInventory
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # If not, use minicurl instead
     !windows.!curl_installed::
-      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url http://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 &endif&
 
     uuid_succesfully_downloaded::
@@ -68,6 +68,7 @@ bundle agent doInventory
       "any" usebundle => turnUsersToUnicode;
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
+      "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
 
@@ -79,6 +80,7 @@ bundle agent doInventory
       "any" usebundle => turnUsersToUnicode;
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
+      "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
 
   commands:
@@ -425,6 +427,11 @@ bundle agent addInformationsToInventory
 
       "USER"       string => execresult("${USER_cmd}", "noshell");
 
+    rudder_server_roles_dir_exists::
+      # Roles of the system, fetch from the server_roles_path folder
+      # Don't extract file starting by . (especially . and .., but also hidden files)
+      "rudder_roles" slist => lsdir("${g.server_roles_path}", "^[^.].*", "false");
+
     !xen::
       "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
 
@@ -446,6 +453,11 @@ bundle agent addInformationsToInventory
       "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup;
+
+    windows.rudder_server_roles_dir_exists::
+      "C:/Program~1/Rudder/var/tmp/inventory/.*.ocs"
+        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
+        edit_defaults => def_no_backup;
 &endif&
 
     !windows.uuiddefined::
@@ -455,6 +467,11 @@ bundle agent addInformationsToInventory
 
       "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
+        edit_defaults => def_no_backup;
+
+    !windows.uuiddefined.rudder_server_roles_dir_exists::
+      "${g.rudder_var_tmp}/inventory/.*.ocs"
+        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         edit_defaults => def_no_backup;
 
     android::
@@ -473,13 +490,25 @@ bundle agent moveInventoryToFinalDestination
 {
   files:
       "${g.rudder_inventories}"
-        copy_from => copy("${g.rudder_var_tmp}/inventory"),
+        copy_from    => copy("${g.rudder_var_tmp}/inventory"),
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
-        comment => "Moving inventory files to the final location";
-
+        file_select  => by_name("@{g.inventory_file_types}"),
+        comment      => "Moving inventory files to the final location";
 }
 
+# compress inventories if possible
+bundle agent compressInventories
+{
+  files:
+
+    !windows.gzip_installed::
+
+      "${g.rudder_inventories}"
+	transformer  => "${g.rudder_gzip} -fq ${this.promiser}",
+        depth_search => recurse_visible(1),
+        file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
+        comment      => "gzip inventory files";
+}
 
 # Send the file to the promises server
 bundle agent sendInventory
@@ -487,7 +516,7 @@ bundle agent sendInventory
 
   vars:
 
-      "download_endpoint"         string => "http://${server_info.cfserved}/inventory-updates/";
+      "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
 
     # If curl is available, use it
     !windows.curl_installed::
@@ -512,9 +541,9 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
-        classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
-        comment => "Sending the inventory to the server";
+        file_select  => by_name("@{g.inventory_file_types}"),
+        classes      => persistant_class("inventory_sent", "cant_send_inventory", 480),
+        comment      => "Sending the inventory to the server";
 
 &if(NOVA)&
     # On windows, the this.promiser variable is not evaluated the same way. We are forced to duplicate this block
@@ -522,7 +551,7 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
         depth_search => recurse_visible(1),
-        file_select => inventory_files,
+        file_select => by_name("@{g.inventory_file_types}"),
         classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment => "Sending the inventory to the server";
 &endif&
@@ -532,14 +561,14 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => inventory_files,
+        file_select  => by_name("@{g.inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
       "${g.rudder_var_tmp}/inventory"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => inventory_files,
+        file_select  => by_name("@{g.inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
@@ -561,7 +590,7 @@ bundle agent sendInventory
 bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUID)
 {
   insert_lines:
-      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<HOSTNAME>${sys.fqhost}</HOSTNAME>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}"
+      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<HOSTNAME>${sys.fqhost}</HOSTNAME>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}<SERVER_ROLES>${const.n}</SERVER_ROLES>${const.n}"
         location    => after_deviceid,
         insert_type => "preserve_block",
         comment     => "Add the UUID and CFKEY tags in the inventory file";
@@ -632,6 +661,14 @@ bundle edit_line add_users_information_to_inventory(userlist)
         comment => "Add the UUID and CFKEY tags in the inventory file";
 }
 
+bundle edit_line add_server_roles_information_to_inventory(server_roles)
+{
+  insert_lines:
+      "<SERVER_ROLE>${server_roles}</SERVER_ROLE>"
+        location => after_location("<SERVER_ROLES>"),
+        comment  => "Adding server role to inventory";
+}
+
 #Locators
 body location after_location(pos)
 {
@@ -679,29 +716,10 @@ body replace_with xmled(attribute)
 }
 
 
-# select the inventory files that has the right extension
-#I'd like to select also those older than 4 hours (ctime => irange(ago(0,0,0,4,0,0),now);) not working...
-# (for some reason, ocs duplicated files over time)
-body file_select inventory_files
-{
-
-    any::
-        leaf_name => { ".*.ocs" };
-        file_result => "leaf_name";
-
-&if(NOVA)&
-  #windows::
-  #	leaf_name => { ".*.xml" };
-  #	file_result => "leaf_name";
-&endif&
-
-}
-
 body perms inventory_perms
 {
         mode => "0700";
 }
-
 
 body file_select one_day_age
 #

@@ -94,5 +94,8 @@ bundle agent monitor_partition_size {
 
 body volume freespacecheck(threshold) {
     freespace => "${threshold}";
+    # see https://dev.cfengine.com/issues/3016
+    sensible_size  => "0";
+    sensible_count => "0";
 }
 

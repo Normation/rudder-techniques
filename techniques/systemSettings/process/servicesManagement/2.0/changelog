@@ -10,6 +10,6 @@ Version 1.1:
   * Added a correct Debian support
 
  -- Matthieu CERDA <matthieu.cerda@normation.com>  Thu, 26 Jan 2012 16:22:00 +0100
- -- Benoit PECCATTE <benoit.peccatte@normation.com> Tue Sep  9 08:41:59 CEST 2014
+ -- Benoit PECCATTE <benoit.peccatte@normation.com> Tue Sep  9 08:47:18 CEST 2014
   * Version 2.0
   ** Rewrite with normal ordering and {}

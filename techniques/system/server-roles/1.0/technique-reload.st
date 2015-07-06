@@ -1,0 +1,60 @@
+#####################################################################################
+# Copyright 2011 Normation SAS
+#####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+
+bundle agent root_technique_reload
+{
+
+  vars:
+
+      "root_technique_reload_rest_url" string => "http://localhost:8080/rudder/api/techniqueLibrary/reload";
+
+  classes:
+
+      "root_technique_reload_trigger" expression => fileexists("${g.rudder_base}/etc/force_technique_reload");
+
+  files:
+
+    root_technique_reload_rest_call_repaired::
+      "${g.rudder_base}/etc/force_technique_reload"
+        delete => tidy,
+        comment => "Deleting the force_technique_reload file because it is no longer relevant";
+
+  commands:
+
+    root_technique_reload_trigger::
+
+      "/usr/bin/curl -s ${root_technique_reload_rest_url} |/bin/grep -q OK"
+        contain => in_shell_silent,
+        classes => rudder_common_classes("root_technique_reload_rest_call"),
+        comment => "Reload the Technique library using the Rudder API";
+
+  reports:
+
+    root_technique_reload_trigger::
+
+      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The ${g.rudder_base}/etc/force_technique_reload file is present. Reloading Technique library...";
+
+    root_technique_reload_rest_call_repaired::
+
+      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library has been reloaded.";
+
+    root_technique_reload_rest_call_failed::
+
+      "@@server-roles@@log_warn@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library failed to reload. Will try again next time";
+
+}

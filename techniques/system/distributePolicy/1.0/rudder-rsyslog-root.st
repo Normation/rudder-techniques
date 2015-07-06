@@ -35,8 +35,10 @@ $ModLoad ompgsql
 # for Snare client
 $EscapeControlCharactersOnReceive off
 
+&if(STORE_ALL_CENTRALIZED_LOGS_IN_FILE)&
 # Log everything
 *.*	/var/log/rudder/reports/all.log
+&endif&
 
 # Direct to DB
 $ActionQueueType Direct
@@ -59,7 +61,7 @@ $template RudderReportsFormat,"insert into RudderSysEvents (executionDate, nodeI
 # The report format is @@Policy@@State@@RuleId@@DirectiveId@@VersionId@@Component@@Key@@ExecutionTimeStamp##NodeId@#HumanReadableMessage
 #
 # 1 - Send every matching report in the database...
-:msg, ereregex, "R: @@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:localhost,rudder,rudder,${p.psql_password[2]};RudderReportsFormat
+:msg, ereregex, "R: @@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:${install_rsyslogd.rudder_postgres_server},rudder,rudder,${p.psql_password[2]};RudderReportsFormat
 
 # 2 - Drop the remaining rudder logs to prevent local storage cluttering 
 

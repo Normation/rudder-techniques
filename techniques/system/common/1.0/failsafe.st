@@ -22,7 +22,7 @@
 
 body common control
 {
-        bundlesequence     => { "check_lock_db_problem", "init_files", "update" };
+        bundlesequence     => { "init_files", "update" };
 
         inputs             => { "common/1.0/update.cf" };
         output_prefix      => "rudder";
@@ -76,22 +76,15 @@ bundle common g
       "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
 
     # The time at which the execution started
-    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
-    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
-      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
-      "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 &if(NOVA)&
     windows.!cygwin::
       "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
 &endif&
     android::
       "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
-    aix::
-      # AIX's date command doesn't have a "%z" option, so we fake it by using UTC
+    (!windows|cygwin).!android::
+      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
-    !linux.!cygwin.!windows.!android.!aix::
-      "execRun"                  string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
 # definition of the node roles
   &NODEROLE&
@@ -148,49 +141,6 @@ bundle agent init_files
       "${sys.workdir}/bin/cf-key";
 }
 
-# This bundle will check the "last successful inputs update", and if it is older
-# than 1 hour, remove cf_lock.db (and only this DB), to give CFEngine a chance
-# to run properly again.
-bundle agent check_lock_db_problem{
-  vars:
-
-    cfengine_3_0|cfengine_3_1|cfengine_3_2::
-      "cf_lock_filename" string => "cf_lock.db";
-
-    !(cfengine_3_0|cfengine_3_1|cfengine_3_2)::
-      "cf_lock_filename" string => "cf_lock.tcdb";
-
-  files:
-      # The aim of this promise is to create a class when this file is older
-      # than one hour. The class can not be created without touching but in
-      # order to not modifing the mtime we use WarnOnly.
-      "${sys.workdir}/last_successful_inputs_update"
-        file_select => over_an_hour,
-        touch       => "true",
-        action      => WarnOnly,
-        classes     => success("last_successful_inputs_update_too_old", "last_successful_inputs_update_check_error", "last_successful_inputs_update_ok");
-
-      "${sys.workdir}/state/${cf_lock_filename}"
-        delete     => tidy,
-        ifvarclass => "last_successful_inputs_update_too_old",
-        classes    => success("cf_lock_removed", "cf_lock_error_removing", "cf_lock_not_deleted");
-
-  reports:
-    cf_lock_removed::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Promises had not been updated for over an hour, this could indicate a broken lockfile. cf_lock DB file was removed.";
-
-    cf_lock_error_removing::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Promises have not been updated for over an hour, this could indicate a broken lockfile, but an error occured when trying to remove it";
-}
-
-body file_select over_an_hour()
-{
-        # Select file which are older than one hour
-        # Use of positive mtime instead of negative one
-        # In order to avoid corner effects
-        mtime       => irange(ago(0,0,0,1,0,0), now);
-        file_result => "!mtime";
-}
 
 body depth_search recurse(d)
 {

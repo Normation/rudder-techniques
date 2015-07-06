@@ -95,14 +95,18 @@ bundle common server_info
     any::
       "policy_files" string => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
 
-    policy_server::
-      "cfserved"     string => "&POLICYSERVER&";
-
-    !policy_server::
       "policy_server_file"
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
-      "cfserved"     string =>  readfile("${policy_server_file}", 2048);
+
+   # Use localhost as default policy_server if no policy_server.dat exists
+    policy_server_set::
+      "cfserved" string => readfile("${policy_server_file}", 2048);
+    !policy_server_set::
+      "cfserved" string => "rudder";
+
+  classes:
+      "policy_server_set" expression => fileexists("${server_info.policy_server_file}");
 }
 
 # The update is now split in two parts
