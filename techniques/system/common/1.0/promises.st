@@ -109,31 +109,57 @@ bundle common va
       "ncf_path"       string => "${rudder_base}\ncf";
 
     !windows::
+
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
 
-      "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "useshell"), "\n", 10000);
+      "ncf_common_inputs_10" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals", "useshell"), "\n", 10000);
+      "ncf_common_inputs_20" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 20_cfe_basics", "useshell"), "\n", 10000);
+      "ncf_common_inputs_30" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 30_generic_methods", "useshell"), "\n", 10000);
+      "ncf_common_inputs_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 40_it_ops_knowledge", "useshell"), "\n", 10000);
+      "ncf_common_inputs_50" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 50_techniques", "useshell"), "\n", 10000);
+      "ncf_common_inputs_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 60_services", "useshell"), "\n", 10000);
 
-      "ncf_common_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 50_techniques 60_services", "useshell"), "\n", 10000);
-
-      "ncf_local_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "useshell"), "\n", 10000);
-
-      "ncf_local_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques 60_services", "useshell"), "\n", 10000);
+      "ncf_local_inputs_10" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 10_ncf_internals", "useshell"), "\n", 10000);
+      "ncf_local_inputs_20" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 20_cfe_basics", "useshell"), "\n", 10000);
+      "ncf_local_inputs_30" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 30_generic_methods", "useshell"), "\n", 10000);
+      "ncf_local_inputs_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 40_it_ops_knowledge", "useshell"), "\n", 10000);
+      "ncf_local_inputs_50" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques", "useshell"), "\n", 10000);
+      "ncf_local_inputs_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 60_services", "useshell"), "\n", 10000);
 
     windows::
-      # Windows agent only exists in 3.6 version, so as a shortcut, we can load all files of ncf
-      # It should be replaced by a proper script, as explained in #5659
-      "ncf_common_inputs_10_40" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\common' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(10_ncf_internals|20_cfe_basics|30_generic_methods|40_it_ops_knowledge).*cf$'  \"", "useshell"), "\n", 10000);
-      "ncf_common_inputs_50_60" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\common' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(50_techniques|60_service).*cf$'  \"", "useshell"), "\n", 10000);
-      "ncf_local_inputs_10_40" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\local' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(10_ncf_internals|20_cfe_basics|30_generic_methods|40_it_ops_knowledge).*cf$'  \"", "useshell"), "\n", 10000);
-      "ncf_local_inputs_50_60" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem -Path 'c:\Program Files\Rudder\var\ncf\local' -Recurse |  Select-Object -ExpandProperty FullName | Select-String -Pattern '(50_techniques|60_service).*cf$'  \"", "useshell"), "\n", 10000);
+
+      # Those direct PS calls should be replaced by a proper script, as explained in #5659
+
+      "ncf_common_inputs_10" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common\10_ncf_internals' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\common\10_ncf_internals\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_common_inputs_20" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common\20_cfe_basics' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\common\20_cfe_basics\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_common_inputs_30" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common\30_generic_methods' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\common\30_generic_methods\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_common_inputs_40" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common\40_it_ops_knowledge' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\common\40_it_ops_knowledge\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_common_inputs_50" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common\50_techniques' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\common\50_techniques\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_common_inputs_60" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common\60_services' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\common\60_services\$_ }\"", "useshell"), "\n", 10000);
+
+      "ncf_local_inputs_10" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\10_ncf_internals' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\10_ncf_internals\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_local_inputs_20" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\20_cfe_basics' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\20_cfe_basics\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_local_inputs_30" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\30_generic_methods' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\30_generic_methods\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_local_inputs_40" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\40_it_ops_knowledge' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\40_it_ops_knowledge\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_local_inputs_50" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\50_techniques' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\50_techniques\$_ }\"", "useshell"), "\n", 10000);
+      "ncf_local_inputs_60" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\60_services' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\60_services\$_ }\"", "useshell"), "\n", 10000);
 
     any::
+
       # ncf_inputs contains all the files of ncf, and ignore the empty lists
       "ncf_inputs" slist => {
-                             "@{ncf_common_inputs_10_40}",
-                             "@{ncf_common_inputs_50_60}",
-                             "@{ncf_local_inputs_10_40}",
-                             "@{ncf_local_inputs_50_60}",
+                             "@{ncf_common_inputs_10}",
+                             "@{ncf_common_inputs_20}",
+                             "@{ncf_common_inputs_30}",
+                             "@{ncf_common_inputs_40}",
+                             "@{ncf_common_inputs_50}",
+                             "@{ncf_common_inputs_60}",
+                             "@{ncf_local_inputs_10}",
+                             "@{ncf_local_inputs_20}",
+                             "@{ncf_local_inputs_30}",
+                             "@{ncf_local_inputs_40}",
+                             "@{ncf_local_inputs_50}",
+                             "@{ncf_local_inputs_60}",
                             },
                   policy => "ifdefined";
 
