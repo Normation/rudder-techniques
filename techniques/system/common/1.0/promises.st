@@ -54,7 +54,6 @@ bundle common va
         "check_red_button_status",
         "process_matching",
         "check_cf_processes",
-        "check_rudder_service_bootstart_parameters",
         "check_uuid",
         "check_rsyslog_version",
         "check_cron_daemon",
@@ -88,7 +87,6 @@ bundle common va
         "check_rsyslog_version",
         "nxlog_enable",
         "check_zypper",
-        "check_rudder_service_bootstart_parameters",
         "check_uuid",
         "get_environment_variables",
         "configuration"
@@ -437,18 +435,6 @@ bundle agent check_cf_processes
       "${sys.cf_execd}"
         action  => u_ifwin_bg,
         classes => outcome("executor");
-
-}
-
-#######################################################
-# Check that the rudder service is started at boot
-#######################################################
-bundle agent check_rudder_service_bootstart_parameters {
-
-  methods:
-
-      "bootstart_service" usebundle => service_ensure_started_at_boot("rudder");
-      "bootstart_report"  usebundle => rudder_common_reports_generic("Common", "service_ensure_started_at_boot_rudder", "&TRACKINGKEY&", "Check rudder service bootstart parameters", "None", "Check if Rudder is set to start on boot");
 
 }
 
