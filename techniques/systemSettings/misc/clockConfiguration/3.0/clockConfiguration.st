@@ -231,7 +231,7 @@ bundle agent check_clock_configuration
     pass3.((ntp_install_kept|(!linux.!windows)).ntpconf_kept.!ntpd_down)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp daemon installed, configured and running");
 
-    pass3.(ntp_installed|repaired_ntpconf|ntp_restarted)::
+    pass3.(ntp_installed|repaired_ntpconf|service_restart_ntp_repaired|service_restart_ntpd_repaired)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp service (package, configuration and/or process) repaired");
 
     # Global report for the "Time synchronization (NTP)" component - Windows
