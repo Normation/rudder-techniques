@@ -62,6 +62,7 @@ This implemenation is intended as a reference for Technique development best pra
     <!-- Sections for reporting only, variables are separate below -->
     <SECTION name="SSH installation" component="true" />
     <SECTION name="SSH port configuration" component="true" />
+    <SECTION name="SSH listening addresses configuration" component="true" />
     <SECTION name="SSH configuration" component="true" />
     <SECTION name="SSH process" component="true" />
     <SECTION name="SSH start at boot" component="true" />
@@ -115,6 +116,23 @@ This implemenation is intended as a reference for Technique development best pra
           <CONSTRAINT>
             <TYPE>integer</TYPE>
             <DEFAULT>22</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+      <INPUT>
+        <NAME>OPENSSH_SERVER_ADDRESSESEDIT</NAME>
+        <DESCRIPTION>Do you want to define the listening addresses ?</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <SECTION name="SSH addresses" multivalued="true">
+        <INPUT>
+          <NAME>OPENSSH_SERVER_ADDRESSES</NAME>
+          <DESCRIPTION>IP addresses that SSH listens on</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>ip</TYPE>
+            <DEFAULT>0.0.0.0</DEFAULT>
           </CONSTRAINT>
         </INPUT>
       </SECTION>

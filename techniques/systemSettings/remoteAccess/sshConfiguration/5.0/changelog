@@ -12,3 +12,6 @@
   * Version 4.0
   ** Support AIX
   ** Support systemd
+-- Nicolas CHARLES <nicolas.charles@normation.com> Thu Jul 09 10:01:37 2015 +0200
+  * Version 5.0
+  ** Add possibility to configure Listen Adresses

@@ -32,14 +32,13 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
   vars:
 
     # OS Specific parameters
-
     debian::
+     "rudder_openssh_server_service_name"
+        string => "ssh";
 
-      "rudder_openssh_server_startup_command"
-        string => "/etc/init.d/ssh restart";
-
-      "rudder_openssh_server_startup_activation_command"
-        string => "/usr/sbin/update-rc.d -f ssh remove \&\& /usr/sbin/update-rc.d ssh defaults";
+    !aix.!debian::
+     "rudder_openssh_server_service_name"
+        string => "sshd";
 
     SuSE::
       "rudder_openssh_server_startup_script_regex"
@@ -49,14 +48,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
       "rudder_openssh_server_startup_script_regex"
         string => "/etc/rc2.d/S.*ssh.*";
 
-    (SuSE|redhat)::
-      "rudder_openssh_server_startup_command"
-        string => "/etc/init.d/sshd restart";
-      "rudder_openssh_server_startup_activation_command"
-        string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
-
     aix::
-
       "rudder_openssh_server_startup_command"
         string => "/usr/bin/startsrc -s sshd";
 
@@ -80,10 +72,20 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
       "rudder_openssh_server_config_ports"
         slist => { "@{${params}[sshd_config_ports]}" };
 
+      "rudder_openssh_server_config_addresses"
+        slist => { "@{${params}[sshd_config_addresses]}" };
+
+
   classes:
 
       "rudder_openssh_server_ports_edit"
-        not => strcmp("${${params}[edit_ports]}","false");
+        not => strcmp("${${params}[edit_ports]}","false"),
+        scope      => "namespace";
+
+      # Addresses edition ?
+      "rudder_openssh_server_addresses_edit"
+        not => strcmp("${${params}[edit_addresses]}","false"),
+        scope      => "namespace";
 
     aix::
       # lssrc is clever, and kept in a cache the entry if the daemon is still running, so grepping
@@ -109,9 +111,16 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
     rudder_openssh_server_ports_edit::
       "${${params}[sshd_config_file]}"
-        edit_line => rudder_openssh_server_port_configuration("@{this.rudder_openssh_server_config_ports}"),
+        edit_line => rudder_openssh_server_parameters_configuration("Port", "@{this.rudder_openssh_server_config_ports}"),
         classes   => rudder_common_classes("${class_prefix}_ports"),
         comment   => "Edit the OpenSSH listening ports in the configuration file";
+
+    rudder_openssh_server_addresses_edit::
+      "${${params}[sshd_config_file]}"
+        edit_line => rudder_openssh_server_parameters_configuration("ListenAddress", "@{this.rudder_openssh_server_config_addresses}"),
+        classes   => rudder_common_classes("${class_prefix}_addresses"),
+        comment   => "Edit the OpenSSH listening addresses in the configuration file";
+
 
     any::
       "${${params}[sshd_config_file]}"
@@ -121,22 +130,13 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
   methods:
 
-    !aix.debian::
-
-      "bootstart_ssh" usebundle => service_ensure_started_at_boot("ssh"),
-                     ifvarclass => "${class_prefix}_binary_present";
-
-      "restart_ssh"   usebundle => service_restart("ssh"),
-                     ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down";
-    !aix.!debian::
-
-      "bootstart_ssh" usebundle => service_ensure_started_at_boot("sshd"),
-                     ifvarclass => "${class_prefix}_binary_present";
-
-      "restart_ssh"   usebundle => service_restart("sshd"),
-                     ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down";
-
     !aix::
+
+      "bootstart_ssh" usebundle => service_ensure_started_at_boot("${rudder_openssh_server_service_name}"),
+                     ifvarclass => "${class_prefix}_binary_present";
+
+      "restart_ssh"   usebundle => service_restart("${rudder_openssh_server_service_name}"),
+                     ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_addresses_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down";
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_repaired", "${${params}[report]}", "SSH process", "None", "The ${service_name} was not running, trying to restart..."),
@@ -144,7 +144,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH process", "None", "The ${service_name} service is running"),
-        ifvarclass => "!${class_prefix}_down";
+        ifvarclass => "!${class_prefix}_down.!(service_restart_ssh_ok|service_restart_sshd_ok)";
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "result_repaired", "${${params}[report]}", "SSH process", "None", "Restarted the ${service_name}"),
@@ -178,7 +178,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
       "${rudder_openssh_server_startup_command}"
         classes    => cf2_if_else("${class_prefix}_daemon_restart_repaired", "${class_prefix}_daemon_restart_error"),
-        ifvarclass => "${class_prefix}_ports_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down",
+        ifvarclass => "${class_prefix}_ports_repaired||${class_prefix}_addresses_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down",
         comment    => "Restarting the OpenSSH server daemon";
 
       "${rudder_openssh_server_startup_activation_command}"
@@ -199,6 +199,14 @@ bundle agent rudder_openssh_server_configuration_reporting(class_prefix, service
       "any" 
         usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH port configuration", "None", "The ${service_name} port configuration is not set to be edited"),
         ifvarclass => "!${class_prefix}_ports_edit";
+
+      # Listening addresses edition defined
+      "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_addresses", "${${params}[report]}", "SSH listening addresses configuration", "None", "The ${service_name} listening addresses configuration"),
+        ifvarclass => "${class_prefix}_addresses_edit";
+      # When no listening addreses edition is defined
+      "any"
+        usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH listening addresses configuration", "None", "The ${service_name} listening addresses configuration is not set to be edited"),
+        ifvarclass => "!${class_prefix}_addresses_edit";
 
       # SSH configuration
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_configuration", "${${params}[report]}", "SSH configuration", "None", "The ${service_name} configuration");

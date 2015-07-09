@@ -37,6 +37,9 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[sshd_config_ports]"
         slist  => {&OPENSSH_SERVER_PORTS: { "&it&" };separator=", "&};
 
+      "rudder_openssh_server_config[sshd_config_addresses]"
+        slist => {&OPENSSH_SERVER_ADDRESSES: { "&it&" };separator=", "&};
+
       # This is the reporting information to be added
       "rudder_openssh_server_config[report]"
         string => "&TRACKINGKEY&";
@@ -44,6 +47,10 @@ bundle agent rudder_openssh_server
       # Variable that holds if we want to edit ports
       "rudder_openssh_server_config[edit_ports]"
         string => "&OPENSSH_SERVER_PORTSEDIT&";
+
+      # Variable that holds if we want to edit listenning addresses
+      "rudder_openssh_server_config[edit_addresses]"
+        string => "&OPENSSH_SERVER_ADDRESSESEDIT&";
 
     # Class specific parameters
     rudder_openssh_server_address_family_edit.!(debian_3|redhat_3|redhat_4|centos_3|centos_4)::
