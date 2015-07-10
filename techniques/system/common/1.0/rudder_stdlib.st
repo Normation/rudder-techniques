@@ -37,6 +37,12 @@ bundle edit_line rudder_common_disclaimer
         insert_type => "preserve_block";
 }
 
+# Select lines for deletion
+# Select the lines that are not in the list (complete line match)
+body delete_select rudder_delete_if_not_in_list(lines_to_delete)
+{
+  delete_if_not_match_from_list => { @{lines_to_delete} };
+}
 #
 # Select files older than X months
 #

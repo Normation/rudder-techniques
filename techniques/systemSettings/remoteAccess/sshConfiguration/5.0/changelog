@@ -1,0 +1,17 @@
+-- Jonathan CLARKE <jonathan.clarke@normation.com> Wed Feb 22 18:42:29 2012 +0100
+  * Version 1.0
+  ** Initial version
+-- Matthieu CERDA <matthieu.cerda@normation.com> Thu Dec 20 17:46:24 2012 +0100
+  * Version 2.0
+  ** Converted the OpenSSH server Technique to the new reporting format
+-- Nicolas Charles <nicolas.charles@normation.com> Thu Feb 14 16:01:25 2013 +0100
+  * Version 3.0
+  ** Improves the uses of conventions in the ssh technique
+  ** Remove unused parameters
+-- Matthieu CERDA <matthieu.cerda@normation.com> Wed Sep 10 15:39:37 2014 +0200
+  * Version 4.0
+  ** Support AIX
+  ** Support systemd
+-- Nicolas CHARLES <nicolas.charles@normation.com> Thu Jul 09 10:01:37 2015 +0200
+  * Version 5.0
+  ** Add possibility to configure Listen Adresses
