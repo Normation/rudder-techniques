@@ -49,6 +49,7 @@ bundle common va
         "check_disable_agent",
         "clean_red_button",
         "update",
+        "configuration",
         "set_red_button",
         "internal_security",
         "check_red_button_status",
@@ -61,8 +62,7 @@ bundle common va
         "garbage_collection",
         "check_binaries_freshness",
         "check_zypper",
-        "nxlog_enable",
-        "configuration"
+        "nxlog_enable"
       };
 
     !policy_server::
@@ -71,6 +71,7 @@ bundle common va
         "check_disable_agent",
         "clean_red_button",
         "update",
+        "configuration",
         "set_red_button",
         "internal_security",
         "check_red_button_status",
@@ -83,8 +84,7 @@ bundle common va
         "check_rsyslog_version",
         "nxlog_enable",
         "check_zypper",
-        "check_uuid",
-        "configuration"
+        "check_uuid"
       };
 
     any::
