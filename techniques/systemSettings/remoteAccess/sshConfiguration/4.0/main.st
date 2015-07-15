@@ -83,7 +83,8 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
   classes:
 
       "rudder_openssh_server_ports_edit"
-        not => strcmp("${${params}[edit_ports]}","false");
+        not   => strcmp("${${params}[edit_ports]}","false"),
+        scope => "namespace";
 
     aix::
       # lssrc is clever, and kept in a cache the entry if the daemon is still running, so grepping
