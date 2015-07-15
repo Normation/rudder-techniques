@@ -452,6 +452,12 @@ bundle edit_line check_generic_file_content_edition_in_zone(
       "escaped_zone_start" string => escape(${zone_start});
       "escaped_zone_end"   string => escape(${zone_end});
 
+    migrate_to_zone::
+      # if we migrate to zone, then we need to split the content of text to add, so that it is handled line by line
+      # and escape it, so that anything that might look like a regular expression would not be matched as a regex
+      "num_line_splittedcontent" int => parsestringarrayidx("splitted_content", "${content}", "", "\n", 33000, 33000);
+      "content_line_index" slist => getindices("splitted_content");
+      "escaped_content[${content_line_index}]" string => escape("${splitted_content[${content_line_index}][0]}");
 
   # define the classes that will define which edition we are to do
   classes:
@@ -514,7 +520,7 @@ bundle edit_line check_generic_file_content_edition_in_zone(
 
     # remove line out of zone if we decide to do so
     edit_content.migrate_to_zone.pass_two::
-      "${content}"
+      "${escaped_content[${content_line_index}]}"
         classes => rudder_common_classes("delete_out_of_zone_content_${index}"),
         comment => "Removing matched lines out of zone ...";
 

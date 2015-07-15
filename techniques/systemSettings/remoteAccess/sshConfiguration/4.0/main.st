@@ -83,7 +83,8 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
   classes:
 
       "rudder_openssh_server_ports_edit"
-        not => strcmp("${${params}[edit_ports]}","false");
+        not   => strcmp("${${params}[edit_ports]}","false"),
+        scope => "namespace";
 
     aix::
       # lssrc is clever, and kept in a cache the entry if the daemon is still running, so grepping
@@ -144,7 +145,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH process", "None", "The ${service_name} service is running"),
-        ifvarclass => "!${class_prefix}_down";
+        ifvarclass => "!${class_prefix}_down.!(service_restart_ssh_reached|service_restart_sshd_reached)";
 
       "any"
         usebundle  => rudder_common_report("${service_name}", "result_repaired", "${${params}[report]}", "SSH process", "None", "Restarted the ${service_name}"),
