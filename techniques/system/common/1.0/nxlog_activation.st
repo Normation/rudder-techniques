@@ -125,6 +125,14 @@ bundle agent nxlog_launch
 
   services:
 
+    nxlog_configure_repaired::
+      "nxlog"
+        service_policy => "stop",
+        classes        => rudder_common_classes("nxlog_service"),
+        comment        => "When the configuration has changed, we need to stop and start the service (restart fails to achieve expected result)";
+
+
+    any::
       "nxlog"
         service_policy => "start",
         service_method => u_bootstart,
