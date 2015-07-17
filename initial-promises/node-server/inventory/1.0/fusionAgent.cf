@@ -413,34 +413,20 @@ bundle agent addInformationsToInventory
     any::
       "uuiddefined" expression => isvariable("RUDDERUUID");
   files:
-    windows::
-      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
-    #"${g.esc_rudder_var_tmp}\inventory\.*.ocs"
-        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
+    uuiddefined::
+      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+        comment       => "Adding basic informations to inventory",
+        edit_line     => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         edit_defaults => def_no_backup;
 
-      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
-    #"${g.esc_rudder_var_tmp}\inventory\.*.ocs"
-        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
+      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+        comment       => "Adding users informations to inventory",
+        edit_line     => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup;
 
-    windows.rudder_server_roles_dir_exists::
-      "C:/Program Files/Rudder/var/tmp/inventory/.*.ocs"
-        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
-        edit_defaults => def_no_backup,
-        pathtype      => "regex";
-
-    !windows.uuiddefined::
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
-        edit_defaults => def_no_backup;
-
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
-        edit_defaults => def_no_backup;
-
-    !windows.uuiddefined.rudder_server_roles_dir_exists::
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
+    uuiddefined.rudder_server_roles_dir_exists::
+      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+        comment       => "Adding server roles informations to inventory",
         edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         edit_defaults => def_no_backup;
 
@@ -474,14 +460,15 @@ bundle agent signInventories
     !windows::
       "sign_script" string => "/opt/rudder/bin/signature.sh";
     windows::
-      "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\Program Files\Rudder\sbin\signature.ps1 -file";
+      "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File \"C:\Program Files\Rudder\sbin\signature.ps1\" -file";
 
   classes:
       "sign_script_exists" expression => fileexists("${sign_script}");
 
   files:
+    !windows::
       "${g.rudder_inventories}"
-        transformer  => "${sign_script} ${this.promiser}",
+        transformer  => "${sign_script} \"${this.promiser}\"",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
         ifvarclass   => "sign_script_exists",
