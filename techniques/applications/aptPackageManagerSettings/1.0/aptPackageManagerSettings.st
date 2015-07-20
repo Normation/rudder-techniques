@@ -59,37 +59,57 @@ bundle agent check_apt_settings
 
         "apt_detected_distro" string => "jessie";
 
-    ubuntu_karmic::
+    ubuntu_karmic|ubuntu_9_10::
 
       "apt_detected_distro" string => "karmic";
 
-    ubuntu_lucid::
+    ubuntu_lucid|ubuntu_10_4::
 
       "apt_detected_distro" string => "lucid";
 
-    ubuntu_maverick::
+    ubuntu_maverick|ubuntu_10_10::
 
       "apt_detected_distro" string => "maverick";
 
-    ubuntu_natty::
+    ubuntu_natty|ubuntu_11_4::
 
         "apt_detected_distro" string => "natty";
 
-    ubuntu_oneiric::
+    ubuntu_oneiric|ubuntu_11_10::
 
         "apt_detected_distro" string => "oneiric";
 
-    ubuntu_precise::
+    ubuntu_precise|ubuntu_12_4::
 
         "apt_detected_distro" string => "precise";
 
-    ubuntu_quantal::
+    ubuntu_quantal|ubuntu_12_10::
 
         "apt_detected_distro" string => "quantal";
 
-    ubuntu_raring::
+    ubuntu_raring|ubuntu_13_4::
 
         "apt_detected_distro" string => "raring";
+
+    ubuntu_saucy|ubuntu_13_10::
+
+        "apt_detected_distro" string => "saucy";
+
+    ubuntu_trusty|ubuntu_14_4::
+
+        "apt_detected_distro" string => "trusty";
+
+    ubuntu_utopic|ubuntu_14_10::
+
+        "apt_detected_distro" string => "utopic";
+
+    ubuntu_vivid|ubuntu_15_4::
+
+        "apt_detected_distro" string => "vivid";
+
+    ubuntu_willy|ubuntu_15_10::
+
+        "apt_detected_distro" string => "willy";
 
     apt_installrecommends_edit::
 
