@@ -66,7 +66,7 @@ bundle agent doInventory
 
   methods:
 
-    uuid_valid.force_inventory::
+    uuid_valid.(force_inventory|(Night.splaying.!inventory_sent))::
       "any" usebundle => fusionAgent;
       "any" usebundle => listInstalledVM;
       "any" usebundle => generateExtraInformations;
@@ -77,18 +77,6 @@ bundle agent doInventory
       "any" usebundle => signInventories;
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
-
-    # Workaround the wrong class expansion
-    uuid_valid.Night.splaying.!inventory_sent::
-      "any" usebundle => fusionAgent;
-      "any" usebundle => listInstalledVM;
-      "any" usebundle => generateExtraInformations;
-      "any" usebundle => turnUsersToUnicode;
-      "any" usebundle => addInformationsToInventory;
-      "any" usebundle => moveInventoryToFinalDestination;
-      "any" usebundle => signInventories;
-      "any" usebundle => compressInventories;
-      "any" usebundle => sendInventory;
 
     pass3.could_not_download_uuid::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server");
@@ -490,34 +478,22 @@ bundle agent addInformationsToInventory
       "uuiddefined" expression => isvariable("RUDDERUUID");
 
   files:
-&if(NOVA)&
-    windows::
-      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
+
+    uuiddefined::
+      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
         edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
+        comment => "Adding basic informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
-      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
+      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
+        comment => "Adding user informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
-    windows.rudder_server_roles_dir_exists::
-      "C:/Program~1/Rudder/var/tmp/inventory/.*.ocs"
-        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
-        edit_defaults => def_no_backup;
-&endif&
-
-    !windows.uuiddefined::
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
-        edit_defaults => def_no_backup;
-
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
-        edit_defaults => def_no_backup;
-
-    !windows.uuiddefined.rudder_server_roles_dir_exists::
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
+    uuiddefined.rudder_server_roles_dir_exists::
+      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+        edit_line  => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
+        comment => "Adding server roles informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
     android::
@@ -550,14 +526,16 @@ bundle agent signInventories
     !windows::
       "sign_script" string => "/opt/rudder/bin/signature.sh";
     windows::
-      "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File C:\Program Files\Rudder\sbin\signature.ps1 -file";
+      "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File \"C:\Program Files\Rudder\sbin\signature.ps1\" -file";
 
   classes:
       "sign_script_exists" expression => fileexists("${sign_script}");
 
   files:
+
+    !windows::
       "${g.rudder_inventories}"
-        transformer  => "${sign_script} ${this.promiser}",
+        transformer  => "${sign_script} \"${this.promiser}\"",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
         ifvarclass   => "sign_script_exists",
