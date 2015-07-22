@@ -30,6 +30,10 @@ bundle agent propagatePromises
       "server_data" string => "${server_info.policy_files}/share"; #actual directory with data to propagate
       "client_data" string => "${g.rudder_var}/share/";  #where to put the files on the client when downloaded
 
+    pass2.root_server::
+      "ncf_common_sha_sum" string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_common} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
+      "ncf_local_sha_sum"  string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_local} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
+
   classes:
     root_server::
       "rudder_tools_updated_exists" expression => fileexists("${g.rudder_tools_updated_origin}");
@@ -109,9 +113,27 @@ bundle agent propagatePromises
         edit_line     => insert_lines("${sys.date}"),
         comment       => "Update the timestamp in the rudder tool updated file";
 
+    # each run, update the hash files of ncf
+    # these hashes are used by node to know if they should update their copy of ncf
+    root_server.pass2::
+      "${g.rudder_ncf_origin_common_hash}"
+        create        => "true",
+        edit_defaults => empty,
+        edit_line     => insert_lines("${ncf_common_sha_sum}"),
+        comment       => "Update the hash of ncf common";
+
+      "${g.rudder_ncf_origin_local_hash}"
+        create        => "true",
+        edit_defaults => empty,
+        edit_line     => insert_lines("${ncf_local_sha_sum}"),
+        comment       => "Update the hash of ncf local";
+
+
+
   methods:
     root_server::
       "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "&TRACKINGKEY&", "Configure ncf", "None", "Configure ncf");
+
     !root_server::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure ncf", "None", "Configuration of ncf is not necessary on non root servers");
 
