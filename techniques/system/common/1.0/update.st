@@ -332,6 +332,9 @@ body classes success(if, else, kept)
         repair_denied    => { "${else}" };
         repair_timeout   => { "${else}" };
 
+        cancel_kept      => { "${else}" };
+        cancel_repaired  => { "${else}" };
+
         # persist for 4 minutes so that it wont overlap with the next
         # execution in 5 minutes
         persist_time     => "4"; 
