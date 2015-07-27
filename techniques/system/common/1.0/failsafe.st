@@ -72,6 +72,10 @@ bundle common g
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "&CONFIGURATION_REPOSITORY_FOLDER&/ncf";
 
+      "rudder_ncf_hash_file"          string => "ncf_hash_file";
+      "rudder_ncf_origin_common_hash" string => "${rudder_ncf_origin_common}/${rudder_ncf_hash_file}";
+      "rudder_ncf_origin_local_hash"  string => "${rudder_ncf_origin_local}/${rudder_ncf_hash_file}";
+
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
       "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
 
