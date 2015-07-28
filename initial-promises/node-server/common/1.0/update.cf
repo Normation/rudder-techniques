@@ -305,11 +305,14 @@ body classes outcome(x)
 ############################################
 body classes success(if, else, kept)
 {
-        promise_kept => { "${kept}" };
-        promise_repaired => {"${if}"};
-        repair_failed => { "${else}" };
-        repair_denied => { "${else}" };
-        repair_timeout => { "${else}" };
+        promise_kept     => { "${kept}" };
+        promise_repaired => { "${if}"   };
+        repair_failed    => { "${else}" };
+        repair_denied    => { "${else}" };
+        repair_timeout   => { "${else}" };
+
+        cancel_kept      => { "${else}" };
+        cancel_repaired  => { "${else}" };
 
         # persist for 4 minutes so that it wont overlap with the next
         # execution in 5 minutes
