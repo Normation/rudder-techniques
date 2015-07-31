@@ -478,20 +478,19 @@ bundle agent addInformationsToInventory
       "uuiddefined" expression => isvariable("RUDDERUUID");
 
   files:
-
     uuiddefined::
-      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+      "${fusionAgent.inventory_path}"
         edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         comment => "Adding basic informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
-      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+      "${fusionAgent.inventory_path}"
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         comment => "Adding user informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
     uuiddefined.rudder_server_roles_dir_exists::
-      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+      "${fusionAgent.inventory_path}"
         edit_line  => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         comment => "Adding server roles informations to Rudder Inventory",
         edit_defaults => def_no_backup;
