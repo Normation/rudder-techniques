@@ -490,16 +490,19 @@ bundle agent addInformationsToInventory
   files:
 &if(NOVA)&
     windows::
-      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
-        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
+      "${fusionAgent.inventory_path}"
+        comment       => "Adding basic informations to inventory",
+        edit_line     => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         edit_defaults => def_no_backup;
 
-      "C:/Progra~1/Rudder/var/tmp/inventory/.*.ocs"
-        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
+      "${fusionAgent.inventory_path}"
+        comment       => "Adding users informations to inventory",
+        edit_line     => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup;
 
     windows.rudder_server_roles_dir_exists::
-      "C:/Program~1/Rudder/var/tmp/inventory/.*.ocs"
+      "${fusionAgent.inventory_path}"
+        comment       => "Adding server roles informations to inventory",
         edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         edit_defaults => def_no_backup;
 &endif&
