@@ -34,15 +34,15 @@ bundle common g
       "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
+      "rudder_var"                 string => "/var/rudder";
       "rudder_base"                string => "/opt/rudder";
-      "rudder_curl"                string => "/usr/bin/curl";
       "rudder_rm"                  string => "/bin/rm";
 
     solaris::
-      "rudder_var"                 string => "/opt/rudder/var";
+      "rudder_curl"                string => "/opt/csw/bin/curl";
 
     !solaris.!windows.!android::
-      "rudder_var"                 string => "/var/rudder";
+      "rudder_curl"                string => "/usr/bin/curl";
 
     !windows::
       "rudder_bin"                 string  => "${rudder_base}/bin";

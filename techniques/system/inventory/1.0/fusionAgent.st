@@ -450,11 +450,19 @@ bundle agent addInformationsToInventory
     aix::
       "RUDDERUUID_cmd" string => "/usr/bin/uname -f";
 
+    solaris::
+      "RUDDERUUID" string => execresult("smbios | grep UUID | sed 's/  UUID: //'", "useshell");
+
     !windows.!android::
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
-      "USER_cmd"       string => "/usr/bin/whoami";
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users"          slist => getindices("userslist");
+
+    !windows.!android.!solaris::
+      "USER" string => execresult("/usr/bin/whoami", "noshell");
+
+    solaris::
+      "USER" string => execresult("id | cut -d\( -f2 | cut -d\) -f1", "useshell");
 
     any::
       "CFKEY"      string => execresult("${CFKEY_cmd}", "noshell");
