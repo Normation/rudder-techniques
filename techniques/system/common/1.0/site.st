@@ -35,14 +35,14 @@ bundle common g
 
     !windows.!android::
       "rudder_base"                string => "/opt/rudder";
-      "rudder_curl"                string => "/usr/bin/curl";
       "rudder_rm"                  string => "/bin/rm";
+      "rudder_var"                 string => "/var/rudder";
 
     solaris::
-      "rudder_var"                 string => "/opt/rudder/var";
+      "rudder_curl"                string => "/opt/csw/bin/curl";
 
     !solaris.!windows.!android::
-      "rudder_var"                 string => "/var/rudder";
+      "rudder_curl"                string => "/usr/bin/curl";
 
     !windows::
       "rudder_bin"                 string => "${rudder_base}/bin";
