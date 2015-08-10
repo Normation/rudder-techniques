@@ -146,13 +146,17 @@ bundle agent fusionAgent
     !windows::
       "fusion_inventory_version" string => execresult("${g.rudder_base}/bin/run-inventory --version | ${paths.path[grep]} '[0-9]\.[0-9]' | ${paths.path[sed]} 's%.*(\([0-9]\+\)\.\([0-9]\+\).*).*%\1\2%'", "useshell");
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory", policy => "overridable"; # Default value
+      "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/.*.ocs", policy => "overridable"; # Default value for editing the inventory files
+
 
     !windows.fusion_inventory_version_23_or_later::
       # FusionInventory 2.3+ permits to specify the exact inventory file name we want
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${sys.uqhost}-${g.uuid}.ocs";
+      "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/${sys.uqhost}-${g.uuid}.ocs";
 
     windows:: # We assume we always have FusionInventory 2.3+ on Windows
       "inventory_path"           string => "${g.rudder_var_tmp}\inventory\${sys.uqhost}-${g.uuid}.ocs";
+      "inventory_path_edition"   string => "${g.rudder_var_tmp}\inventory\${sys.uqhost}-${g.uuid}.ocs";
 
   classes:
     !windows::
@@ -486,20 +490,19 @@ bundle agent addInformationsToInventory
       "uuiddefined" expression => isvariable("RUDDERUUID");
 
   files:
-
     uuiddefined::
-      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+      "${fusionAgent.inventory_path_edition}"
         edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         comment => "Adding basic informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
-      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+      "${fusionAgent.inventory_path_edition}"
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         comment => "Adding user informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
     uuiddefined.rudder_server_roles_dir_exists::
-      "${g.rudder_var_tmp}/inventory/${sys.fqhost}-${g.uuid}.ocs"
+      "${fusionAgent.inventory_path_edition}"
         edit_line  => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         comment => "Adding server roles informations to Rudder Inventory",
         edit_defaults => def_no_backup;

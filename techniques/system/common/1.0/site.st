@@ -138,6 +138,10 @@ bundle common g
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "${rudder_configuration_repository}/ncf";
 
+      "rudder_ncf_hash_file"          string => "ncf_hash_file";
+      "rudder_ncf_origin_common_hash" string => "${rudder_ncf_origin_common}/${rudder_ncf_hash_file}";
+      "rudder_ncf_origin_local_hash"  string => "${rudder_ncf_origin_local}/${rudder_ncf_hash_file}";
+
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
       "signed_inventory_file_types"       slist => { "@{inventory_file_types}", ".*\.sign" };
