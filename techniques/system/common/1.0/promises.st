@@ -43,7 +43,11 @@ body common control
 bundle common va
 {
   vars:
+
+      "end" slist => { "restart_services", "endExecution" };
+
     policy_server::
+
       "bs" slist => {
         "startup",
         "check_disable_agent",
@@ -56,6 +60,7 @@ bundle common va
         "process_matching",
         "check_cf_processes",
         "check_uuid",
+        "check_log_system",
         "check_rsyslog_version",
         "check_cron_daemon",
         "garbage_collection",
@@ -66,11 +71,8 @@ bundle common va
         "configuration"
       };
 
-      # On the policy server, we do the check_log_system at the end, to ensure that rsyslog has been installed and configured before.
-
-      "end" slist => { "check_log_system", "endExecution" };
-
     !policy_server::
+
       "bs" slist => {
         "startup",
         "check_disable_agent",
@@ -93,8 +95,6 @@ bundle common va
         "get_environment_variables",
         "configuration"
       };
-
-      "end" slist => { "endExecution" };
 
     !android.!windows::
       "rudder_var"     string => "/var/rudder";
@@ -454,7 +454,6 @@ bundle agent check_uuid
         comment       => "Setting the uuid variable in a machine";
 }
 
-
 #######################################################
 # Check the log system, and configure it accordingly
 # This only works with unix flavoured system
@@ -512,6 +511,7 @@ bundle agent check_log_system
 
 
   files:
+
     !windows.rsyslogd::
       "/etc/rsyslog.conf"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
@@ -557,22 +557,6 @@ bundle agent check_log_system
 
     pass2.rsyslogd::
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as rsyslog");
-
-    pass2.((SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired))|((!SuSE.!aix.!solaris).syslogd_repaired))::
-
-      "restart_syslog"    usebundle => service_restart("syslog");
-
-    pass2.!SuSE.syslog_ng_repaired::
-
-      "restart_syslog_ng" usebundle => service_restart("syslog-ng");
-
-    pass2.!SuSE.rsyslog_repaired::
-
-      "restart_syslog_ng" usebundle => service_restart("rsyslog");
-
-    pass2.!SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-
-      "restart_syslog" usebundle => service_restart("syslog");
 
     pass3.(syslogd_failed|syslog_ng_failed|rsyslog_failed)::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system could not be configured for report centralization");
@@ -626,14 +610,6 @@ bundle agent check_rsyslog_version {
 
   methods:
 
-    pass2.!SuSE.rsyslog_limit_repaired::
-
-      "restart_syslog_ng" usebundle => service_restart("rsyslog");
-
-    pass2.SuSE.rsyslog_limit_repaired::
-
-      "restart_syslog_ng" usebundle => service_restart("syslog");
-
     pass3.(rsyslogd.!check_rsyslog_version_present)::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file  ${g.rudder_tools}/check-rsyslog-version is missing");
 
@@ -642,12 +618,6 @@ bundle agent check_rsyslog_version {
 
     pass3.rsyslog_limit_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Updated the rsyslog configuration to remove limitation of messages");
-
-    pass3.(service_restart_rsyslog_repaired|service_restart_syslog_repaired)::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Configured logging system for report centralization");
-
-    pass3.(service_restart_rsyslog_not_ok|service_restart_syslog_not_ok)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system");
 
   commands:
     rsyslogd.check_rsyslog_version_present::

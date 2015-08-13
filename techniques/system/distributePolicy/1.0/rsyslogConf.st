@@ -97,16 +97,6 @@ bundle agent install_rsyslogd {
         classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
         comment => "Installing rsyslog_pgsql using apt backports";
 
-  methods:
-
-    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired).!SuSE::
-
-      "rsyslog_restart" usebundle => service_restart("rsyslog");
-
-    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired).SuSE::
-
-      "rsyslog_restart" usebundle => service_restart("syslog");
-
   reports:
 
     cant_install_rsyslog|cant_install_rsyslog_pgsql::
