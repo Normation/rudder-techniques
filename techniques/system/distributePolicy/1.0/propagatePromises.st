@@ -151,14 +151,14 @@ bundle agent sendInventoryToCmdb
       "${g.rudder_inventories}/incoming"
         transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
-        file_select => all_files,
+        file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_processing"),
         comment => "Processing a local inventory";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         depth_search => recurse_visible(1),
-        file_select => all_files,
+        file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_processing"),
         comment => "Processing a local inventory";
 
@@ -223,10 +223,10 @@ bundle agent sendInventoryToCmdb
 }
 
 
-body file_select all_files
+body file_select all_inventory_files
 {
-        leaf_name => { ".*\..*" };
-        file_result => "leaf_name";
+        leaf_name => { "uuid\.hive" };
+        file_result => "!leaf_name";
 }
 
 
