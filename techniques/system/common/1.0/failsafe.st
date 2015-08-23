@@ -79,7 +79,12 @@ bundle common g
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
       "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
 
-    # The time at which the execution started
+
+      "rudder_tools_updated_filename" string => "rudder_tools_updated";
+      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
+      "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
+
+      # The time at which the execution started
 &if(NOVA)&
     windows.!cygwin::
       "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
