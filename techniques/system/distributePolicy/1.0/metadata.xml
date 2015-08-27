@@ -17,9 +17,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <TECHNIQUE name="Distribute the policy to servers">
   <DESCRIPTION>Distribute policy</DESCRIPTION>
 
-  <SYSTEMVARS>
-    <NAME>NOVA</NAME>
-  </SYSTEMVARS>
+  
+  <SYSTEM>true</SYSTEM>
 
   <BUNDLES>
     <NAME>setup_debian_backports</NAME>
@@ -93,6 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>CLIENTSFOLDERS</NAME>
     <NAME>SYSLOGPORT</NAME>
     <NAME>SHARED_FILES_FOLDER</NAME>
+    <NAME>NOVA</NAME>
   </SYSTEMVARS>
 
   <TRACKINGVARIABLE>
