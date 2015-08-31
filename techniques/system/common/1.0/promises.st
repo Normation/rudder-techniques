@@ -29,10 +29,11 @@ body common control
 
         inputs => {
           @{va.ncf_inputs},
-          &INPUTLIST&
+          rudder_system_directives,
+          rudder_directives
         };
 
-        bundlesequence => { @{va.bs} &BUNDLELIST& , @{va.end} };
+        bundlesequence => { @{va.bs}, rudder_system_directives, rudder_directives, @{va.end} };
 
     android::
         # if native syslog is not available, use cfengine implementation (eg: android)
