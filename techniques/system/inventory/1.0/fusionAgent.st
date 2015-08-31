@@ -101,7 +101,7 @@ bundle agent doInventory
       "any" usebundle => cleanForceInventoryFlagFile;
 
     # Workaround the wrong class expansion
-    uuid_valid.Night.splaying.!inventory_sent::
+    uuid_valid.inventory_time.!inventory_sent::
       "any" usebundle => fusionAgent;
       "any" usebundle => listInstalledVM;
       "any" usebundle => generateExtraInformations;
