@@ -24,6 +24,34 @@
 #
 # Then the inventory file is improved with external informations (UUID, cf-key, VMs)
 
+# Compute the inventory time
+bundle agent computeInventoryTime
+{
+  vars:
+      "run_interval"             int   => "&AGENT_RUN_INTERVAL&";
+
+      "inventory_time_hours"     slist => { "Hr00", "Hr01", "Hr02", "Hr03", "Hr04", "Hr05" };
+      "inventory_time_selection" slist => maplist("${this}_select", "inventory_time_hours");
+
+  classes:
+      "splaying"                   expression => splayclass("${sys.host}${sys.ipv4}","hourly");
+
+      "inventory_run_selection" select_class => { "@{computeInventoryTime.inventory_time_selection}"};
+
+      # If this is the default 5 minute schedule, this is the standart case
+      "default_schedule" expression => isgreaterthan("6", "${run_interval}");
+
+      # If the interval is between 6 and 59 minutes, then we "splay" by the select_class, so between Midnight and 5 am
+      "less_than_one_hour_interval" expression => isgreaterthan("59", "${run_interval}");
+
+      # Compute if we are currently in the hour where the inventory should be done
+      "inventory_hour_selection" expression => "${inventory_time_hours}.${inventory_time_hours}_select";
+
+       # Inventory will be during the night, at the hour selected, with a splay is this is the default schedule, else at the first run during the selected hour
+       # if the interval is less than one hour, else at the first run of the night
+       "inventory_time" expression => "Night.((splaying.default_schedule.inventory_hour_selection)|(!default_schedule.less_than_one_hour_interval.inventory_hour_selection)|(!less_than_one_hour_interval))",
+                             scope => "namespace";
+}
 
 bundle agent doInventory
 {
@@ -48,8 +76,6 @@ bundle agent doInventory
       "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
 
   classes:
-      "splaying" expression => splayclass("${sys.host}${sys.ipv4}","hourly");
-
     # The force_inventory class may be specified by the user at runtime, or defined here
       "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory");
 
@@ -65,6 +91,9 @@ bundle agent doInventory
       "pass1" expression => "any";
 
   methods:
+      # Compute the inventory time
+      "any" usebundle => computeInventoryTime;
+
 
     uuid_valid.force_inventory::
       "any" usebundle => fusionAgent;
@@ -78,7 +107,7 @@ bundle agent doInventory
       "any" usebundle => cleanForceInventoryFlagFile;
 
     # Workaround the wrong class expansion
-    uuid_valid.Night.splaying.!inventory_sent::
+    uuid_valid.inventory_time.!inventory_sent::
       "any" usebundle => fusionAgent;
       "any" usebundle => listInstalledVM;
       "any" usebundle => generateExtraInformations;

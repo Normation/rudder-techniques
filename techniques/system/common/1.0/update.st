@@ -210,6 +210,12 @@ bundle agent update_action
         action       => immediate,
         classes      => success("config", "no_update", "config_ok");
 
+    # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
+    rudder_promises_generated_repaired.!root_server.no_update::
+      "${client_inputs}/${file_to_check_update}"
+        delete  => tidy,
+        comment => "Deleting ${file_to_check_update} as the policy files couldn't be downloaded";
+
     root_server|(rudder_promises_generated_ok|(rudder_promises_generated_repaired.(config|config_ok)).!no_update.!rudder_promises_generated_error)::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
@@ -232,6 +238,12 @@ bundle agent update_action
         action       => immediate,
         classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
         comment      => "Update the Rudder tools";
+
+    # If we couldn't update the tools, then we must force a copy at next run
+    rudder_tools_update_error::
+      "${g.rudder_tools_updated}"
+        delete => tidy,
+        comment => "Deleting ${g.rudder_tools_updated} as the tools couldn't be updated";
 
   methods:
     pass3.server_ok::
