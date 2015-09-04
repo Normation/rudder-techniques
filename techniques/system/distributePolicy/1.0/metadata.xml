@@ -16,10 +16,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <TECHNIQUE name="Distribute the policy to servers">
   <DESCRIPTION>Distribute policy</DESCRIPTION>
-
-  <SYSTEMVARS>
-    <NAME>NOVA</NAME>
-  </SYSTEMVARS>
+  
+  <SYSTEM>true</SYSTEM>
 
   <BUNDLES>
     <NAME>install_rsyslogd</NAME>
@@ -57,6 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>STORE_ALL_CENTRALIZED_LOGS_IN_FILE</NAME>
     <NAME>MANAGED_NODES_IP</NAME>
     <NAME>AUTHORIZED_NETWORKS</NAME>
+    <NAME>NOVA</NAME>
   </SYSTEMVARS>
 
   <TRACKINGVARIABLE>
