@@ -82,7 +82,4 @@ bundle agent rudder_motd_configuration_reporting(class_prefix, service_name, tra
 {
   methods:
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_file_edition", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file");
-    windows::
-      "any"
-        usebundle  => rudder_common_report("${service_name}", "result_error", "${trackingkey}", "MOTD Configuration", "None", "This is a Windows machine. This Technique currently incompatible with it");
 }
