@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/bin/bash
 #
 # Copyright 2010-2014 (c) Normation SAS
 # Author: Jonathan CLARKE <jonathan.clarke@normation.com>
@@ -47,9 +47,13 @@ done
 
 # 2 - Look for signature file
 SIGNATURE_OPT=""
-if [ -f "${FILENAME}.sign" ]
+
+FILENAME_SIGN="${FILENAME%%.gz}.sign"
+
+
+if [ -f "${FILENAME_SIGN}" ]
 then
-  SIGNATURE_OPT="-F signature=@${FILENAME}.sign"
+  SIGNATURE_OPT="-F signature=@${FILENAME_SIGN}"
 else
   # 3.1 - No signature and file timestamp < 2mn -> wait for it
   if [ $(find "${FILENAME}" -mmin "+${MAX_SIGNATURE_WAIT}" | wc -l) = "0" ]
