@@ -23,6 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <SYSTEMVARS>
     <NAME>NOVA</NAME>
+    <NAME>AGENT_RUN_INTERVAL</NAME>
   </SYSTEMVARS>
 
   <BUNDLES>
