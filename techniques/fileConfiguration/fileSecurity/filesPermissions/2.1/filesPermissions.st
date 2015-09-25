@@ -89,6 +89,8 @@ bundle agent check_permissions(directiveId, fileName, action_parameters)
 
       "file_exists"   expression => fileexists(${fileName});
 
+      "ignore_absent"   not => strcmp("${ignoreFile}","false");
+
       "user_absent"   not => userexists("${user}");
 
       "group_absent"  not => groupexists("${group}");
@@ -173,7 +175,10 @@ bundle agent check_permissions(directiveId, fileName, action_parameters)
     pass3.is_symlink::
       "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Will not adjust permissions on ${fileName}, because it is a symlink");
 
-    pass3.(!file_exists)::
+    pass3.!file_exists.ignore_absent::
+      "any" usebundle => rudder_common_report("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "${fileName} does not exist but is ignored");
+
+    pass3.!file_exists.!ignore_absent::
       "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "File or directory not found: ${fileName}");
 
     pass3.user_absent::
