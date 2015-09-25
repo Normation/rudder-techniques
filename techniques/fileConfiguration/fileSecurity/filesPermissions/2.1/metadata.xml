@@ -15,7 +15,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Set the permissions on files">
-  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>Set the permissions on files</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
@@ -47,6 +46,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>FILEPERMISSION_FILENAME</NAME>
         <DESCRIPTION>File to set permissions on</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>FILEPERMISSION_IGNORE_ABSENTFILE</NAME>
+        <DESCRIPTION>Ignore file or directory if it does not exist</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FILEPERMISSION_RECURSION</NAME>
