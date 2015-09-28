@@ -522,7 +522,7 @@ bundle agent addInformationsToInventory
       "xenrudderuuid" expression => regextract("/vm/(.*)", "${VMRUDDERUUID}", "vmarray");
 
     linux.(armv6l|armv7l)::
-      "armv6lorv7lrudderuuid" expression => regextract("Serial[\s]+:[\s](.*)\N", "$(ARMCPUINFO)", "serialarray");
+      "armv6lorv7lrudderuuid" expression => regextract("Serial[\s]+:[\s](.*)\N", "${ARMCPUINFO}", "serialarray");
 
     any::
       "uuiddefined" expression => isvariable("RUDDERUUID");
