@@ -58,16 +58,16 @@ bundle agent doInventory
 
   vars:
 
-    # If curl is available, use it
+    # If curl is available, use it
     !windows.curl_installed::
       "download_command"   string => "${g.rudder_curl} -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
-    # If not, use minicurl instead
+    # If not, use minicurl instead
     !windows.!curl_installed::
       "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
-    # On windows, always use curl
+    # On windows, always use curl
     windows::
       "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -k -1 -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 &endif&
@@ -461,6 +461,12 @@ bundle agent addInformationsToInventory
     xen.xenrudderuuid::
       "RUDDERUUID" string => "${vmarray[1]}";
 
+    linux.(armv6l|armv7l)::
+      "ARMCPUINFO" string => readfile( "/proc/cpuinfo", "0" );
+
+    linux.(armv6l|armv7l).armv6lorv7lrudderuuid::
+      "RUDDERUUID" string => "${serialarray[1]}";
+
     !windows::
       "polserv_uuid"          string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
 
@@ -477,7 +483,7 @@ bundle agent addInformationsToInventory
       "android_fullname"      string => "Android ${android_version}";
       "logdate"               string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
 
-    linux.!xen::
+    linux.(!xen.!armv6l.!armv7l)::
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
 
     aix::
@@ -507,13 +513,16 @@ bundle agent addInformationsToInventory
       # Don't extract file starting by . (especially . and .., but also hidden files)
       "rudder_roles" slist => lsdir("${g.server_roles_path}", "^[^.].*", "false");
 
-    !xen::
+    !xen.!armv6l.!armv7l::
       "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
 
 
   classes:
     xen::
       "xenrudderuuid" expression => regextract("/vm/(.*)", "${VMRUDDERUUID}", "vmarray");
+
+    linux.(armv6l|armv7l)::
+      "armv6lorv7lrudderuuid" expression => regextract("Serial[\s]+:[\s](.*)\N", "$(ARMCPUINFO)", "serialarray");
 
     any::
       "uuiddefined" expression => isvariable("RUDDERUUID");
