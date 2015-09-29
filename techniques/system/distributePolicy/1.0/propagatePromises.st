@@ -226,7 +226,8 @@ bundle agent sendInventoryToCmdb
 body file_select all_inventory_files
 {
         leaf_name => { "uuid\.hive" };
-        file_result => "!leaf_name";
+        file_types => { "plain" };
+        file_result => "file_types.!leaf_name";
 }
 
 
