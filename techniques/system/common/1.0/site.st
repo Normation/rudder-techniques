@@ -33,15 +33,16 @@ bundle common g
       "rudder_rm"                  string => "/system/xbin/rm";
       "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
-    !windows.!android::
-      "rudder_base"                string => "/opt/rudder";
-      "rudder_rm"                  string => "/bin/rm";
-      "rudder_var"                 string => "/var/rudder";
-
     solaris::
+      "rudder_base"                string => "/opt/rudder";
+      "rudder_var"                 string => "/var/rudder";
+      "rudder_rm"                  string => "/bin/rm";
       "rudder_curl"                string => "/opt/csw/bin/curl";
 
-    !solaris.!windows.!android::
+    !windows.!android.!solaris::
+      "rudder_base"                string => "/opt/rudder";
+      "rudder_var"                 string => "/var/rudder";
+      "rudder_rm"                  string => "/bin/rm";
       "rudder_curl"                string => "/usr/bin/curl";
 
     !windows::
@@ -56,9 +57,6 @@ bundle common g
       "rudder_ncf"                 string => "${rudder_var}/ncf";
       "crontab"                    string => "/etc/crontab";
       "gzip"                       string => "/bin/gzip";
-
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies"        string => "${rudder_var}/tools";
 
     windows::
       "rudder_base"                string => "${sys.winprogdir}\Rudder";
@@ -105,9 +103,6 @@ bundle common g
                                             };
 
 
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies"        string => "${rudder_sbin}";
-
     aix::
 
       "gzip"                       string => "/usr/bin/gzip";
@@ -152,9 +147,6 @@ bundle common g
       "rudder_tools_updated_filename" string => "rudder_tools_updated";
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
       "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
-
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies_origin"  string => "/var/rudder/tools";
 
     # The time at which the execution started
     windows.!cygwin::
