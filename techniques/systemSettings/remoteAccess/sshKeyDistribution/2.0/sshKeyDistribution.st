@@ -146,14 +146,8 @@ bundle edit_line append_or_replace_ssh_key(keyspec, index)
       expression => "key_parsed";
 
     "key_parsed" 
-      # If the key hash happens to exceed 1000 chars $keybits[3] is going to be undefined because 
-      # of some weird cfengine bugs, probably this one: https://cfengine.com/dev/issues/1258
-      # Therefore we limit the regex to extract as much of the hash as possible to make it unique enough
-      # without exceeding 1000 charachter limit.
-      # The hashes of that length apparently correspond to DSS 2048 bits keys, generated i.e. on rhel 4,
-      # with openssh v3.9p1-redhat. I believe that since openssh v4 DSS bitlengh is limited to 1024,
-      # as required by FIPS.
-      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S{1,1000})\S*(\s.*)?$", "${keyspec}", "keybits" );
+      # Regextract now works up to string of 4096 length (cfengine 3.6), which is enough for keys (by far!).
+      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S+)(\s.*)?$", "${keyspec}", "keybits" );
 
   insert_lines:
 
