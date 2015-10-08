@@ -134,12 +134,20 @@ bundle edit_line append_or_replace_ssh_key(keyspec, index)
 {
 
   vars:
+    any::
+      "eline"
+        comment     => "An escaped version of the keyspec - \Q..\E do not escape everything",
+        string      => escape("${keyspec}");
+    key_parsed::
+      "key" string => escape("${keybits[3]}");
 
-      "dim_array" int => parsestringarrayidx("keybits", "${keyspec}", "\s*#[^\n]*", "\s+", 1, 8192);
+  classes:
+    "key_defined"
+      expression => "key_parsed";
 
-      "eline" string => escape("${keyspec}");
-      "ckey"  string => canonify("${keybits[0][1]}");
-      "ekey"  string => escape("${keybits[0][1]}");
+    "key_parsed" 
+      # Regextract now works up to string of 4096 length (cfengine 3.6), which is enough for keys (by far!).
+      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S+)(\s.*)?$", "${keyspec}", "keybits" );
 
   insert_lines:
 
@@ -150,10 +158,10 @@ bundle edit_line append_or_replace_ssh_key(keyspec, index)
       ifvarclass    => canonify("ssh_key_distribution_replace_step_attempted_${index}");
 
   replace_patterns:
-
-    "^(?!${eline}$)(.*${ekey}.*)$"
+    "^(?!${eline}$)(.*${key}.*)$"
       comment       => "Replace a key here",
       replace_with  => value("${keyspec}"),
+      ifvarclass    => "key_defined",
       classes       => always("ssh_key_distribution_replace_step_attempted_${index}");
 
 }
