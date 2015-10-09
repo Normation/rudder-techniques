@@ -27,7 +27,7 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
 
     # If curl is here, use it
     !windows.curl_installed::
-      "download_command" string => "${g.rudder_curl} -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
+      "download_command" string => "${g.rudder_curl} -L -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
 
     # If no curl is present, fallback to minicurl
     !windows.!curl_installed::
@@ -35,7 +35,7 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
 
     # Windows always use curl
     windows::
-      "download_command" string => "\"${g.rudder_curl}\" -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
+      "download_command" string => "\"${g.rudder_curl}\" -L -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
 
   classes:
 

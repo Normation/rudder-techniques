@@ -58,18 +58,18 @@ bundle agent doInventory
 
   vars:
 
-    # If curl is available, use it
+    # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
-    # If not, use minicurl instead
+    # If not, use minicurl instead
     !windows.!curl_installed::
       "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
-    # On windows, always use curl
+    # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -k -1 -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k -1 -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 &endif&
 
     uuid_succesfully_downloaded::
@@ -596,20 +596,20 @@ bundle agent sendInventory
 
       "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
 
-    # If curl is available, use it
+    # If curl is available, use it
     !windows.curl_installed::
-      "download_command_prefix"   string => "${g.rudder_curl} -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
-    # If not, use minicurl instead
+    # If not, use minicurl instead
     !windows.!curl_installed::
       "download_command_prefix"   string => "${g.minicurl} --no-verify --put --authentication ${g.davuser}:${g.davpw} --file";
       "download_command_suffix"   string => "--url ${download_endpoint}";
 
 &if(NOVA)&
-    # On windows, always use curl
+    # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "${g.rudder_curl} -k -1 -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 &endif&
 
