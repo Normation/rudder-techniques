@@ -30,14 +30,14 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
   commands:
     !windows.file_not_found::
       "${g.rudder_curl}"
-        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+        args => "-L -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
         comment => "Getting the file from the server",
         classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
 
     windows.file_not_found::
       "\"${g.rudder_curl}\""
-        args => "-f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
+        args => "-L -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&",
         comment => "Getting the file from the server",
         classes => kept_if_else("file_download_idle", "file_download_ok", "file_download_fail");
 
