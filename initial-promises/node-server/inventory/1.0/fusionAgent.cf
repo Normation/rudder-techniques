@@ -31,7 +31,7 @@ bundle agent doInventory
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -L -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # If not, use minicurl instead
     !windows.!curl_installed::
@@ -39,7 +39,7 @@ bundle agent doInventory
 
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" http://${server_info.cfserved}/uuid";
 
     uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
@@ -489,7 +489,7 @@ bundle agent sendInventory
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command_prefix"   string => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
     # If not, use minicurl instead
@@ -499,7 +499,7 @@ bundle agent sendInventory
 
     # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
   files:
