@@ -58,18 +58,18 @@ bundle agent doInventory
 
   vars:
 
-    # If curl is available, use it
+    # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -L -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
-    # If not, use minicurl instead
+    # If not, use minicurl instead
     !windows.!curl_installed::
       "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
-    # On windows, always use curl
+    # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 &endif&
 
     uuid_succesfully_downloaded::
@@ -552,20 +552,20 @@ bundle agent sendInventory
 
       "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
 
-    # If curl is available, use it
+    # If curl is available, use it
     !windows.curl_installed::
-      "download_command_prefix"   string => "${g.rudder_curl} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
-    # If not, use minicurl instead
+    # If not, use minicurl instead
     !windows.!curl_installed::
       "download_command_prefix"   string => "${g.minicurl} --put --authentication ${g.davuser}:${g.davpw} --file";
       "download_command_suffix"   string => "--url ${download_endpoint}";
 
 &if(NOVA)&
-    # On windows, always use curl
+    # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "${g.rudder_curl} -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 &endif&
 
