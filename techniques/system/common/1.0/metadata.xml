@@ -22,9 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="cf-served"/>
     <TML name="rudder_lib" />
     <TML name="rudder_stdlib" />
-    <TML name="process_matching" />
     <TML name="internal_security" />
     <TML name="nxlog_activation"/>
+    <TML name="cron_setup" />
     <TML name="site"/>
     <TML name="update"/>
     <TML name="failsafe">
@@ -90,8 +90,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
     <!-- The following sections are for reporting only, variable are defined in the main section below -->
     <SECTION name="Red Button" component="true" />
-    <SECTION name="Security parameters" component="true" />
     <SECTION name="Update" component="true" />
+    <SECTION name="Security parameters" component="true" />
     <SECTION name="Log system for reports" component="true" />
     <SECTION name="CRON Daemon" component="true" />
     <SECTION name="Binaries update" component="true" />
