@@ -160,3 +160,59 @@ bundle edit_line cron_cleanup
       "0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ ! -e /opt/rudder/etc/disable-agent -a \`ps -efww \| grep -E \"\(cf-execd\|cf-agent\)\" \| grep -E \"/var/rudder/cfengine-community/bin/\(cf-execd\|cf-agent\)\" \| grep -v grep \| wc -l\` -eq 0 ]; then /var/rudder/cfengine-community/bin/cf-agent -f failsafe.cf \\\&\\\& /var/rudder/cfengine-community/bin/cf-agent; fi";
 
 }
+
+#######################################################
+# Check if the cron daemon is running
+# This only works with unix flavoured systems too
+
+bundle agent check_cron_daemon
+{
+
+  vars:
+
+    redhat.!fedora::
+      "cron_bin" string => "crond$";
+      "cron_restartcmd" string => "/etc/init.d/crond restart";
+
+    fedora::
+      "cron_bin" string => "/usr/sbin/crond -n$";
+      "cron_restartcmd" string => "/bin/systemctl restart crond.service";
+
+    ubuntu::
+      "cron_bin" string => "cron$";
+      "cron_restartcmd" string => "/etc/init.d/cron restart";
+
+    !(redhat|fedora|ubuntu)::
+      "cron_bin" string => "/usr/sbin/cron$";
+      "cron_restartcmd" string => "/etc/init.d/cron restart";
+
+  processes:
+
+    !android.!windows::
+      "${cron_bin}"
+        restart_class => "restart_crond";
+
+  commands:
+
+    restart_crond::
+
+      "${cron_restartcmd}"
+
+        comment => "Restarting crond",
+        classes => kept_if_else("crond_ok" ,"crond_restarted" , "crond_failed");
+
+  reports:
+
+    crond_failed::
+      "@@Common@@result_error@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon was not running and could not be restarted";
+
+    crond_restarted::
+      "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
+
+    !restart_crond.!crond_restarted.!crond_failed.!android.!windows::
+      "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
+
+    android|windows::
+      "@@Common@@result_na@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is a system without CRON: CRON verifications skipped !";
+
+}
