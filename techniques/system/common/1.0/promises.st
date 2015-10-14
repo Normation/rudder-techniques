@@ -53,13 +53,13 @@ bundle common va
         "set_red_button",
         "internal_security",
         "check_red_button_status",
-        "process_matching",
         "check_cf_processes",
         "check_uuid",
         "check_log_system",
         "check_rsyslog_version",
-        "check_cron_daemon",
         "garbage_collection",
+        "setup_cronjob",
+        "check_cron_daemon",
         "check_binaries_freshness",
         "check_zypper",
         "nxlog_enable"
@@ -75,10 +75,10 @@ bundle common va
         "set_red_button",
         "internal_security",
         "check_red_button_status",
-        "process_matching",
         "check_cf_processes",
-        "check_cron_daemon",
         "garbage_collection",
+        "setup_cronjob",
+        "check_cron_daemon",
         "check_binaries_freshness",
         "check_log_system",
         "check_rsyslog_version",
@@ -611,62 +611,6 @@ bundle agent check_rsyslog_version {
       "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not restart the logging system";
 
 
-
-}
-
-#######################################################
-# Check if the cron daemon is running
-# This only works with unix flavoured systems too
-
-bundle agent check_cron_daemon
-{
-
-  vars:
-
-    redhat.!fedora::
-      "cron_bin" string => "crond$";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
-
-    fedora::
-      "cron_bin" string => "/usr/sbin/crond -n$";
-      "cron_restartcmd" string => "/bin/systemctl restart crond.service";
-
-    ubuntu::
-      "cron_bin" string => "cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
-
-    !(redhat|fedora|ubuntu)::
-      "cron_bin" string => "/usr/sbin/cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
-
-  processes:
-
-    !android.!windows::
-      "${cron_bin}"
-        restart_class => "restart_crond";
-
-  commands:
-
-    restart_crond::
-
-      "${cron_restartcmd}"
-
-        comment => "Restarting crond",
-        classes => kept_if_else("crond_ok" ,"crond_restarted" , "crond_failed");
-
-  reports:
-
-    crond_failed::
-      "@@Common@@result_error@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon was not running and could not be restarted";
-
-    crond_restarted::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
-
-    !restart_crond.!crond_restarted.!crond_failed.!android.!windows::
-      "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
-
-    android|windows::
-      "@@Common@@result_na@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is a system without CRON: CRON verifications skipped !";
 
 }
 
