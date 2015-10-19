@@ -16,7 +16,7 @@ MINIMAL_ZYPPER_VERSION="1.0.8"
 
 if type zypper >/dev/null 2>&1; then
 
-  CURRENT_ZYPPER_VERSION=$(/usr/bin/zypper --version | cut -d' ' -f2)
+  CURRENT_ZYPPER_VERSION=$(/usr/bin/zypper --version 2>&1 | cut -d' ' -f2)
 
   if ${RPMVERCMP} ${CURRENT_ZYPPER_VERSION} lt ${MINIMAL_ZYPPER_VERSION}; then
     echo "+zypper_version_not_ok"
