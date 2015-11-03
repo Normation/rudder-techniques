@@ -24,11 +24,17 @@
 
 bundle server access_rules
 {
+&if(NOVA)&
+  vars:
+    enterprise::
+      "query_types" slist => {"delta", "rebase", "full"};
+&endif&
+
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
 &if(MANAGED_NODES_NAME)&
-    policy_server::
+    policy_server|role_rudder_relay_promises_only::
       &if(NOVA)&
       "&UUID&"
         handle        => "policy_server_uuid",
@@ -62,6 +68,16 @@ bundle server access_rules
 
       &endif&
 
+    &if(NOVA)&
+    role_rudder_cfengine_mission_portal::
+      "$(query_types)"
+        handle             => "server_access_grant_$(query_types)_for_hub",
+        comment            => "Grant $(query_types) reporting query for the hub on the policy server",
+        resource_type      => "query",
+        report_data_select => rudder_data_select_policy_hub,
+        admit              => { ${def.policy_server}, @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
+    &endif&
+
 
     any::
   &if(SKIPIDENTIFY)&
@@ -85,6 +101,16 @@ bundle server access_rules
       # Allow server to remotely run the agent
       "/var/rudder/cfengine-community/bin/cf-agent"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+
+  &if(NOVA)&
+      "$(query_types)"
+        handle => "server_access_grant_$(query_types)_for_hosts",
+        comment => "Grant $(query_types) reporting query for the hub on the hosts",
+        resource_type => "query",
+        report_data_select => rudder_data_select_host,
+        admit => { ${def.policy_server}, @{sys.ip_addresses} };
+  &endif&
+
 
   roles:
       # Allow user root to set any class
@@ -230,3 +256,28 @@ body runagent control
 }
 &endif&
 
+&if(NOVA)&
+body report_data_select rudder_data_select_host
+# @brief Data to collect from remote hosts by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include => { "inventory", "report" };
+    metatags_exclude => { "noreport" };
+    monitoring_include => { ".*" };
+}
+
+body report_data_select rudder_data_select_policy_hub
+# @brief Data to collect from policy servers by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include => { "inventory", "report" };
+    metatags_exclude => { "noreport" };
+    monitoring_include => { ".*" };
+}
+&endif&

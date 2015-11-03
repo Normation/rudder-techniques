@@ -65,7 +65,7 @@ bundle agent propagatePromises
         comment      => "Enforce the ncf configuration file",
         classes      => classes_generic("configure_ncf_config");
 
-    policy_server.!root_server::
+    (policy_server|role_rudder_relay_promises_only).!root_server::
 
       "${client_data}"  #that's a loop on each files in client_inputs
         copy_from    => remote("${server_info.cfserved}","${server_data}"),
@@ -201,7 +201,7 @@ bundle agent sendInventoryToCmdb
         classes => rudder_common_classes("rudder_inventory_processing"),
         comment => "Processing a local inventory";
 
-    policy_server.!(root_server|role_rudder_relay_top)::
+    policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only)::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
@@ -217,7 +217,7 @@ bundle agent sendInventoryToCmdb
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
-    policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_error::
+    policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_relay_error::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
@@ -241,7 +241,7 @@ bundle agent sendInventoryToCmdb
     pass3.rudder_inventory_processing_error::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Some inventories failed to add successfully to Rudder");
 
-    pass3.((root_server|role_rudder_relay_top).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
+    pass3.((root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to send");
 
     pass3.(rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
@@ -250,7 +250,7 @@ bundle agent sendInventoryToCmdb
     pass3.rudder_inventory_relay_error::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Cannot relay some inventories to the root server");
 
-    pass3.(policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
+    pass3.(policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to relay");
 
     pass3.(rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error)::

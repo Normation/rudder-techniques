@@ -85,13 +85,13 @@ bundle agent root_component_check
         );
 
     # Do this if this is the root_server or a relay server
-    root_server|policy_server::
+    root_server|(policy_server.!role_rudder_relay_promises_only)::
       "any" usebundle => root_networks_check;
       "any" usebundle => root_password_check_dav;
       "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}", "false", "${service[apache][check_on_relay_server]}");
       "any" usebundle => generic_process_check_bootstart("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}");
 
-    !(root_server|policy_server)::
+    !(root_server|policy_server)|role_rudder_relay_promises_only::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check allowed networks configuration", "None", "Checking the allowed networks configuration is unnecessary on this machine, skipping..."
         );
