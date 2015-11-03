@@ -29,8 +29,8 @@ body common control
 
         inputs => {
           @{va.ncf_inputs},
-          rudder_system_directives,
-          rudder_directives
+          "rudder_system_directives.cf",
+          "rudder_directives.cf"
         };
 
         bundlesequence => { @{va.bs}, rudder_system_directives, rudder_directives, @{va.end} };
