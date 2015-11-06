@@ -29,7 +29,7 @@ bundle agent nxlog_enable
 
   methods:
 
-    windows::
+    windows.!reports_disabled::
 
       "any" usebundle => nxlog_install;
       "any" usebundle => nxlog_configure;
