@@ -60,8 +60,7 @@ bundle common va
         "check_red_button_status",
         "check_cf_processes",
         "check_uuid",
-        "check_log_system",
-        "check_rsyslog_version",
+        "configure_rudder_reporting_system",
         "garbage_collection",
         "setup_cronjob",
         "check_cron_daemon",
@@ -88,8 +87,7 @@ bundle common va
         "setup_cronjob",
         "check_cron_daemon",
         "check_binaries_freshness",
-        "check_log_system",
-        "check_rsyslog_version",
+        "configure_rudder_reporting_system",
         "nxlog_enable",
         "check_zypper",
         "check_uuid",
@@ -185,10 +183,11 @@ bundle common rudder_roles
 
 
       # on changes only, we only reports on repaired or error message
-      "changes_only" expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "changes_only"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "reports_disabled" expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
 
       # full compliance is the default mode
-      "full_compliance" not => "changes_only";
+      "full_compliance" not => "changes_only|reports_disabled";
 }
 
 #########################################################
@@ -453,6 +452,14 @@ bundle agent check_uuid
         edit_defaults => noempty_backup,
         perms         => m("644"),
         comment       => "Setting the uuid variable in a machine";
+}
+
+
+bundle agent configure_rudder_reporting_system {
+  methods:
+    !reports_disabled::
+      "configure_syslog"    usebundle => check_log_system;
+      "configure_reporting" usebundle => check_rsyslog_version;
 }
 
 #######################################################
