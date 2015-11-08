@@ -29,8 +29,8 @@ body common control
 
         inputs => {
           @{va.ncf_inputs},
-          rudder_system_directives,
-          rudder_directives
+          "rudder_system_directives.cf",
+          "rudder_directives.cf"
         };
 
         bundlesequence => { @{va.bs}, rudder_system_directives, rudder_directives, @{va.end} };
@@ -58,13 +58,12 @@ bundle common va
         "set_red_button",
         "internal_security",
         "check_red_button_status",
-        "process_matching",
         "check_cf_processes",
         "check_uuid",
-        "check_log_system",
-        "check_rsyslog_version",
-        "check_cron_daemon",
+        "configure_rudder_reporting_system",
         "garbage_collection",
+        "setup_cronjob",
+        "check_cron_daemon",
         "check_binaries_freshness",
         "check_zypper",
         "get_environment_variables",
@@ -83,13 +82,12 @@ bundle common va
         "set_red_button",
         "internal_security",
         "check_red_button_status",
-        "process_matching",
         "check_cf_processes",
-        "check_cron_daemon",
         "garbage_collection",
+        "setup_cronjob",
+        "check_cron_daemon",
         "check_binaries_freshness",
-        "check_log_system",
-        "check_rsyslog_version",
+        "configure_rudder_reporting_system",
         "nxlog_enable",
         "check_zypper",
         "check_uuid",
@@ -185,10 +183,11 @@ bundle common rudder_roles
 
 
       # on changes only, we only reports on repaired or error message
-      "changes_only" expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "changes_only"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "reports_disabled" expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
 
       # full compliance is the default mode
-      "full_compliance" not => "changes_only";
+      "full_compliance" not => "changes_only|reports_disabled";
 }
 
 #########################################################
@@ -455,6 +454,14 @@ bundle agent check_uuid
         comment       => "Setting the uuid variable in a machine";
 }
 
+
+bundle agent configure_rudder_reporting_system {
+  methods:
+    !reports_disabled::
+      "configure_syslog"    usebundle => check_log_system;
+      "configure_reporting" usebundle => check_rsyslog_version;
+}
+
 #######################################################
 # Check the log system, and configure it accordingly
 # This only works with unix flavoured system
@@ -626,50 +633,6 @@ bundle agent check_rsyslog_version {
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
-
-}
-
-#######################################################
-# Check if the cron daemon is running
-# This only works with unix flavoured systems too
-
-bundle agent check_cron_daemon
-{
-  classes:
-
-    any::
-      "pass3" expression => "pass2";
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
-
-  methods:
-
-    pass2.!redhat.!fedora.restart_crond::
-
-      "restart_cron" usebundle => service_restart("cron");
-
-    pass2.(redhat|fedora).restart_crond::
-
-      "restart_cron" usebundle => service_restart("crond");
-
-    pass3.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon was not running and could not be restarted");
-
-    pass3.(service_restart_cron_repaired|service_restart_crond_repaired)::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon has been successfully restarted");
-
-    pass3.!restart_crond.!android.!windows)::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon is running");
-
-    pass3.(android|windows)::
-      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "This is a system without CRON: CRON verifications skipped !");
-
-  processes:
-
-    !android.!windows.!aix::
-      "cron"
-        process_select => cron_bin,
-        restart_class => "restart_crond";
 
 }
 
