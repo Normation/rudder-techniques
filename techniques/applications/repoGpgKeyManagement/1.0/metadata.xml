@@ -1,0 +1,88 @@
+<!--
+ Author: Janos Mattyasovszky
+ Based on https://github.com/Normation/rudder-techniques/blob/2c4e7fb50f0f35d786f253ca446f855b91a9ff2e/technique-metadata-sample.xml
+-->
+
+<TECHNIQUE name="Repository GPG Key Management for RPM / APT Systems">
+
+  <!-- This description is displayed in detailed views in the interface.
+     It should be used to describe what this Technique does, in detail.
+     New lines will be ignored. -->
+  <DESCRIPTION>Manages trusted GPG Keys for the RPM / zypper / APT Package Managers</DESCRIPTION>
+
+  <!-- Can several Directives based on this Technique be applied to the same node?
+     If so, the Technique will have to be written to support multi-valued variables.
+     -->
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <!-- List of .st files (also called templates or TMLS)
+     in this Technique to import and parse variables in.
+     Note: the ".st" extension will be added automatically, don't specify it here -->
+  <TMLS>
+    <TML name="repoGpgKeyManagement"/>
+  </TMLS>
+
+  <!-- List of CFEngine bundles in the above .st TMLS to call.
+     These will be added to the CFEngine bundlesequence.
+       Technically, they don't have to have the same name as the
+     TML, but if there is one bundle per TML, it is recommended. -->
+  <BUNDLES>
+    <NAME>check_repo_gpg_key</NAME>
+  </BUNDLES>
+
+  <!-- Define agent and OS compatibility for this Technique.
+     Currently, this is for information purposes only. 
+     ## TODO: It has not been tested on any older OS, only on latest-greatest (SLES11, CentOS 7, Ubuntu 14)
+  <COMPATIBLE>
+    <OS version=">= 5">RHEL</OS>
+    <OS version=">= 11">SuSE Linux</OS>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 5">RHEL / CentOS</OS>
+  </COMPATIBLE>
+-->
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>GPG_KEY_HASH</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <!-- From here on, define variables to display in the web interface
+     All variables must be contained in a section.
+     Sections may be multivalued, or not -->
+ <SECTIONS>
+   <SECTION name="GPG Key Management" multivalued="true" component="true" componentKey="GPG_KEY_HASH">
+     <SELECT1>
+       <NAME>GPG_KEY_ACTION</NAME>
+       <DESCRIPTION>Which operation should be done with this GPG Key</DESCRIPTION>
+       <ITEM>
+         <LABEL>Import</LABEL>
+         <VALUE>add</VALUE>
+       </ITEM>
+       <ITEM>
+         <LABEL>Remove</LABEL>
+         <VALUE>del</VALUE>
+       </ITEM>
+       <CONSTRAINT>
+         <DEFAULT>add</DEFAULT>
+       </CONSTRAINT>
+     </SELECT1>
+     <INPUT>
+       <NAME>GPG_KEY_HASH</NAME>
+       <CONSTRAINT>
+         <MAYBEEMPTY>false</MAYBEEMPTY> 
+       </CONSTRAINT>
+       <DESCRIPTION>Short hash of the GPG Key</DESCRIPTION>
+       <LONGDESCRIPTION>You get it by looking for a line like `pub  1024D/A30FBBBE' when using the command `gpg --list-keys'. Fill in the part like `A30FBBBE' </LONGDESCRIPTION>
+     </INPUT>
+     <INPUT>
+       <NAME>GPG_KEY_CONTENT</NAME>
+       <CONSTRAINT>
+         <MAYBEEMPTY>true</MAYBEEMPTY> 
+         <TYPE>textarea</TYPE>
+         <!-- <REGEX error="Need the whole part of PGP PUBLIC KEY BLOCK, as exported by `gpg -a - -export'">-+BEGIN PGP PUBLIC KEY BLOCK-+.+-+END PGP PUBLIC KEY BLOCK-+</REGEX> -->
+       </CONSTRAINT>
+       <DESCRIPTION>The whole section of PGP PUBLIC KEY BLOCK</DESCRIPTION>
+       <LONGDESCRIPTION>Use the command `gpg -a --export' to export the pub key</LONGDESCRIPTION>
+     </INPUT>
+ </SECTION>
+</SECTIONS>
+</TECHNIQUE>
