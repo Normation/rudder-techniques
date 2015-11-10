@@ -40,7 +40,7 @@ bundle agent install_rsyslogd {
 
   files:
 
-    policy_server.!reports_disabled::
+    policy_server.!reports_disabled.!role_rudder_relay_promises_only::
 
       "/etc/rsyslog.d/rudder.conf"
         create    => "true",
@@ -62,7 +62,7 @@ bundle agent install_rsyslogd {
         classes => classes_generic("rudder_rsyslog_historical_conf_purged"),
         comment => "Deleting historical rudder-agent.conf file if it is there";
 
-    policy_server.debian.!reports_disabled::
+    policy_server.debian.!reports_disabled.!role_rudder_relay_promises_only::
       "/etc/rsyslog.d/pgsql.conf"
         edit_line => comment_all(),
         edit_defaults => noempty_backup,
@@ -71,7 +71,7 @@ bundle agent install_rsyslogd {
 
   packages:
 
-    policy_server.!SuSE.!redhat.!reports_disabled::
+    policy_server.!SuSE.!redhat.!reports_disabled.!role_rudder_relay_promises_only::
       "rsyslog"
         package_policy  => "add",
         package_method  => generic,
@@ -84,7 +84,7 @@ bundle agent install_rsyslogd {
         classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
         comment => "Installing rsyslog_pgsql using apt backports";
 
-    policy_server.!SuSE.redhat.!reports_disabled::
+    policy_server.!SuSE.redhat.!reports_disabled.!role_rudder_relay_promises_only::
       "rsyslog"
         package_policy  => "add",
         package_method  => rudder_yum,
