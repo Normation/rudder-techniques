@@ -64,19 +64,19 @@ bundle agent download_from_shared_folder
   iteration_1::
     "extended_modes_${index}"
       string     => "4",
-      ifvarclass => "enable_suid_${index}.!enable_sgid_${index}";
+      ifvarclass => "(enable_suid_${index}.!enable_sgid_${index}).(authorize_sticky_on_folder_${index}|is_file_${index})";
 
     "extended_modes_${index}"
       string     => "2",
-      ifvarclass => "!enable_suid_${index}.enable_sgid_${index}";
+      ifvarclass => "(!enable_suid_${index}.enable_sgid_${index}).(authorize_sticky_on_folder_${index}|is_file_${index})";
 
     "extended_modes_${index}"
       string     => "6",
-      ifvarclass => "enable_suid_${index}.enable_sgid_${index}";
+      ifvarclass => "(enable_suid_${index}.enable_sgid_${index}).(authorize_sticky_on_folder_${index}|is_file_${index})";
 
     "extended_modes_${index}"
       string     => "0",
-      ifvarclass => "!enable_suid_${index}.!enable_sgid_${index}";
+      ifvarclass => "(!enable_suid_${index}.!enable_sgid_${index})|!(authorize_sticky_on_folder_${index}|is_file_${index})";
 
   classes:
       "is_valid" not => strcmp("&SHARED_FILES_FOLDER&", "");
@@ -94,6 +94,16 @@ bundle agent download_from_shared_folder
 }&
       &COPYFILE_SGID:{sgid |"enable_sgid_&i&" expression => strcmp("&sgid&", "true");
 }&
+      # We authorize sticky only we recursion is level 1
+      &COPYFILE_STICKY_FOLDER:{sticky_folder |"enable_sticky_bit_folder_&i&" expression => strcmp("&sticky_folder&", "true");
+}&
+      "recursion_only_on_folder_${index}" expression => strcmp("1", "${copyfile[${index}][recursion]}");
+
+      "authorize_sticky_on_folder_${index}" and  => {
+                                                      "recursion_only_on_folder_${index}",
+                                                      "enable_sticky_bit_folder_${index}"                                                      
+                                                    };
+
       # Set a class to define when we need to run the post-modification hook
       &COPYFILE_POST_HOOK_RUN:{run |"execute_command_&i&" expression => strcmp("&run&", "true");
 }&
@@ -109,12 +119,13 @@ bundle agent download_from_shared_folder
   files:
     is_valid.iteration_2::
 
+      # Suid and sgid may be setted only if the option to set it recursively, and recursion level is 1, or we are managing a file
       # If it's a directory, without exclusion
       "${copyfile[${index}][destination]}"
         copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),
         depth_search => recurse("${copyfile[${index}][recursion]}"),
         perms        => mog(
-                            "${copyfile[${index}][perm]}",
+                            "${extended_modes_${index}}${copyfile[${index}][perm]}",
                             "${copyfile[${index}][owner]}",
                             "${copyfile[${index}][group]}"
                            ),
@@ -128,7 +139,7 @@ bundle agent download_from_shared_folder
         depth_search => recurse("${copyfile[${index}][recursion]}"),
         file_select  => exclude("${copyfile[${index}][exclude_include]}"),
         perms        => mog(
-                            "${copyfile[${index}][perm]}",
+                            "${extended_modes_${index}}${copyfile[${index}][perm]}",
                             "${copyfile[${index}][owner]}",
                             "${copyfile[${index}][group]}"
                            ),
@@ -142,7 +153,7 @@ bundle agent download_from_shared_folder
         depth_search => recurse("${copyfile[${index}][recursion]}"),
         file_select  => by_name("${copyfile[${index}][exclude_include]}"),
         perms        => mog(
-                            "${copyfile[${index}][perm]}",
+                            "${extended_modes_${index}}${copyfile[${index}][perm]}",
                             "${copyfile[${index}][owner]}",
                             "${copyfile[${index}][group]}"
                            ),

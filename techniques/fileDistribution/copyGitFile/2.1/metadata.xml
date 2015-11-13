@@ -193,6 +193,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <TYPE>boolean</TYPE>
         </CONSTRAINT>
       </INPUT>
+      <INPUT>
+        <NAME>COPYFILE_STICKY_FOLDER</NAME>
+        <DESCRIPTION>Apply the sticky bit to the whole folder? (caution, use with care)</DESCRIPTION>
+        <LONGDESCRIPTION>If set, and the path is a folder, and recursion is set to "The whole content of the folder", apply on the whole folder (won't apply to subfolders, for obvious security reasons).</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+
     </SECTION>
 
     <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_NAME" displayPriority="low">
