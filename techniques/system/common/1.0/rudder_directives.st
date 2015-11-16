@@ -23,7 +23,9 @@
 
 body file control {
 
-  inputs => { &RUDDER_DIRECTIVES_INPUTS& };
+  inputs => {
+    &RUDDER_DIRECTIVES_INPUTS&
+  };
 
 }
 
