@@ -183,29 +183,33 @@ bundle agent update_action
 
     !root_server::
       "${client_inputs}/${file_to_check_update}"
-        copy_from    => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
-        action       => immediate,
-        classes      => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
+        copy_from         => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
 
       # Check if the hashes of ncf changed
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_common_hash}"),
-        action       => immediate,
-        classes      => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
+        copy_from         => remote("${server_info.cfserved}","${g.rudder_ncf_origin_common_hash}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
 
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_local_hash}"),
-        action       => immediate,
-        classes      => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
+        copy_from         => remote("${server_info.cfserved}","${g.rudder_ncf_origin_local_hash}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
 
     # The defined class are persistent, so if they are already set, promises has already been updated
     # a short while ago
     rudder_promises_generated_repaired.!root_server::
       "${client_inputs}"
-        copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
-        depth_search => recurse("inf"),
-        action       => immediate,
-        classes      => success("config", "no_update", "config_ok");
+        copy_from         => remote("${server_info.cfserved}","${server_inputs}"),
+        depth_search      => recurse("inf"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("config", "no_update", "config_ok");
 
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
     !root_server.(rudder_promises_generated_repaired|rudder_ncf_hash_update_repaired)::
@@ -226,22 +230,6 @@ bundle agent update_action
         move_obstructions => "true",
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment           => "Update the local Rudder ncf instance";
-
-      "${client_inputs}/${file_to_check_update}"
-        copy_from         => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
-        action            => immediate,
-        move_obstructions => "true",
-        classes           => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
-
-    # The defined class are persistent, so if they are already set, promises has already been updated
-    # a short while ago
-    rudder_promises_generated_repaired.!root_server:: 
-      "${client_inputs}"
-        copy_from         => remote("${server_info.cfserved}","${server_inputs}"),
-        depth_search      => recurse("inf"),
-        action            => immediate,
-        move_obstructions => "true",
-        classes           => success("config", "no_update", "config_ok");
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
     rudder_promises_generated_repaired.!root_server.no_update::
