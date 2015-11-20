@@ -30,12 +30,16 @@ bundle agent get_environment_variables
       "script" string => "#! /bin/sh
 env | sed 's/=/]=/' |sed 's/^/=node.env[/'";
 
+    !windows.linux::
+      "env_vars" slist => splitstring( execresult("(${paths.printf} '\0'; ${paths.env} -0) | ${paths.grep} -aoP '\x00([^=]+)' | ${paths.tr} -d '\000' | ${paths.tr} '\n' ',' | ${paths.sed} 's/,$//'","useshell"), "," , 2000);
+      "node.env[${env_vars}]" string => getenv( "${env_vars}", 5000);
+
     windows::
      "script" string => "@echo off
 for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
 
   files:
-    !windows::
+    !windows.!linux::
       "${sys.workdir}/modules/env"
         create        => "true",
         perms         => mog("755", "root", "0"),
@@ -50,7 +54,7 @@ for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
 
 
   commands:
-    !windows::
+    !windows.!linux::
       "${sys.workdir}/modules/env"
         module => "true";
     windows::
