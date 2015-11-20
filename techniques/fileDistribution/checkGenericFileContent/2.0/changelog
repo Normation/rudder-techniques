@@ -1,3 +1,0 @@
- -- Matthieu CERDA <matthieu.cerda@normation.com>  Thu, 10 Nov 2011 17:50:00 +0100
-  * Version 2.0
-  ** Added the possibility to specify the user/group/mode manually or to let CFengine set them automatically
