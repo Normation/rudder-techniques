@@ -215,65 +215,73 @@ bundle agent update_action
 
     root_server::
       "${g.rudder_ncf}/common"
-        copy_from    => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        perms        => u_mog("644", "root", "root"),
-        action       => immediate,
-        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
-        comment      => "Update the common Rudder ncf instance";
+        copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
+        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        perms             => u_mog("644", "root", "root"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment           => "Update the common Rudder ncf instance";
 
       "${g.rudder_ncf}/local"
-        copy_from    => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        perms        => u_mog("644", "root", "root"),
-        action       => immediate,
-        classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
-        comment      => "Update the local Rudder ncf instance";
+        copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
+        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        perms             => u_mog("644", "root", "root"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
+        comment           => "Update the local Rudder ncf instance";
 
     !root_server::
       "${client_inputs}/${rudder_promises_timestamp_tmp}"
-        copy_from    => remote("${server_info.cfserved}","${server_inputs}/${rudder_promises_timestamp}"),
-        action       => immediate,
-        classes      => success("rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept");
+        copy_from         => remote("${server_info.cfserved}","${server_inputs}/${rudder_promises_timestamp}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept");
 
       # Check if the hashes of ncf changed
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_common_hash}"),
-        action       => immediate,
-        classes      => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
+        copy_from         => remote("${server_info.cfserved}","${g.rudder_ncf_origin_common_hash}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
 
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_local_hash}"),
-        action       => immediate,
-        classes      => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
+        copy_from         => remote("${server_info.cfserved}","${g.rudder_ncf_origin_local_hash}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
 
     # The defined class are persistent, so if they are already set, promises has already been updated
     # a short while ago
     new_promises_available.!root_server::
       "${client_inputs}"
-        copy_from    => remote("${server_info.cfserved}","${server_inputs}"),
-        depth_search => recurse("inf"),
-        action       => immediate,
-        file_select  => exclude("${rudder_promises_timestamp_tmp}"),
-        classes      => success("config", "no_update", "config_ok");
+        copy_from         => remote("${server_info.cfserved}","${server_inputs}"),
+        depth_search      => recurse("inf"),
+        action            => immediate,
+        move_obstructions => "true",
+        file_select       => exclude("${rudder_promises_timestamp_tmp}"),
+        classes           => success("config", "no_update", "config_ok");
 
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
     !root_server.(rudder_promises_generated_repaired|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
-        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        perms        => u_mog("644", "root", "0"),
-        action       => immediate,
-        classes      => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
-        comment      => "Update the common Rudder ncf instance";
+        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        perms             => u_mog("644", "root", "0"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
+        comment           => "Update the common Rudder ncf instance";
 
       "${g.rudder_ncf}/local"
-        copy_from    => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        perms        => u_mog("644", "root", "0"),
-        action       => immediate,
-        classes      => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
-        comment      => "Update the local Rudder ncf instance";
+        copy_from         => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        perms             => u_mog("644", "root", "0"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
+        comment           => "Update the local Rudder ncf instance";
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
     rudder_promises_generated_repaired.!root_server.no_update::
@@ -301,20 +309,22 @@ bundle agent update_action
     # Copy the tools only if the file rudder_tools_updated is not up to date
     !root_server::
       "${g.rudder_tools}/${rudder_tools_updated_tmp}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
-        action       => immediate,
-        classes      => success("rudder_tools_updated_repaired", "rudder_tools_updated_error", "rudder_tools_updated_kept"),
-        comment      => "Check if we need to update the tools";
+        copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_tools_updated_repaired", "rudder_tools_updated_error", "rudder_tools_updated_kept"),
+        comment           => "Check if we need to update the tools";
 
     # We copy only if we have new tools based on the timestamp
     new_tools_available::
       "${g.rudder_tools}"
-        copy_from    => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
-        depth_search => recurse_ignore("inf", @{g.excludedreps}),
-        file_select  => exclude("${rudder_tools_updated_tmp}"),
-        action       => immediate,
-        classes      => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
-        comment      => "Update the Rudder tools";
+        copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
+        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        file_select       => exclude("${rudder_tools_updated_tmp}"),
+        action            => immediate,
+        move_obstructions => "true",
+        classes           => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
+        comment           => "Update the Rudder tools";
 
     # If we couldn't update the tools, then we must force a copy at next run
     rudder_tools_update_error::
