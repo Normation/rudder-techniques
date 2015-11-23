@@ -123,7 +123,7 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 bundle agent rudder_common_report_index(technique_name, status, identifier, component_name, component_key, message, index)
 {
   classes:
-    changes_only::
+    changes_only|reports-disabled::
       "send_reports" or => {
                             strcmp("${status}", "result_error") ,
                             strcmp("${status}", "result_repaired") ,
