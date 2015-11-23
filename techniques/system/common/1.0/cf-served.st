@@ -33,7 +33,6 @@ bundle server access_rules
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-&if(MANAGED_NODES_NAME)&
     policy_server|role_rudder_relay_promises_only::
       &if(NOVA)&
       "&UUID&"
@@ -52,6 +51,7 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+&if(MANAGED_NODES_NAME)&
       "${g.rudder_ncf_origin_common}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
