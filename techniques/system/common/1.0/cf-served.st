@@ -60,6 +60,10 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+      # Deny access to 50_techniques folder
+      "${g.rudder_ncf_origin_local}/50_techniques"
+        deny    => {  ".*"  };
+
       &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
         comment => "Grant access to the share files",
