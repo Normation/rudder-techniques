@@ -225,7 +225,7 @@ bundle agent update_action
 
       "${g.rudder_ncf}/local"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
-        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        depth_search      => recurse_ignore("inf", @{g.ncf_local_excludedreps}),
         perms             => u_mog("644", "root", "root"),
         action            => immediate,
         move_obstructions => "true",
@@ -267,7 +267,7 @@ bundle agent update_action
     !root_server.(rudder_promises_generated_repaired|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
         copy_from         => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
-        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        depth_search      => recurse_ignore("inf", @{g.ncf_common_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",

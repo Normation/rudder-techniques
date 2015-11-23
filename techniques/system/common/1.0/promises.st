@@ -124,7 +124,7 @@ bundle common va
       "ncf_local_inputs_20" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 20_cfe_basics", "useshell"), "\n", 10000);
       "ncf_local_inputs_30" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 30_generic_methods", "useshell"), "\n", 10000);
       "ncf_local_inputs_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 40_it_ops_knowledge", "useshell"), "\n", 10000);
-      "ncf_local_inputs_50" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques", "useshell"), "\n", 10000);
+      # Files from 50_techniques are automatically included by Rudder's metadata.xml mechanism
       "ncf_local_inputs_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 60_services", "useshell"), "\n", 10000);
 
     windows::
@@ -142,7 +142,7 @@ bundle common va
       "ncf_local_inputs_20" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\20_cfe_basics' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\20_cfe_basics\$_ }\"", "useshell"), "\n", 10000);
       "ncf_local_inputs_30" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\30_generic_methods' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\30_generic_methods\$_ }\"", "useshell"), "\n", 10000);
       "ncf_local_inputs_40" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\40_it_ops_knowledge' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\40_it_ops_knowledge\$_ }\"", "useshell"), "\n", 10000);
-      "ncf_local_inputs_50" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\50_techniques' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\50_techniques\$_ }\"", "useshell"), "\n", 10000);
+      # Files from 50_techniques are automatically included by Rudder's metadata.xml mechanism
       "ncf_local_inputs_60" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local\60_services' -Name *.cf -Recurse -ErrorAction SilentlyContinue | % { Write-Host c:\Program Files\Rudder\var\ncf\local\60_services\$_ }\"", "useshell"), "\n", 10000);
 
     any::
@@ -159,7 +159,6 @@ bundle common va
                              "@{ncf_local_inputs_20}",
                              "@{ncf_local_inputs_30}",
                              "@{ncf_local_inputs_40}",
-                             "@{ncf_local_inputs_50}",
                              "@{ncf_local_inputs_60}",
                             },
                   policy => "ifdefined";
