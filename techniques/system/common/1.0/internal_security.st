@@ -50,7 +50,7 @@ bundle agent internal_security
         perms        => mog("${mode}", "${user}", "${group}"),
         classes      => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-      "${ys.workdir}/ppkeys"
+      "${sys.workdir}/ppkeys"
         perms   => mog("${mode}", "${user}", "${group}"),
         classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 

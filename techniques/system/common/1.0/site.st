@@ -214,5 +214,5 @@ bundle common g
 # defines the path to the ncf configuration file
 bundle common ncf_configuration {
   vars:
-    "ncf_configuration_file" string => "${g.rudder_ncf_origin_local}/ncf.conf";
+    "ncf_configuration_file" string => "${g.rudder_ncf}/local/ncf.conf";
 }
