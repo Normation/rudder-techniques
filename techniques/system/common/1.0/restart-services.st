@@ -27,33 +27,43 @@
 
 bundle agent restart_services
 {
+
+  vars:
+    solaris::
+      "restart_cmd"       string => "${paths.path[svcadm]} refresh svc:/system/system-log:default";
+    aix::
+      "restart_cmd"       string => "/usr/bin/refresh -s syslogd";
+    !solaris.!aix::
+      "restart_cmd"       string => "/bin/true"; # necessary to avoid CFEngine just not doing stuff because the variable isn't defined, but won't actually be called
+
+    any::
+      "restart_cmd_class" string => canonify("command_execution_${restart_cmd}");
   
   methods:
   
     # (sys)log service
 
-    (!SuSE.!aix.!solaris).syslogd_repaired::
-
+    (!SuSE.!aix.!solaris).(syslogd_repaired|remove_rudder_syslog_configuration_syslog_repaired)::
       "restart_syslog" usebundle => service_restart("syslog");
 
-    !SuSE.syslog_ng_repaired::
-
+    (!SuSE.!aix.!solaris).(syslog_ng_repaired|remove_rudder_syslog_configuration_syslogng_repaired)::
       "restart_syslog_ng" usebundle => service_restart("syslog-ng");
 
-    !SuSE.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired|rsyslog_repaired|rsyslog_limit_repaired)::
-
+    (!SuSE.!aix.!solaris).(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired|rsyslog_repaired|rsyslog_limit_repaired|remove_rudder_syslog_configuration_rsyslog_repaired)::
       "restart_rsyslog" usebundle => service_restart("rsyslog");
 
-    SuSE.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired|syslog_ng_repaired|rsyslog_repaired|syslogd_repaired|rsyslog_limit_repaired)::
-
+    SuSE.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired|syslog_ng_repaired|rsyslog_repaired|syslogd_repaired|rsyslog_limit_repaired|remove_rudder_syslog_configuration_result_repaired)::
       "restart_rsyslog" usebundle => service_restart("syslog");
+
+    (aix|solaris).(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired|remove_rudder_syslog_configuration_result_repaired)::
+      "restart_syslog" usebundle => command_execution("${restart_cmd}");
       
-    # Final report about (sys)log setting enforcement / restart
+    any::
+      # Final report about (sys)log setting enforcement / restart
+      "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system has been restarted"),
+            ifvarclass => "service_restart_rsyslog_repaired|service_restart_syslog_ng_repaired|service_restart_syslog_repaired|${restart_cmd_class}_repaired";
 
-    service_restart_rsyslog_repaired|service_restart_syslog_ng_repaired|service_restart_syslog_repaired::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system has been restarted");
-
-    service_restart_rsyslog_not_ok|service_restart_syslog_ng_not_ok|service_restart_syslog_not_ok::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system");
+      "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system"),
+            ifvarclass => "service_restart_rsyslog_not_ok|service_restart_syslog_ng_not_ok|service_restart_syslog_not_ok|${restart_cmd_class}_not_ok";
 
 }

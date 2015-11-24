@@ -465,7 +465,10 @@ bundle agent configure_rudder_reporting_system {
 
 #######################################################
 # Check the log system, and configure it accordingly
-# This only works with unix flavoured system
+# This only works with UNIX flavoured systems
+#
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
 bundle agent check_log_system
 {
@@ -580,14 +583,6 @@ bundle agent check_log_system
     pass3.android::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "This is an android machine: Logging system configuration skipped.");
 
-  commands:
-
-    solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "${paths.svcadm} refresh svc:/system/system-log:default";
-
-    aix.syslogd_repaired::
-      "/usr/bin/refresh -s syslogd";
-
 }
 
 #######################################################
@@ -597,6 +592,9 @@ bundle agent check_log_system
 # as it would make it too complex to read and maintain
 # (we would have needed to delay the restart of the services
 # at later iteration)
+#
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
 bundle agent check_rsyslog_version {
 
@@ -641,6 +639,8 @@ bundle agent check_rsyslog_version {
 #############################################################
 # Remove syslog configurations that Rudder may have applied #
 #############################################################
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
 bundle agent remove_rudder_syslog_configuration {
 
@@ -664,7 +664,7 @@ bundle agent remove_rudder_syslog_configuration {
   files:
       "${check_log_system.rsyslog_rudder_conffile}"
         delete         => tidy,
-        classes        => classes_generic("remove_rudder_syslog_configuration_remove_files");
+        classes        => classes_generic("remove_rudder_syslog_configuration_rsyslog");
 
     syslogng::
       "${check_log_system.syslogng_conffile}"
@@ -679,7 +679,7 @@ bundle agent remove_rudder_syslog_configuration {
         classes        => classes_generic("remove_rudder_syslog_configuration_syslog");
 
   methods:
-      "merge result classes" usebundle  => _classes_combine_three("remove_rudder_syslog_configuration_remove_files", "remove_rudder_syslog_configuration_syslogng", "remove_rudder_syslog_configuration_syslog", "remove_rudder_syslog_configuration_result");
+      "merge result classes" usebundle  => _classes_combine_three("remove_rudder_syslog_configuration_rsyslog", "remove_rudder_syslog_configuration_syslogng", "remove_rudder_syslog_configuration_syslog", "remove_rudder_syslog_configuration_result");
       "reports"              usebundle  => rudder_common_reports_generic("Common", "remove_rudder_syslog_configuration_result", "&TRACKINGKEY&", "Log system for reports", "None", "Rudder syslog configuration removed");
 
 }
