@@ -264,7 +264,7 @@ bundle agent update_action
         classes           => success("config", "no_update", "config_ok");
 
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
-    !root_server.(rudder_promises_generated_repaired|rudder_ncf_hash_update_repaired)::
+    !root_server.(new_promises_available|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
         copy_from         => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_common_excludedreps}),
@@ -284,17 +284,17 @@ bundle agent update_action
         comment           => "Update the local Rudder ncf instance";
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
-    rudder_promises_generated_repaired.!root_server.no_update::
+    new_promises_available.!root_server.no_update::
       "${client_inputs}/${file_to_check_update}"
         delete  => tidy,
         comment => "Deleting ${file_to_check_update} as the policy files couldn't be downloaded";
 
-    (rudder_promises_generated_repaired|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_common_update_error::
+    (new_promises_available|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_common_update_error::
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
         delete  => tidy,
         comment => "Deleting ${g.rudder_ncf_hash_file} as common ncf files couldn't be downloaded";
 
-    (rudder_promises_generated_repaired|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_local_update_error::
+    (new_promises_available|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_local_update_error::
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
         delete  => tidy,
         comment => "Deleting ${g.rudder_ncf_hash_file} as custom ncf files couldn't be downloaded";
