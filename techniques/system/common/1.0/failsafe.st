@@ -42,10 +42,7 @@ bundle common g
     !windows.!android::
       "rudder_base"              string => "/opt/rudder";
 
-    solaris::
-      "rudder_var"               string => "/opt/rudder/var";
-
-    !windows.!android.!solaris::
+    !windows.!android::
       "rudder_var"               string => "/var/rudder";
 
     !windows::

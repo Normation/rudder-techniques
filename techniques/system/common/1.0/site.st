@@ -57,9 +57,6 @@ bundle common g
       "crontab"                    string => "/etc/crontab";
       "gzip"                       string => "/bin/gzip";
 
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies"        string => "${rudder_var}/tools";
-
     windows::
       "rudder_base"                string => "${sys.winprogdir}\Rudder";
       "rudder_bin"                 string => "${rudder_base}\bin";
@@ -104,9 +101,6 @@ bundle common g
                                               "nxlog.conf" 
                                             };
 
-
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies"        string => "${rudder_sbin}";
 
     aix::
 
@@ -153,9 +147,6 @@ bundle common g
       "rudder_tools_updated_filename" string => "rudder_tools_updated";
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
       "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
-
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies_origin"  string => "/var/rudder/tools";
 
     # The time at which the execution started
     windows.!cygwin::

@@ -142,7 +142,7 @@ bundle common inventory
     android::
       "cpuid_tool"      string => "${g.rudder_tools}/cpuid-android-V1.0.sh";
 
-    !aix.!windows.!android::
+    !aix.!windows.!android.!solaris::
       "cpuid_tool"      string => "${g.rudder_tools}/cpuid-linux-V1.0.sh";
 
     any::
@@ -365,7 +365,7 @@ bundle agent generateExtraInformations
 
     pass3.(!rudder_inventory_cpuid_tool_present)::
 
-      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "The CPUID generation tool is not present yet. Skipping...");
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "CPUID generation tool not available for this platform, or not present yet. Skipping...");
 
   commands:
 
