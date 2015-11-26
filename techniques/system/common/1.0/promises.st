@@ -95,19 +95,20 @@ bundle common va
         "configuration"
       };
 
-    !android.!windows::
-      "rudder_var"     string => "/var/rudder";
-    android::
-      "rudder_var"     string => "/data/rudder";
-
-    !windows::
-      "ncf_path"       string => "${rudder_var}/ncf";
-      "rudder_tools"   string => "${rudder_var}/tools";
-
     windows::
       "rudder_base"    string => "${sys.winprogdir}\Rudder";
       "rudder_tools"   string => "${rudder_base}\sbin";
       "ncf_path"       string => "${rudder_base}\ncf";
+
+    android::
+      "rudder_var"     string => "/data/rudder";
+
+    !windows.!android::
+      "rudder_var"     string => "/var/rudder";
+
+    !windows::
+      "ncf_path"       string => "${rudder_var}/ncf";
+      "rudder_tools"   string => "${rudder_var}/tools";
 
     !windows::
 
