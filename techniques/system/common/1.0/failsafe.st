@@ -36,11 +36,19 @@ bundle common g
 {
   vars:
     android::
-      "rudder_base"              string => "/data/rudder";
-      "rudder_var"               string => "/data/rudder";
+      "rudder_base"               string => "/data/rudder";
+      "rudder_var"                string => "/data/rudder";
+      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"              string => "/opt/rudder";
+      "rudder_tools_files_unix"   slist => { "send-clean.sh",
+                                             "cpuid-linux-V1.0.sh",
+                                             "vmware_info.sh",
+                                             "check_rsyslog_version",
+                                             "apache-vhost.tpl",
+                                           };
+
 
     !windows.!android::
       "rudder_var"               string => "/var/rudder";
@@ -60,9 +68,52 @@ bundle common g
       "rudder_sbin"              string => "${rudder_base}\sbin";
       "rudder_tools"             string => "${rudder_sbin}";
       "rudder_ncf"               string => "${rudder_var}\ncf";
-&endif&
 
+      "rudder_tools_files_windows" slist => {
+                                              # Rudder utilities
+                                              "uuid.vbs",
+                                              "userlist.bat",
+                                              "getDate.bat",
+                                              "registrydns.bat",
+                                              "cpuid-windows-v1.0.vbs",
+
+                                              # GNU iconv
+                                              "iconv.exe",
+                                              "iconv.dll",
+
+                                              # cURL
+                                              "curl/curl.exe",
+                                              "curl/curl-ca-bundle.crt",
+
+                                              # OpenSSL
+                                              "openssl/openssl.exe",
+                                              "openssl/libeay32.dll",
+                                              "openssl/ssleay32.dll",
+
+                                              # Fusion inventory
+                                              "fusionagent.exe",
+
+                                              # NXlog
+                                              "nxlog-ce-2.8.1248.msi",
+                                              "nxlog.conf"
+                                            };
+
+&endif&
+    SuSE::
+      "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
+                                              "openvpn-2.2.1-1.i686.rpm",
+                                              "zypper-repo.tpl",
+                                              "check_zypper_version",
+                                              "checkzmd.pl",
+                                            };
     any::
+      "rudder_tools_files"         slist => { @{rudder_tools_files_windows},
+                                              @{rudder_tools_files_android},
+                                              @{rudder_tools_files_unix},
+                                              @{rudder_tools_files_suse},
+                                              "checkroute.pl",
+                                            }, policy => "ifdefined";
+
       "uuid"                     string => "&UUID&";
       "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "ncf_local_excludedreps"    slist => { "50_techniques", @{g.excludedreps}};
@@ -206,6 +257,15 @@ body file_select exclude(name)
         leaf_name  => { "${name}"};
         file_result => "!leaf_name";
 }
+
+body file_select by_fullname(names)
+# @brief Select files that match `names`
+# @param names A regular expression
+{
+      path_name  => { @(names)};
+      file_result => "path_name";
+}
+
 
 # Copied from CFEngine stdlib
 body classes always(x)

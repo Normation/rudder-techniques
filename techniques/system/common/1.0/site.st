@@ -31,7 +31,6 @@ bundle common g
       "rudder_var"                 string => "/data/rudder";
       "rudder_curl"                string => "/system/bin/curl";
       "rudder_rm"                  string => "/system/xbin/rm";
-      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"                string => "/opt/rudder";
@@ -72,35 +71,6 @@ bundle common g
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
-      "rudder_tools_files_windows" slist => {
-                                              # Rudder utilities
-                                              "uuid.vbs",
-                                              "userlist.bat",
-                                              "getDate.bat",
-                                              "registrydns.bat",
-                                              "cpuid-windows-v1.0.vbs",
-
-                                              # GNU iconv
-                                              "iconv.exe",
-                                              "iconv.dll",
-
-                                              # cURL
-                                              "curl/curl.exe",
-                                              "curl/curl-ca-bundle.crt",
-
-                                              # OpenSSL
-                                              "openssl/openssl.exe",
-                                              "openssl/libeay32.dll",
-                                              "openssl/ssleay32.dll",
-
-                                              # Fusion inventory
-                                              "fusionagent.exe",
-
-                                              # NXlog
-                                              "nxlog-ce-2.8.1248.msi",
-                                              "nxlog.conf" 
-                                            };
-
 
     aix::
 
@@ -156,29 +126,6 @@ bundle common g
     (!windows|cygwin).!android::
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
-
-    !windows.!android::
-      "rudder_tools_files_unix"    slist => { "send-clean.sh",
-                                              "cpuid-linux-V1.0.sh",
-                                              "vmware_info.sh",
-                                              "check_rsyslog_version",
-                                              "apache-vhost.tpl",
-                                            };
-
-    SuSE::
-      "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
-                                              "openvpn-2.2.1-1.i686.rpm",
-                                              "zypper-repo.tpl",
-                                              "check_zypper_version",
-                                              "checkzmd.pl",
-                                            };
-    any::
-      "rudder_tools_files"         slist => { @{rudder_tools_files_windows},
-                                              @{rudder_tools_files_android},
-                                              @{rudder_tools_files_unix},
-                                              @{rudder_tools_files_suse},
-                                              "checkroute.pl",
-                                            }, policy => "ifdefined";
 
       # Heartbeat interval, in minutes. Only used when in "changes-only" compliance mode
       # In this mode, we should only send a "StartRun"/"EndRun" message pair if changes occur,

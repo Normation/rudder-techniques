@@ -43,9 +43,16 @@ bundle common g
     android::
       "rudder_base"              string => "/data/rudder";
       "rudder_var"               string => "/data/rudder";
+      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"              string => "/opt/rudder";
+      "rudder_tools_files_unix"   slist => { "send-clean.sh",
+                                             "cpuid-linux-V1.0.sh",
+                                             "vmware_info.sh",
+                                             "check_rsyslog_version",
+                                             "apache-vhost.tpl",
+                                           };
 
     !windows.!android::
       "rudder_var"               string => "/var/rudder";
@@ -67,6 +74,36 @@ bundle common g
       "rudder_ncf"               string => "${rudder_var}\ncf";
       "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
 
+      "rudder_tools_files_windows" slist => {
+                                              # Rudder utilities
+                                              "uuid.vbs",
+                                              "userlist.bat",
+                                              "getDate.bat",
+                                              "registrydns.bat",
+                                              "cpuid-windows-v1.0.vbs",
+
+                                              # GNU iconv
+                                              "iconv.exe",
+                                              "iconv.dll",
+
+                                              # cURL
+                                              "curl/curl.exe",
+                                              "curl/curl-ca-bundle.crt",
+
+                                              # OpenSSL
+                                              "openssl/openssl.exe",
+                                              "openssl/libeay32.dll",
+                                              "openssl/ssleay32.dll",
+
+                                              # Fusion inventory
+                                              "fusionagent.exe",
+
+                                              # NXlog
+                                              "nxlog-ce-2.8.1248.msi",
+                                              "nxlog.conf"
+                                            };
+
+
     # The time at which the execution started
     windows.!cygwin::
       "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
@@ -76,7 +113,21 @@ bundle common g
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
+    SuSE::
+      "rudder_tools_files_suse"   slist => { "openvpn-2.2.1-1.x86_64.rpm",
+                                             "openvpn-2.2.1-1.i686.rpm",
+                                             "zypper-repo.tpl",
+                                             "check_zypper_version",
+                                             "checkzmd.pl",
+                                            };
     any::
+      "rudder_tools_files"        slist => { @{rudder_tools_files_windows},
+                                             @{rudder_tools_files_android},
+                                             @{rudder_tools_files_unix},
+                                             @{rudder_tools_files_suse},
+                                             "checkroute.pl",
+                                           }, policy => "ifdefined";
+
       "uuid"                     string => readfile("${g.uuid_file}", 60);
       "excludedreps"              slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"      string => "/var/rudder/tools";
@@ -189,3 +240,10 @@ body file_select exclude(name)
           file_result => "!leaf_name";
 }
 
+body file_select by_fullname(names)
+# @brief Select files that match `names`
+# @param names A regular expression
+{
+          path_name  => { @(names)};
+          file_result => "path_name";
+}

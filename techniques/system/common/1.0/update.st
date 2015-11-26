@@ -144,6 +144,10 @@ bundle agent update_action
 
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
 
+      # Tools to copy - all defined in bundle g + the timestamp file (for our two phase update needs, see below)
+      "rudder_tools_files_to_copy"      slist => { "${g.rudder_tools_updated_filename}", @{g.rudder_tools_files} }, policy => "ifdefined";
+      "rudder_tools_files_to_select"    slist => maplist("${g.rudder_tools_origin}/${this}", @{rudder_tools_files_to_copy}); # file_select needs full path
+
        # The check is in two phase:
        # First copy rudder_promises_timestamp_tmp from the policy server, and check if it's newer
        # (based on the timestamp written in it) than rudder_promises_timestamp.
@@ -320,7 +324,7 @@ bundle agent update_action
       "${g.rudder_tools}"
         copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
-        file_select       => exclude("${rudder_tools_updated_tmp}"),
+        file_select       => by_fullname(@{rudder_tools_files_to_select}),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
