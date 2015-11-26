@@ -71,6 +71,13 @@ bundle agent setup_cronjob
 
 bundle agent check_cron_daemon
 {
+  vars:
+
+    redhat|fedora::
+      "service_name" string => "crond";
+    !(redhat|fedora)::
+      "service_name" string => "cron";
+
   classes:
 
     any::
@@ -80,24 +87,17 @@ bundle agent check_cron_daemon
 
   methods:
 
-    pass2.!redhat.!fedora.restart_crond::
+    pass2.restart_crond::
+      "restart_cron" usebundle => service_restart("${service_name}");
 
-      "restart_cron" usebundle => service_restart("cron");
+    # Fake success result, since we don't actually call service_restart unless it's needed
+    pass2.!(android|windows|aix).!restart_crond::
+      "any" usebundle => _classes_success("service_restart_${service_name}");
 
-    pass2.(redhat|fedora).restart_crond::
+    pass3.!(android|windows|aix)::
+      "any" usebundle => rudder_common_reports_generic("Common", "service_restart_${service_name}", "&TRACKINGKEY&", "CRON Daemon", "None", "Cron daemon status");
 
-      "restart_cron" usebundle => service_restart("crond");
-
-    pass3.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon was not running and could not be restarted");
-
-    pass3.(service_restart_cron_repaired|service_restart_crond_repaired)::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon has been successfully restarted");
-
-    pass3.!restart_crond.!android.!windows)::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "CRON Daemon", "None", "The CRON daemon is running");
-
-    pass3.(android|windows)::
+    (android|windows|aix)::
       "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "This is a system without CRON: CRON verifications skipped !");
 
   processes:
