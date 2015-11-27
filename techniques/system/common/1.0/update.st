@@ -160,7 +160,7 @@ bundle agent update_action
       "${g.rudder_ncf}/common"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
-        perms             => u_mog("644", "root", "root"),
+        perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
@@ -169,7 +169,7 @@ bundle agent update_action
       "${g.rudder_ncf}/local"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
-        perms             => u_mog("644", "root", "root"),
+        perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),

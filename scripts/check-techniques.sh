@@ -118,3 +118,12 @@ do
     exit 10
   fi
 done
+
+# Check that we never user group "root" in perms
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
+do
+  if egrep -q "^[^#]*perms\s*=>\s*mog\([^,]+,\s*[^,]+,\s*['\"]root['\"]\)" ${filename}; then
+    echo "The file ${filename} attempt to use the 'root' group - use '0' instead for UNIX compatibility"
+    exit 11
+  fi
+done

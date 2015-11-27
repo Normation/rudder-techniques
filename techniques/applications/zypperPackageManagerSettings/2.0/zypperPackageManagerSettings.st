@@ -58,7 +58,7 @@ bundle agent check_zypper_settings
     SuSE::
       "/etc/zypp/zypp.conf"
         create => "true",
-        perms => mog("644", "root", "root"),
+        perms => mog("644", "root", "0"),
         edit_defaults => noempty_backup,
         edit_line => set_advanced_zypper_config_values("check_zypper_settings.zmdconf", "${zypper_sections}"),
         classes => kept_if_else("zypper_conf_kept", "zypper_conf_validated", "zypper_conf_failed");
