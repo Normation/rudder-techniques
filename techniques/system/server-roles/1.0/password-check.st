@@ -268,7 +268,7 @@ bundle agent root_password_check_dav
 
   classes:
 
-      "dav_cant_connect" not => returnszero("/usr/bin/curl -s -f -u ${g.davuser}:${g.davpw} -T /opt/rudder/etc/uuid.hive ${g.inventory_upload_protocol}://localhost/inventory-updates/uuid.hive","noshell");
+      "dav_cant_connect" not => returnszero("/usr/bin/curl -k -s -f -u ${g.davuser}:${g.davpw} -T /opt/rudder/etc/uuid.hive ${g.inventory_upload_protocol}://localhost/inventory-updates/uuid.hive","noshell");
 
 
     any::
