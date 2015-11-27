@@ -78,7 +78,7 @@ find_directories() {
   directory_regex='.*/[[:digit:]]+\.[[:digit:]]+'
 
   # indentation is important here for readability, be careful with pipes '|'
-  find "${directory}" -type d -regextype posix-egrep -regex "${directory_regex}" |
+  find "${directory}" -not -wholename "*/.git/*" -type d -regextype posix-egrep -regex "${directory_regex}" |
     if [ "${PLACEHOLDER}" -eq 1 ]
     then
       xargs -r -n1 -I{} bash -c "test -f {}/.placeholder || echo {}"
