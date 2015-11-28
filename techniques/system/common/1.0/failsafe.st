@@ -181,7 +181,7 @@ bundle agent init_files
   files:
     cfengine_community.!windows::
       "${sys.workdir}/bin/${components}"
-        perms     => u_p("700"),
+        perms     => u_p("755"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
         action    => immediate;
 

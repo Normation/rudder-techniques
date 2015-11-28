@@ -470,7 +470,7 @@ bundle agent check_binaries_freshness
 
     !android.!nova_edition::
       "${sys.workdir}/bin/${components}"
-        perms => u_p("700"),
+        perms => u_p("755"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
         classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
         action => immediate,
