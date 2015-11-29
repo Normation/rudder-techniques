@@ -118,7 +118,7 @@ bundle agent check_clock_configuration
 
     clock_set_beijing::
 
-      "linux_timezone" string => "Europe/Paris";
+      "linux_timezone" string => "Asia/Shanghai";
       "windows_timezone" string => "China Standard Time";
 
   classes:
