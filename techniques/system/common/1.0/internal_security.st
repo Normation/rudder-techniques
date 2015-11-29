@@ -36,21 +36,21 @@ bundle agent internal_security
 
     !windows::
 
-      "${g.rudder_var}/cfengine-community/inputs"
+      "${sys.workdir}/inputs"
         depth_search => recurse("inf"),
         perms        => mog("${mode}", "${user}", "${group}"),
         classes      => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-      "${g.rudder_var}/cfengine-community/inputs"
+      "${sys.workdir}/inputs"
         perms   => mog("${mode}", "${user}", "${group}"),
         classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-      "${g.rudder_var}/cfengine-community/ppkeys"
+      "${sys.workdir}/ppkeys"
         depth_search => recurse("inf"),
         perms        => mog("${mode}", "${user}", "${group}"),
         classes      => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-      "${g.rudder_var}/cfengine-community/ppkeys"
+      "${sys.workdir}/ppkeys"
         perms   => mog("${mode}", "${user}", "${group}"),
         classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 

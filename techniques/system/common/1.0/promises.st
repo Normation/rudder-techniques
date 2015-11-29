@@ -562,7 +562,7 @@ bundle agent check_log_system
   commands:
 
     solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "${paths.path[svcadm]} refresh svc:/system/system-log:default";
+      "${paths.svcadm} refresh svc:/system/system-log:default";
 
     aix.syslogd_repaired::
       "/usr/bin/refresh -s syslogd";
@@ -756,7 +756,7 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove)
   delete_lines:
       "${pattern_to_remove}";
       "\$\(syslog_ng_conf\)";
-
+      "\$\{syslog_ng_conf\}";
 
   insert_lines:
       "${line_to_add}"
