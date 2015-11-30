@@ -380,10 +380,6 @@ body process_select cron_bin
 bundle agent check_cron_daemon
 {
 
-  classes:
-
-    "have_bin_systemctl" expression => fileexists("/bin/systemctl");
-
   vars:
 
     redhat::
@@ -397,6 +393,10 @@ bundle agent check_cron_daemon
 
     have_bin_systemctl::
       "cron_restartcmd" string => "/bin/systemctl restart ${cron_service}";
+
+  classes:
+
+    "have_bin_systemctl" expression => fileexists("/bin/systemctl");
 
   processes:
 
