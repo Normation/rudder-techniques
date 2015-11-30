@@ -169,7 +169,7 @@ bundle agent check_apache_configuration
         classes => kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
       "/etc/httpd/rudder.conf.d/."
-        perms => mog("755", "root", "root"),
+        perms => mog("755", "root", "0"),
         create => "true",
         comment => "Make sure the rudder configuration directory exists";
 
@@ -217,7 +217,7 @@ bundle agent check_apache_configuration
         classes => kept_if_else_hook("apache_ports_kept", "apache_ports_repaired", "apache_ports_failed", "apache_change");
 
       "/etc/apache2/rudder.conf.d/."
-        perms => mog("755", "root", "root"),
+        perms => mog("755", "root", "0"),
         create => "true",
         comment => "Make sure the rudder configuration directory exists";
 
@@ -245,7 +245,7 @@ bundle agent check_apache_configuration
     any::
 
       "${apache_vhost_root[${apache_vhost_index}]}/."
-        perms => mog("755", "root", "root"),
+        perms => mog("755", "root", "0"),
         create => "true",
         classes => if_repaired("root_${apache_vhost_root[${apache_vhost_index}]}_created"),
         comment => "Make sure the root directory exists";

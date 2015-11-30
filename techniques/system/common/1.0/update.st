@@ -160,7 +160,7 @@ bundle agent update_action
       "${g.rudder_ncf}/common"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
-        perms             => u_mog("644", "root", "root"),
+        perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
@@ -169,7 +169,7 @@ bundle agent update_action
       "${g.rudder_ncf}/local"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
-        perms             => u_mog("644", "root", "root"),
+        perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
@@ -297,6 +297,9 @@ bundle agent update_reports
     no_update::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy (CFEngine promises)";
 
+    rudder_tools_updated_error::
+      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools last updated file";
+
     rudder_tools_update_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update Rudder tools";
 
@@ -309,7 +312,15 @@ bundle agent update_reports
     rudder_promises_generated_error::
       "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Cannot update node's policy";
 
-    (rudder_promises_generated_ok|(rudder_tools_updated_ok.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
+    # Success report relies on several matching conditions
+    # On all nodes:
+    #   - Simple test: rudder_ncf_common_updated_ok
+    #   - Simple test: rudder_ncf_local_updated_ok
+    #   - Staggered update: rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
+    # On all nodes except root server: rudder_promises_generated_ok OR (rudder_promises_generated_repaired AND config_ok)
+    #   - Staggered update: rudder_promises_generated_ok OR (rudder_promises_generated_repaired AND config_ok)
+    # There must be NO components in repair or error
+    rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.(rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(root_server|rudder_promises_generated_ok|(rudder_promises_generated_repaired.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
       "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
 
     rudder_tools_updated::
@@ -324,11 +335,8 @@ bundle agent update_reports
     config::
       "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Node's policy (CFEngine promises) updated";
 
-    rudder_promises_generated_repaired|config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok::
+    (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update)::
       "@@Common@@result_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools or ncf instance were updated or CFEngine service restarted";
-
-    policy_server::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy server doesn't need to be updated";
 
 }
 
