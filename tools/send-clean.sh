@@ -87,7 +87,8 @@ elif [ ${SEND_COMMAND_RET} -ne 0 -o "${HTTP_CODE}" -ge 400 ]
 then
   # The server refused our inventory (or there was a problem)
   echo "ERROR: Failed to send inventory ${FILENAME}, putting it in the failed directory"
-  mv "${FILENAME}" "${FAILEDDIR}/${BASENAME}-$(date --rfc-3339=date)"
+  mv "${FILENAME}" "${FAILEDDIR}/`basename ${FILENAME}`-$(date --rfc-3339=date)"
+  mv "${FILENAME_SIGN}" "${FAILEDDIR}/`basename ${FILENAME_SIGN}`-$(date --rfc-3339=date)"
   exit ${SEND_COMMAND_RET}
 fi
 
