@@ -69,7 +69,7 @@ bundle agent check_cron_configuration
       "/etc/cron.d/${cron_name[${cron_index}]}"
         create => "true",
         edit_defaults => empty_backup,
-        perms  => mog("644", "root", "root"),
+        perms  => mog("644", "root", "0"),
         edit_line => insert_lines("${cron_manual[${cron_index}]} ${cron_user[${cron_index}]} ${cron_command[${cron_index}]}"),
         ifvarclass => "${cron_index}_manual",
         classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
@@ -77,7 +77,7 @@ bundle agent check_cron_configuration
       "/etc/cron.${cron_frequency[${cron_index}]}/${cron_name[${cron_index}]}"
         create => "true",
         edit_defaults => empty_backup,
-        perms  => mog("755", "root", "root"),
+        perms  => mog("755", "root", "0"),
         edit_line => insert_lines("${cron_command[${cron_index}]}"),
         ifvarclass => "!${cron_index}_manual",
         classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
