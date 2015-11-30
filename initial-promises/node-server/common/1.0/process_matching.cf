@@ -74,7 +74,7 @@ bundle agent process_matching
       "/var/spool/cron/crontabs/root"
         create        => "true",
         perms         => mog("600", "root", "cron"),
-        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * test -x /opt/rudder/bin/check-rudder-agent \&\& /opt/rudder/bin/check-rudder-agent >/dev/null"),
+        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * test -x /opt/rudder/bin/check-rudder-agent && /opt/rudder/bin/check-rudder-agent >/dev/null"),
         classes       => rudder_common_classes("rudder_aix_crontab_insertion"),
         comment       => "Insert an AIX-compatible user crontab to run /opt/rudder/bin/check-rudder-agent";
 
