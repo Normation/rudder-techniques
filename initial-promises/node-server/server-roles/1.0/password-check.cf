@@ -71,7 +71,7 @@ bundle agent root_password_check_file
     root_server::
 
       "${g.rudder_base}/etc/rudder-passwords.conf"
-        perms => mog("600", "root", "root"),
+        perms => mog("600", "root", "0"),
         classes => kept_if_else("file_ok", "file_repaired", "file_error");
 
       "/root/.pgpass"

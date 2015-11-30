@@ -171,7 +171,7 @@ bundle agent init_files
       "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
   files:
-    cfengine_community.!windows::
+    community_edition.!windows::
       "${sys.workdir}/bin/${components}"
         perms => u_p("700"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
