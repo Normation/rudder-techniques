@@ -40,7 +40,7 @@ bundle agent zypper_package_manager_setup
     SuSE::
       "/etc/zypp/zypp.conf"
         create        => "true",
-        perms         => mog("644", "root", "root"),
+        perms         => mog("644", "root", "0"),
         edit_defaults => noempty_backup,
         edit_line     => set_variable_values_ini("zypper_package_manager_setup.zmdconf", "${zypper_sections}"),
         classes       => rudder_common_classes("${class_prefix}");

@@ -34,7 +34,7 @@ bundle agent setup_cronjob
 
       "/etc/cron.d/rudder-agent"
         create        => "true",
-        perms         => mog("644", "root", "root"),
+        perms         => mog("644", "root", "0"),
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 &if(NOVA)&
@@ -43,7 +43,7 @@ bundle agent setup_cronjob
 
       "/etc/cron.d/rudder-agent-nova"
         create        => "true",
-        perms         => mog("644", "root", "root"),
+        perms         => mog("644", "root", "0"),
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
 &endif&
