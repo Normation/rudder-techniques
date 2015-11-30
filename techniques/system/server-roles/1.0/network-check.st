@@ -48,7 +48,7 @@ bundle agent root_networks_check
 
       "${network_file[${index}]}"
         create        => "true",
-        perms         => mog("644", "root", "root"),
+        perms         => mog("644", "root", "0"),
         edit_defaults => empty_backup,
         edit_line     => insert_lines("${network_acl[${index}]}"),
         classes       => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),

@@ -107,6 +107,16 @@ do
   fi
 done
 
+# Check that we are not using the non-existant class cfengine_community (which does not exist)
+find ${REPOSITORY_PATH} -type f -name "*.st" -or -name "*.cf" | while read filename
+do
+  if grep -q 'cfengine_community' "${filename}"; then
+    echo "Found invalid use of class cfengine_community that does not exists in file ${filename}. Use community_edition instead."
+    exit 8
+  fi
+done
+
+
 # Check that techniques are written in normal ordering
 ${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | xargs ${REPOSITORY_PATH}/scripts/ordering.pl || exit 9
 
@@ -125,5 +135,14 @@ do
   if egrep '^[[:space:]]*reports:' "${filename}" >/dev/null; then
     echo "The file ${filename} uses reports: instead of rudder_common_report"
     exit 11
+  fi
+done
+
+# Check that we never use group "root" in perms
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
+do
+  if egrep -q "^[^#]*perms\s*=>\s*mog\([^,]+,\s*[^,]+,\s*['\"]root['\"]\)" ${filename}; then
+    echo "The file ${filename} attempts to use the 'root' group - use '0' instead for UNIX compatibility"
+    exit 12
   fi
 done
