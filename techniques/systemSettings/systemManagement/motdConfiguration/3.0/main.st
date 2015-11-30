@@ -35,7 +35,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
     aix::
       "rudder_motd_group"       string => "bin";
     !aix::
-      "rudder_motd_group"       string => "root";
+      "rudder_motd_group"       string => "0";
 
   classes:
       "rudder_motd_absent"         not => fileexists("/etc/motd");
