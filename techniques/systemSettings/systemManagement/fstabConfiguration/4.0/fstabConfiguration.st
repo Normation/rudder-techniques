@@ -70,7 +70,7 @@ bundle agent check_fstab_configuration
         edit_line => fstab_add_line("check_fstab_configuration.fstab", "check_fstab_configuration.fields", "check_fstab_configuration.fstab_alteronly"),
         create => "true",
         edit_defaults => noempty_backup,
-        perms => mog("0644", "root", "root"),
+        perms => mog("0644", "root", "0"),
         classes => kept_if_else("fstab_kept", "fstab_edited", "fstab_failed"),
         comment => "Editing the fstab file";
 

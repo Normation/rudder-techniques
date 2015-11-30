@@ -74,7 +74,7 @@ bundle agent check_sudo_parameters
     sudoconfiguration_sudoers_present::
       "/etc/sudoers.rudder"
         copy_from => digest_cp("/etc/sudoers"),
-        perms => mog("0440", "root", "root"),
+        perms => mog("0440", "root", "0"),
         classes => kept_if_else("sudoconfiguration_sudoers_tmp_copy_kept", "sudoconfiguration_sudoers_tmp_copy_repaired", "sudoconfiguration_sudoers_tmp_copy_error"),
         comment => "Copying sudoers to a temporary file for editing";
 
@@ -94,7 +94,7 @@ bundle agent check_sudo_parameters
         edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_directive_id", "${sudo_force_content}"),
         create => "true",
         edit_defaults => noempty_backup,
-        perms => mog("0440", "root", "root"),
+        perms => mog("0440", "root", "0"),
         classes => kept_if_else("sudoconfiguration_sudoers_tmp_edit_kept", "sudoconfiguration_sudoers_tmp_edit_repair", "sudoconfiguration_sudoers_tmp_edit_error"),
         comment => "Editing temporary sudoers file";
 
@@ -103,7 +103,7 @@ bundle agent check_sudo_parameters
       "/etc/sudoers"
         copy_from => digest_cp("/etc/sudoers.rudder"),
         create => "true",
-        perms => mog("0440", "root", "root"),
+        perms => mog("0440", "root", "0"),
         classes => kept_if_else("sudoconfiguration_sudoers_copy_kept", "sudoconfiguration_sudoers_copy_repaired", "sudoconfiguration_sudoers_copy_error"),
         comment => "Copying sudoers to its final home";
 

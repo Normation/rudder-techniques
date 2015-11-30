@@ -92,7 +92,7 @@ bundle agent check_zmd_settings
     showtime.SuSE::
       "/etc/zmd/zmd.conf"
         create => "true",
-        perms => mog("600", "root", "root"),
+        perms => mog("600", "root", "0"),
         edit_defaults => noempty_backup,
         edit_line => set_advanced_zmd_config_values("check_zmd_settings.zmdconf", "${zmd_sections}"),
         classes => kept_if_else("zmd_conf_kept", "zmd_conf_validated", "zmd_conf_failed");
