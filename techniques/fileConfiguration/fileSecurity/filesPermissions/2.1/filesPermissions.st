@@ -63,6 +63,7 @@ bundle agent check_permissions(directiveId, fileName, action_parameters)
       "suid"       string => "${permission_parameters[0][6]}";
       "sgid"       string => "${permission_parameters[0][7]}";
       "recursion"  string => "${permission_parameters[0][8]}";
+      "ignoreFile" string => "${permission_parameters[0][9]}";
 
     # See the explication below, before the "classes_defined" class definition
     classes_defined.enable_suid.!enable_sgid::
@@ -87,7 +88,7 @@ bundle agent check_permissions(directiveId, fileName, action_parameters)
 
   classes:
 
-      "file_exists"   expression => fileexists(${fileName});
+      "file_exists"   expression => fileexists("${fileName}");
 
       "ignore_absent"   not => strcmp("${ignoreFile}","false");
 
