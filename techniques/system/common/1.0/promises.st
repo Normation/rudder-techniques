@@ -497,34 +497,33 @@ bundle agent check_log_system
         edit_line => append_if_no_lines("#Rudder log system${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then @@${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~"),
         create => "true",
         edit_defaults => empty_backup,
-        classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
+        classes       => rudder_common_classes("rsyslog");
 
     SuSE.rsyslogd.policy_server::
       # For SuSE, ensure that SYSLOG_DAEMON is set to 'rsyslogd' even if another syslog has been installed before
       "/etc/sysconfig/syslog"
         edit_line => ensure_rsyslogd_on_suse,
         edit_defaults => noempty_backup,
-				classes   => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
+        classes       => rudder_common_classes("rsyslog");
 
     !windows.syslogng.!policy_server::
       "/etc/syslog-ng/syslog-ng.conf"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
         edit_defaults => noempty_backup,
-        classes => kept_if_else("syslog_ng_kept", "syslog_ng_repaired" , "syslog_ng_failed");
+        classes       => rudder_common_classes("syslog_ng");
 
     !windows.syslogd.!policy_server::
       "/etc/syslog.conf"
         edit_line => fix_syslogd("@${server_info.cfserved}"),
         edit_defaults => noempty_backup,
-        classes => kept_if_else("syslogd_kept", "syslogd_repaired" , "syslogd_failed");
-      #Probably, we want to do something if it is repaired ?
-
+        classes       => rudder_common_classes("syslogd");
 
   commands:
     SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
       "/etc/init.d/syslog"
         args => "restart",
-        comment => "Restarting syslog-ng after it's been updated";
+        comment => "Restarting syslog after it's been updated";
+
     syslog_ng_repaired.!SuSE::
       "/etc/init.d/syslog-ng"
         args => "restart",
@@ -563,10 +562,10 @@ bundle agent check_log_system
     syslogd_failed|syslog_ng_failed|rsyslog_failed::
       "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Logging system could not be configured for report centralization";
 
-    syslogd_repaired|syslog_ng_repaired|rsyslog_repaired::
+    !(syslogd_failed|syslog_ng_failed|rsyslog_failed).(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired)::
       "@@Common@@result_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Configured logging system for report centralization";
 
-    (syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired)::
+    !(syslogd_failed|syslog_ng_failed|rsyslog_failed).!(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired).(syslogd.syslogd_kept|syslogng.syslog_ng_kept|rsyslogd.rsyslog_kept))::
       "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Logging system for report centralization is already correctly configured";
 
     android::
