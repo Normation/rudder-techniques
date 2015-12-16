@@ -143,7 +143,7 @@ bundle agent check_rpm_package_installation {
     (redhat|SuSE).SuSE_10.!zmd_restart.!zypper_version_ok::
       "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ...";
 
-    (redhat|SuSE).SuSE_10.zmd_restarted.!zypper_version_ok::
+    (redhat|SuSE).SuSE_10.zmd_restarted.!could_not_restart_zmd.!zypper_version_ok::
       "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted";
 
     (redhat|SuSE).SuSE_10.could_not_restart_zmd.!zypper_version_ok::
