@@ -559,30 +559,6 @@ bundle agent check_log_system
 
   commands:
 
-    SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "/etc/init.d/syslog"
-        args => "restart",
-        comment => "Restarting syslog after it's been updated";
-
-    syslog_ng_repaired.!SuSE::
-      "/etc/init.d/syslog-ng"
-        args => "restart",
-        comment => "Restarting syslog-ng after it's been updated";
-
-    rsyslog_repaired.!(SuSE|fedora)::
-      "/etc/init.d/rsyslog"
-        args => "restart",
-        comment => "Restarting rsyslog after it's been updated";
-
-    rsyslog_repaired.fedora::
-      "/bin/systemctl"
-        args => "restart rsyslog",
-        comment => "Restarting rsyslog after it's been updated";
-
-    syslogd_repaired.!SuSE.!solaris.!aix::
-      "/etc/init.d/syslog"
-        args => "restart",
-        comment => "Restarting rsyslog after it's been updated";
     solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
       "${paths.svcadm} refresh svc:/system/system-log:default";
 
