@@ -190,13 +190,13 @@ bundle agent check_rpm_package_installation {
     (redhat|SuSE).!(SuSE_10.!zypper_version_ok)::
       "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#ZMD process presence verification not necessary. Skipping ...";
 
-    (redhat|SuSE).SuSE_10.!zmd_restart.!zypper_version_ok::
+    (redhat|SuSE).SuSE_10.!zypper_version_ok.!zmd_restart::
       "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD process is present. Skipping ...";
 
-    (redhat|SuSE).SuSE_10.zmd_restarted.!zypper_version_ok::
+    (redhat|SuSE).SuSE_10.!zypper_version_ok.zmd_restarted.!could_not_restart_zmd::
       "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon was successfully restarted";
 
-    (redhat|SuSE).SuSE_10.could_not_restart_zmd.!zypper_version_ok::
+    (redhat|SuSE).SuSE_10.!zypper_version_ok.could_not_restart_zmd::
       "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][3]}@@ZMD process@@None@@${g.execRun}##${g.uuid}@#The ZMD daemon failed to restart";
 
 }
