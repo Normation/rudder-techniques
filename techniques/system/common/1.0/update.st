@@ -104,14 +104,11 @@ bundle common server_info
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-   # Use localhost as default policy_server if no policy_server.dat exists
-    policy_server_set::
-      "cfserved" string => readfile("${policy_server_file}", 2048);
-    !policy_server_set::
-      "cfserved" string => "rudder";
+      # Use "rudder" as default policy_server if no policy_server.dat exists
+      "cfserved" string => ifelse(fileexists("${policy_server_file}"),
+                                  readfile("${policy_server_file}", 2048),
+                                  "rudder");
 
-  classes:
-      "policy_server_set" expression => fileexists("${server_info.policy_server_file}");
 }
 
 # The update is now split in two parts
