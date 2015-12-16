@@ -210,13 +210,13 @@ bundle agent check_rpm_package_installation {
     pass3.!(SuSE_10.!zypper_version_ok)::
       "any" usebundle => rudder_common_report("packageInstallation", "result_na", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "ZMD process presence verification not necessary. Skipping ...");
 
-    pass3.SuSE_10.!zmd_restart.zypper_version_ok::
+    pass3.SuSE_10.!zypper_version_ok.!zmd_restart::
       "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD process is present. Skipping ...");
 
-    pass3.service_restart_novell_zmd_ok.zypper_version_ok::
+    pass3.SuSE_10.!zypper_version_ok.!service_restart_novell_zmd_not_ok.service_restart_novell_zmd_ok::
       "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon was successfully restarted");
 
-    pass3.service_restart_novell_zmd_not_ok.zypper_version_ok::
+    pass3.SuSE_10.!zypper_version_ok.service_restart_novell_zmd_not_ok::
       "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon failed to restart");
 
   processes:
