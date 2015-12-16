@@ -102,7 +102,7 @@ bundle agent check_rpm_package_installation {
 				ifvarclass => "SuSE_10.!zmd_restart";
 
 			"@@packageInstallation@@result_repaired@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon was successfully restarted"
-				ifvarclass => "SuSE_10.zmd_restarted";
+				ifvarclass => "SuSE_10.zmd_restarted.!could_not_restart_zmd";
 
 			"@@packageInstallation@@result_error@@$(rpm_data[$(index_rpmpkg)][3])@@ZMD process@@None@@$(g.execRun)##$(g.uuid)@#The ZMD daemon failed to restart"
 				ifvarclass => "SuSE_10.could_not_restart_zmd";
