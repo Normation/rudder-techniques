@@ -1,0 +1,74 @@
+<!--
+Copyright 2015 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<!-- This technique sets generalist clock parameters like NTP servers and timezones -->
+<TECHNIQUE name="CFEngine variable definition using a JSON file">
+  <DESCRIPTION>Downloads a JSON file from shared-files and reads it into CFEngine variables. You can use these variables in the form ${your_namespace.variable_name}</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <COMPATIBLE>
+    <OS>Every OS</OS>
+    <AGENT version=">= 3.6">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>variable_from_json_file</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="variableFromJsonFile"/>
+  </TMLS>
+
+  <SYSTEMVARS>
+    <NAME>SHARED_FILES_FOLDER</NAME>
+  </SYSTEMVARS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>JSON_FILE</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="File copy"           component="true" componentKey="JSON_FILE" />
+    <SECTION name="Variable definition" component="true" componentKey="JSON_FILE" />
+    <SECTION name="Variable">
+      <INPUT>
+        <NAME>NAMESPACE</NAME>
+        <DESCRIPTION>Variable namespace, the prefix that will be used for variables definition</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid CFEngine variable namespace"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>VARIABLE_NAME</NAME>
+        <DESCRIPTION>Variable name</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid CFEngine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>JSON_FILE</NAME>
+        <DESCRIPTION>JSON file</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <REGEX error="Please enter a valid file name"><![CDATA[ .*[^\\] ]]></REGEX>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+  </SECTIONS>
+
+</TECHNIQUE>
