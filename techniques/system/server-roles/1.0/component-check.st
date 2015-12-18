@@ -114,9 +114,6 @@ bundle agent root_component_check
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check jetty process", "None", "Checking jetty process state is unnecessary on this machine, skipping..."
         );
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "Check jetty boot script", "None", "Checking jetty boot settings is unnecessary on this machine, skipping..."
-        );
 
     role_rudder_webapp::
       "any" usebundle => root_integrity_check;
@@ -145,9 +142,6 @@ bundle agent root_component_check
     !role_rudder_inventory_ldap::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check slapd process", "None", "Checking slapd process state is unnecessary on this machine, skipping..."
-        );
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "Check slapd boot script", "None", "Checking slapd boot settings is unnecessary on this machine, skipping..."
         );
 
     role_rudder_reports::
