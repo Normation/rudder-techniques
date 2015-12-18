@@ -207,13 +207,13 @@ bundle agent download_from_shared_folder
         ifvarclass => "!execute_command_${index}";
 
       "@@copyFile@@result_success@@${copyfile[${index}][uuid]}@@Post-modification hook@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#${copyfile[${index}][destination]} was already in the desired state, so no command was executed"
-        ifvarclass => "execute_command_${index}.copy_file_${index}_kept.!copy_file_${index}_repaired";
+        ifvarclass => "execute_command_${index}.!copy_file_${index}_failed.!copy_file_${index}_repaired.copy_file_${index}_kept";
 
       "@@copyFile@@result_success@@${copyfile[${index}][uuid]}@@Post-modification hook@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The post-hook command for ${copyfile[${index}][destination]} was correctly executed"
-        ifvarclass => "copyfile_posthook_${index}_command_run_ok";
+        ifvarclass => "execute_command_${index}.!copy_file_${index}_failed.copyfile_posthook_${index}_command_run_ok";
 
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Post-modification hook@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The post-hook command for ${copyfile[${index}][destination]} couldn't be executed"
-        ifvarclass => "copyfile_posthook_${index}_command_run_failed";
+        ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_command_run_failed";
 
       # A copy_from + perms could result in any combinaision of success/repaired/failed, so we have to cover the failed.modified which results in no copy
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Post-modification hook@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#${copyfile[${index}][destination]} couldn't be copied, so the post-hook command is not executed"
