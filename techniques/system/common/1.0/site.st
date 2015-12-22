@@ -145,7 +145,7 @@ bundle common g
       "rudder_tools_files_unix"    slist => { "send-clean.sh",
                                               "cpuid-linux-V1.0.sh",
                                               "vmware_info.sh",
-                                              "check_rsyslog_version",
+                                              "check-rsyslog-version",
                                               "apache-vhost.tpl",
                                             };
 
@@ -153,7 +153,7 @@ bundle common g
       "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
                                               "openvpn-2.2.1-1.i686.rpm",
                                               "zypper-repo.tpl",
-                                              "check_zypper_version",
+                                              "check-zypper-version",
                                               "checkzmd.pl",
                                             };
     any::
