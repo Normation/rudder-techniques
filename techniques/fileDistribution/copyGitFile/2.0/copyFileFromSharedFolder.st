@@ -205,13 +205,13 @@ bundle agent download_from_shared_folder
         ifvarclass => "!execute_command_${index}";
 
       "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "${copyfile[${index}][destination]} was already in the desired state, so no command was executed"),
-        ifvarclass => "execute_command_${index}.copy_file_${index}_kept.!copy_file_${index}_repaired";
+        ifvarclass => "execute_command_${index}.!copy_file_${index}_error.!copy_file_${index}_repaired.copy_file_${index}_kept";
 
       "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "The post-hook command for ${copyfile[${index}][destination]} was correctly executed"),
-        ifvarclass => "copyfile_posthook_${index}_command_run_ok";
+        ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_command_run_ok";
 
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "The post-hook command for ${copyfile[${index}][destination]} couldn't be executed"),
-        ifvarclass => "copyfile_posthook_${index}_command_run_failed";
+        ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_command_run_failed";
 
       # A copy_from + perms could result in any combinaision of success/repaired/failed, so we have to cover the failed.modified which results in no copy
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][name]}", "${copyfile[${index}][destination]} couldn't be copied, so the post-hook command is not executed"),
