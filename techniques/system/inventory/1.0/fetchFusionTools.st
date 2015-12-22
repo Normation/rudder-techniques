@@ -29,7 +29,7 @@ bundle agent fetchFusionTools
     debian::
       "curl"
         package_policy  => "add",
-        package_method  => apt,
+        package_method  => generic,
         classes => rudder_common_classes("fetchFusionTools_install_curl"),
         comment => "Installing curl using apt";
     redhat::
