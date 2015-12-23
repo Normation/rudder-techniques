@@ -33,7 +33,7 @@ body copy_from remote(server, path)
         trustkey   => "true";
         source     => "${path}";
         compare    => "digest";
-        preserve   => "false"; #preserver permissions
+        preserve   => "false"; #do not preserve permissions
         verify     => "true";
         purge      => "true";
     community_edition::
@@ -52,7 +52,7 @@ body copy_from remote_unsecured(server, path)
         trustkey   => "true";
         source     => "${path}";
         compare    => "mtime";
-        preserve   => "true"; #preserver permissions
+        preserve   => "true"; #preserve permissions
         verify     => "true";
         purge      => "true";
     community_edition::
@@ -229,7 +229,7 @@ bundle agent update_action
         touch      => "true";
 
     # Copy the tools only if the file rudder_tools_updated is not up to date
-    any::
+    !policy_server::
       "${g.rudder_tools_updated}"
         copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
         action            => immediate,
@@ -238,7 +238,7 @@ bundle agent update_action
         comment           => "Check if we need to update the tools";
 
     # We copy only if we have the class rudder_tools_updated_repaired
-    rudder_tools_updated_repaired::
+    !policy_server.rudder_tools_updated_repaired::
       "${g.rudder_tools}"
         copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
