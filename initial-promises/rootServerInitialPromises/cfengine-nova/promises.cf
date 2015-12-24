@@ -31,6 +31,8 @@ body common control
         bundlesequence => { @{va.bs} , "install_rsyslogd", "propagatePromises", "sendInventoryToCmdb", "root_init_check", "root_postgres_check", "root_logrotate_check", "root_integrity_check", "root_apache_webdav_check", "root_ldap_check", "root_alive_check" };
 
         output_prefix => "rudder";
+        
+        protocol_version   => "classic";
 
 }
 
