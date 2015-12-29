@@ -734,7 +734,7 @@ bundle agent check_binaries_freshness
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
         classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
         action => immediate,
-        comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
+        comment => "Copying the CFengine binaries from ${g.rudder_sbin} to ${sys.workdir}/bin";
 
   methods:
 
