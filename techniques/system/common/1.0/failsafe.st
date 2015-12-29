@@ -197,9 +197,9 @@ bundle agent init_files
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
         action    => immediate;
     community_edition.freebsd::
-      "${sys.workdir}/sbin/${components}"
+      "${sys.workdir}/bin/${components}"
         perms => u_p("755"),
-        copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
+        copy_from => cp("${cfengine_install_path}/sbin/${components}","localhost"),
         action => immediate;
 
   commands:
