@@ -34,7 +34,9 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
 
     aix::
       "rudder_motd_group"       string => "bin";
-    !aix::
+    freebsd::
+      "rudder_motd_group"       string => "wheel";
+    !aix.!freebsd::
       "rudder_motd_group"       string => "root";
 
   classes:
