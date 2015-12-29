@@ -42,8 +42,14 @@ bundle common g
       "rudder_var"                string => "/data/rudder";
       "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
-    !windows.!android::
+    freebsd::
+      "rudder_base"              string => "/usr/local";
+      "rudder_var"               string => "/usr/local";
+
+    !windows.!android.!freebsd::
       "rudder_base"              string => "/opt/rudder";
+
+    !windows.!android::
       "rudder_tools_files_unix"   slist => { "send-clean.sh",
                                              "cpuid-linux-V1.0.sh",
                                              "vmware_info.sh",
@@ -52,7 +58,7 @@ bundle common g
                                            };
 
 
-    !windows.!android::
+    !windows.!android.!freebsd::
       "rudder_var"               string => "/var/rudder";
 
     !windows::
@@ -61,6 +67,10 @@ bundle common g
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_tools"             string => "${rudder_var}/tools";
       "rudder_ncf"               string => "${rudder_var}/ncf";
+
+    freebsd::
+      "rudder_tools"             string => "${rudder_var}/libexec/rudder/tools";
+      "rudder_ncf"               string => "${rudder_var}/share/rudder/ncf";
 
 &if(NOVA)&
     windows::
@@ -181,12 +191,16 @@ bundle agent init_files
       "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
   files:
-    community_edition.!windows::
+    community_edition.!windows.!freebsd::
       "${sys.workdir}/bin/${components}"
         perms     => u_p("755"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
         action    => immediate;
-
+    community_edition.freebsd::
+      "${sys.workdir}/sbin/${components}"
+        perms => u_p("755"),
+        copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
+        action => immediate;
 
   commands:
     cygwin.missing_key::

@@ -32,7 +32,12 @@ bundle common g
       "rudder_curl"                string => "/system/bin/curl";
       "rudder_rm"                  string => "/system/xbin/rm";
 
-    !windows.!android::
+    freebsd::
+      "rudder_base"                string => "/usr/local";
+      "rudder_rm"                  string => "/bin/rm";
+      "rudder_var"                 string => "/usr/local";
+
+    !windows.!android.!freebsd::
       "rudder_base"                string => "/opt/rudder";
       "rudder_rm"                  string => "/bin/rm";
       "rudder_var"                 string => "/var/rudder";
@@ -40,7 +45,10 @@ bundle common g
     solaris::
       "rudder_curl"                string => "/opt/csw/bin/curl";
 
-    !solaris.!windows.!android::
+    freebsd::
+      "rudder_curl"                string => "/usr/local/bin/curl";
+
+    !solaris.!windows.!android.!freebsd::
       "rudder_curl"                string => "/usr/bin/curl";
 
     !windows::
@@ -84,6 +92,16 @@ bundle common g
     !aix.!windows::
 
       "gzip"                       string => "/bin/gzip";
+
+    freebsd::
+      "rudder_var_tmp"             string => "/tmp/rudder"; # tmp generated data
+      "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
+      "rudder_inventories"         string => "${rudder_var}/inventories";
+      "uuid_file"                  string => "${rudder_base}/etc/rudder/uuid.hive";
+      "rudder_disable_agent_file"  string => "${rudder_base}/etc/rudderdisable-agent";
+      "rudder_tools"               string => "${rudder_var}/libexec/rudder/tools";
+      "rudder_ncf"                 string => "${rudder_var}/share/rudder/ncf";
+      "gzip"                       string => "/usr/bin/gzip";
 
     any::
       "uuid"                        string => readfile("${g.uuid_file}", 60);

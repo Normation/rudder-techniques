@@ -30,7 +30,7 @@ bundle agent setup_cronjob
       "/etc/cron.d/rudder-agent-uuid"
         delete => tidy;
 
-    community_edition.!aix::
+    community_edition.!aix.!freebsd::
 
       "/etc/cron.d/rudder-agent"
         create        => "true",
@@ -47,6 +47,14 @@ bundle agent setup_cronjob
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
 &endif&
+
+    freebsd::
+
+      "/etc/crontab"
+      create        => "true",
+      perms         => mog("644", "root", "0"),
+      edit_defaults => empty_backup,
+      edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 
     aix::
 
