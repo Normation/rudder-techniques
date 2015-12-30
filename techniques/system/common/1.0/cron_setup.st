@@ -53,13 +53,13 @@ bundle agent setup_cronjob
       # Cleanup the crontab
       "/etc/crontab"
         edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* if \[ -x /usr/local/bin/check-rudder-agent \]; then /usr/local/bin/bin/check-rudder-agent( >/dev/null)?; fi");
+        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* root if \[ -x /usr/local/bin/check-rudder-agent \]; then /usr/local/bin/bin/check-rudder-agent( >/dev/null)?; fi");
 
       # Add Rudder entry
       "/etc/crontab"
         create        => "true",
         perms         => mog("600", "root", "wheel"),
-        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * /bin/test -x /usr/local/bin/check-rudder-agent \&\& /usr/local/bin/check-rudder-agent >/dev/null"),
+        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * root /bin/test -x /usr/local/bin/check-rudder-agent \&\& /usr/local/bin/check-rudder-agent >/dev/null"),
         classes       => rudder_common_classes("rudder_freebsd_crontab_insertion"),
         comment       => "Insert a FreeBSD-compatible user crontab to run /usr/local/bin/check-rudder-agent";
 
