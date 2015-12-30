@@ -191,6 +191,12 @@ bundle agent check_clock_configuration
         edit_line => EditDebianTimezone("${linux_timezone}"),
         classes => kept_if_else("debiantz_kept", "repaired_debiantz", "not_repaired_debiantz");
 
+    (freebsd.!clock_timezone_noedit).clock_vardef::
+      "/var/db/zoneinfo"
+        edit_defaults => empty_backup,
+        edit_line => EditFreeBSDTimezone("${linux_timezone}"),
+        classes => kept_if_else("freebsdtz_kept", "repaired_freebsdtz", "not_repaired_freebsdtz");
+
   # Install the NTP package
   packages:
     linux.!SuSE_10.!SuSE_11::
@@ -220,10 +226,10 @@ bundle agent check_clock_configuration
 
       # Restart commands
 
-      !windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
+      !freebsd.!windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
         "restart_ntp" usebundle => service_restart("ntp");
 
-      redhat.(repaired_ntpconf|repaired_localtime|repaired_redhattz|ntpd_down)::
+      redhat.freebsd.(repaired_ntpconf|repaired_localtime|repaired_redhattz|repaired_freebsdtz|ntpd_down)::
 
         "restart_ntpd" usebundle => service_restart("ntpd");
 
@@ -283,10 +289,10 @@ bundle agent check_clock_configuration
 
 
     # Global reports for the "Time zone" component's parts
-    pass3.(repaired_localtime|repaired_redhattz|repaired_debiantz|repaired_susetz)::
+    pass3.(repaired_localtime|repaired_redhattz|repaired_debiantz|repaired_susetz|repaired_freebsdtz)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time zone", "None", "Time zone was reset");
 
-    pass3.(localtime_kept.((redhat.redhattz_kept)|(debian.debiantz_kept)|(SuSE.susetz_kept)))::
+    pass3.(localtime_kept.((redhat.redhattz_kept)|(debian.debiantz_kept)|(SuSE.susetz_kept)|(freebsd.freebsdtz_kept)))::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone was already correctly configured");
 
     pass3.clock_timezone_noedit::
@@ -317,11 +323,20 @@ bundle agent check_clock_configuration
     pass3.repaired_debiantz::
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "Debian-style time zone parameters updated (/etc/timezone)");
 
+    pass3.repaired_freebsdtz::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "FreeBSD-style time zone parameters updated (/var/db/zoneinfo)");
+
     pass3.not_repaired_debiantz::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Could not update Debian-style time zone parameters (/etc/timezone)");
 
+    pass3.not_repaired_freebsdtz::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Could not update FreeBSD-style time zone parameters (/var/db/zoneinfo)");
+
     pass3.debiantz_kept::
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "Debian-style time zone parameters already correct (/etc/timezone)");
+
+    pass3.freebsdtz_kept::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "FreeBSD-style time zone parameters already correct (/var/db/zoneinfo)");
 
     pass3.repaired_susetz::
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "SuSE-style time zone parameters updated (/etc/sysconfig/clock)");
@@ -474,6 +489,17 @@ bundle edit_line EditSuSETimezone(tz)
 }
 
 bundle edit_line EditDebianTimezone(tz)
+{
+
+  insert_lines:
+
+# Ensure the ZONE is correct
+
+      "${tz}";
+
+}
+
+bundle edit_line EditFreeBSDTimezone(tz)
 {
 
   insert_lines:
