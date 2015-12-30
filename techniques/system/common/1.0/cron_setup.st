@@ -39,7 +39,7 @@ bundle agent setup_cronjob
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 &if(NOVA)&
 
-    nova_edition.!aix.!windows::
+    nova_edition.!aix.!freebsd.!windows::
 
       "/etc/cron.d/rudder-agent-nova"
         create        => "true",
@@ -50,11 +50,18 @@ bundle agent setup_cronjob
 
     freebsd::
 
+      # Cleanup the crontab
       "/etc/crontab"
-      create        => "true",
-      perms         => mog("644", "root", "0"),
-      edit_defaults => empty_backup,
-      edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
+        edit_defaults => noempty_backup,
+        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* if \[ -x /usr/local/bin/check-rudder-agent \]; then /usr/local/bin/bin/check-rudder-agent( >/dev/null)?; fi");
+
+      # Add Rudder entry
+      "/etc/crontab"
+        create        => "true",
+        perms         => mog("600", "root", "wheel"),
+        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * /bin/test -x /usr/local/bin/check-rudder-agent \&\& /usr/local/bin/check-rudder-agent >/dev/null"),
+        classes       => rudder_common_classes("rudder_freebsd_crontab_insertion"),
+        comment       => "Insert a FreeBSD-compatible user crontab to run /usr/local/bin/check-rudder-agent";
 
     aix::
 

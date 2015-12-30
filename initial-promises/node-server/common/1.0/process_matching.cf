@@ -63,6 +63,21 @@ bundle agent process_matching
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
 
+    freebsd::
+
+      # Cleanup the crontab
+      "/etc/crontab"
+        edit_defaults => noempty_backup,
+        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* if \[ -x /usr/local/bin/check-rudder-agent \]; then /usr/local/bin/bin/check-rudder-agent( >/dev/null)?; fi");
+
+      # Add Rudder entry
+      "/etc/crontab"
+        create        => "true",
+        perms         => mog("600", "root", "wheel"),
+        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * /bin/test -x /usr/local/bin/check-rudder-agent \&\& /usr/local/bin/check-rudder-agent >/dev/null"),
+        classes       => rudder_common_classes("rudder_freebsd_crontab_insertion"),
+        comment       => "Insert a FreeBSD-compatible user crontab to run /usr/local/bin/check-rudder-agent";
+
     aix::
 
       # Cleanup the crontab
@@ -99,6 +114,8 @@ bundle agent process_matching
       "${sys.workdir}/bin/cf-execd"         signals => { "${stop_signal}" };
 
     # Note: cron will get restarted automatically by init (respawn directive in inittab)
+    freebsd.rudder_freebsd_crontab_insertion::
+      "^/usr/sbin/cron"                         signals => { "${stop_signal}" };
     aix.rudder_aix_crontab_insertion::
       "^/usr/sbin/cron"                         signals => { "${stop_signal}" };
 
