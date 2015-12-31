@@ -393,7 +393,7 @@ bundle agent check_clock_configuration
         comment => "Restart the windows NTP service";
 
     # HW clock sync command
-    !windows.clock_hwclock_sync::
+    !windows.!freebsd.clock_hwclock_sync::
       "/sbin/hwclock"
         args => "--systohc",
         action => if_elapsed("&CLOCK_SYNCSCHED&"),
