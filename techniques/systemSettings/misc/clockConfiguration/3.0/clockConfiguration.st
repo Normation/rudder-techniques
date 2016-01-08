@@ -345,7 +345,7 @@ bundle agent check_clock_configuration
     pass3.windows::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "The hardware clock is automatically synchronized with the NTP time on Windows");
 
-    pass3.!clock_hwclock_sync::
+    pass3.!clock_hwclock_sync.!windows::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "No synchronization with the hardware clock was requested");
 
   processes:
