@@ -318,11 +318,11 @@ bundle agent update_reports
     # On all nodes:
     #   - Simple test: rudder_ncf_common_updated_ok
     #   - Simple test: rudder_ncf_local_updated_ok
-    #   - Staggered update: rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
+    #   - Staggered update: policy_server OR rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
     # On all nodes except root server: rudder_promises_generated_ok OR (rudder_promises_generated_repaired AND config_ok)
     #   - Staggered update: rudder_promises_generated_ok OR (rudder_promises_generated_repaired AND config_ok)
     # There must be NO components in repair or error
-    rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.(rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(root_server|rudder_promises_generated_ok|(rudder_promises_generated_repaired.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
+    rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.(policy_server|rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(root_server|rudder_promises_generated_ok|(rudder_promises_generated_repaired.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools and ncf instance are already up to date. No action required.");
 
     rudder_tools_updated::
