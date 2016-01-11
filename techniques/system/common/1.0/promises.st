@@ -483,7 +483,7 @@ bundle agent check_log_system
       "syslog_ng_conf_final"  string => "flags(final);};";
 
       "syslog_ng_conf"        string => concat("${syslog_conf_comment}", "${syslog_ng_conf_prefix}", "${server_info.cfserved}", "${syslog_ng_conf_suffix}", "${syslog_ng_conf_final}");
-      "syslog_ng_conf_regex"  string => concat("filter\ f\_local\_rudder\{facility\(local6\)\ and\ program\(\"rudder\.\*\"\)\;\}\;destination\ loghost\ \{(tcp|udp)\(\"", "[^\"]+", escape("${syslog_ng_conf_suffix}"), ".*");
+      "syslog_ng_conf_regex"  string => concat("filter\ f\_local\_rudder\{facility\(local6\)\ and\ program\(\"rudder\.\*\"\)\;\}\;destination\ rudder_loghost\ \{(tcp|udp)\(\"", "[^\"]+", escape("${syslog_ng_conf_suffix}"), ".*");
 
   classes:
 
