@@ -89,7 +89,7 @@ then
   exit 8
 fi
 
-# Check that no StringTemplate thingies were put into the initial-promises ( lines beginning with & or StringTemplate iterators )
+# Check that no StringTemplate thingies were put into the initial-promises ( lines beginning with & or StringTemplate iterators )
 if grep -E -r '^\s*&|&[a-zA-Z_]&' ${REPOSITORY_PATH}/initial-promises
 then
   echo "There are some StringTemplate definitions in the initial promises"
@@ -129,11 +129,37 @@ do
   fi
 done
 
-# Check that we never user group "root" in perms
+# Check that we never use group "root" in perms
 ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
 do
   if egrep -q "^[^#]*perms\s*=>\s*mog\([^,]+,\s*[^,]+,\s*['\"]root['\"]\)" ${filename}; then
-    echo "The file ${filename} attempt to use the 'root' group - use '0' instead for UNIX compatibility"
-    exit 11
+    echo "The file ${filename} attempts to use the 'root' group - use '0' instead for UNIX compatibility"
+    exit 12
+  fi
+done
+
+# Check that no removed deprecated techniques come back (via erroneous merges, for example)
+${REPOSITORY_PATH}/scripts/technique-files -d "${REPOSITORY_PATH}/techniques" | while read name
+do
+
+  # Get relative technique version/name path
+  TECHNIQUE=$(echo ${name} | sed "s%${REPOSITORY_PATH}/techniques/%%")
+
+  if ! egrep "^${TECHNIQUE}" ${REPOSITORY_PATH}/maintained-techniques > /dev/null; then
+    echo "Unexpected technique version ${TECHNIQUE} found. Maybe it is deprecated but has come back via a merge. Please remove it, or if it's a new version, add it to maintained-techniques."
+    exit 13
+  fi
+done
+
+# Check that all technique versions listed as maintained are indeed present
+cat ${REPOSITORY_PATH}/maintained-techniques | while read name
+do
+
+  # Skip comments
+  if echo ${name} | egrep "^[   ]*#" > /dev/null; then continue; fi
+
+  if [ ! -d ${REPOSITORY_PATH}/techniques/${name} ]; then
+    echo "Supposedly maintained technique version ${name} is missing"
+    exit 14
   fi
 done
