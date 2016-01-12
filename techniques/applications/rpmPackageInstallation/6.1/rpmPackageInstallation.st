@@ -171,13 +171,13 @@ bundle agent check_rpm_package_installation {
     redhat|SuSE::
 
       "@@packageInstallation@@result_repaired@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#Performed repair action for RPM package ${rpm_package[${index_rpmpkg}]} to comply with policy: ${rpm_data[${index_rpmpkg}][0]}"
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_repaired");
+        ifvarclass => concat(canonify("rpm_package_installation_${index_rpmpkg}_repaired"), ".!", canonify("rpm_package_installation_${index_rpmpkg}_error"));
 
       "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"
         ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_error");
 
       "@@packageInstallation@@result_success@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_kept");
+        ifvarclass => concat(canonify("rpm_package_installation_${index_rpmpkg}_kept"), ".!", canonify("rpm_package_installation_${index_rpmpkg}_repaired"), ".!", canonify("rpm_package_installation_${index_rpmpkg}_error"));
 
       "@@packageInstallation@@result_error@@${rpm_data[${index_rpmpkg}][3]}@@RHEL/CentOS/SuSE packages@@${rpm_package[${index_rpmpkg}]}@@${g.execRun}##${g.uuid}@#Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update"
         ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.rpm_package_installation_updated_available_packages_error";
