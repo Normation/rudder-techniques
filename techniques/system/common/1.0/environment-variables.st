@@ -31,7 +31,13 @@ bundle agent get_environment_variables
 env | sed 's/=/]=/' |sed 's/^/=node.env[/'";
 
     !windows.linux.supports_env_0::
-      "env_vars" slist => splitstring( execresult("(${paths.printf} '\0'; ${paths.env} -0) | ${paths.grep} -aoP '\x00([^=]+)' | ${paths.tr} -d '\000' | ${paths.tr} '\n' ',' | ${paths.sed} 's/,$//'","useshell"), "," , 2000);
+      "env_vars_list_cmd" string => "(${paths.printf} '\0'; ${paths.env} -0) | ${paths.grep} -aoP '\x00([^=]+)' | ${paths.tr} -d '\000' | ${paths.tr} '\n' ',' | ${paths.sed} 's/,$//'";
+
+    !windows.linux.!supports_env_0::
+      "env_vars_list_cmd" string => "${paths.env} | ${paths.sed} 's/^\([a-zA-Z0-9_]\+\)=/\x00\1=/' | ${paths.grep} -aoP '\x00([^=]+)' | ${paths.tr} -d '\000' | ${paths.tr} '\n' ',' | ${paths.sed} 's/,$//'";
+
+    !windows.linux::
+      "env_vars" slist => splitstring( execresult("${env_vars_list_cmd}","useshell"), "," , 2000);
       "node.env[${env_vars}]" string => getenv( "${env_vars}", 5000);
 
     windows::
@@ -40,11 +46,11 @@ for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
 
   classes:
       # Test if the platform supports env -0 option
-      # If it does not, multiline environment variables cannot be handled correctly
+      # If it does not, multiline environment variables require different handling, that is a little less reliable
       "supports_env_0" expression => returnszero("${paths.env} -0 >/dev/null 2>/dev/null","useshell");
 
   files:
-    !windows.(!linux|!supports_env_0)::
+    !windows.!linux::
       "${sys.workdir}/modules/env"
         create        => "true",
         perms         => mog("755", "root", "0"),
@@ -58,7 +64,7 @@ for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
         edit_defaults => empty;
 
   commands:
-    !windows.(!linux|!supports_env_0)::
+    !windows.!linux::
       "${sys.workdir}/modules/env"
         module => "true";
     windows::
