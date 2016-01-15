@@ -44,7 +44,7 @@ bundle agent propagatePromises
         classes => if_else("promises_propagated", "could_not_propagate_promise");
 
       "${g.rudder_tools}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_tools}"),
+        copy_from    => remote_unsecured("${server_info.cfserved}","${g.rudder_tools}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
         classes => if_else("tools_propagated", "could_not_propagate_tools");
