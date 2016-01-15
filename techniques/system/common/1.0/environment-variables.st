@@ -41,7 +41,7 @@ for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
   classes:
       # Test if the platform supports env -0 option
       # If it does not, multiline environment variables cannot be handled correctly
-      "supports_env_0" expression => returnszero("${paths.env} -0 >/dev/null 2>&1","useshell");
+      "supports_env_0" expression => returnszero("${paths.env} -0 >/dev/null 2>/dev/null","useshell");
 
   files:
     !windows.(!linux|!supports_env_0)::
