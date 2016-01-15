@@ -33,7 +33,7 @@ body copy_from remote(server, path)
         trustkey => "true";
         source   => "${path}";
         compare  => "digest";
-        preserve => "false"; #preserver permissions
+        preserve => "false"; #do not preserve permissions
         verify   => "true";
         purge    => "true";
     community_edition::
@@ -52,7 +52,7 @@ body copy_from remote_unsecured(server, path)
         trustkey => "true";
         source   => "${path}";
         compare  => "mtime";
-        preserve => "true"; #preserver permissions
+        preserve => "true"; #preserve permissions
         verify   => "true";
         purge    => "true";
     community_edition::
@@ -228,7 +228,7 @@ bundle agent update_action
         touch      => "true";
 
     # Copy the tools only if the file rudder_tools_updated is not up to date
-    any::
+    !policy_server::
       "${g.rudder_tools_updated}"
         copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
         action            => immediate,
@@ -237,7 +237,7 @@ bundle agent update_action
         comment           => "Check if we need to update the tools";
 
     # We copy only if we have the class rudder_tools_updated_repaired
-    rudder_tools_updated_repaired::
+    !policy_server.rudder_tools_updated_repaired::
       "${g.rudder_tools}"
         copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
@@ -309,11 +309,11 @@ bundle agent update_reports
     # On all nodes:
     #   - Simple test: rudder_ncf_common_updated_ok
     #   - Simple test: rudder_ncf_local_updated_ok
-    #   - Staggered update: rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
+    #   - Staggered update: policy_server OR rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
     # On all nodes except root server: rudder_promises_generated_ok OR (rudder_promises_generated_repaired AND config_ok)
     #   - Staggered update: rudder_promises_generated_ok OR (rudder_promises_generated_repaired AND config_ok)
     # There must be NO components in repair or error
-    rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.(rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(root_server|rudder_promises_generated_ok|(rudder_promises_generated_repaired.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
+    rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.(policy_server|rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(root_server|rudder_promises_generated_ok|(rudder_promises_generated_repaired.config_ok)).!(rudder_promises_generated_repaired|rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update)::
       "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Update@@None@@${g.execRun}##${g.uuid}@#Rudder policy, tools and ncf instance are already up to date. No action required.";
 
     rudder_tools_updated::
