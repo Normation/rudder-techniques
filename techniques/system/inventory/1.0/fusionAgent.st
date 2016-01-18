@@ -657,6 +657,11 @@ bundle agent sendInventory
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
+      "${g.rudder_var_tmp}/inventory_sent"
+        create       => "true",
+        touch        => "true",
+        comment      => "Create local info about successful upload";
+
       "${g.rudder_var_tmp}/inventory"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
