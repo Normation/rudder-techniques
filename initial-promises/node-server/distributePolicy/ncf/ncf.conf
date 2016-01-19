@@ -11,7 +11,7 @@
 #
 {{#classes.any}}
 # Which logger(s) should be used in ncf? (comma separated list)
-loggers=_logger_default,logger_rudder
+loggers=_log_default,log_rudder
 {{/classes.any}}
 # Which port should be for CFEngine connections/data transfers
 {{#classes.community_edition}}
