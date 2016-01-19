@@ -36,6 +36,12 @@ bundle agent propagatePromises
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
         classes => if_else("tools_propagated", "could_not_propagate_tools");
+
+      "${g.rudder_ncf_origin_local}/ncf.conf"
+        copy_from    => copy_digest("${sys.workdir}/inputs/distributePolicy/ncf/ncf.conf"),
+        comment      => "Enforce the ncf configuration file",
+        classes      => classes_generic("configure_ncf_config");
+
     !root_server::
       "${client_data}"  #that's a loop on each files in client_inputs
         copy_from    => remote("${server_info.cfserved}","${server_data}"),
