@@ -289,9 +289,9 @@ bundle agent update_action
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
     new_promises_available.!root_server.no_update::
-      "${client_inputs}/${file_to_check_update}"
+      "${client_inputs}/${rudder_promises_timestamp}"
         delete  => tidy,
-        comment => "Deleting ${file_to_check_update} as the policy files couldn't be downloaded";
+        comment => "Deleting ${rudder_promises_timestamp} as the policy files couldn't be downloaded";
 
     (new_promises_available|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_common_update_error::
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
