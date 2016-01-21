@@ -88,7 +88,7 @@ bundle agent root_component_check
     root_server|(policy_server.!role_rudder_relay_promises_only)::
       "any" usebundle => root_networks_check;
       "any" usebundle => root_password_check_dav;
-      "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}", "false", "${service[apache][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}", "${service[apache][check_on_relay_server]}");
       "any" usebundle => generic_process_check_bootstart("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}");
 
     !(root_server|policy_server)|role_rudder_relay_promises_only::
@@ -107,7 +107,7 @@ bundle agent root_component_check
         );
 
     role_rudder_jetty::
-      "any" usebundle => generic_process_check_process("${service[rudder_jetty][binary]}", "${service[rudder_jetty][service]}", "${service[rudder_jetty][name]}", "false", "${service[rudder_jetty][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_jetty][binary]}", "${service[rudder_jetty][service]}", "${service[rudder_jetty][name]}", "${service[rudder_jetty][check_on_relay_server]}");
       "any" usebundle => compress_webapp_log;
 
     !role_rudder_jetty::
@@ -137,7 +137,7 @@ bundle agent root_component_check
         );
 
     role_rudder_inventory_ldap::
-      "any" usebundle => generic_process_check_process("${service[rudder_slapd][binary]}", "${service[rudder_slapd][service]}", "${service[rudder_slapd][name]}", "false", "${service[rudder_slapd][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_slapd][binary]}", "${service[rudder_slapd][service]}", "${service[rudder_slapd][name]}", "${service[rudder_slapd][check_on_relay_server]}");
 
     !role_rudder_inventory_ldap::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
@@ -146,7 +146,7 @@ bundle agent root_component_check
 
     role_rudder_reports::
       "any" usebundle => root_postgres_check;
-      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}", "false", "${service[rudder_reports][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}", "${service[rudder_reports][check_on_relay_server]}");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
 
     !role_rudder_reports::
