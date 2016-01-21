@@ -60,7 +60,7 @@ It is intended to check if the required DNS entries are set.
           <LONGDESCRIPTION>IP address of a DNS server to query to resolve names.</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>string</TYPE>
-            <REGEX error="You must enter a valid IP">^\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b$</REGEX>
+            <REGEX error="Please enter a valid IP address or a variable">^((?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)|\$\{[a-zA-Z0-9_.]+\})$</REGEX>
             <DEFAULT>192.168.1.1</DEFAULT>
       <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
@@ -85,7 +85,7 @@ It is intended to check if the required DNS entries are set.
           <LONGDESCRIPTION>DNS suffix to append to host names that are not fully qualified.</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>string</TYPE>
-            <REGEX error="You must enter a valid host name">^(([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])$</REGEX>
+            <REGEX error="Please enter a valid domain name or a variable">^((([a-zA-Z]|[a-zA-Z][a-zA-Z0-9\-]*[a-zA-Z0-9])\.)*([A-Za-z]|[A-Za-z][A-Za-z0-9\-]*[A-Za-z0-9])|\$\{[a-zA-Z0-9_.]+\})$</REGEX>
             <DEFAULT>example.com</DEFAULT>
       <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
