@@ -79,7 +79,6 @@ bundle common g
                                               # Rudder utilities
                                               "uuid.vbs",
                                               "userlist.bat",
-                                              "getDate.bat",
                                               "registrydns.bat",
                                               "cpuid-windows-v1.0.vbs",
 
@@ -156,7 +155,7 @@ bundle common g
 
     # The time at which the execution started
     windows.!cygwin::
-      "execRun"                    string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+      "execRun"                    string => execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"'{0:yyyy-MM-dd HH:mm:sszzz}' -f (get-date)\"", "noshell");
     android::
       "execRun"                    string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
     (!windows|cygwin).!android::
