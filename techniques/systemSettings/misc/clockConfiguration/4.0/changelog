@@ -1,0 +1,19 @@
+ -- Benoit PECCATTE <benoit.peccatte@normation.com> Tue Sep  9 08:52:55 CEST 2014
+  * Version 2.0
+  ** Rewrite with normal ordering and {}
+ -- Benoît Peccatte <benoit.peccatte@normation.com> Fri Oct 17 14:10:43 CEST 2014
+  * Version 3.0
+  ** Use rudder_common_report instead of reports:
+ -- Janos Mattyasovszky <mail@matya.hu> Fri Dec 11 00:08:22 CET 2015
+  * Version 4.0
+  ** NTP Servers
+  *** can hold multiple server in one line, separated by commas
+  *** final list is stripped of duplicates
+  ** Timezones
+  *** Adding all standard timezones
+  *** Allowing textbox (useful for variable usage)
+  ** RTC Clock
+  *** Allow to be set to UTC or Localtime or not change
+  *** Is only set on systems actually having an RTC clock
+  ** Xen Time
+  *** Allow setting of Xen Hypervisor time via Dom0
