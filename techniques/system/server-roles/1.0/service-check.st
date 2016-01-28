@@ -32,7 +32,8 @@ bundle agent generic_process_check_process(binary, initscript, name, check_on_re
 
     (root_server|process_exception_on_relay)::
 
-      "start_process" usebundle => service_ensure_running_path("${initscript}", "${binary}"),
+      "start_process" usebundle => service_ensure_running_path("${initscript}", "${binary}");
+
       "any"           usebundle => rudder_common_reports_generic("server-roles", "service_ensure_running_${c_initscript}", "&TRACKINGKEY&", "Check ${name} process", "None", "Check ${name} process running");
 
     !(root_server|process_exception_on_relay)::
