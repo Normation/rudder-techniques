@@ -30,6 +30,11 @@ bundle agent check_clock_configuration
   vars:
       "ntpServers" slist => {&CLOCK_NTPSERVERS: { "&it&"};separator=", "&};
 
+      "target_timezone" string => ifelse( strcmp("&CLOCK_TIMEZONE&", "custom"), "&CLOCK_TIMEZONE_CUSTOM&", "&CLOCK_TIMEZONE&" );
+
+    !windows::
+      "linux_timezone"   string => "${tz_variables.tz_linux[${target_timezone}]}";
+
     windows::
       # For windows, we must extract both ip and domain name values
       #"ipv4" slist => grep("(?:\\d{1,3}\.){3}\\d{1,3}","ntpServers");
@@ -45,103 +50,20 @@ bundle agent check_clock_configuration
       &endif&
 
       "current_timezone" string => execresult("\"${sys.winsysdir}\tzutil.exe\" /g", "useshell");
-
-    clock_set_france::
-
-      "linux_timezone" string => "Europe/Paris";
-      "windows_timezone" string => "Romance Standard Time";
-
-    clock_set_uk::
-
-      "linux_timezone" string => "Europe/London";
-      "windows_timezone" string => "GMT Standard Time";
-
-    clock_set_germany::
-
-      "linux_timezone" string => "Europe/Berlin";
-      "windows_timezone" string => "W. Europe Standard Time";
-
-    clock_set_spain::
-
-      "linux_timezone" string => "Europe/Madrid";
-      "windows_timezone" string => "Romance Standard Time";
-
-    clock_set_italy::
-
-      "linux_timezone" string => "Europe/Rome";
-      "windows_timezone" string => "W. Europe Standard Time";
-
-    clock_set_us_pacific::
-
-      "linux_timezone" string => "US/Pacific";
-      "windows_timezone" string => "Pacific Standard Time";
-
-    clock_set_us_mountain::
-
-      "linux_timezone" string => "US/Mountain";
-      "windows_timezone" string => "Mountain Standard Time";
-
-    clock_set_us_central::
-
-      "linux_timezone" string => "US/Central";
-      "windows_timezone" string => "Central Standard Time";
-
-    clock_set_eastern::
-
-      "linux_timezone" string => "US/Eastern";
-      "windows_timezone" string => "Eastern Standard Time";
-
-    clock_set_canada::
-
-      "linux_timezone" string => "America/Canada";
-      "windows_timezone" string => "Atlantic Standard Time";
-
-    clock_set_belgium::
-
-      "linux_timezone" string => "Europe/Brussels";
-      "windows_timezone" string => "Romance Standard Time";
-
-    clock_set_luxembourg::
-
-      "linux_timezone" string => "Europe/Luxembourg";
-      "windows_timezone" string => "Romance Standard Time";
-
-    clock_set_netherlands::
-
-      "linux_timezone" string => "Europe/Amsterdam";
-      "windows_timezone" string => "W. Europe Standard Time";
-
-    clock_set_norway::
-
-      "linux_timezone" string => "Europe/Oslo";
-      "windows_timezone" string => "Romance Standard Time";
-
-    clock_set_beijing::
-
-      "linux_timezone" string => "Asia/Shanghai";
-      "windows_timezone" string => "China Standard Time";
+      "windows_timezone" string => "${tz_variables.tz_win[${target_timezone}]}";
 
   classes:
 
-      "clock_vardef" expression => isvariable("linux_timezone");
+    !windows::
+      "clock_vardef" expression => isvariable("tz_variables.tz_linux[${target_timezone}]");
 
-      "clock_timezone_noedit" expression => strcmp("&CLOCK_TIMEZONE&","dontchange");
+    windows::
+      "clock_vardef" expression => isvariable("tz_variables.tz_win[${target_timezone}]");
 
-      "clock_set_france" expression => strcmp("&CLOCK_TIMEZONE&","france");
-      "clock_set_uk" expression => strcmp("&CLOCK_TIMEZONE&","uk");
-      "clock_set_germany" expression => strcmp("&CLOCK_TIMEZONE&","germany");
-      "clock_set_spain" expression => strcmp("&CLOCK_TIMEZONE&","spain");
-      "clock_set_italy" expression => strcmp("&CLOCK_TIMEZONE&","italy");
-      "clock_set_us_pacific" expression => strcmp("&CLOCK_TIMEZONE&","us-pacific");
-      "clock_set_us_mountain" expression => strcmp("&CLOCK_TIMEZONE&","us-mountain");
-      "clock_set_us_central" expression => strcmp("&CLOCK_TIMEZONE&","us-central");
-      "clock_set_us_eastern" expression => strcmp("&CLOCK_TIMEZONE&","us-eastern");
-      "clock_set_canada" expression => strcmp("&CLOCK_TIMEZONE&","canada");
-      "clock_set_belgium" expression => strcmp("&CLOCK_TIMEZONE&","belgium");
-      "clock_set_luxembourg" expression => strcmp("&CLOCK_TIMEZONE&","luxembourg");
-      "clock_set_netherlands" expression => strcmp("&CLOCK_TIMEZONE&","netherlands");
-      "clock_set_norway" expression => strcmp("&CLOCK_TIMEZONE&","norway");
-      "clock_set_beijing" expression => strcmp("&CLOCK_TIMEZONE&","beijing");
+    any::
+      # We don't edit the TZ if no valid variable is present - probably user input field gone wrong.
+      "clock_timezone_nochange" expression => strcmp("&CLOCK_TIMEZONE&","dontchange");
+      "clock_timezone_noedit"   expression => "clock_timezone_nochange|!clock_vardef";
 
       "clock_hwclock_sync" expression => strcmp("&CLOCK_HWSYNC_ENABLE&","true");
 
@@ -166,26 +88,26 @@ bundle agent check_clock_configuration
         classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
     # Copy the correct localtime file (distro independant)
-    !clock_timezone_noedit.!windows.clock_vardef::
+    !windows.!clock_timezone_noedit::
       "/etc/localtime"
         copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),
         comment => "Updating the /etc/localtime file",
         classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
 
     # Edit the distro dependant files to set the TZ on boot
-    (redhat.!clock_timezone_noedit).clock_vardef::
+    redhat.!clock_timezone_noedit::
       "/etc/sysconfig/clock"
         edit_line => EditCentOSTimezone("${linux_timezone}"),
         edit_defaults => noempty_backup,
         classes => kept_if_else("redhattz_kept", "repaired_redhattz", "not_repaired_redhattz");
 
-    (SuSE.!clock_timezone_noedit).clock_vardef::
+    SuSE.!clock_timezone_noedit::
       "/etc/sysconfig/clock"
         edit_line => EditSuSETimezone("${linux_timezone}"),
         edit_defaults => noempty_backup,
         classes => kept_if_else("susetz_kept", "repaired_susetz", "not_repaired_susetz");
 
-    (debian.!clock_timezone_noedit).clock_vardef::
+    debian.!clock_timezone_noedit::
       "/etc/timezone"
         edit_defaults => empty_backup,
         edit_line => EditDebianTimezone("${linux_timezone}"),
@@ -279,8 +201,11 @@ bundle agent check_clock_configuration
     pass3.(localtime_kept.((redhat.redhattz_kept)|(debian.debiantz_kept)|(SuSE.susetz_kept)))::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone was already correctly configured");
 
-    pass3.clock_timezone_noedit::
+    pass3.clock_timezone_nochange::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone edition disabled");
+
+    pass3.!clock_timezone_nochange.!clock_vardef::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Time zone provided is not valid");
 
     # Individual reports for the "Time zone" component's parts
     pass3.((windows.!clock_timezone_noedit).clock_vardef.!need_to_change_timezone)::
