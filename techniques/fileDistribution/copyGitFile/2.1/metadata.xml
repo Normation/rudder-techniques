@@ -199,6 +199,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <LONGDESCRIPTION>If set, and the path is a folder, and recursion is set to "The whole content of the folder", apply on the whole folder (won't apply to subfolders, for obvious security reasons).</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
 
