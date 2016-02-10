@@ -486,6 +486,9 @@ bundle agent addInformationsToInventory
     solaris::
       "RUDDERUUID" string => execresult("smbios | grep UUID | sed 's/  UUID: //'", "useshell");
 
+    freebsd::
+      "RUDDERUUID_cmd" string => "/usr/local/sbin/dmidecode -s system-uuid";
+
     !windows.!android::
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
