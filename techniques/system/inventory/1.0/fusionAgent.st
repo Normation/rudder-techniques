@@ -461,6 +461,12 @@ bundle agent addInformationsToInventory
     xen.xenrudderuuid::
       "RUDDERUUID" string => "${vmarray[1]}";
 
+    linux.(armv6l|armv7l)::
+      "ARMCPUINFO" string => readfile( "/proc/cpuinfo", "0" );
+
+    linux.(armv6l|armv7l).armv6lorv7lrudderuuid::
+      "RUDDERUUID" string => "${serialarray[1]}";
+
     !windows::
       "polserv_uuid"          string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
 
@@ -477,7 +483,7 @@ bundle agent addInformationsToInventory
       "android_fullname"      string => "Android ${android_version}";
       "logdate"               string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
 
-    linux.!xen::
+    linux.(!xen.!armv6l.!armv7l)::
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
 
     aix::
@@ -510,13 +516,16 @@ bundle agent addInformationsToInventory
       # Don't extract file starting by . (especially . and .., but also hidden files)
       "rudder_roles" slist => lsdir("${g.server_roles_path}", "^[^.].*", "false");
 
-    !xen::
+    !xen.!armv6l.!armv7l::
       "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
 
 
   classes:
     xen::
       "xenrudderuuid" expression => regextract("/vm/(.*)", "${VMRUDDERUUID}", "vmarray");
+
+    linux.(armv6l|armv7l)::
+      "armv6lorv7lrudderuuid" expression => regextract("Serial[\s]+:[\s](.*)\N", "${ARMCPUINFO}", "serialarray");
 
     any::
       "uuiddefined" expression => isvariable("RUDDERUUID");
