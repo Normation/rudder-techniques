@@ -19,9 +19,8 @@
 WGET := $(if $(PROXY), http_proxy=$(PROXY) ftp_proxy=$(PROXY)) /usr/bin/wget -q
 
 all: rudder-templates-cli.jar
-	echo "Nothing to do"
-	## later replace with a list of commands to generate initial promises:
-	#java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/failsafe.st
+	cp techniques/system/common/1.0/rudder-stdlib.cf initial-promises/node-server/common/1.0/
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/rudder-stdlib-core.st
 
 rudder-templates-cli.jar:
 	$(WGET) -O rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar

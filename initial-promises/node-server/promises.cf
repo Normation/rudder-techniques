@@ -91,7 +91,7 @@ bundle common va
       "end" slist => { "endExecution" };
 
       "common_inputs" slist => {
-      "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder_stdlib.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
+      "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder-stdlib.cf","common/1.0/rudder-stdlib-core.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
      };
 
 # definition of the machine roles
