@@ -51,6 +51,7 @@ It is intended to check if the required DNS entries are set.
         <LONGDESCRIPTION>If not selected, the nameservers will not be changed. If selected, the nameservers below will be enforced.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="DNS resolvers" multivalued="true">
@@ -76,6 +77,7 @@ It is intended to check if the required DNS entries are set.
         <LONGDESCRIPTION>If not selected, the DNS search suffix will not be changed. If selected, the search suffixes below will be enforced.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="DNS search list" multivalued="true">
@@ -101,6 +103,7 @@ It is intended to check if the required DNS entries are set.
         <LONGDESCRIPTION>If not selected, the DNS options will not be changed. If selected, the options below will be enforced.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="DNS options" multivalued="true">
