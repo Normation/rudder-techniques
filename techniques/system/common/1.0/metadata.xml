@@ -21,8 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <TML name="cf-served"/>
     <TML name="rudder_lib" />
-    <TML name="rudder_stdlib" />
-    <TML name="rudder_stdlib_core" />
+    <TML name="rudder-stdlib-core" />
     <TML name="internal_security" />
     <TML name="nxlog_activation"/>
     <TML name="cron_setup" />
@@ -68,6 +67,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="restart-services"/>
     <TML name="rudder-groups"/>
   </TMLS>
+
+  <FILES>
+    <FILE name="rudder-stdlib.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+  </FILES>
 
   <SYSTEMVARS>
     <NAME>AUTHORIZED_NETWORKS</NAME>
