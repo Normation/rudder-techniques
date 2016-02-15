@@ -56,7 +56,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <INPUT>
           <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_RUN</NAME>
           <DESCRIPTION>Should the command(s) below be run if the threshold is met?</DESCRIPTION>
-          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
         </INPUT>
         <INPUT>
           <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_COMMAND</NAME>
