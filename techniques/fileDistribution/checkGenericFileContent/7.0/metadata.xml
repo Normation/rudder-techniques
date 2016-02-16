@@ -217,7 +217,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<INPUT>
 				  <NAME>GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT</NAME>
 				  <DESCRIPTION>Set explicit permissions to apply on the file</DESCRIPTION>
-				  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+				  <CONSTRAINT>
+				    <TYPE>boolean</TYPE>
+				    <DEFAULT>false</DEFAULT>
+				  </CONSTRAINT>
 			</INPUT>
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_OWNER</NAME>
@@ -246,7 +249,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 			<INPUT>
 				  <NAME>GENERIC_FILE_CONTENT_POST_HOOK_RUN</NAME>
 				  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the path above?</DESCRIPTION>
-				  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+				  <CONSTRAINT>
+				    <TYPE>boolean</TYPE>
+				    <DEFAULT>false</DEFAULT>
+				  </CONSTRAINT>
 			</INPUT>
 			<INPUT>
 				  <NAME>GENERIC_FILE_CONTENT_POST_HOOK_COMMAND</NAME>

@@ -129,7 +129,10 @@ necessary and kill undesired processes.
           <NAME>PROCESS_MANAGED_CHECK_RANGE</NAME>
           <DESCRIPTION>Check range of process instances number ?</DESCRIPTION>
           <LONGDESCRIPTION>This parameter is not used on Windows systems</LONGDESCRIPTION>
-          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>PROCESS_MANAGED_MIN_INSTANCES</NAME>
