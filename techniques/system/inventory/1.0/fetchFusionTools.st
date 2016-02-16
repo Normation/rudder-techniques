@@ -22,8 +22,6 @@
 
 bundle agent fetchFusionTools
 {
-
-
   packages:
 
     debian::
@@ -41,8 +39,7 @@ bundle agent fetchFusionTools
 
   methods:
     fetchFusionTools_install_curl_error::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "inventory-all", "inventory-all", "00", "Installing 'curl' failed. Inventory registration will fail if curl is unavailable");
-
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Installing 'curl' failed. Inventory registration will fail if curl is unavailable");
 }
 
 body perms myperms

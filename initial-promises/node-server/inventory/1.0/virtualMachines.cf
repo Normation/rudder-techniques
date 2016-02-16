@@ -38,14 +38,13 @@ bundle common virtualMachines
       "virtual_box_install_path" string => execresult("${sys.winsysdir}\cmd.exe /c \"echo %VBOX_INSTALL_PATH%\"", "noshell"),
         comment => "Looking for VirtualBox environment variables";
 
-
     cygwin::
       "virtual_box_install_path" string => execresult("/usr/bin/echo $VBOX_INSTALL_PATH | /usr/bin/sed ''s/\\/\//g'' ", "useshell"),
         comment => "Looking for VirtualBox environment variables";
 
 
   classes:
-    linux::
+    !windows::
       "VirtualBoxInstalled" expression => fileexists("/usr/bin/VBoxManage"),
         comment => "Checking installation of VirtualBox";
 
@@ -53,6 +52,5 @@ bundle common virtualMachines
         comment => "Checking installation of VMWare";
 
     windows::
-      "VirtualBoxInstalled" not => regcmp("", "${virtual_box_install_path}");
-}
+      "VirtualBoxInstalled" not => regcmp("", "${virtual_box_install_path}");}
 
