@@ -92,6 +92,7 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge)
         trustkey => "${trustkey}";
         preserve => "${preserve}"; #preserver permissions
         purge    => "${purge}";
+        copy_backup => "timestamp";
     community_edition::
         portnumber => "5309";
 }
@@ -119,27 +120,18 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
 
 body copy_from copy(from)
 {
-        source => "${from}";
+        source      => "${from}";
         copy_backup => "false";
-        preserve => "true";
+        preserve    => "true";
 }
 
 body copy_from copy_digest(from)
 {
-        source => "${from}";
+        source      => "${from}";
         copy_backup => "timestamp";
-        preserve => "true";
-        compare => "digest";
-}
+        preserve    => "true";
+        compare     => "digest";
 
-#########################################################
-body classes class_trigger(if,else,kept)
-{
-        promise_kept => { "${kept}" };
-        promise_repaired => { "${if}" };
-        repair_failed => { "${else}" };
-        repair_denied    => { "${else}" };
-        repair_timeout   => { "${else}" };
 }
 
 #########################################################
@@ -177,7 +169,7 @@ body perms p(user,mode)
 
 body file_select cf3_files
 {
-        leaf_name => { "cf-.*" };
+        leaf_name   => { "cf-.*" };
         file_result => "leaf_name";
 }
 
@@ -212,23 +204,23 @@ body action longjob
 body edit_defaults noempty_backup
 {
   empty_file_before_editing => "false";
-  edit_backup => "timestamp";  # we want to keep a track of everything
-  max_file_size => "1024000";
+  edit_backup               => "timestamp";  # we want to keep a track of everything
+  max_file_size             => "1024000";
 }
 
 body edit_defaults empty_backup
 {
   empty_file_before_editing => "true";
-  edit_backup => "timestamp";
-  max_file_size => "1024000";
+  edit_backup               => "timestamp";
+  max_file_size             => "1024000";
 }
 
 
 body edit_defaults def_no_backup
 {
   empty_file_before_editing => "false";
-  edit_backup => "false";
-  max_file_size => "1024000";
+  edit_backup               => "false";
+  max_file_size             => "1024000";
 }
 
 body edit_defaults empty_size(size)
@@ -241,22 +233,23 @@ body edit_defaults empty_size(size)
 body edit_defaults noempty_backup_size(size)
 {
   empty_file_before_editing => "false";
-  edit_backup => "timestamp";  # we want to keep a track of everything
-  max_file_size => "${size}";
+  edit_backup               => "timestamp";  # we want to keep a track of everything
+  max_file_size             => "${size}";
 }
 
 body edit_defaults empty_backup_size(size)
 {
   empty_file_before_editing => "true";
-  edit_backup => "timestamp";
-  max_file_size => "${size}";
+  edit_backup               => "timestamp";
+  max_file_size             => "${size}";
 }
+
 
 body edit_defaults def_no_backup_size(size)
 {
   empty_file_before_editing => "false";
-  edit_backup => "false";
-  max_file_size => "${size}";
+  edit_backup               => "false";
+  max_file_size             => "${size}";
 }
 ########################################################
 
@@ -288,7 +281,7 @@ body replace_with With(x)
 
 {
         replace_value => "${x}";
-        occurrences => "all";
+        occurrences   => "all";
 }
 
 ########################################
@@ -298,8 +291,8 @@ body replace_with With(x)
 ################################
 body contain outputable
 {
-        useshell => "true";
-no_output=> "false";
+        useshell  => "true";
+        no_output => "false";
 }
 
 ################################
@@ -307,9 +300,9 @@ no_output=> "false";
 ################################
 body contain outputable_dir(dir)
 {
-        useshell => "true";
-no_output=> "false";
-        chdir => "${dir}";
+        useshell  => "true";
+        no_output => "false";
+        chdir     => "${dir}";
 }
 
 ################################
@@ -317,8 +310,8 @@ no_output=> "false";
 ################################
 body process_count islaunched(class)
 {
-        match_range => irange("1", "500");
-        in_range_define => { "${class}"};
+        match_range         => irange("1", "500");
+        in_range_define     => { "${class}"};
         out_of_range_define => {"no_${class}"};
 }
 
@@ -331,7 +324,7 @@ body classes cancel_all_classes(class_to_cancel) {
   cancel_kept     => { "${class_to_cancel}" };
   cancel_repaired => { "${class_to_cancel}" };
   cancel_notkept  => { "${class_to_cancel}" };
-}
+} 
 
 ###########################################################################################
 # Persistent class
@@ -345,10 +338,10 @@ body classes persistant_class(repaired, failed, length)
         repair_denied    => { "${failed}" };
         repair_timeout   => { "${failed}" };
 
-        cancel_repaired => {"${failed}"};
-        cancel_notkept => {"${repaired}"};
+        cancel_repaired  => {"${failed}"};
+        cancel_notkept   => {"${repaired}"};
 
-        persist_time => "${length}";
+        persist_time     => "${length}";
 }
 
 
@@ -366,11 +359,11 @@ body classes set_persist_classes(repaired, failed, length)
         repair_denied    => { "${failed}" };
         repair_timeout   => { "${failed}" };
 
-        cancel_kept => {"${failed}"};
-        cancel_repaired => {"${failed}"};
-        cancel_notkept => {"${repaired}"};
+        cancel_kept      => {"${failed}"};
+        cancel_repaired  => {"${failed}"};
+        cancel_notkept   => {"${repaired}"};
 
-        persist_time => "${length}";
+        persist_time     => "${length}";
 }
 
 ################################################
@@ -398,6 +391,7 @@ body copy_from digest_cp(from)
         source            => "${from}";
         compare           => "digest";
         copylink_patterns => { ".*" };
+        copy_backup       => "timestamp";
 }
 
 ################################################
@@ -410,7 +404,6 @@ body copy_from digest_cp(from)
 body classes kept_if_else_persist(kept, repaired, failed, persist) {
 
   promise_kept     => { "${kept}" };
-
   promise_repaired => { "${repaired}" };
 
   repair_failed    => { "${failed}" };
@@ -418,8 +411,7 @@ body classes kept_if_else_persist(kept, repaired, failed, persist) {
   repair_timeout   => { "${failed}" };
 
   persist_time     => "${persist}";
-
-}
+} 
 
 ################################################
 # Special kept_if_else
@@ -454,9 +446,9 @@ body perms group(group)
 body depth_search recurse_with_current(d)
 
 {
-        depth => "${d}";
+        depth           => "${d}";
         include_basedir => "true";
-        xdev  => "false";
+        xdev            => "false";
 }
 
 ########################################################################
@@ -464,10 +456,10 @@ body depth_search recurse_with_current(d)
 ########################################################################
 body mount rudder_nfs(server,source,type,persistence)
 {
-        mount_type => "${type}";
+        mount_type   => "${type}";
         mount_source => "${source}";
         mount_server => "${server}";
-        edit_fstab => "${persistence}";
+        edit_fstab   => "${persistence}";
 }
 
 ########################################################################
@@ -476,8 +468,8 @@ body mount rudder_nfs(server,source,type,persistence)
 body edit_defaults rudder_empty_select(select)
 {
         empty_file_before_editing => "${select}";
-        max_file_size => "1024000";
-        edit_backup => "timestamp";
+        max_file_size             => "1024000";
+        edit_backup               => "timestamp";
 }
 
 ########################################################################
@@ -485,8 +477,8 @@ body edit_defaults rudder_empty_select(select)
 ########################################################################
 body depth_search recurse_withroot(d)
 {
-        depth => "${d}";
-# xdev  => "true";
+        depth           => "${d}";
+        # xdev            => "true";
         include_basedir => "true";
 }
 
@@ -516,27 +508,20 @@ body file_select date_pattern(age, pattern)
 body package_method rudder_rug
 {
 
-        package_changes => "individual";
+        package_changes               => "individual";
 
         package_list_command          => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
-        package_patch_list_command    => "/usr/bin/rug patches";
         package_list_update_ifelapsed => "240";
         package_installed_regex       => "i.*";
         package_list_name_regex       => "[^|]+\|[^|]+\|\s+([^\s]+).*";
         package_list_version_regex    => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
         package_list_arch_regex       => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
 
-        package_patch_installed_regex => ".*Installed.*|.*Not Applicable.*";
-        package_patch_name_regex      => "[^|]+\|\s+([^\s]+).*";
-        package_patch_version_regex   => "[^|]+\|[^|]+\|\s+([^\s]+).*";
-
         package_name_convention       => "${name}";
         package_add_command           => "/usr/bin/rug install -y";
         package_delete_command        => "/usr/bin/rug remove -y";
         package_update_command        => "/usr/bin/rug update -y";
 
-        #Unsure about the behavior of this command ...
-        #package_patch_command        => "/usr/bin/rug patch-info";
         package_verify_command        => "/usr/bin/rug verify -y$"; # $ means no args
 
         # make correct version comparisons
@@ -551,27 +536,27 @@ body package_method rudder_rug
 body package_method rudder_yum
 {
 
-        package_changes               => "bulk";
-        package_list_command          => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
-        package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
-        package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
-        package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
-        package_installed_regex       => ".*";
-        package_name_convention       => "${name}";
-        package_list_update_command   => "/usr/bin/yum --quiet check-update";
-        package_list_update_ifelapsed => "240";
-        package_patch_name_regex      => "([^.]+).*";
-        package_patch_version_regex   => "[^\s]\s+([^\s]+).*";
-        package_patch_arch_regex      => "[^.]+\.([^\s]+).*";
-        package_add_command           => "/usr/bin/yum -y install";
-        package_update_command        => "/usr/bin/yum -y update";
-        package_patch_command         => "/usr/bin/yum -y update";
-        package_delete_command        => "/bin/rpm -e --nodeps --allmatches";
-        package_verify_command        => "/bin/rpm -V";
+  package_changes               => "bulk";
+  package_list_command          => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+  package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
+  package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
+  package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
+  package_installed_regex       => ".*";
+  package_name_convention       => "${name}";
+  package_list_update_command   => "/usr/bin/yum --quiet check-update";
+  package_list_update_ifelapsed => "240";
+  package_patch_name_regex      => "([^.]+).*";
+  package_patch_version_regex   => "[^\s]\s+([^\s]+).*";
+  package_patch_arch_regex      => "[^.]+\.([^\s]+).*";
+  package_add_command           => "/usr/bin/yum -y install";
+  package_update_command        => "/usr/bin/yum -y update";
+  package_patch_command         => "/usr/bin/yum -y update";
+  package_delete_command        => "/bin/rpm -e --nodeps --allmatches";
+  package_verify_command        => "/bin/rpm -V";
 
-        # make correct version comparisons
-        package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
-        package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+  # make correct version comparisons
+  package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
+  package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
 
 }
 
@@ -585,7 +570,7 @@ bundle edit_line prepend(lines)
   insert_lines:
 
       "${lines}"
-        comment => "Prepending line : ${lines}",
+        comment  => "Prepending line: ${lines}",
         location => start;
 
 }
@@ -620,7 +605,7 @@ bundle edit_line replace_line(regex,replacement)
 
       "${regex}"
         replace_with => With("${replacement}"),
-        comment => "Replace every occurence of ${regex} with ${replacement}";
+        comment      => "Replace every occurence of ${regex} with ${replacement}";
 
 }
 
@@ -636,7 +621,7 @@ bundle edit_line from_to(from,to)
 
   insert_lines:
 
-      "${to}" comment => "Add ${to}";
+      "${to}"   comment => "Add ${to}";
 
 }
 
@@ -646,7 +631,7 @@ bundle edit_line from_to(from,to)
 
 body contain in_shell_silent
 {
-        useshell => "true";
+        useshell  => "true";
         no_output => "true";
 }
 
@@ -656,9 +641,56 @@ body contain in_shell_silent
 
 bundle edit_line insert_rudder_disclaimer
 {
+  vars:
+      "file_edit_header" string => "${rudder_parameters.rudder_file_edit_header}";
+
+  defaults:
+      "file_edit_header" string => "#############################################################
+### This file is protected by your Rudder infrastructure. ###
+### Manually editing the file might lead your Rudder      ###
+### infrastructure to change back the server's            ###
+### configuration and/or to raise a compliance alert.     ###
+#############################################################
+",
+        if_match_regex => "${const.dollar}{rudder_parameters.rudder_file_edit_header}";
+
   insert_lines:
 
-      "## File managed by Rudder - Edit with caution, some changes may disappear (especially passwords) ##"
+      "${file_edit_header}"
         location => start;
 
+}
+
+###################################################
+# edit_line rudder_change_aix_password_entry
+###################################################
+
+bundle edit_line rudder_change_aix_password_entry(user, entry, content)
+{
+
+  field_edits:
+
+    "\s*${entry}\s*=.*"
+      select_region => rudder_aix_user_section("${user}"),
+      edit_field    => col("=","2"," ${content}","set");
+
+}
+
+###################################################
+# select_region rudder_aix_user_section
+###################################################
+
+body select_region rudder_aix_user_section(x)
+{
+select_start => "${x}:\s*";
+select_end => "\S*:\s*";
+}
+
+#######################################################
+# Match all variants of cron proccesses
+
+body process_select cron_bin
+{
+  command => "(/usr/sbin/)?crond?( -n| -f)?";
+  process_result => "command";
 }

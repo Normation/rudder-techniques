@@ -24,13 +24,20 @@
 
 bundle server access_rules
 {
-# Access rules are only defined on a policy server. Standard nodes should not share any files.
+  vars:
+    enterprise::
+      "query_types" slist => {"delta", "rebase", "full"};
+  # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-    policy_server::
+    policy_server|role_rudder_relay_promises_only::
+      ""
+        handle        => "policy_server_uuid",
+        resource_type => "literal",
+        admit         => {".*"};
 
       "${def.dir_masterfiles}"
-        handle => "grant_access_policy",
+        handle  => "grant_access_policy",
         comment => "Grant access to the policy updates",
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
@@ -47,21 +54,38 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
-      "/var/rudder/share/root/"
-        maproot => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}"))  },
-        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+      # Deny access to 50_techniques folder
+      "${g.rudder_ncf_origin_local}/50_techniques"
+        deny    => {  ".*"  };
 
 
+    role_rudder_cfengine_mission_portal::
+      "${query_types}"
+        handle             => "server_access_grant_${query_types}_for_hub",
+        comment            => "Grant ${query_types} reporting query for the hub on the policy server",
+        resource_type      => "query",
+        report_data_select => rudder_data_select_policy_hub,
+        admit              => { ${def.policy_server}, @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
 
-      # the policy server must have access to the cfengine folder
-      "${sys.workdir}"
-        maproot => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}"))  },
-        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}"))  };
 
     any::
+          "/var/rudder/share/root/"
+            maproot => { host2ip("localhost"), string_downcase(escape("localhost"))  },
+            admit   => { host2ip("localhost"), string_downcase(escape("localhost"))  };
+
+         
+    policy_server_set::
       # Allow server to remotely run the agent
-      "/var/rudder/cfengine-community/bin/cf-agent"
+      "${sys.workdir}/bin/cf-agent"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+
+      "${query_types}"
+        handle => "server_access_grant_${query_types}_for_hosts",
+        comment => "Grant ${query_types} reporting query for the hub on the hosts",
+        resource_type => "query",
+        report_data_select => rudder_data_select_host,
+        admit => { ${def.policy_server}, @{sys.ip_addresses} };
+
 
   roles:
       # Allow user root to set any class
@@ -71,7 +95,8 @@ bundle server access_rules
 bundle common def
 {
   vars:
-      "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
+      "policy_server_file"
+        string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
    # Use localhost as default policy_server if no policy_server.dat exists
@@ -92,38 +117,85 @@ bundle common def
 
     policy_server::
       "acl" slist => {
-      '%%POLICY_SERVER_ALLOWED_NETWORKS%%'
+      "127.0.0.0/8" , "::1",
     };
-    !policy_server::
+    !policy_server.policy_server_set::
       "acl" slist => {
       "${def.policy_server}", host2ip("${def.policy_server}")
     };
 
   classes:
       "policy_server_set" expression => fileexists("${def.policy_server_file}");
-
 }
 
 
 body server control
 {
         trustkeysfrom     => {
-      "127.0.0.0/8" , "::1",
-        @{def.acl} ,
-          host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
-  }; #trustkey allows the exchange of keys
-        allowconnects     => {
-       @{def.acl} ,
-          host2ip("${server_info.cfserved}"), "${server_info.cfserved}"
-  };
+          @{def.acl} ,
 
+                    host2ip("localhost"), "localhost"
+        }; #trustkey allows the exchange of keys
+
+        allowconnects     => {
+          @{def.acl} ,
+
+                    host2ip("localhost"), "localhost"
+        };
         maxconnections    => "1000";
         logallconnections => "true";
 
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf && ${sys.workdir}/bin/cf-agent";
-        allowusers        => { "root" };
+        allowusers        => {
+          "root",
+        };
 
-    community_edition::
+        denybadclocks => "true";
+
+    community_edition.!debug_port::
         port => "5309";
+    community_edition.debug_port::
+        port => "5310";
 
+}
+
+#######################################################
+
+body runagent control
+{
+  # If using enterprise, the nodes to connect to are using default port
+        hosts => {
+
+                    "localhost",
+        };
+
+        max_children => "25";
+
+    community_edition.!debug_port::
+        port => "5309";
+    community_edition.debug_port::
+        port => "5310";
+}
+body report_data_select rudder_data_select_host
+# @brief Data to collect from remote hosts by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include => { "inventory", "report" };
+    metatags_exclude => { "noreport" };
+    monitoring_include => { ".*" };
+}
+
+body report_data_select rudder_data_select_policy_hub
+# @brief Data to collect from policy servers by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include => { "inventory", "report" };
+    metatags_exclude => { "noreport" };
+    monitoring_include => { ".*" };
 }
