@@ -21,6 +21,18 @@ WGET := $(if $(PROXY), http_proxy=$(PROXY) ftp_proxy=$(PROXY)) /usr/bin/wget -q
 all: rudder-templates-cli.jar
 	cp techniques/system/common/1.0/rudder-stdlib.cf initial-promises/node-server/common/1.0/
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/rudder-stdlib-core.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/cf-served.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/internal_security.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/rudder_lib.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/site.st
 
 rudder-templates-cli.jar:
 	$(WGET) -O rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
+
+clean:
+	rm -f initial-promises/node-server/common/1.0/rudder-stdlib.cf
+	rm -f initial-promises/node-server/common/1.0/rudder-stdlib-core.cf
+	rm -f initial-promises/node-server/common/1.0/cf-served.cf
+	rm -f initial-promises/node-server/common/1.0/internal_security.cf
+	rm -f initial-promises/node-server/common/1.0/rudder_lib.cf
+	rm -f initial-promises/node-server/common/1.0/site.cf

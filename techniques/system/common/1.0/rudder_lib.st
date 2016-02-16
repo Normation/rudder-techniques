@@ -135,18 +135,6 @@ body copy_from copy_digest(from)
 }
 
 #########################################################
-# This body is deprecated, and should not be used anymore
-#########################################################
-body classes class_trigger(if,else,kept)
-{
-        promise_kept     => { "${kept}" };
-        promise_repaired => { "${if}" };
-        repair_failed    => { "${else}" };
-        repair_denied    => { "${else}" };
-        repair_timeout   => { "${else}" };
-}
-
-#########################################################
 body location append
 {
         before_after => "after";
@@ -653,9 +641,22 @@ body contain in_shell_silent
 
 bundle edit_line insert_rudder_disclaimer
 {
+  vars:
+      "file_edit_header" string => "${rudder_parameters.rudder_file_edit_header}";
+
+  defaults:
+      "file_edit_header" string => "#############################################################
+### This file is protected by your Rudder infrastructure. ###
+### Manually editing the file might lead your Rudder      ###
+### infrastructure to change back the server's            ###
+### configuration and/or to raise a compliance alert.     ###
+#############################################################
+",
+        if_match_regex => "${const.dollar}{rudder_parameters.rudder_file_edit_header}";
+
   insert_lines:
 
-      "${rudder_parameters.rudder_file_edit_header}"
+      "${file_edit_header}"
         location => start;
 
 }

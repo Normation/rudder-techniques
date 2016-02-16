@@ -1,4 +1,14 @@
 {
-  "OUTPUT_FORMAT": "initial",
-  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00"
+  "INITIAL": true,
+  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",
+  "MANAGED_NODES_NAME": [ "localhost" ],
+  "MANAGED_NODES_ID": [ "root" ],
+  "POLICYSERVER_ADMIN": "root",
+  "COMMUNITYPORT": "5309",
+  "DENYBADCLOCKS": "true",
+  "DAVUSER": "rudder",
+  "DAVPASSWORD": "rudder",
+  "RUDDER_HEARTBEAT_INTERVAL": "4",
+  "RUDDER_NODE_CONFIG_ID": "0",
+  "CONFIGURATION_REPOSITORY_FOLDER": "/var/rudder/configuration-repository"
 }
