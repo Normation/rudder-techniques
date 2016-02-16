@@ -52,6 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Ignore file or directory if it does not exist</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -59,6 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>In case the path is a directory, the permissions should be adjusted recursively</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -66,6 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Set file owner?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -80,6 +83,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Set file group?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -94,6 +98,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Set file permissions?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -109,6 +114,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Set SetUID bit?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -117,6 +123,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
     </SECTION>
