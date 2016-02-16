@@ -51,6 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>In case the path is a directory, the permissions should be adjusted recursively</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -58,6 +59,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Should the owner of the file be modified ?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -72,6 +74,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Should the group of the file be modified ?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -86,6 +89,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Should the permissions of the file be modified ?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
