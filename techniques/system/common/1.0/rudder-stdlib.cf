@@ -45,7 +45,7 @@ bundle edit_line rudder_common_disclaimer
         if_match_regex => "${const.dollar}{rudder_parameters.rudder_file_edit_header}";
 
   insert_lines:
-      "${rudder_parameters.rudder_file_edit_header}"
+      "${file_edit_header}"
         location    => start,
         insert_type => "preserve_block";
 }

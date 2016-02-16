@@ -144,14 +144,14 @@ bundle common def
 
    # List here the IP masks that we grant access to on the server
 
-&if(AUTHORIZED_NETWORKS)&
     policy_server::
       "acl" slist => {
       "127.0.0.0/8" , "::1",
+&if(AUTHORIZED_NETWORKS)&
       host2ip("${def.policy_server}"), # the policy server can connect to a relay
       &AUTHORIZED_NETWORKS:{net|"&net&",}&
-    };
 &endif&
+    };
     !policy_server.policy_server_set::
       "acl" slist => {
       "${def.policy_server}", host2ip("${def.policy_server}")
@@ -180,14 +180,6 @@ body server control
           "&it&"};separator=", "&
           &endif&
         };
-
-        allowallconnects  => {
-          @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          "&it&"};separator=", "&
-          &endif&
-        };
 &else&
         trustkeysfrom     => {
           @{def.acl} ,
@@ -204,15 +196,8 @@ body server control
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
         };
-
-        allowallconnects  => {
-          @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          host2ip("&it&"), "&it&"};separator=", "&
-          &endif&
-        };
 &endif&
+
         maxconnections    => "1000";
         logallconnections => "true";
 
