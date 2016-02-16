@@ -1,5 +1,6 @@
 {
   "INITIAL": true,
+  "NOVA": true,
   "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",
   "MANAGED_NODES_NAME": [ "localhost" ],
   "MANAGED_NODES_ID": [ "root" ],
@@ -10,5 +11,6 @@
   "DAVPASSWORD": "rudder",
   "RUDDER_HEARTBEAT_INTERVAL": "4",
   "RUDDER_NODE_CONFIG_ID": "0",
+  "AGENT_RUN_INTERVAL": "5",
   "CONFIGURATION_REPOSITORY_FOLDER": "/var/rudder/configuration-repository"
 }
