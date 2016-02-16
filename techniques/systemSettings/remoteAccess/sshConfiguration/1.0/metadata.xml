@@ -100,6 +100,7 @@ It then adds ssh to the boot init scripts if not already set to start on boot.
         <DESCRIPTION>Do you want to define the Ports ?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="ssh ports" multivalued="true">

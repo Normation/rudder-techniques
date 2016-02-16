@@ -140,7 +140,10 @@ The default location of the shared folder is /var/rudder/configuration-repositor
        <INPUT>
           <NAME>COPYFILE_POST_HOOK_RUN</NAME>
           <DESCRIPTION>Should the command(s) below be run if any modifications (permission or overwriting) are made on the files above?</DESCRIPTION>
-          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
        </INPUT>
        <INPUT>
           <NAME>COPYFILE_POST_HOOK_COMMAND</NAME>

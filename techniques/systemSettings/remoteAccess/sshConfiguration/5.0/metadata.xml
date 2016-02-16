@@ -107,6 +107,7 @@ This implemenation is intended as a reference for Technique development best pra
         <DESCRIPTION>Do you want to define the Ports ?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="SSH ports" multivalued="true">
@@ -124,6 +125,7 @@ This implemenation is intended as a reference for Technique development best pra
         <DESCRIPTION>Do you want to define the listening addresses ?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="SSH addresses" multivalued="true">

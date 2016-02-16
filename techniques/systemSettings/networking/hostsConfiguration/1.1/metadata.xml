@@ -46,6 +46,7 @@ It is intended to check if the required hosts entries are set.
         <LONGDESCRIPTION>If enabled, only the entries and the template defined below will be inserted in the hosts file. Every other line will be deleted</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>

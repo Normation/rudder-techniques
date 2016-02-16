@@ -153,7 +153,10 @@ presence of a package, and if not met to enforce them.
         <INPUT>
           <NAME>RPM_PACKAGE_POST_HOOK_RUN</NAME> 
           <DESCRIPTION>Should the command(s) below be run if the above package has been modified?</DESCRIPTION>
-          <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
         </INPUT>
         <INPUT>
           <NAME>RPM_PACKAGE_POST_HOOK_COMMAND</NAME>
