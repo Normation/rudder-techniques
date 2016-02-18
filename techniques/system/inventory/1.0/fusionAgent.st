@@ -593,7 +593,7 @@ bundle agent compressInventories
     !windows.gzip_installed::
 
       "${g.rudder_inventories}"
-        transformer  => "${g.rudder_gzip} -fq ${this.promiser}",
+        transformer  => "${g.gzip} -fq ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
         comment      => "gzip inventory files";
