@@ -159,7 +159,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<DESCRIPTION>Set SetUID bit?</DESCRIPTION>
 				<LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
 				<CONSTRAINT>
-					<TYPE>boolean</TYPE>
+				  <TYPE>boolean</TYPE>
+				  <DEFAULT>false</DEFAULT>
 				</CONSTRAINT>
 			</INPUT>
 			<INPUT>
@@ -167,7 +168,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 				<DESCRIPTION>Set SetGID bit?</DESCRIPTION>
 				<LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
 				<CONSTRAINT>
-					<TYPE>boolean</TYPE>
+				  <TYPE>boolean</TYPE>
+				  <DEFAULT>false</DEFAULT>
 				</CONSTRAINT>
 			</INPUT>
 		</SECTION>
@@ -175,7 +177,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		  <INPUT>
 			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN</NAME>
 			  <DESCRIPTION>Should the command(s) below be run if any modifications are made on the path above?</DESCRIPTION>
-			  <CONSTRAINT><TYPE>boolean</TYPE></CONSTRAINT>
+			  <CONSTRAINT>
+			    <TYPE>boolean</TYPE>
+			    <DEFAULT>false</DEFAULT>
+			  </CONSTRAINT>
 		  </INPUT>
 		  <INPUT>
 			  <NAME>FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND</NAME>
