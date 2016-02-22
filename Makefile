@@ -30,6 +30,14 @@ all: rudder-templates-cli.jar
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0 techniques/system/inventory/1.0/virtualMachines.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0 techniques/system/inventory/1.0/fetchFusionTools.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0 techniques/system/inventory/1.0/fusionAgent.st
+	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
+	cp techniques/system/distributePolicy/1.0/rudder-ncf-conf.st initial-promises/node-server/distributePolicy/ncf/ncf.conf
+	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server/distributePolicy/rudder-rsyslog-root.conf techniques/system/distributePolicy/1.0/rudder-rsyslog-root.st
+	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server/distributePolicy/rudder-rsyslog-relay.conf techniques/system/distributePolicy/1.0/rudder-rsyslog-relay.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0 techniques/system/distributePolicy/1.0/rsyslogConf.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0 techniques/system/distributePolicy/1.0/propagatePromises.st
+
+
 
 rudder-templates-cli.jar:
 	$(WGET) -O rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
@@ -44,4 +52,8 @@ clean:
 	rm -f initial-promises/node-server/node-server/inventory/1.0/virtualMachines.st
 	rm -f initial-promises/node-server/node-server/inventory/1.0/fetchFusionTools.cf
 	rm -f initial-promises/node-server/node-server/inventory/1.0/fusionAgent.cf
-
+	rm -f initial-promises/node-server/distributePolicy/ncf/ncf.conf
+	rm -f initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-root.conf
+	rm -f initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf
+	rm -f initial-promises/node-server/distributePolicy/1.0/techniques/system/distributePolicy/1.0/rsyslogConf.cf
+	rm -f initial-promises/node-server/distributePolicy/1.0/propagatePromises.cf
