@@ -71,6 +71,7 @@ system/server-roles/1.0
 systemSettings/misc/clockConfiguration/1.0
 systemSettings/misc/clockConfiguration/2.0
 systemSettings/misc/clockConfiguration/3.0
+systemSettings/misc/clockConfiguration/3.1
 systemSettings/misc/genericCommandVariableDefinition/1.0
 systemSettings/misc/genericCommandVariableDefinition/2.0
 systemSettings/misc/genericVariableDefinition/1.0
