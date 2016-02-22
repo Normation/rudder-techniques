@@ -159,6 +159,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>perm</TYPE>
+          <DEFAULT>644</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
