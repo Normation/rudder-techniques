@@ -129,7 +129,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   - "exists" copies the file if the promised file does not already exist.
   - "binary" copies the file if they are both plain files and a byte-for-byte comparison determines that they are different. If both are not plain files, CFEngine reverts to comparing the mtime and ctime of the files. If the source file is on a different machine (i.e., network copy), then hash is used instead to reduce network bandwidth.
   - "digest" copies the file if they are both plain files and a MD5 message digest comparison indicates that the files are different.
-  The "mtime" option is set by default but "digest" is highly recommended for critical files such as shadow.</LONGDESCRIPTION>
+  The "digest" option is set by default but may offer poor performance on large numbers (over 100) of file copies - in that case use "mtime" instead.</LONGDESCRIPTION>
         <ITEM>
           <VALUE>mtime</VALUE>
           <LABEL>mtime</LABEL>
@@ -154,6 +154,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <VALUE>exists</VALUE>
           <LABEL>exists</LABEL>
         </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>digest</DEFAULT>
+        <CONSTRAINT>
       </SELECT1>
 
       <INPUT>
