@@ -111,7 +111,7 @@ bundle agent services_management
         ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was not running and has been restarted"),
-        ifvarclass => canonify("process_${index}_restart.start_process_${index}.service_start_${service[${index}][name]}_repaired");
+        ifvarclass => concat("process_${index}_restart", ".", "start_process_${index}",  ".", canonify("service_start_${service[${index}][name]}_repaired");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process couldn't be started"),
         ifvarclass => canonify("service_start_${service[${index}][name]}_not_ok");
@@ -120,10 +120,10 @@ bundle agent services_management
         ifvarclass => "stop_process_${index}.process_${index}_restart.graceful_stop_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped"),
-        ifvarclass => canonify("stop_process_${index}.!process_${index}_restart.service_stop_${service[${index}][name]}_repaired.graceful_stop_process_${index}");
+        ifvarclass => concat("stop_process_${index}", ".!", "process_${index}_restart", ".", canonify("service_stop_${service[${index}][name]}_repaired"), ".", "graceful_stop_process_${index}");
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process could't be stopped"),
-        ifvarclass => canonify("stop_process_${index}.!process_${index}_restart.service_stop_${service[${index}][name]}_not_ok");
+        ifvarclass => concat("stop_process_${index}", ".!", "process_${index}_restart", ".", canonify("service_stop_${service[${index}][name]}_not_ok"));
 
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running"),
@@ -153,15 +153,15 @@ bundle agent services_management
 
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} is correct"),
-        ifvarclass => "check_process_range_${index}.defined_process_name_${index}.!${service[${index}][canon_name]}_out_of_range";
+        ifvarclass => concat("check_process_range_${index}", ".", "defined_process_name_${index}", ".!", canonify("${service[${index}][canon_name]}_out_of_range"));
 
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired"),
-        ifvarclass => canonify("check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][name]}_repaired");
+        ifvarclass => concat("check_process_range_${index}", ".", "defined_process_name_${index}", ".", canonify("${service[${index}][canon_name]}_out_of_range"), ".", canonify("service_restart_${service[${index}][name]}_repaired"));
 
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired"),
-        ifvarclass => canonify("check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][name]}_not_ok");
+        ifvarclass => concat("check_process_range_${index}", ".", "defined_process_name_${index}", ".", canonify("${service[${index}][canon_name]}_out_of_range"), ".", canonify("service_restart_${service[${index}][name]}_not_ok"));
 
     windows::
       "any" usebundle => rudder_common_report("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "Checking the number of processes within a range is not implemened on Windows"),
@@ -172,26 +172,13 @@ bundle agent services_management
     any::
       "any" usebundle => rudder_common_report("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required"),
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
+        
+      "any" usebundle => rudder_common_report_generic("ServicesManagement", "service_ensure_started_at_boot_${service[${index}][name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
+        ifvarclass => canonify("bootstart_process_${index}");
+          
+      "any" usebundle => rudder_common_report_generic("ServicesManagement", "service_ensure_stopped_${service[${index}][name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
+        ifvarclass => canonify("bootstart_prevent_process_${index}");
 
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} is started on boot as required"),
-        ifvarclass => canonify("bootstart_process_${index}.service_ensure_started_at_boot_${service[${index}][name]}_ok");
-
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} has been set to start on boot"),
-        ifvarclass => canonify("bootstart_process_${index}.service_ensure_started_at_boot_${service[${index}][name]}_repaired");
-
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Could not set ${service[${index}][name]} to start on boot!"),
-        ifvarclass => canonify("bootstart_process_${index}.service_ensure_started_at_boot_${service[${index}][name]}_not_ok");
-
-
-
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} is not started on boot as required"),
-        ifvarclass => canonify("!bootstart_process_${index}.service_ensure_stopped_${service[${index}][name]}_ok");
-
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} has been prevented to start on boot"),
-        ifvarclass => canonify("bootstart_prevent_process_${index}.service_ensure_stopped_${service[${index}][name]}_repaired");
-
-      "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "Could not prevent ${service[${index}][name]} to start on boot!"),
-        ifvarclass => canonify("bootstart_prevent_process_${index}.service_ensure_stopped_${service[${index}][name]}_not_ok");
 
   processes:
     !windows::
