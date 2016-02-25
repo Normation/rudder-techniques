@@ -142,7 +142,7 @@ It is intended to check the user parameters on the target host.
             <MAYBEEMPTY>true</MAYBEEMPTY>
             <TYPE>password</TYPE>
             <!-- Specify the allowed hash algorithms, from the strongest to the weakest -->
-            <PASSWORDHASH>linux-shadow-sha512,linux-shadow-sha256,linux-shadow-md5,unix-crypt-des</PASSWORDHASH> 
+            <PASSWORDHASH>linux-shadow-sha512,linux-shadow-sha256,linux-shadow-md5,unix-crypt-des,plain</PASSWORDHASH> 
           </CONSTRAINT>
         </INPUT>
       </SECTION>

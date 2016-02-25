@@ -131,7 +131,7 @@ It is intended to check the user parameters on the target host.
           <CONSTRAINT>
             <MAYBEEMPTY>true</MAYBEEMPTY>
             <TYPE>password</TYPE>
-            <PASSWORDHASH>linux-shadow-md5,linux-shadow-sha256,linux-shadow-sha512</PASSWORDHASH> 
+            <PASSWORDHASH>linux-shadow-md5,linux-shadow-sha256,linux-shadow-sha512,plain</PASSWORDHASH> 
           </CONSTRAINT>
         </INPUT>
       </SECTION>
