@@ -34,6 +34,8 @@ bundle agent rudder_motd
 
       "rudder_motd_config[file_empty]"  string => "&MOTD_EMPTY&";
 
+      "rudder_motd_config[banner]"      string => "&MOTD_BANNER&";
+
       "rudder_motd_config[trackingkey]" string => "&TRACKINGKEY&";
 
   methods:

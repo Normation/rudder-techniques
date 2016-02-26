@@ -20,7 +20,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 It is intended to check if the required motd is installed.
 -->
-<TECHNIQUE name="MOTD configuration">
+<TECHNIQUE name="MOTD and pre-login banner configuration">
   <DESCRIPTION>This technique will check if the required Message Of The Day is present on the system.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related, Windows">UNIX, Windows</OS>
@@ -84,6 +84,24 @@ It is intended to check if the required motd is installed.
           <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
+
+      <SELECT1>
+        <NAME>MOTD_BANNER</NAME>
+        <DESCRIPTION>Display also this message before login</DESCRIPTION>
+        <LONGDESCRIPTION>If this option is set, the text will also be printed before the login prompt (by editing /etc/issue and /etc/issue.net). Not available on Windows.</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
     </SECTION>
   </SECTIONS>
 
