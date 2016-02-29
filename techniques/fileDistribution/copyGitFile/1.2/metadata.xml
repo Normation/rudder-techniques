@@ -107,7 +107,7 @@ The "digest" option is set by default but may offer poor performance on large nu
       </ITEM>
       <CONSTRAINT>
         <DEFAULT>digest</DEFAULT>
-      <CONSTRAINT>
+      </CONSTRAINT>
     </SELECT1>
 
       <INPUT>
