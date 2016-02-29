@@ -154,6 +154,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <VALUE>exists</VALUE>
           <LABEL>exists</LABEL>
         </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>digest</DEFAULT>
+        </CONSTRAINT>
       </SELECT1>
 
       <INPUT>
