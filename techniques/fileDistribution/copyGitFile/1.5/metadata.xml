@@ -143,7 +143,7 @@ The default location of the shared folder is /var/rudder/configuration-repositor
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>digest</DEFAULT>
-        <CONSTRAINT>
+        </CONSTRAINT>
       </SELECT1>
 
       <INPUT>
