@@ -18,6 +18,7 @@ applications/aptPackageManagerSettings/1.0
 applications/aptPackageManagerSettings/2.0
 applications/openvpnClient/1.0
 applications/openvpnClient/2.0
+applications/repoGpgKeyManagement/1.0
 applications/rpmPackageInstallation/1.0
 applications/rpmPackageInstallation/2.0
 applications/rpmPackageInstallation/2.1
@@ -114,6 +115,7 @@ systemSettings/systemManagement/motdConfiguration/1.0
 systemSettings/systemManagement/motdConfiguration/2.0
 systemSettings/systemManagement/motdConfiguration/3.0
 systemSettings/systemManagement/motdConfiguration/3.1
+systemSettings/systemManagement/motdConfiguration/3.2
 systemSettings/userManagement/groupManagement/1.0
 systemSettings/userManagement/groupManagement/2.0
 systemSettings/userManagement/groupManagement/3.0
