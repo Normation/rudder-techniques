@@ -93,7 +93,7 @@ find_directories() {
 
       if [ "${LAST}" -eq 1 ]
       then
-        perl -pe 's|/(\d+)\.(\d+)| $1 $2|' |
+        perl -pe 's|(.*)/(\d+)\.(\d+)|$1 $2 $3|' |
           sort -k 1,1d -k 2,2nr -k 3,3nr | 
           perl -ne '/(.*) (\d+) (\d+)/;print "$1/$2.$3\n" unless($n eq $1);$n=$1'
       else
