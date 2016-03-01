@@ -17,14 +17,14 @@ fi
 METADATA_EXISTS=$(find ${REPOSITORY_PATH} -type f -name "policy.xml" | wc -l)
 if [ ${METADATA_EXISTS} -ne 0 ];then
   echo "Reason: There are 'policy.xml' files in the repository. Use 'metadata.xml' instead"
-  EXIT=2
+  EXIT=1
 fi
 
 # Check that all XML files are well-formed
 if ! find ${REPOSITORY_PATH} -type f -name "*.xml" | xargs -L 1 ${REPOSITORY_PATH}/scripts/xval.pl -q
 then
   echo "Reason: XML file(s) seems to be not valid in the repository."
-  EXIT=3
+  EXIT=1
 fi
 
 # Check that the non-existant log level "log_error" is never used
@@ -33,7 +33,7 @@ do
   if grep -rHn "log_error" "$filename" > /dev/null
   then
     echo "Reason: illegal log level 'log_error' found in $filename. Use result_error instead"
-    EXIT=4
+    EXIT=1
   fi
 done
 
@@ -43,7 +43,7 @@ do
   if egrep -rHn 'classes\s+=>\s+class_trigger\s*\(' "$filename" > /dev/null
   then
     echo "Reason: deprecated body 'class_trigger' found in $filename. Use kept_if_else instead"
-    EXIT=5
+    EXIT=1
   fi
 done
 
@@ -54,7 +54,7 @@ do
   if [ ${CHECK_AMPERSAND} -ne 0 ]
   then
     echo "Reason: found presence of double ampersand which could prevent Rudder to generate CFEngine promises properly"
-    EXIT=6
+    EXIT=1
   fi
 done
 
@@ -62,21 +62,21 @@ done
 if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/server-roles/1.0/rudder-logrotate.st ${REPOSITORY_PATH}/initial-promises/node-server/server-roles/logrotate.conf/rudder
 then
   echo "Logrotate files ${REPOSITORY_PATH}/techniques/system/server-roles/1.0/rudder-logrotate.st and ${REPOSITORY_PATH}/initial-promises/node-server/server-roles/logrotate.conf/rudder differ"
-  EXIT=7
+  EXIT=1
 fi
 
 # Check that minicurl is synchronized from techniques to initial-promises
 if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl
 then
   echo "The minicurl utility in ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st and ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl differ"
-  EXIT=8
+  EXIT=1
 fi
 
 # Check that no StringTemplate thingies were put into the initial-promises ( lines beginning with & or StringTemplate iterators )
 if grep -E -r '^\s*&|&[a-zA-Z_]&' ${REPOSITORY_PATH}/initial-promises
 then
   echo "There are some StringTemplate definitions in the initial promises"
-  EXIT=9
+  EXIT=1
 fi
 
 # Check that we are not using classes to detect distribution version as DistributionVersion (which does not exists)
@@ -86,7 +86,7 @@ do
   if [ ${CHECK_CLASS_DISTRIB} -ne 0 ]
   then
     echo "Reason: found invalid use of class DistributionVersion that does not exists in file ${filename}"
-    EXIT=10
+    EXIT=1
   fi
 done
 
@@ -95,20 +95,23 @@ find ${REPOSITORY_PATH} -type f -name "*.st" -or -name "*.cf" | while read filen
 do
   if grep -q 'cfengine_community' "${filename}"; then
     echo "Found invalid use of class cfengine_community that does not exists in file ${filename}. Use community_edition instead."
-    EXIT=11
+    EXIT=1
   fi
 done
 
 
 # Check that techniques are written in normal ordering
-${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | xargs ${REPOSITORY_PATH}/scripts/ordering.pl || exit 9
+if ! ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | xargs ${REPOSITORY_PATH}/scripts/ordering.pl
+then
+  EXIT=1
+fi
 
 # Check that techniques do not contain $()
 ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | while read filename
 do
   if grep '$(' "${filename}" >/dev/null; then
     echo "The file ${filename} contains deprecated \$() syntax"
-    EXIT=12
+    EXIT=1
   fi
 done
 
@@ -117,7 +120,7 @@ ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITO
 do
   if egrep -q "^[^#]*perms\s*=>\s*mog\([^,]+,\s*[^,]+,\s*['\"]root['\"]\)" ${filename}; then
     echo "The file ${filename} attempts to use the 'root' group - use '0' instead for UNIX compatibility"
-    EXIT=13
+    EXIT=1
   fi
 done
 
@@ -130,7 +133,7 @@ do
 
   if ! egrep "^${TECHNIQUE}" ${REPOSITORY_PATH}/maintained-techniques > /dev/null; then
     echo "Unexpected technique version ${TECHNIQUE} found. Maybe it is deprecated but has come back via a merge. Please remove it, or if it's a new version, add it to maintained-techniques."
-    EXIT=14
+    EXIT=1
   fi
 done
 
@@ -143,7 +146,7 @@ do
 
   if [ ! -d ${REPOSITORY_PATH}/techniques/${name} ]; then
     echo "Supposedly maintained technique version ${name} is missing"
-    EXIT=15
+    EXIT=1
   fi
 done
 
