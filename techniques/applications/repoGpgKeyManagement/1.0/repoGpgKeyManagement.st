@@ -124,49 +124,6 @@ bundle agent check_repo_gpg_key
         classes    => classes_generic("repo_gpg_file_${keyid}_deleted"),
         ifvarclass => "repo_gpg_key_${keyid}_imported_ok";
 
-
-  commands:
-
-    repo_gpg_uses_apt|repo_gpg_uses_rpm::
-
-      "${repo_gpg_getallkeys} | ${paths.awk} -F ':' '$1 ~ /^pub/ { printf \"+repo_gpg_key_%s_present\n\", tolower($5); }'"
-        comment    => "We use this module instead of looking up each gpg key, because each apt-key call takes about 3-5 seconds, so this way we have O(1) instead of O(n)...",
-        ifvarclass => "repo_gpg_has_awk_binary",
-        classes    => classes_generic("repo_gpg_hashes_read"),
-        contain    => outputable,
-        module     => "true";
-
-      "${repo_gpg_binary} ${repo_gpg_options} ${repo_gpg_file[${keyid}]} | ${paths.awk} -v HASH='${repo_gpg_hash_lc[${keyid}]}' -F':' '$1 == \"pub\" { ++count; if (tolower($5) == HASH) { printf \"+repo_gpg_file_%s_validated\n\", HASH; } } END { if (count > 1) { printf \"+repo_gpg_file_%s_multikeyed\n\", HASH; } }'"
-        comment    => "We verify the content of the key-field matches the actual hash that was provided by the user. We also check for multiple keys present in one key-field, which is not acceptable",
-        ifvarclass => "repo_gpg_file_${keyid}_created_ok.repo_gpg_has_gpg_binary",
-        classes    => classes_generic("repo_gpg_hash_${keyid}_verified"),
-        contain    => outputable,
-        module     => "true";
-
-    repo_gpg_uses_apt::
-
-      "${paths.apt_key} add ${repo_gpg_file[${keyid}]}"
-        ifvarclass => "repo_gpg_hash_${keyid}_verified_ok.repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_validated.!repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_multikeyed",
-        comment    => "When verified_ok is defined, we already know the key needs to be added and is not present so we only need to check if the key is valid which we want to add",
-        classes    => classes_generic("repo_gpg_key_${keyid}_imported");
-
-      "${paths.apt_key} del ${repo_gpg_hash_last8_uc[${keyid}][1]}"
-        comment    => "This removes the GPG key from APT if it is present and needs to be removed",
-        ifvarclass => "repo_gpg_key_${keyid}_action_remove.repo_gpg_key_${repo_gpg_hash_lc[${keyid}]}_present.repo_gpg_key_${keyid}_has_last8_uc",
-        classes    => classes_generic("repo_gpg_key_${keyid}_removed");
-
-    repo_gpg_uses_rpm::
-
-      "${paths.rpm} --quiet --import ${repo_gpg_file[${keyid}]}"
-        comment    => "This imports the GPG key if the necessary tmp file has been created and it needs to be imported and is not present",
-        ifvarclass => "repo_gpg_hash_${keyid}_verified_ok.repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_validated.!repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_multikeyed",
-        classes    => classes_generic("repo_gpg_key_${keyid}_imported");
-
-      "${paths.rpm} --quiet --erase --allmatches gpg-pubkey-${repo_gpg_hash_last8_lc[${keyid}][1]}"
-        comment    => "This removes the GPG key from RPM if it is present and needs to be removed",
-        ifvarclass => "repo_gpg_key_${keyid}_action_remove.repo_gpg_key_${repo_gpg_hash_lc[${keyid}]}_present.repo_gpg_key_${keyid}_has_last8_lc",
-        classes    => classes_generic("repo_gpg_key_${keyid}_removed");
-
   methods:
 
       ## Handle import/remove reports
@@ -228,6 +185,48 @@ bundle agent check_repo_gpg_key
 
       "any" usebundle => repo_gpg_report("result_error", "${keyid}", "The awk binary is missing from the system, this technique requires it!"),
         ifvarclass => "!repo_gpg_has_awk_binary";
+
+  commands:
+
+    repo_gpg_uses_apt|repo_gpg_uses_rpm::
+
+      "${repo_gpg_getallkeys} | ${paths.awk} -F ':' '$1 ~ /^pub/ { printf \"+repo_gpg_key_%s_present\n\", tolower($5); }'"
+        comment    => "We use this module instead of looking up each gpg key, because each apt-key call takes about 3-5 seconds, so this way we have O(1) instead of O(n)...",
+        ifvarclass => "repo_gpg_has_awk_binary",
+        classes    => classes_generic("repo_gpg_hashes_read"),
+        contain    => outputable,
+        module     => "true";
+
+      "${repo_gpg_binary} ${repo_gpg_options} ${repo_gpg_file[${keyid}]} | ${paths.awk} -v HASH='${repo_gpg_hash_lc[${keyid}]}' -F':' '$1 == \"pub\" { ++count; if (tolower($5) == HASH) { printf \"+repo_gpg_file_%s_validated\n\", HASH; } } END { if (count > 1) { printf \"+repo_gpg_file_%s_multikeyed\n\", HASH; } }'"
+        comment    => "We verify the content of the key-field matches the actual hash that was provided by the user. We also check for multiple keys present in one key-field, which is not acceptable",
+        ifvarclass => "repo_gpg_file_${keyid}_created_ok.repo_gpg_has_gpg_binary",
+        classes    => classes_generic("repo_gpg_hash_${keyid}_verified"),
+        contain    => outputable,
+        module     => "true";
+
+    repo_gpg_uses_apt::
+
+      "${paths.apt_key} add ${repo_gpg_file[${keyid}]}"
+        ifvarclass => "repo_gpg_hash_${keyid}_verified_ok.repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_validated.!repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_multikeyed",
+        comment    => "When verified_ok is defined, we already know the key needs to be added and is not present so we only need to check if the key is valid which we want to add",
+        classes    => classes_generic("repo_gpg_key_${keyid}_imported");
+
+      "${paths.apt_key} del ${repo_gpg_hash_last8_uc[${keyid}][1]}"
+        comment    => "This removes the GPG key from APT if it is present and needs to be removed",
+        ifvarclass => "repo_gpg_key_${keyid}_action_remove.repo_gpg_key_${repo_gpg_hash_lc[${keyid}]}_present.repo_gpg_key_${keyid}_has_last8_uc",
+        classes    => classes_generic("repo_gpg_key_${keyid}_removed");
+
+    repo_gpg_uses_rpm::
+
+      "${paths.rpm} --quiet --import ${repo_gpg_file[${keyid}]}"
+        comment    => "This imports the GPG key if the necessary tmp file has been created and it needs to be imported and is not present",
+        ifvarclass => "repo_gpg_hash_${keyid}_verified_ok.repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_validated.!repo_gpg_file_${repo_gpg_hash_lc[${keyid}]}_multikeyed",
+        classes    => classes_generic("repo_gpg_key_${keyid}_imported");
+
+      "${paths.rpm} --quiet --erase --allmatches gpg-pubkey-${repo_gpg_hash_last8_lc[${keyid}][1]}"
+        comment    => "This removes the GPG key from RPM if it is present and needs to be removed",
+        ifvarclass => "repo_gpg_key_${keyid}_action_remove.repo_gpg_key_${repo_gpg_hash_lc[${keyid}]}_present.repo_gpg_key_${keyid}_has_last8_lc",
+        classes    => classes_generic("repo_gpg_key_${keyid}_removed");
 
 }
 
