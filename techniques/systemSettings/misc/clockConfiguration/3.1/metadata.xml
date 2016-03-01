@@ -59,7 +59,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <INPUT>
           <NAME>CLOCK_NTPSERVERS</NAME>
           <DESCRIPTION>List of NTP time servers to use</DESCRIPTION>
-          <LONGDESCRIPTION>You can also set multiple servers in one list, they will be separated by commas and treated as separate entries (good for variables)</LONGDESCRIPTION>
           <CONSTRAINT>
             <DEFAULT>pool.ntp.org</DEFAULT>
           </CONSTRAINT>
