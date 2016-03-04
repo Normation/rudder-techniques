@@ -111,7 +111,7 @@ bundle agent services_management
         ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was not running and has been restarted"),
-        ifvarclass => concat("process_${index}_restart", ".", "start_process_${index}",  ".", canonify("service_start_${service[${index}][name]}_repaired");
+        ifvarclass => concat("process_${index}_restart", ".", "start_process_${index}",  ".", canonify("service_start_${service[${index}][name]}_repaired"));
 
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process couldn't be started"),
         ifvarclass => canonify("service_start_${service[${index}][name]}_not_ok");
@@ -173,10 +173,10 @@ bundle agent services_management
       "any" usebundle => rudder_common_report("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required"),
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
         
-      "any" usebundle => rudder_common_report_generic("ServicesManagement", "service_ensure_started_at_boot_${service[${index}][name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_ensure_started_at_boot_${service[${index}][name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
         ifvarclass => canonify("bootstart_process_${index}");
           
-      "any" usebundle => rudder_common_report_generic("ServicesManagement", "service_ensure_stopped_${service[${index}][name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_ensure_stopped_${service[${index}][name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
         ifvarclass => canonify("bootstart_prevent_process_${index}");
 
 
