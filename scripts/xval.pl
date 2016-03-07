@@ -6,12 +6,18 @@ use warnings;
 use XML::Parser;
 
 my $xmlfile;
+my $quiet = 0;
+
+if($ARGV[0] eq "-q")
+{
+  $quiet = 1;
+  shift @ARGV;
+}
 
 if($ARGV[0] ne "")
 {
-# stop beeing too verbose
-#    print "Opening $ARGV[0]...\n";
-    $xmlfile = shift @ARGV;              # the file to parse
+   print "Opening $ARGV[0]...\n" unless $quiet;
+   $xmlfile = shift @ARGV;              # the file to parse
 }
 else
 {
@@ -28,7 +34,6 @@ if( $@ ) {
     print STDERR "\nERROR in '$xmlfile':\n$@\n";
     exit 1;
 } else {
-# stop beeing too verbose
-#    print STDERR "'$xmlfile' is well-formed\n";
+    print STDERR "'$xmlfile' is well-formed\n" unless $quiet;
     exit 0;
 }
