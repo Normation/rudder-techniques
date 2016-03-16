@@ -122,7 +122,7 @@ bundle agent check_apt_settings
     &APT_URL:{apt_url |"apt_url[&i&]" string => "&apt_url&";
 }&
 
-    &APT_COMPONENT_MAIN, APT_COMPONENT_CONTRIB, APT_COMPONENT_NON_FREE, APT_COMPONENT_RESTRICTED, APT_COMPONENT_UNIVERSE, APT_COMPONENT_MULTIVERSE:{main, contrib, nonfree, restricted, universe, multiverse |"apt_components[&i&]" string => "&main& &contrib& &nonfree& &restricted& &universe& &multiverse&";
+    &APT_COMPONENT_MAIN, APT_COMPONENT_CONTRIB, APT_COMPONENT_NON_FREE, APT_COMPONENT_RESTRICTED, APT_COMPONENT_UNIVERSE, APT_COMPONENT_MULTIVERSE, APT_COMPONENT_CUSTOM:{main, contrib, nonfree, restricted, universe, multiverse, custom |"apt_components[&i&]" string => "&main& &contrib& &nonfree& &restricted& &universe& &multiverse& &custom&";
 }&
 
     &APT_DISTRIBUTION, APT_DISTRO_AUTODETECT:{apt_distro, apt_autodetect |"apt_distro[&i&]" string => "&if (apt_autodetect)&${apt_detected_distro}&else&&apt_distro&&endif&";

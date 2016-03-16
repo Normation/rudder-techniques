@@ -226,6 +226,14 @@ manager, and eventually enforce them.
             <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
         </SELECT1>
+        <INPUT>
+          <NAME>APT_COMPONENT_CUSTOM</NAME>
+          <DESCRIPTION>Add a custom component</DESCRIPTION>
+          <CONSTRAINT>
+            <DEFAULT></DEFAULT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
       </SECTION>
 
       <INPUT>
