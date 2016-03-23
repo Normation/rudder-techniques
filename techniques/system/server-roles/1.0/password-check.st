@@ -55,6 +55,18 @@ bundle agent root_password_check_disclaimer
 
 }
 
+bundle agent root_password_security
+{
+  vars:
+    "secure_files" slist => { "@{p.managed_files}", "/opt/rudder/etc/rudder-passwords.conf", "/opt/rudder/etc/rudder-users.xml", "/opt/rudder/etc/rudder-slapd.conf" };
+
+  files:
+    # ensure password access is forbidden
+    root_server::
+      "${secure_files}"
+        perms => mog("600", "root", "0");
+}
+
 bundle agent root_password_check_file
 {
 
