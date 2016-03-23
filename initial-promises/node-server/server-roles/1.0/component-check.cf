@@ -71,6 +71,7 @@ bundle agent root_component_check
       "any" usebundle => root_password_check_ldap;
       "any" usebundle => root_password_check_psql;
       "any" usebundle => root_password_check_file;
+      "any" usebundle => root_password_security;
       "any" usebundle => root_password_restart_jetty;
 
     !role_rudder_server_root::
