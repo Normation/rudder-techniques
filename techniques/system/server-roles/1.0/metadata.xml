@@ -28,6 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="postgres-check"/>
     <TML name="logrotate-check"/>
     <TML name="compress-webapp-log"/>
+    <TML name="compress-ldap-backups"/>
     <TML name="rudder-logrotate">
       <OUTPATH>server-roles/logrotate.conf/rudder</OUTPATH>
       <INCLUDED>false</INCLUDED>
