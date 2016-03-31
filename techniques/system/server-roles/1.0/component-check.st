@@ -144,6 +144,7 @@ bundle agent root_component_check
     role_rudder_inventory_ldap::
       "any" usebundle => generic_process_check_process("${service[rudder_slapd][binary]}", "${service[rudder_slapd][initscript]}", "${service[rudder_slapd][name]}", "false", "${service[rudder_slapd][check_on_relay_server]}");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_slapd][binary]}", "${service[rudder_slapd][initscript]}", "${service[rudder_slapd][name]}");
+      "any" usebundle => compress_ldap_backups;
 
     !role_rudder_inventory_ldap::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
