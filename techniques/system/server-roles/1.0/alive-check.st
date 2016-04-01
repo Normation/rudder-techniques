@@ -55,7 +55,6 @@ bundle agent generic_alive_check(app)
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}",
         classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
 
-
     pass3.root_server::
 
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${app} status", "None", "The ${site_to_check} web application is running"),
@@ -75,7 +74,7 @@ bundle agent generic_alive_check(app)
 
     root_server::
 
-      "/usr/bin/curl -s ${site_to_check} |/bin/grep -q OK"
+      "/usr/bin/curl --proxy '' -s ${site_to_check} |/bin/grep -q OK"
         contain => in_shell_silent,
         classes => set_persist_classes_alivecheck("site_ok", "${failed_result_class}", "@{generic_alive_check.cleanup_failed_classes}", "${site_failure_persist_time}"),
         comment => "Checking if ${site_to_check} is alive";
