@@ -57,7 +57,7 @@ bundle agent root_technique_reload
 
     root_technique_reload_trigger::
 
-      "/usr/bin/curl -s ${root_technique_reload_rest_url} |/bin/grep -q OK"
+      "/usr/bin/curl --proxy '' -s ${root_technique_reload_rest_url} |/bin/grep -q OK"
         contain => in_shell_silent,
         classes => rudder_common_classes("root_technique_reload_rest_call"),
         comment => "Reload the Technique library using the Rudder API";
