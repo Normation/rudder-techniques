@@ -320,7 +320,7 @@ bundle agent listInstalledVM
 &if(NOVA)&
     windows.VirtualBoxInstalled::
       "\"${virtualMachines.virtual_box_install_path}VBoxManage.exe\""
-        args => "-q list vms > ${virtualMachines.VBoxListFile}",
+        args => "-q list vms > \"${virtualMachines.VBoxListFile}\"",
         contain => outputable,
         classes => cf2_if_else("vb_listed", "cant_list_vb"),
         comment => "Generating file with list of VM";
@@ -329,7 +329,7 @@ bundle agent listInstalledVM
     !windows.VMWareInstalled::
       "${virtualMachines.VMWareScript}"
         contain => outputable,
-        args => " > ${virtualMachines.VMWareListFile}",
+        args => " > \"${virtualMachines.VMWareListFile}\"",
         classes => cf2_if_else("vm_listed", "cant_list_vm"),
         comment => "Generating file with list of VM";
 
