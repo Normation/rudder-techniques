@@ -58,10 +58,11 @@ for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
         edit_defaults => empty;
 
     windows::
-      "\"${sys.workdir}/modules/env.bat\""
+      "${sys.workdir}/modules/env.bat"
         create        => "true",
         edit_line     => insert_lines("${script}"),
-        edit_defaults => empty;
+        edit_defaults => empty,
+        perms         => m("755");
 
   commands:
     !windows.!linux::
