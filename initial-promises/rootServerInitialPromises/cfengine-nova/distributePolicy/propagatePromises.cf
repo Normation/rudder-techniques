@@ -79,17 +79,16 @@ bundle agent propagatePromises
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
 bundle agent sendInventoryToCmdb
 {
+  vars:
+    "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
 
   files:
     root_server::
-      "${g.rudder_inventories}/incoming"
+      "${incoming_inventory_files}"
         transformer => "${g.rudder_tools}/send-clean.sh http://localhost:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        depth_search => recurse_visible(1),
-        file_select => all_inventory_files,
         classes => if_else("inventory_sent", "cant_send_inventory"),
+        ifvarclass => "!cant_send_inventory",
         comment => "Sending the inventory to the cmdb";
-
-# NEED TO DO THE RSYNC PART
 
   reports:
     inventory_sent::
