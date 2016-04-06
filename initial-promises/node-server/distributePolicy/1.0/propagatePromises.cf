@@ -89,26 +89,24 @@ bundle agent sendInventoryToCmdb
         ifvarclass => "!role_rudder_inventory_endpoint_server_defined";
       "rudder_inventory_endpoint_server" string => "${rudder_servers_by_role.roles[rudder-inventory-endpoint]}",
         ifvarclass => "role_rudder_inventory_endpoint_server_defined";
+      "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
+      "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
 
   files:
 
     root_server::
 
-      "${g.rudder_inventories}/incoming"
+      "${incoming_inventory_files}"
         transformer => "${g.rudder_tools}/send-clean.sh http://${rudder_inventory_endpoint_server}:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        depth_search => recurse_visible(1),
-        file_select => all_inventory_files,
         classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
+        ifvarclass => "!rudder_send_inventory_to_cmdb_cant_send_inventory",
         comment => "Sending the inventory to the cmdb";
 
-      "${g.rudder_inventories}/accepted-nodes-updates"
+      "${updates_inventory_files}"
         transformer => "${g.rudder_tools}/send-clean.sh http://${rudder_inventory_endpoint_server}:8080/endpoint/upload/ ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        depth_search => recurse_visible(1),
-        file_select => all_inventory_files,
         classes => if_else("inventory_sent", "rudder_send_inventory_to_cmdb_cant_send_inventory"),
+        ifvarclass => "!rudder_send_inventory_to_cmdb_cant_send_inventory",
         comment => "Sending the inventory to the cmdb";
-
-# NEED TO DO THE RSYNC PART
 
   reports:
     inventory_sent.!rudder_send_inventory_to_cmdb_cant_send_inventory::
@@ -116,15 +114,6 @@ bundle agent sendInventoryToCmdb
     rudder_send_inventory_to_cmdb_cant_send_inventory::
       "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@reports@@None@@${g.execRun}##${g.uuid}@#Some inventories failed to add successfully to Rudder";
 }
-
-
-body file_select all_inventory_files
-{
-        leaf_name => { "uuid\.hive" };
-        file_types => { "plain" };
-        file_result => "file_types.!leaf_name";
-}
-
 
 body file_select no_license_dat
 {
