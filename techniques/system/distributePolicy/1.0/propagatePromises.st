@@ -173,10 +173,16 @@ bundle agent propagatePromises
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
-# We cannot use list of paths to send the inventories because it cause the transformer to fail
-# for some unknown reason
+# We cannot use list of paths (i.e. {"incoming", "accepted-nodes-updates"}) to send the inventories because it cause the transformer to fail
+# for some unknown reason, see https://www.rudder-project.org/redmine/issues/4094
 bundle agent sendInventoryToCmdb
 {
+
+  vars:
+    any::
+      "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
+      "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
+
   classes:
     any::
       "pass3" expression => "pass2";
@@ -187,18 +193,16 @@ bundle agent sendInventoryToCmdb
     # Root server and relay-top send to the endpoint, every other send as usual to their policy server
     root_server|role_rudder_relay_top::
 
-      "${g.rudder_inventories}/incoming"
+      "${incoming_inventory_files}"
         transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_processing"),
+        ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
-      "${g.rudder_inventories}/accepted-nodes-updates"
+      "${updates_inventory_files}"
         transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
         classes => rudder_common_classes("rudder_inventory_processing"),
+        ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
     policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only)::
@@ -260,16 +264,6 @@ bundle agent sendInventoryToCmdb
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Cannot remove incoming inventories from local cache");
 
 }
-
-
-body file_select all_inventory_files
-{
-        leaf_name => { "uuid\.hive" };
-        file_types => { "plain" };
-        file_result => "file_types.!leaf_name";
-}
-
-
 
 body file_select no_license_dat
 {
