@@ -45,7 +45,7 @@ bundle agent propagatePromises
         classes => classes_generic("propagate_tools");
 
       "${g.rudder_ncf_origin_local}/ncf.conf"
-        copy_from    => copy_digest("${sys.workdir}/inputs/distributePolicy/ncf/ncf.conf"),
+        copy_from    => copy_digest_without_perms("${sys.workdir}/inputs/distributePolicy/ncf/ncf.conf"),
         comment      => "Enforce the ncf configuration file",
         classes      => classes_generic("configure_ncf_config");
 
@@ -64,7 +64,7 @@ bundle agent propagatePromises
         classes      => if_else("ncf_local_promises_propagated", "could_not_propagate_ncf_local_promise");
 
       "${g.rudder_ncf_origin_common}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_common}"),
+        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}","${g.rudder_ncf_origin_common}"),
         depth_search => recurse_visible("inf"),
         comment      => "Fetching the ncf common to propagate",
         classes      => if_else("ncf_common_promises_propagated", "could_not_propagate_ncf_common_promise");
