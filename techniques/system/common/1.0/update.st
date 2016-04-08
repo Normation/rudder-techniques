@@ -22,7 +22,7 @@
 # its promises
 #
 
-#simple copy method
+# Use for sensitive files
 body copy_from remote(server, path)
 {
 
@@ -36,12 +36,13 @@ body copy_from remote(server, path)
         preserve   => "false"; #do not preserve permissions
         verify     => "true";
         purge      => "true";
+        copy_backup => "false";
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 
 }
 
-#simple copy method, unencrypted
+# Use for big and non sensitive files
 body copy_from remote_unsecured(server, path)
 {
 
@@ -55,11 +56,13 @@ body copy_from remote_unsecured(server, path)
         preserve   => "true"; #preserve permissions
         verify     => "true";
         purge      => "true";
+        copy_backup => "false";
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 
 }
 
+# Local copy
 body copy_from copy_digest_without_perms(from)
 {
         source      => "${from}";
@@ -71,6 +74,7 @@ body copy_from copy_digest_without_perms(from)
         portnumber => "&COMMUNITYPORT&";
 }
 
+# Use for non-sensitive policy files
 body copy_from remote_unsecured_without_perms(server, path)
 {
 
@@ -84,6 +88,7 @@ body copy_from remote_unsecured_without_perms(server, path)
         preserve   => "false";
         verify     => "true";
         purge      => "true";
+        copy_backup => "false";
     community_edition::
         portnumber => "&COMMUNITYPORT&";
 
@@ -192,7 +197,7 @@ bundle agent update_action
         comment           => "Update the common Rudder ncf instance";
 
       "${g.rudder_ncf}/local"
-        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        copy_from         => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
@@ -201,7 +206,7 @@ bundle agent update_action
         comment           => "Update the local Rudder ncf instance";
 
       "${client_inputs}/${file_to_check_update}"
-        copy_from         => remote("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
+        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}","${server_inputs}/${file_to_check_update}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_promises_generated_repaired", "rudder_promises_generated_error", "rudder_promises_generated_ok");
@@ -231,7 +236,7 @@ bundle agent update_action
     # Copy the tools only if the file rudder_tools_updated is not up to date
     !policy_server::
       "${g.rudder_tools_updated}"
-        copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
+        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_tools_updated_repaired", "rudder_tools_updated_error", "rudder_tools_updated_kept"),
