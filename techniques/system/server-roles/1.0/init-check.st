@@ -16,7 +16,7 @@
 #
 #####################################################################################
 
-bundle agent generic_process_check_process(binary, initscript, name, force_restart, check_on_relay_server) {
+bundle agent generic_process_check_process(binary, initscript, name, force_restart) {
 
   vars:
 
@@ -26,13 +26,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
       "forced_trigger_${canoname}" expression => strcmp("${force_restart}", "true");
 
-      # Raise this class if we are handling a process that should be checked even on
-      # relay servers.
-      "process_exception_on_relay" expression => strcmp("${check_on_relay_server}", "true");
-
   processes:
-
-    root_server|process_exception_on_relay::
 
     # check the service status
       "${binary}"
@@ -42,8 +36,6 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
   commands:
 
-    root_server|process_exception_on_relay::
-
       "/etc/init.d/${initscript}"
         args => "restart </dev/null >/dev/null 2>/dev/null",
         contain => in_shell_silent,
@@ -52,8 +44,6 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
         ifvarclass => "process_restart_${canoname}|forced_trigger_${canoname}";
 
   reports:
-
-    root_server|process_exception_on_relay::
 
 		"@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process is already running"
 			ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
@@ -66,10 +56,6 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
 		"@@server-roles@@result_error@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process couldn't be restarted"
 			ifvarclass => "process_restart_error_${canoname}";
-
-    policy_server.!root_server.!process_exception_on_relay::
-
-		"@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process do not need to be checked on relay servers. Skipping...";
 
 }
 
