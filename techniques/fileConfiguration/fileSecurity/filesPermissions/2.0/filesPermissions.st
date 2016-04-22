@@ -176,10 +176,10 @@ bundle agent check_permissions(directiveId, fileName, action_parameters)
     pass3.(!file_exists)::
       "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "File or directory not found: ${fileName}");
 
-    pass3.user_absent::
+    pass3.user_absent.edit_owner::
       "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested user (${user}) was not found on this machine: ${fileName}'s owner can't be set");
 
-    pass3.group_absent::
+    pass3.group_absent.edit_group::
       "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested group (${group}) was not found on this machine: ${fileName}'s group can't be set");
 
     pass3.edit_recurse::
