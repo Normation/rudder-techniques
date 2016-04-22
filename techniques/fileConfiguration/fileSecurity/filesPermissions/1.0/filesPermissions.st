@@ -127,10 +127,10 @@ bundle agent check_permissions(directiveId, fileName, user, group, mode, edit_us
     !file_exists::
       "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#File or directory not found: ${fileName}";
 
-    user_absent::
+    user_absent.edit_owner::
       "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#The requested user (${user}) was not found on this machine: ${fileName}'s owner can't be set";
 
-    group_absent::
+    group_absent.edit_group::
       "@@FilesPermissions@@result_error@@${directiveId}@@File permissions@@${fileName}@@${g.execRun}##${g.uuid}@#The requested group (${group}) was not found on this machine: ${fileName}'s group can't be set";
 
     edit_recurse::
