@@ -75,6 +75,12 @@ bundle agent zypper_repositories_management
     SuSE::
       "repos_${zypper_index}" usebundle => rudder_common_reports_generic("Zypper Repositories Management", "zypper_repo_${zypper_index}", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]}");
 
+      # Clear package caches
+      "force_package_list_update" usebundle => file_remove("/var/rudder/cfengine-community/state/software_update_timestamp_zypper"),
+        ifvarclass => "zypper_repo_${zypper_index}_repaired";
+      "force_available_package_updates_list_update" usebundle => file_remove("/var/rudder/cfengine-community/state/software_available_updates.csv"),
+        ifvarclass => "zypper_repo_${zypper_index}_repaired";
+
     !SuSE::
       "repos_${zypper_index}" usebundle => rudder_common_report("Zypper Repositories Management", "result_na", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]} can only be added on SUSE/SLES systems");
 
