@@ -16,7 +16,7 @@
 #
 #####################################################################################
 
-bundle agent generic_process_check_process(binary, initscript, name, force_restart, check_on_relay_server) {
+bundle agent generic_process_check_process(binary, initscript, name, force_restart) {
 
   vars:
 
@@ -27,10 +27,6 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
       "forced_trigger_${canoname}" expression => strcmp("${force_restart}", "true");
 
-      # Raise this class if we are handling a process that should be checked even on
-      # relay servers.
-      "process_exception_on_relay" expression => strcmp("${check_on_relay_server}", "true");
-
     any::
 
       "pass3" expression => "pass2";
@@ -39,7 +35,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
   methods:
 
-    pass2.(root_server|process_exception_on_relay)::
+    pass2::
 
       "start_process" usebundle => service_ensure_running_path("${initscript}", "${binary}"),
                      ifvarclass => "!forced_trigger_${canoname}";
@@ -47,7 +43,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
       "start_process" usebundle => service_restart("${initscript}"),
                      ifvarclass => "forced_trigger_${canoname}";
 
-    pass3.(root_server|process_exception_on_relay)::
+    pass3::
 
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process is already running"),
         ifvarclass => "!process_restart_${canoname}.!forced_trigger_${canoname}";
@@ -61,13 +57,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process couldn't be restarted"),
         ifvarclass => "service_restart_${c_initscript}_not_ok|service_ensure_running_${c_initscript}_not_ok";
 
-    pass3.(policy_server.!root_server.!process_exception_on_relay)::
-
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process do not need to be checked on relay servers. Skipping...");
-
   processes:
-
-    root_server|process_exception_on_relay::
 
     # check the service status
       "${binary}"

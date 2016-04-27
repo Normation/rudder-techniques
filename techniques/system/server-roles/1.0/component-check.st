@@ -36,22 +36,18 @@ bundle agent root_component_check
       "service[rudder_slapd][name]"                    string => "slapd";
       "service[rudder_slapd][binary]"                  string => "/opt/rudder/libexec/slapd";
       "service[rudder_slapd][service]"                 string => "rudder-slapd";
-      "service[rudder_slapd][check_on_relay_server]"   string => "false";
 
       "service[rudder_jetty][name]"                    string => "jetty";
       "service[rudder_jetty][binary]"                  string => ".*java.*/opt/rudder/jetty7/start.jar";
       "service[rudder_jetty][service]"                 string => "rudder-jetty";
-      "service[rudder_jetty][check_on_relay_server]"   string => "false";
 
       "service[rudder_reports][name]"                  string => "postgresql";
       "service[rudder_reports][binary]"                string => "postgres: writer process";
       "service[rudder_reports][service]"               string => "postgresql";
-      "service[rudder_reports][check_on_relay_server]" string => "false";
 
       "service[apache][name]"                          string => "apache";
       "service[apache][binary]"                        string => "${apache_dist_specific_name}";
       "service[apache][service]"                       string => "${apache_dist_specific_name}";
-      "service[apache][check_on_relay_server]"         string => "true";
 
       "index" slist => getindices("service");
 
@@ -89,7 +85,7 @@ bundle agent root_component_check
     root_server|policy_server::
       "any" usebundle => root_networks_check;
       "any" usebundle => root_password_check_dav;
-      "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}", "false", "${service[apache][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}", "false");
       "any" usebundle => generic_process_check_bootstart("${service[apache][binary]}", "${service[apache][service]}", "${service[apache][name]}");
 
     !(root_server|policy_server)::
@@ -108,7 +104,7 @@ bundle agent root_component_check
         );
 
     role_rudder_jetty::
-      "any" usebundle => generic_process_check_process("${service[rudder_jetty][binary]}", "${service[rudder_jetty][service]}", "${service[rudder_jetty][name]}", "false", "${service[rudder_jetty][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_jetty][binary]}", "${service[rudder_jetty][service]}", "${service[rudder_jetty][name]}", "false");
       "any" usebundle => compress_webapp_log;
 
     !role_rudder_jetty::
@@ -138,7 +134,8 @@ bundle agent root_component_check
         );
 
     role_rudder_inventory_ldap::
-      "any" usebundle => generic_process_check_process("${service[rudder_slapd][binary]}", "${service[rudder_slapd][service]}", "${service[rudder_slapd][name]}", "false", "${service[rudder_slapd][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_slapd][binary]}", "${service[rudder_slapd][service]}", "${service[rudder_slapd][name]}", "false");
+      "any" usebundle => compress_ldap_backups;
 
     !role_rudder_inventory_ldap::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
@@ -147,7 +144,7 @@ bundle agent root_component_check
 
     role_rudder_reports::
       "any" usebundle => root_postgres_check;
-      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}", "false", "${service[rudder_reports][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}", "false");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
 
     !role_rudder_reports::
