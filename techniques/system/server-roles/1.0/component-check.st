@@ -36,22 +36,18 @@ bundle agent root_component_check
       "service[rudder_slapd][name]"                    string => "slapd";
       "service[rudder_slapd][binary]"                  string => "/opt/rudder/libexec/slapd";
       "service[rudder_slapd][initscript]"              string => "rudder-slapd";
-      "service[rudder_slapd][check_on_relay_server]"   string => "false";
 
       "service[rudder_jetty][name]"                    string => "jetty";
       "service[rudder_jetty][binary]"                  string => ".*java.*/opt/rudder/jetty7/start.jar";
       "service[rudder_jetty][initscript]"              string => "rudder-jetty";
-      "service[rudder_jetty][check_on_relay_server]"   string => "false";
 
       "service[rudder_reports][name]"                  string => "postgresql";
       "service[rudder_reports][binary]"                string => "postgres: writer process";
       "service[rudder_reports][initscript]"            string => "postgresql";
-      "service[rudder_reports][check_on_relay_server]" string => "false";
 
       "service[apache][name]"                          string => "apache";
       "service[apache][binary]"                        string => "${apache_dist_specific_name}";
       "service[apache][initscript]"                    string => "${apache_dist_specific_name}";
-      "service[apache][check_on_relay_server]"         string => "true";
 
       "index" slist => getindices("service");
 
@@ -89,7 +85,7 @@ bundle agent root_component_check
     root_server|policy_server::
       "any" usebundle => root_networks_check;
       "any" usebundle => root_password_check_dav;
-      "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][initscript]}", "${service[apache][name]}", "false", "${service[apache][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[apache][binary]}", "${service[apache][initscript]}", "${service[apache][name]}", "false");
       "any" usebundle => generic_process_check_bootstart("${service[apache][binary]}", "${service[apache][initscript]}", "${service[apache][name]}");
 
     !(root_server|policy_server)::
@@ -108,7 +104,7 @@ bundle agent root_component_check
         );
 
     role_rudder_jetty::
-      "any" usebundle => generic_process_check_process("${service[rudder_jetty][binary]}", "${service[rudder_jetty][initscript]}", "${service[rudder_jetty][name]}", "false", "${service[rudder_jetty][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_jetty][binary]}", "${service[rudder_jetty][initscript]}", "${service[rudder_jetty][name]}", "false");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_jetty][binary]}", "${service[rudder_jetty][initscript]}", "${service[rudder_jetty][name]}");
       "any" usebundle => compress_webapp_log;
 
@@ -142,7 +138,7 @@ bundle agent root_component_check
         );
 
     role_rudder_inventory_ldap::
-      "any" usebundle => generic_process_check_process("${service[rudder_slapd][binary]}", "${service[rudder_slapd][initscript]}", "${service[rudder_slapd][name]}", "false", "${service[rudder_slapd][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_slapd][binary]}", "${service[rudder_slapd][initscript]}", "${service[rudder_slapd][name]}", "false");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_slapd][binary]}", "${service[rudder_slapd][initscript]}", "${service[rudder_slapd][name]}");
       "any" usebundle => compress_ldap_backups;
 
@@ -156,7 +152,7 @@ bundle agent root_component_check
 
     role_rudder_reports::
       "any" usebundle => root_postgres_check;
-      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][initscript]}", "${service[rudder_reports][name]}", "false", "${service[rudder_reports][check_on_relay_server]}");
+      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][initscript]}", "${service[rudder_reports][name]}", "false");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_reports][binary]}", "${service[rudder_reports][initscript]}", "${service[rudder_reports][name]}");
 
     !role_rudder_reports::
