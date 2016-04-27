@@ -110,10 +110,10 @@ bundle agent check_cron_configuration
     pass3.!cron_restart::
       "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process is running. Skipping...");
 
-    pass3.(service_restart_cron_ok|service_restart_crond_ok)::
+    pass3.cron_restart.(service_restart_cron_ok|service_restart_crond_ok)::
       "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process has been restarted");
 
-    pass3.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
+    pass3.cron_restart.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
       "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "Could not restart the cron process!");
 
     pass3.(!windows.cron_absent)::
