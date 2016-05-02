@@ -40,14 +40,6 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
      "rudder_openssh_server_service_name"
         string => "sshd";
 
-    SuSE::
-      "rudder_openssh_server_startup_script_regex"
-        string => "/etc/init.d/rc3.d/S.*ssh.*";
-
-    (debian|redhat)::
-      "rudder_openssh_server_startup_script_regex"
-        string => "/etc/rc2.d/S.*ssh.*";
-
     aix::
       "rudder_openssh_server_startup_command"
         string => "/usr/bin/stopsrc -s sshd \&\& until /usr/bin/lssrc -s sshd | ${paths.grep} -q inoperative; do ${paths.perl} -e 'select(undef,undef,undef,.25)'; done; /usr/bin/startsrc -s sshd";
@@ -100,14 +92,6 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
       "${${params}[sshd_config_file]}"
         edit_line => rudder_common_disclaimer,
         comment   => "Insert the standard Rudder disclaimer in the OpenSSHd configuration file";
-
-    (debian|redhat|SuSE)::
-      # This promise will detect if there is a startup script for OpenSSH enabled on the system,
-      # and set a class if there is one indeed.
-      "${rudder_openssh_server_startup_script_regex}"
-        create  => "true",
-        action  => WarnOnly,
-        classes => if_else("${class_prefix}_activated_on_boot_kept", "${class_prefix}_activation_detection_failed");
 
     rudder_openssh_server_ports_edit::
       "${${params}[sshd_config_file]}"

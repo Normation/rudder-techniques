@@ -16,29 +16,17 @@
 #
 #####################################################################################
 
-bundle agent generic_process_check_process(binary, initscript, name, check_on_relay_server) {
+bundle agent generic_process_check_process(binary, initscript, name) {
 
   vars:
 
       "c_initscript" string => canonify("${initscript}");
 
-  classes:
-
-      # Raise this class if we are handling a process that should be checked even on
-      # relay servers.
-      "process_exception_on_relay" expression => strcmp("${check_on_relay_server}", "true");
-
   methods:
-
-    (root_server|process_exception_on_relay)::
 
       "start_process" usebundle => service_ensure_running_path("${initscript}", "${binary}");
 
       "any"           usebundle => rudder_common_reports_generic("server-roles", "service_ensure_running_${c_initscript}", "&TRACKINGKEY&", "Check ${name} process", "None", "Check ${name} process running");
-
-    !(root_server|process_exception_on_relay)::
-
-      "any" usebundle => rudder_common_report("server-roles", "result_na", "&TRACKINGKEY&", "Check ${name} process", "None", "The ${name} process do not need to be checked on relay servers. Skipping...");
 
 }
 
