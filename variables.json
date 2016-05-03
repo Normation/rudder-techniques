@@ -1,7 +1,7 @@
 {
   "INITIAL": true,
   "NOVA": true,
-  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",
+  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",
   "MANAGED_NODES_NAME": [ "localhost" ],
   "MANAGED_NODES_ID": [ "root" ],
   "POLICYSERVER_ADMIN": "root",
@@ -12,5 +12,8 @@
   "RUDDER_HEARTBEAT_INTERVAL": "4",
   "RUDDER_NODE_CONFIG_ID": "0",
   "AGENT_RUN_INTERVAL": "5",
-  "CONFIGURATION_REPOSITORY_FOLDER": "/var/rudder/configuration-repository"
+  "CONFIGURATION_REPOSITORY_FOLDER": "/var/rudder/configuration-repository",
+  "STORE_ALL_CENTRALIZED_LOGS_IN_FILE": true,
+  "SYSLOGPORT": "${install_rsyslogd.rsyslog_port[2]}",
+  "SHARED_FILES_FOLDER": "/var/rudder/configuration-repository/shared-files"
 }

@@ -182,6 +182,14 @@ bundle agent sendInventoryToCmdb
     any::
       "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
       "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
+&if(CMDBENDPOINT)&
+      "rudder_inventory_endpoint" string => "&CMDBENDPOINT&";
+&else&
+    !role_rudder_inventory_endpoint_server_defined::
+      "rudder_inventory_endpoint" string => "http://localhost:8080/endpoint/upload/";
+    role_rudder_inventory_endpoint_server_defined::
+      "rudder_inventory_endpoint" string => "http://${rudder_servers_by_role.roles[rudder-inventory-endpoint]}:8080/endpoint/upload/";
+&endif&
 
   classes:
     any::
@@ -194,13 +202,13 @@ bundle agent sendInventoryToCmdb
     root_server|role_rudder_relay_top::
 
       "${incoming_inventory_files}"
-        transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "${g.rudder_tools}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         classes => rudder_common_classes("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
       "${updates_inventory_files}"
-        transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "${g.rudder_tools}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         classes => rudder_common_classes("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
