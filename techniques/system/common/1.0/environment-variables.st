@@ -27,7 +27,8 @@ bundle agent get_environment_variables
     # will be available using the syntax ${node.env[ENV_NAME]}
 
     !windows::
-      "script" string => "#! /bin/sh
+      "script" string => "#!/bin/sh
+source /etc/profile
 env | sed 's/=/]=/' |sed 's/^/=node.env[/'";
 
     !windows.linux.supports_env_0::
