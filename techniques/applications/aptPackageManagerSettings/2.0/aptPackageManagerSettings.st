@@ -178,6 +178,10 @@ bundle agent check_apt_settings
         file_select => not_rudderaptlist,
         classes => kept_if_else("apt_disabled_kept", "apt_disabled_validated", "apt_disabled_failed");
 
+  methods:
+    # Clear package caches, same class as for repaired reporting
+    (apt_tier1_validated|apt_tier2_validated|apt_disabled_validated).(!apt_tier1_failed|!apt_tier2_failed|!apt_disabled_failed)::
+      "force_package_list_update" usebundle => file_remove("/var/rudder/cfengine-community/state/software_update_timestamp_apt-get");
 
   reports:
 
