@@ -22,6 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="cf-served"/>
     <TML name="rudder_lib" />
     <TML name="rudder_stdlib" />
+    <TML name="rudder_stdlib_core" />
     <TML name="internal_security" />
     <TML name="nxlog_activation"/>
     <TML name="cron_setup" />
@@ -57,6 +58,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>common/utilities/minicurl</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="environment-variables"/>
+    <TML name="restart-services"/>
   </TMLS>
 
   <SYSTEMVARS>
@@ -81,7 +84,11 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>AGENT_RUN_SCHEDULE</NAME>
     <NAME>MODIFIED_FILES_TTL</NAME>
     <NAME>CFENGINE_OUTPUTS_TTL</NAME>
+    <NAME>RUDDER_NODE_CONFIG_ID</NAME>
+    <NAME>RUDDER_REPORT_MODE</NAME>
+    <NAME>RUDDER_HEARTBEAT_INTERVAL</NAME>
     <NAME>CONFIGURATION_REPOSITORY_FOLDER</NAME>
+    <NAME>RUDDER_SYSLOG_PROTOCOL</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>

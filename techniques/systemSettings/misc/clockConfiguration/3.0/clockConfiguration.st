@@ -216,12 +216,22 @@ bundle agent check_clock_configuration
 
   methods:
 
+    pass2::
+
+      # Restart commands
+
+      !windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
+        "restart_ntp" usebundle => service_restart("ntp");
+
+      redhat.(repaired_ntpconf|repaired_localtime|repaired_redhattz|ntpd_down)::
+
+        "restart_ntpd" usebundle => service_restart("ntpd");
 
     # Global report for the "Time synchronization (NTP)" component - Linux
     pass3.((ntp_install_kept|(!linux.!windows)).ntpconf_kept.!ntpd_down)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp daemon installed, configured and running");
 
-    pass3.(ntp_installed|repaired_ntpconf|ntp_restarted)::
+    pass3.(ntp_installed|repaired_ntpconf|service_restart_ntp_repaired|service_restart_ntpd_repaired)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp service (package, configuration and/or process) repaired");
 
     # Global report for the "Time synchronization (NTP)" component - Windows
@@ -253,10 +263,10 @@ bundle agent check_clock_configuration
     pass3.ntpd_down::
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd process was not running");
 
-    pass3.ntp_restarted::
+    pass3.(service_restart_ntp_repaired|service_restart_ntpd_repaired)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd process restarted");
 
-    pass3.cant_restart_ntp::
+    pass3.(service_restart_ntp_not_ok|service_restart_ntpd_not_ok)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd process could not be restarted");
 
     pass3.ntp_regset::
@@ -345,19 +355,6 @@ bundle agent check_clock_configuration
         restart_class => "ntpd_down";
 
   commands:
-
-    # Restart commands
-    !windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
-      "/etc/init.d/ntp"
-        args => "restart",
-        classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
-        comment => "restarting ntp";
-
-    redhat.(repaired_ntpconf|repaired_localtime|repaired_redhattz|ntpd_down)::
-      "/etc/init.d/ntpd"
-        args => "restart",
-        classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
-        comment => "restarting ntp";
 
     (windows.!clock_timezone_noedit).clock_vardef.need_to_change_timezone::
       "\"${sys.winsysdir}\tzutil.exe\""

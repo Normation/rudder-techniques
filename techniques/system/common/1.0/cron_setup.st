@@ -71,52 +71,40 @@ bundle agent setup_cronjob
 
 bundle agent check_cron_daemon
 {
-
   vars:
 
-    redhat.!fedora::
-      "cron_bin" string => "crond$";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
+    redhat|fedora::
+      "service_name" string => "crond";
+    !(redhat|fedora)::
+      "service_name" string => "cron";
 
-    fedora::
-      "cron_bin" string => "/usr/sbin/crond -n$";
-      "cron_restartcmd" string => "/bin/systemctl restart crond.service";
+  classes:
 
-    ubuntu::
-      "cron_bin" string => "cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
-    !(redhat|fedora|ubuntu)::
-      "cron_bin" string => "/usr/sbin/cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+  methods:
+
+    pass2.restart_crond::
+      "restart_cron" usebundle => service_restart("${service_name}");
+
+    # Fake success result, since we don't actually call service_restart unless it's needed
+    pass2.!(android|windows|aix).!restart_crond::
+      "any" usebundle => _classes_success("service_restart_${service_name}");
+
+    pass3.!(android|windows|aix)::
+      "any" usebundle => rudder_common_reports_generic("Common", "service_restart_${service_name}", "&TRACKINGKEY&", "CRON Daemon", "None", "Cron daemon status");
+
+    (android|windows|aix)::
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "This is a system without CRON: CRON verifications skipped !");
 
   processes:
 
-    !android.!windows::
-      "${cron_bin}"
+    !android.!windows.!aix::
+      "cron"
+        process_select => cron_bin,
         restart_class => "restart_crond";
-
-  commands:
-
-    restart_crond::
-
-      "${cron_restartcmd}"
-
-        comment => "Restarting crond",
-        classes => kept_if_else("crond_ok" ,"crond_restarted" , "crond_failed");
-
-  reports:
-
-    crond_failed::
-      "@@Common@@result_error@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon was not running and could not be restarted";
-
-    crond_restarted::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
-
-    !restart_crond.!crond_restarted.!crond_failed.!android.!windows::
-      "@@Common@@result_success@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
-
-    android|windows::
-      "@@Common@@result_na@@&TRACKINGKEY&@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is a system without CRON: CRON verifications skipped !";
 
 }

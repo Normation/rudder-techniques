@@ -39,8 +39,8 @@ my $program_version = "1.0";
 my $program_description = "Perl HTTP, HTTP/S, FTP download and upload tool";
 
 ## Argument handling (Getopt)
-my ($get, $put, $httpstatus, $help, $debug, $version);
-$get = $put = $httpstatus = $help = $debug = $version = 0;
+my ($get, $put, $httpstatus, $help, $debug, $version, $no_verify);
+$get = $put = $httpstatus = $help = $debug = $version = $no_verify = 0;
 
 my ($url, $file, $authentication, $response);
 $url = $file = $authentication = $response = '';
@@ -53,11 +53,12 @@ GetOptions( "get!"             => \$get,
             "http-status!"     => \$httpstatus,
             "help!"            => \$help,
             "debug!"           => \$debug,
-            "version!"         => \$version);
+            "version!"         => \$version,
+            "no-verify!"       => \$no_verify);
 
 sub usage {
   print "This is " . $program_name . ", v" . $program_version . ": " . $program_description . "\n";
-  print "Usage: $0 [--help] [--debug] [--http-status] [--authentication <user:password>] --get/--put --url <url> --file <file>\n";
+  print "Usage: $0 [--no-verify] [--help] [--debug] [--http-status] [--authentication <user:password>] --get/--put --url <url> --file <file>\n";
 }
 
 if ($version >= 1) {
@@ -89,6 +90,13 @@ $ENV{HTTPS_VERSION} = 3;
 
 # Create a new LWP object
 my $ua = LWP::UserAgent->new;
+if($no_verify) {
+
+  if ( LWP::UserAgent->can("ssl_opts") ) {
+    $ua->ssl_opts( verify_hostname => 0, SSL_verify_mode => 0 );
+  }
+
+}
 
 if ($put == 1) {
   # PUT

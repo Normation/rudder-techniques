@@ -157,7 +157,6 @@ bundle agent update_action
   files:
 
     any::
-
       "${g.rudder_ncf}/."
         create  => "true",
         comment => "Make sure the ncf directory exists";
@@ -255,17 +254,10 @@ bundle agent update_action
   processes:
     config.!windows::
       "cf-serverd"  restart_class => "start_server";
-
-    config.!windows::
-      "cf-execd" restart_class => "start_exec";
+      "cf-execd"    restart_class => "start_exec";
 
   commands:
-    start_exec.!windows::
-      "${sys.cf_execd}"
-        action => u_ifwin_bg,
-        classes => outcome("executor");
-
-    start_exec.cygwin::
+    start_exec.(!windows|cygwin)::
       "${sys.cf_execd}"
         action => u_ifwin_bg,
         classes => outcome("executor");
@@ -345,11 +337,6 @@ bundle agent update_reports
 body classes outcome(x)
 {
         promise_repaired => {"${x}_ok"};
-}
-############################################
-body action u_background
-{
-        background => "true";
 }
 ############################################
 body classes success(if, else, kept)

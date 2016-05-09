@@ -47,7 +47,7 @@ $ActionQueueSaveOnShutdown on
 #
 
 # 1 - Send every matching report to the root server
-:msg, ereregex, "R: @@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*" @@${server_info.cfserved}:&SYSLOGPORT&
+:msg, ereregex, "R: @@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*" ${check_log_system.rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&
 
 # 2 - Drop the remaining rudder logs to prevent local storage cluttering
 
@@ -56,3 +56,4 @@ $ActionQueueSaveOnShutdown on
 
 ## Syslog messages from "rudder" forwarded from AIX
 :msg, ereregex, "from .*: rudder" ~
+

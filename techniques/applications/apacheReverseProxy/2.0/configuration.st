@@ -20,7 +20,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
   vars:
 
-      "rudder_reverse_proxy_apache_proxies"               string => "${${params}[proxies]}";
+      "rudder_reverse_proxy_apache_proxies"             string => "${${params}[proxies]}";
 
     debian::
 
@@ -34,12 +34,10 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
       "reverse_proxy_configuration_file"                string => "/etc/httpd/conf.d/rudder-reverse-proxy.conf";
       "rudder_reverse_proxy_apache_binary_name"         string => "/usr/sbin/httpd";
-      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/httpd";
 
     !redhat::
 
       "reverse_proxy_configuration_file"                string => "/etc/apache2/conf.d/rudder-reverse-proxy.conf";
-      "rudder_reverse_proxy_apache_restart_command"     string => "/etc/init.d/apache2";
 
     !SuSE.!redhat::
 
@@ -77,13 +75,29 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
       usebundle  => rudder_common_report("${internal_name}", "result_success", "${${params}[tracking_key]}", "SELinux parameters", "None", "No ${service_name} SELinux modification needed"),
       ifvarclass => "!rudder_reverse_proxy_apache_selinux_adjust|rudder_reverse_proxy_apache_selinux_proxy_policy";
 
-    # Apache restart/reload
-    "any"
-      usebundle  => rudder_common_report("${internal_name}", "log_info", "${${params}[tracking_key]}", "Daemon status", "None", "${service_name} has been restarted or reloaded"),
-      ifvarclass => "rudder_reverse_proxy_apache_restart_repaired|rudder_reverse_proxy_apache_reload_repaired";
-    "any"
-      usebundle  => rudder_common_report("${internal_name}", "result_error", "${${params}[tracking_key]}", "Daemon status", "None", "Unable to restart or reload ${service_name}"),
-      ifvarclass => "rudder_reverse_proxy_apache_restart_error|rudder_reverse_proxy_apache_reload_error";
+    rudder_reverse_proxy_apache_configuration_repaired.!redhat::
+
+      "apache_reload" usebundle => service_reload("apache2");
+
+    rudder_reverse_proxy_apache_configuration_repaired.redhat::
+
+      "apache_reload" usebundle => service_reload("httpd");
+
+    (rudder_reverse_proxy_apache_process_down|rudder_reverse_proxy_apache_modules_repaired).!redhat::
+
+      "apache_reload" usebundle => service_restart("apache2");
+
+    (rudder_reverse_proxy_apache_process_down|rudder_reverse_proxy_apache_modules_repaired).redhat::
+
+      "apache_reload" usebundle => service_restart("httpd");
+
+    # Apache restart/reload reporting
+    service_reload_apache2_ok|service_reload_httpd_ok|service_restart_apache2_ok|service_restart_httpd_ok::
+      "any" usebundle  => rudder_common_report("${internal_name}", "log_info", "${${params}[tracking_key]}", "Daemon status", "None", "Apache has been restarted or reloaded");
+
+    service_reload_apache2_not_ok|service_reload_httpd_not_ok|service_restart_apache2_not_ok|service_restart_httpd_not_ok::
+      "any" usebundle  => rudder_common_report("${internal_name}", "result_error", "${${params}[tracking_key]}", "Daemon status", "None", "Unable to restart or reload Apache");
+
   processes:
 	
       "${rudder_reverse_proxy_apache_binary_name}"
@@ -102,16 +116,6 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
       "/usr/sbin/setsebool httpd_can_network_relay on"
         classes => rudder_common_classes("rudder_reverse_proxy_apache_selinux"),
         comment => "Enable SELinux Apache entry to let Apache proxy entries";
-
-    rudder_reverse_proxy_apache_configuration_repaired::
-      "${rudder_reverse_proxy_apache_restart_command} reload"
-        classes => rudder_common_classes("rudder_reverse_proxy_apache_reload"),
-        comment => "reloading apache";
-
-    (rudder_reverse_proxy_apache_process_down|rudder_reverse_proxy_apache_modules_repaired)::
-      "${rudder_reverse_proxy_apache_restart_command} restart"
-        classes => rudder_common_classes("rudder_reverse_proxy_apache_restart"),
-        comment => "restarting apache";
 
 }
 

@@ -23,6 +23,7 @@ appreciated by administrators on the APT package
 manager, and eventually enforce them.
 -->
 <TECHNIQUE name="APT package manager configuration">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique configure the APT package manager.</DESCRIPTION>
 
   <BUNDLES>

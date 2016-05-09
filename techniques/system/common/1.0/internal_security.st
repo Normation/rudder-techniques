@@ -54,17 +54,18 @@ bundle agent internal_security
         perms   => mog("${mode}", "${user}", "${group}"),
         classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
 
-  reports:
+  methods:
 
     security_sanitization_ok.!security_sanitization_repaired::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#The internal environment security is acceptable";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Security parameters", "None", "The internal environment security is acceptable");
 
     security_sanitization_repaired::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#Some internal security parameters were adjusted";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Security parameters", "None", "Some internal security parameters were adjusted");
 
     security_sanitization_failed::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#The internal environment security is NOT acceptable!";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Security parameters", "None", "The internal environment security is NOT acceptable!");
 
     windows::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Security parameters@@None@@${g.execRun}##${g.uuid}@#No internal security parameters defined for Windows OSes yet";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Security parameters", "None", "No internal security parameters defined for Windows OSes yet");
+
 }

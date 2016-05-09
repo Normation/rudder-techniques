@@ -73,19 +73,32 @@ bundle common g
       "escaped_workdir"            string => escape("${sys.workdir}");
       "rudder_curl"                string => "${rudder_base_sbin}\curl\curl.exe";
 
-      "rudder_tools_files_windows" slist => { "uuid.vbs",
-                                              "iconv.dll",
+      "rudder_tools_files_windows" slist => {
+                                              # Rudder utilities
+                                              "uuid.vbs",
                                               "userlist.bat",
                                               "registrydns.bat",
-                                              "iconv.exe",
-                                              "curl/curl.exe",
-                                              "curl/libcurl.dll",
-                                              "curl/libssl32.dll",
-                                              "curl/libeay32.dll",
                                               "cpuid-windows-v1.0.vbs",
+
+                                              # GNU iconv
+                                              "iconv.exe",
+                                              "iconv.dll",
+
+                                              # cURL
+                                              "curl/curl.exe",
+                                              "curl/curl-ca-bundle.crt",
+
+                                              # OpenSSL
+                                              "openssl/openssl.exe",
+                                              "openssl/libeay32.dll",
+                                              "openssl/ssleay32.dll",
+
+                                              # Fusion inventory
                                               "fusionagent.exe",
+
+                                              # NXlog
                                               "nxlog-ce-2.8.1248.msi",
-                                              "nxlog.conf",
+                                              "nxlog.conf"
                                             };
 
 
@@ -98,6 +111,11 @@ bundle common g
     aix::
 
       "rudder_gzip"                       string => "/usr/bin/gzip";
+      "inventory_upload_protocol"         string => "http";
+
+    !aix::
+
+      "inventory_upload_protocol"         string => "https";
 
     !aix.!windows::
 
@@ -121,7 +139,7 @@ bundle common g
 
       "uncompressed_inventory_file_types"  slist => { ".*.ocs" };
       "inventory_file_types"               slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
-      "inventory_upload_protocol"         string => "http";
+      "signed_inventory_file_types"        slist => { "@{inventory_file_types}", ".*\.sign" };
 
       "server_roles_path"                 string => "${rudder_base}/etc/server-roles.d/";
 

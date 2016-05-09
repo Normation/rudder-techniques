@@ -22,6 +22,7 @@ It is intended to check the defined routes, by OS,
 and to ensure they are present if required.
 -->
 <TECHNIQUE name="IPv4 routing management">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique operates on the system routing table.
 
   It will ensure that the defined routes are present, and will add them if required.</DESCRIPTION>

@@ -42,6 +42,11 @@ bundle agent generic_alive_check(app)
 
       "first_iteration_passed" expression => "any";
 
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   methods:
 
     root_server::
@@ -49,6 +54,21 @@ bundle agent generic_alive_check(app)
       "any" usebundle => service_restart("rudder-jetty"),
         ifvarclass => "site_alivecheck_restart_jetty_${sitename}",
         classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
+
+    pass3.root_server::
+
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${app} status", "None", "The ${site_to_check} web application is running"),
+        ifvarclass => "site_ok.!site_down_once_${sitename}";
+
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${app} status", "None", "This is the first time the ${site_to_check} web application failed to respond. Deferring the restart."),
+        ifvarclass => "site_down_once_${sitename}.!site_alivecheck_restart_jetty_${sitename}";
+
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check ${app} status", "None", "The ${site_to_check} web application failed to respond for the second time. Restarting jetty NOW !"),
+        ifvarclass => "site_alivecheck_restart_jetty_${sitename}";
+
+    pass3.(policy_server.!root_server)::
+
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check ${app} status", "None", "The ${site_to_check} web application check do not need to be done on relay servers. Skipping...");
 
   commands:
 
@@ -58,23 +78,6 @@ bundle agent generic_alive_check(app)
         contain => in_shell_silent,
         classes => set_persist_classes_alivecheck("site_ok", "${failed_result_class}", "@{generic_alive_check.cleanup_failed_classes}", "${site_failure_persist_time}"),
         comment => "Checking if ${site_to_check} is alive";
-
-  reports:
-
-    root_server::
-
-      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application is running"
-        ifvarclass => "site_ok.!site_down_once_${sitename}";
-
-      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#This is the first time the ${site_to_check} web application failed to respond. Deferring the restart."
-        ifvarclass => "site_down_once_${sitename}.!site_alivecheck_restart_jetty_${sitename}";
-
-      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application failed to respond for the second time. Restarting jetty NOW !"
-        ifvarclass => "site_alivecheck_restart_jetty_${sitename}";
-
-    policy_server.!root_server::
-
-      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check ${app} status@@None@@${g.execRun}##${g.uuid}@#The ${site_to_check} web application check do not need to be done on relay servers. Skipping...";
 
 }
 

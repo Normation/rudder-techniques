@@ -74,7 +74,7 @@ bundle common va
      };
 
       "inputs_list" slist => {
-        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/init-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf"
+        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf"
      };
 
     !policy_server::
@@ -365,6 +365,15 @@ bundle agent check_uuid
 }
 
 #######################################################
+# Match all variants of cron proccesses
+
+body process_select cron_bin
+{
+  command => "(/usr/sbin/)?crond?( -n| -f)?";
+  process_result => "command";
+}
+
+#######################################################
 # Check if the cron daemon is running
 # This only works with unix flavoured systems too
 
@@ -374,21 +383,26 @@ bundle agent check_cron_daemon
   vars:
 
     redhat::
-      "cron_bin" string => "crond$";
-      "cron_restartcmd" string => "/etc/init.d/crond restart";
+      "cron_service" string => "crond";
 
-    ubuntu::
-      "cron_bin" string => "cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+    !redhat::
+      "cron_service" string => "cron";
 
-    !(redhat|ubuntu)::
-      "cron_bin" string => "/usr/sbin/cron$";
-      "cron_restartcmd" string => "/etc/init.d/cron restart";
+    !have_bin_systemctl::
+      "cron_restartcmd" string => "/etc/init.d/${cron_service} restart";
+
+    have_bin_systemctl::
+      "cron_restartcmd" string => "/bin/systemctl restart ${cron_service}";
+
+  classes:
+
+    "have_bin_systemctl" expression => fileexists("/bin/systemctl");
 
   processes:
 
     !android.!windows::
-      "${cron_bin}"
+      "cron"
+        process_select => cron_bin,
         restart_class => "restart_crond";
 
   commands:

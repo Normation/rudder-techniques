@@ -44,7 +44,7 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
 
     root_server|process_exception_on_relay::
 
-      "/etc/init.d/${initscript}"
+      "${paths.path[service]} ${initscript}"
         args => "restart </dev/null >/dev/null 2>/dev/null",
         contain => in_shell_silent,
       # action => bg("0", "120"),
@@ -70,68 +70,5 @@ bundle agent generic_process_check_process(binary, initscript, name, force_resta
     policy_server.!root_server.!process_exception_on_relay::
 
 		"@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check ${name} process@@None@@${g.execRun}##${g.uuid}@#The ${name} process do not need to be checked on relay servers. Skipping...";
-
-}
-
-bundle agent generic_process_check_bootstart(binary, initscript, name) {
-
-  vars:
-
-      "canoname" string => canonify("${binary}");
-
-    SuSE::
-
-      "check_command"     string => "/sbin/chkconfig --check ${initscript}";
-      "bootstart_command" string => "/sbin/insserv -d ${initscript}";
-
-    redhat::
-
-      "check_command"     string => "/sbin/chkconfig --list ${initscript} | grep -q on";
-      "bootstart_command" string => "/sbin/chkconfig ${initscript} on";
-
-  files:
-
-    debian::
-
-      "/etc/rc2.d/S.*${initscript}.*"
-        create => "true",
-        action => WarnOnly,
-        classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}");
-
-	commands:
-
-    (SuSE|redhat)::
-
-      "${check_command}"
-        contain => in_shell_silent,
-        classes => if_else("service_bootstarted_${canoname}", "service_unbootstarted_${canoname}"),
-        comment => "Check if the service ${name} is started on boot";
-
-
-      "${bootstart_command}"
-        classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
-        ifvarclass => "service_unbootstarted_${canoname}",
-        comment => "Set the service ${name} to start on boot";
-
-    debian::
-
-      "/usr/sbin/update-rc.d ${initscript} remove && /usr/sbin/update-rc.d ${initscript} defaults"
-        contain => in_shell,
-        classes => if_else("service_bootstarted_ok_${canoname}", "service_bootstarted_fail_${canoname}"),
-        ifvarclass => "service_unbootstarted_${canoname}",
-        comment => "Set the service ${name} to start on boot";
-
-  reports:
-
-    cfengine::
-
-      "@@server-roles@@result_success@@server-roles@@server-roles-directive@@0@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} is started on boot as required"
-        ifvarclass => "service_bootstarted_${canoname}";
-
-      "@@server-roles@@result_repaired@@server-roles@@server-roles-directive@@0@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#${name} has been set to start on boot"
-        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_ok_${canoname}";
-
-      "@@server-roles@@result_error@@server-roles@@server-roles-directive@@0@@Check ${name} boot script@@None@@${g.execRun}##${g.uuid}@#Could not set ${name} to start on boot!"
-        ifvarclass => "!service_bootstarted_${canoname}.service_bootstarted_fail_${canoname}";
 
 }

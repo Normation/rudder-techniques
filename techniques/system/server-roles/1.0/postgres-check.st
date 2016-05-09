@@ -25,6 +25,12 @@ bundle agent root_postgres_check
 
       "configuration_statements" slist => { "host    all             rudder             ::1/128              md5", "host    all             rudder          127.0.0.1/32            md5" };
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
     SuSE::
@@ -35,37 +41,29 @@ bundle agent root_postgres_check
         classes => kept_if_else("psql_conf_ok", "psql_conf_updated", "psql_conf_update_error"),
         comment => "Edit the SuSE postgresql configuration to enable account-less logins";
 
-  commands:
+  methods:
 
-    SuSE::
+    pass2.SuSE.psql_conf_updated::
+      "restart_postgresql" usebundle => service_restart("postgresql");
 
-      "/etc/init.d/postgresql"
-        args => "restart",
-        classes => kept_if_else("psql_restart_ok", "psql_restart_ok", "psql_restart_error"),
-        ifvarclass => "psql_conf_updated";
+    # Report about the configuration file editing
+    pass3.SuSE.psql_conf_ok.!psql_conf_updated.!psql_conf_update_error::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "The SuSE specific postgresql configuration is present");
 
-  reports:
+    pass3.SuSE.psql_conf_updated.!psql_conf_update_error::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "The SuSE specific postgresql configuration has been added");
 
-    SuSE::
-
-    # Report about the configuration file edition
-      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration is present"
-        ifvarclass => "psql_conf_ok.!psql_conf_updated.!psql_conf_update_error";
-
-      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration has been added"
-        ifvarclass => "psql_conf_updated.!psql_conf_update_error";
-
-      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#The SuSE specific postgresql configuration could not be added"
-        ifvarclass => "psql_conf_update_error";
+    pass3.SuSE.psql_conf_update_error::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "The SuSE specific postgresql configuration could not be added");
 
     # Reports about Postgres restart status
-      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#PostgreSQL has been restarted"
-        ifvarclass => "psql_restart_ok";
+    pass3.SuSE.service_restart_postgresql_repaired::
+      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "PostgreSQL has been restarted");
 
-      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#PostgreSQL restart has failed! Rudder is most certainly broken..."
-        ifvarclass => "psql_restart_error";
+    pass3.SuSE.service_restart_postgresql_not_ok::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "PostgreSQL restart has failed! Rudder is most certainly broken...");
 
-    !SuSE::
+    pass3.!SuSE::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "Their is no need of specific postgresql configuration on this system");
 
-      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#Their is no need of specific postgresql configuration on this system";
 }

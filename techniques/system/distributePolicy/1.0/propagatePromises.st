@@ -30,9 +30,18 @@ bundle agent propagatePromises
       "server_data" string => "${server_info.policy_files}/share"; #actual directory with data to propagate
       "client_data" string => "${g.rudder_var}/share/";  #where to put the files on the client when downloaded
 
+    pass2.root_server::
+      "ncf_common_sha_sum" string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_common} -not -name ${g.rudder_ncf_hash_file} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
+      "ncf_local_sha_sum"  string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_local} -not -name ${g.rudder_ncf_hash_file} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
+
   classes:
     root_server::
       "rudder_tools_updated_exists" expression => fileexists("${g.rudder_tools_updated_origin}");
+
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
   files:
 
@@ -104,39 +113,56 @@ bundle agent propagatePromises
         edit_line     => insert_lines("${sys.date}"),
         comment       => "Update the timestamp in the rudder tool updated file";
 
+    # each run, update the hash files of ncf
+    # these hashes are used by node to know if they should update their copy of ncf
+    root_server.pass2::
+      "${g.rudder_ncf_origin_common_hash}"
+        create        => "true",
+        edit_defaults => empty,
+        edit_line     => insert_lines("${ncf_common_sha_sum}"),
+        comment       => "Update the hash of ncf common";
+
+      "${g.rudder_ncf_origin_local_hash}"
+        create        => "true",
+        edit_defaults => empty,
+        edit_line     => insert_lines("${ncf_local_sha_sum}"),
+        comment       => "Update the hash of ncf local";
+
+
+
   methods:
     root_server::
       "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "&TRACKINGKEY&", "Configure ncf", "None", "Configure ncf");
+
     !root_server::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure ncf", "None", "Configuration of ncf is not necessary on non root servers");
 
-
-  reports:
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder and licenses to be updated.
-    ((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise)::
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#All files have been propagated";
-    could_not_propagate_promise::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate policy files";
+    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise))::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Propagate promises", "None", "All files have been propagated");
+    pass3.could_not_propagate_promise::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate policy files");
 
-    could_not_propagate_files::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate shared files";
+    pass3.could_not_propagate_files::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate shared files");
 
-    propagate_tools_error::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate tools";
+    pass3.propagate_tools_error::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate tools");
 
-    could_not_propagate_ncf_local_promise::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate local ncf promises";
+    pass3.could_not_propagate_ncf_local_promise::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate local ncf promises");
 
-    could_not_propagate_ncf_common_promise::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate common ncf promises";
+    pass3.could_not_propagate_ncf_common_promise::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate common ncf promises");
 
-    could_not_propagate_masterfiles::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate masterfiles";
+    pass3.could_not_propagate_masterfiles::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate masterfiles");
 
-    could_not_copy_license::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Propagate promises@@None@@${g.execRun}##${g.uuid}@#Cannot copy local license";
+    pass3.could_not_copy_license::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot copy local license");
+
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
@@ -144,10 +170,18 @@ bundle agent propagatePromises
 # for some unknown reason, see https://www.rudder-project.org/redmine/issues/4094
 bundle agent sendInventoryToCmdb
 {
+
   vars:
-    "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
-    "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
-  
+    any::
+      "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
+      "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
+
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
     # Root server and relay-top send to the endpoint, every other send as usual to their policy server
     root_server|role_rudder_relay_top::
@@ -167,16 +201,16 @@ bundle agent sendInventoryToCmdb
     policy_server.!(root_server|role_rudder_relay_top)::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "/usr/bin/curl -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
+        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
         depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
+        file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "/usr/bin/curl -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/",
+        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
+        file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
@@ -185,42 +219,42 @@ bundle agent sendInventoryToCmdb
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
+        file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
+        file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
-  reports:
+  methods:
 
-    rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Incoming inventories were successfully added to Rudder";
+    pass3.(rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Incoming inventories were successfully added to Rudder");
 
-    rudder_inventory_processing_error::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Some inventories failed to add successfully to Rudder";
+    pass3.rudder_inventory_processing_error::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Some inventories failed to add successfully to Rudder");
 
-    (root_server|role_rudder_relay_top).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error::
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to send";
+    pass3.((root_server|role_rudder_relay_top).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to send");
 
-    rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Incoming inventories were successfully relayed to the root server";
+    pass3.(rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Incoming inventories were successfully relayed to the root server");
 
-    rudder_inventory_relay_error::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Cannot relay some inventories to the root server";
+    pass3.rudder_inventory_relay_error::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Cannot relay some inventories to the root server");
 
-    policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error::
-      "@@DistributePolicy@@result_success@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#No inventory to relay";
+    pass3.(policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to relay");
 
-    rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error::
-      "@@DistributePolicy@@log_info@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Sent incoming inventories were removed from local cache";
+    pass3.(rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error)::
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_info", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Sent incoming inventories were removed from local cache");
 
-    rudder_inventory_cleanup_error::
-      "@@DistributePolicy@@result_error@@&TRACKINGKEY&@@Send inventories to CMDB@@None@@${g.execRun}##${g.uuid}@#Cannot remove incoming inventories from local cache";
+    pass3.rudder_inventory_cleanup_error::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Cannot remove incoming inventories from local cache");
 
 }
 
@@ -229,3 +263,11 @@ body file_select no_license_dat
         leaf_name => { "license\.dat" };
         file_result => "!leaf_name";
 }
+
+body file_select all_inventory_files
+{
+        leaf_name => { "uuid\.hive" };
+        file_types => { "plain" };
+        file_result => "file_types.!leaf_name";
+}
+

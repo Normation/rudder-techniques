@@ -31,18 +31,18 @@ bundle agent doInventory
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -L -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # If not, use minicurl instead
     !windows.!curl_installed::
-      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" http://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k -1 -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" http://${server_info.cfserved}/uuid";
 
     uuid_succesfully_downloaded::
-      "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
+      "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
 
   classes:
 
@@ -65,6 +65,7 @@ bundle agent doInventory
       "any" usebundle => turnUsersToUnicode;
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => moveInventoryToFinalDestination;
+      "any" usebundle => signInventories;
       "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
@@ -127,8 +128,24 @@ bundle agent fusionAgent {
     (redhat|centos)::
       "xen_tools_package" string => "xen";
 
+    !windows::
+      "fusion_inventory_version" string => execresult("${g.rudder_base}/bin/run-inventory --version | ${paths.path[grep]} '[0-9]\.[0-9]' | ${paths.path[sed]} 's%.*(\([0-9]\+\)\.\([0-9]\+\).*).*%\1\2%'", "useshell");
+      "inventory_path"           string => "${g.rudder_var_tmp}/inventory", policy => "overridable"; # Default value
+      "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/.*.ocs", policy => "overridable"; # Default value for editing the inventory files
+
+    !windows.fusion_inventory_version_23_or_later::
+      # FusionInventory 2.3+ permits to specify the exact inventory file name we want
+      "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${sys.uqhost}-${g.uuid}.ocs";
+      "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/${sys.uqhost}-${g.uuid}.ocs";
+
     windows:: # We assume we always have FusionInventory 2.3+ on Windows
       "inventory_path"           string => "${g.rudder_var_tmp}\inventory\${sys.uqhost}-${g.uuid}.ocs";
+      "inventory_path_edition"   string => "${g.rudder_var_tmp}\inventory\${sys.uqhost}-${g.uuid}.ocs";
+
+  classes:
+    !windows::
+      # CFEngine doesn't have a ">=" operator, so I'm using "! <" instead
+      "fusion_inventory_version_23_or_later" not => islessthan("${fusion_inventory_version}", "23");
 
   files:
     !windows|cygwin::
@@ -159,13 +176,13 @@ bundle agent fusionAgent {
 
   commands:
     !windows.inventoryfoldercreated::
-      "${g.rudder_base}/bin/run-inventory --local=${g.rudder_var_tmp}/inventory --scan-homedirs"
+      "${g.rudder_base}/bin/run-inventory --local=${inventory_path} --scan-homedirs"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
 
     windows::	    
       "\"c:\Program Files\Rudder\sbin\run-inventory.bat\""
-        args => "--local=\"${g.rudder_var_tmp}\inventory\" --scan-homedirs 2>nul",
+        args => "--local=\"${inventory_path}\" --scan-homedirs 2>nul",
         contain => in_shell,
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory";
@@ -334,7 +351,7 @@ bundle agent addInformationsToInventory
       "CFKEY" string => execresult("${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"", "noshell");
       "USER" string => getenv("USERNAME", 40);
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_tools}/uuid.vbs\"","noshell");
-      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}\uuid.txt" , "50" );
+      "polserv_uuid" string => readfile( "${sys.workdir}\rudder-server-uuid.txt" , "50" );
       # Somehow, using the variable rather than the path fails with readstringlist
       "users" slist => { readstringlist("C:\Program Files\Rudder\var\tmp\UserList.list","#.*","[\n| |\r]",50,4000) };
 
@@ -343,7 +360,7 @@ bundle agent addInformationsToInventory
       "CFKEY" string => execresult("/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
       "USER" string => execresult("/usr/bin/whoami", "noshell");
       "RUDDERUUID" string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_tools}/uuid.vbs","noshell");
-      "polserv_uuid" string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
+      "polserv_uuid" string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
 
       "users" slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
@@ -372,7 +389,7 @@ bundle agent addInformationsToInventory
       "users" slist => getindices("userslist");
 
     !windows::
-      "polserv_uuid"          string => readfile( "${g.rudder_var_tmp}/uuid.txt" , "50" );
+      "polserv_uuid"          string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
 
     android::
       "RUDDERUUID"            string => execresult("/system/xbin/sqlite3 /data/data/com.android.providers.settings/databases/settings.db \"select value from secure where name = 'android_id'\"", "noshell");
@@ -399,35 +416,20 @@ bundle agent addInformationsToInventory
     any::
       "uuiddefined" expression => isvariable("RUDDERUUID");
   files:
-    windows::
-      "${fusionAgent.inventory_path}"
+    uuiddefined::
+      "${fusionAgent.inventory_path_edition}"
         comment       => "Adding basic informations to inventory",
         edit_line     => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         edit_defaults => def_no_backup;
 
-      "${fusionAgent.inventory_path}"
+      "${fusionAgent.inventory_path_edition}"
         comment       => "Adding users informations to inventory",
         edit_line     => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         edit_defaults => def_no_backup;
 
-    windows.rudder_server_roles_dir_exists::
-      "${fusionAgent.inventory_path}"
+    uuiddefined.rudder_server_roles_dir_exists::
+      "${fusionAgent.inventory_path_edition}"
         comment       => "Adding server roles informations to inventory",
-        edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
-        edit_defaults => def_no_backup,
-        pathtype      => "regex";
-
-    !windows.uuiddefined::
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
-        edit_defaults => def_no_backup;
-
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
-        edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
-        edit_defaults => def_no_backup;
-
-    !windows.uuiddefined.rudder_server_roles_dir_exists::
-      "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line     => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         edit_defaults => def_no_backup;
 
@@ -453,6 +455,29 @@ bundle agent moveInventoryToFinalDestination
 
 }
 
+# sign inventories
+bundle agent signInventories
+{
+  vars:
+
+    !windows::
+      "sign_script" string => "/opt/rudder/bin/signature.sh";
+    windows::
+      "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File \"C:\Program Files\Rudder\sbin\signature.ps1\" -file";
+
+  classes:
+      "sign_script_exists" expression => fileexists("${sign_script}");
+
+  files:
+    !windows::
+      "${g.rudder_inventories}"
+        transformer  => "${sign_script} \"${this.promiser}\"",
+        depth_search => recurse_visible(1),
+        file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
+        ifvarclass   => "sign_script_exists",
+        comment      => "Signing inventory files";
+}
+
 # compress inventories if possible
 bundle agent compressInventories
 {
@@ -461,7 +486,7 @@ bundle agent compressInventories
     !windows.gzip_installed::
 
       "${g.rudder_inventories}"
-       transformer  => "${g.rudder_gzip} -fq ${this.promiser}",
+        transformer  => "${g.rudder_gzip} -fq ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
         comment      => "gzip inventory files";
@@ -476,17 +501,17 @@ bundle agent sendInventory
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command_prefix"   string => "${g.rudder_curl} -L -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
     # If not, use minicurl instead
     !windows.!curl_installed::
-      "download_command_prefix"   string => "${g.minicurl} --put --authentication ${g.davuser}:${g.davpw} --file";
+      "download_command_prefix"   string => "${g.minicurl} --no-verify --put --authentication ${g.davuser}:${g.davpw} --file";
       "download_command_suffix"   string => "--url ${download_endpoint}";
 
     # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k -1 -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
   files:
@@ -495,7 +520,7 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         depth_search => recurse_visible(1),
-        file_select => by_name("@{g.inventory_file_types}"),
+        file_select => by_name("@{g.signed_inventory_file_types}"),
         classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment => "Sending the inventory to the server";
 
@@ -504,7 +529,7 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
         depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.inventory_file_types}"),
+        file_select  => by_name("@{g.signed_inventory_file_types}"),
         classes      => persistant_class("inventory_sent", "cant_send_inventory", 480),
         comment      => "Sending the inventory to the server";
 
@@ -513,7 +538,7 @@ bundle agent sendInventory
       "${g.rudder_inventories}"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.inventory_file_types}"),
+        file_select  => by_name("@{g.signed_inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
@@ -525,7 +550,7 @@ bundle agent sendInventory
       "${g.rudder_var_tmp}/inventory"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.inventory_file_types}"),
+        file_select  => by_name("@{g.signed_inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
@@ -548,7 +573,7 @@ bundle agent sendInventory
 bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUID)
 {
   insert_lines:
-      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<HOSTNAME>${sys.fqhost}</HOSTNAME>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}<SERVER_ROLES>${const.n}</SERVER_ROLES>${const.n}"
+      "<UUID>${g.uuid}</UUID>${const.n}<USER>${USER}</USER>${const.n}<AGENTSNAME>${const.n}</AGENTSNAME>${const.n}<MACHINEID>${RUDDERUUID}</MACHINEID>${const.n}<CFKEY>${CFKEY}</CFKEY>${const.n}<POLICY_SERVER>${POLSRVUUID}</POLICY_SERVER>${const.n}<SERVER_ROLES>${const.n}</SERVER_ROLES>${const.n}"
         location    => after_deviceid,
         insert_type => "preserve_block",
         comment     => "Add the UUID and CFKEY tags in the inventory file";
@@ -562,7 +587,7 @@ bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUI
 
       "${inventory.CPUIDFile}"
         insert_type => "file",
-        location => after_location("<HOSTNAME>"),
+        location => after_location("<POLICY_SERVER>"),
         comment => "Adding the CPUID data in the inventory file";
 
     nova_edition::

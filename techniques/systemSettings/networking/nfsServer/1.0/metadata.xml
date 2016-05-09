@@ -22,6 +22,7 @@ It is intended to check if the NFS server is installed and if the
 required mount points are set with the right options.
 -->
 <TECHNIQUE name="NFS Server">
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>Configure a NFS server</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>

@@ -38,6 +38,12 @@ bundle agent root_networks_check
     !redhat::
       "apache_service" string => "apache2";
 
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
   files:
 
       "${network_file[${index}]}"
@@ -48,6 +54,23 @@ bundle agent root_networks_check
         classes       => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
         comment       => "Copying rudder apache configuration";
 
+  methods:
+
+    pass3.rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration is OK");
+
+    pass3.rudder_networks_repaired.!rudder_networks_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration has been corrected");
+
+    pass3.rudder_networks_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration was NOT edited because of an error");
+
+    pass3.apache_reloaded.!apache_reload_failed::
+      "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Apache has been reloaded successfully");
+
+    pass3.apache_reload_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Apache failed to reload");
+
   commands:
 
     rudder_networks_repaired::
@@ -55,24 +78,5 @@ bundle agent root_networks_check
       "${paths.path[service]}"
         args => "${apache_service} reload",
         classes => if_else("apache_reloaded", "apache_reload_failed");
-
-  reports:
-
-    cfengine::
-
-      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#The Rudder allowed networks configuration is OK"
-        ifvarclass => "rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed";
-
-      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#The Rudder allowed networks configuration has been corrected"
-        ifvarclass => "rudder_networks_repaired.!rudder_networks_failed";
-
-      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#The Rudder allowed networks configuration was NOT edited because of an error"
-        ifvarclass => "rudder_networks_failed";
-
-      "@@server-roles@@log_info@@&TRACKINGKEY&@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#Apache has been reloaded successfully"
-        ifvarclass => "apache_reloaded.!apache_reload_failed";
-
-      "@@server-roles@@result_error@@&TRACKINGKEY&@@Check allowed networks configuration@@None@@${g.execRun}##${g.uuid}@#Apache failed to reload"
-        ifvarclass => "apache_reload_failed";
 
 }

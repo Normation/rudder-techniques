@@ -75,19 +75,32 @@ bundle common g
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
-      "rudder_tools_files_windows" slist => { "uuid.vbs",
-                                              "iconv.dll",
+      "rudder_tools_files_windows" slist => {
+                                              # Rudder utilities
+                                              "uuid.vbs",
                                               "userlist.bat",
                                               "registrydns.bat",
-                                              "iconv.exe",
-                                              "curl/curl.exe",
-                                              "curl/libcurl.dll",
-                                              "curl/libssl32.dll",
-                                              "curl/libeay32.dll",
                                               "cpuid-windows-v1.0.vbs",
+
+                                              # GNU iconv
+                                              "iconv.exe",
+                                              "iconv.dll",
+
+                                              # cURL
+                                              "curl/curl.exe",
+                                              "curl/curl-ca-bundle.crt",
+
+                                              # OpenSSL
+                                              "openssl/openssl.exe",
+                                              "openssl/libeay32.dll",
+                                              "openssl/ssleay32.dll",
+
+                                              # Fusion inventory
                                               "fusionagent.exe",
+
+                                              # NXlog
                                               "nxlog-ce-2.8.1248.msi",
-                                              "nxlog.conf",
+                                              "nxlog.conf" 
                                             };
 
 
@@ -97,6 +110,11 @@ bundle common g
     aix::
 
       "gzip"                       string => "/usr/bin/gzip";
+      "inventory_upload_protocol"  string => "http";
+
+    !aix::
+
+      "inventory_upload_protocol"  string => "https";
 
     !aix.!windows::
 
@@ -118,10 +136,14 @@ bundle common g
 
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "${rudder_configuration_repository}/ncf";
-      "inventory_upload_protocol"   string => "http";
+
+      "rudder_ncf_hash_file"          string => "ncf_hash_file";
+      "rudder_ncf_origin_common_hash" string => "${rudder_ncf_origin_common}/${rudder_ncf_hash_file}";
+      "rudder_ncf_origin_local_hash"  string => "${rudder_ncf_origin_local}/${rudder_ncf_hash_file}";
 
       "uncompressed_inventory_file_types" slist => { ".*.ocs" };
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
+      "signed_inventory_file_types"       slist => { "@{inventory_file_types}", ".*\.sign" };
 
       "server_roles_path"           string => "${rudder_base}/etc/server-roles.d/";
 
@@ -162,6 +184,14 @@ bundle common g
                                               @{rudder_tools_files_suse},
                                               "checkroute.pl",
                                             }, policy => "ifdefined";
+
+      # Heartbeat interval, in minutes. Only used when in "changes-only" compliance mode
+      # In this mode, we should only send a "StartRun"/"EndRun" message pair if changes occur,
+      # or if this interval has elapsed since we last sent one
+      "heartbeat_interval" string => "&RUDDER_HEARTBEAT_INTERVAL&";
+
+      "rudder_node_config_id" string => "&RUDDER_NODE_CONFIG_ID&";
+
   classes:
 
     # Utilities

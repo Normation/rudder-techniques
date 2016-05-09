@@ -24,7 +24,7 @@ body common control
 {
         bundlesequence     => { "init_files", "update" };
 
-        inputs             => { "common/1.0/update.cf" };
+        inputs             => { "common/1.0/update.cf", "common/1.0/rudder_stdlib_core.cf" };
         output_prefix      => "rudder";
 }
 
@@ -71,6 +71,10 @@ bundle common g
       "rudder_tools_origin"      string => "/var/rudder/tools";
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "&CONFIGURATION_REPOSITORY_FOLDER&/ncf";
+
+      "rudder_ncf_hash_file"          string => "ncf_hash_file";
+      "rudder_ncf_origin_common_hash" string => "${rudder_ncf_origin_common}/${rudder_ncf_hash_file}";
+      "rudder_ncf_origin_local_hash"  string => "${rudder_ncf_origin_local}/${rudder_ncf_hash_file}";
 
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
       "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
@@ -200,3 +204,15 @@ body file_select exclude(name)
         file_result => "!leaf_name";
 }
 
+# Copied from CFEngine stdlib
+body classes always(x)
+
+# Define a class no matter what the outcome of the promise is
+
+{
+  promise_repaired => { "${x}" };
+  promise_kept => { "${x}" };
+  repair_failed => { "${x}" };
+  repair_denied => { "${x}" };
+  repair_timeout => { "${x}" };
+}
