@@ -112,7 +112,7 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
                 ifvarclass => "groupmanagement_group_add_${index}_kept.!(groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
 
             "@@groupManagement@@result_success@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} is already present and doesn't require to have its content enforced"
-                ifvarclass => "!groupmanagement_group_${index}_enforce_content.!(groupmanagement_group_add_${index}_kept.groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
+                ifvarclass => "!groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_enforce_content.!(groupmanagement_group_add_${index}_kept.groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
 
             "@@groupManagement@@result_repaired@@${directiveId}@@Groups@@${name}@@${g.execRun}##${g.uuid}@#The group ${name} has been updated"
                 ifvarclass => "groupmanagement_group_add_${index}_repaired.!(groupmanagement_group_add_${index}_kept|groupmanagement_group_add_${index}_error)";
