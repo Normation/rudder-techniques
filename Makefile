@@ -32,8 +32,8 @@ all: rudder-templates-cli.jar
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0 techniques/system/inventory/1.0/fusionAgent.st
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
 	cp techniques/system/distributePolicy/1.0/rudder-ncf-conf.st initial-promises/node-server/distributePolicy/ncf/ncf.conf
-	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server/distributePolicy/rudder-rsyslog-root.conf techniques/system/distributePolicy/1.0/rudder-rsyslog-root.st
-	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server/distributePolicy/rudder-rsyslog-relay.conf techniques/system/distributePolicy/1.0/rudder-rsyslog-relay.st
+	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server/distributePolicy/rsyslog.conf techniques/system/distributePolicy/1.0/rudder-rsyslog-root.st
+	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server/distributePolicy/rsyslog.conf techniques/system/distributePolicy/1.0/rudder-rsyslog-relay.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0 techniques/system/distributePolicy/1.0/rsyslogConf.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0 techniques/system/distributePolicy/1.0/propagatePromises.st
 
