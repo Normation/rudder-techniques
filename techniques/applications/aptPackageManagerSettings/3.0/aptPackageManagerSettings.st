@@ -207,6 +207,10 @@ bundle agent check_apt_settings
     pass3.((apt_tier1_validated|apt_tier2_validated|apt_disabled_validated).(!apt_tier1_failed|!apt_tier2_failed|!apt_disabled_failed))::
       "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_repaired", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "Some APT settings were reset");
 
+      # Clear package caches, same class as for repaired reporting
+      "force_package_list_update" usebundle => file_remove("/var/rudder/cfengine-community/state/software_update_timestamp_apt-get");
+
+
     pass3.apt_tier1_kept::
       "any" usebundle => rudder_common_report("aptPackageManagerSettings", "log_info", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT repositories already correct");
 
