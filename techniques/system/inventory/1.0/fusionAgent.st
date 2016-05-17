@@ -564,7 +564,8 @@ bundle agent signInventories
   vars:
 
     !windows::
-      "sign_script" string => "/opt/rudder/bin/signature.sh";
+      # Keep "/opt/rudder/bin/signature.sh" as a fallback until we don't support agents < 4.0 anymore
+      "sign_script" string => ifelse(fileexists("${g.rudder_base}/bin/rudder-sign"), "${g.rudder_base}/bin/rudder-sign", "${g.rudder_base}/bin/signature.sh");
     windows::
       "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File \"C:\Program Files\Rudder\sbin\signature.ps1\" -file";
 
@@ -573,12 +574,11 @@ bundle agent signInventories
 
   files:
 
-    !windows::
+    !windows.sign_script_exists::
       "${g.rudder_inventories}"
         transformer  => "${sign_script} \"${this.promiser}\"",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
-        ifvarclass   => "sign_script_exists",
         comment      => "Signing inventory files";
 }
 
