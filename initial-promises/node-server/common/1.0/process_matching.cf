@@ -55,7 +55,7 @@ bundle agent process_matching
       # (see http://www.rudder-project.org/redmine/issues/3925 and http://www.rudder-project.org/redmine/issues/3930).
       "/etc/cron.d/rudder-agent-uuid" delete => tidy;
 
-    community_edition.!aix::
+    community_edition.!aix.!windows::
 
       "/etc/cron.d/rudder-agent"
         create        => "true",

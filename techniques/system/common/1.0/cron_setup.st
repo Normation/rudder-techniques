@@ -30,7 +30,7 @@ bundle agent setup_cronjob
       "/etc/cron.d/rudder-agent-uuid"
         delete => tidy;
 
-    community_edition.!aix::
+    community_edition.!aix.!windows::
 
       "/etc/cron.d/rudder-agent"
         create        => "true",
