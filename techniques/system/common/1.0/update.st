@@ -108,6 +108,9 @@ bundle common server_info
       "cfserved" string => ifelse(fileexists("${policy_server_file}"),
                                   readfile("${policy_server_file}", 2048),
                                   "rudder");
+
+  classes:
+      "should_disable_server" expression => fileexists("${g.rudder_disable_server_file}");
 }
 
 # The update is now split in two parts
@@ -346,8 +349,6 @@ bundle agent update_action
   processes:
     config.!windows::
       "cf-serverd" restart_class => "start_server";
-
-    config.!windows::
       "cf-execd"   restart_class => "start_exec";
 
 &if(NOVA)&
@@ -366,7 +367,7 @@ bundle agent update_action
         action  => u_ifwin_bg,
         classes => success("executor_ok", "executor_error", "executor_kept");
 
-    start_server::
+    !should_disable_server.start_server::
       "${sys.cf_serverd}"
         action  => u_ifwin_bg,
         classes => success("server_ok", "server_error", "server_kept");

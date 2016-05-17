@@ -62,6 +62,7 @@ bundle common g
       "rudder_tools"             string => "${rudder_var}/tools";
       "rudder_ncf"               string => "${rudder_var}/ncf";
       "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
+      "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
 
 &if(NOVA)&
     windows::
@@ -72,6 +73,7 @@ bundle common g
       "rudder_tools"             string => "${rudder_sbin}";
       "rudder_ncf"               string => "${rudder_var}\ncf";
       "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
+      "rudder_disable_server_file" string => "${rudder_base}\etc\disable-policy-distribution";
 
       "rudder_tools_files_windows" slist => {
                                               # Rudder utilities
