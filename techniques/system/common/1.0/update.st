@@ -104,11 +104,15 @@ bundle common server_info
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-   # Use localhost as default policy_server if no policy_server.dat exists
-    policy_server_set::
-      "cfserved" string => readfile("${policy_server_file}", 2048);
+    # Use "rudder" as default policy_server if no policy_server.dat exists
     !policy_server_set::
       "cfserved" string => "rudder";
+
+    policy_server_set::
+      # Read in up to 10 lines of ${policy_server_file}, ignoring any comments starting with #
+      "policy_server_entries"    int => readstringarrayidx("policy_server_array", "${policy_server_file}", "#[^\n]*", "\s", 10, 2048);
+      # Use the first field of the first line (trims trailing white space and ignores extra lines)
+      "cfserved"              string => "${policy_server_array[0][0]}";
 
   classes:
       "policy_server_set" expression => fileexists("${server_info.policy_server_file}");
