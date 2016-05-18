@@ -58,20 +58,6 @@ bundle agent doInventory
 
   vars:
 
-    # If curl is available, use it
-    !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -L -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
-
-    # If not, use minicurl instead
-    !windows.!curl_installed::
-      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
-
-&if(NOVA)&
-    # On windows, always use curl
-    windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
-&endif&
-
     uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${g.rudder_var_tmp}/uuid.txt", 50);
 
@@ -89,6 +75,8 @@ bundle agent doInventory
       # Compute the inventory time
       "any" usebundle => computeInventoryTime;
 
+    force_inventory|(inventory_time.!inventory_sent)::
+      "any" usebundle => download_server_uuid;
 
     uuid_valid.force_inventory::
       "any" usebundle => fusionAgent;
@@ -112,6 +100,38 @@ bundle agent doInventory
       "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
 
+  reports:
+
+    uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
+      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not retrieve a valid UUID from the policy server";
+
+    # Send reports to confirm this PT's success even if we don't need to send an inventory
+    inventory_sent::
+      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#An inventory was already sent less than 8 hours ago";
+
+    !(Night.splaying).!force_inventory::
+      "@@Inventory@@result_success@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Next inventory scheduled between 00:00 and 06:00";
+
+}
+
+bundle agent download_server_uuid
+{
+  vars:
+
+    # If curl is available, use it
+    !windows.curl_installed::
+      "download_command"   string => "${g.rudder_curl} -L -s -f --proxy '' -o \"${g.rudder_var_tmp}/uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+
+    # If not, use minicurl instead
+    !windows.!curl_installed::
+      "download_command"   string => "${g.minicurl} --get --file \"${g.rudder_var_tmp}/uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+
+&if(NOVA)&
+    # On windows, always use curl
+    windows::
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -s -f --noproxy '${server_info.cfserved}' -o \"${g.rudder_var_tmp}\uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+&endif&
+
   commands:
 
       "${download_command}"
@@ -121,16 +141,6 @@ bundle agent doInventory
   reports:
     could_not_download_uuid::
       "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not retrieve the UUID of the policy server";
-
-    uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
-      "@@Inventory@@result_error@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not retrieve a valid UUID from the policy server";
-
-      # Send reports to confirm this PT's success even if we don't need to send an inventory
-    inventory_sent::
-      "@@Inventory@@log_info@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#An inventory was already sent less than 8 hours ago";
-
-    !(Night.splaying).!force_inventory::
-      "@@Inventory@@result_success@@&TRACKINGKEY&@@inventory@@None@@${g.execRun}##${g.uuid}@#Next inventory scheduled between 00:00 and 06:00";
 
 }
 
