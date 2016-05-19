@@ -69,7 +69,7 @@ bundle common g
       "rudder_inventories"         string => "${rudder_var}\inventories";
       "rudder_base_sbin_arg"       string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
       "rudder_tools"               string => "${rudder_sbin}";
-      "rudder_ncf"                 string => "${rudder_base}\ncf";
+      "rudder_ncf"                 string => "${rudder_var}\ncf";
       "escaped_workdir"            string => escape("${sys.workdir}");
       "rudder_curl"                string => "${rudder_base_sbin}\curl\curl.exe";
 
