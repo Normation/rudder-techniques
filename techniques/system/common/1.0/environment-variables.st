@@ -45,6 +45,7 @@ env | sed 's/=/]=/' |sed 's/^/=node.env[/'";
 for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
 
   classes:
+    !windows::
       # Test if the platform supports env -0 option
       # If it does not, multiline environment variables require different handling, that is a little less reliable
       "supports_env_0" expression => returnszero("${paths.env} -0 >/dev/null 2>/dev/null","useshell");
