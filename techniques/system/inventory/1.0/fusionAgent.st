@@ -90,6 +90,11 @@ bundle agent doInventory
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
+  files:
+    # Clean policy server uuid file defined in 2.11 or earlier version, as location in 3.0+ is ${sys.workdir}/rudder-server-uuid.txt
+    "${g.rudder_var_tmp}/uuid.txt"
+      delete => tidy;
+
   methods:
       # Compute the inventory time
       "any" usebundle => computeInventoryTime;

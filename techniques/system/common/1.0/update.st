@@ -108,7 +108,6 @@ bundle common server_info
       "cfserved" string => ifelse(fileexists("${policy_server_file}"),
                                   readfile("${policy_server_file}", 2048),
                                   "rudder");
-
 }
 
 # The update is now split in two parts
