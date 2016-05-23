@@ -83,7 +83,7 @@ bundle server access_rules
 &endif&
 
       # Allow server to remotely run the agent
-      "${sys.workdir}/bin/cf-agent"
+      "${sys.cf_agent}"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
   roles:
