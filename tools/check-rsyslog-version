@@ -9,7 +9,11 @@
 RPMVERCMP="/var/rudder/cfengine-community/bin/rpmvercmp"
 
 # Minimum supported Rsyslog version
-MINIMAL_RSYSLOG_VERSION="5.7.1"
+if [ "$#" -eq 1 ]; then
+  MINIMAL_RSYSLOG_VERSION="$1"
+else
+  MINIMAL_RSYSLOG_VERSION="5.7.1"
+fi
 
 if type rsyslogd >/dev/null 2>&1; then
 
