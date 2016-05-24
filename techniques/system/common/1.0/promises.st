@@ -694,6 +694,13 @@ bundle agent remove_rudder_syslog_configuration {
 
 bundle agent garbage_collection
 {
+  vars:
+      "log_files_to_rotate" slist => {
+					"${sys.workdir}/cf3.${sys.uqhost}.runlog",
+                                        "${sys.workdir}/promise_summary.log",
+                                        "${sys.workdir}/cf_notkept.log",
+                                        "${sys.workdir}/cf_repair.log",
+				     };
 
   files:
 
@@ -709,6 +716,10 @@ bundle agent garbage_collection
         file_select => days_old("&MODIFIED_FILES_TTL&"),
         depth_search => recurse("inf");
 
+      "${log_files_to_rotate}"
+        comment     => "Rotate file if above specified size",
+        rename      => rotate("10"),
+        file_select => bigger_than("1M");
 }
 
 #######################################################
