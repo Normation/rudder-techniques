@@ -58,20 +58,6 @@ bundle agent doInventory
 
   vars:
 
-    # If curl is available, use it
-    !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -L -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
-
-    # If not, use minicurl instead
-    !windows.!curl_installed::
-      "download_command"   string => "${g.minicurl} --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
-
-&if(NOVA)&
-    # On windows, always use curl
-    windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
-&endif&
-
     uuid_succesfully_downloaded::
       "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
 
@@ -99,6 +85,8 @@ bundle agent doInventory
       # Compute the inventory time
       "any" usebundle => computeInventoryTime;
 
+    force_inventory|(inventory_time.!inventory_sent)::
+      "any" usebundle => download_server_uuid;
 
     uuid_valid.force_inventory::
       "any" usebundle => fusionAgent;
@@ -122,9 +110,6 @@ bundle agent doInventory
       "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
 
-    pass3.could_not_download_uuid::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server");
-
     pass3.(uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid)::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve a valid UUID from the policy server");
 
@@ -134,6 +119,30 @@ bundle agent doInventory
 
     pass3.(!(Night.splaying).!force_inventory)::
       "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "inventory", "None", "Next inventory scheduled between 00:00 and 06:00");
+
+}
+
+bundle agent download_server_uuid
+{
+  vars:
+
+    # If curl is available, use it
+    !windows.curl_installed::
+      "download_command"   string => "${g.rudder_curl} -L -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+
+    # If not, use minicurl instead
+    !windows.!curl_installed::
+      "download_command"   string => "${g.minicurl} --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+
+&if(NOVA)&
+    # On windows, always use curl
+    windows::
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+&endif&
+
+  methods:
+    could_not_download_uuid::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server");
 
   commands:
 

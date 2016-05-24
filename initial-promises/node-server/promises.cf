@@ -436,6 +436,13 @@ bundle agent check_cron_daemon
 
 bundle agent garbage_collection
 {
+  vars:
+      "log_files_to_rotate" slist => {
+                                        "${sys.workdir}/cf3.${sys.uqhost}.runlog",
+                                        "${sys.workdir}/promise_summary.log",
+                                        "${sys.workdir}/cf_notkept.log",
+                                        "${sys.workdir}/cf_repair.log",
+                                     };
 
   files:
 
@@ -450,6 +457,11 @@ bundle agent garbage_collection
         delete => tidy,
         file_select => days_old("30"),
         depth_search => recurse("inf");
+
+      "${log_files_to_rotate}"
+        comment     => "Rotate file if above specified size",
+        rename      => rotate("10"),
+        file_select => bigger_than("1M");
 
 }
 
