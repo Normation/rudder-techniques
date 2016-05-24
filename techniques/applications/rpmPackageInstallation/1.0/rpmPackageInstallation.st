@@ -78,7 +78,7 @@ body package_method yum_nobulk(rpm_pkg_timeout)
 
     redhat::
         package_changes => "individual";
-        package_list_command => "/usr/bin/yum list installed";
+        package_list_command => "/usr/bin/yum ${redhat_knowledge.yum_options} list installed";
         package_list_name_regex    => "([^.]+).*";
         package_list_version_regex => "[^\s]\s+([^\s]+).*";
         package_list_arch_regex    => "[^.]+\.([^\s]+).*";
@@ -86,9 +86,9 @@ body package_method yum_nobulk(rpm_pkg_timeout)
         package_name_convention => "${name}.${arch}";
         package_delete_convention  => "${name}";
         package_list_update_ifelapsed => "${rpm_pkg_timeout}";
-        package_add_command => "/usr/bin/yum -y install";
+        package_add_command => "/usr/bin/yum ${redhat_knowledge.yum_options} -y install";
         package_delete_command => "/bin/rpm -e";
-        package_update_command => "/usr/bin/yum -y update";
+        package_update_command => "/usr/bin/yum ${redhat_knowledge.yum_options} -y update";
         package_verify_command => "/bin/rpm -V";
 
         # make correct version comparisons
