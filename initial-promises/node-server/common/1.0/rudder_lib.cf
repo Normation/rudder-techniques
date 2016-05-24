@@ -153,14 +153,14 @@ body package_method yum_remi
 {
 
         package_changes               => "bulk";
-        package_list_command          => "/usr/bin/yum list installed";
+        package_list_command          => "/usr/bin/yum ${redhat_knowledge.yum_options} list installed";
         package_list_name_regex       => "([^.]+).*";
         package_list_version_regex    => "[^\s]\s+([^\s]+).*";
         package_list_arch_regex       => "[^.]+\.([^\s]+).*";
         package_installed_regex       => ".*installed.*";
         package_name_convention       => "${name}.${arch}";
         package_delete_convention     => "${name}";
-        package_add_command           => "/usr/bin/yum --enablerepo=remi -y install";
+        package_add_command           => "/usr/bin/yum ${redhat_knowledge.yum_options} --enablerepo=remi -y install";
         package_delete_command        => "/bin/rpm -e";
         package_verify_command        => "/bin/rpm -V";
 
@@ -523,14 +523,14 @@ body package_method rudder_yum
         package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
         package_installed_regex       => ".*";
         package_name_convention       => "${name}";
-        package_list_update_command   => "/usr/bin/yum --quiet check-update";
+        package_list_update_command   => "/usr/bin/yum ${redhat_knowledge.yum_options} check-update";
         package_list_update_ifelapsed => "240";
         package_patch_name_regex      => "([^.]+).*";
         package_patch_version_regex   => "[^\s]\s+([^\s]+).*";
         package_patch_arch_regex      => "[^.]+\.([^\s]+).*";
-        package_add_command           => "/usr/bin/yum -y install";
-        package_update_command        => "/usr/bin/yum -y update";
-        package_patch_command         => "/usr/bin/yum -y update";
+        package_add_command           => "/usr/bin/yum ${redhat_knowledge.yum_options} -y install";
+        package_update_command        => "/usr/bin/yum ${redhat_knowledge.yum_options} -y update";
+        package_patch_command         => "/usr/bin/yum ${redhat_knowledge.yum_options} -y update";
         package_delete_command        => "/bin/rpm -e --nodeps --allmatches";
         package_verify_command        => "/bin/rpm -V";
 

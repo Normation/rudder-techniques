@@ -51,7 +51,7 @@ bundle agent check_rpm_package_installation {
       "available_updates_file" string => "${sys.workdir}/state/software_available_updates.csv";
 
     redhat::
-      "available_updates_command" string => "/usr/bin/yum --quiet check-update | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
+      "available_updates_command" string => "/usr/bin/yum ${redhat_knowledge.yum_options} check-update | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
     zypper_version_ok::
       "available_updates_command" string => "/usr/bin/zypper --non-interactive list-updates -a | ${paths.path[grep]} '|' | ${paths.path[awk]} -F '|' '{print $3 $5}' | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
 
@@ -244,9 +244,9 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
     package_installed_regex       => ".*";
     package_name_convention       => "${name}-${version}";
     package_list_update_ifelapsed => "${rpm_pkg_timeout}";
-    package_add_command           => "/usr/bin/yum -y install";
+    package_add_command           => "/usr/bin/yum ${redhat_knowledge.yum_options} -y install";
     package_delete_command        => "/bin/rpm -e";
-    package_update_command        => "/usr/bin/yum -y update";
+    package_update_command        => "/usr/bin/yum ${redhat_knowledge.yum_options} -y update";
     package_verify_command        => "/bin/rpm -V";
 
 
