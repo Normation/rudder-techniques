@@ -475,12 +475,22 @@ bundle agent check_log_system
 
       "syslog_ng_source" string => "s_sys";
 
+
     use_tcp::
       "rsyslog_rule_prefix"   string => "@@";
       "syslogng_rule_prefix"  string => "tcp";
     use_udp::
       "rsyslog_rule_prefix"   string => "@";
       "syslogng_rule_prefix"  string => "udp";
+
+    rsyslogd.rsyslog_version_ok::
+
+      "rsyslogd_message_reduction" string => "$RepeatedMsgReduction off${const.n}";
+      
+    rsyslogd.rsyslog_version_not_ok::
+
+      "rsyslogd_message_reduction" string => "";
+
 
     any::
 
@@ -513,6 +523,7 @@ bundle agent check_log_system
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check-rsyslog-version");
 
   files:
 
@@ -525,7 +536,7 @@ bundle agent check_log_system
 
     !windows.rsyslogd.!policy_server::
       "/etc/rsyslog.d/rudder-agent.conf"
-        edit_line => append_if_no_lines("#Rudder log system${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~"),
+        edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~"),
         create => "true",
         edit_defaults => empty_backup,
         classes       => rudder_common_classes("rsyslog");
@@ -579,6 +590,14 @@ bundle agent check_log_system
 
     aix.syslogd_repaired::
       "/usr/bin/refresh -s syslogd";
+      
+    rsyslogd.check_rsyslog_version_present::
+      # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
+      # The option is probably older though.
+      "${g.rudder_tools}/check-rsyslog-version 5.6.4"
+        contain => in_shell,
+        module  => "true",
+        comment => "Check rsyslog version to know if it supports RepeatedMsgReduction";
 
 }
 
