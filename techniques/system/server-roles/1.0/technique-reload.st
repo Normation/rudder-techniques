@@ -51,7 +51,7 @@ bundle agent root_technique_reload
 
     root_technique_reload_rest_call_repaired::
 
-      "@@server-roles@@result_repaired@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library has been reloaded.";
+      "@@server-roles@@log_repaired@@&TRACKINGKEY&@@Check Technique library reloading file@@None@@${g.execRun}##${g.uuid}@#The Technique library has been reloaded.";
 
     root_technique_reload_rest_call_failed::
 
