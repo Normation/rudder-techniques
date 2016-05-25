@@ -53,7 +53,7 @@ do
   CHECK_AMPERSAND=`egrep '((\\\&&)|([^\\\]&\\\&))|(\s+&&\s+)' "$filename" | wc -l`
   if [ ${CHECK_AMPERSAND} -ne 0 ]
   then
-    echo "Reason: found presence of double ampersand which could prevent Rudder to generate CFEngine promises properly"
+    echo "The file ${filename} contains a double ampersand which could prevent Rudder to generate CFEngine promises properly"
     EXIT=1
   fi
 done
@@ -116,7 +116,7 @@ do
 done
 
 # check that techniques do not use reports:
-${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v initial-promises | egrep -v "techniques/system/common/1.0/(rudder_stdlib.st|update.st|promises.st|process_matching.st|rudder_stdlib_core.st)|techniques/system/distributePolicy/1.0/rsyslogConf.st" | grep -v cfengine_stdlib | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v initial-promises | egrep -v "techniques/system/common/1.0/(update.st|promises.st|rudder-stdlib-core.st)|techniques/system/distributePolicy/1.0/rsyslogConf.st" | grep -v cfengine_stdlib | while read filename
 do
   if egrep '^[[:space:]]*reports:' "${filename}" >/dev/null; then
     echo "The file ${filename} uses reports: instead of rudder_common_report"
