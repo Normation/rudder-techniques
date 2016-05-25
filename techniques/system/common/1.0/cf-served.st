@@ -82,8 +82,14 @@ bundle server access_rules
 
 &endif&
 
-      # Allow server to remotely run the agent
-      "${sys.cf_agent}"
+    # Allow server to remotely run the agent
+    # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
+    linux::
+      "${sys.workdir}/bin/cf-agent"
+        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+
+    windows::
+      "${sys.workdir}\bin\cf-agent.exe"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
   roles:
