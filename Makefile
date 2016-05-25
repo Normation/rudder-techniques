@@ -36,8 +36,21 @@ all: rudder-templates-cli.jar
 	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server/distributePolicy/rsyslog.conf techniques/system/distributePolicy/1.0/rudder-rsyslog-relay.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0 techniques/system/distributePolicy/1.0/rsyslogConf.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0 techniques/system/distributePolicy/1.0/propagatePromises.st
-
-
+	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "server-roles@@server-roles-directive@@0",/' variables.json
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/alive-check.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/component-check.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/compress-webapp-log.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/integrity-check.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/logrotate-check.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/metrics-reporting.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/network-check.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/password-check.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/postgres-check.st
+	cp techniques/system/server-roles/1.0/rudder-logrotate.st initial-promises/node-server/server-roles/logrotate.conf/rudder
+	java -jar rudder-templates-cli.jar --outext .conf --outdir initial-promises/node-server techniques/system/server-roles/1.0/rudder-server-roles.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/servers-by-role.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/service-check.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/technique-reload.st
 
 rudder-templates-cli.jar:
 	$(WGET) -O rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
@@ -57,3 +70,17 @@ clean:
 	rm -f initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf
 	rm -f initial-promises/node-server/distributePolicy/1.0/techniques/system/distributePolicy/1.0/rsyslogConf.cf
 	rm -f initial-promises/node-server/distributePolicy/1.0/propagatePromises.cf
+	rm -f initial-promises/node-server/server-roles/1.0/alive-check.cf
+	rm -f initial-promises/node-server/server-roles/1.0/component-check.cf
+	rm -f initial-promises/node-server/server-roles/1.0/compress-webapp-log.cf
+	rm -f initial-promises/node-server/server-roles/1.0/integrity-check.cf
+	rm -f initial-promises/node-server/server-roles/1.0/logrotate-check.cf
+	rm -f initial-promises/node-server/server-roles/1.0/metrics-reporting.cf
+	rm -f initial-promises/node-server/server-roles/1.0/network-check.cf
+	rm -f initial-promises/node-server/server-roles/1.0/password-check.cf
+	rm -f initial-promises/node-server/server-roles/1.0/postgres-check.st
+	rm -f initial-promises/node-server/server-roles/logrotate.conf/rudder
+	rm -f initial-promises/node-server/rudder-server-roles.conf
+	rm -f initial-promises/node-server/server-roles/1.0/servers-by-role.cf
+	rm -f initial-promises/node-server/server-roles/1.0/service-check.cf
+	rm -f initial-promises/node-server/server-roles/1.0/technique-reload.cf
