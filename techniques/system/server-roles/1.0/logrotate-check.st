@@ -85,7 +85,7 @@ bundle agent root_logrotate_check
     rudder_logrotate_conf_copied.!cannot_copy_rudder_logrotate_conf::
       "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check logrotate configuration", "None", "The logrotate configuration has been updated");
 
-    annot_copy_rudder_logrotate_conf::
+    cannot_copy_rudder_logrotate_conf::
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check logrotate configuration", "None", "The logrotate configuration could not be updated");
 
 }
