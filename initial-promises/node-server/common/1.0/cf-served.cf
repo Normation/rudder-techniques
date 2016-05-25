@@ -74,11 +74,17 @@ bundle server access_rules
             admit   => { host2ip("localhost"), string_downcase(escape("localhost"))  };
 
          
-    policy_server_set::
-      # Allow server to remotely run the agent
-      "${sys.cf_agent}"
+    # Allow server to remotely run the agent
+    # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
+    policy_server_set.linux::
+      "${sys.workdir}/bin/cf-agent"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
+    policy_server_set.windows::
+      "${sys.workdir}\bin\cf-agent.exe"
+        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+
+    policy_server_set::
       "${query_types}"
         handle => "server_access_grant_${query_types}_for_hosts",
         comment => "Grant ${query_types} reporting query for the hub on the hosts",
