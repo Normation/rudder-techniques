@@ -33,9 +33,9 @@ do
   if grep -rHn "log_error" "$filename" > /dev/null
   then
     echo "Reason: illegal log level 'log_error' found in $filename. Use result_error instead"
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that the deprecated body 'class_trigger' is never used
 find ${REPOSITORY_PATH} -type f -name "*.st" | while read filename
@@ -43,9 +43,9 @@ do
   if egrep -rHn 'classes\s+=>\s+class_trigger\s*\(' "$filename" > /dev/null
   then
     echo "Reason: deprecated body 'class_trigger' found in $filename. Use kept_if_else instead"
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that there is no use of '&&' in the techniques causing trouble with CFEngine promise generation
 find ${REPOSITORY_PATH}/techniques -type f -name "*.st" | while read filename
@@ -53,10 +53,10 @@ do
   CHECK_AMPERSAND=`egrep '((\\\&&)|([^\\\]&\\\&))|(\s+&&\s+)' "$filename" | wc -l`
   if [ ${CHECK_AMPERSAND} -ne 0 ]
   then
-    echo "Reason: found presence of double ampersand which could prevent Rudder to generate CFEngine promises properly"
-    EXIT=1
+    echo "File ${filename} contains double ampersand which could prevent Rudder to generate CFEngine promises properly"
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that logrotate configurations are synchronized from techniques to initial-promises
 if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/server-roles/1.0/rudder-logrotate.st ${REPOSITORY_PATH}/initial-promises/node-server/server-roles/logrotate.conf/rudder
@@ -86,18 +86,18 @@ do
   if [ ${CHECK_CLASS_DISTRIB} -ne 0 ]
   then
     echo "Reason: found invalid use of class DistributionVersion that does not exists in file ${filename}"
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that we are not using the non-existant class cfengine_community (which does not exist)
 find ${REPOSITORY_PATH} -type f -name "*.st" -or -name "*.cf" | while read filename
 do
   if grep -q 'cfengine_community' "${filename}"; then
     echo "Found invalid use of class cfengine_community that does not exists in file ${filename}. Use community_edition instead."
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 
 # Check that techniques are written in normal ordering
@@ -111,18 +111,18 @@ ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITO
 do
   if grep '$(' "${filename}" >/dev/null; then
     echo "The file ${filename} contains deprecated \$() syntax"
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that we never use group "root" in perms
 ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
 do
   if egrep -q "^[^#]*perms\s*=>\s*mog\([^,]+,\s*[^,]+,\s*['\"]root['\"]\)" ${filename}; then
     echo "The file ${filename} attempts to use the 'root' group - use '0' instead for UNIX compatibility"
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that no removed deprecated techniques come back (via erroneous merges, for example)
 ${REPOSITORY_PATH}/scripts/technique-files -d "${REPOSITORY_PATH}/techniques" | while read name
@@ -133,9 +133,9 @@ do
 
   if ! egrep "^${TECHNIQUE}" ${REPOSITORY_PATH}/maintained-techniques > /dev/null; then
     echo "Unexpected technique version ${TECHNIQUE} found. Maybe it is deprecated but has come back via a merge. Please remove it, or if it's a new version, add it to maintained-techniques."
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that all technique versions listed as maintained are indeed present
 cat ${REPOSITORY_PATH}/maintained-techniques | while read name
@@ -146,9 +146,9 @@ do
 
   if [ ! -d ${REPOSITORY_PATH}/techniques/${name} ]; then
     echo "Supposedly maintained technique version ${name} is missing"
-    EXIT=1
+    exit 1
   fi
-done
+done || EXIT=1
 
 if [ ${EXIT} -eq 0 ]; then
   echo "This repository seems clean"
