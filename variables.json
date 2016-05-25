@@ -15,5 +15,7 @@
   "CONFIGURATION_REPOSITORY_FOLDER": "/var/rudder/configuration-repository",
   "STORE_ALL_CENTRALIZED_LOGS_IN_FILE": true,
   "SYSLOGPORT": "${install_rsyslogd.rsyslog_port[2]}",
-  "SHARED_FILES_FOLDER": "/var/rudder/configuration-repository/shared-files"
+  "SHARED_FILES_FOLDER": "/var/rudder/configuration-repository/shared-files",
+  "SEND_METRICS": "no",
+  "RUDDER_SERVER_ROLES": "rudder-ldap:localhost\nrudder-inventory-endpoint:localhost\nrudder-db:localhost\nrudder-web:localhost\nrudder-relay-top:localhost"
 }
