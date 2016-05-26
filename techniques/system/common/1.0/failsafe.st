@@ -24,7 +24,7 @@ body common control
 {
         bundlesequence     => { "init_files", "update" };
 
-        inputs             => { "common/1.0/update.cf", "common/1.0/rudder_stdlib_core.cf" };
+        inputs             => { "common/1.0/update.cf", "common/1.0/rudder-stdlib-core.cf" };
         output_prefix      => "rudder";
         
         protocol_version   => "classic";
