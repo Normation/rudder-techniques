@@ -110,7 +110,7 @@ bundle common rudder_roles
 bundle agent init_files
 {
   vars:
-      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "cf-hub" };
+      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key" };
 
     nova_edition::
       "cfengine_install_path" string => "/usr/local";
