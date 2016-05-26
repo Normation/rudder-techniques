@@ -9,6 +9,7 @@ applications/apacheReverseProxy/2.0
 applications/apacheServer/3.0
 applications/aptPackageInstallation/4.0
 applications/aptPackageManagerSettings/3.0
+applications/aptPackageManagerSettings/3.1
 applications/openvpnClient/3.0
 applications/repoGpgKeyManagement/1.0
 applications/rpmPackageInstallation/7.0
