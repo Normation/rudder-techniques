@@ -20,7 +20,7 @@
 #
 # This library includes standardized bundles and bodies to be used as part of the
 # "best practices" in the Techniques writing, for classes and reporting only.
-# Other bodies and bundles should be included in rudder_stdlib.st
+# Other bodies and bundles should be included in rudder-stdlib.st
 #
 
 ##################################################
