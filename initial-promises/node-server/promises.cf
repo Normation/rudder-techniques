@@ -72,7 +72,7 @@ bundle common va
 
   vars:
     policy_server::
-      "bs" slist => { "startExecution", "check_disable_agent", "clean_red_button", "update", "set_red_button", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
+      "bs" slist => { "startExecution", "check_disable_agent", "clean_red_button", "update", "set_red_button", "internal_security", "setup_cronjob", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
      };
 
       "inputs_list" slist => {
@@ -80,7 +80,7 @@ bundle common va
      };
 
     !policy_server::
-      "bs" slist => { "startExecution", "check_disable_agent", "update", "internal_security", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
+      "bs" slist => { "startExecution", "check_disable_agent", "update", "internal_security", "setup_cronjob", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
      };
 
       "inputs_list" slist => {
@@ -91,7 +91,7 @@ bundle common va
       "end" slist => { "endExecution" };
 
       "common_inputs" slist => {
-      "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder-stdlib.cf","common/1.0/rudder-stdlib-core.cf","common/1.0/rudder_lib.cf","common/1.0/process_matching.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
+      "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder-stdlib.cf","common/1.0/rudder-stdlib-core.cf","common/1.0/rudder_lib.cf","common/1.0/cron_setup..cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
      };
 
 # definition of the machine roles
@@ -373,63 +373,6 @@ body process_select cron_bin
 {
   command => "(/usr/sbin/)?crond?( -n| -f)?";
   process_result => "command";
-}
-
-#######################################################
-# Check if the cron daemon is running
-# This only works with unix flavoured systems too
-
-bundle agent check_cron_daemon
-{
-
-  vars:
-
-    redhat::
-      "cron_service" string => "crond";
-
-    !redhat::
-      "cron_service" string => "cron";
-
-    !have_bin_systemctl::
-      "cron_restartcmd" string => "/etc/init.d/${cron_service} restart";
-
-    have_bin_systemctl::
-      "cron_restartcmd" string => "/bin/systemctl restart ${cron_service}";
-
-  classes:
-
-    "have_bin_systemctl" expression => fileexists("/bin/systemctl");
-
-  processes:
-
-    !android.!windows::
-      "cron"
-        process_select => cron_bin,
-        restart_class => "restart_crond";
-
-  commands:
-
-    restart_crond::
-
-      "${cron_restartcmd}"
-
-        comment => "Restarting crond",
-        classes => kept_if_else("crond_ok", "crond_restarted" , "crond_failed");
-
-  reports:
-
-    crond_failed::
-      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon was not running and could not be restarted";
-
-    crond_restarted::
-      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon has been successfully restarted";
-
-    !restart_crond.!crond_restarted.!crond_failed.!android::
-      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#The CRON daemon is running";
-
-    android|windows::
-       "@@Common@@result_na@@hasPolicyServer-root@@common-root@@00@CRON Daemon@@None@@${g.execRun}##${g.uuid}@#This is a system without CRON: CRON verifications skipped !";
-
 }
 
 ########################################################
