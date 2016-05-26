@@ -120,9 +120,9 @@ ${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_
 do
   if egrep '^[[:space:]]*reports:' "${filename}" >/dev/null; then
     echo "The file ${filename} uses reports: instead of rudder_common_report"
-    exit 11
+    exit 1
   fi
-done
+done || EXIT=1
 
 # Check that we never use group "root" in perms
 ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
