@@ -26,6 +26,12 @@ all: rudder-templates-cli.jar
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/internal_security.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/rudder_lib.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/site.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/cron_setup.st
+	java -jar rudder-templates-cli.jar --outext '' --outdir initial-promises/node-server/common/cron techniques/system/common/1.0/rudder_agent_community_cron.st
+	java -jar rudder-templates-cli.jar --outext '' --outdir initial-promises/node-server/common/cron techniques/system/common/1.0/rudder_agent_nova_cron.st
+	java -jar rudder-templates-cli.jar --outext '' --outdir initial-promises/node-server techniques/system/common/1.0/run_interval.st
+	java -jar rudder-templates-cli.jar --outext '' --outdir initial-promises/node-server/common/utilities techniques/system/common/1.0/minicurl.st
+	chmod +x initial-promises/node-server/common/utilities/minicurl
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "inventory-all@@inventory-all@@00",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0 techniques/system/inventory/1.0/virtualMachines.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0 techniques/system/inventory/1.0/fetchFusionTools.st
@@ -62,9 +68,13 @@ clean:
 	rm -f initial-promises/node-server/common/1.0/internal_security.cf
 	rm -f initial-promises/node-server/common/1.0/rudder_lib.cf
 	rm -f initial-promises/node-server/common/1.0/site.cf
-	rm -f initial-promises/node-server/node-server/inventory/1.0/virtualMachines.st
-	rm -f initial-promises/node-server/node-server/inventory/1.0/fetchFusionTools.cf
-	rm -f initial-promises/node-server/node-server/inventory/1.0/fusionAgent.cf
+	rm -f initial-promises/node-server/common/1.0/cron_setup.cf
+	rm -f initial-promises/node-server/common/cron/rudder_agent_community_cron
+	rm -f initial-promises/node-server/common/cron/rudder_agent_nova_cron
+	rm -f initial-promises/node-server/common/utilities/minicurl
+	rm -f initial-promises/node-server/inventory/1.0/virtualMachines.cf
+	rm -f initial-promises/node-server/inventory/1.0/fetchFusionTools.cf
+	rm -f initial-promises/node-server/inventory/1.0/fusionAgent.cf
 	rm -f initial-promises/node-server/distributePolicy/ncf/ncf.conf
 	rm -f initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-root.conf
 	rm -f initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf
@@ -78,9 +88,10 @@ clean:
 	rm -f initial-promises/node-server/server-roles/1.0/metrics-reporting.cf
 	rm -f initial-promises/node-server/server-roles/1.0/network-check.cf
 	rm -f initial-promises/node-server/server-roles/1.0/password-check.cf
-	rm -f initial-promises/node-server/server-roles/1.0/postgres-check.st
+	rm -f initial-promises/node-server/server-roles/1.0/postgres-check.cf
 	rm -f initial-promises/node-server/server-roles/logrotate.conf/rudder
 	rm -f initial-promises/node-server/rudder-server-roles.conf
 	rm -f initial-promises/node-server/server-roles/1.0/servers-by-role.cf
 	rm -f initial-promises/node-server/server-roles/1.0/service-check.cf
 	rm -f initial-promises/node-server/server-roles/1.0/technique-reload.cf
+	rm -f initial-promises/node-server/run_interval
