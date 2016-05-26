@@ -39,10 +39,6 @@ bundle common rudder_roles
 
     any::
       "uuid" string => readfile("${uuid_file}", 60);
-
-  classes:
-        # Abort if no uuid is defined
-      "should_not_continue" not => fileexists("${uuid_file}");
 }
 
 body common control
@@ -78,7 +74,7 @@ bundle common va
      };
 
     !policy_server::
-      "bs" slist => { "startExecution", "check_disable_agent", "update", "internal_security", "process_matching", "check_cf_processes", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
+      "bs" slist => { "startExecution", "check_disable_agent", "update", "internal_security", "process_matching", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
      };
 
       "inputs_list" slist => {
@@ -346,21 +342,6 @@ bundle agent check_cf_processes
     agent_has_gone_really_wild::
 
       "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than 8 cf-agent processes were detected. Killing processes that do not respect graceful termination signals.";
-
-}
-
-#######################################################
-# UUID file enforcing
-
-bundle agent check_uuid
-{
-  files:
-      "${g.uuid_file}"
-        create    => "true",
-        edit_line => enforce_content("${g.uuid}"),
-        edit_defaults => noempty_backup,
-        perms => m("644"),
-        comment => "Setting the uuid variable in a machine";
 
 }
 
