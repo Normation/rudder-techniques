@@ -47,7 +47,7 @@ bundle agent root_technique_reload
 
     pass3.root_technique_reload_rest_call_repaired::
 
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check Technique library reloading file", "None", "The Technique library has been reloaded.");
+      "any" usebundle => rudder_common_report("server-roles", "log_repaired", "&TRACKINGKEY&", "Check Technique library reloading file", "None", "The Technique library has been reloaded.");
 
     pass3.root_technique_reload_rest_call_failed::
 
