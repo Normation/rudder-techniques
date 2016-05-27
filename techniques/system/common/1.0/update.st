@@ -98,7 +98,7 @@ bundle common server_info
 {
   vars:
     any::
-      "policy_files" string => "/var/rudder/share/&UUID&";   #directory where to look for promises in the server for that client
+      "policy_files" string => "/var/rudder/share/${g.uuid}";   #directory where to look for promises in the server for that client
 
       "policy_server_file"
         string  => translatepath("${sys.workdir}/policy_server.dat"),
@@ -374,6 +374,23 @@ bundle agent update_reports
 
 }
 
+#######################################################
+# UUID file checking
+
+bundle agent check_uuid
+{
+  classes:
+    # Abort if no uuid is defined
+    "should_not_continue" expression => "wrong_uuid|no_uuid";
+    "wrong_uuid" not => strcmp("&UUID&", "${g.uuid}");
+    "no_uuid" not => fileexists("${g.uuid_file}");
+
+  reports:
+    wrong_uuid::
+      "FATAL: The UUID in ${g.uuid_file} (${g.uuid}) doesn't match the UUID recorded for this node in your Rudder server (&UUID&)";
+    no_uuid::
+      "FATAL: The UUID file ${g.uuid_file} is missing. Please run check-rudder-agent to generate a new one or restore it from a backup.";
+}
 
 ############################################
 body classes outcome(x)
