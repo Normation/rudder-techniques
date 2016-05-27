@@ -174,9 +174,6 @@ bundle common rudder_roles
 {
 
   classes:
-      # Abort if no uuid is defined
-      "should_not_continue" not => fileexists("${g.uuid_file}");
-
       # Policy Server is a machine which delivers promises
       "policy_server" expression => strcmp("root","${g.uuid}");
       # Root Server is the top policy server machine
@@ -441,19 +438,6 @@ bundle agent check_cf_processes
 
 }
 
-#######################################################
-# UUID file enforcing
-
-bundle agent check_uuid
-{
-  files:
-      "${g.uuid_file}"
-        create        => "true",
-        edit_line     => enforce_content("${g.uuid}"),
-        edit_defaults => noempty_backup,
-        perms         => m("644"),
-        comment       => "Setting the uuid variable in a machine";
-}
 
 
 bundle agent configure_rudder_reporting_system {
