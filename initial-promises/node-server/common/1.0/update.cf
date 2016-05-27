@@ -340,6 +340,20 @@ bundle agent update_reports
 
 }
 
+#######################################################
+# UUID file checking
+
+bundle agent check_uuid
+{
+  classes:
+    # Abort if no uuid is defined
+    "should_not_continue" expression => "no_uuid";
+    "no_uuid" not => fileexists("${g.uuid_file}");
+
+  reports:
+    no_uuid::
+      "FATAL: The UUID file ${g.uuid_file} is missing. Please run check-rudder-agent to generate a new one or restore it from a backup.";
+}
 
 ############################################
 body classes outcome(x)

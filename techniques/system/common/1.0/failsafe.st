@@ -22,7 +22,7 @@
 
 body common control
 {
-        bundlesequence     => { "init_files", "update" };
+        bundlesequence     => { "check_uuid", "init_files", "update" };
 
         inputs             => { "common/1.0/update.cf" };
         output_prefix      => "rudder";
@@ -54,6 +54,7 @@ bundle common g
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_tools"             string => "${rudder_var}/tools";
       "rudder_ncf"               string => "${rudder_var}/ncf";
+      "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
 
 &if(NOVA)&
     windows::
@@ -63,10 +64,11 @@ bundle common g
       "rudder_sbin"              string => "${rudder_base}\sbin";
       "rudder_tools"             string => "${rudder_sbin}";
       "rudder_ncf"               string => "${rudder_var}\ncf";
+      "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
 &endif&
 
     any::
-      "uuid"                     string => "&UUID&";
+      "uuid"                     string => readfile("${g.uuid_file}", 60);
       "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "rudder_tools_origin"      string => "/var/rudder/tools";
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
@@ -93,8 +95,6 @@ bundle common g
 bundle common rudder_roles
 {
   classes:
-      # Abort if no uuid is defined
-      "should_not_continue" not        => fileexists("${g.uuid_file}");
       # Policy Server is a machine which delivers promises
       "policy_server"       expression => strcmp("root","${g.uuid}");
       # Root Server is the top policy server machine
