@@ -56,31 +56,16 @@ bundle agent check_rpm_package_installation {
     # defined persistent classes (by setting there persistence to 1 minutes)
     # and cancelling also the classes for this run
     rudder_promises_generated_repaired::
+      "package_classes_to_cancel_suffix" slist => { "kept", "repaired", "error", "failed", "denied", "timeout" }; # all classes set by rudder_common_classes_persist body
       "zmd_classes_to_cancel_on_update" slist => { "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
 
-      "unpersist_rpm_kept_classes_${index_rpmpkg}"
+      "unpersist_rpm_classes_${index_rpmpkg}_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_install_kept_${index_rpmpkg}", "1");
+        classes => rudder_always_classes_persist("rpm_package_installation_${index_rpmpkg}_${package_classes_to_cancel_suffix}", "1");
 
-      "rpm_kept_classes_purged_${index_rpmpkg}"
+      "rpm_classes_purged_${index_rpmpkg}_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
-
-      "unpersist_rpm_repaired_classes_${index_rpmpkg}"
-        string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_installed_${index_rpmpkg}", "1");
-
-      "rpm_repaired_classes_purged_${index_rpmpkg}"
-        string  => "undefine",
-        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
-
-      "unpersist_rpm_error_classes_${index_rpmpkg}"
-        string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_install_failed_${index_rpmpkg}", "1");
-
-      "rpm_error_classes_purged_${index_rpmpkg}"
-        string  => "undefine",
-        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
+        classes => cancel_all_classes("rpm_package_installation_${index_rpmpkg}_${package_classes_to_cancel_suffix}");
 
       "unpersist_${zmd_classes_to_cancel_on_update}"
         string  => "undefine",
