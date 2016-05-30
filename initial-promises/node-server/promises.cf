@@ -126,6 +126,9 @@ bundle agent endExecution
 ##########################################################
 # Check for "disable-agent" file and cleanly stop and
 # warn about this if it is present
+#
+# All promises in this bundle MUST have action=>immediate,
+# to avoid locking issues in case of several close runs.
 ##########################################################
 bundle agent check_disable_agent
 {
@@ -133,22 +136,26 @@ bundle agent check_disable_agent
       "components" slist => { "cf-serverd", "cf-execd", "cf-monitord" };
 
   classes:
-      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
+      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}"),
+                             action     => immediate;
 
       # Only define this class when we're ready to die - this is a special class name in "abortclasses"
       "should_not_continue"
         expression => "should_disable_agent",
-        ifvarclass => "abort_report_done";
+        ifvarclass => "abort_report_done",
+        action     => immediate;
 
   processes:
     should_disable_agent::
       "${sys.workdir}/bin/${components}"
-        signals       => { "term", "kill" };
+        signals       => { "term", "kill" },
+        action        => immediate;
 
   reports:
     should_disable_agent::
       "FATAL: The file ${g.rudder_disable_agent_file} is present. Rudder will kill all running daemons and halt immediately."
-        classes => if_ok("abort_report_done");
+        classes => if_ok("abort_report_done"),
+        action  => immediate;
 
 }
 
