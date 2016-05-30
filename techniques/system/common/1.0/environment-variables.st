@@ -28,7 +28,7 @@ bundle agent get_environment_variables
 
     !windows::
       "script" string => "#!/bin/sh
-[ -f /etc/profile ] && . /etc/profile
+[ -f /etc/profile ] \&\& . /etc/profile
 env | sed 's/=/]=/' |sed 's/^/=node.env[/'";
 
     !windows.linux.supports_env_0::
