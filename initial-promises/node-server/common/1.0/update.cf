@@ -274,13 +274,6 @@ bundle agent update_action
       "${sys.cf_serverd}"
         action => u_ifwin_bg,
         classes => outcome("server");
-
-#########################################################
-  reports:
-    server_ok::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";
-    executor_ok::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the scheduler (cf-execd)";
 }
 
 # This bundle is responsible for the reporting of what happened in the update
