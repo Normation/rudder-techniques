@@ -48,7 +48,7 @@ bundle agent check_rpm_package_installation {
     # If the promises have been updated, we need to remove previously
     # defined persistent classes (by setting there persistence to 1 minutes)
     # and cancelling also the classes for this run
-    rudder_promises_generated_repaired::
+    rudder_promises_generated_repaired.!pass1.!pass2.!pass3::
       "package_classes_to_cancel_suffix" slist => { "kept", "repaired", "error", "failed", "denied", "timeout" }; # all classes set by rudder_common_classes_persist body
       "zmd_classes_to_cancel_on_update" slist => { "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
 
@@ -71,6 +71,12 @@ bundle agent check_rpm_package_installation {
 	classes:
 
 		"$(index_rpmpkg)_package_version_defined" not => strcmp("$(rpm_data[$(index_rpmpkg)][1])", "default");
+
+    any::
+
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
 	processes:
 
