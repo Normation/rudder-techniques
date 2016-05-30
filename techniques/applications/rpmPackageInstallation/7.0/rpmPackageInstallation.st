@@ -33,7 +33,7 @@ bundle agent check_rpm_package_installation {
       &RPM_PACKAGE_CHECK_INTERVAL:{check_interval |"rpm_package_check_interval" string => "&check_interval&";
       }&
 
-      "package_number" int => readstringarrayidx("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/6.1/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
+      "package_number" int => readstringarrayidx("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/7.0/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
 &! We need to use the i0 notation to have indexes starting at 0, as in readstringarrayidx !&
 
       &RPM_PACKAGE_REDLIST:{name |"rpm_package[&i0&]" string => "&name&";
@@ -58,32 +58,25 @@ bundle agent check_rpm_package_installation {
     # If the promises have been updated, we need to remove previously
     # defined persistent classes (by setting there persistence to 1 minutes)
     # and cancelling also the classes for this run
-    rudder_promises_generated_repaired::
+    rudder_promises_generated_repaired.!pass1.!pass2.!pass3::
+      "package_classes_to_cancel_suffix" slist => { "kept", "repaired", "error", "failed", "denied", "timeout" }; # all classes set by rudder_common_classes_persist body
       "zmd_classes_to_cancel_on_update" slist => { "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
 
-      "unpersist_rpm_kept_classes_${index_rpmpkg}"
+      "unpersist_available_packages_classes_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_install_kept_${index_rpmpkg}", "1");
+        classes => rudder_always_classes_persist("rpm_package_installation_updated_available_packages_${package_classes_to_cancel_suffix}", "1");
 
-      "rpm_kept_classes_purged_${index_rpmpkg}"
+      "available_packages_classes_purged_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
+        classes => cancel_all_classes("rpm_package_installation_updated_available_packages_${package_classes_to_cancel_suffix}");
 
-      "unpersist_rpm_repaired_classes_${index_rpmpkg}"
+      "unpersist_rpm_classes_${index_rpmpkg}_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_installed_${index_rpmpkg}", "1");
+        classes => rudder_always_classes_persist("rpm_package_installation_${index_rpmpkg}_${package_classes_to_cancel_suffix}", "1");
 
-      "rpm_repaired_classes_purged_${index_rpmpkg}"
+      "rpm_classes_purged_${index_rpmpkg}_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
-
-      "unpersist_rpm_error_classes_${index_rpmpkg}"
-        string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_install_failed_${index_rpmpkg}", "1");
-
-      "rpm_error_classes_purged_${index_rpmpkg}"
-        string  => "undefine",
-        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
+        classes => cancel_all_classes("rpm_package_installation_${index_rpmpkg}_${package_classes_to_cancel_suffix}");
 
       "unpersist_${zmd_classes_to_cancel_on_update}"
         string  => "undefine",
