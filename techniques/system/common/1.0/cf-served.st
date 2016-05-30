@@ -29,13 +29,6 @@ bundle server access_rules
 
 &if(MANAGED_NODES_NAME)&
     policy_server::
-      &if(NOVA)&
-      "&UUID&"
-        handle        => "policy_server_uuid",
-        resource_type => "literal",
-        admit         => {".*"};
-      &endif&
-
       "${def.dir_masterfiles}"
         handle  => "grant_access_policy",
         comment => "Grant access to the policy updates",
