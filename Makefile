@@ -21,12 +21,14 @@ WGET := $(if $(PROXY), http_proxy=$(PROXY) ftp_proxy=$(PROXY)) /usr/bin/wget -q
 all: rudder-templates-cli.jar
 	cp techniques/system/common/1.0/rudder-stdlib.cf initial-promises/node-server/common/1.0/
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",/' variables.json
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/rudder-stdlib-core.st
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/cf-served.st
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/internal_security.st
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/rudder_lib.st
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/site.st
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/cron_setup.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0 techniques/system/common/1.0/rudder-stdlib-core.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0 techniques/system/common/1.0/cf-served.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0 techniques/system/common/1.0/internal_security.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0 techniques/system/common/1.0/rudder_lib.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0 techniques/system/common/1.0/site.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0 techniques/system/common/1.0/update.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server techniques/system/common/1.0/failsafe.st
+	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0 techniques/system/common/1.0/cron_setup.st
 	java -jar rudder-templates-cli.jar --outext '' --outdir initial-promises/node-server/common/cron techniques/system/common/1.0/rudder_agent_community_cron.st
 	java -jar rudder-templates-cli.jar --outext '' --outdir initial-promises/node-server/common/cron techniques/system/common/1.0/rudder_agent_nova_cron.st
 	java -jar rudder-templates-cli.jar --outext '' --outdir initial-promises/node-server techniques/system/common/1.0/run_interval.st
@@ -57,6 +59,7 @@ all: rudder-templates-cli.jar
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/servers-by-role.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/service-check.st
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0 techniques/system/server-roles/1.0/technique-reload.st
+	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
 
 rudder-templates-cli.jar:
 	$(WGET) -O rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
@@ -68,6 +71,8 @@ clean:
 	rm -f initial-promises/node-server/common/1.0/internal_security.cf
 	rm -f initial-promises/node-server/common/1.0/rudder_lib.cf
 	rm -f initial-promises/node-server/common/1.0/site.cf
+	rm -f initial-promises/node-server/common/1.0/update.cf
+	rm -f initial-promises/node-server/failsafe.cf
 	rm -f initial-promises/node-server/common/1.0/cron_setup.cf
 	rm -f initial-promises/node-server/common/cron/rudder_agent_community_cron
 	rm -f initial-promises/node-server/common/cron/rudder_agent_nova_cron
@@ -78,7 +83,7 @@ clean:
 	rm -f initial-promises/node-server/distributePolicy/ncf/ncf.conf
 	rm -f initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-root.conf
 	rm -f initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf
-	rm -f initial-promises/node-server/distributePolicy/1.0/techniques/system/distributePolicy/1.0/rsyslogConf.cf
+	rm -f initial-promises/node-server/distributePolicy/1.0/rsyslogConf.cf
 	rm -f initial-promises/node-server/distributePolicy/1.0/propagatePromises.cf
 	rm -f initial-promises/node-server/server-roles/1.0/alive-check.cf
 	rm -f initial-promises/node-server/server-roles/1.0/component-check.cf

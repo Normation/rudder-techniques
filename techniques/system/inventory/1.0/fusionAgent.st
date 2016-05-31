@@ -432,6 +432,7 @@ bundle agent turnUsersToUnicode
         comment => "Generating file with list of users in UTF";
 
 &endif&
+
 }
 
 # adding data to the inventory :

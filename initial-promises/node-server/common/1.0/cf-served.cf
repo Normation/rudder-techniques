@@ -31,11 +31,6 @@ bundle server access_rules
   access:
 
     policy_server|role_rudder_relay_promises_only::
-      ""
-        handle        => "policy_server_uuid",
-        resource_type => "literal",
-        admit         => {".*"};
-
       "${def.dir_masterfiles}"
         handle  => "grant_access_policy",
         comment => "Grant access to the policy updates",
@@ -75,8 +70,8 @@ bundle server access_rules
 
     any::
           "/var/rudder/share/root/"
-            maproot => { host2ip("localhost"), string_downcase(escape("localhost"))  },
-            admit   => { host2ip("localhost"), string_downcase(escape("localhost"))  };
+            maproot => { string_downcase(escape("localhost"))  },
+            admit   => { string_downcase(escape("localhost"))  };
 
          
 
@@ -90,6 +85,7 @@ bundle server access_rules
       "${sys.workdir}\bin\cf-agent.exe"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
+    any::
       "${query_types}"
         handle => "server_access_grant_${query_types}_for_hosts",
         comment => "Grant ${query_types} reporting query for the hub on the hosts",
@@ -141,13 +137,15 @@ body server control
         trustkeysfrom     => {
           @{def.acl} ,
 
-                    host2ip("localhost"), "localhost"
+                    "localhost"
+
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
           @{def.acl} ,
 
-                    host2ip("localhost"), "localhost"
+                    "localhost"
+
         };
         maxconnections    => "1000";
         logallconnections => "true";
@@ -180,7 +178,7 @@ body runagent control
 
     community_edition.!debug_port::
         port => "5309";
-    community_edition.debug_port::
+    debug_port::
         port => "5310";
 }
 body report_data_select rudder_data_select_host

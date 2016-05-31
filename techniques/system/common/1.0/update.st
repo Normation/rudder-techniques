@@ -145,7 +145,6 @@ bundle agent update
 bundle agent update_action
 {
   vars:
-
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
 
       # Tools to copy - all defined in bundle g + the timestamp file (for our two phase update needs, see below)
@@ -221,6 +220,8 @@ bundle agent update_action
         create  => "true",
         comment => "Make sure the ncf directory exists";
 
+# do not copy potentialy incompatible ncf in initial promises
+&if(!INITIAL)&
     root_server::
       "${g.rudder_ncf}/common"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
@@ -239,6 +240,7 @@ bundle agent update_action
         move_obstructions => "true",
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment           => "Update the local Rudder ncf instance";
+&endif&
 
     !root_server::
       "${client_inputs}/${rudder_promises_timestamp_tmp}"
@@ -247,6 +249,8 @@ bundle agent update_action
         move_obstructions => "true",
         classes           => success("rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept");
 
+# do not copy potentialy incompatible ncf in initial promises
+&if(!INITIAL)&
       # Check if the hashes of ncf changed
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
         copy_from         => remote_unsecured_without_perms("${server_info.cfserved}","${g.rudder_ncf_origin_common_hash}"),
@@ -259,6 +263,7 @@ bundle agent update_action
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
+&endif&
 
     # The defined class are persistent, so if they are already set, promises has already been updated
     # a short while ago
@@ -271,6 +276,8 @@ bundle agent update_action
         file_select       => exclude("${rudder_promises_timestamp_tmp}"),
         classes           => success("config", "no_update", "config_ok");
 
+# do not copy potentialy incompatible ncf in initial promises
+&if(!INITIAL)&
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
     !root_server.(new_promises_available|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
@@ -290,6 +297,7 @@ bundle agent update_action
         move_obstructions => "true",
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment           => "Update the local Rudder ncf instance";
+&endif&
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
     new_promises_available.!root_server.no_update::
@@ -297,6 +305,8 @@ bundle agent update_action
         delete  => tidy,
         comment => "Deleting ${rudder_promises_timestamp} as the policy files couldn't be downloaded";
 
+# do not copy potentialy incompatible ncf in initial promises
+&if(!INITIAL)&
     (new_promises_available|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_common_update_error::
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
         delete  => tidy,
@@ -306,7 +316,7 @@ bundle agent update_action
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
         delete  => tidy,
         comment => "Deleting ${g.rudder_ncf_hash_file} as custom ncf files couldn't be downloaded";
-
+&endif&
 
     root_server|(rudder_promises_generated_tmp_file_ok|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error)::
       # Every time we check update inputs successfully (already up to date or

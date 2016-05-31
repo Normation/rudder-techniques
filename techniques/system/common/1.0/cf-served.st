@@ -148,6 +148,7 @@ bundle common def
       host2ip("${def.policy_server}"), # the policy server can connect to a relay
       &AUTHORIZED_NETWORKS:{net|"&net&",}&
 &endif&
+
     };
 
     !policy_server::
@@ -167,6 +168,7 @@ body server control
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
+
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
@@ -175,6 +177,7 @@ body server control
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
+
         };
 &else&
         trustkeysfrom     => {
@@ -183,6 +186,7 @@ body server control
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
+
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
@@ -191,6 +195,7 @@ body server control
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
+
         };
 &endif&
 
