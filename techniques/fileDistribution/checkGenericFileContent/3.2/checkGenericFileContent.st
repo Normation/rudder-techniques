@@ -170,7 +170,7 @@ bundle agent check_generic_file_content
         ifvarclass => "content_${index}_failed";
 
 
-                "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}])@@File@@${generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#No content was given to check file ${generic_file_content_path[${index}]), skipping"
+                "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#No content was given to check file ${generic_file_content_path[${index}]}, skipping"
                         ifvarclass => "!edit_content_${index}";
 
                         # Files edition - deletion

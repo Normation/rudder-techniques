@@ -156,7 +156,7 @@ bundle agent check_generic_file_content
       "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated"
         ifvarclass => "content_${index}_failed";
 
-      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}])@@File@@${generic_file_content_path[${index}])@@${g.execRun}##${g.uuid}@#No content was given to check file ${generic_file_content_path[${index}]), skipping"
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#No content was given to check file ${generic_file_content_path[${index}]}, skipping"
         ifvarclass => "!edit_content_${index}";
 
                         # Files edition - deletion
