@@ -221,7 +221,7 @@ bundle agent check_disable_agent
       # Only define this class when we're ready to die - this is a special class name in "abortclasses"
       "should_not_continue"
         expression => "should_disable_agent",
-        ifvarclass => "abort_report_done";
+        ifvarclass => "abort_report_done",
         action     => immediate;
 
   processes:
