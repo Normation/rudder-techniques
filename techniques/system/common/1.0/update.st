@@ -281,7 +281,7 @@ bundle agent update_action
       "CfengineNovaExec"
         service_policy => "start",
         service_method => u_bootstart,
-        classes        => outcome("executor"),
+        classes        => success("executor_ok", "executor_error", "executor_kept"),
         comment        => "Start the executor windows service now and at boot time";
 &endif&
 
@@ -289,14 +289,12 @@ bundle agent update_action
     start_exec.(!windows|cygwin)::
       "${sys.cf_execd}"
         action  => u_ifwin_bg,
-        classes => outcome("executor");
+        classes => success("executor_ok", "executor_error", "executor_kept");
 
     start_server::
       "${sys.cf_serverd}"
         action  => u_ifwin_bg,
-        classes => outcome("server");
-
-#########################################################
+        classes => success("server_ok", "server_error", "server_kept");
 }
 
 # This bundle is responsible for the reporting of what happened in the update
@@ -349,6 +347,10 @@ bundle agent update_reports
     (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update)::
       "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools or ncf instance were updated or CFEngine service restarted");
 
+    server_ok::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";
+    executor_ok::
+      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the scheduler (cf-execd)";
 }
 
 #######################################################
