@@ -27,6 +27,8 @@ body common control
     any::
         output_prefix => "rudder";
 
+        protocol_version   => "classic";
+
         inputs => {
           @{va.ncf_inputs},
           &INPUTLIST&
