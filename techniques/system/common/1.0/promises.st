@@ -29,6 +29,8 @@ body common control
         
         protocol_version   => "classic";
 
+        protocol_version   => "classic";
+
         inputs => {
           @{va.ncf_inputs},
           "rudder_system_directives.cf",
@@ -477,7 +479,6 @@ bundle agent check_log_system
     redhat::
       "syslog_ng_source" string => "s_sys";
 
-
     use_tcp::
       "rsyslog_rule_prefix"   string => "@@";
       "syslogng_rule_prefix"  string => "tcp";
@@ -485,11 +486,11 @@ bundle agent check_log_system
       "rsyslog_rule_prefix"   string => "@";
       "syslogng_rule_prefix"  string => "udp";
 
-    rsyslogd.rsyslog_version_ok::
+    rsyslogd.rsyslog_version_5_6_4_ok::
 
       "rsyslogd_message_reduction" string => "$RepeatedMsgReduction off${const.n}";
       
-    rsyslogd.rsyslog_version_not_ok::
+    rsyslogd.rsyslog_version_5_6_4_not_ok::
 
       "rsyslogd_message_reduction" string => "";
 
@@ -540,7 +541,7 @@ bundle agent check_log_system
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
-    !windows.rsyslogd.!policy_server::
+    (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd.!policy_server::
       "${rsyslog_rudder_conffile}"
         edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~"),
         create => "true",
@@ -624,7 +625,7 @@ bundle agent check_rsyslog_version {
       "pass1" expression => "any";
 
   files:
-    rsyslogd.rsyslog_version_ok::
+    rsyslogd.rsyslog_version_5_7_1_ok::
       "/etc/rsyslog.d/remove_limit.conf"
         edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
         edit_defaults => noempty_backup,

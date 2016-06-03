@@ -26,7 +26,7 @@ body common control
         bundlesequence => { "init_files", "update" };
 
         inputs => { "common/update.cf" };
-        
+
         protocol_version   => "classic";
 }
 
