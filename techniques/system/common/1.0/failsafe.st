@@ -72,7 +72,6 @@ bundle common g
       "rudder_tools"             string => "${rudder_sbin}";
       "rudder_ncf"               string => "${rudder_var}\ncf";
       "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
-&endif&
 
       "rudder_tools_files_windows" slist => {
                                               # Rudder utilities
