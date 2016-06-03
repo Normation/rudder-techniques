@@ -1,9 +1,8 @@
 #!/bin/sh
 
-# The minimal rsyslog version we support is 5.7.1.
-# This utility checks if this condition is met and
-# returns the appropriate CFEngine class using the
-# module protocol
+# This script allows testing for a minimal rsyslog
+# version and define matching classes using
+# the module protocol.
 
 # rpmvercmp location
 RPMVERCMP="/var/rudder/cfengine-community/bin/rpmvercmp"
@@ -15,14 +14,16 @@ else
   MINIMAL_RSYSLOG_VERSION="5.7.1"
 fi
 
+CANONIFIED_VERSION=$(echo ${MINIMAL_RSYSLOG_VERSION} | sed 's/\./_/g')
+
 if type rsyslogd >/dev/null 2>&1; then
 
   CURRENT_RSYSLOG_VERSION=$(rsyslogd -v | head -n1 | sed "s/^rsyslogd \\([^, ]*\\).*$/\\1/")
 
   if ${RPMVERCMP} ${CURRENT_RSYSLOG_VERSION} lt ${MINIMAL_RSYSLOG_VERSION}; then
-    echo "+rsyslog_version_not_ok"
+    echo "+rsyslog_version_${CANONIFIED_VERSION}_not_ok"
   else
-    echo "+rsyslog_version_ok"
+    echo "+rsyslog_version_${CANONIFIED_VERSION}_ok"
   fi
 
 else
