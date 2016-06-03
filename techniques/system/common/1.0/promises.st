@@ -29,8 +29,6 @@ body common control
         
         protocol_version   => "classic";
 
-        protocol_version   => "classic";
-
         inputs => {
           @{va.ncf_inputs},
           "rudder_system_directives.cf",

@@ -49,8 +49,6 @@ body common control
         
         protocol_version   => "classic";
 
-        protocol_version   => "classic";
-
         inputs => {
   @{va.inputs_list}
     };
