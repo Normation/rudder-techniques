@@ -386,7 +386,13 @@ bundle agent addInformationsToInventory
     xen.xenrudderuuid::
       "RUDDERUUID" string => "${vmarray[1]}";
 
-    linux.!xen::
+    linux.(armv6l|armv7l)::
+      "ARMCPUINFO" string => readfile( "/proc/cpuinfo", "0" );
+
+    linux.(armv6l|armv7l).armv6lorv7lrudderuuid::
+      "RUDDERUUID" string => "${serialarray[1]}";
+
+    linux.(!xen.!armv6l.!armv7l)::
       "RUDDERUUID" string => execresult("/usr/sbin/dmidecode -s system-uuid","noshell");
 
     aix::
@@ -422,6 +428,9 @@ bundle agent addInformationsToInventory
   classes:
     xen::
       "xenrudderuuid" expression => regextract("/vm/(.*)", "${VMRUDDERUUID}", "vmarray");
+
+    linux.(armv6l|armv7l)::
+      "armv6lorv7lrudderuuid" expression => regextract("Serial[\s]+:[\s](.*)\N", "${ARMCPUINFO}", "serialarray");
 
     any::
       "uuiddefined" expression => isvariable("RUDDERUUID");
