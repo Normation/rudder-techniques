@@ -520,15 +520,55 @@ bundle agent addInformationsToInventory
       "android_fullname"      string => "Android ${android_version}";
       "logdate"               string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
 
+    linux.(!xen.!armv6l.!armv7l)::
+      "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
+
+    aix::
+      "RUDDERUUID_cmd" string => "/usr/bin/uname -f";
+
+    solaris::
+      "RUDDERUUID" string => execresult("smbios | grep UUID | sed 's/  UUID: //'", "useshell");
+
+    freebsd::
+      "RUDDERUUID_cmd" string => "/usr/local/sbin/dmidecode -s system-uuid";
+
+    !windows.!android::
+      "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
+      "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
+      "users"          slist => getindices("userslist");
+
+    !windows.!android.!solaris::
+      "USER" string => execresult("/usr/bin/whoami", "noshell");
+
+    solaris::
+      "USER" string => execresult("id | cut -d\( -f2 | cut -d\) -f1", "useshell");
+
+    any::
+      "CFKEY"      string => execresult("${CFKEY_cmd}", "noshell");
+
+      "USER"       string => execresult("${USER_cmd}", "noshell");
+
     rudder_server_roles_dir_exists::
       # Roles of the system, fetch from the server_roles_path folder
       # Don't extract file starting by . (especially . and .., but also hidden files)
       "rudder_roles" slist => lsdir("${g.server_roles_path}", "^[^.].*", "false");
 
+    linux.(armv6l|armv7l)::
+      "ARMCPUINFO" string => readfile( "/proc/cpuinfo", "0" );
+
+    linux.(armv6l|armv7l).armv6lorv7lrudderuuid::
+      "RUDDERUUID" string => "${serialarray[1]}";
+
+    !xen.!armv6l.!armv7l::
+      "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
+
 
   classes:
     xen::
       "xenrudderuuid" expression => regextract("/vm/(.*)", "${VMRUDDERUUID}", "vmarray");
+
+    linux.(armv6l|armv7l)::
+      "armv6lorv7lrudderuuid" expression => regextract("Serial[\s]+:[\s](.*)\N", "${ARMCPUINFO}", "serialarray");
 
     any::
       "uuiddefined" expression => isvariable("RUDDERUUID");
