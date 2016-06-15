@@ -106,6 +106,7 @@ bundle server access_rules
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
   &if(NOVA)&
+    any::
       "${query_types}"
         handle => "server_access_grant_${query_types}_for_hosts",
         comment => "Grant ${query_types} reporting query for the hub on the hosts",
