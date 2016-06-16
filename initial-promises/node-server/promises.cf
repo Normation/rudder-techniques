@@ -300,15 +300,24 @@ bundle agent check_cf_processes
         classes => if_repaired("agent_has_gone_really_wild"),
         comment => "Checking if cf-agent has gone really wild";
 
-    windows::
+    !windows.should_disable_server::
+      "${sys.workdir}/bin/cf-serverd"
+        signals       => { "term", "kill" },
+        action        => immediate;
 
-    # Windows does only implement SIGTERM. Using SIGKILL here makes no sense
+    # Windows only implements SIGTERM. Using SIGKILL here makes no sense
+    windows::
 
       "cf-agent"
         process_count => check_range("agent", "0","5"),
         signals => { "term" },
         classes => if_repaired("agent_has_gone_wild"),
         comment => "Checking if cf-agent has gone wild";
+
+    windows.should_disable_server::
+      "cf-serverd"
+        signals       => { "term" },
+        action        => immediate;
 
   services:
     # By design, there can be only one cf-execd service running on Windows
@@ -320,7 +329,7 @@ bundle agent check_cf_processes
 
   commands:
 
-    start_server::
+    !should_disable_server.start_server::
       "${sys.cf_serverd}"
         action => u_ifwin_bg,
         classes => outcome("server");

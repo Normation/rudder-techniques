@@ -51,6 +51,7 @@ bundle common g
       "rudder_inventories"         string => "${rudder_var}/inventories";
       "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
+      "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
       "rudder_tools"               string => "${rudder_var}/tools";
       "rudder_ncf"                 string => "${rudder_var}/ncf";
       "crontab"                    string => "/etc/crontab";
@@ -71,6 +72,7 @@ bundle common g
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
       "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
+      "rudder_disable_server_file" string => "${rudder_base}\etc\disable-policy-distribution";
 
     aix::
 
