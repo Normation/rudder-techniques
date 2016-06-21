@@ -251,7 +251,7 @@ body runagent control
 
     community_edition.!debug_port::
         port => "&COMMUNITYPORT&";
-    community_edition.debug_port::
+    debug_port::
         port => "5310";
 }
 &endif&
