@@ -55,8 +55,8 @@
       <INPUT>
         <NAME>MOTD</NAME>
         <DESCRIPTION>Message of the day (MOTD) to display</DESCRIPTION>
-          <REGEX error="Please enter a valid motd, without quotes"><![CDATA[ ([^"]|(?<=\\)")* ]]></REGEX>
         <CONSTRAINT>
+          <REGEX error="Please enter a valid motd, without quotes"><![CDATA[ ([^"]|(?<=\\)")* ]]></REGEX>
           <TYPE>textarea</TYPE>
         </CONSTRAINT>
       </INPUT>
