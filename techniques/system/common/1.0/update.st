@@ -495,7 +495,8 @@ body service_method u_bootstart
 
 body perms u_mog(mode,user,group)
 {
-owners => { "${user}" };
-groups => { "${group}" };
-mode   => "${mode}";
+  mode   => "${mode}";
+!windows::
+  owners => { "${user}" };
+  groups => { "${group}" };
 }
