@@ -30,6 +30,7 @@ It is intended to check the user parameters on the target host.
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <OS version=">= 2008">Windows</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
@@ -40,6 +41,10 @@ It is intended to check the user parameters on the target host.
   <TMLS>
     <TML name="userManagement"/>
   </TMLS>
+
+  <SYSTEMVARS>
+    <NAME>NOVA</NAME>
+  </SYSTEMVARS>
 
   <TRACKINGVARIABLE>
     <SAMESIZEAS>USERGROUP_USER_LOGIN</SAMESIZEAS>
