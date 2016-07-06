@@ -170,7 +170,7 @@ bundle agent check_usergroup_user_parameters
       "showtime" expression => isvariable("nameopt[1]");
 
   files:
-
+   !windows::
       "/etc/passwd"
         create => "false",
         edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
@@ -192,6 +192,16 @@ bundle agent check_usergroup_user_parameters
         classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
         ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
+  methods:
+    windows::
+      # check user password
+      "check_user_password" usebundle => check_usergroup_user_parameters_windows_password("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}", "${usergroup_user_index}"),
+        ifvarclass                    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+
+      # check user fullname
+      "check_user_fullname" usebundle => check_usergroup_user_parameters_windows_fullname("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}", "${usergroup_user_action[${usergroup_user_index}]}", "${nameopt[${usergroup_user_index}]}", "${usergroup_user_index}"),
+        ifvarclass                    => "(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index}).!usermanagement_user_nameempty_${usergroup_user_index}";
+
   commands:
 
 &if(NOVA)&
@@ -209,9 +219,6 @@ bundle agent check_usergroup_user_parameters
         comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
 
-      "\"${sys.winsysdir}\net.exe\""
-        args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]}",
-        ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 &endif&
 
     linux.showtime::
@@ -329,4 +336,48 @@ bundle edit_line set_user_fullname(user,user_index,fullname)
         edit_field => col(":", "5", "${fullname}", "set"),
         classes => kept_if_else("usermanagement_fullname_edit_${user_index}_kept","usermanagement_fullname_edit_${user_index}_repaired","usermanagement_fullname_edit_${user_index}_error");
 
+}
+
+# Bundle to check the full name of a user on windows
+# Takes the user login, the expected fullname, the action (checkhere for not editing), the FULLNAME set attribute for net.exe and the index for reporting
+bundle agent check_usergroup_user_parameters_windows_fullname(user, fullname, usergroup_user_action, nameopt, usergroup_user_index) {
+  vars:
+      "current_fullname" string => execresult("Get-WMIObject Win32_UserAccount | where Name -eq  '${user}' | ForEach { write-host $_.FullName }", "powershell");
+
+  classes:
+      "usermanagement_user_checkpres" expression => strcmp("${usergroup_user_action}","checkhere");
+      "user_valid"                    expression => strcmp("${current_fullname}", "${fullname}");
+
+  methods:
+    user_valid::
+      "already_correct" usebundle => _classes_success("usermanagement_fullname_edit_${usergroup_user_index}");
+
+    !user_valid.usermanagement_user_checkpres::
+      # fullname is not valid, but don't request to change it
+      "invalid_user"    usebundle => _classes_failure("usermanagement_fullname_edit_${usergroup_user_index}");
+
+  commands:
+    # if user is invalid, and we want to enforce fullname:
+    !user_valid.!usermanagement_user_checkpres::
+      "\"${sys.winsysdir}\net.exe\""
+          args => "USER ${user} ${nameopt}",
+          classes => classes_generic("usermanagement_fullname_edit_${usergroup_user_index}");
+}
+
+# Enforce user password
+# takes the user login, the expected password (clear text), and the index for reports
+bundle agent check_usergroup_user_parameters_windows_password(user, password, usergroup_user_index) {
+  vars:
+   "password_valid" string => execresult("Add-Type -AssemblyName System.DirectoryServices.AccountManagement; $DS = New-Object System.DirectoryServices.AccountManagement.PrincipalContext('machine', $env:COMPUTERNAME); $DS.ValidateCredentials('${user}', '${password}')", "powershell");
+
+
+  classes:
+      "usermanagement_user_password_ok_${usergroup_user_index}" expression => strcmp("True", "${password_valid}"),
+        scope => "namespace";
+
+  commands:
+      "\"${sys.winsysdir}\net.exe\""
+            args    => "USER ${user} ${password}",
+         classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
+         ifvarclass => "!usermanagement_user_password_ok_${usergroup_user_index}";
 }
