@@ -389,6 +389,7 @@ bundle agent turnUsersToUnicode
         comment => "Generating file with list of users in UTF";
 
 &endif&
+
   reports:
 
     windows::

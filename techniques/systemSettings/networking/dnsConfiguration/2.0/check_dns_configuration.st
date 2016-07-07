@@ -124,6 +124,7 @@ bundle agent check_dns_configuration
     windows::
       "@@ConfigureDNS@@result_error@@&TRACKINGKEY&@@dnsConfiguration@@None@@${g.execRun}##${g.uuid}@#Can't repair the dns configuration on a Windows with community edition";
 &endif&
+
 }
 
 &if(NOVA)&
