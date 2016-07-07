@@ -22,6 +22,7 @@ fileDistribution/checkGenericFileContent/7.0
 fileDistribution/copyGitFile/2.0
 fileDistribution/copyGitFile/2.1
 fileDistribution/downloadFile/3.0
+fileDistribution/manageKeyValueFile/1.0
 jobScheduling/jobScheduler/1.0
 jobScheduling/jobScheduler/2.0
 system/common/1.0
