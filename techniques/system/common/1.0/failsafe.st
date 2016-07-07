@@ -103,6 +103,7 @@ bundle common g
                                             };
 
 &endif&
+
     SuSE::
       "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
                                               "openvpn-2.2.1-1.i686.rpm",
