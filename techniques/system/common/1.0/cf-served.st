@@ -136,6 +136,7 @@ body server control
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
+
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
@@ -144,6 +145,7 @@ body server control
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
+
         };
 
         allowallconnects  => {
@@ -152,6 +154,7 @@ body server control
           &MANAGED_NODES_NAME: {
           "&it&"};separator=", "&
           &endif&
+
         };
 &else&
         trustkeysfrom     => {
@@ -160,6 +163,7 @@ body server control
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
+
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
@@ -168,6 +172,7 @@ body server control
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
+
         };
 
         allowallconnects  => {
@@ -176,8 +181,10 @@ body server control
           &MANAGED_NODES_NAME: {
           host2ip("&it&"), "&it&"};separator=", "&
           &endif&
+
         };
 &endif&
+
         maxconnections    => "1000";
         logallconnections => "true";
 

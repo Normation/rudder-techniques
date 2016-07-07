@@ -50,6 +50,7 @@ bundle agent check_zmd_settings
 &if(ZMD_SET_REFRESH_INTERVAL)&
       "zmdconf[Server][refresh-interval]" string => "&ZMD_REFRESH_INTERVAL&";
 &endif&
+
       "zmdconf[Advanced][security-level]" string => "&ZMD_SOURCEPOLICY&";
 
       "zmdconf[Server][remote-enabled]" string => "&ZMD_REMOTE_ENABLED&";
