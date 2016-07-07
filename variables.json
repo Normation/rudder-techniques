@@ -17,5 +17,6 @@
   "SYSLOGPORT": "${install_rsyslogd.rsyslog_port[2]}",
   "SHARED_FILES_FOLDER": "/var/rudder/configuration-repository/shared-files",
   "SEND_METRICS": "no",
-  "RUDDER_SERVER_ROLES": "rudder-ldap:localhost\nrudder-inventory-endpoint:localhost\nrudder-db:localhost\nrudder-web:localhost\nrudder-relay-top:localhost"
+  "RUDDER_SERVER_ROLES": "rudder-ldap:localhost\nrudder-inventory-endpoint:localhost\nrudder-db:localhost\nrudder-web:localhost\nrudder-relay-top:localhost",
+  "SKIPIDENTIFY": "true"
 }

@@ -103,8 +103,8 @@ bundle common g
                                               "nxlog-ce-2.8.1248.msi",
                                               "nxlog.conf"
                                             };
-
 &endif&
+
     SuSE::
       "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
                                               "openvpn-2.2.1-1.i686.rpm",
@@ -144,6 +144,7 @@ bundle common g
     windows.!cygwin::
       "execRun"                  string => execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"'{0:yyyy-MM-dd HH:mm:sszzz}' -f (get-date)\"", "noshell");
 &endif&
+
     android::
       "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
     (!windows|cygwin).!android::
@@ -226,14 +227,6 @@ body copy_from cp(from,server)
 
 }
 
-body copy_from copy_digest(from)
-{
-        source      => "${from}";
-        copy_backup => "false";
-        preserve    => "true";
-        compare     => "digest";
-}
-
 body action immediate
 {
         ifelapsed => "0";
@@ -251,11 +244,6 @@ body delete tidy
         rmdirs   => "true";
 }
 
-body action WarnOnly
-{
-        action_policy => "warn";
-}
-
 body file_select exclude(name)
 {
         leaf_name  => { "${name}"};
@@ -271,11 +259,8 @@ body file_select by_fullname(names)
 }
 
 
-# Copied from CFEngine stdlib
-body classes always(x)
-
 # Define a class no matter what the outcome of the promise is
-
+body classes always(x)
 {
   promise_repaired => { "${x}" };
   promise_kept => { "${x}" };

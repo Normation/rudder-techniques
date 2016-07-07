@@ -52,5 +52,6 @@ bundle common virtualMachines
         comment => "Checking installation of VMWare";
 
     windows::
-      "VirtualBoxInstalled" not => regcmp("", "${virtual_box_install_path}");}
+      "VirtualBoxInstalled" not => regcmp("", "${virtual_box_install_path}");
+}
 
