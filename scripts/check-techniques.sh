@@ -159,6 +159,15 @@ do
   fi
 done || EXIT=1
 
+# Check that there is an empry line after each endif
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
+do
+  if grep -n -A1 "^[[:space:]]*&endif&[[:space:]]*$" "${filename}" | grep -E -B1 -- "^[[:digit:]]+-.+"; then
+    echo "&endif& not followed by an empty line in ${filename}"
+    exit 1
+  fi
+done || EXIT=1
+
 if [ ${EXIT} -eq 0 ]; then
   echo "This repository seems clean"
 else
