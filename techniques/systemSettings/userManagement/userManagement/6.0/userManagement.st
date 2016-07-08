@@ -194,8 +194,19 @@ bundle agent check_usergroup_user_parameters
         create     => "false",
         edit_line  => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
-        classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
+        classes    => kept_if_else("usermanagement_user_password_${usergroup_user_index}_kept", "usermanagement_user_password_${usergroup_user_index}_repaired", "usermanagement_user_password_${usergroup_user_index}_error"),
         ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+
+      # Check password if we are in "check only (account should exist)
+      # Due to https://tracker.mender.io/browse/CFE-2424, if password is correct, no class is defined. Waiting for fix in the agent
+      "/etc/shadow"
+        create        => "false",
+        edit_line     => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        action        => WarnOnly,
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+        ifvarclass    => "!usermanagement_user_pwempty_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
+
 
   methods:
     windows::
@@ -274,21 +285,22 @@ bundle agent check_usergroup_user_parameters
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
       # Password handling
-      ## Is OK (Success)
-      "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password is OK"),
-        ifvarclass => "usermanagement_user_password_ok_${usergroup_user_index}";
+      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}"),
+           ifvarclass => "!usermanagement_user_checkpres_${usergroup_user_index}";
 
-      ## Has been changed (Repaired)
-      "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password has been changed"),
-        ifvarclass => "usermanagement_user_password_repaired_${usergroup_user_index}";
-
-      ## Could not be changed (Error)
-      "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password could NOT be changed !"),
-        ifvarclass => "usermanagement_user_password_failed_${usergroup_user_index}";
+      # Password handling in check only
+      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}"),
+           ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}";
 
       ## Change not needed (Success)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"),
-        ifvarclass => "((!usermanagement_user_password_ok_${usergroup_user_index}.!usermanagement_user_password_repaired_${usergroup_user_index}.!usermanagement_user_password_failed_${usergroup_user_index}).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_pwempty_${usergroup_user_index}|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.(usermanagement_user_group_definition_error_${usergroup_user_index}|usermanagement_user_uid_definition_error_${usergroup_user_index}))))|usermanagement_user_remove_${usergroup_user_index}";
+        ifvarclass => "((!usermanagement_user_password_${usergroup_user_index}_kept.!usermanagement_user_password_${usergroup_user_index}_repaired.!usermanagement_user_password_${usergroup_user_index}_error).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_pwempty_${usergroup_user_index}|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.(usermanagement_user_group_definition_error_${usergroup_user_index}|usermanagement_user_uid_definition_error_${usergroup_user_index}))))|usermanagement_user_remove_${usergroup_user_index}";
+
+      ## Change not needed (N/A)
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"),
+        ifvarclass => "(!usermanagement_user_password_${usergroup_user_index}_kept.!usermanagement_user_password_${usergroup_user_index}_repaired.!usermanagement_user_password_${usergroup_user_index}_error).((usermanagement_user_checkpres_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index})|(usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}))|usermanagement_user_checkabs_${usergroup_user_index}";
+
+
 
   commands:
 
@@ -375,13 +387,13 @@ bundle agent check_usergroup_user_parameters_windows_password(user, password, us
 
 
   classes:
-      "usermanagement_user_password_ok_${usergroup_user_index}" expression => strcmp("True", "${password_valid}"),
+      "usermanagement_user_password_${usergroup_user_index}_kept" expression => strcmp("True", "${password_valid}"),
         scope => "namespace";
 
   commands:
       "\"${sys.winsysdir}\net.exe\""
             args    => "USER ${user} ${password}",
-         classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
-         ifvarclass => "!usermanagement_user_password_ok_${usergroup_user_index}";
+         classes    => kept_if_else("usermanagement_user_password_${usergroup_user_index}_kept", "usermanagement_user_password_${usergroup_user_index}_repaired", "usermanagement_user_password_${usergroup_user_index}_error"),
+         ifvarclass => "!usermanagement_user_password_${usergroup_user_index}_kept";
 
 }
