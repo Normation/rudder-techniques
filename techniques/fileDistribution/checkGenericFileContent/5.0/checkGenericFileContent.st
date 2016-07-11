@@ -165,14 +165,14 @@ classes:
         ifvarclass => "file_nothing_to_do_${index}";
 
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already in accordance with the policy"
-        ifvarclass => "edit_content_$(index).((content_$(index)_kept.!content_$(index)_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the policy"
+        ifvarclass => "edit_content_${index}.((content_${index}_kept.!content_${index}_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed))";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was successfully updated"
-        ifvarclass => "content_$(index)_modified.file_edition_global_files_status_${index}_repaired";
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated"
+        ifvarclass => "content_${index}_modified.file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) could not be updated"
-        ifvarclass => "content_$(index)_failed";
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@File@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated"
+        ifvarclass => "content_${index}_failed|file_edition_global_files_status_${index}_failed";
 
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@File@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#No content was given to check file $(generic_file_content_path[$(index)]), skipping"
         ifvarclass => "!edit_content_${index}.!file_nothing_to_do_${index}";
@@ -220,14 +220,14 @@ classes:
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) uses default permissions"
         ifvarclass => "!adjust_permissions_${index}.!file_nothing_to_do_${index}";
 
-      "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions are OK"
-        ifvarclass => "perms_$(index)_kept";
+      "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions are OK"
+        ifvarclass => "perms_${index}_kept.!perms_${index}_modified.!perms_${index}_failed";
 
-      "@@checkGenericFileContent@@result_repaired@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions were adjusted"
-        ifvarclass => "perms_$(index)_modified";
+      "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions were adjusted"
+        ifvarclass => "perms_${index}_modified.!perms_${index}_failed";
 
-      "@@checkGenericFileContent@@result_error@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) permissions could not be adjusted"
-        ifvarclass => "perms_$(index)_failed";
+      "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Permission adjustment@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} permissions could not be adjusted"
+        ifvarclass => "perms_${index}_failed";
 
       # Permissions edition - enforce only at creation
       "@@checkGenericFileContent@@result_success@@$(generic_file_content_uuid[$(index)])@@Permission adjustment@@$(generic_file_content_path[$(index)])@@$(g.execRun)##$(g.uuid)@#The file $(generic_file_content_path[$(index)]) was already existing, skipping permission checking"
@@ -247,10 +247,10 @@ classes:
         ifvarclass => "enforce_section_${index}.creation_only_but_already_exists_${index}";
 
       "@@checkGenericFileContent@@result_success@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was already in accordance with the section content policy"
-        ifvarclass => "enforce_section_${index}.((section_content_modification_kept_${index}.!section_content_modification_modified_${index})|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+        ifvarclass => "enforce_section_${index}.((section_content_modification_kept_${index}.!section_content_modification_modified_${index})|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed))";
 
       "@@checkGenericFileContent@@result_repaired@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} was successfully updated using the section content policy"
-        ifvarclass => "section_content_modification_modified_${index}.!section_content_modification_failed_${index}.file_edition_global_files_status_${index}_repaired";
+        ifvarclass => "section_content_modification_modified_${index}.!section_content_modification_failed_${index}.file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed";
 
       "@@checkGenericFileContent@@result_error@@${generic_file_content_uuid[${index}]}@@Enforce content by section@@${generic_file_content_path[${index}]}@@${g.execRun}##${g.uuid}@#The file ${generic_file_content_path[${index}]} could not be updated using the section content policy"
         ifvarclass => "section_content_modification_failed_${index}";
