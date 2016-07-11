@@ -197,23 +197,23 @@ classes:
       # No line migrations
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.edit_content_${index}.((content_${index}_kept.!content_${index}_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+        ifvarclass => "!migrate_to_zone_${index}.edit_content_${index}.((content_${index}_kept.!content_${index}_modified)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.content_${index}_modified.file_edition_global_files_status_${index}_repaired";
+        ifvarclass => "!migrate_to_zone_${index}.content_${index}_modified.file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.content_${index}_failed";
+        ifvarclass => "!migrate_to_zone_${index}.(content_${index}_failed|file_edition_global_files_status_${index}_failed)";
 
       # if we want to migrate lines
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.edit_content_${index}.((content_${index}_kept.!content_${index}_modified.delete_out_of_zone_content_${index}_kept.!delete_out_of_zone_content_${index}_repaired)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+        ifvarclass => "migrate_to_zone_${index}.edit_content_${index}.((content_${index}_kept.!content_${index}_modified.delete_out_of_zone_content_${index}_kept.!delete_out_of_zone_content_${index}_repaired)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.file_edition_global_files_status_${index}_repaired.(content_${index}_modified|delete_out_of_zone_content_${index}_repaired)";
+        ifvarclass => "migrate_to_zone_${index}.(file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed).(content_${index}_modified|delete_out_of_zone_content_${index}_repaired)";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.(content_${index}_failed|delete_out_of_zone_content_${index}_failed)";
+        ifvarclass => "migrate_to_zone_${index}.(content_${index}_failed|delete_out_of_zone_content_${index}_failed|file_edition_global_files_status_${index}_failed)";
 
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "No content was given to check file ${generic_file_content_path[${index}]}, skipping", "${index}"),
@@ -263,10 +263,10 @@ classes:
         ifvarclass => "!adjust_permissions_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} permissions are OK", "${index}"),
-        ifvarclass => "perms_${index}_kept";
+        ifvarclass => "perms_${index}_kept.!perms_${index}_modified.!perms_${index}_failed";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} permissions were adjusted", "${index}"),
-        ifvarclass => "perms_${index}_modified";
+        ifvarclass => "perms_${index}_modified.!perms_${index}_failed";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} permissions could not be adjusted", "${index}"),
         ifvarclass => "perms_${index}_failed";
@@ -290,23 +290,23 @@ classes:
 
       # Section edition - No migration
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the section content policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.enforce_section_${index}.((section_content_modification_kept_${index}.!section_content_modification_modified_${index})|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+        ifvarclass => "!migrate_to_zone_${index}.enforce_section_${index}.((section_content_modification_kept_${index}.!section_content_modification_modified_${index})|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated using the section content policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.section_content_modification_modified_${index}.!section_content_modification_failed_${index}.file_edition_global_files_status_${index}_repaired";
+        ifvarclass => "!migrate_to_zone_${index}.section_content_modification_modified_${index}.!section_content_modification_failed_${index}.file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated using the section content policy", "${index}"),
         ifvarclass => "!migrate_to_zone_${index}.section_content_modification_failed_${index}";
 
       # Section edition - migration
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the section content policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.enforce_section_${index}.((section_content_modification_kept_${index}.!section_content_modification_modified_${index}.delete_out_of_zone_section_${index}_kept.!delete_out_of_zone_section_${index}_repaired)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired))";
+        ifvarclass => "migrate_to_zone_${index}.enforce_section_${index}.((section_content_modification_kept_${index}.!section_content_modification_modified_${index}.delete_out_of_zone_section_${index}_kept.!delete_out_of_zone_section_${index}_repaired)|(file_edition_global_files_status_${index}_kept.!file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated using the section content policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.((section_content_modification_modified_${index}.!section_content_modification_failed_${index})|(delete_out_of_zone_section_${index}_repaired.!delete_out_of_zone_section_${index}_failed)).file_edition_global_files_status_${index}_repaired";
+        ifvarclass => "migrate_to_zone_${index}.((section_content_modification_modified_${index}.!section_content_modification_failed_${index})|(delete_out_of_zone_section_${index}_repaired.!delete_out_of_zone_section_${index}_failed)).file_edition_global_files_status_${index}_repaired.!file_edition_global_files_status_${index}_failed";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated using the section content policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.(section_content_modification_failed_${index}|delete_out_of_zone_section_${index}_failed)";
+        ifvarclass => "migrate_to_zone_${index}.(section_content_modification_failed_${index}|delete_out_of_zone_section_${index}_failed|file_edition_global_files_status_${index}_failed)";
 
 
 
