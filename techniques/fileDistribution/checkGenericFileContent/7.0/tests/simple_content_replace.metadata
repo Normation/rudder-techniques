@@ -1,0 +1,6 @@
+{
+  "init": "simple_content_replace.sh"
+  "directive": "simple_content_replace.json",
+  "check": "simple_content_replace.rb", 
+  "compliance": 100
+}
