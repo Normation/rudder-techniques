@@ -7,3 +7,7 @@
  -- Benoît Peccatte <benoit.peccatte@normation.com> Fri Oct 17 14:10:43 CEST 2014
   * Version 6.0
   ** Use rudder_common_report instead of reports:
+ -- Nicolas Charles <nicolas.charles@normation.com> Fri Jul 15 15:50:00 CEST 2016
+  * Version 7.0
+  ** Add AIX support
+

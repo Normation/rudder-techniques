@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2011-2016 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -17,7 +17,7 @@
 #####################################################################################
 
 ##########################################################################
-# User/Group management PT                                               #
+# User management Technique                                              #
 #                                                                        #
 # Objective : Apply user/group policies on the target host               #
 ##########################################################################
@@ -37,6 +37,9 @@ bundle agent check_usergroup_user_parameters
 }&
 
     &USERGROUP_USER_PASSWORD:{password |"usergroup_user_password[&i&]" string => "&password&";
+}&
+
+    &USERGROUP_USER_PASSWORD_AIX:{password |"usergroup_user_password_aix[&i&]" string => "&password&";
 }&
 
     &USERGROUP_USER_PASSWORD_POLICY:{passwordpol |"usergroup_user_password_policy[&i&]" string => "&passwordpol&";
@@ -185,31 +188,65 @@ bundle agent check_usergroup_user_parameters
   files:
     !windows::
       "/etc/passwd"
-        create => "false",
-        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        create        => "false",
+        edit_line     => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
-        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
+        ifvarclass    => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
       "/etc/passwd"
-        create => "false",
-        edit_line => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        create        => "false",
+        edit_line     => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
-        action => WarnOnly,
-        ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
+        action        => WarnOnly,
+        ifvarclass    => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
+    aix::
+      # On AIX, if password is supplied and user must exist, then the second field needs to be a ! to allow login
+      "/etc/passwd"
+        create        => "false",
+        edit_line     => set_colon_field("${usergroup_user_login[${usergroup_user_index}]}", "2", "!"),
+        edit_defaults => noempty_backup,
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+
+    !windows.!aix::
       # Define password when user has already been created
       "/etc/shadow"
-        create     => "false",
-        edit_line  => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
+        create        => "false",
+        edit_line     => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
-        classes    => kept_if_else("usermanagement_user_password_${usergroup_user_index}_kept", "usermanagement_user_password_${usergroup_user_index}_repaired", "usermanagement_user_password_${usergroup_user_index}_error"),
-        ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
       # Check password if we are in "check only (account should exist)
       # Due to https://tracker.mender.io/browse/CFE-2424, if password is correct, no class is defined. Waiting for fix in the agent
       "/etc/shadow"
         create        => "false",
         edit_line     => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        action        => WarnOnly,
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+        ifvarclass    => "!usermanagement_user_pwempty_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
+
+    aix::
+      "/etc/security/passwd"
+        create        => "false",
+        edit_line     => ncf_ensure_AIX_password("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+
+      # set the last update date if password has been updated
+      "/etc/security/passwd"
+        create        => "false",
+        edit_line     => ncf_edit_lastupdate_AIX_password("${usergroup_user_login[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        ifvarclass    => "usermanagement_user_password_${usergroup_user_index}_repaired.((usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}))";
+
+
+      "/etc/security/passwd"
+        create        => "false",
+        edit_line     => ncf_ensure_AIX_password("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
         action        => WarnOnly,
         classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
@@ -226,7 +263,7 @@ bundle agent check_usergroup_user_parameters
       "check_user_fullname" usebundle => check_usergroup_user_parameters_windows_fullname("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}", "${usergroup_user_action[${usergroup_user_index}]}", "${nameopt[${usergroup_user_index}]}", "${usergroup_user_index}"),
         ifvarclass                    => "(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index}).!usermanagement_user_nameempty_${usergroup_user_index}";
 
-    pass3.((linux|windows).showtime)::
+    pass3.showtime::
 
       # Add user
       ## Does exist (Success)
@@ -329,7 +366,7 @@ bundle agent check_usergroup_user_parameters
 
 &endif&
 
-    linux.showtime::
+    !windows.showtime::
 
       "/usr/sbin/useradd"
         args => "${useropt[${usergroup_user_index}]} ${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
@@ -357,7 +394,7 @@ bundle edit_line set_user_fullname(user,user_index,fullname)
       "${user}:.*"
       # Edit GECOS on /etc/passwd
         edit_field => col(":", "5", "${fullname}", "set"),
-        classes => kept_if_else("usermanagement_fullname_edit_${user_index}_kept","usermanagement_fullname_edit_${user_index}_repaired","usermanagement_fullname_edit_${user_index}_error");
+        classes    => classes_generic("usermanagement_fullname_edit_${user_index}");
 
 }
 
@@ -401,7 +438,7 @@ bundle agent check_usergroup_user_parameters_windows_password(user, password, us
   commands:
       "\"${sys.winsysdir}\net.exe\""
             args    => "USER ${user} ${password}",
-         classes    => kept_if_else("usermanagement_user_password_${usergroup_user_index}_kept", "usermanagement_user_password_${usergroup_user_index}_repaired", "usermanagement_user_password_${usergroup_user_index}_error"),
+         classes    => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
          ifvarclass => "!usermanagement_user_password_${usergroup_user_index}_kept";
 
 }
