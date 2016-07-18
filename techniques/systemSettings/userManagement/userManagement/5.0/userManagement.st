@@ -92,11 +92,15 @@ bundle agent check_usergroup_user_parameters
       # 2 - On UNIX, choose between using no group name or using a custom one
       "groupopt[${usergroup_user_index}]"
         string => "",
-        ifvarclass => "usermanagement_user_groupempty_${usergroup_user_index}";
+        ifvarclass => "usermanagement_user_groupempty_${usergroup_user_index}.!usermanagement_user_force_user_in_group_${usergroup_user_index}";
 
       "groupopt[${usergroup_user_index}]"
         string => "-g ${usergroup_user_groupname[${usergroup_user_index}]}",
-        ifvarclass => "!usermanagement_user_groupempty_${usergroup_user_index}";
+        ifvarclass => "!usermanagement_user_groupempty_${usergroup_user_index}.!usermanagement_user_force_user_in_group_${usergroup_user_index}";
+
+      "groupopt[${usergroup_user_index}]"
+        string     => "-g ${usergroup_user_login[${usergroup_user_index}]}",
+        ifvarclass => "usermanagement_user_force_user_in_group_${usergroup_user_index}";
 
       # 3 - on UNIX force user id if provided
       "useropt[${usergroup_user_index}]"
@@ -161,6 +165,10 @@ bundle agent check_usergroup_user_parameters
       
       # UID is defined and already exists
       "usermanagement_user_uid_definition_error_${usergroup_user_index}" expression => "!usermanagement_user_uid_empty_${usergroup_user_index}.usermanagement_uid_exists_${usergroup_user_index}";
+
+      #f we want to create a user, and a group with the username exists (no group name defined),then we need to force addition of user to that group (mandatory for debian and redhat, non mandatory for SLES) 
+      "usermanagement_user_force_user_in_group_${usergroup_user_index}" expression => groupexists("${usergroup_user_login[${usergroup_user_index}]}"),
+        ifvarclass => "usermanagement_user_groupempty_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
 
     # Class 'any' is executed before others classes defined.
