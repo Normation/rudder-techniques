@@ -1,5 +1,5 @@
 {
-  "init": "simple_content_replace.cf"
+  "init": "simple_content_replace.cf",
   "directive": "simple_content_replace.json",
   "check": "simple_content_replace.rb", 
   "compliance": 100
