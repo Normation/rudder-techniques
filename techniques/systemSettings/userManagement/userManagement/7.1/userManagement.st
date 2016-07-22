@@ -54,6 +54,9 @@ bundle agent check_usergroup_user_parameters
     &USERGROUP_USER_HOME_PERSONNALIZE:{homeperso |"usergroup_user_home_perso[&i&]" string => "&homeperso&";
 }&
 
+    &USERGROUP_USER_HOME_MOVE:{homemove |"usergroup_user_home_move[&i&]" string => "&homemove&";
+}&
+
     &USERGROUP_USER_HOME:{home |"usergroup_user_home[&i&]" string => "&home&";
 }&
 
@@ -114,6 +117,12 @@ bundle agent check_usergroup_user_parameters
         string => "-u ${usergroup_user_uid[${usergroup_user_index}]}",
         ifvarclass => "!usermanagement_user_uid_empty_${usergroup_user_index}";
 
+    any_2nd_pass.!pass2.!windows::
+
+
+      "usermanagement_user_move_home_dir_from[${usergroup_user_index}]" string => execresult("${paths.grep} '^${usergroup_user_login[${usergroup_user_index}]}:' /etc/passwd | ${paths.cut} -d: -f6", "useshell"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}";
+
 
   classes:
 
@@ -129,7 +138,18 @@ bundle agent check_usergroup_user_parameters
 
       "usermanagement_user_pershome_${usergroup_user_index}" not => strcmp("${usergroup_user_home_perso[${usergroup_user_index}]}","true");
 
-      "usermanagement_user_custom_home_defined_${usergroup_user_index}" expression => isvariable("usergroup_user_home[${usergroup_user_index}]");
+      "usermanagement_user_custom_home_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_home[${usergroup_user_index}]");
+      "usermanagement_user_custom_home_no_value_${usergroup_user_index}" expression => strcmp("", "usergroup_user_home[${usergroup_user_index}]");
+      "usermanagement_user_custom_home_defined_${usergroup_user_index}" expression  => "!usermanagement_user_custom_home_no_variable_${usergroup_user_index}.!usermanagement_user_custom_home_no_value_${usergroup_user_index}";
+
+      # If we ask to personnalize home, but not define it, it is invalid
+      "usermanagement_user_home_pershome_invalid_${usergroup_user_index}" expression => "usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_custom_home_defined_${usergroup_user_index}";
+
+      # Asked to move the home directory
+      "usermanagement_user_custom_home_move_${usergroup_user_index}" expression => strcmp("${usergroup_user_home_move[${usergroup_user_index}]}","true");
+
+      # The request to move home is valid: the path to move to is defined, and we asked to personalize
+      "usermanagement_user_custom_home_move_valid_${usergroup_user_index}" expression => "usermanagement_user_custom_home_move_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}";
 
       "usermanagement_user_exists_${usergroup_user_index}" expression => userexists("${usergroup_user_login[${usergroup_user_index}]}");
 
@@ -173,12 +193,22 @@ bundle agent check_usergroup_user_parameters
       "usermanagement_user_force_user_in_group_${usergroup_user_index}" expression => groupexists("${usergroup_user_login[${usergroup_user_index}]}"),
         ifvarclass => "usermanagement_user_groupempty_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
-
     # Class 'any' is executed before others classes defined.
     # Same as 'any' but execution will be after all classes defined
       "any_2nd_pass" expression => "any";
 
       "showtime" expression => isvariable("nameopt[1]");
+
+    showtime::
+      # if defined, we can move the user home (because we know the previous value)
+      "usermanagement_user_current_home_defined_${usergroup_user_index}" expression => isvariable("usermanagement_user_move_home_dir_from[${usergroup_user_index}]");
+
+      # Must move the home if:
+      # - home is not the same as the defined home on the node for user
+      # - we asked to personnalize, and the values are valid
+      "usermanagement_user_current_home_is_invalid_${usergroup_user_index}" not => strcmp("${usermanagement_user_move_home_dir_from[${usergroup_user_index}]}", "${usergroup_user_home[${usergroup_user_index}]}"),
+         ifvarclass => "usermanagement_user_current_home_defined_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_home_pershome_invalid_${usergroup_user_index}";
+
 
     any::
       "pass3" expression => "pass2";
@@ -346,6 +376,42 @@ bundle agent check_usergroup_user_parameters
         ifvarclass => "(!usermanagement_user_password_${usergroup_user_index}_kept.!usermanagement_user_password_${usergroup_user_index}_repaired.!usermanagement_user_password_${usergroup_user_index}_error).((usermanagement_user_checkpres_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index})|(usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}))|usermanagement_user_checkabs_${usergroup_user_index}";
 
 
+      # Homedir management
+      ## On Windows, we don't do the home part
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "Home directory are not enforced on Windows"),
+        ifvarclass => "windows";
+
+      ## In case of user to remove or to check absent, this is a result_na
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} should not be present, it doesn't need to have its home directory checked"),
+        ifvarclass => "!windows.(usermanagement_user_remove_${usergroup_user_index}|usermanagement_user_checkabs_${usergroup_user_index})";
+
+      ## In case of check user present or update, but with default home, this is result_na
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} doesn't need to have its home directory checked"),
+        ifvarclass => "!windows.(!usermanagement_user_pershome_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index}))";
+
+      ## In case of check user present or update, but the home is already correct, this is success
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory is valid"),
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_current_home_is_invalid_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index}))";
+
+      ## In case of update, but the home was not correct, and could be changed, this is repaired
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was changed (but not moved)"),
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.(usermanagement_login_home_change_${usergroup_user_index}_repaired.!usermanagement_login_home_change_${usergroup_user_index}_error).usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+
+      ## In case of update, but the home was not correct, and could not be changed, this is error
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory could not be changed"),
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_login_home_change_${usergroup_user_index}_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+
+      ## In case of update, but the home was not correct, and could be moved, this is repaired
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was moved"),
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.(usermanagement_login_home_move_${usergroup_user_index}_repaired.!usermanagement_login_home_move_${usergroup_user_index}_error).usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+
+      ## In case of update, but the home was not correct, and could not be moved, this is error
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory could not be moved"),
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_login_home_move_${usergroup_user_index}_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+
+      ## In case of check only, and the home was not correct, this is error
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was invalid"),
+        ifvarclass => "!windows.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
   commands:
 
@@ -385,6 +451,22 @@ bundle agent check_usergroup_user_parameters
         classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
         comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
+
+      # Change user home dir
+      ## Move the home dir
+      "/usr/sbin/usermod"
+        args       => "-d ${usergroup_user_home[${usergroup_user_index}]} -m ${usergroup_user_login[${usergroup_user_index}]}",
+        classes    => cf2_if_else("usermanagement_login_home_move_${usergroup_user_index}_repaired", "usermanagement_home_move_${usergroup_user_index}_error"),
+        comment    => "Change home directory (move it)",
+        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_custom_home_move_valid_${usergroup_user_index}";
+
+      ## Doesn't move the home dir
+      "/usr/sbin/usermod"
+        args       => "-d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes    => cf2_if_else("usermanagement_login_home_change_${usergroup_user_index}_repaired", "usermanagement_home_change_${usergroup_user_index}_error"),
+        comment    => "Change home directory definition for user (doesn't move files)",
+        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.!usermanagement_user_custom_home_move_${usergroup_user_index}";
+
 
 }
 

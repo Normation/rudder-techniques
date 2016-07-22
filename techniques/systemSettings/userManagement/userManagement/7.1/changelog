@@ -10,4 +10,7 @@
  -- Nicolas Charles <nicolas.charles@normation.com> Fri Jul 15 15:50:00 CEST 2016
   * Version 7.0
   ** Add AIX support
+ -- Nicolas Charles <nicolas.charles@normation.com> Fri Jul 22 15:41:00 CEST 2016
+  * Version 7.1
+  ** Add an option to move the home directory
 

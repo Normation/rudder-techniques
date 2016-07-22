@@ -111,21 +111,6 @@ It is intended to check the user parameters on the target host.
         </CONSTRAINT>
       </SELECT1>
       <INPUT>
-        <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
-        <DESCRIPTION>Use the default home directory</DESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>true</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>USERGROUP_USER_HOME</NAME>
-        <DESCRIPTION>Home directory, if not default</DESCRIPTION>
-        <CONSTRAINT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
         <NAME>USERGROUP_USER_SHELL</NAME>
         <DESCRIPTION>Shell for this account</DESCRIPTION>
         <LONGDESCRIPTION>Will be used only on UNIX systems</LONGDESCRIPTION>
@@ -141,6 +126,33 @@ It is intended to check the user parameters on the target host.
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
+      <SECTION name="Home directory" component="true" componentKey="USERGROUP_USER_LOGIN">
+        <INPUT>
+          <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
+          <DESCRIPTION>Use the default home directory</DESCRIPTION>
+          <LONGDESCRIPTION>If not checked, it will set the defined home directory if "Policy to apply to this acocunt" if "Create/Update"</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>true</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>USERGROUP_USER_HOME_MOVE</NAME>
+          <DESCRIPTION>Move the content of previous home directory to the defined one</DESCRIPTION>
+          <LONGDESCRIPTION>If checked, it will move the existing home directory to the defined one if they don't match</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>USERGROUP_USER_HOME</NAME>
+          <DESCRIPTION>Home directory, if not default</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+     </SECTION>
       <SECTION name="Password" component="true" componentKey="USERGROUP_USER_LOGIN">
         <INPUT>
           <NAME>USERGROUP_USER_PASSWORD</NAME>
