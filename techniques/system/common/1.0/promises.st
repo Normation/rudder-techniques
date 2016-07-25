@@ -69,6 +69,7 @@ bundle common va
         "check_binaries_freshness",
         "check_zypper",
         "get_environment_variables",
+        "properties",
         "nxlog_enable",
         "configuration"
       };
@@ -94,6 +95,7 @@ bundle common va
         "check_zypper",
         "check_uuid",
         "get_environment_variables",
+        "properties",
         "configuration"
       };
 
