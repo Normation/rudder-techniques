@@ -90,10 +90,10 @@ do
   fi
 done || EXIT=1
 
-# Check that we are not using the non-existant class cfengine_community (which does not exist)
+# Check that we are not using the non-existant class cfengine_community
 find ${REPOSITORY_PATH} -type f -name "*.st" -or -name "*.cf" | while read filename
 do
-  if grep -q 'cfengine_community' "${filename}"; then
+  if egrep -q '^[^#]*cfengine_community' "${filename}"; then
     echo "Found invalid use of class cfengine_community that does not exists in file ${filename}. Use community_edition instead."
     exit 1
   fi
