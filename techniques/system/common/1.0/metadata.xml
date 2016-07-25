@@ -60,6 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </TML>
     <TML name="environment-variables"/>
     <TML name="restart-services"/>
+    <TML name="properties"/>
   </TMLS>
 
   <SYSTEMVARS>
