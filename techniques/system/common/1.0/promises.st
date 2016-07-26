@@ -197,7 +197,7 @@ bundle agent check_disable_agent
 
       # Only define this class when we're ready to die - this is a special class name in "abortclasses"
       "should_not_continue"
-        expression => "should_disable_agent",
+        expression => "should_disable_agent.!ignore_disable_agent",
         ifvarclass => "abort_report_done",
         action     => immediate;
 
@@ -315,11 +315,17 @@ bundle agent check_red_button_status()
 ###################################################
 bundle agent check_cf_processes
 {
+  methods:
+    !ignore_disable_agent::
+      "any" usebundle => check_cf_processes_running;
+}
+bundle agent check_cf_processes_running
+{
   vars:
 
       # process_term defines how many maximum instances of this
-      # binary should be running before attempting to SIGTERM them.
-      # process_kill is the same for SIGKILL.
+      # binary should be running before attempting to SIGTERM them.
+      # process_kill is the same for SIGKILL.
     !windows::
       # On windows, cf-execd is a service, and there can be only one instance of it running (by design)
       "process_term[execd]" string => "2";
