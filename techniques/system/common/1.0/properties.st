@@ -43,7 +43,7 @@ bundle agent properties
 {
   vars:
     # The files to read
-    "properties_files" slist => findfiles("${sys.workdir}/inputs/properties/*.json");
+    "properties_files" slist => findfiles("${sys.workdir}/inputs/properties.d/*.json");
 
     # The sorted file list
     "_sorted_files" slist => sort("properties_files", "lex");
