@@ -40,7 +40,7 @@ do
       ;;
     f)
       [ -n "${PATTERN}" ] && PATTERN="${PATTERN} -o "
-      PATTERN="${PATTERN}-name ${OPTARG}"
+      PATTERN="${PATTERN}-wholename *${OPTARG}*"
       ;;
     s)
       FILTER="${OPTARG}"
