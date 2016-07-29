@@ -62,7 +62,7 @@ bundle agent doInventory
       "any" usebundle => doInventory_always;
   reports:
     !(ignore_disable_inventory|!disable_inventory)::
-      "INFO: The file ${g.rudder_disable_inventory_file} is present. Rudder will not send an inventory. Use rudder agent inventory --force to override this temporarily.";
+      "@@Inventory@@log_warn@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#The file ${g.rudder_disable_inventory_file} is present, so Rudder will not send an inventory. Use 'rudder agent inventory -f' to override this temporarily";
 }
 bundle agent doInventory_always
 {
