@@ -24,7 +24,7 @@
 body file control {
 
   inputs => {
-    &RUDDER_SYSTEM_DIRECTIVES_INPUTS&
+    "common/1.0/cf-served.cf","common/1.0/rudder-stdlib.cf","common/1.0/rudder-stdlib-core.cf","common/1.0/rudder_lib.cf","common/1.0/cron_setup.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
   };
 
 }
@@ -33,7 +33,6 @@ body file control {
 bundle agent rudder_system_directives {
   # fully generated in bundle common va for iinitial promises
   methods:
-      &RUDDER_SYSTEM_DIRECTIVES_SEQUENCE&
 
 }
 

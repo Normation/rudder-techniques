@@ -23,105 +23,160 @@
 #######################################################
 bundle common rudder_roles
 {
+  # variables are defined in bundle common g
+  classes:
+      # Policy Server is a machine which delivers promises
+      "policy_server" expression => strcmp("root","${g.uuid}");
+      # Root Server is the top policy server machine
+      "root_server" expression => strcmp("root","${g.uuid}");
 
-  vars:
-    windows.!cygwin::
-      "rudder_base" string  => "${sys.winprogdir}\Rudder";
-      "uuid_file" string => "${rudder_base}\etc\uuid.hive";
 
-    !windows.!android::
-      "rudder_base" string => "/opt/rudder";
-      "uuid_file" string => "${rudder_base}/etc/uuid.hive";
+      # on changes only, we only reports on repaired or error message
+      "changes_only"     expression => strcmp("full-compliance", "changes-only");
+      "reports_disabled" expression => strcmp("full-compliance", "reports-disabled");
 
-    android::
-      "rudder_base" string => "/data/rudder";
-      "uuid_file" string => "${rudder_base}/etc/uuid.hive";
-
-    any::
-      "uuid" string => readfile("${uuid_file}", 60);
+      # full compliance is the default mode
+      "full_compliance" not => "changes_only|reports_disabled";
 }
 
 body common control
 {
-
     any::
         output_prefix => "rudder";
         
         protocol_version   => "classic";
 
         inputs => {
-  @{va.inputs_list}
-    };
+          @{va.inputs_list},
+          "rudder_system_directives.cf",
+          "rudder_directives.cf"
+        };
 
-    policy_server::
+        bundlesequence => { 
+          @{va.common_bs},
+          @{va.specific_bs},
+          rudder_system_directives,
+          rudder_directives,
+          @{va.end}
+        };
 
-        bundlesequence => { @{va.bs}, "install_rsyslogd", "propagatePromises", "root_component_check", "fetchFusionTools", "virtualMachines", "doInventory", "sendInventoryToCmdb", @{va.end}};
-
-    !policy_server::
-
-        bundlesequence => { @{va.bs} , "fetchFusionTools", "virtualMachines", "doInventory" , @{va.end}};
-
+    android::
+        # if native syslog is not available, use cfengine implementation (eg: android)
+        syslog_host => "${server_info.cfserved}";
+        syslog_port => "${install_rsyslogd.rsyslog_port[2]}";
 }
 
 bundle common va
 {
-
   vars:
+
+      "end" slist => {
+        "endExecution"
+      };
+
+      # all other inputs are loaded by body file control in rudder_system_directives.cf and rudder_directives.cf
+      "inputs_list" slist => { @{ncf_inputs} };
+
+      "common_bs" slist => {
+        "startup",
+        "check_disable_agent",
+        "clean_red_button",
+        "update",
+        "configuration",
+        "set_red_button",
+        "internal_security",
+        "check_red_button_status",
+        "check_cf_processes",
+        "check_uuid",
+        "garbage_collection",
+        "setup_cronjob",
+        "check_cron_daemon",
+        "fetchFusionTools",
+        "virtualMachines",
+        "doInventory",      };
+
     policy_server::
-      "bs" slist => { "startExecution", "check_disable_agent", "clean_red_button", "update", "set_red_button", "internal_security", "setup_cronjob", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
-     };
 
-      "inputs_list" slist => {
-        @(va.common_inputs),"distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf"
-     };
+      "specific_bs" slist => {
+        "install_rsyslogd",
+        "propagatePromises",
+        "sendInventoryToCmdb",
+        "root_component_check",        # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
+        "check_binaries_freshness",
+      };
 
+      # initial promises server specific inputs cannot be loaded from rudder_system_directives.cf
+      "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf" };
     !policy_server::
-      "bs" slist => { "startExecution", "check_disable_agent", "update", "internal_security", "setup_cronjob", "check_cf_processes", "check_uuid", "check_cron_daemon", "garbage_collection", "check_binaries_freshness"
-     };
 
-      "inputs_list" slist => {
-        @{va.common_inputs}
-     };
+      # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
+      "specific_bs" slist => { "check_binaries_freshness" }
+
+      "inputs_list" slist => { @{ncf_inputs} };
+
+    !android.!windows::
+      "rudder_var"     string => "/var/rudder";
+    android::
+      "rudder_var"     string => "/data/rudder";
+
+    !windows::
+      "ncf_path"       string => "${rudder_var}/ncf";
+      "rudder_tools"   string => "${rudder_var}/tools";
+      "shell_type"     string => "useshell";
+      "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
+
+    windows::
+      "rudder_base"    string => "${sys.winprogdir}\Rudder";
+      "rudder_tools"   string => "${rudder_base}\sbin";
+      "ncf_path"       string => "${rudder_base}\var\ncf";
+      "shell_type"     string => "powershell";
+      # & is for powershell commands
+      "list_compatible_inputs" string => "& '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1\'";
 
     any::
-      "end" slist => { "endExecution" };
+      "path_ncf_common_inputs_10" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/10_ncf_internals", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_20" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/20_cfe_basics", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_30" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/30_generic_methods", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_50" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/50_techniques", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/60_services", "${shell_type}"), "\n", 10000);
 
-      "common_inputs" slist => {
-      "common/1.0/cf-served.cf","common/1.0/cfengine_stdlib.cf","common/1.0/rudder-stdlib.cf","common/1.0/rudder-stdlib-core.cf","common/1.0/rudder_lib.cf","common/1.0/cron_setup.cf","common/1.0/internal_security.cf","common/1.0/site.cf","common/1.0/update.cf","inventory/1.0/fetchFusionTools.cf","inventory/1.0/virtualMachines.cf","inventory/1.0/fusionAgent.cf"
-     };
+      "path_ncf_local_inputs_10" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/10_ncf_internals", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_20" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/20_cfe_basics", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_30" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/30_generic_methods", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
+      # Files from 50_techniques are automatically included by Rudder's metadata.xml mechanism
+      "path_ncf_local_inputs_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/60_services", "${shell_type}"), "\n", 10000);
 
-# definition of the machine roles
-  classes:
-        # Policy Server is a machine which delivers promises
-        "policy_server" expression => strcmp("root", "${rudder_roles.uuid}");
-        # Root Server is the top policy server machine
-        "root_server"   expression => strcmp("root", "${rudder_roles.uuid}");
+      # Must concatenate all lists + filter, as maplist on an empty element returns cf_null
+      "raw_path_ncf_inputs" slist => { @{path_ncf_common_inputs_10}, @{path_ncf_local_inputs_10}, @{path_ncf_common_inputs_20}, @{path_ncf_local_inputs_20}, @{path_ncf_common_inputs_30}, @{path_ncf_local_inputs_30}, @{path_ncf_common_inputs_40}, @{path_ncf_local_inputs_40}, @{path_ncf_common_inputs_50}, @{path_ncf_common_inputs_60}, @{path_ncf_local_inputs_60}},
+                           policy => "ifdefined";
+
+       "raw_ncf_inputs"     slist => maplist("${ncf_path}/${this}", @{raw_path_ncf_inputs});
+       # Need to remove cf_null from the list
+       "ncf_inputs"         slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
+
+    # definition of the machine roles
+# This node doesn't have any specific role
+    # policy_server and root_server migrated to rudder_roles
 }
 
 #########################################################
 # Control execution
 #########################################################
-bundle agent startExecution
+bundle agent startup
 {
-  reports:
-    cfengine_3::
-      "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution";
+  methods:
+    # Should we send a message stating this agent is starting up?
+    # Always do it in "full_compliance" mode
+    # In other modes, only do it here if we need to send it as a "heartbeat", that is if it hasn't already been sent recently enough
+    full_compliance|!heartbeat_sent::
+      "Send start message"
+        usebundle => startExecution,
+        action    => immediate;
 }
 
-bundle agent endExecution
-{
-  reports:
-    cfengine_3::
-      "@@Common@@log_info@@hasPolicyServer-root@@common-root@@00@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution";
-
-    rudder_promises_generated_error|no_update::
-  "*********************************************************************************
-* rudder-agent could not get an updated configuration from the policy server.   *
-* This can be caused by a network issue, an unavailable server, or if this      *
-* node has not yet been accepted in the Rudder root server.                     *
-*********************************************************************************";
-}
-
+# startExecution and endExecution have migrated to rudder-stdlib-core.st
 
 ##########################################################
 # Check for "disable-agent" file and cleanly stop and
@@ -159,6 +214,7 @@ bundle agent check_disable_agent
 
 }
 
+
 ##########################################################
 # Red Button part.
 # When the file ${sys.workdir}/inputs/stop exists, we must stop the
@@ -177,15 +233,16 @@ bundle agent clean_red_button()
         delete => tidy,
         comment => "Deleting the stop file, cfengine is good to go";
 
+  methods:
+    safe::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "hasPolicyServer-root@@common-root@@00", "Red Button", "None", "Authorizing Cfengine to restart");
+
   commands:
     safe.policy_server::
       "${sys.workdir}/bin/cf-runagent"
         args => "-Dsafe",
         comment => "Propagate the safe information to children";
 
-  reports:
-    safe::
-      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@${g.execRun}##${g.uuid}@#Authorizing Cfengine to restart";
 }
 
 bundle agent set_red_button()
@@ -211,11 +268,13 @@ bundle agent setStopFile
       "${g.rudder_var}/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
         create => "true";
 
-  reports:
+
+
+  methods:
     danger.!policy_server::
-      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@00@@Red Button@@None@@${g.execRun}##${g.uuid}@#Creating local stop file for this node";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "hasPolicyServer-root@@common-root@@00", "Red Button", "None", "Creating local stop file for this node");
     danger.policy_server::
-      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@${g.execRun}##${g.uuid}@#Creating stop files for all clients of this policy server";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "hasPolicyServer-root@@common-root@@00", "Red Button", "None", "Creating stop files for all clients of this policy server");
 
 }
 
@@ -225,15 +284,15 @@ bundle agent stopClients
     policy_server::
       "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
 
+  methods:
+    danger.policy_server::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "hasPolicyServer-root@@common-root@@00", "Red Button", "None", "Actively stopping CFEngine operations on all clients of this policy server (via cf-runagent)");
+
   commands:
     danger.policy_server::
       "${sys.workdir}/bin/cf-runagent"
         args => "-Ddanger",
         comment => "Propagate the danger information to children";
-
-  reports:
-    danger.policy_server::
-      "@@Common@@log_repaired@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@${g.execRun}##${g.uuid}@#Actively stopping CFEngine operations on all clients of this policy server (via cf-runagent)";
 
 }
 
@@ -243,9 +302,9 @@ bundle agent check_red_button_status()
     !policy_server::
       "should_not_continue" expression => fileexists("${sys.workdir}/inputs/stopFile");
 
-  reports:
+  methods:
     !should_not_continue::
-      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Red Button@@None@@${g.execRun}##${g.uuid}@#Red Button is not in effect, continuing as normal...";
+      "any" usebundle => rudder_common_report("Common", "result_success", "hasPolicyServer-root@@common-root@@00", "Red Button", "None", "Red Button is not in effect, continuing as normal...");
 
 }
 
@@ -261,64 +320,87 @@ bundle agent check_cf_processes
 }
 bundle agent check_cf_processes_running
 {
+  vars:
+
+      # process_term defines how many maximum instances of this
+      # binary should be running before attempting to SIGTERM them.
+      # process_kill is the same for SIGKILL.
+    !windows::
+      # On windows, cf-execd is a service, and there can be only one instance of it running (by design)
+      "process_term[execd]" string => "2";
+      "process_kill[execd]" string => "5";
+
+    any::
+      "process_term[agent]" string => "5";
+      "process_kill[agent]" string => "8";
+
+      "binaries"            slist  => getindices("process_term");
+
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+    pass3::
+
+      "any" usebundle => rudder_common_report("Common", "result_success", "hasPolicyServer-root@@common-root@@00", "Process checking", "None", "There is an acceptable number of CFEngine processes running on the machine"),
+      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
+        ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
+
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "hasPolicyServer-root@@common-root@@00", "Process checking", "None", "Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."),
+        ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
+
+      "any" usebundle => rudder_common_report("Common", "result_error", "hasPolicyServer-root@@common-root@@00", "Process checking", "None", "ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."),
+        ifvarclass => "${binaries}_has_gone_really_wild";
 
   processes:
-
     !windows::
-
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
 
-    # If there is more than 2 cf-execd's, it means cf-execd is starting to
-    # go crazy, so we ask politely to these processes to shut down.
-      "${sys.workdir}/bin/cf-execd"
-        process_count => check_range("execd", "0","2"),
-        signals => { "term" },
-        classes => if_repaired("execd_has_gone_wild"),
-        comment => "Checking if cf-execd has gone wild";
+      # If there are more than 2 cf-execd's, it means cf-execd is starting to
+      # go crazy, so we ask politely to these processes to shut down.
 
-    # The same when there is more than 5 cf-agents
-      "${sys.workdir}/bin/cf-agent"
-        process_count => check_range("agent", "0","5"),
-        signals => { "term" },
-        classes => if_repaired("agent_has_gone_wild"),
-        comment => "Checking if cf-agent has gone wild";
+      "${sys.workdir}/bin/cf-${binaries}"
+        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
+        signals       => { "term" },
+        classes       => if_repaired("${binaries}_has_gone_wild"),
+        comment       => "Checking if cf-${binaries} has gone wild";
 
-    # If there is more than 5 cf-execd's/cf-agents, it means that they are really
-    # going crazy. Let's be a bit less polite and more violent about killing them.
-    #
-    # These two promises overlap, because when you go past the 5-limit treshold,
-    # you still leave a chance for them to die with SIGTERM before the SIGKILL.
-    #
-    # Reason: The backend databases that stores the classes and some runtime
-    # parameters do really not appreciate beeing killed violently and may prevent
-    # the agent from operating properly.
+      # If there are too much cf-execd's/cf-agents running, it means that they are really
+      # going crazy. Let's be a bit less polite and more violent about killing them.
+      #
+      # These two promises overlap, because when you go past the 2/5-limit treshold,
+      # you still leave a chance for them to die with SIGTERM before the SIGKILL.
+      #
+      # Reason: The backend databases that stores the classes and some runtime
+      # parameters do really not appreciate beeing killed violently and may prevent
+      # the agent from operating properly.
 
-      "${sys.workdir}/bin/cf-execd"
-        process_count => check_range("execd", "0","5"),
-        signals => { "kill" },
-        classes => if_repaired("execd_has_gone_really_wild"),
-        comment => "Checking if cf-execd has gone really wild";
-
-      "${sys.workdir}/bin/cf-agent"
-        process_count => check_range("agent", "0","8"),
-        signals => { "kill" },
-        classes => if_repaired("agent_has_gone_really_wild"),
-        comment => "Checking if cf-agent has gone really wild";
+      "${sys.workdir}/bin/cf-${binaries}"
+        process_count => check_range("${binaries}", "0","${process_kill[${binaries}]}"),
+        signals       => { "kill" },
+        classes       => if_repaired("${binaries}_has_gone_really_wild"),
+        comment       => "Checking if cf-${binaries} has gone really wild";
 
     !windows.should_disable_server::
       "${sys.workdir}/bin/cf-serverd"
         signals       => { "term", "kill" },
         action        => immediate;
 
-    # Windows only implements SIGTERM. Using SIGKILL here makes no sense
     windows::
+      # Using the path on windows fails, as process are not reported the same way
+      # And unfortunately, the cf-serverd is not a service.
+      "cf-serverd"  restart_class => "start_server";
 
-      "cf-agent"
-        process_count => check_range("agent", "0","5"),
-        signals => { "term" },
-        classes => if_repaired("agent_has_gone_wild"),
-        comment => "Checking if cf-agent has gone wild";
+      # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
+      "cf-${binaries}"
+        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
+        signals       => { "term" },
+        classes       => if_repaired("${binaries}_has_gone_wild"),
+        comment       => "Checking if cf-${binaries} has gone wild";
 
     windows.should_disable_server::
       "cf-serverd"
@@ -334,53 +416,23 @@ bundle agent check_cf_processes_running
         comment => "Start the executor windows service now and at boot time";
 
   commands:
-
     !should_disable_server.start_server::
       "${sys.cf_serverd}"
-        action => u_ifwin_bg,
+        action  => u_ifwin_bg,
         classes => outcome("server");
 
     start_executor::
       "${sys.cf_execd}"
-        action => u_ifwin_bg,
+        action  => u_ifwin_bg,
         classes => outcome("executor");
 
-  reports:
-
-    !execd_has_gone_wild.!execd_has_gone_really_wild.!agent_has_gone_wild.!agent_has_gone_really_wild::
-
-      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#There is an acceptable number of cf-execd processes (between 0 and 2) and cf-agent processes (between 0 and 5)";
-
-    execd_has_gone_wild.!execd_has_gone_really_wild::
-
-      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than 2 cf-execd processes were detected. They have been sent a graceful termination signal.";
-
-    execd_has_gone_really_wild::
-
-      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than 5 cf-execd processes were detected. Killing processes that do not respect graceful termination signals.";
-
-    agent_has_gone_wild.!agent_has_gone_really_wild::
-
-      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than 5 cf-agent processes were detected. They have been sent a graceful termination signal.";
-
-    agent_has_gone_really_wild::
-
-      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than 8 cf-agent processes were detected. Killing processes that do not respect graceful termination signals.";
-
 }
 
-#######################################################
-# Match all variants of cron proccesses
 
-body process_select cron_bin
-{
-  command => "(/usr/sbin/)?crond?( -n| -f)?";
-  process_result => "command";
-}
-
-########################################################
-# Trash every output report older than 30 days         #
-########################################################
+# Log and reporting configuration not valid in initial promises
+###################################################################
+# Trash every output report and modified files older than the TTL #
+###################################################################
 
 bundle agent garbage_collection
 {
@@ -410,7 +462,6 @@ bundle agent garbage_collection
         comment     => "Rotate file if above specified size",
         rename      => rotate("10"),
         file_select => bigger_than("1M");
-
 }
 
 #######################################################
@@ -419,7 +470,6 @@ bundle agent garbage_collection
 
 bundle agent check_binaries_freshness
 {
-
   vars:
 
     community_edition::
@@ -436,23 +486,22 @@ bundle agent check_binaries_freshness
         action => immediate,
         comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
 
-  reports:
+  methods:
 
     binaries_fresh.!binaries_rotten.!binaries_missing::
-      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#The CFengine binaries in ${sys.workdir}/bin are up to date";
+      "any" usebundle => rudder_common_report("Common", "result_success", "hasPolicyServer-root@@common-root@@00", "Binaries update", "None", "The CFengine binaries in ${sys.workdir}/bin are up to date");
 
     binaries_rotten.!binaries_missing::
-      "@@Common@@result_repaired@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#The CFengine binaries have been updated in ${sys.workdir}/bin";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "hasPolicyServer-root@@common-root@@00", "Binaries update", "None", "The CFengine binaries have been updated in ${sys.workdir}/bin");
 
     binaries_missing::
-      "@@Common@@result_error@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
+      "any" usebundle => rudder_common_report("Common", "result_error", "hasPolicyServer-root@@common-root@@00", "Binaries update", "None", "An error occurred while updating the CFengine binaries in ${sys.workdir}/bin");
 
     android::
-      "@@Common@@result_success@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an android machine: no CFEngine binaries update needed";
+      "any" usebundle => rudder_common_report("Common", "result_success", "hasPolicyServer-root@@common-root@@00", "Binaries update", "None", "This is an android machine: no CFEngine binaries update needed");
 
     nova_edition::
-      "@@Common@@result_na@@hasPolicyServer-root@@common-root@@00@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an CFEngine enterprise system: binaries update are handled differently";
-
+      "any" usebundle => rudder_common_report("Common", "result_na", "hasPolicyServer-root@@common-root@@00", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
 
 }
 
@@ -470,13 +519,11 @@ body agent control
 
         agentfacility => "LOG_LOCAL6";
 
-  # Repository where to put the copy of modified files
-    !windows::
-        default_repository => "/var/rudder/modified-files";
-
-    # we can not depend on DNS for mobile devices or NATed device
-    any::
         skipidentify => "true";
+
+  # Repository where to put the copy of modified files
+        default_repository => "${g.rudder_var}/modified-files";
+
 }
 
 #######################################################
@@ -484,15 +531,14 @@ body agent control
 body executor control
 {
         splaytime => "1";
-
         schedule         => { "Min00", "Min05", "Min10", "Min15", "Min20", "Min25", "Min30", "Min35", "Min40", "Min45", "Min50", "Min55" };
         executorfacility => "LOG_DAEMON";
 
-  windows::
+   windows::
         # CFEngine best practice is to use full paths on Windows
         exec_command => "${sys.cf_agent} -f \"${sys.workdir}\inputs\failsafe.cf\" & ${sys.cf_agent}";
 
-  !windows::
+   !windows::
         exec_command => "${sys.cf_agent} -f failsafe.cf && ${sys.cf_agent}";
 
 }
@@ -502,7 +548,6 @@ body executor control
 #Enforce that the file only contains this information
 bundle edit_line enforce_content(str)
 {
-
   delete_lines:
       "${str}" not_matching => "true";
 
@@ -510,8 +555,4 @@ bundle edit_line enforce_content(str)
       "${str}";
 }
 
-body process_count system_check_process_count(name, max, min)
-{
-        match_range => irange("${min}","${max}");
-        out_of_range_define => { "${name}_is_defective" };
-}
+# Never used in initial promises

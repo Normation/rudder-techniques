@@ -21,83 +21,123 @@
 # promises.cf
 #
 #######################################################
+bundle common rudder_roles
+{
+  # variables are defined in bundle common g
+  classes:
+      # Policy Server is a machine which delivers promises
+      "policy_server" expression => strcmp("root","${g.uuid}");
+      # Root Server is the top policy server machine
+      "root_server" expression => strcmp("root","${g.uuid}");
+
+
+      # on changes only, we only reports on repaired or error message
+      "changes_only"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "reports_disabled" expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
+
+      # full compliance is the default mode
+      "full_compliance" not => "changes_only|reports_disabled";
+}
+
 body common control
 {
-
     any::
         output_prefix => "rudder";
         
         protocol_version   => "classic";
 
         inputs => {
-          @{va.ncf_inputs},
+          @{va.inputs_list},
           "rudder_system_directives.cf",
+&if(!INITIAL)&
           "rudder_directives.cf"
+&endif&
         };
 
-        bundlesequence => { @{va.bs}, rudder_system_directives, rudder_directives, @{va.end} };
+        bundlesequence => { 
+          @{va.common_bs},
+          @{va.specific_bs},
+          rudder_system_directives,
+&if(!INITIAL)&
+          rudder_directives,
+&endif&
+          @{va.end}
+        };
 
+&if(!INITIAL)&
     android::
         # if native syslog is not available, use cfengine implementation (eg: android)
         syslog_host => "${server_info.cfserved}";
         syslog_port => "&SYSLOGPORT&";
+&endif&
 }
 
 bundle common va
 {
   vars:
 
-      "end" slist => { "restart_services", "endExecution" };
+      "end" slist => {
+&if(!INITIAL)&
+        "restart_services", 
+&endif&
+        "endExecution"
+      };
+
+      "inputs_list" slist => { @{ncf_inputs} };
+
+      "common_bs" slist => {
+        "startup",
+        "check_disable_agent",
+        "clean_red_button",
+        "update",
+        "configuration",
+        "set_red_button",
+        "internal_security",
+        "check_red_button_status",
+        "check_cf_processes",
+        "check_uuid",
+        "garbage_collection",
+        "setup_cronjob",
+        "check_cron_daemon",
+&if(INITIAL)&
+        "fetchFusionTools",
+        "virtualMachines",
+        "doInventory",
+&else&
+        "configure_rudder_reporting_system",
+        "check_zypper",
+        "get_environment_variables",
+        "properties",
+        "nxlog_enable",
+&endif&
+      };
 
     policy_server::
 
-      "bs" slist => {
-        "startup",
-        "check_disable_agent",
-        "clean_red_button",
-        "update",
-        "configuration",
-        "set_red_button",
-        "internal_security",
-        "check_red_button_status",
-        "check_cf_processes",
-        "check_uuid",
-        "configure_rudder_reporting_system",
-        "garbage_collection",
-        "setup_cronjob",
-        "check_cron_daemon",
+      "specific_bs" slist => {
+&if(INITIAL)&
+        "install_rsyslogd",
+        "propagatePromises",
+        "sendInventoryToCmdb",
+        "root_component_check",
+&endif&
+        # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
         "check_binaries_freshness",
-        "check_zypper",
-        "get_environment_variables",
-        "properties",
-        "nxlog_enable",
-        "configuration"
       };
+
+&if(INITIAL)&
+      # initial promises server specific inputs cannot be loaded from rudder_system_directives.cf
+      # all other inputs are loaded by body file control in rudder_system_directives.cf and rudder_directives.cf
+      "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf" };
+&endif&
 
     !policy_server::
 
-      "bs" slist => {
-        "startup",
-        "check_disable_agent",
-        "clean_red_button",
-        "update",
-        "configuration",
-        "set_red_button",
-        "internal_security",
-        "check_red_button_status",
-        "check_cf_processes",
-        "garbage_collection",
-        "setup_cronjob",
-        "check_cron_daemon",
-        "check_binaries_freshness",
-        "configure_rudder_reporting_system",
-        "nxlog_enable",
-        "check_zypper",
-        "check_uuid",
-        "get_environment_variables",
-        "properties",
-        "configuration"
-      };
+      # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
+      "specific_bs" slist => { "check_binaries_freshness" }
+
+      # all other inputs are loaded by body file control in rudder_system_directives.cf and rudder_directives.cf
+      "inputs_list" slist => { @{ncf_inputs} };
 
     !android.!windows::
       "rudder_var"     string => "/var/rudder";
@@ -143,24 +183,7 @@ bundle common va
 
     # definition of the machine roles
 &NODEROLE&
-}
-
-bundle common rudder_roles
-{
-
-  classes:
-      # Policy Server is a machine which delivers promises
-      "policy_server" expression => strcmp("root","${g.uuid}");
-      # Root Server is the top policy server machine
-      "root_server" expression => strcmp("root","${g.uuid}");
-
-
-      # on changes only, we only reports on repaired or error message
-      "changes_only"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
-      "reports_disabled" expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
-
-      # full compliance is the default mode
-      "full_compliance" not => "changes_only|reports_disabled";
+    # policy_server and root_server migrated to rudder_roles
 }
 
 #########################################################
@@ -177,6 +200,8 @@ bundle agent startup
         usebundle => startExecution,
         action    => immediate;
 }
+
+# startExecution and endExecution have migrated to rudder-stdlib-core.st
 
 ##########################################################
 # Check for "disable-agent" file and cleanly stop and
@@ -346,7 +371,7 @@ bundle agent check_cf_processes_running
     pass3::
 
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of CFEngine processes running on the machine"),
-      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
+      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
         ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
 
       "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Process checking", "None", "Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."),
@@ -356,13 +381,7 @@ bundle agent check_cf_processes_running
         ifvarclass => "${binaries}_has_gone_really_wild";
 
   processes:
-    windows::
-      # Using the path on windows fails, as process are not reported the same way
-      # And unfortunately, the cf-serverd is not a service.
-      "cf-serverd"  restart_class => "start_server";
-
     !windows::
-
       "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
       "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
 
@@ -396,10 +415,12 @@ bundle agent check_cf_processes_running
         signals       => { "term", "kill" },
         action        => immediate;
 
-&if(NOVA)&
-    # Windows only implements SIGTERM. Using SIGKILL makes no sense on it.
-
     windows::
+      # Using the path on windows fails, as process are not reported the same way
+      # And unfortunately, the cf-serverd is not a service.
+      "cf-serverd"  restart_class => "start_server";
+
+      # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
       "cf-${binaries}"
         process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
         signals       => { "term" },
@@ -419,10 +440,7 @@ bundle agent check_cf_processes_running
         service_method => u_bootstart,
         comment => "Start the executor windows service now and at boot time";
 
-&endif&
-
   commands:
-
     !should_disable_server.start_server::
       "${sys.cf_serverd}"
         action  => u_ifwin_bg,
@@ -436,7 +454,8 @@ bundle agent check_cf_processes_running
 }
 
 
-
+# Log and reporting configuration not valid in initial promises
+&if(!INITIAL)&
 bundle agent configure_rudder_reporting_system {
   methods:
     !reports_disabled::
@@ -688,6 +707,7 @@ bundle agent remove_rudder_syslog_configuration {
       "reports"              usebundle  => rudder_common_reports_generic("Common", "remove_rudder_syslog_configuration_result", "&TRACKINGKEY&", "Log system for reports", "None", "Rudder syslog configuration removed");
 
 }
+&endif&
 
 ###################################################################
 # Trash every output report and modified files older than the TTL #
@@ -697,11 +717,11 @@ bundle agent garbage_collection
 {
   vars:
       "log_files_to_rotate" slist => {
-					"${sys.workdir}/cf3.${sys.uqhost}.runlog",
+                                        "${sys.workdir}/cf3.${sys.uqhost}.runlog",
                                         "${sys.workdir}/promise_summary.log",
                                         "${sys.workdir}/cf_notkept.log",
                                         "${sys.workdir}/cf_repair.log",
-				     };
+                                     };
 
   files:
 
@@ -729,7 +749,6 @@ bundle agent garbage_collection
 
 bundle agent check_binaries_freshness
 {
-
   vars:
 
     community_edition::
@@ -808,7 +827,6 @@ body executor control
 #Enforce that the file only contains this information
 bundle edit_line enforce_content(str)
 {
-
   delete_lines:
       "${str}" not_matching => "true";
 
@@ -816,6 +834,8 @@ bundle edit_line enforce_content(str)
       "${str}";
 }
 
+# Never used in initial promises
+&if(!INITIAL)&
 # Fix syslogd content : caution, the @ must be in the argument
 bundle edit_line fix_syslogd(syslogd)
 {
@@ -872,3 +892,4 @@ bundle edit_line ensure_rsyslogd_on_suse
         edit_field => col("=","2","\"rsyslogd\"","set"),
         comment => "Match a line starting like key = something";
 }
+&endif&

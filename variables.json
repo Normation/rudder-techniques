@@ -18,5 +18,16 @@
   "SHARED_FILES_FOLDER": "/var/rudder/configuration-repository/shared-files",
   "SEND_METRICS": "no",
   "RUDDER_SERVER_ROLES": "rudder-ldap:localhost\nrudder-inventory-endpoint:localhost\nrudder-db:localhost\nrudder-web:localhost\nrudder-relay-top:localhost",
-  "SKIPIDENTIFY": "true"
+  "SKIPIDENTIFY": "true",
+  "CFENGINE_OUTPUTS_TTL": "7",
+  "MODIFIED_FILES_TTL": "30",
+  "SKIPIDENTIFY": "true",
+  "AGENT_RUN_SPLAYTIME": "1",
+  "AGENT_RUN_SCHEDULE": "\"Min00\", \"Min05\", \"Min10\", \"Min15\", \"Min20\", \"Min25\", \"Min30\", \"Min35\", \"Min40\", \"Min45\", \"Min50\", \"Min55\"",
+  "RUDDER_REPORT_MODE": "full-compliance",
+  "NODEROLE": "# This node doesn't have any specific role",
+  "RUDDER_DIRECTIVES_INPUTS": "",
+  "RUDDER_DIRECTIVES_SEQUENCE": "",
+  "RUDDER_SYSTEM_DIRECTIVES_INPUTS": "\"common/1.0/cf-served.cf\",\"common/1.0/rudder-stdlib.cf\",\"common/1.0/rudder-stdlib-core.cf\",\"common/1.0/rudder_lib.cf\",\"common/1.0/cron_setup.cf\",\"common/1.0/internal_security.cf\",\"common/1.0/site.cf\",\"common/1.0/update.cf\",\"inventory/1.0/fetchFusionTools.cf\",\"inventory/1.0/virtualMachines.cf\",\"inventory/1.0/fusionAgent.cf\"",
+  "RUDDER_SYSTEM_DIRECTIVES_SEQUENCE": ""
 }
