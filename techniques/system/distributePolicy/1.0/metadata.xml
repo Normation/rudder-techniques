@@ -41,11 +41,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="rudder-ncf-conf">
+  </TMLS>
+
+  <FILES>
+    <FILE name="rudder-ncf-conf">
       <OUTPATH>distributePolicy/ncf/ncf.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
-    </TML>
-  </TMLS>
+    </FILE>
+  </FILES>
 
   <SYSTEMVARS>
     <NAME>CMDBENDPOINT</NAME>

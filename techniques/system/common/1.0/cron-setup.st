@@ -36,7 +36,7 @@ bundle agent setup_cronjob
         create        => "true",
         perms         => mog("644", "root", "0"),
         edit_defaults => empty_backup,
-        edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_community_cron");
+        edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder-agent-community-cron");
 &if(NOVA)&
 
     nova_edition.!aix.!windows::
@@ -45,7 +45,7 @@ bundle agent setup_cronjob
         create        => "true",
         perms         => mog("644", "root", "0"),
         edit_defaults => empty_backup,
-        edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder_agent_nova_cron");
+        edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder-agent-nova-cron");
 &endif&
 
     aix::
