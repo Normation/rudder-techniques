@@ -464,7 +464,7 @@ bundle agent check_uuid
     wrong_uuid::
       "FATAL: The UUID in ${g.uuid_file} (${g.uuid}) doesn't match the UUID recorded for this node in your Rudder server (&UUID&)";
     no_uuid::
-      "FATAL: The UUID file ${g.uuid_file} is missing. Please run check-rudder-agent to generate a new one or restore it from a backup.";
+      "FATAL: The UUID file ${g.uuid_file} is missing. Please run 'rudder agent check' to generate a new one or restore it from a backup.";
 }
 
 ############################################
