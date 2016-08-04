@@ -52,6 +52,7 @@ body common control
 &if(!INITIAL)&
           "rudder_directives.cf"
 &endif&
+
         };
 
         bundlesequence => { 
@@ -61,6 +62,7 @@ body common control
 &if(!INITIAL)&
           rudder_directives,
 &endif&
+
           @{va.end}
         };
 
@@ -70,6 +72,7 @@ body common control
         syslog_host => "${server_info.cfserved}";
         syslog_port => "&SYSLOGPORT&";
 &endif&
+
 }
 
 bundle common va
@@ -80,6 +83,7 @@ bundle common va
 &if(!INITIAL)&
         "restart_services", 
 &endif&
+
         "endExecution"
       };
 
@@ -110,6 +114,7 @@ bundle common va
         "properties",
         "nxlog_enable",
 &endif&
+
       };
 
     policy_server::
@@ -121,6 +126,7 @@ bundle common va
         "sendInventoryToCmdb",
         "root_component_check",
 &endif&
+
         # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
         "check_binaries_freshness",
       };
@@ -893,3 +899,4 @@ bundle edit_line ensure_rsyslogd_on_suse
         comment => "Match a line starting like key = something";
 }
 &endif&
+
