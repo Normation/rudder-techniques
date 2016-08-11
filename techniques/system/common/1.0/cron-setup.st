@@ -58,7 +58,7 @@ bundle agent setup_cronjob
       # Cleanup the pre-4.0 crontab
       "/var/spool/cron/crontabs/root"
         edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/check-rudder-agent \&\& /opt/rudder/bin/check-rudder-agent >/dev/null"),
+        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/check-rudder-agent \&\& /opt/rudder/bin/check-rudder-agent >/dev/null");
 
       # Add Rudder entry
       "/var/spool/cron/crontabs/root"
