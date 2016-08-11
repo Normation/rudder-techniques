@@ -48,9 +48,9 @@ body common control
 
         inputs => {
           @{va.inputs_list},
-          "rudder-system-directives.cf",
+          "common/1.0/rudder-system-directives.cf",
 &if(!INITIAL)&
-          "rudder-directives.cf"
+          "common/1.0/rudder-directives.cf"
 &endif&
 
         };
@@ -86,9 +86,6 @@ bundle common va
 
         "endExecution"
       };
-
-      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
-      "inputs_list" slist => { @{ncf_inputs} };
 
       "common_bs" slist => {
         "startup",
@@ -141,10 +138,7 @@ bundle common va
     !policy_server::
 
       # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
-      "specific_bs" slist => { "check_binaries_freshness" }
-
-      # all other inputs are loaded by body file control in rudder_system_directives.cf and rudder_directives.cf
-      "inputs_list" slist => { @{ncf_inputs} };
+      "specific_bs" slist => { "check_binaries_freshness" };
 
     !android.!windows::
       "rudder_var"     string => "/var/rudder";
@@ -187,6 +181,9 @@ bundle common va
        "raw_ncf_inputs"     slist => maplist("${ncf_path}/${this}", @{raw_path_ncf_inputs});
        # Need to remove cf_null from the list
        "ncf_inputs"         slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
+
+    # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+    "inputs_list" slist => { @{ncf_inputs} };
 
     # definition of the machine roles
 &NODEROLE&
