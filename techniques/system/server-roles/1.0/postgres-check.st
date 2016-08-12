@@ -67,5 +67,5 @@ bundle agent root_postgres_check
 
     !SuSE::
 
-      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#Their is no need of specific postgresql configuration on this system";
+      "@@server-roles@@result_success@@&TRACKINGKEY&@@Check PostgreSQL configuration@@None@@${g.execRun}##${g.uuid}@#There is no need of specific postgresql configuration on this system";
 }
