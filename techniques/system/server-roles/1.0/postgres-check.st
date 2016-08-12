@@ -64,6 +64,6 @@ bundle agent root_postgres_check
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "PostgreSQL restart has failed! Rudder is most certainly broken...");
 
     pass3.!SuSE::
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "Their is no need of specific postgresql configuration on this system");
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check PostgreSQL configuration", "None", "There is no need of specific postgresql configuration on this system");
 
 }
