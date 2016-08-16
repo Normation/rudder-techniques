@@ -18,7 +18,7 @@
 
 WGET := $(if $(PROXY), http_proxy=$(PROXY) ftp_proxy=$(PROXY)) /usr/bin/wget -q
 
-all: rudder-templates-cli.jar
+all: rudder-templates-cli.jar test
 	# The common technique
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/*.st
@@ -58,5 +58,12 @@ all: rudder-templates-cli.jar
 rudder-templates-cli.jar:
 	$(WGET) -O rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
 
+scripts/technique-files:
+	$(WGET) -O scripts/technique-files https://www.rudder-project.org/tools/technique-files
+	chmod +x scripts/technique-files
+
+test: scripts/technique-files
+	cd scripts && ./check-techniques.sh
+
 clean:
-	rm -rf initial-promises/
+	rm -rf initial-promises/ scripts/technique-files
