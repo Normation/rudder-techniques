@@ -95,25 +95,25 @@ bundle agent check_fstab_configuration
 &endif&
 
     any::
-      rudder_common_report("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][destination]} is invalid, for it doesn't contain an origin : how can it be updated/inserted/deleted?"),
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][destination]} is invalid, for it doesn't contain an origin : how can it be updated/inserted/deleted?"),
         ifvarclass => "invalid_${fstab_index}";
 
-      rudder_common_report("fstabConfiguration", "result_repaired", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} has been handled"),
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_repaired", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} has been handled"),
         ifvarclass => "line_${fstab_index}_handled";
 
-      rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} is already in accordance with the policy"),
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} is already in accordance with the policy"),
         ifvarclass => "line_${fstab_index}_kept.!line_${fstab_index}_handled.!empty_origin_${fstab_index}";
 
-      rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][destination]} contained the proper fields"),
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][destination]} contained the proper fields"),
         ifvarclass => "line_${fstab_index}_kept.!line_${fstab_index}_handled.empty_origin_${fstab_index}";
 
-      rudder_common_report("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} could not be handled"),
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} could not be handled"),
         ifvarclass => "line_${fstab_index}_handle_failed";
 
-      rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} was not present but policy required alteration only. This line will be ignored"),
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][origin]} to ${fstab[${fstab_index}][destination]} was not present but policy required alteration only. This line will be ignored"),
         ifvarclass => "!addentry_${fstab_index}.!line_${fstab_index}_handled.!line_${fstab_index}_kept.!line_${fstab_index}_handle_failed.use_origin_${fstab_index}";
 
-      rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][destination]} was not present but policy required alteration only. This line will be ignored"),
+      "any" usebundle => rudder_common_report("fstabConfiguration", "result_success", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][destination]} was not present but policy required alteration only. This line will be ignored"),
         ifvarclass => "!addentry_${fstab_index}.!line_${fstab_index}_handled.!line_${fstab_index}_kept.!line_${fstab_index}_handle_failed.!use_origin_${fstab_index}";
 }
 
