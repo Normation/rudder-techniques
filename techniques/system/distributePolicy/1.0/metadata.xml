@@ -56,6 +56,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>MANAGED_NODES_IP</NAME>
     <NAME>AUTHORIZED_NETWORKS</NAME>
     <NAME>NOVA</NAME>
+    <NAME>RUDDER_REPORTS_DB_NAME</NAME>
+    <NAME>RUDDER_REPORTS_DB_USER</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>

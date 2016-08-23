@@ -24,6 +24,8 @@ bundle agent install_rsyslogd {
 
     root_server|role_rudder_relay_top::
       "rsyslog_source_file" string => "rudder-rsyslog-root.conf";
+      "rudder_reports_db_name" string => "&RUDDER_REPORTS_DB_NAME&";
+      "rudder_reports_db_user" string => "&RUDDER_REPORTS_DB_USER&";
 
     # Define the where to send the syslog messages
     # default is localhost if the rudder_db is unknown
