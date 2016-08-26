@@ -60,11 +60,11 @@ bundle server access_rules
 
     # Allow server to remotely run the agent
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
-    policy_server_set.linux::
+    linux::
       "${sys.workdir}/bin/cf-agent"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
-    policy_server_set.windows::
+    windows::
       "${sys.workdir}\bin\cf-agent.exe"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
@@ -80,15 +80,12 @@ bundle common def
       "policy_server_file" string => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-   # Use localhost as default policy_server if no policy_server.dat exists
-    policy_server_set::
+    # Use "rudder" as default policy_server if no policy_server.dat exists
       "policy_server"
-        string  => readfile("${policy_server_file}", 2048),
+        string  => ifelse(fileexists("${policy_server_file}"),
+                          readfile("${policy_server_file}", 2048),
+                          "rudder"),
         comment => "IP address or hostname to locate your policy host.";
-    !policy_server_set::
-      "policy_server"
-        string  => "rudder",
-        comment => "IP address by default without ${def.policy_server_file} file";
 
     any::
 
@@ -104,9 +101,6 @@ bundle common def
       "acl" slist => {
       "${def.policy_server}", host2ip("${def.policy_server}")
     };
-
-  classes:
-      "policy_server_set" expression => fileexists("${def.policy_server_file}");
 
 }
 
