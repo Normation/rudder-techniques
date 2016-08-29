@@ -46,7 +46,7 @@ bundle common va
 {
   vars:
 
-      "end" slist => { "restart_services", "endExecution" };
+      "end" slist => { "restart_services", "_clean_current_expected_reports_file", "endExecution" };
 
     policy_server::
 
@@ -654,6 +654,11 @@ bundle agent garbage_collection
         comment     => "Rotate file if above specified size",
         rename      => rotate("10"),
         file_select => bigger_than("1M");
+
+  methods:
+      # Directly call the cleanup bundle from ncf's logger_rudder
+      "clean old expected reports files" usebundle => _clean_old_expected_reports_file("&CFENGINE_OUTPUTS_TTL&");
+
 }
 
 #######################################################
