@@ -88,7 +88,7 @@ bundle common va
       };
 
     any::
-      "end" slist => { "endExecution" };
+      "end" slist => { "_clean_current_expected_reports_file", "endExecution" };
 
     !android.!windows::
       "rudder_var"     string => "/var/rudder";
@@ -656,6 +656,12 @@ bundle agent garbage_collection
         comment     => "Rotate file if above specified size",
         rename      => rotate("10"),
         file_select => bigger_than("1M");
+
+  methods:
+
+       # Directly call the cleanup bundle from ncf's logger_rudder
+       "clean old expected reports files" usebundle => _clean_old_expected_reports_file("&CFENGINE_OUTPUTS_TTL&");
+
 }
 
 #######################################################
