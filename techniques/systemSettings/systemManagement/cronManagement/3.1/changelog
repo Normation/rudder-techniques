@@ -4,6 +4,6 @@
  -- Benoît Peccatte <benoit.peccatte@normation.com> Fri Oct 17 14:10:43 CEST 2014
   * Version 3.0
   ** Use rudder_common_report instead of reports:
- -- Alexis Mousset <alexis.mousset@normation.com> Tue Aug 30 09:17:15 2016
+ -- Jeremy HOCDE <jeremyhocde@gmail.com> Tue Aug 09 12:05:43 CEST 2016
   * Version 3.1
-  ** Handle special prefixes (like @reboot, @hourly, ...)
+  ** Add special values: reboot, yearly and annually
