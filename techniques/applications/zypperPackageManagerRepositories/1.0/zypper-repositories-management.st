@@ -64,7 +64,7 @@ bundle agent zypper_repositories_management
 
     SuSE.zypper_disable_other_repositories::
 
-      "/etc/zypp/repos.d/.*"
+      "/etc/zypp/repos.d/"
         delete       => tidy,
         file_select  => ex_list("@{zypper_files}"),
         depth_search => recurse("inf"),
