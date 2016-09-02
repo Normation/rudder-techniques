@@ -29,5 +29,7 @@
   "RUDDER_DIRECTIVES_INPUTS": "",
   "RUDDER_DIRECTIVES_SEQUENCE": "",
   "RUDDER_SYSTEM_DIRECTIVES_INPUTS": "\"common/1.0/cf-served.cf\",\"common/1.0/rudder-stdlib.cf\",\"common/1.0/rudder-stdlib-core.cf\",\"common/1.0/rudder-lib.cf\",\"common/1.0/cron-setup.cf\",\"common/1.0/internal-security.cf\",\"common/1.0/site.cf\",\"common/1.0/update.cf\",\"inventory/1.0/fetchFusionTools.cf\",\"inventory/1.0/virtualMachines.cf\",\"inventory/1.0/fusionAgent.cf\"",
-  "RUDDER_SYSTEM_DIRECTIVES_SEQUENCE": ""
+  "RUDDER_SYSTEM_DIRECTIVES_SEQUENCE": "",
+  "RUDDER_REPORTS_DB_NAME": "rudder",
+  "RUDDER_REPORTS_DB_USER": "rudder"
 }
