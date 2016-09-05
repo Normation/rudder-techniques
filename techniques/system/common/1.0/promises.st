@@ -83,12 +83,8 @@ bundle common va
 &if(!INITIAL)&
         "restart_services", 
 &endif&
-
         "endExecution"
       };
-
-      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
-      "inputs_list" slist => { @{ncf_inputs} };
 
       "common_bs" slist => {
         "startup",
@@ -132,19 +128,10 @@ bundle common va
         "check_binaries_freshness",
       };
 
-&if(INITIAL)&
-      # initial promises server specific inputs cannot be loaded from rudder_system_directives.cf
-      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
-      "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf" };
-&endif&
-
     !policy_server::
 
       # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
-      "specific_bs" slist => { "check_binaries_freshness" }
-
-      # all other inputs are loaded by body file control in rudder_system_directives.cf and rudder_directives.cf
-      "inputs_list" slist => { @{ncf_inputs} };
+      "specific_bs" slist => { "check_binaries_freshness" };
 
     !android.!windows::
       "rudder_var"     string => "/var/rudder";
@@ -191,6 +178,18 @@ bundle common va
     # definition of the machine roles
 &NODEROLE&
     # policy_server and root_server migrated to rudder_roles
+ 
+    # create the final input list after ncf
+    any::
+      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+      "inputs_list" slist => { @{ncf_inputs} };
+
+    policy_server::
+&if(INITIAL)&
+      # initial promises server specific inputs cannot be loaded from rudder_system_directives.cf
+      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+      "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf" };
+&endif&
 }
 
 #########################################################
