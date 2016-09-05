@@ -48,9 +48,9 @@ body common control
 
         inputs => {
           @{va.inputs_list},
-          "rudder-system-directives.cf",
+          "common/1.0/rudder-system-directives.cf",
 &if(!INITIAL)&
-          "rudder-directives.cf"
+          "common/1.0/rudder-directives.cf"
 &endif&
 
         };
@@ -174,6 +174,9 @@ bundle common va
        "raw_ncf_inputs"     slist => maplist("${ncf_path}/${this}", @{raw_path_ncf_inputs});
        # Need to remove cf_null from the list
        "ncf_inputs"         slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
+
+    # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+    "inputs_list" slist => { @{ncf_inputs} };
 
     # definition of the machine roles
 &NODEROLE&
