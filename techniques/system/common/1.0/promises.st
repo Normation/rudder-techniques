@@ -84,6 +84,7 @@ bundle common va
         "restart_services", 
 &endif&
 
+        "_clean_current_expected_reports_file",
         "endExecution"
       };
 
@@ -261,7 +262,6 @@ bundle agent clean_red_button()
         delete => tidy,
         comment => "Deleting the stop file on clients promises, cfengine is good to go";
 
-    safe.!policy_server::
       "${sys.workdir}/inputs/stopFile"
         delete => tidy,
         comment => "Deleting the stop file, cfengine is good to go";
@@ -749,6 +749,12 @@ bundle agent garbage_collection
         comment     => "Rotate file if above specified size",
         rename      => rotate("10"),
         file_select => bigger_than("1M");
+
+  methods:
+
+       # Directly call the cleanup bundle from ncf's logger_rudder
+       "clean old expected reports files" usebundle => _clean_old_expected_reports_file("&CFENGINE_OUTPUTS_TTL&");
+
 }
 
 #######################################################
