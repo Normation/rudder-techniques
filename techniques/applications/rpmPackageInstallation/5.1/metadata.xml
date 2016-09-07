@@ -127,8 +127,8 @@ presence of a package, and if not met to enforce them.
             <VALUE><![CDATA[>=]]></VALUE>
           </ITEM>
           <ITEM>
-            <LABEL><![CDATA[>=]]> This version or any earlier one</LABEL>
-            <VALUE><![CDATA[>=]]></VALUE>
+            <LABEL><![CDATA[<=]]> This version or any earlier one</LABEL>
+            <VALUE><![CDATA[<=]]></VALUE>
           </ITEM>
           <ITEM>
             <LABEL><![CDATA[>]]> Any later version</LABEL>
