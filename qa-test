@@ -1,0 +1,5 @@
+#!/bin/bash
+
+make
+cd scripts
+./check-techniques.sh
