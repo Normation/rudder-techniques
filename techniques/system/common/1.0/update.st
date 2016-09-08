@@ -496,12 +496,10 @@ body action u_ifwin_bg
         background => "true";
 }
 
-&if(NOVA)&
 body service_method u_bootstart
 {
         service_autostart_policy => "boot_time";
 }
-&endif&
 
 body perms u_mog(mode,user,group)
 {
