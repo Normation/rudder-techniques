@@ -23,13 +23,18 @@
 #######################################################
 bundle common rudder_roles
 {
-  # variables are defined in bundle common g
-  classes:
-      # Policy Server is a machine which delivers promises
-      "policy_server" expression => strcmp("root","${g.uuid}");
-      # Root Server is the top policy server machine
-      "root_server" expression => strcmp("root","${g.uuid}");
+  vars:
+    # moved from bundle common g since they need to be defined in promises.cf
+    android::
+      "uuid_file"         string => "/data/rudder/etc/uuid.hive";
+    windows::
+      "uuid_file"         string => "${sys.winprogdir}\Rudder\etc\uuid.hive";
+    !windows.!android::
+      "uuid_file"         string => "/opt/rudder/etc/uuid.hive";
+    any::
+      "uuid"              string => readfile("${uuid_file}", 60);
 
+  classes:
 
       # on changes only, we only reports on repaired or error message
       "changes_only"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
@@ -177,10 +182,6 @@ bundle common va
        # Need to remove cf_null from the list
        "ncf_inputs"         slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
 
-    # definition of the machine roles
-&NODEROLE&
-    # policy_server and root_server migrated to rudder_roles
- 
     # create the final input list after ncf
     any::
       # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
@@ -192,6 +193,16 @@ bundle common va
       # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
       "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf" };
 &endif&
+
+  classes:
+    # I don't know why, but these classes are not evaluated if they are in rudder_roles
+      # Policy Server is a machine which delivers promises
+      "policy_server" expression => strcmp("root","${rudder_roles.uuid}");
+      # Root Server is the top policy server machine
+      "root_server" expression => strcmp("root","${rudder_roles.uuid}");
+
+    # static definition of the machine roles
+&NODEROLE&
 
 }
 

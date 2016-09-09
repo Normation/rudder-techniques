@@ -49,7 +49,6 @@ bundle common g
       "rudder_var_tmp"             string => "${rudder_var}/tmp"; # tmp generated data
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_inventories"         string => "${rudder_var}/inventories";
-      "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
       "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
       "rudder_disable_inventory_file" string => "${rudder_base}/etc/disable-inventory";
@@ -71,7 +70,6 @@ bundle common g
       "rudder_ncf"                 string => "${rudder_var}\ncf";
       "escaped_workdir"            string => escape("${sys.workdir}");
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
-      "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
       "rudder_disable_server_file" string => "${rudder_base}\etc\disable-policy-distribution";
       "rudder_disable_inventory_file" string => "${rudder_base}\etc\disable-inventory";
@@ -90,7 +88,8 @@ bundle common g
       "gzip"                       string => "/bin/gzip";
 
     any::
-      "uuid"                        string => readfile("${g.uuid_file}", 60);
+      "uuid_file"                   string => "${rudder_roles.uuid_file}";
+      "uuid"                        string => "${rudder_roles.uuid}";
       "server_shares_folder"        string => "/var/rudder/share/${uuid}/promises/shares";
       "rudder_var_reports"          string => "${rudder_var}/reports";
       "davuser"                     string => "&DAVUSER&";
