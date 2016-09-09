@@ -457,12 +457,17 @@ bundle agent check_uuid
   classes:
     # Abort if no uuid is defined
     "should_not_continue" expression => "wrong_uuid|no_uuid";
-    "wrong_uuid" not => strcmp("&UUID&", "${g.uuid}");
     "no_uuid" not => fileexists("${g.uuid_file}");
+&if(!INITIAL)&
+    "wrong_uuid" not => strcmp("&UUID&", "${g.uuid}");
+&endif&
 
   reports:
+&if(!INITIAL)&
     wrong_uuid::
       "FATAL: The UUID in ${g.uuid_file} (${g.uuid}) doesn't match the UUID recorded for this node in your Rudder server (&UUID&)";
+&endif&
+
     no_uuid::
       "FATAL: The UUID file ${g.uuid_file} is missing. Please run 'rudder agent check' to generate a new one or restore it from a backup.";
 }
