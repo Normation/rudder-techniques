@@ -641,7 +641,8 @@ bundle agent garbage_collection
 
         delete => tidy,
         file_select => days_old("&CFENGINE_OUTPUTS_TTL&"),
-        depth_search => recurse("inf");
+        depth_search => recurse("inf"),
+        ifelapsed => "1440"; # 24h
 
       "${g.rudder_var}/modified-files"
 
