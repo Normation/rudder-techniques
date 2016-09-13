@@ -310,7 +310,7 @@ bundle agent check_red_button_status()
 
 
 ###################################################
-# Check that CFengine services are up
+# Check that CFEngine services are up
 ###################################################
 bundle agent check_cf_processes
 {
@@ -663,8 +663,8 @@ bundle agent garbage_collection
 }
 
 #######################################################
-# Copy the CFengine binaries from the /opt repository
-# to the CFengine working directory
+# Copy the CFEngine binaries from the /opt repository
+# to the CFEngine working directory
 
 bundle agent check_binaries_freshness
 {
@@ -683,18 +683,18 @@ bundle agent check_binaries_freshness
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
         classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
         action => immediate,
-        comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
+        comment => "Copying the CFEngine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
 
   methods:
 
     binaries_fresh.!binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "The CFengine binaries in ${sys.workdir}/bin are up to date");
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "The CFEngine binaries in ${sys.workdir}/bin are up to date");
 
     binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Binaries update", "None", "The CFengine binaries have been updated in ${sys.workdir}/bin");
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Binaries update", "None", "The CFEngine binaries have been updated in ${sys.workdir}/bin");
 
     binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the CFengine binaries in ${sys.workdir}/bin");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the CFEngine binaries in ${sys.workdir}/bin");
 
     android::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "This is an android machine: no CFEngine binaries update needed");

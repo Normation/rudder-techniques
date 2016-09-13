@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <COMPATIBLE>
     <OS version=">= 5">Debian</OS>
-    <AGENT version=">= 3.1.5">CFengine community</AGENT>
+    <AGENT version=">= 3.1.5">CFEngine community</AGENT>
   </COMPATIBLE>
 
   <TRACKINGVARIABLE>

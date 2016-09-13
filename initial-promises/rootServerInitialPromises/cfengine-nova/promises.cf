@@ -139,7 +139,7 @@ bundle agent check_red_button_status()
 
 
 ###################################################
-# Check that CFengine services are up
+# Check that CFEngine services are up
 ###################################################
 bundle agent check_cf_processes
 {
