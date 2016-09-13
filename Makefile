@@ -16,10 +16,23 @@
 #
 #####################################################################################
 
-WGET := $(if $(PROXY), http_proxy=$(PROXY) ftp_proxy=$(PROXY)) /usr/bin/wget -q
+# Autodetect wget or curl or curl usage and proxy configuration
+PROXY_ENV = $(if $(PROXY), http_proxy=$(PROXY) ftp_proxy=$(PROXY))
+WGET = wget -q -O
+CURL = curl -s -o
+FETCH = fetch -q -o
+ifneq (,$(wildcard /usr/bin/curl))
+GET = $(PROXY_ENV) $(CURL)
+else
+ifneq (,$(wildcard /usr/bin/fetch))
+GET = $(PROXY_ENV) $(FETCH)
+else
+GET = $(PROXY_ENV) $(WGET)
+endif
+endif
 
 scripts/technique-files:
-	$(WGET) -O scripts/technique-files https://www.rudder-project.org/tools/technique-files
+	$(GET) scripts/technique-files https://www.rudder-project.org/tools/technique-files
 	chmod +x scripts/technique-files
 
 test: scripts/technique-files
