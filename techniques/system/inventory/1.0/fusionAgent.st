@@ -505,10 +505,6 @@ bundle agent addInformationsToInventory
     xen::
       "VMRUDDERUUID"     string => execresult("${VMRUDDERUUID_cmd}", "noshell");
 
-    # define polserv_uuid
-    any::
-      "polserv_uuid"   string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
-
     # define users
     windows.!cygwin::  
       # Somehow, using the variable rather than the path fails with readstringlist
@@ -587,7 +583,7 @@ bundle agent addInformationsToInventory
   files:
     uuiddefined::
       "${fusionAgent.inventory_path_edition}"
-        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
+        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${doInventory_always.policy_server_uuid}),
         comment => "Adding basic informations to Rudder Inventory",
         edit_defaults => def_no_backup;
 
