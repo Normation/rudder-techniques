@@ -191,7 +191,7 @@ bundle common va
 &if(INITIAL)&
       # initial promises server specific inputs cannot be loaded from rudder_system_directives.cf
       # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
-      "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf" };
+      "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf", "server-roles/1.0/compress-ldap-backups.cf", "server-roles/1.0/compress-webapp-log.cf" };
 &endif&
 
   classes:
