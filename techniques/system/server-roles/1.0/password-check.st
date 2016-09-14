@@ -72,10 +72,10 @@ bundle agent root_password_check_file
 
   vars:
 
-      "pgpass[1]" string => "localhost";
+      "pgpass[1]" string => "${install_rsyslogd.rudder_postgres_server}";
       "pgpass[2]" string => "5432";
-      "pgpass[3]" string => "rudder";
-      "pgpass[4]" string => "rudder";
+      "pgpass[3]" string => "${install_rsyslogd.rudder_reports_db_user}";
+      "pgpass[4]" string => "${install_rsyslogd.rudder_reports_db_name}";
       "pgpass[5]" string => "${p.psql_password[2]}";
 
   files:
