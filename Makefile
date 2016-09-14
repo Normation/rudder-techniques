@@ -71,7 +71,7 @@ all: rudder-templates-cli.jar test
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
 
 rudder-templates-cli.jar:
-	$(WGET) -O rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
+	$(GET) rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
 
 scripts/technique-files:
 	$(GET) scripts/technique-files https://www.rudder-project.org/tools/technique-files
