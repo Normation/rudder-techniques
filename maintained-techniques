@@ -46,6 +46,7 @@ systemSettings/remoteAccess/sshConfiguration/5.0
 systemSettings/remoteAccess/sshKeyDistribution/3.0
 systemSettings/security/fileAlterationMonitoring/2.0
 systemSettings/systemManagement/cronManagement/3.0
+systemSettings/systemManagement/cronManagement/3.1
 systemSettings/systemManagement/fstabConfiguration/4.0
 systemSettings/systemManagement/motdConfiguration/3.1
 systemSettings/systemManagement/motdConfiguration/3.2
