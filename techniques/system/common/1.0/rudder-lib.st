@@ -195,6 +195,9 @@ body changes lay_trip_wire
 body action longjob
 {
         ifelapsed => "240"; # run only every 4 hours
+
+     dry_run|global_dry_run::
+        action_policy => "warn";
 }
 
 #######################################################
