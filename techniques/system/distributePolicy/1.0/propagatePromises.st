@@ -100,8 +100,8 @@ bundle agent propagatePromises
 &if(NOVA)&
       "${sys.workdir}/masterfiles/license.dat"
         copy_from    => local_cp("${sys.workdir}/inputs/license.dat"),
-        comment => "Putting the right license in the bootstrap",
-        classes => if_else("license_copied", "could_not_copy_license");
+        comment      => "Putting the right license in the bootstrap",
+        classes      => if_else("license_copied", "could_not_copy_license");
 &endif&
 
     # If rudder_tools_updated doesn't exist, or if the tools have been updated,
@@ -139,8 +139,8 @@ bundle agent propagatePromises
 
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
-    # promises, masterfiles folder and licenses to be updated.
-    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_copy_license|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise))::
+    # promises, masterfiles folder to be updated.
+    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise))::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Propagate promises", "None", "All files have been propagated");
     pass3.could_not_propagate_promise::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate policy files");
@@ -161,7 +161,7 @@ bundle agent propagatePromises
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate masterfiles");
 
     pass3.could_not_copy_license::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot copy local license");
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot copy local license");
 
 }
 
