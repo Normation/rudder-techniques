@@ -64,8 +64,8 @@ bundle agent propagatePromises
 
       "${sys.workdir}/masterfiles/license.dat"
         copy_from    => local_cp("${sys.workdir}/inputs/license.dat"),
-        comment => "Putting the right license in the bootstrap",
-        classes => if_else("license_copied", "could_not_copy_license");
+        comment      => "Putting the right license in the bootstrap",
+        classes      => if_else("license_copied", "could_not_copy_license");
 
   reports:
     could_not_propagate_promise::
@@ -78,7 +78,7 @@ bundle agent propagatePromises
       "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@propagatePromises@@None@@${g.execRun}##${g.uuid}@#Cannot propagate masterfiles";
 
     could_not_copy_license::
-      "@@DistributePolicy@@result_error@@root-DP@@root-distributePolicy@@00@@propagatePromises@@None@@${g.execRun}##${g.uuid}@#Cannot copy local license";
+      "@@DistributePolicy@@log_warn@@root-DP@@root-distributePolicy@@00@@propagatePromises@@None@@${g.execRun}##${g.uuid}@#Cannot copy local license";
 }
 
 # Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
