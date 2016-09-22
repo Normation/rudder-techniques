@@ -110,6 +110,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- The following sections are for reporting only, variable are defined in the main section below -->
     <SECTION name="Red Button" component="true" />
     <SECTION name="Update" component="true" />
+    <SECTION name="ncf Initialization" component="true" />
     <SECTION name="Security parameters" component="true" />
     <SECTION name="Log system for reports" component="true" />
     <SECTION name="CRON Daemon" component="true" />

@@ -57,6 +57,7 @@ bundle common va
         "clean_red_button",
         "update",
         "configuration",
+        "initialize_ncf",
         "set_red_button",
         "internal_security",
         "check_red_button_status",
@@ -82,6 +83,7 @@ bundle common va
         "clean_red_button",
         "update",
         "configuration",
+        "initialize_ncf",
         "set_red_button",
         "internal_security",
         "check_red_button_status",
@@ -307,6 +309,17 @@ bundle agent check_red_button_status()
 
 }
 
+###################################################
+# Initialize ncf and report about it
+###################################################
+bundle agent initialize_ncf()
+{
+
+  methods:
+      "initialize ncf"        usebundle => initialize;
+      "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "The ncf initialization");
+
+}
 
 ###################################################
 # Check that CFEngine services are up
