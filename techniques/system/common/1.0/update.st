@@ -350,12 +350,6 @@ bundle agent update_action
         delete => tidy,
         comment => "Deleting ${g.rudder_tools_updated} as the tools couldn't be updated";
 
-  methods:
-    pass3.server_ok::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
-    pass3.executor_ok::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the scheduler (cf-execd)");
-
   processes:
     config.!windows::
       "cf-serverd" restart_class => "start_server";
@@ -444,9 +438,9 @@ bundle agent update_reports
       "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools or ncf instance were updated or CFEngine service restarted");
 
     server_ok::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the server (cf-serverd)";
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
     executor_ok::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Started the scheduler (cf-execd)";
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the scheduler (cf-execd)");
 }
 
 #######################################################
