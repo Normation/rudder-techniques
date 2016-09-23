@@ -22,7 +22,7 @@ bundle agent process_management
 {
   vars:
 
-      "dim_array" int =>  readstringarray("file","${sys.workdir}/inputs/processManagement/proclist","#[^\n]*",",",15,4000);
+      "dim_array" int =>  readstringarray("file","${this.promise_dirname}/../proclist","#[^\n]*",",",15,4000);
 
       "procList" slist => getindices("file");
 
