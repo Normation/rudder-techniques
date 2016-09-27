@@ -58,7 +58,7 @@ bundle agent zypper_repositories_management
       "/etc/zypp/repos.d/rudder-${zypper_name[${zypper_index}]}.repo"
         create        => "true",
         perms         => m("644"),
-        edit_line     => configure_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${zypper_autorefresh[${zypper_index}]}", "${sys.workdir}/inputs/zypperPackageManagerRepositories/zypper-repo.tml"),
+        edit_line     => configure_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${zypper_autorefresh[${zypper_index}]}", "${this.promise_dirname}/../zypper-repo.tml"),
         edit_defaults => empty_backup,
         classes       => rudder_common_classes("zypper_repo_${zypper_index}");
 
