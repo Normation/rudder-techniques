@@ -16,7 +16,7 @@
 #
 #####################################################################################
 
-# Warning: The content of this technique is very close to the content of the _package_state() bundle in ncf
+# Warning: The content of this technique is very close to the content of the package_state() bundle in ncf
 # particularly the log message building. All changes made here should also be done in ncf too.
 
 bundle agent package_management {
@@ -81,7 +81,7 @@ bundle agent package_management {
       "incompatible_error" string => "This technique is not compatible with Rudder 3.1 or older. Skipping.";
 
       # Name of the ncf bundle. We use a variable to avoid breaking the syntax if the bundle does not exist.
-      "bundle_name" string => "_package_state";
+      "bundle_name" string => "package_state";
    
   classes:
       # This class is different from the one in ncf (where a version number and latest are considered "specified")
