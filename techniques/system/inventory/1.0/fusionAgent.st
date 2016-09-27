@@ -735,7 +735,7 @@ bundle edit_line add_information_to_inventory(RUDDERUUID, CFKEY, USER, POLSRVUUI
         insert_type => "preserve_block",
         location    => after_content;
 
-    rudder_inventory_cpuid_tool_present::
+    rudder_inventory_cpuid_tool_present.!aix::
 
       "${inventory.CPUIDFile}"
         insert_type => "file",
