@@ -319,7 +319,7 @@ bundle agent initialize_ncf()
 {
 
   methods:
-      "initialize ncf"        usebundle => initialize;
+      "initialize ncf"        usebundle => initialization;
       "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "The ncf initialization");
 
 }
