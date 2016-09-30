@@ -101,24 +101,23 @@ bundle common va
       };
 
     !android.!windows::
-      "rudder_var"     string => "/var/rudder";
+      "rudder_var"             string => "/var/rudder";
     android::
-      "rudder_var"     string => "/data/rudder";
+      "rudder_var"             string => "/data/rudder";
 
     !windows::
-      "ncf_path"       string => "${rudder_var}/ncf";
-      "rudder_tools"   string => "${rudder_var}/tools";
-      "shell_type"     string => "useshell";
+      "ncf_path"               string => "${rudder_var}/ncf";
+      "rudder_tools"           string => "${rudder_var}/tools";
+      "shell_type"             string => "useshell";
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
 
 
     windows::
-      "rudder_base"    string => "${sys.winprogdir}\Rudder";
-      "rudder_tools"   string => "${rudder_base}\sbin";
-      "ncf_path"       string => "${rudder_base}\var\ncf";
-      "shell_type"     string => "powershell";
-      # \& is for powershell commands
-      "list_compatible_inputs" string => "\& '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1\'";
+      "rudder_base"            string => "${sys.winprogdir}\Rudder";
+      "rudder_tools"           string => "${rudder_base}\sbin";
+      "ncf_path"               string => "${rudder_base}\var\ncf";
+      "shell_type"             string => "powershell";
+      "list_compatible_inputs" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1'";
 
     any::
       "path_ncf_common_inputs_10" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/10_ncf_internals", "${shell_type}"), "\n", 10000);
