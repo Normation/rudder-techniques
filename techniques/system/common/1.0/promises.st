@@ -102,25 +102,25 @@ bundle common va
       };
 
     !android.!windows::
-      "rudder_var"     string => "/var/rudder";
+      "rudder_var"             string => "/var/rudder";
     android::
-      "rudder_var"     string => "/data/rudder";
+      "rudder_var"             string => "/data/rudder";
 
     !windows::
-      "ncf_path"       string => "${rudder_var}/ncf";
-      "rudder_tools"   string => "${rudder_var}/tools";
-      "shell_type"     string => "useshell";
+      "ncf_path"               string => "${rudder_var}/ncf";
+      "rudder_tools"           string => "${rudder_var}/tools";
+      "shell_type"             string => "useshell";
       "capability_file"        string => "/opt/rudder/etc/agent-capabilities"; # no path variable defined yet
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
       "compatible_inputs_cmd"  string => "${list_compatible_inputs} --capability-file ${capability_file} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
 
     windows::
-      "rudder_base"    string => "${sys.winprogdir}\Rudder";
-      "rudder_tools"   string => "${rudder_base}\sbin";
-      "ncf_path"       string => "${rudder_base}\var\ncf";
-      "shell_type"     string => "powershell";
-      # \& is for powershell commands
-      "list_compatible_inputs" string => "\& '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1\'";
+      "rudder_base"            string => "${sys.winprogdir}\Rudder";
+      "rudder_tools"           string => "${rudder_base}\sbin";
+      "ncf_path"               string => "${rudder_base}\var\ncf";
+      "shell_type"             string => "powershell";
+
+      "list_compatible_inputs" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1'";
       "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${sys.cf_version} '${ncf_path}'";
 
     any::
