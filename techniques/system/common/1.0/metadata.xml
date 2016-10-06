@@ -45,6 +45,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>rudder-promises-generated</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="rudder_promises_generated">
+      <OUTPATH>rudder_promises_generated</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </TML>
     <TML name="rudder-parameters"/>
     <TML name="run-interval">
       <OUTPATH>run-interval</OUTPATH>
