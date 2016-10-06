@@ -72,7 +72,7 @@ then
 fi
 
 # 4 - Send the file
-HTTP_CODE=$(${CURL_BINARY} --proxy '' -f -F "file=@${FILENAME}" ${SIGNATURE_OPT} -o /dev/null -w '%{http_code}' ${SERVER})
+HTTP_CODE=$(${CURL_BINARY} --proxy '' -f ${SIGNATURE_OPT} -F "file=@${FILENAME}" -o /dev/null -w '%{http_code}' ${SERVER})
 SEND_COMMAND_RET=$?
 
 # 5 - Abort if sending failed
