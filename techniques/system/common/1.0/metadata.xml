@@ -103,6 +103,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>SYSLOGPORT</NAME>
     <NAME>MANAGED_NODES_NAME</NAME>
     <NAME>MANAGED_NODES_ID</NAME>
+    <NAME>MANAGED_NODES_KEY</NAME>
     <NAME>MANAGED_NODES_ADMIN</NAME> 
     <NAME>DENYBADCLOCKS</NAME>
     <NAME>SKIPIDENTIFY</NAME>

@@ -49,7 +49,7 @@ body common control
     any::
         output_prefix => "rudder";
         
-        protocol_version   => "classic";
+        protocol_version   => "2";
 
         inputs => {
           @{va.inputs_list},

@@ -27,7 +27,7 @@ body common control
         inputs             => { "common/1.0/update.cf", "common/1.0/rudder-stdlib-core.cf" };
         output_prefix      => "rudder";
 
-        protocol_version   => "classic";
+        protocol_version   => "2";
 }
 
 body agent control {
