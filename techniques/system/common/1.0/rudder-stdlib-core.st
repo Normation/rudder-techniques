@@ -192,7 +192,7 @@ bundle agent rudder_common_reports_generic_index(technique_name, class_prefix, i
     pass2::
       # This case should NEVER happen. If it ever happens, it is a bug in CFEngine or ncf that lead to changing something in dry-run mode.
       # Hence, as we are facing a severe bug and we want to avoid changing more things, we define an abort class after displaying an error message .
-      "abort_agent_run" => expression "(dry_run|global_dry_run).${class_prefix}_repaired"
+      "abort_agent_run" expression => "(dry_run|global_dry_run).${class_prefix}_repaired";
 
   methods:
 
@@ -215,19 +215,19 @@ bundle agent rudder_common_reports_generic_index(technique_name, class_prefix, i
 
     dry_run|global_dry_run::
       "na"
-        usebundle  => _rudder_common_report_index("${technique_name}", "audit_na", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not applicable", "${index}"),
+        usebundle  => rudder_common_report_index("${technique_name}", "audit_na", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not applicable", "${index}"),
         ifvarclass => "${class_prefix}_noop.!${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
 
       "success"
-        usebundle  => _rudder_common_report_index("${technique_name}", "audit_compliant", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct", "${index}"),
+        usebundle  => rudder_common_report_index("${technique_name}", "audit_compliant", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct", "${index}"),
         ifvarclass => "${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
 
       "noncompliant"
-        usebundle  => _rudder_common_report_index("${technique_name}", "audit_noncompliant", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not correct", "${index}"),
+        usebundle  => rudder_common_report_index("${technique_name}", "audit_noncompliant", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not correct", "${index}"),
         ifvarclass => "${class_prefix}_error.!${class_prefix}_repaired";
 
       "unexpected error"
-        usebundle  => _rudder_common_report_index("${technique_name}", "audit_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired but should have been run in dry-run mode", "${index}"),
+        usebundle  => rudder_common_report_index("${technique_name}", "audit_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired but should have been run in dry-run mode", "${index}"),
         ifvarclass => "${class_prefix}_repaired";
 
   reports:
