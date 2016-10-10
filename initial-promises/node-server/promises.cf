@@ -515,7 +515,7 @@ body agent control
     #define here some environment variables
         environment => { "DEBIAN_FRONTEND=noninteractive" };
 
-        abortclasses => { "should_not_continue" };
+        abortclasses => { "should_not_continue", "abort_agent_run" };
 
         agentfacility => "LOG_LOCAL6";
 
