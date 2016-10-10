@@ -133,6 +133,8 @@ bundle agent rudder_common_report_index(technique_name, status, identifier, comp
                             strcmp("${status}", "result_repaired") ,
                             strcmp("${status}", "log_warn") ,
                             strcmp("${status}", "log_repaired") ,
+                            strcmp("${status}", "audit_noncompliant") ,
+                            strcmp("${status}", "audit_error") ,
                            };
 
   methods:
@@ -182,7 +184,19 @@ bundle agent rudder_common_reports_generic(technique_name, class_prefix, identif
 #
 bundle agent rudder_common_reports_generic_index(technique_name, class_prefix, identifier, component_name, component_key, message_prefix, index)
 {
+
+  classes:
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+    pass2::
+      # This case should NEVER happen. If it ever happens, it is a bug in CFEngine or ncf that lead to changing something in dry-run mode.
+      # Hence, as we are facing a severe bug and we want to avoid changing more things, we define an abort class after displaying an error message .
+      "abort_agent_run" => expression "(dry_run|global_dry_run).${class_prefix}_repaired"
+
   methods:
+
+    !(dry_run|global_dry_run)::
       "na"
         usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not applicable", "${index}"),
         ifvarclass => "${class_prefix}_noop.!${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
@@ -198,6 +212,28 @@ bundle agent rudder_common_reports_generic_index(technique_name, class_prefix, i
       "error"
         usebundle  => rudder_common_report_index("${technique_name}", "result_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} could not be repaired", "${index}"),
         ifvarclass => "${class_prefix}_error";
+
+    dry_run|global_dry_run::
+      "na"
+        usebundle  => _rudder_common_report_index("${technique_name}", "audit_na", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not applicable", "${index}"),
+        ifvarclass => "${class_prefix}_noop.!${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
+
+      "success"
+        usebundle  => _rudder_common_report_index("${technique_name}", "audit_compliant", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was correct", "${index}"),
+        ifvarclass => "${class_prefix}_kept.!${class_prefix}_repaired.!${class_prefix}_error";
+
+      "noncompliant"
+        usebundle  => _rudder_common_report_index("${technique_name}", "audit_noncompliant", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was not correct", "${index}"),
+        ifvarclass => "${class_prefix}_error.!${class_prefix}_repaired";
+
+      "unexpected error"
+        usebundle  => _rudder_common_report_index("${technique_name}", "audit_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired but should have been run in dry-run mode", "${index}"),
+        ifvarclass => "${class_prefix}_repaired";
+
+  reports:
+    "${configuration.fatal} Repaired previous component while in dry-run mode, this is a bug. Aborting immediately."
+      ifvarclass => "(dry_run|global_dry_run).${class_prefix}_repaired";
+
 }
 
 bundle agent startExecution
