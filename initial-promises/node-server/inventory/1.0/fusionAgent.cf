@@ -60,12 +60,14 @@ bundle agent doInventory_always
       "any" usebundle => download_server_uuid;
 
     uuid_valid.(!inventory_sent|force_inventory)::
-
       "any" usebundle => fusionAgent;
       "any" usebundle => listInstalledVM;
       "any" usebundle => generateExtraInformations;
       "any" usebundle => turnUsersToUnicode;
       "any" usebundle => addInformationsToInventory;
+      "any" usebundle => checkInventoryFile;
+
+    uuid_valid.(!inventory_sent|force_inventory).inventory_valid::
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => signInventories;
       "any" usebundle => compressInventories;
@@ -76,7 +78,7 @@ bundle agent doInventory_always
     uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
       "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Could not retrieve a valid UUID from the policy server";
 
-           # Send reports to confirm this PT's success even if we don't need to send an inventory
+    # Send reports to confirm this technique success even if we don't need to send an inventory
     inventory_sent::
       "@@Inventory@@log_info@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#An inventory was already sent less than 8 hours ago";
 
@@ -482,6 +484,37 @@ bundle agent addInformationsToInventory
       "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line => add_accesslog_to_android_inventory(${logdate}),
         edit_defaults => def_no_backup;
+}
+
+# Check that the inventory file is valid
+bundle agent checkInventoryFile
+{
+  vars:
+      "inventory_file" slist => findfiles("${g.rudder_var_tmp}/inventory/*.ocs");
+    !windows.has_rudder_perl::
+      "perl_command" string => "/opt/rudder/bin/perl -I /opt/rudder/lib/perl5";
+    !windows.!has_rudder_perl::
+      "perl_command" string => "/usr/bin/perl";
+    windows::
+      "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe"
+  classes:
+      "inventory_file_exist" expression => filesexist("@{inventory_file}");
+      "has_rudder_perl" => fileexists("/opt/rudder/bin/perl");
+    inventory_file_exist.pass2::
+      "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}"),
+                        scope => "namespace";
+
+      "pass2" expression => "any";
+
+  reports:
+    inventory_file_exist.!inventory_valid::
+      "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Generated inventory has been detected as invalid";
+      # Print information to the user in addition to the reporting
+      "********************************************************************************
+* WARNING Generated inventory is not valid, as it is missing mandatory fields. *
+* Not sending it to the Rudder Server                                          *
+* You can check the invalid inventory in ${g.rudder_var_tmp}/inventory/        *
+********************************************************************************";
 }
 
 # Move the inventory file in the shared directory
