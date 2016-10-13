@@ -95,7 +95,7 @@ do
 done || EXIT=1
 
 # check that techniques do not use reports:
-${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | egrep -v "techniques/system/common/1.0/(update.st|promises.st|rudder-stdlib-core.st)|techniques/system/distributePolicy/1.0/rsyslogConf.st" | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | egrep -v "techniques/system/common/1.0/(update.st|promises.st|rudder-stdlib-core.st)|techniques/system/distributePolicy/1.0/rsyslogConf.st|techniques/system/inventory/1.0/fusionAgent.st" | while read filename
 do
   if egrep '^[[:space:]]*reports:' "${filename}" >/dev/null; then
     echo "The file ${filename} uses reports: instead of rudder_common_report"
