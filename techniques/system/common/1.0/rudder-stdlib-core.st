@@ -122,7 +122,27 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 # index          : the current index, that will distinguish two identical reports and ensure they are both sent
 bundle agent rudder_common_report_index(technique_name, status, identifier, component_name, component_key, message, index)
 {
+  vars:
+    !(dry_run|global_dry_run)::
+      "new_status"  string => "${status}";
+    (dry_run|global_dry_run)::
+      # map result needed for direct calls to rudder_common_report
+      # A quick remark: the mapping result_error > audit_noncompliant is not complete, as the case n errors + 1 repaired leads to result_error in enforce but it leads to audit_error in audit (error wins in enforce, but repair wins in audit)
+      "new_status"  string => ifelse(strcmp("${status}", "result_na"),       "audit_na",           "${status}");
+      "new_status"  string => ifelse(strcmp("${status}", "result_success"),  "audit_compliant",    "${status}");
+      "new_status"  string => ifelse(strcmp("${status}", "result_repaired"), "audit_error",        "${status}");
+      "new_status"  string => ifelse(strcmp("${status}", "result_error"),    "audit_noncompliant", "${status}");
+
   classes:
+
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+    pass2::
+      # This case should NEVER happen. If it ever happens, it is a bug in CFEngine or ncf that lead to changing something in dry-run mode.
+      # Hence, as we are facing a severe bug and we want to avoid changing more things, we define an abort class after displaying an error message .
+      "report_repaired" expression => strcmp("${status}", "result_repaired");
+      "abort_agent_run" expression => "(dry_run|global_dry_run).report_repaired";
 
     !changes_only::
       "log_reports" expression => "full_compliance|reports_disabled";
@@ -146,9 +166,11 @@ bundle agent rudder_common_report_index(technique_name, status, identifier, comp
 
   reports:
     log_reports::
-      "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}"
+      "@@${technique_name}@@${new_status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}"
         comment => "Reporting for ${technique_name} message ${message} for index ${index}";
 
+    (dry_run|global_dry_run).report_repaired::
+      "${configuration.fatal} Repaired previous component while in dry-run mode, this is a bug. Aborting immediately.";
 }
 
 
