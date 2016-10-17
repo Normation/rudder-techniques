@@ -596,10 +596,11 @@ bundle agent checkInventoryFile
     !windows.!has_rudder_perl::
       "perl_command" string => "/usr/bin/perl";
     windows::
-      "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe"
+      "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe";
+
   classes:
       "inventory_file_exist" expression => filesexist("@{inventory_file}");
-      "has_rudder_perl" => fileexists("/opt/rudder/bin/perl");
+      "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
     inventory_file_exist.pass2::
       "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}"),
                         scope => "namespace";
