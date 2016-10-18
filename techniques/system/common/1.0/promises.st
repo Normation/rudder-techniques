@@ -146,13 +146,17 @@ bundle common va
     android::
       "rudder_var"             string => "/data/rudder";
 
+    !enterprise_edition::
+      "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
+    enterprise_edition::
+      "capability_option"      string => ""; 
+
     !windows::
       "ncf_path"               string => "${rudder_var}/ncf";
       "rudder_tools"           string => "${rudder_var}/tools";
       "shell_type"             string => "useshell";
-      "capability_file"        string => "/opt/rudder/etc/agent-capabilities"; # no path variable defined yet
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
-      "compatible_inputs_cmd"  string => "${list_compatible_inputs} --capability-file ${capability_file} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
+      "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
 
     windows::
       "rudder_base"            string => "${sys.winprogdir}\Rudder";
