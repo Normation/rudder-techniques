@@ -364,6 +364,7 @@ bundle agent check_red_button_status()
 # Special handler when aborting from ncf
 ###################################################
 bundle agent abort_rudder(reason, message)
+{
   methods:
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Abort run", "${reason}", "${message}");
 }
