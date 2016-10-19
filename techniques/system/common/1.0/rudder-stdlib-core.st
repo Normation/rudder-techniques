@@ -128,10 +128,10 @@ bundle agent rudder_common_report_index(technique_name, status, identifier, comp
     (dry_run|global_dry_run)::
       # map result needed for direct calls to rudder_common_report
       # A quick remark: the mapping result_error > audit_noncompliant is not complete, as the case n errors + 1 repaired leads to result_error in enforce but it leads to audit_error in audit (error wins in enforce, but repair wins in audit)
-      "new_status"  string => ifelse(strcmp("${status}", "result_na"),       "audit_na",           "${status}");
-      "new_status"  string => ifelse(strcmp("${status}", "result_success"),  "audit_compliant",    "${status}");
-      "new_status"  string => ifelse(strcmp("${status}", "result_repaired"), "audit_error",        "${status}");
-      "new_status"  string => ifelse(strcmp("${status}", "result_error"),    "audit_noncompliant", "${status}");
+      "new_status"  string => ifelse(strcmp("${status}", "result_na"),       "audit_na",
+                                     strcmp("${status}", "result_success"),  "audit_compliant",
+                                     strcmp("${status}", "result_repaired"), "audit_error",
+                                     strcmp("${status}", "result_error"),    "audit_noncompliant", "${status}");
 
   classes:
 
