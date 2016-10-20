@@ -626,18 +626,20 @@ bundle agent checkInventoryFile
   classes:
       "inventory_file_exist" expression => filesexist("@{inventory_file}");
       "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
-    inventory_file_exist.pass2::
-      "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}"),
+    pass1.inventory_file_exist::
+      "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}", "noshell"),
                         scope => "namespace";
 
-      "pass2" expression => "any";
+    any::
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
   methods:
-    inventory_file_exist.!inventory_valid::
+    pass2.inventory_file_exist.!inventory_valid::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Generated inventory has been detected as invalid");
 
   reports:
-    inventory_file_exist.!inventory_valid::
+    pass2.inventory_file_exist.!inventory_valid::
       # Print information to the user in addition to the reporting
       "********************************************************************************
 * WARNING Generated inventory is not valid, as it is missing mandatory fields. *
