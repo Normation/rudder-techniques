@@ -139,10 +139,7 @@ bundle agent rudder_common_report_index(technique_name, status, identifier, comp
       "pass1" expression => "any";
 
     pass2::
-      # This case should NEVER happen. If it ever happens, it is a bug in CFEngine or ncf that lead to changing something in dry-run mode.
-      # Hence, as we are facing a severe bug and we want to avoid changing more things, we define an abort class after displaying an error message .
       "report_repaired" expression => strcmp("${status}", "result_repaired");
-      "abort_agent_run" expression => "(dry_run|global_dry_run).report_repaired";
 
     !changes_only::
       "log_reports" expression => "full_compliance|reports_disabled";
@@ -164,13 +161,16 @@ bundle agent rudder_common_report_index(technique_name, status, identifier, comp
         usebundle => startExecution,
         action    => immediate;
 
+    # This case should NEVER happen. If it ever happens, it is a bug in CFEngine or ncf that lead to changing something in dry-run mode.
+    # Hence, as we are facing a severe bug and we want to avoid changing more things, we define an abort class after displaying an error message .
+    (dry_run|global_dry_run).report_repaired::
+      "abort" usebundle => _abort("repaired_during_dryrun", "Repaired previous component while in dry-run mode, this is a bug. Aborting immediately."),
+                action  => immediate;
+
   reports:
     log_reports::
       "@@${technique_name}@@${new_status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}"
         comment => "Reporting for ${technique_name} message ${message} for index ${index}";
-
-    (dry_run|global_dry_run).report_repaired::
-      "${configuration.fatal} Repaired previous component while in dry-run mode, this is a bug. Aborting immediately.";
 }
 
 
@@ -207,16 +207,12 @@ bundle agent rudder_common_reports_generic(technique_name, class_prefix, identif
 bundle agent rudder_common_reports_generic_index(technique_name, class_prefix, identifier, component_name, component_key, message_prefix, index)
 {
 
-  classes:
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
-
-    pass2::
-      # This case should NEVER happen. If it ever happens, it is a bug in CFEngine or ncf that lead to changing something in dry-run mode.
-      # Hence, as we are facing a severe bug and we want to avoid changing more things, we define an abort class after displaying an error message .
-      "abort_agent_run" expression => "(dry_run|global_dry_run).${class_prefix}_repaired";
-
   methods:
+    # This case should NEVER happen. If it ever happens, it is a bug in CFEngine or ncf that lead to changing something in dry-run mode.
+    # Hence, as we are facing a severe bug and we want to avoid changing more things, we define an abort class after displaying an error message .
+      "abort" usebundle => _abort("repaired_during_dryrun", "Repaired previous component while in dry-run mode, this is a bug. Aborting immediately."),
+                action  => immediate,
+             ifvarclass => "(dry_run|global_dry_run).${class_prefix}_repaired";
 
     !(dry_run|global_dry_run)::
       "na"
@@ -251,10 +247,6 @@ bundle agent rudder_common_reports_generic_index(technique_name, class_prefix, i
       "unexpected error"
         usebundle  => rudder_common_report_index("${technique_name}", "audit_error", "${identifier}", "${component_name}", "${component_key}", "${message_prefix} was repaired but should have been run in dry-run mode", "${index}"),
         ifvarclass => "${class_prefix}_repaired";
-
-  reports:
-    "${configuration.fatal} Repaired previous component while in dry-run mode, this is a bug. Aborting immediately."
-      ifvarclass => "(dry_run|global_dry_run).${class_prefix}_repaired";
 
 }
 
