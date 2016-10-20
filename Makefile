@@ -51,6 +51,7 @@ all: rudder-templates-cli.jar test
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "inventory-all@@inventory-all@@00",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0/ techniques/system/inventory/1.0/*.st
 	cp techniques/system/inventory/1.0/*.cf initial-promises/node-server/inventory/1.0/ || true
+	mv initial-promises/node-server/inventory/1.0/test-inventory.pl.cf initial-promises/node-server/inventory/1.0/test-inventory.pl
 	# The distributePolicy technique
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0/ techniques/system/distributePolicy/1.0/*.st
