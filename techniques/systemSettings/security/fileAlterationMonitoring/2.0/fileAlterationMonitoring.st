@@ -62,8 +62,13 @@ bundle agent file_alteration_monitor
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_success", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The content of ${monitor_entity[${index}][name]} is consistent"),
         ifvarclass => "${index}_kept.!${index}_changed.!${index}_error";
 
+      # When in audit mode, do an audit_noncompliant report because repaired report stop the agent.
+      "any" usebundle => rudder_common_report("fileAlterationMonitoring", "audit_noncompliant", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The content of ${monitor_entity[${index}][name]} is INCONSISTENT: Either the file has changed or one of the elements in the directory has"),
+        ifvarclass => "(dry_run|global_dry_run).${index}_changed.!${index}_error";
+
+      # Same as above in enforce mode, with a result_repaired
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_repaired", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The content of ${monitor_entity[${index}][name]} is INCONSISTENT: Either the file has changed or one of the elements in the directory has"),
-        ifvarclass => "${index}_changed.!${index}_error";
+        ifvarclass => "(!dry_run.!global_dry_run).${index}_changed.!${index}_error";
 
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_error", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The content of ${monitor_entity[${index}][name]} could not be checked"),
         ifvarclass => "${index}_error";
