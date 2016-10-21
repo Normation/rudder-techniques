@@ -22,9 +22,9 @@
 
 body common control
 {
-        bundlesequence     => { "check_uuid", "init_files", "update" };
+        bundlesequence     => { "check_uuid", "init_files", "update_action" };
 
-        inputs             => { "common/1.0/update.cf", "common/1.0/rudder-stdlib-core.cf" };
+        inputs             => { "common/1.0/update.cf" };
         output_prefix      => "rudder";
 
         protocol_version   => "2";

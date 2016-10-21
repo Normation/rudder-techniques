@@ -97,7 +97,7 @@ bundle common va
         "startup",
         "check_disable_agent",
         "clean_red_button",
-        "update",
+        "update_reports",
         "configuration",
         "initialize_ncf",
         "set_red_button",
@@ -837,6 +837,85 @@ bundle agent check_binaries_freshness
       "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
 
 }
+
+#######################################################
+# This bundle is responsible for the reporting of what happened in the update
+# It can work because the classes defined during the update are persistent, so
+# the classes are available for the next 4 minutes
+bundle agent update_reports
+{
+  methods:
+    no_update::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update node's policy (CFEngine promises)");
+
+    rudder_tools_updated_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update Rudder tools last updated file");
+
+    rudder_tools_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update Rudder tools");
+
+    rudder_ncf_hash_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update Rudder ncf update hash file");
+
+    rudder_ncf_common_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common Rudder ncf instance");
+
+    rudder_ncf_local_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update local Rudder ncf instance");
+
+    rudder_promises_generated_tmp_file_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update node's policy");
+
+    # Success report relies on several matching conditions (nodes except root_server)
+    # On all nodes except root server:
+    #   - Staggered update: rudder_ncf_hash_update_ok OR (rudder_ncf_hash_update_repaired AND rudder_ncf_common_updated_ok AND rudder_ncf_local_updated_ok)
+    #   - Staggered update: policy_server OR rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
+    #   - Staggered update: rudder_promises_generated_tmp_file_kept OR (rudder_promises_generated_tmp_file_repaired AND config_ok)
+    # There must be NO components in repair or error
+    # Note: we can't use classes new_promises_available and new_tools_available here because they are local to the update_action bundle
+    !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(policy_server|rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_repaired|rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update|rudder_ncf_hash_update_error|rudder_ncf_hash_update_repaired)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools and ncf instance are already up to date. No action required.");
+
+    # Success report relies on several matching conditions (root_server only)
+    # On the root server only:
+    #   - Simple test: rudder_ncf_common_updated_ok
+    #   - Simple test: rudder_ncf_local_updated_ok
+    # There must be NO components in repair or error
+    root_server.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.!(rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Rudder ncf instance already up to date on this root server. No action required.");
+
+    rudder_tools_updated::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder tools updated");
+
+    rudder_ncf_common_updated::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder ncf common instance updated");
+
+    rudder_ncf_local_updated::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder ncf local instance updated");
+
+    config::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Node's policy (CFEngine promises) updated");
+
+    (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools or ncf instance were updated or CFEngine service restarted");
+
+    server_ok::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
+    executor_ok::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the scheduler (cf-execd)");
+
+    reports:
+      # We want to have always reports if something goes bad
+      rudder_promises_generated_error|no_update::
+        "*********************************************************************************
+  * rudder-agent could not get an updated configuration from the policy server.   *
+  * This can be caused by a network issue, an unavailable server, or if this      *
+  * node was deleted from the Rudder root server.                                 *
+  * Any existing configuration policy will continue to be applied without change. *
+  *********************************************************************************"
+        action => immediate;
+}
+
 
 #######################################################
 
