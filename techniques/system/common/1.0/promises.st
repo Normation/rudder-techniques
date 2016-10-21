@@ -394,15 +394,10 @@ bundle agent check_cf_processes_running
 {
   vars:
 
+    windows::
       # process_term defines how many maximum instances of this
       # binary should be running before attempting to SIGTERM them.
       # process_kill is the same for SIGKILL.
-    !windows::
-      # On windows, cf-execd is a service, and there can be only one instance of it running (by design)
-      "process_term[execd]" string => "2";
-      "process_kill[execd]" string => "5";
-
-    any::
       "process_term[agent]" string => "5";
       "process_kill[agent]" string => "8";
 
@@ -415,8 +410,11 @@ bundle agent check_cf_processes_running
       "pass1" expression => "any";
 
   methods:
-    pass3::
+    pass3.!windows::
 
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Process checking", "None", "CFEngine proccesses check is done by the rudder-agent CRON job");
+
+    pass3.windows::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of CFEngine processes running on the machine"),
       # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
         ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
@@ -428,40 +426,6 @@ bundle agent check_cf_processes_running
         ifvarclass => "${binaries}_has_gone_really_wild";
 
   processes:
-    !windows::
-      "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
-      "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
-
-      # If there are more than 2 cf-execd's, it means cf-execd is starting to
-      # go crazy, so we ask politely to these processes to shut down.
-
-      "${sys.workdir}/bin/cf-${binaries}"
-        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
-        signals       => { "term" },
-        classes       => if_repaired("${binaries}_has_gone_wild"),
-        comment       => "Checking if cf-${binaries} has gone wild";
-
-      # If there are too much cf-execd's/cf-agents running, it means that they are really
-      # going crazy. Let's be a bit less polite and more violent about killing them.
-      #
-      # These two promises overlap, because when you go past the 2/5-limit treshold,
-      # you still leave a chance for them to die with SIGTERM before the SIGKILL.
-      #
-      # Reason: The backend databases that stores the classes and some runtime
-      # parameters do really not appreciate beeing killed violently and may prevent
-      # the agent from operating properly.
-
-      "${sys.workdir}/bin/cf-${binaries}"
-        process_count => check_range("${binaries}", "0","${process_kill[${binaries}]}"),
-        signals       => { "kill" },
-        classes       => if_repaired("${binaries}_has_gone_really_wild"),
-        comment       => "Checking if cf-${binaries} has gone really wild";
-
-    !windows.should_disable_server::
-      "${sys.workdir}/bin/cf-serverd"
-        signals       => { "term", "kill" },
-        action        => immediate;
-
     windows::
       # Using the path on windows fails, as process are not reported the same way
       # And unfortunately, the cf-serverd is not a service.
@@ -492,11 +456,6 @@ bundle agent check_cf_processes_running
       "${sys.cf_serverd}"
         action  => u_ifwin_bg,
         classes => outcome("server");
-
-    start_executor::
-      "${sys.cf_execd}"
-        action  => u_ifwin_bg,
-        classes => outcome("executor");
 
 }
 
