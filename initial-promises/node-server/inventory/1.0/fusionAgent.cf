@@ -496,18 +496,21 @@ bundle agent checkInventoryFile
     !windows.!has_rudder_perl::
       "perl_command" string => "/usr/bin/perl";
     windows::
-      "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe"
+      "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe";
   classes:
       "inventory_file_exist" expression => filesexist("@{inventory_file}");
-      "has_rudder_perl" => fileexists("/opt/rudder/bin/perl");
-    inventory_file_exist.pass2::
-      "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}"),
+      "has_rudder_perl"      expression => fileexists("/opt/rudder/bin/perl");
+
+    pass1.inventory_file_exist::
+      "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}", "noshell"),
                         scope => "namespace";
 
-      "pass2" expression => "any";
+    any::
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
   reports:
-    inventory_file_exist.!inventory_valid::
+    pass2.inventory_file_exist.!inventory_valid::
       "@@Inventory@@result_error@@inventory-all@@inventory-all@@00@@inventory@@None@@${g.execRun}##${g.uuid}@#Generated inventory has been detected as invalid";
       # Print information to the user in addition to the reporting
       "********************************************************************************
