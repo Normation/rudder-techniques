@@ -376,8 +376,13 @@ bundle agent initialize_ncf()
 {
 
   methods:
-      "initialize ncf"        usebundle => initialization;
-      "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "The ncf initialization");
+      "initialize ncf"              usebundle => initialization;
+      # Force generating expected reports file for Rudder logger
+      # because the first call to the logger may be in audit mode.
+      "create ncf expected reports" usebundle => _create_current_expected_reports_file;
+      # Aggregate the results of the two actions
+      "combine result classes"      usebundle => _classes_combine_two("ncf_init", "logger_rudder_final_resfile", "rudder_ncf_initialization")
+      "report about ncf init"       usebundle => rudder_common_reports_generic("Common", "rudder_ncf_initialization", "&TRACKINGKEY&", "ncf Initialization", "None", "The ncf initialization");
 
 }
 
