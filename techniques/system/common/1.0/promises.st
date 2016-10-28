@@ -366,7 +366,8 @@ bundle agent check_red_button_status()
 bundle agent abort_rudder(reason, message)
 {
   methods:
-      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Abort run", "${reason}", "${message}");
+      "abort log" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Abort run", "${reason}", "${message}");
+      "end run"   usebundle => endExecution;
 }
 
 ###################################################
