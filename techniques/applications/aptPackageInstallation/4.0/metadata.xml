@@ -28,6 +28,7 @@ presence of a package, and if not met to enforce them.
 
   It will ensure that the defined packages are installed, up-to-date or removed using the APT package manager.</DESCRIPTION>
 
+  <DEPRECATED>This technique is deprecated, use "Package Management" instead.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
 
   <BUNDLES>

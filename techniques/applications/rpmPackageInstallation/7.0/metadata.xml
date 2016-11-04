@@ -27,7 +27,8 @@ presence of a package, and if not met to enforce them.
   <DESCRIPTION>This technique operates on individual packages.
 
   It will ensure that the defined packages are installed, up-to-date or removed using the yum/zypper package manager.</DESCRIPTION>
-  
+
+  <DEPRECATED>This technique is deprecated, use "Package Management" instead.</DEPRECATED>  
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
