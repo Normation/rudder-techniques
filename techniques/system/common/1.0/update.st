@@ -305,7 +305,7 @@ bundle agent update_action
         comment => "Deleting ${g.rudder_ncf_hash_file} as custom ncf files couldn't be downloaded";
 
 
-    root_server|(rudder_promises_generated_tmp_file_ok|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error)::
+    root_server|(rudder_promises_generated_tmp_file_kept|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error)::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
