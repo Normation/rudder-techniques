@@ -27,6 +27,6 @@ bundle agent compress_ldap_backups
     "/var/rudder/ldap/backup"
       file_select => by_name("@{backups_pattern}"),
       depth_search => recurse("0"),
-      transformer => "${g.gzip} \"${this.promiser}\"";
+      transformer => "${g.gzip} -fq \"${this.promiser}\"";
 
 }
