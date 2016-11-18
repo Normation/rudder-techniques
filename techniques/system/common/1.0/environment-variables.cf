@@ -23,7 +23,7 @@ bundle agent get_environment_variables
   vars:
     !windows::
       "env_vars_list_cmd" string => "awk 'BEGIN { for (k in ENVIRON) { print k }; }'";
-      "env_vars" slist => splitstring( execresult("${env_vars_list_cmd}","useshell"), "," , 2000);
+      "env_vars" slist => splitstring( execresult("${env_vars_list_cmd}","useshell"), "\n" , 2000);
       "node.env[${env_vars}]" string => getenv( "${env_vars}", 5000);
 
     # This script output the environment variables, in the format
