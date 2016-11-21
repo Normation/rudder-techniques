@@ -105,17 +105,6 @@ bundle server access_rules
       "${sys.workdir}\bin\cf-agent.exe"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
-  &if(NOVA)&
-    any::
-      "${query_types}"
-        handle => "server_access_grant_${query_types}_for_hosts",
-        comment => "Grant ${query_types} reporting query for the hub on the hosts",
-        resource_type => "query",
-        report_data_select => rudder_data_select_host,
-        admit => { ${def.policy_server}, @{sys.ip_addresses} };
-  &endif&
-
-
   roles:
       # Allow user root to set any class
       ".*"  authorize => { "root" };
