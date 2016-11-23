@@ -169,6 +169,16 @@ body server control
           &endif&
 
         };
+
+        allowallconnects  => {
+          @{def.acl} ,
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          "&it&"};separator=", "&
+          &endif&
+
+        };
+
 &else&
         trustkeysfrom     => {
           @{def.acl} ,
@@ -187,6 +197,17 @@ body server control
           &endif&
 
         };
+
+
+        allowallconnects  => {
+          @{def.acl} ,
+          &if(MANAGED_NODES_NAME)&
+          &MANAGED_NODES_NAME: {
+          host2ip("&it&"), "&it&"};separator=", "&
+          &endif&
+
+        };
+
 &endif&
 
         maxconnections    => "1000";
