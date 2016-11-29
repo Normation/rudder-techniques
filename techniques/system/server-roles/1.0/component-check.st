@@ -42,7 +42,7 @@ bundle agent root_component_check
       "service[rudder_jetty][service]"                 string => "rudder-jetty";
 
       "service[rudder_reports][name]"                  string => "postgresql";
-      "service[rudder_reports][binary]"                string => "postgres: writer process";
+      "service[rudder_reports][binary]"                string => "postgres:.* writer process";
       "service[rudder_reports][service]"               string => "postgresql";
 
       "service[apache][name]"                          string => "apache";
