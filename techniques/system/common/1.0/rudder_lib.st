@@ -185,6 +185,13 @@ body file_select cf3_files
         file_result => "leaf_name";
 }
 
+body file_select by_fullname(names)
+# @brief Select files that match `names`
+# @param names A regular expression
+{
+        path_name  => { @(names)};
+        file_result => "path_name";
+}
 
 #########################################################
 

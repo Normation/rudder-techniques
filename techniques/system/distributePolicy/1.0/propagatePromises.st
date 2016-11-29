@@ -34,7 +34,14 @@ bundle agent propagatePromises
       "ncf_common_sha_sum" string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_common} -not -name ${g.rudder_ncf_hash_file} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
       "ncf_local_sha_sum"  string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_local} -not -name ${g.rudder_ncf_hash_file} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
 
+    rudder_tools_updated_exists::
+      "tools_timestamp"   string => readfile("${g.rudder_tools_updated_origin}", 2048);
+
   classes:
+    # Ensure the validity of the timestamp file for tools
+    rudder_tools_updated_exists::
+      "tools_timestamp_invalid" not => regcmp("[0-9]+", "${tools_timestamp}");
+
     root_server::
       "rudder_tools_updated_exists" expression => fileexists("${g.rudder_tools_updated_origin}");
 
@@ -58,7 +65,7 @@ bundle agent propagatePromises
         comment      => "Enforce the ncf configuration file",
         classes      => classes_generic("configure_ncf_config");
 
-    policy_server.!root_server::
+    (policy_server|role_rudder_relay_promises_only).!root_server::
 
       "${client_data}"  #that's a loop on each files in client_inputs
         copy_from    => remote("${server_info.cfserved}","${server_data}"),
@@ -106,11 +113,11 @@ bundle agent propagatePromises
 
     # If rudder_tools_updated doesn't exist, or if the tools have been updated,
     # set rudder_tools_updated content to current timestamp
-    root_server.(!rudder_tools_updated_exists|propagate_tools_repaired)::
+    root_server.(!rudder_tools_updated_exists|propagate_tools_repaired|tools_timestamp_invalid)::
       "${g.rudder_tools_updated_origin}"
         create        => "true",
         edit_defaults => empty,
-        edit_line     => insert_lines("${sys.date}"),
+        edit_line     => insert_lines("${sys.systime}"),
         comment       => "Update the timestamp in the rudder tool updated file";
 
     # each run, update the hash files of ncf
@@ -198,7 +205,7 @@ bundle agent sendInventoryToCmdb
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
-    policy_server.!(root_server|role_rudder_relay_top)::
+    policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only)::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
@@ -214,7 +221,7 @@ bundle agent sendInventoryToCmdb
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
-    policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_error::
+    policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_relay_error::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
@@ -238,7 +245,7 @@ bundle agent sendInventoryToCmdb
     pass3.rudder_inventory_processing_error::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Some inventories failed to add successfully to Rudder");
 
-    pass3.((root_server|role_rudder_relay_top).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
+    pass3.((root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to send");
 
     pass3.(rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
@@ -247,7 +254,7 @@ bundle agent sendInventoryToCmdb
     pass3.rudder_inventory_relay_error::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Cannot relay some inventories to the root server");
 
-    pass3.(policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
+    pass3.(policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to relay");
 
     pass3.(rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error)::

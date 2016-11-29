@@ -1,3 +1,0 @@
- -- Matthieu CERDA <matthieu.cerda@normation.com>  Thu, 10 Nov 2011 20:46:00 +0100
-  * Version 2.1
-  ** Added a ZMD daemon presence verification for every SLES10 host.

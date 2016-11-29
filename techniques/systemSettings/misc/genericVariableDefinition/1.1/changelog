@@ -1,4 +1,0 @@
- -- Nicolas CHARLES <nicolas.charles@normation.com> Tue, 24 Jan 2012 18:38:00 +0100
-  * Version 1.1
-   ** Changing the PT to make it multi-instance
-   ** Adding reporting to match this behaviour

@@ -123,8 +123,12 @@ bundle agent rudder_common_report(technique_name, status, identifier, component_
 bundle agent rudder_common_report_index(technique_name, status, identifier, component_name, component_key, message, index)
 {
   classes:
+
+    !changes_only::
+      "log_reports" expression => "full_compliance|reports_disabled";
+
     changes_only::
-      "send_reports" or => {
+      "log_reports" or => {
                             strcmp("${status}", "result_error") ,
                             strcmp("${status}", "result_repaired") ,
                             strcmp("${status}", "log_warn") ,
@@ -133,15 +137,16 @@ bundle agent rudder_common_report_index(technique_name, status, identifier, comp
 
   methods:
     # If we need to send a report, make sure we have sent the "StartRun" message first
-    send_reports.!start_run_message_sent::
+    log_reports.!start_run_message_sent::
       "Send start message"
         usebundle => startExecution,
         action    => immediate;
 
   reports:
-    full_compliance|send_reports::
+    log_reports::
       "@@${technique_name}@@${status}@@${identifier}@@${component_name}@@${component_key}@@${g.execRun}##${g.uuid}@#${message}"
         comment => "Reporting for ${technique_name} message ${message} for index ${index}";
+
 }
 
 

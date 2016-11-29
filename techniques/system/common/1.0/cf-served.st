@@ -24,11 +24,16 @@
 
 bundle server access_rules
 {
+&if(NOVA)&
+  vars:
+    enterprise::
+      "query_types" slist => {"delta", "rebase", "full"};
+&endif&
+
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-&if(MANAGED_NODES_NAME)&
-    policy_server::
+    policy_server|role_rudder_relay_promises_only::
       "${def.dir_masterfiles}"
         handle  => "grant_access_policy",
         comment => "Grant access to the policy updates",
@@ -39,6 +44,7 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+&if(MANAGED_NODES_NAME)&
       "${g.rudder_ncf_origin_common}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
@@ -47,6 +53,10 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+      # Deny access to 50_techniques folder
+      "${g.rudder_ncf_origin_local}/50_techniques"
+        deny    => {  ".*"  };
+
       &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
         comment => "Grant access to the share files",
@@ -54,6 +64,16 @@ bundle server access_rules
         admit   => {  @{def.acl}  };
 
       &endif&
+
+    &if(NOVA)&
+    role_rudder_cfengine_mission_portal::
+      "${query_types}"
+        handle             => "server_access_grant_${query_types}_for_hub",
+        comment            => "Grant ${query_types} reporting query for the hub on the policy server",
+        resource_type      => "query",
+        report_data_select => rudder_data_select_policy_hub,
+        admit              => { ${def.policy_server}, @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
+    &endif&
 
 
     any::
@@ -84,6 +104,17 @@ bundle server access_rules
     windows::
       "${sys.workdir}\bin\cf-agent.exe"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+
+  &if(NOVA)&
+    any::
+      "${query_types}"
+        handle => "server_access_grant_${query_types}_for_hosts",
+        comment => "Grant ${query_types} reporting query for the hub on the hosts",
+        resource_type => "query",
+        report_data_select => rudder_data_select_host,
+        admit => { ${def.policy_server}, @{sys.ip_addresses} };
+  &endif&
+
 
   roles:
       # Allow user root to set any class
@@ -232,3 +263,28 @@ body runagent control
 }
 &endif&
 
+&if(NOVA)&
+body report_data_select rudder_data_select_host
+# @brief Data to collect from remote hosts by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include => { "inventory", "report" };
+    metatags_exclude => { "noreport" };
+    monitoring_include => { ".*" };
+}
+
+body report_data_select rudder_data_select_policy_hub
+# @brief Data to collect from policy servers by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include => { "inventory", "report" };
+    metatags_exclude => { "noreport" };
+    monitoring_include => { ".*" };
+}
+&endif&

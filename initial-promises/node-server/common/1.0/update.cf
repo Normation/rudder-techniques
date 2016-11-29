@@ -144,6 +144,11 @@ bundle agent update_action
 {
   vars:
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
+
+      # Tools to copy - all defined in bundle g + the timestamp file (for our two phase update needs, see below)
+      "rudder_tools_files_to_copy"      slist => { "${g.rudder_tools_updated_filename}", @{g.rudder_tools_files} }, policy => "ifdefined";
+      "rudder_tools_files_to_select"    slist => maplist("${g.rudder_tools_origin}/${this}", @{rudder_tools_files_to_copy}); # file_select needs full path
+
       "file_to_check_update" string => "rudder_promises_generated";
     nova_edition::
       "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
@@ -169,7 +174,7 @@ bundle agent update_action
 
       "${g.rudder_ncf}/local"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
-        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        depth_search      => recurse_ignore("inf", @{g.ncf_local_excludedreps}),
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
@@ -237,6 +242,7 @@ bundle agent update_action
       "${g.rudder_tools}"
         copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
+        file_select       => by_fullname(@{rudder_tools_files_to_select}),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok");

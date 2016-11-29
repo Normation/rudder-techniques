@@ -36,6 +36,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>promises.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
+    <TML name="rudder_directives">
+      <OUTPATH>rudder_directives.cf</OUTPATH>
+    </TML>
+    <TML name="rudder_system_directives">
+      <OUTPATH>rudder_system_directives.cf</OUTPATH>
+    </TML>
     <TML name="rudder_agent_community_cron">
       <OUTPATH>common/cron/rudder_agent_community_cron</OUTPATH>
       <INCLUDED>false</INCLUDED>
@@ -60,6 +66,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </TML>
     <TML name="environment-variables"/>
     <TML name="restart-services"/>
+    <TML name="rudder-groups"/>
     <TML name="properties"/>
   </TMLS>
 
@@ -67,6 +74,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>AUTHORIZED_NETWORKS</NAME>
     <NAME>INPUTLIST</NAME>
     <NAME>BUNDLELIST</NAME>
+    <NAME>RUDDER_DIRECTIVES_SEQUENCE</NAME>
+    <NAME>RUDDER_DIRECTIVES_INPUTS</NAME>
+    <NAME>RUDDER_SYSTEM_DIRECTIVES_SEQUENCE</NAME>
+    <NAME>RUDDER_SYSTEM_DIRECTIVES_INPUTS</NAME>
     <NAME>NOVA</NAME>
     <NAME>COMMUNITY</NAME>
     <NAME>COMMUNITYPORT</NAME>
@@ -90,6 +101,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>RUDDER_HEARTBEAT_INTERVAL</NAME>
     <NAME>CONFIGURATION_REPOSITORY_FOLDER</NAME>
     <NAME>RUDDER_SYSLOG_PROTOCOL</NAME>
+    <NAME>RUDDER_NODE_GROUPS_VARS</NAME>
+    <NAME>RUDDER_NODE_GROUPS_CLASSES</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
@@ -97,6 +110,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <!-- The following sections are for reporting only, variable are defined in the main section below -->
     <SECTION name="Red Button" component="true" />
     <SECTION name="Update" component="true" />
+    <SECTION name="ncf Initialization" component="true" />
     <SECTION name="Security parameters" component="true" />
     <SECTION name="Log system for reports" component="true" />
     <SECTION name="CRON Daemon" component="true" />

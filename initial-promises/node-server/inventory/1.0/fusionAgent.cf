@@ -411,11 +411,22 @@ bundle agent addInformationsToInventory
     aix::
       "RUDDERUUID" string => execresult("/usr/bin/uname -f", "noshell");
 
+    solaris::
+      "RUDDERUUID" string => execresult("smbios | grep UUID | sed 's/  UUID: //'", "useshell");
+
+    freebsd::
+      "RUDDERUUID" string => execresult("/usr/local/sbin/dmidecode -s system-uuid","noshell");
+
     !windows.!android::
       "CFKEY" string => execresult("/bin/cat ${sys.workdir}/ppkeys/localhost.pub", "noshell");
-      "USER" string => execresult("/usr/bin/whoami", "noshell");
       "usersnumber" int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users" slist => getindices("userslist");
+
+    !windows.!android.!solaris::
+      "USER" string => execresult("/usr/bin/whoami", "noshell");
+
+    solaris::
+      "USER" string => execresult("id | cut -d\( -f2 | cut -d\) -f1", "useshell");
 
     !windows::
       "polserv_uuid"          string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );

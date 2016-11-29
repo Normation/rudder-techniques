@@ -60,10 +60,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>RUDDER_REPORTS_DB_USER</NAME>
   </SYSTEMVARS>
 
-  <TRACKINGVARIABLE>
-    <SAMESIZEAS>CMDBENDPOINT</SAMESIZEAS>
-  </TRACKINGVARIABLE>
-
   <SECTIONS>
     <!-- The following sections are for reporting only -->
     <SECTION name="Propagate promises" component="true"/>

@@ -1,3 +1,0 @@
- -- Matthieu CERDA <matthieu.cerda@normation.com>  Wed, 02 Nov 2011 16:30:00 +0100
-  * Version 2.0
-  ** Added the rug_nobulk body, to be used on every SuSE 10-like OSes, and the corresponding package method.

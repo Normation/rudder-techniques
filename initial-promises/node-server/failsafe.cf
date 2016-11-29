@@ -44,14 +44,18 @@ bundle common g
     android::
       "rudder_base"              string => "/data/rudder";
       "rudder_var"               string => "/data/rudder";
+      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"              string => "/opt/rudder";
+      "rudder_tools_files_unix"   slist => { "send-clean.sh",
+                                             "cpuid-linux-V1.0.sh",
+                                             "vmware_info.sh",
+                                             "check-rsyslog-version",
+                                             "apache-vhost.tpl",
+                                           };
 
-    solaris::
-      "rudder_var"               string => "/opt/rudder/var";
-
-    !windows.!solaris.!android::
+    !windows.!android::
       "rudder_var"               string => "/var/rudder";
 
     !windows::
@@ -71,6 +75,36 @@ bundle common g
       "rudder_ncf"               string => "${rudder_var}\ncf";
       "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
 
+      "rudder_tools_files_windows" slist => {
+                                              # Rudder utilities
+                                              "uuid.vbs",
+                                              "userlist.bat",
+                                              "getDate.bat",
+                                              "registrydns.bat",
+                                              "cpuid-windows-v1.0.vbs",
+
+                                              # GNU iconv
+                                              "iconv.exe",
+                                              "iconv.dll",
+
+                                              # cURL
+                                              "curl/curl.exe",
+                                              "curl/curl-ca-bundle.crt",
+
+                                              # OpenSSL
+                                              "openssl/openssl.exe",
+                                              "openssl/libeay32.dll",
+                                              "openssl/ssleay32.dll",
+
+                                              # Fusion inventory
+                                              "fusionagent.exe",
+
+                                              # NXlog
+                                              "nxlog-ce-2.8.1248.msi",
+                                              "nxlog.conf"
+                                            };
+
+
     # The time at which the execution started
     windows.!cygwin::
       "execRun"                  string => execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"'{0:yyyy-MM-dd HH:mm:sszzz}' -f (get-date)\"", "noshell");
@@ -80,9 +114,24 @@ bundle common g
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
+    SuSE::
+      "rudder_tools_files_suse"   slist => { "openvpn-2.2.1-1.x86_64.rpm",
+                                             "openvpn-2.2.1-1.i686.rpm",
+                                             "zypper-repo.tpl",
+                                             "check-zypper-version",
+                                             "checkzmd.pl",
+                                            };
     any::
+      "rudder_tools_files"        slist => { @{rudder_tools_files_windows},
+                                             @{rudder_tools_files_android},
+                                             @{rudder_tools_files_unix},
+                                             @{rudder_tools_files_suse},
+                                             "checkroute.pl",
+                                           }, policy => "ifdefined";
+
       "uuid"                     string => readfile("${g.uuid_file}", 60);
       "excludedreps"              slist => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "ncf_local_excludedreps"    slist => { "50_techniques", @{g.excludedreps}};
       "rudder_tools_origin"      string => "/var/rudder/tools";
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "/var/rudder/configuration-repository/ncf";
@@ -124,7 +173,7 @@ bundle agent init_files
   files:
     community_edition.!windows::
       "${sys.workdir}/bin/${components}"
-        perms => u_p("700"),
+        perms => u_p("755"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
         action => immediate;
 
@@ -191,3 +240,10 @@ body file_select exclude(name)
           file_result => "!leaf_name";
 }
 
+body file_select by_fullname(names)
+# @brief Select files that match `names`
+# @param names A regular expression
+{
+          path_name  => { @(names)};
+          file_result => "path_name";
+}

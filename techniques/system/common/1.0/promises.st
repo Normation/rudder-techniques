@@ -26,15 +26,16 @@ body common control
 
     any::
         output_prefix => "rudder";
-
+        
         protocol_version   => "classic";
 
         inputs => {
           @{va.ncf_inputs},
-          &INPUTLIST&
+          "rudder_system_directives.cf",
+          "rudder_directives.cf"
         };
 
-        bundlesequence => { @{va.bs} &BUNDLELIST& , @{va.end} };
+        bundlesequence => { @{va.bs}, rudder_system_directives, rudder_directives, @{va.end} };
 
     android::
         # if native syslog is not available, use cfengine implementation (eg: android)
@@ -56,13 +57,13 @@ bundle common va
         "clean_red_button",
         "update",
         "configuration",
+        "initialize_ncf",
         "set_red_button",
         "internal_security",
         "check_red_button_status",
         "check_cf_processes",
         "check_uuid",
-        "check_log_system",
-        "check_rsyslog_version",
+        "configure_rudder_reporting_system",
         "garbage_collection",
         "setup_cronjob",
         "check_cron_daemon",
@@ -82,6 +83,7 @@ bundle common va
         "clean_red_button",
         "update",
         "configuration",
+        "initialize_ncf",
         "set_red_button",
         "internal_security",
         "check_red_button_status",
@@ -90,8 +92,7 @@ bundle common va
         "setup_cronjob",
         "check_cron_daemon",
         "check_binaries_freshness",
-        "check_log_system",
-        "check_rsyslog_version",
+        "configure_rudder_reporting_system",
         "nxlog_enable",
         "check_zypper",
         "check_uuid",
@@ -105,37 +106,44 @@ bundle common va
     android::
       "rudder_var"             string => "/data/rudder";
 
+    !enterprise_edition::
+      "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
+    enterprise_edition::
+      "capability_option"      string => ""; 
+
     !windows::
       "ncf_path"               string => "${rudder_var}/ncf";
       "rudder_tools"           string => "${rudder_var}/tools";
       "shell_type"             string => "useshell";
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
-
+      "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
 
     windows::
       "rudder_base"            string => "${sys.winprogdir}\Rudder";
       "rudder_tools"           string => "${rudder_base}\sbin";
       "ncf_path"               string => "${rudder_base}\var\ncf";
       "shell_type"             string => "powershell";
+
       "list_compatible_inputs" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1'";
+      "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${sys.cf_version} '${ncf_path}'";
 
     any::
-      "path_ncf_common_inputs_10" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/10_ncf_internals", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_20" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/20_cfe_basics", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_30" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/30_generic_methods", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_50" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/50_techniques", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' common/60_services", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_10" slist => splitstring(execresult("${compatible_inputs_cmd} common/10_ncf_internals", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_20" slist => splitstring(execresult("${compatible_inputs_cmd} common/20_cfe_basics", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_30" slist => splitstring(execresult("${compatible_inputs_cmd} common/30_generic_methods", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_40" slist => splitstring(execresult("${compatible_inputs_cmd} common/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_50" slist => splitstring(execresult("${compatible_inputs_cmd} common/50_techniques", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_60" slist => splitstring(execresult("${compatible_inputs_cmd} common/60_services", "${shell_type}"), "\n", 10000);
 
-      "path_ncf_local_inputs_10" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/10_ncf_internals", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_20" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/20_cfe_basics", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_30" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/30_generic_methods", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_50" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/50_techniques", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} '${ncf_path}' local/60_services", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_10" slist => splitstring(execresult("${compatible_inputs_cmd} local/10_ncf_internals", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_20" slist => splitstring(execresult("${compatible_inputs_cmd} local/20_cfe_basics", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_30" slist => splitstring(execresult("${compatible_inputs_cmd} local/30_generic_methods", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_40" slist => splitstring(execresult("${compatible_inputs_cmd} local/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
+      # Files from 50_techniques are automatically included by Rudder's metadata.xml mechanism
+      "path_ncf_local_inputs_60" slist => splitstring(execresult("${compatible_inputs_cmd} local/60_services", "${shell_type}"), "\n", 10000);
 
       # Must concatenate all lists + filter, as maplist on an empty element returns cf_null
-      "raw_path_ncf_inputs" slist => { @{path_ncf_common_inputs_10}, @{path_ncf_local_inputs_10}, @{path_ncf_common_inputs_20}, @{path_ncf_local_inputs_20}, @{path_ncf_common_inputs_30}, @{path_ncf_local_inputs_30}, @{path_ncf_common_inputs_40}, @{path_ncf_local_inputs_40}, @{path_ncf_common_inputs_50}, @{path_ncf_local_inputs_50}, @{path_ncf_common_inputs_60}, @{path_ncf_local_inputs_60}},
+      "raw_path_ncf_inputs" slist => { @{path_ncf_common_inputs_10}, @{path_ncf_local_inputs_10}, @{path_ncf_common_inputs_20}, @{path_ncf_local_inputs_20}, @{path_ncf_common_inputs_30}, @{path_ncf_local_inputs_30}, @{path_ncf_common_inputs_40}, @{path_ncf_local_inputs_40}, @{path_ncf_common_inputs_50}, @{path_ncf_common_inputs_60}, @{path_ncf_local_inputs_60}},
                            policy => "ifdefined";
 
        "raw_ncf_inputs"     slist => maplist("${ncf_path}/${this}", @{raw_path_ncf_inputs});
@@ -157,10 +165,11 @@ bundle common rudder_roles
 
 
       # on changes only, we only reports on repaired or error message
-      "changes_only" expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "changes_only"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "reports_disabled" expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
 
       # full compliance is the default mode
-      "full_compliance" not => "changes_only";
+      "full_compliance" not => "changes_only|reports_disabled";
 }
 
 #########################################################
@@ -307,6 +316,17 @@ bundle agent check_red_button_status()
 
 }
 
+###################################################
+# Initialize ncf and report about it
+###################################################
+bundle agent initialize_ncf()
+{
+
+  methods:
+      "initialize ncf"        usebundle => initialization;
+      "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "The ncf initialization");
+
+}
 
 ###################################################
 # Check that CFEngine services are up
@@ -426,9 +446,22 @@ bundle agent check_cf_processes_running
 }
 
 
+
+bundle agent configure_rudder_reporting_system {
+  methods:
+    !reports_disabled::
+      "configure_syslog"    usebundle => check_log_system;
+      "configure_reporting" usebundle => check_rsyslog_version;
+    reports_disabled::
+      "remove_reporting"    usebundle => remove_rudder_syslog_configuration;
+}
+
 #######################################################
 # Check the log system, and configure it accordingly
-# This only works with unix flavoured system
+# This only works with UNIX flavoured systems
+#
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
 bundle agent check_log_system
 {
@@ -436,15 +469,12 @@ bundle agent check_log_system
   vars:
 
     debian::
-
       "syslog_ng_source" string => "s_src";
 
     SuSE::
-
       "syslog_ng_source" string => "src";
 
     redhat::
-
       "syslog_ng_source" string => "s_sys";
 
     use_tcp::
@@ -477,14 +507,18 @@ bundle agent check_log_system
       "syslog_ng_conf"        string => concat("${syslog_conf_comment}", "${syslog_ng_conf_prefix}", "${syslog_ng_conf_proto}", "${syslog_ng_conf_start}", "${server_info.cfserved}", "${syslog_ng_conf_port}", "${syslog_ng_conf_portno}", "${syslog_ng_conf_suffix}", "${syslog_ng_conf_final}");
       "syslog_ng_conf_regex"  string => concat(escape("${syslog_ng_conf_prefix}"), "(tcp|udp)", escape("${syslog_ng_conf_start}"), "[^\"]+", escape("${syslog_ng_conf_port}"), "[0-9]+", escape("${syslog_ng_conf_suffix}"), ".*");
 
+      "rsyslog_conffile"      string => "/etc/rsyslog.conf";
+      "syslogng_conffile"     string => "/etc/syslog-ng/syslog-ng.conf";
+      "syslog_conffile"       string => "/etc/syslog.conf";
+
+      "rsyslog_rudder_conffile" string => "/etc/rsyslog.d/rudder-agent.conf";
+
   classes:
 
     !android::
-      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
-
-      "syslogng" expression => fileexists("/etc/syslog-ng/syslog-ng.conf");
-
-      "syslogd" expression => fileexists("/etc/syslog.conf");
+      "rsyslogd" expression => fileexists("${rsyslog_conffile}");
+      "syslogng" expression => fileexists("${syslogng_conffile}");
+      "syslogd"  expression => fileexists("${syslog_conffile}");
 
     any::
       "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP");
@@ -499,14 +533,14 @@ bundle agent check_log_system
   files:
 
     !windows.rsyslogd::
-      "/etc/rsyslog.conf"
+      "${rsyslog_conffile}"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
         edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
     (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd.!policy_server::
-      "/etc/rsyslog.d/rudder-agent.conf"
+      "${rsyslog_rudder_conffile}"
         edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~"),
         create => "true",
         edit_defaults => empty_backup,
@@ -520,13 +554,13 @@ bundle agent check_log_system
         classes       => rudder_common_classes("rsyslog");
 
     !windows.syslogng.!policy_server::
-      "/etc/syslog-ng/syslog-ng.conf"
+      "${syslogng_conffile}"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
         edit_defaults => noempty_backup,
         classes       => rudder_common_classes("syslog_ng");
 
     !windows.syslogd.!policy_server::
-      "/etc/syslog.conf"
+      "${syslog_conffile}"
         edit_line => fix_syslogd("@${server_info.cfserved}"),
         edit_defaults => noempty_backup,
         classes       => rudder_common_classes("syslogd");
@@ -555,12 +589,6 @@ bundle agent check_log_system
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "This is an android machine: Logging system configuration skipped.");
 
   commands:
-
-    solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "${paths.svcadm} refresh svc:/system/system-log:default";
-
-    aix.syslogd_repaired::
-      "/usr/bin/refresh -s syslogd";
       
     rsyslogd.check_rsyslog_version_present::
       # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
@@ -579,12 +607,15 @@ bundle agent check_log_system
 # as it would make it too complex to read and maintain
 # (we would have needed to delay the restart of the services
 # at later iteration)
+#
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
 bundle agent check_rsyslog_version {
 
   classes:
       "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check-rsyslog-version");
-      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
+      "rsyslogd" expression => fileexists("${check_log_system.rsyslog_conffile}");
 
     any::
       "pass3" expression => "pass2";
@@ -617,6 +648,54 @@ bundle agent check_rsyslog_version {
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
+
+}
+
+#############################################################
+# Remove syslog configurations that Rudder may have applied #
+#############################################################
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
+
+bundle agent remove_rudder_syslog_configuration {
+
+  vars:
+
+      "syslogng_delete_lines_patterns" slist => {
+        "\s*# Autogenerated by rudder, do not edit.*",
+        ".*destination\(rudder_loghost\);.*",
+      };
+
+      "syslog_delete_lines_patterns" slist => {
+        "\s*# Rudder specific logging parameters.*",
+        "local6.notice\s+@${server_info.cfserved}",
+      };
+
+  classes:
+
+      "syslogng" expression => fileexists("${check_log_system.syslogng_conffile}");
+      "syslogd"  expression => fileexists("${check_log_system.syslog_conffile}");
+
+  files:
+      "${check_log_system.rsyslog_rudder_conffile}"
+        delete         => tidy,
+        classes        => classes_generic("remove_rudder_syslog_configuration_rsyslog");
+
+    syslogng::
+      "${check_log_system.syslogng_conffile}"
+        edit_line      => delete_lines_matching("${syslogng_delete_lines_patterns}"),
+        edit_defaults  => noempty_backup,
+        classes        => classes_generic("remove_rudder_syslog_configuration_syslogng");
+
+    syslogd::
+      "${check_log_system.syslog_conffile}"
+        edit_line      => delete_lines_matching("${syslog_delete_lines_patterns}"),
+        edit_defaults  => noempty_backup,
+        classes        => classes_generic("remove_rudder_syslog_configuration_syslog");
+
+  methods:
+      "merge result classes" usebundle  => _classes_combine_three("remove_rudder_syslog_configuration_rsyslog", "remove_rudder_syslog_configuration_syslogng", "remove_rudder_syslog_configuration_syslog", "remove_rudder_syslog_configuration_result");
+      "reports"              usebundle  => rudder_common_reports_generic("Common", "remove_rudder_syslog_configuration_result", "&TRACKINGKEY&", "Log system for reports", "None", "Rudder syslog configuration removed");
 
 }
 
@@ -678,7 +757,7 @@ bundle agent check_binaries_freshness
 
     !android.!nova_edition::
       "${sys.workdir}/bin/${components}"
-        perms => u_p("700"),
+        perms => u_p("755"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
         classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
         action => immediate,
@@ -713,7 +792,7 @@ body agent control
     #define here some environment variables
         environment => { "DEBIAN_FRONTEND=noninteractive" };
 
-        abortclasses => { "should_not_continue" };
+        abortclasses => { "should_not_continue", "abort_agent_run" };
 
         agentfacility => "LOG_LOCAL6";
 
