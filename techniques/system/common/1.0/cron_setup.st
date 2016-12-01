@@ -97,8 +97,11 @@ bundle agent check_cron_daemon
     pass3.!(android|windows|aix)::
       "any" usebundle => rudder_common_reports_generic("Common", "service_restart_${service_name}", "&TRACKINGKEY&", "CRON Daemon", "None", "Cron daemon status");
 
-    (android|windows|aix)::
-      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "This is a system without CRON: CRON verifications skipped !");
+    (android|windows)::
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "This is a system without CRON: CRON verifications skipped");
+
+    aix::
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "CRON is not a service on AIX: CRON verifications skipped");
 
   processes:
 
