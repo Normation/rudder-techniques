@@ -601,8 +601,12 @@ bundle agent checkInventoryFile
   classes:
       "inventory_file_exist" expression => filesexist("@{inventory_file}");
       "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
-    pass1.inventory_file_exist::
+    pass1.inventory_file_exist.!windows::
       "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}", "noshell"),
+                        scope => "namespace";
+
+    pass1.inventory_file_exist.windows::
+      "inventory_valid" expression => returnszero("\"${perl_command}\" \"${this.promise_dirname}/test-inventory.pl\" \"${inventory_file}\"", "noshell"),
                         scope => "namespace";
 
     any::
