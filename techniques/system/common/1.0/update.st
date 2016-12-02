@@ -356,15 +356,29 @@ bundle agent update_action
         classes => success("server_ok", "server_error", "server_kept");
 
   reports:
-      # We want to have always reports if something goes bad
-      rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error::
-        "*********************************************************************************
-  * rudder-agent could not get an updated configuration from the policy server.   *
-  * This can be caused by a network issue, an unavailable server, or if this      *
-  * node was deleted from the Rudder root server.                                 *
-  * Any existing configuration policy will continue to be applied without change. *
-  *********************************************************************************"
-        action => immediate;
+    # We want to have always reports if something goes bad
+    rudder_ncf_hash_update_error::
+      "*********************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
+* This can be caused by:                                                        *
+*   * a networking issue                                                        *
+*   * an unavailable server                                                     *
+*   * if the node's IP in not if the allowed networks of its policy server.     *
+* Any existing configuration policy will continue to be applied without change. *
+*********************************************************************************"
+      action => immediate;
+
+     !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error)::
+       "*********************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
+* This can be caused by:                                                        *
+*   * an incorrect DNS resolution of this node                                  *
+*   * an agent key that has been changed                                        *
+*   * if this node is not accepted or deleted node on the Rudder root server    *
+*   * if this node has changed policy server without sending a new inventory    *
+* Any existing configuration policy will continue to be applied without change. *
+*********************************************************************************"
+      action => immediate;
 }
 
 #######################################################
