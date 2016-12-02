@@ -84,14 +84,25 @@ bundle server access_rules
         admit      => { string_downcase(escape("&host&"))  },
         admit_keys => { "&key&" };
 
-     } &
+      "/var/rudder/shared-files/&uuid&/"
+        maproot    => { string_downcase(escape("&host&"))  },
+        admit      => { string_downcase(escape("&host&"))  },
+        admit_keys => { "&key&" };
+
+    } &
   &else&
     &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY : {host, uuid, key |
       "/var/rudder/share/&uuid&/"
         maproot    => { host2ip("&host&"), string_downcase(escape("&host&"))  },
         admit      => { host2ip("&host&"), string_downcase(escape("&host&"))  },
         admit_keys => { "&key&" };
-     } &
+
+      "/var/rudder/shared-files/&uuid&/"
+        maproot    => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit      => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit_keys => { "&key&" };
+
+    } &
   &endif&
 
 &endif&
