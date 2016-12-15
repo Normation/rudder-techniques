@@ -67,6 +67,16 @@ fi
 if [ "${BASENAME##*.}" = "gz" ]
 then
   ${GZIP_BINARY} --force --quiet --decompress ${FILENAME}
+  UNZIP_COMMAND_RET=$?
+  if [ $UNZIP_COMMAND_RET -ne 0 ]
+  then
+    echo "ERROR: failed to decompress inventory in ${FILENAME} az gzip, putting it in the failed directory"
+    mv "${FILENAME}" "${FAILEDDIR}/$(basename ${FILENAME})-$(date --rfc-3339=date)"
+    [ -f "${FILENAME_SIGN}" ] && mv "${FILENAME_SIGN}" "${FAILEDDIR}/$(basename ${FILENAME_SIGN})-$(date --rfc-3339=date)"
+    # Since we have not even tried to upload, there is not HTTP Return code
+    # We exit with zero not to break the processing of the remaining inventory.
+    exit 0
+  fi
   # ${VARIABLE%.*} removes the last extension of the file, here: .gz
   FILENAME="${FILENAME%.*}"
 fi
