@@ -283,14 +283,14 @@ bundle agent fusionAgent
 
   commands:
     !windows.inventoryfoldercreated::
-      "${g.rudder_base}/bin/run-inventory --local=${inventory_path} --scan-homedirs"
+      "${g.rudder_base}/bin/run-inventory --local=${inventory_path}"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
 
 &if(NOVA)&
     windows::
       "\"C:\Program Files\Rudder\sbin\run-inventory.bat\""
-        args => "--local=\"${inventory_path}\" --scan-homedirs 2>nul",
+        args => "--local=\"${inventory_path}\" 2>nul",
         contain => in_shell,
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory";
