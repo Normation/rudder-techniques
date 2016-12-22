@@ -552,27 +552,27 @@ bundle agent addInformationsToInventory
       "${fusionAgent.inventory_path_edition}"
         edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
         comment => "Adding basic informations to Rudder Inventory",
-        edit_defaults => def_no_backup;
+        edit_defaults => def_no_backup_size("25M");
 
       "${fusionAgent.inventory_path_edition}"
         edit_line => add_users_information_to_inventory(@{addInformationsToInventory.users}),
         comment => "Adding user informations to Rudder Inventory",
-        edit_defaults => def_no_backup;
+        edit_defaults => def_no_backup_size("25M");
 
     uuiddefined.rudder_server_roles_dir_exists::
       "${fusionAgent.inventory_path_edition}"
         edit_line  => add_server_roles_information_to_inventory("@{addInformationsToInventory.rudder_roles}"),
         comment => "Adding server roles informations to Rudder Inventory",
-        edit_defaults => def_no_backup;
+        edit_defaults => def_no_backup_size("25M");
 
     android::
       "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line => add_information_to_android_inventory(${android_fullname}, ${android_kernelname}, ${android_kernelversion}, ${android_name}, ${android_version}),
-        edit_defaults => def_no_backup;
+        edit_defaults => def_no_backup_size("25M");
 
       "${g.rudder_var_tmp}/inventory/.*.ocs"
         edit_line => add_accesslog_to_android_inventory(${logdate}),
-        edit_defaults => def_no_backup;
+        edit_defaults => def_no_backup_size("25M");
 }
 
 # Check that the inventory file is valid
