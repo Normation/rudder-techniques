@@ -36,8 +36,8 @@ bundle agent job_scheduler
         # This should work, but produces errors when CFEngine checks the promises like: "Unable to parse class expression: [garbage]"
         # ifvarclass => or(and(isgreaterthan("${all_hours}", "${job_scheduler_time_min[${iterator}]}"), islessthan("${all_hours}", "${job_scheduler_time_max[${iterator}]}")), strcmp("${job_scheduler_time_min[${iterator}]}", "${all_hours}"));
 
-    nos2::
-      "test_hours_list_${iterator}" slist => getvalues("test_hours_${iterator}");
+      "test_hours_list_${iterator}" slist => getvalues("test_hours_${iterator}"),
+        ifvarclass => "test_${all_hours}_${iterator}";
 
   classes:
 
@@ -47,7 +47,7 @@ bundle agent job_scheduler
       "test_${all_hours}_enclosed_${iterator}" and => { isgreaterthan("${all_hours}", "${job_scheduler_time_min[${iterator}]}"), islessthan("${all_hours}", "${job_scheduler_time_max[${iterator}]}") };
       "test_${all_hours}_${iterator}"          or  => { "test_${all_hours}_enclosed_${iterator}", strcmp("${job_scheduler_time_min[${iterator}]}", "${all_hours}") };
 
-    nos2::
+    nos::
       # this has the side effect to create a class named by the promisee, not the promiser (which is unused)
       "run_time_${iterator}" select_class => { "@{test_hours_list_${iterator}}" };
 
