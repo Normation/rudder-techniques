@@ -56,7 +56,9 @@ $ActionQueueSaveOnShutdown on
 
 ## Syslog messages from "rudder"
 :programname, contains, "rudder" ~
+:programname, contains, "cf-agent" ~
 
 ## Syslog messages from "rudder" forwarded from AIX
 :msg, ereregex, "from .*: rudder" ~
+:msg, ereregex, "from .*: cf-agent" ~
 
