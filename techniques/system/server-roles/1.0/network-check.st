@@ -20,15 +20,23 @@ bundle agent root_networks_check
 {
 
   vars:
+      "policy_server_acl" slist => { "127.0.0.0/8", "::1", "${def.policy_server}" };
 
-      "acl_generate_22"  string => join("${const.n}Allow from ","def.acl");
-      "acl_generate_24"  string => join("${const.n}Require ip ","def.acl");
+      "nodes_generate_22"  string => join("${const.n}Allow from ","def.acl");
+      "nodes_generate_24"  string => join("${const.n}Require ip ","def.acl");
+      "policy_server_generate_22"  string => join("${const.n}Allow from ","policy_server_acl");
 
-      "network_file[22]" string => "${g.rudder_base}/etc/rudder-networks.conf";
-      "network_acl[22]"  string => "Allow from ${acl_generate_22}";
+      "network_file[nodes_22]" string => "${g.rudder_base}/etc/rudder-networks.conf";
+      "network_acl[nodes_22]"  string => "Allow from ${nodes_generate_22}";
 
-      "network_file[24]" string => "${g.rudder_base}/etc/rudder-networks-24.conf";
-      "network_acl[24]"  string => "Require ip ${acl_generate_24}";
+      "network_file[nodes_24]" string => "${g.rudder_base}/etc/rudder-networks-24.conf";
+      "network_acl[nodes_24]"  string => "Require ip ${nodes_generate_24}";
+
+      "network_file[policy_server_22]" string => "${g.rudder_base}/etc/rudder-networks-policy-server.conf";
+      "network_acl[policy_server_22]"  string => "Allow from ${policy_server_generate_22}";
+
+      "network_file[policy_server_24]" string => "${g.rudder_base}/etc/rudder-networks-policy-server-24.conf";
+      "network_acl[policy_server_24]"  string => "Require local${const.n}Require ip ${def.policy_server}";
 
       "index"             slist => getindices("network_file");
 
@@ -52,7 +60,7 @@ bundle agent root_networks_check
         edit_defaults => empty_backup,
         edit_line     => insert_lines("${network_acl[${index}]}"),
         classes       => kept_if_else("rudder_networks_ok", "rudder_networks_repaired","rudder_networks_failed"),
-        comment       => "Copying rudder apache configuration";
+        comment       => "Writing rudder apache configuration";
 
   methods:
 
