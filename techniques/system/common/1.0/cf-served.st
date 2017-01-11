@@ -224,6 +224,14 @@ body server control
         maxconnections    => "1000";
         logallconnections => "true";
 
+        allowlegacyconnects => {
+            host2ip("${def.policy_server}"), # the policy server can connect
+            &if(AUTHORIZED_NETWORKS)&
+            &AUTHORIZED_NETWORKS:{net|"&net&",}&
+            &endif&
+
+        };
+
         cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf \&\& ${sys.workdir}/bin/cf-agent";
         allowusers        => {
           "&POLICYSERVER_ADMIN&",
