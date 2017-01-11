@@ -141,7 +141,12 @@ bundle agent propagatePromises
         edit_line     => insert_lines("${ncf_local_sha_sum}"),
         comment       => "Update the hash of ncf local";
 
+    policy_server::
 
+      "${g.rudder_base}/etc/nodeslist.json"
+        copy_from    => local_cp("${this.promise_dirname}/nodeslist.json"),
+        comment => "Copying list of nodes under this policy server",
+        classes => if_else("nodeslist_copied", "could_not_copy_nodeslist");
 
   methods:
     root_server::
@@ -153,7 +158,7 @@ bundle agent propagatePromises
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder to be updated.
-    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.shared_files_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_shared_files|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise))::
+    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.shared_files_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_shared_files|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Propagate promises", "None", "All files have been propagated");
     pass3.could_not_propagate_promise::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate policy files");
@@ -178,6 +183,9 @@ bundle agent propagatePromises
 
     pass3.could_not_copy_license::
       "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot copy local license");
+
+    pass3.could_not_copy_nodeslist::
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "&TRACKINGKEY&", "Propagate nodeslist", "None", "Cannot copy local nodes list");
 
 }
 
