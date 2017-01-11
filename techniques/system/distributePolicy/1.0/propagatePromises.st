@@ -145,6 +145,7 @@ bundle agent propagatePromises
 
       "${g.rudder_base}/etc/nodeslist.json"
         copy_from    => local_cp("${this.promise_dirname}/nodeslist.json"),
+        perms        => mog("640", "root", "rudder"),
         comment => "Copying list of nodes under this policy server",
         classes => if_else("nodeslist_copied", "could_not_copy_nodeslist");
 
