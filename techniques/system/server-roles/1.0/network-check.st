@@ -20,7 +20,8 @@ bundle agent root_networks_check
 {
 
   vars:
-      "policy_server_acl" slist => { "127.0.0.0/8", "::1", "${def.policy_server}" };
+      "policy_server_ip" string => host2ip("${def.policy_server}");
+      "policy_server_acl" slist => { "127.0.0.0/8", "::1",  "${policy_server_ip}" };
 
       "nodes_generate_22"  string => join("${const.n}Allow from ","def.acl");
       "nodes_generate_24"  string => join("${const.n}Require ip ","def.acl");
@@ -36,7 +37,7 @@ bundle agent root_networks_check
       "network_acl[policy_server_22]"  string => "Allow from ${policy_server_generate_22}";
 
       "network_file[policy_server_24]" string => "${g.rudder_base}/etc/rudder-networks-policy-server-24.conf";
-      "network_acl[policy_server_24]"  string => "Require local${const.n}Require ip ${def.policy_server}";
+      "network_acl[policy_server_24]"  string => "Require local${const.n}Require ip ${policy_server_ip}";
 
       "index"             slist => getindices("network_file");
 
