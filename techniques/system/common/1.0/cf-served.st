@@ -195,7 +195,7 @@ body server control
         logallconnections => "true";
 
       windows::
-        cfruncommand => "${sys.cf_agent} -I -D cfruncommand -f \"failsafe.cf\"  &
+        cfruncommand => "${sys.cf_agent} -I -D cfruncommand -f \"failsafe.cf\"  \&
                         ${sys.cf_agent} -I -D cfruncommand";
 
       !windows::
