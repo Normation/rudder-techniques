@@ -98,13 +98,14 @@ bundle server access_rules
 
     # Allow server to remotely run the agent
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
-    linux::
-      "${sys.workdir}/bin/cf-agent"
-        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
-
     windows::
       "${sys.workdir}\bin\cf-agent.exe"
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+
+    !windows::
+      "${def.cf_runagent_shell}"
+        admit => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+
 
   roles:
       # Allow user root to set any class
@@ -124,6 +125,11 @@ bundle common def
                           readfile("${policy_server_file}", 2048),
                           "rudder"),
         comment => "IP address or hostname to locate your policy host.";
+
+    !windows::
+      "cf_runagent_shell" 
+        string  => "/bin/sh",
+        comment => "Define path to shell used by cf-runagent";
 
     any::
 
@@ -213,7 +219,17 @@ body server control
         maxconnections    => "1000";
         logallconnections => "true";
 
-        cfruncommand      => "${sys.workdir}/bin/cf-agent -f failsafe.cf \&\& ${sys.workdir}/bin/cf-agent";
+      windows::
+        cfruncommand => "${sys.cf_agent} -I -D cfruncommand -f \"failsafe.cf\"  &
+                        ${sys.cf_agent} -I -D cfruncommand";
+
+      !windows::
+        # last single quote in cfruncommand is left open, so that
+        # arguments (like -K and --remote-bundles) are properly appended.
+        cfruncommand => "${def.cf_runagent_shell} -c \'
+                            ${sys.cf_agent} -I -D cfruncommand -f failsafe.cf  \&\&
+                            ${sys.cf_agent} -I -D cfruncommand";
+
         allowusers        => {
           "&POLICYSERVER_ADMIN&",
           &MANAGED_NODES_ADMIN : {admin | "&admin&" };separator=", "&
