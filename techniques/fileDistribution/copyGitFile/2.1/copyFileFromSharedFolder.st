@@ -59,6 +59,8 @@ bundle agent download_from_shared_folder
 }&
       "shared_folder" string => "&SHARED_FILES_FOLDER&";
 
+      "canon_dirname_${index}" string => canonify(dirname("${copyfile[${index}][destination]}"));
+
       "index" slist => getindices("copyfile");
 
   iteration_1::
@@ -179,6 +181,8 @@ bundle agent download_from_shared_folder
 
   methods:
 
+      "any" usebundle => file_check_symlink(dirname("${copyfile[${index}][destination]}"));
+
     pass3.(!is_valid)::
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "There is no shared folder on the Rudder Server, so it's not possible to copy a file from it");
 
@@ -191,9 +195,9 @@ bundle agent download_from_shared_folder
 
       # Error conditons
 
-      ## The destination is not an existing directory
+      ## The destination is not an existing directory or symbolic link
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The copy of the file failed: the destination (${copyfile[${index}][destination]}) is not stored in a valid directory"),
-        ifvarclass => "copy_file_${index}_dest_notdir";
+        ifvarclass => "copy_file_${index}_dest_notdir.file_check_symlink_${canon_dirname_${index}}_failed";
 
       ## File access denied
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][name]}", "The copy of the file failed: access to ${copyfile[${index}][name]} denied by the server"),
