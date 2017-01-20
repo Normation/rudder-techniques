@@ -80,7 +80,7 @@ bundle agent install_rsyslogd
         classes => classes_generic("rudder_rsyslog_historical_conf"),
         comment => "Deleting historical rudder-agent.conf file if it is there";
 
-    policy_server.debian.!reports_disabled.!role_rudder_relay_promises_only::
+    (root_server|role_rudder_relay_top).debian.!reports_disabled.!role_rudder_relay_promises_only::
       "/etc/rsyslog.d/pgsql.conf"
         edit_line => comment_all(),
         edit_defaults => noempty_backup,
