@@ -45,6 +45,7 @@ bundle common g
 
     !windows::
       "rudder_bin"                 string => "${rudder_base}/bin";
+      "rudder_command"             string => "${rudder_bin}/rudder";
       "rudder_sbin"                string => "${rudder_base}/sbin";
       "rudder_var_tmp"             string => "${rudder_var}/tmp"; # tmp generated data
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
