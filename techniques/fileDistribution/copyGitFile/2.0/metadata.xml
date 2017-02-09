@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <TECHNIQUE name="Download a file from the shared folder">
   <DESCRIPTION>This technique ensure that some files are the copy of files on the shared folder of the Rudder Root Server, and let you optionally execute a command if the content of the file was modified</DESCRIPTION>
 
+  <DEPRECATED>This version is deprecated, use 2.1 instead.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>

@@ -22,6 +22,7 @@ It is intended to check if the required motd is installed.
 -->
 <TECHNIQUE name="MOTD configuration">
   <DESCRIPTION>This technique will check if the required Message Of The Day is present on the system.</DESCRIPTION>
+  <DEPRECATED>This version is deprecated, use 3.2 instead.</DEPRECATED>
   <COMPATIBLE>
     <OS version="System V and related, Windows">UNIX, Windows</OS>
     <AGENT version=">= 3.5.3">cfengine-community</AGENT>

@@ -25,6 +25,8 @@ manager, and eventually enforce them.
 <TECHNIQUE name="APT package manager configuration">
   <DESCRIPTION>This technique configure the APT package manager.</DESCRIPTION>
 
+  <DEPRECATED>This version is deprecated, use 3.1 instead.</DEPRECATED>
+
   <BUNDLES>
     <NAME>check_apt_settings</NAME>
   </BUNDLES>
