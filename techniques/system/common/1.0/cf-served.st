@@ -114,7 +114,7 @@ bundle server access_rules
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
     !windows::
-      "${def.cf_runagent_shell}"
+      "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
         admit => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
 
@@ -245,9 +245,7 @@ body server control
       !windows::
         # last single quote in cfruncommand is left open, so that
         # arguments (like -K and --remote-bundles) are properly appended.
-        cfruncommand => "${def.cf_runagent_shell} -c \'
-                            ${sys.cf_agent} -I -D cfruncommand -f failsafe.cf  \&\&
-                            ${sys.cf_agent} -I -D cfruncommand";
+        cfruncommand => "${g.rudder_command} agent run -uR";
 
         allowusers        => {
           "&POLICYSERVER_ADMIN&",

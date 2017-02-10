@@ -917,7 +917,7 @@ body executor control
         exec_command => "${sys.cf_agent} -f \"${sys.workdir}\inputs\failsafe.cf\" \& ${sys.cf_agent}";
 
    !windows::
-        exec_command => "${sys.cf_agent} -f failsafe.cf \&\& ${sys.cf_agent}";
+        exec_command => "${sys.cf_agent} -f failsafe.cf ; ${sys.cf_agent}";
 
 }
 
