@@ -65,7 +65,7 @@ bundle server access_rules
 
       &endif&
 
-    &if(NOVA)&
+  &if(NOVA)&
     role_rudder_cfengine_mission_portal::
       "${query_types}"
         handle             => "server_access_grant_${query_types}_for_hub",
@@ -73,7 +73,16 @@ bundle server access_rules
         resource_type      => "query",
         report_data_select => rudder_data_select_policy_hub,
         admit              => { ${def.policy_server}, @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
-    &endif&
+
+    enterprise_edition::
+      "${query_types}"
+        handle             => "server_access_grant_${query_types}_for_hosts",
+        comment            => "Grant ${query_types} reporting query for the hub on the hosts",
+        resource_type      => "query",
+        report_data_select => rudder_data_select_host,
+        admit              => { ${def.policy_server}, @{sys.ip_addresses} };
+
+  &endif&
 
 
     any::
