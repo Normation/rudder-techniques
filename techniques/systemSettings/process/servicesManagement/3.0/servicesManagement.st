@@ -82,7 +82,7 @@ bundle agent services_management
       "bootstart_process"   usebundle => service_ensure_started_at_boot("${service[${index}][name]}"),
                            ifvarclass => "bootstart_process_${index}";
 
-      "unbootstart_process" usebundle => service_ensure_stopped("${service[${index}][name]}"),
+      "unbootstart_process" usebundle => service_ensure_disabled_at_boot("${service[${index}][name]}"),
                            ifvarclass => "bootstart_prevent_process_${index}|(stop_process_${index}.graceful_stop_process_${index})";
 
 
@@ -176,7 +176,7 @@ bundle agent services_management
       "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_ensure_started_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
         ifvarclass => "bootstart_process_${index}";
           
-      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_ensure_stopped_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
+      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_ensure_disabled_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration"),
         ifvarclass => "bootstart_prevent_process_${index}";
 
 
