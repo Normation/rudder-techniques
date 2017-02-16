@@ -33,6 +33,8 @@ It then adds openvpn to the boot init scripts if not already set to start on boo
   As of this version, only the PSK peer identification method is supported, please use the "Download File" Technique to distribute the secret key.
   </DESCRIPTION>
 
+  <DEPRECATED>This technique is deprecated</DEPRECATED>
+
   <BUNDLES>
     <NAME>check_openvpn_installation</NAME>
     <NAME>check_openvpn_client_configuration</NAME>
