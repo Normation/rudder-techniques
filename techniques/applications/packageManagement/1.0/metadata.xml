@@ -14,7 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<TECHNIQUE name="Package management">
+<TECHNIQUE name="Packages">
   <DESCRIPTION>This technique operates on individual packages.
 
   It will ensure that the defined packages are in the desired state using the appropriate package manager.</DESCRIPTION>

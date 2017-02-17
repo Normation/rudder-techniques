@@ -14,16 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the OpenVPN installation PT.
-    Compatibility : Linux Red Hat like, Debian like
-
-It is intended to check if OpenVPN is installed and install it if not,
-then check if it is started on boot.
-
-It then adds openvpn to the boot init scripts if not already set to start on boot.
--->
-<TECHNIQUE name="OpenVPN client">
+<TECHNIQUE name="VPN client (OpenVPN)">
   <DESCRIPTION>This technique will configure the OpenVPN client service and ensure it is running.
 
   It will ensure the "openvpn" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.

@@ -14,14 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the fstab configuration PT.
-    Compatibility : UNIX like
-
-It is intended to check if the fstab is up to date with the
-given parameters.
--->
-<TECHNIQUE name="Fstab configuration">
+<TECHNIQUE name="Filesystem mount points">
   <DESCRIPTION>Configures the system fstab</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>

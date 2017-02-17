@@ -14,14 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the NFS Server configuration PT.
-    Compatibility : Debian like, RedHat like, SuSE like
-
-It is intended to check if the NFS server is installed and if the
-required mount points are set with the right options.
--->
-<TECHNIQUE name="NFS Server">
+<TECHNIQUE name="NFS server">
   <DESCRIPTION>Configure a NFS server</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>

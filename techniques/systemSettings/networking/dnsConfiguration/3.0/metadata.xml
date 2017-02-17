@@ -14,13 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the DNS configuration PT.
-    Compatibility : Debian like, RedHat like, SuSE like and Windows
-
-It is intended to check if the required DNS entries are set.
--->
-<TECHNIQUE name="Name resolution">
+<TECHNIQUE name="DNS settings">
   <DESCRIPTION>Configure DNS lookups</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>

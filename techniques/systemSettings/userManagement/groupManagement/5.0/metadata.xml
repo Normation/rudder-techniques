@@ -14,14 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the groupManagement PT.
-    Compatibility : Linux like, Windows like
-
-It is intended to check the group parameters on the target host.
--->
-
-<TECHNIQUE name="Group management">
+<TECHNIQUE name="Groups">
   <DESCRIPTION>This technique manages the target host(s) groups.
 
   It will ensure that the defined groups are present on the system.</DESCRIPTION>

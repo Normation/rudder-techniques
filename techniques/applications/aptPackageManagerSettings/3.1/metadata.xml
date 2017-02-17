@@ -14,16 +14,8 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the APT Package Manager Configuration PT.
-    Compatibility : Debian like
-
-It is intended to set a bunch of options commonly
-appreciated by administrators on the APT package
-manager, and eventually enforce them.
--->
-<TECHNIQUE name="APT package manager configuration">
-  <DESCRIPTION>This technique configure the APT package manager.</DESCRIPTION>
+<TECHNIQUE name="Package sources and settings (APT)">
+  <DESCRIPTION>This technique configures the APT package manager.</DESCRIPTION>
 
   <BUNDLES>
     <NAME>check_apt_settings</NAME>
