@@ -14,13 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the MOTD configuration PT.
-    Compatibility : UNIX like
-
-It is intended to check if the required motd is installed.
--->
-<TECHNIQUE name="MOTD and pre-login banner configuration">
+<TECHNIQUE name="MOTD and pre-login banner">
   <DESCRIPTION>This technique will check if the required Message Of The Day is present on the system.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related, Windows">UNIX, Windows</OS>

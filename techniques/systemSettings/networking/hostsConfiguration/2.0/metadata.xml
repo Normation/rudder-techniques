@@ -14,13 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the hosts configuration PT.
-    Compatibility : Debian like, RedHat like, SuSE like and Windows
-
-It is intended to check if the required hosts entries are set.
--->
-<TECHNIQUE name="Hosts settings">
+<TECHNIQUE name="Hosts local entries">
   <DESCRIPTION>This technique configures the machine hosts file. Be careful: The IP address is used as the key reference for any edition and if multiple hosts have been specified with the same IP in the hosts file, the matching entry defined here will take precedence and erase all the other occurrences of the same IP</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>

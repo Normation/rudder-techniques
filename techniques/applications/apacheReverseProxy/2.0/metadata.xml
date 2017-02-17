@@ -14,14 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-This is the Apache reverse proxy installation Technique.
-Compatibility : Linux Red Hat like, Debian like
-
-It is intended to set up Apache as a reverse proxy server, for example to expose
-application server data to the outside or to centralize HTTP ressources in one point.
--->
-<TECHNIQUE name="HTTP Reverse Proxy (Apache)">
+<TECHNIQUE name="HTTP reverse proxy (Apache)">
   <DESCRIPTION>This technique will configure the Apache HTTP server as a reverse proxy.
 
   It will ensure the Apache HTTPd package is installed (via the appropriate packaging tool for each OS), ensure the service is running and configure it to act as a reverse proxy server.

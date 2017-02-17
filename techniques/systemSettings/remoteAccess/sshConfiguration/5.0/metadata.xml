@@ -14,20 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the SSH installation Technique.
-    Compatibility : Linux Red Hat like, Debian like
-
-It is intended to check if SSH is installed and install it if not,
-then check if it is started on boot.
-
-Then, it modifies if required the given configuration statements and if needed, restarts ssh.
-
-It then adds ssh to the boot init scripts if not already set to start on boot.
-
-This implemenation is intended as a reference for Technique development best practices.
--->
-<TECHNIQUE name="OpenSSH server">
+<TECHNIQUE name="SSH server (OpenSSH)">
 
   <DESCRIPTION>This technique will configure the SSH service and ensure it is running.
 

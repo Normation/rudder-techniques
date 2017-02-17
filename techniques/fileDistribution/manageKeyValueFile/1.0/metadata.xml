@@ -14,8 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!-- This technique lets user define a key-value in a file -->
-<TECHNIQUE name="Manage keys-values in file">
+<TECHNIQUE name="File content (key/value format)">
   <DESCRIPTION>Manage keys-values in file</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>

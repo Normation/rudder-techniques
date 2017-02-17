@@ -13,7 +13,7 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<TECHNIQUE name="Generic CFEngine Command variable definition">
+<TECHNIQUE name="Variable from command output (string)">
   <DESCRIPTION>Configures a generic CFEngine variable in a common bundle from the output of an executable, to be used in another Technique. This Technique does nothing by itself, you must reuse the variable(s) you will create here in another Technique with the form: $(generic_cmd_var_def.variablename)</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>

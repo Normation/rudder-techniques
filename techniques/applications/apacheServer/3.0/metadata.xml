@@ -14,16 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the Apache installation PT.
-    Compatibility : Linux Red Hat like, Debian like
-
-It is intended to check if Apache is installed and install it if not,
-then check if it is started on boot.
--
-It then adds apache to the boot init scripts if not already set to start on boot.
--->
-<TECHNIQUE name="Apache 2 HTTP server">
+<TECHNIQUE name="HTTP server (Apache)">
   <DESCRIPTION>This technique will configure the Apache HTTP server and ensure it is running.
 
   It will ensure the "apache2" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.

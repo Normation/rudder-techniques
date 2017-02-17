@@ -14,14 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the routingManagement PT.
-    Compatibility : Linux like, Windows
-
-It is intended to check the defined routes, by OS,
-and to ensure they are present if required.
--->
-<TECHNIQUE name="IPv4 routing management">
+<TECHNIQUE name="IPv4 routing">
   <DESCRIPTION>This technique operates on the system routing table.
 
   It will ensure that the defined routes are present, and will add them if required.</DESCRIPTION>
