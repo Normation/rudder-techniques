@@ -50,6 +50,14 @@ bundle agent propagatePromises
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
+    # Class definition for no propagate promises transfer, but correct promises transfer -> folder for promises for relay is empty on the server, or folder inexistent
+    pass3::
+     "update_successful"                expression => "root_server|((rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_ok|(rudder_promises_generated_repaired.config_ok)).!(rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error))";
+
+     "empty_promises_to_propagate"      expression => "update_successful.!promises_propagated";
+     "promises_to_propagate_not_copied" expression => "!update_successful.!promises_propagated";
+
+
   files:
 
     root_server::
@@ -147,9 +155,9 @@ bundle agent propagatePromises
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder to be updated.
-    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.promises_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|could_not_propagate_promise|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise))::
+    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.(promises_propagated|empty_promises_to_propagate).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated)).!(propagate_tools_error|promises_to_propagate_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise))::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Propagate promises", "None", "All files have been propagated");
-    pass3.could_not_propagate_promise::
+    pass3.promises_to_propagate_not_copied::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate policy files");
 
     pass3.could_not_propagate_files::
