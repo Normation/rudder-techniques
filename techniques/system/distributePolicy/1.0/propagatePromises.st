@@ -52,7 +52,7 @@ bundle agent propagatePromises
 
     # Class definition for no propagate promises transfer, but correct promises transfer -> folder for promises for relay is empty on the server, or folder inexistent
     pass3::
-     "update_successful"                expression => "root_server|((rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_ok|(rudder_promises_generated_repaired.config_ok)).!(rudder_promises_generated_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error))";
+     "update_successful"                expression => "root_server|((rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error))";
 
      "empty_promises_to_propagate"      expression => "update_successful.!promises_propagated";
      "promises_to_propagate_not_copied" expression => "!update_successful.!promises_propagated";
