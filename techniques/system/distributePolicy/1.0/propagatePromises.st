@@ -57,6 +57,9 @@ bundle agent propagatePromises
      "empty_promises_to_propagate"      expression => "update_successful.!promises_propagated";
      "promises_to_propagate_not_copied" expression => "!update_successful.!promises_propagated";
 
+     "sharedfiles_not_existent" expression => "update_successful.!shared_files_propagated"; # If shared-files doesn't exist, error class is defined, if it is empty, no class is defined
+     "sharedfiles_not_copied"   expression => "!update_successful.could_not_propagate_shared_files";
+
 
   files:
 
@@ -167,12 +170,12 @@ bundle agent propagatePromises
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder to be updated.
-    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.(promises_propagated|empty_promises_to_propagate).shared_files_propagated.masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied)).!(propagate_tools_error|promises_to_propagate_not_copied|could_not_propagate_shared_files|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
+    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.(promises_propagated|empty_promises_to_propagate).(shared_files_propagated|sharedfiles_not_existent).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied)).!(propagate_tools_error|promises_to_propagate_not_copied|sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Propagate promises", "None", "All files have been propagated");
     pass3.promises_to_propagate_not_copied::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate policy files");
 
-    pass3.could_not_propagate_shared_files::
+    pass3.sharedfiles_not_copied::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate shared files");
 
     pass3.could_not_propagate_files::
