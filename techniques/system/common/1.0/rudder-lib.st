@@ -141,22 +141,6 @@ body location append
 }
 
 #########################################################
-body package_method yum_remi
-{
-
-        package_changes               => "bulk";
-        package_list_command          => "/usr/bin/yum ${redhat_knowledge.yum_options} list installed";
-        package_list_name_regex       => "([^.]+).*";
-        package_list_version_regex    => "[^\s]\s+([^\s]+).*";
-        package_list_arch_regex       => "[^.]+\.([^\s]+).*";
-        package_installed_regex       => ".*installed.*";
-        package_name_convention       => "${name}.${arch}";
-        package_delete_convention     => "${name}";
-        package_add_command           => "/usr/bin/yum ${redhat_knowledge.yum_options} --enablerepo=remi -y install";
-        package_delete_command        => "/bin/rpm -e";
-        package_verify_command        => "/bin/rpm -V";
-
-}
 
 #perms validation
 body perms p(user,mode)
