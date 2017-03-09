@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Variable from JSON file (dict)">
-  <DESCRIPTION>Downloads a JSON file from shared-files and reads it into CFEngine variables. You can use these variables in the form ${your_namespace.variable_name}</DESCRIPTION>
+  <DESCRIPTION>Downloads a JSON file from shared-files and reads it into variables. You can use these variables in the form ${your_namespace.variable_name}</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS>Every OS</OS>
@@ -47,7 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable namespace, the prefix that will be used for variables definition</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEX error="Please enter a valid CFEngine variable namespace"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
+          <REGEX error="Please enter a valid variable namespace"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
@@ -55,7 +55,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable name</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEX error="Please enter a valid CFEngine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
+          <REGEX error="Please enter a valid variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
         </CONSTRAINT>
       </INPUT>
       <INPUT>

@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Variable (string)">
-  <DESCRIPTION>Configures a generic CFEngine variable in a common bundle, to be used in another Technique. This Technique does nothing by itself, you must reuse the variable(s) you will create here in another Technique with the form: ${generic_variable_definition.variablename}</DESCRIPTION>
+  <DESCRIPTION>Defines a variable. Its value can be used in other Directive parameters with the following syntax: ${generic_variable_definition.variablename}</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Variable name</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
-          <REGEX error="Please enter a valid CFEngine variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
+          <REGEX error="Please enter a valid variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
