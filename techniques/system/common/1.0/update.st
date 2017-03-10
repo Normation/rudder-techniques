@@ -134,8 +134,8 @@ bundle agent update_action
        # First copy rudder_promises_timestamp_tmp from the policy server, and check if it's newer
        # (based on the timestamp written in it) than rudder_promises_timestamp.
        # If so, copy all the promises
-       "rudder_promises_timestamp"     string => "rudder-promises-generated";
-       "rudder_promises_timestamp_tmp" string => "rudder-promises-generated.tmp";
+       "rudder_promises_timestamp"     string => "rudder_promises_generated";
+       "rudder_promises_timestamp_tmp" string => "rudder_promises_generated.tmp";
 
        # Same for rudder-tools
        "rudder_tools_updated_tmp"   string => "${g.rudder_tools_updated_filename}.tmp";
