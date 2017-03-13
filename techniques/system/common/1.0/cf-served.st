@@ -290,9 +290,10 @@ body report_data_select rudder_data_select_host
 # reporting value) should be prefixed with an underscore. By default the policy
 # framework explicitly excludes these variables and classes from collection.
 {
-    metatags_include => { "inventory", "report" };
-    metatags_exclude => { "noreport" };
-    monitoring_include => { ".*" };
+    metatags_include       => { "inventory", "report" };
+    metatags_exclude       => { "noreport" };
+    monitoring_include     => { ".*" };
+    promise_handle_exclude => { "noreport_.*" };
 }
 
 body report_data_select rudder_data_select_policy_hub
@@ -302,8 +303,9 @@ body report_data_select rudder_data_select_policy_hub
 # reporting value) should be prefixed with an underscore. By default the policy
 # framework explicitly excludes these variables and classes from collection.
 {
-    metatags_include => { "inventory", "report" };
-    metatags_exclude => { "noreport" };
-    monitoring_include => { ".*" };
+    metatags_include       => { "inventory", "report" };
+    metatags_exclude       => { "noreport" };
+    monitoring_include     => { ".*" };
+    promise_handle_exclude => { "noreport_.*" };
 }
 &endif&
