@@ -85,7 +85,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </SECTION>
       <INPUT>
         <NAME>COPYFILE_DESTINATION</NAME>
-        <DESCRIPTION>Destination of the file</DESCRIPTION>
+        <DESCRIPTION>Full path of destination file or directory</DESCRIPTION>
       <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node</LONGDESCRIPTION>
       </INPUT>
       <SELECT1>
