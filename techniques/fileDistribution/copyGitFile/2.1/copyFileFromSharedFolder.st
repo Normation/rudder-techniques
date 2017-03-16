@@ -80,6 +80,12 @@ bundle agent download_from_shared_folder
       string     => "0",
       ifvarclass => "(!enable_suid_${index}.!enable_sgid_${index})|!(authorize_sticky_on_folder_${index}|is_file_${index})";
 
+  defaults:
+      # Add a trailing slash to force considering destination as a directory and avoid replacing it with a file
+      "copyfile[${index}][destination]" string => "${copyfile[${index}][destination]}/", if_match_regex => ".*[^\/]",
+                                    ifvarclass => "pass1.!is_file_${index}";
+
+
   classes:
       "is_valid" not => strcmp("&SHARED_FILES_FOLDER&", "");
 
