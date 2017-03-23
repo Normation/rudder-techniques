@@ -65,8 +65,8 @@ bundle agent root_component_check
     role_rudder_server_root::
       # Password management is expected to be done manually in case of a splitted/relayed installation for now.
       "any" usebundle => root_password_check_ldap;
-      "any" usebundle => root_password_check_psql;
       "any" usebundle => root_password_check_file;
+      "any" usebundle => root_password_check_psql;
       "any" usebundle => root_password_security;
       "any" usebundle => root_password_restart_jetty;
 
