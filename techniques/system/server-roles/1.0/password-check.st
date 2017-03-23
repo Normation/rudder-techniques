@@ -88,11 +88,12 @@ bundle agent root_password_check_file
 
       "/root/.pgpass"
         create    => "true",
-        edit_line => root_password_check_file_pgpass("root_password_check_file.pgpass");
+        edit_line => root_password_check_file_pgpass("root_password_check_file.pgpass"),
+        classes   => rudder_common_classes("rudder_postgres_pgpass");
 
   methods:
 
-    root_server.file_ok.!file_repaired.!file_error::
+    root_server.file_ok.rudder_postgres_pgpass_kept.!(file_repaired|file_error|rudder_postgres_pgpass_repaired|rudder_postgres_pgpass_failed)::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Rudder passwords file is present and secure");
 
     root_server.file_repaired.!file_error::
@@ -100,6 +101,14 @@ bundle agent root_password_check_file
 
     root_server.file_error::
       "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "EMERGENCY: THE ${g.rudder_base}/etc/rudder-passwords.conf FILE IS *ABSENT*. THIS RUDDER SERVER WILL *NOT* OPERATE CORRECTLY.");
+
+    root_server.rudder_postgres_pgpass_repaired.!rudder_postgres_pgpass_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Postgresql .pgpass file was fixed");
+
+    root_server.rudder_postgres_pgpass_failed::
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "Could not update the .pgpass file");
+
+
 
     policy_server.!root_server::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check rudder-passwords.conf and pgpass files", "None", "The Rudder passwords file does not need to be checked on relay servers. Skipping...");
@@ -230,7 +239,7 @@ bundle agent root_password_check_psql
 
   commands:
 
-    psql_cant_connect::
+    psql_cant_connect|rudder_postgres_pgpass_repaired::
 
       "/usr/bin/psql -q -c \"ALTER USER rudder WITH PASSWORD '${p.psql_password[2]}'\""
         contain => setuid_sh("postgres"),
