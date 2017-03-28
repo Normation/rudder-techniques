@@ -109,7 +109,7 @@ bundle agent doInventory_always
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => checkInventoryFile;
 
-    uuid_valid.(force_inventory|(inventory_time.!inventory_sent)).inventory_valid::
+    uuid_valid.(force_inventory|((inventory_time|initial_promises).!inventory_sent)).inventory_valid::
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => signInventories;
       "any" usebundle => compressInventories;
