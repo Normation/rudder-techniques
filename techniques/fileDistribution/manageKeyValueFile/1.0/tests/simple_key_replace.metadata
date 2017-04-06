@@ -1,0 +1,6 @@
+[{
+  "inits": [ "simple_key_replace.cf" ],
+  "directives": [ "simple_key_replace.json" ],
+  "checks": [ "simple_key_replace.rb" ], 
+  "compliance": 100
+}]
