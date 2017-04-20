@@ -66,13 +66,13 @@ bundle agent root_networks_check
   methods:
 
     pass3.rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration is OK");
+      "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Allowed networks configuration is correct");
 
     pass3.rudder_networks_repaired.!rudder_networks_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration has been corrected");
+      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Allowed networks configuration has been repaired");
 
     pass3.rudder_networks_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "The Rudder allowed networks configuration was NOT edited because of an error");
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Allowed networks configuration could not be edited");
 
     pass3.apache_reloaded.!apache_reload_failed::
       "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check allowed networks configuration", "None", "Apache has been reloaded successfully");

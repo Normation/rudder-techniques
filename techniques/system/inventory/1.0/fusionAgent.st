@@ -273,7 +273,7 @@ bundle agent fusionAgent
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install ocs");
 
     pass3.cant_install_xen::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install xen utils on xen systems");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install Xen utils on Xen system");
 
     pass3.xen_installed::
       "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Xen utils installed");
@@ -383,11 +383,11 @@ bundle agent generateExtraInformations
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the user list");
 
     pass3.cpuid_fail::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the cpuid");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the CPUID");
 
     pass3.!rudder_inventory_userlist_tool_present::
 
-      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "The user list generation tool is not present yet. Skipping...");
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "User list generation tool is not present yet. Skipping...");
 
     pass3.!rudder_inventory_cpuid_tool_present::
 
