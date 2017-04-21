@@ -43,7 +43,7 @@ all: rudder-templates-cli.jar test
 	mkdir -p initial-promises/node-server/common/cron
 	cp techniques/system/common/1.0/rudder-agent-community-cron initial-promises/node-server/common/cron/
 	cp techniques/system/common/1.0/rudder-agent-nova-cron initial-promises/node-server/common/cron/
-	mv initial-promises/node-server/common/1.0/run-interval.cf initial-promises/node-server/run-interval
+	mv initial-promises/node-server/common/1.0/run_interval.cf initial-promises/node-server/run_interval
 	mkdir -p initial-promises/node-server/common/utilities
 	cp techniques/system/common/1.0/minicurl initial-promises/node-server/common/utilities/
 	chmod +x initial-promises/node-server/common/utilities/minicurl
