@@ -50,8 +50,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="rudder-parameters"/>
-    <TML name="run-interval">
-      <OUTPATH>run-interval</OUTPATH>
+    <TML name="run_interval">
+      <OUTPATH>run_interval</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
     <TML name="restart-services"/>
