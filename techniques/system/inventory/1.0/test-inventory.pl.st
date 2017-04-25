@@ -25,7 +25,7 @@ if(!defined $rudder) {
 # Test RUDDER/UUID
 my $uuid = $rudder->{UUID};
 if(!defined $uuid || $uuid eq "" || ($uuid ne "root" \&\& $uuid !~ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)) {
-  print "Inventory ERROR: No valid UUID\n";
+  print "Inventory ERROR: No valid UUID, is your agent properly installed ?\n";
   exit 1;
 }
 
@@ -33,7 +33,7 @@ if(!defined $uuid || $uuid eq "" || ($uuid ne "root" \&\& $uuid !~ /[0-9a-f]{8}-
 my $hostname = $rudder->{HOSTNAME};
 my $fqdn = $os->{FQDN};
 if( (!defined $hostname || $hostname eq "") \&\& (!defined $fqdn || $fqdn eq "")) {
-  print "Inventory ERROR: No RUDDER/HOSTNAME or OPERATINGSYSTEM/FQDN\n";
+  print "Inventory ERROR: No RUDDER/HOSTNAME or OPERATINGSYSTEM/FQDN, set a hostname other than 'localhost' and add its name in /etc/hosts\n";
   exit 1;
 }
 

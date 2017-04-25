@@ -648,7 +648,7 @@ bundle agent checkInventoryFile
       "********************************************************************************
 * WARNING Generated inventory is not valid, as it is missing mandatory fields. *
 * Not sending it to the Rudder Server                                          *
-* You can check the invalid inventory in ${g.rudder_var_tmp}/inventory/        *
+* You can get a full error message by running: ${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file} 
 ********************************************************************************";
 }
 
