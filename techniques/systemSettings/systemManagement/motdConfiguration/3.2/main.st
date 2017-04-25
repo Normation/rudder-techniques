@@ -54,7 +54,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
       "pass1"               expression => "any";
 
   files:
-    # Set every MOTD file to the wanted value
+    # Set every MOTD file to the wanted value
     pass2.!windows::
       "${rudder_motd_issue_files}"
         create        => "true",

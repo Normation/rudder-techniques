@@ -52,7 +52,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[edit_addresses]"
         string => "&OPENSSH_SERVER_ADDRESSESEDIT&";
 
-    # Class specific parameters
+    # Class specific parameters
     rudder_openssh_server_address_family_edit.!(debian_3|redhat_3|redhat_4|centos_3|centos_4)::
       "rudder_openssh_server_config[config][AddressFamily]"
         string => "&OPENSSH_SERVER_ADDRESSFAMILY&";

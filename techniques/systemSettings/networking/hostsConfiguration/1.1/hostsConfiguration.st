@@ -20,7 +20,7 @@
 #
 # NOTE : I permitted the creation of the hosts file if absent, but on a purely
 # functionnal side, its absence means a severe breakage of your IP stack. Be
-# aware of this if a file creation is reported !
+# aware of this if a file creation is reported !
 #
 
 bundle agent check_hosts_configuration
@@ -58,7 +58,7 @@ bundle agent check_hosts_configuration
       "${sys.winsysdir}\drivers\etc\hosts"
 
         create => "true",
-        # perms => m("644"),
+        # perms => m("644"),
 &if (HOSTS_ENFORCE)&
         edit_defaults => empty_backup,
 &else&

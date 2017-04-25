@@ -22,7 +22,7 @@ bundle agent root_apache_webdav_check
   vars:
 
       # I WANT to use this but there is no crypt support... yet
-      # "dav_password" string => hash("rudder","crypt");
+      # "dav_password" string => hash("rudder","crypt");
 
       "dav_user[1]" string => "rudder";
       "dav_password[1]" string => "PoBZbSkW/8bcE";

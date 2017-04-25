@@ -98,7 +98,7 @@ bundle agent process_matching
     restart_cf.!windows::
       "${sys.workdir}/bin/cf-execd"         signals => { "${stop_signal}" };
 
-    # Note: cron will get restarted automatically by init (respawn directive in inittab)
+    # Note: cron will get restarted automatically by init (respawn directive in inittab)
     aix.rudder_aix_crontab_insertion::
       "^/usr/sbin/cron"                         signals => { "${stop_signal}" };
 

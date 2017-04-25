@@ -38,7 +38,7 @@ bundle agent check_apt_package_installation
     &TRACKINGKEY:{directiveId |"apt_directive_id[&i&]" string => "&directiveId&";
     }&
 
-    # "debian_packagelist"  slist => {&APT_PACKAGE_DEBLIST: { "&it&" };separator=", "&};
+    # "debian_packagelist"  slist => {&APT_PACKAGE_DEBLIST: { "&it&" };separator=", "&};
 
       "index_aptpkg" slist => getindices("apt_package");
 

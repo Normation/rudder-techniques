@@ -58,7 +58,7 @@ bundle agent root_ldap_check
 
     linux::
 
-      # slapd configuration
+      # slapd configuration
       "@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder OpenLDAP daemon password is OK"
         ifvarclass => "rudder_ldap_slapd_password_ok.!rudder_ldap_slapd_password_changed.!rudder_ldap_slapd_password_failed";
 
@@ -68,7 +68,7 @@ bundle agent root_ldap_check
       "@@DistributePolicy@@Error@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder OpenLDAP daemon password failed to update"
         ifvarclass => "rudder_ldap_slapd_password_failed";
 
-      # properties configuration
+      # properties configuration
       "@@DistributePolicy@@Success@@root-DP#@root-distributePolicy##${g.uuid}@#The Rudder LDAP properties files passwords are OK"
         ifvarclass => "rudder_ldap_prop_password_ok.!rudder_ldap_prop_password_changed.!rudder_ldap_prop_password_failed";
 

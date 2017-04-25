@@ -31,7 +31,7 @@ bundle agent rudder_openssh_server_installation(service_name)
         string => "openssh";
 
   packages:
-    # Install OpenSSH if needed, using generic installation.
+    # Install OpenSSH if needed, using generic installation.
     (debian|redhat|SuSE)::
       "${rudder_openssh_server_package_name}"
         package_policy  => "add",

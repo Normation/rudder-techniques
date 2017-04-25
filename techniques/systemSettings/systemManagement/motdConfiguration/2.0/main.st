@@ -41,7 +41,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
       "rudder_motd_absent"         not => fileexists("/etc/motd");
 
   files:
-    # Set every MOTD file to the wanted value
+    # Set every MOTD file to the wanted value
     !windows::
       "${rudder_motd_file}"
         create        => "true",

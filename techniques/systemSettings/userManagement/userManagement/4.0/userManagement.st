@@ -61,7 +61,7 @@ bundle agent check_usergroup_user_parameters
 
     aix::
 
-      # Only execute this on AIX to prevent costly executions on irrelevant OSes:
+      # Only execute this on AIX to prevent costly executions on irrelevant OSes:
       # We only need this to update /etc/security/passwd, which is AIX specific.
       "timestamp"           string => execresult("/bin/date +%s", "noshell");
 
@@ -174,7 +174,7 @@ bundle agent check_usergroup_user_parameters
         classes    => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
         ifvarclass => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
-    # AIX has a specific approach for passwords, needing a different approach (no tabular edition)
+    # AIX has a specific approach for passwords, needing a different approach (no tabular edition)
 
     aix::
 
@@ -185,7 +185,7 @@ bundle agent check_usergroup_user_parameters
         classes       => kept_if_else("usermanagement_user_password_ok_${usergroup_user_index}", "usermanagement_user_password_repaired_${usergroup_user_index}", "usermanagement_user_password_failed_${usergroup_user_index}"),
         ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
-      # If a password update is needed, also update the timestamp to avoid administrative headaches (password expiration/policies)
+      # If a password update is needed, also update the timestamp to avoid administrative headaches (password expiration/policies)
       "/etc/security/passwd"
         create        => "false",
         edit_line     => rudder_change_aix_password_entry("${usergroup_user_login[${usergroup_user_index}]}", "lastupdate", "${timestamp}"),

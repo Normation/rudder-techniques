@@ -22,7 +22,7 @@
 # If ssh is not installed, install it (linux)
 # Change the server configuration, and restart the daemon
 # if the configuration changed
-# WARNING : You may inadvertently create conflict with processManagement !
+# WARNING : You may inadvertently create conflict with processManagement !
 # This promise restarts sshd if not there, which could be done by processManagement too.
 # dontchange is a generic value to prohibit the edition of the value
 #####################################################################################
@@ -58,7 +58,7 @@ bundle agent rudder_openssh_server_configuration(service_name)
       "rudder_openssh_server_startup_init_activation_command"
         string => "/sbin/chkconfig --del sshd \&\& /sbin/chkconfig --add sshd";
 
-    # Class specific parameters
+    # Class specific parameters
     rudder_openssh_server_address_family_edit.!(debian_3|redhat_3|redhat_4|centos_3|centos_4)::
       "sshd[AddressFamily]"
         string => "&OPENSSH_SERVER_ADDRESSFAMILY&";
@@ -252,8 +252,8 @@ bundle agent rudder_openssh_server_configuration(service_name)
         comment   => "Insert the standard Rudder disclaimer in the OpenSSHd configuration file";
 
     (debian|redhat|SuSE)::
-      # This promise will detect if there is a startup script for OpenSSH enabled on the system,
-      # and set a class if there is one indeed.
+      # This promise will detect if there is a startup script for OpenSSH enabled on the system,
+      # and set a class if there is one indeed.
       "${rudder_openssh_server_startup_script_regex}"
         create  => "true",
         action  => WarnOnly,

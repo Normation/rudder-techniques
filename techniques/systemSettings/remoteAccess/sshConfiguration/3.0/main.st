@@ -22,7 +22,7 @@
 # If ssh is not installed, install it (linux)
 # Change the server configuration, and restart the daemon
 # if the configuration changed
-# WARNING : You may inadvertently create conflict with processManagement !
+# WARNING : You may inadvertently create conflict with processManagement !
 # This promise restarts sshd if not there, which could be done by processManagement too.
 # dontchange is a generic value to prohibit the edition of the value
 #####################################################################################
@@ -67,8 +67,8 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
         comment   => "Insert the standard Rudder disclaimer in the OpenSSHd configuration file";
 
     (debian|redhat|SuSE)::
-      # This promise will detect if there is a startup script for OpenSSH enabled on the system,
-      # and set a class if there is one indeed.
+      # This promise will detect if there is a startup script for OpenSSH enabled on the system,
+      # and set a class if there is one indeed.
       "${rudder_openssh_server_startup_script_regex}"
         create  => "true",
         action  => WarnOnly,

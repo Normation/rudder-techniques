@@ -94,7 +94,7 @@ bundle agent check_apache_configuration
       # Adjust SELinux ?
       "apache_selinux_adjust" expression => strcmp("&APACHE_SELINUX&","true");
 
-      # Is the SELinux binary "chcon" present ?
+      # Is the SELinux binary "chcon" present ?
       "selinux_bin_present" expression => fileexists("/usr/bin/chcon");
 
       # Define if the list of module to verify has been specified by the user

@@ -21,7 +21,7 @@
 # If ssh is not installed, install it (linux)
 # Change the server configuration, and restart the daemon
 # if the configuration changed
-# WARNING : You may inadvertently create conflict with processManagement !
+# WARNING : You may inadvertently create conflict with processManagement !
 # This promise restarts sshd if not there, which could be done by processManagement too.
 # dontchange is a generic value to prohibit the edition of the value
 

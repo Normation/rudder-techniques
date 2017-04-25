@@ -80,7 +80,7 @@ bundle agent check_clock_configuration
 
   files:
 
-    # Adjust ntp.conf (Add the servers)
+    # Adjust ntp.conf (Add the servers)
     !windows.(ntp_config_file_exists|ntp_installed)::
       "/etc/ntp.conf"
         edit_line => setNtpServer("@{this.ntpServers}"),
@@ -94,7 +94,7 @@ bundle agent check_clock_configuration
         comment => "Updating the /etc/localtime file",
         classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
 
-    # Edit the distro dependant files to set the TZ on boot
+    # Edit the distro dependant files to set the TZ on boot
     redhat.!clock_timezone_noedit::
       "/etc/sysconfig/clock"
         edit_line => EditCentOSTimezone("${linux_timezone}"),
@@ -271,7 +271,7 @@ bundle agent check_clock_configuration
 
   commands:
 
-    # Restart commands
+    # Restart commands
     !windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
       "/etc/init.d/ntp"
         args => "restart",
@@ -305,7 +305,7 @@ bundle agent check_clock_configuration
         classes => cf2_if_else("ntp_win32time_started", "ntp_win32time_error"),
         comment => "Restart the windows NTP service";
 
-    # HW clock sync command
+    # HW clock sync command
     !windows.clock_hwclock_sync::
       "/sbin/hwclock"
         args => "--systohc",

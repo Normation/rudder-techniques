@@ -178,23 +178,23 @@ bundle agent download_from_shared_folder
 
       # Error conditons
 
-      ## The destination is not an existing directory
+      ## The destination is not an existing directory
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The copy of the file failed: the destination (${copyfile[${index}][destination]}) is not stored in a valid directory"
         ifvarclass => "copy_file_${index}_dest_notdir";
 
-      ## File access denied
+      ## File access denied
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The copy of the file failed: access to ${copyfile[${index}][name]} denied by the server"
         ifvarclass => "copy_file_${index}_denied";
 
-      ## User does not exist
+      ## User does not exist
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The permissions could not be applied on the file: user \"${copyfile[${index}][owner]}\" not found"
         ifvarclass => "copy_file_${index}_user_absent";
 
-      ## Group does not exist
+      ## Group does not exist
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The permissions could not be applied on the file: group \"${copyfile[${index}][group]}\" not found"
         ifvarclass => "copy_file_${index}_group_absent";
 
-      ## Generic failure
+      ## Generic failure
       "@@copyFile@@result_error@@${copyfile[${index}][uuid]}@@Copy file@@${copyfile[${index}][name]}@@${g.execRun}##${g.uuid}@#The content or permissions of the file(s) could not have been repaired (file not found?)"
         ifvarclass => "copy_file_${index}_error.!copy_file_${index}_dest_notdir.!copy_file_${index}_denied.!copy_file_${index}_user_absent.!copy_file_${index}_group_absent";
 

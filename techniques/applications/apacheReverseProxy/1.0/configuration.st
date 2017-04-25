@@ -93,7 +93,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
         classes       => rudder_common_classes("rudder_reverse_proxy_apache_configuration"),
         comment       => "Edit the Apache reverse proxy file";
 
-  # Class visibility forces us to use these bundles here.
+  # Class visibility forces us to use these bundles here.
   methods:
 
     # Modules edition
@@ -106,7 +106,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
       usebundle  => rudder_common_report("${internal_name}", "result_success", "${${params}[tracking_key]}", "SELinux parameters", "None", "No ${service_name} SELinux modification needed"),
       ifvarclass => "!rudder_reverse_proxy_apache_selinux_adjust|rudder_reverse_proxy_apache_selinux_proxy_policy";
 
-    # Apache restart/reload
+    # Apache restart/reload
     "any"
       usebundle  => rudder_common_report("${internal_name}", "log_info", "${${params}[tracking_key]}", "Daemon status", "None", "${service_name} has been restarted or reloaded"),
       ifvarclass => "rudder_reverse_proxy_apache_restart_repaired|rudder_reverse_proxy_apache_reload_repaired";

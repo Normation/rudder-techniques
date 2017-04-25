@@ -25,13 +25,13 @@ bundle agent rudder_reverse_proxy_apache
 {
   vars:
 
-    # Common declarations
+    # Common declarations
     "rudder_reverse_proxy_apache_service_name"
       string => "Apache (as a reverse proxy)";
     "rudder_reverse_proxy_apache_internal_name"
       string => "apacheReverseProxy";
 
-    # Parameters
+    # Parameters
     "rudder_reverse_proxy_params[package_install]"
       string => "&APACHE_REVERSE_PROXY_INSTALL&";
 
