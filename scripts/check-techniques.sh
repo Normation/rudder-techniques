@@ -156,6 +156,20 @@ do
   fi
 done || EXIT=1
 
+# Check that there are non non-breaking spaces in files
+# See http://www.rudder-project.org/redmine/issues/7622 - these cause regex failures.
+${REPOSITORY_PATH}/scripts/technique-files -p "${REPOSITORY_PATH}" | while read filename
+do
+  if grep -n -P '\xA0' "${filename}" > /dev/null; then
+    echo "Non-breakable space in ${filename}:"
+	echo "---------------------------------------------------------------------"
+	grep -Hn -P '\xA0' "${filename}"
+	grep -P '\xA0' "${filename}" | od -t x2c | grep -A1 --color -i a0
+	echo "---------------------------------------------------------------------"
+    exit 1
+  fi
+done || EXIT=1
+
 if [ ${EXIT} -eq 0 ]; then
   echo "This repository seems clean"
 else

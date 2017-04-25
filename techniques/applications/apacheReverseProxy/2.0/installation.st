@@ -62,7 +62,7 @@ bundle agent rudder_reverse_proxy_apache_installation_reporting(service_name, in
   methods:
     "any" usebundle => rudder_common_reports_generic("${internal_name}", "rudder_reverse_proxy_apache_package", "${${params}[tracking_key]}", "Installation parameters", "None", "The ${service_name} package installation");
 
-    # Special case if no installation is needed
+    # Special case if no installation is needed
     "any"
       usebundle  => rudder_common_report("${internal_name}", "result_success", "${${params}[tracking_key]}", "Installation parameters", "None", "${service_name} installation is not required. Skipping..."),
       ifvarclass => "!rudder_reverse_proxy_apache_install_package";
