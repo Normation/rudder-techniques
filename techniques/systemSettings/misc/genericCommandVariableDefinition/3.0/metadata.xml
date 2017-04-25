@@ -50,7 +50,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Executable whose output is to be stored as a variable</DESCRIPTION>
         <LONGDESCRIPTION>Be careful, the absolute path to the binary must be specified here. Example: /bin/uname instead of uname</LONGDESCRIPTION>
         <CONSTRAINT>
-          <TYPE>string</TYPE>
+          <TYPE>textarea</TYPE>
         </CONSTRAINT>
       </INPUT>
       <!-- Hidden sub-section containing advanced settings -->

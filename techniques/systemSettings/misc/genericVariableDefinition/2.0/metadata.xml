@@ -51,7 +51,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <NAME>GENERIC_VARIABLE_CONTENT</NAME>
         <DESCRIPTION>Variable content</DESCRIPTION>
         <CONSTRAINT>
-          <TYPE>string</TYPE>
+          <TYPE>textarea</TYPE>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
