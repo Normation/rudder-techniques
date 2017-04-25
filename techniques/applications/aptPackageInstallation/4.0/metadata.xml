@@ -69,7 +69,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <LABEL>Update only (don't install)</LABEL>
           <VALUE>update</VALUE>
         </ITEM>
-        <!--<ITEM> # CURRENTLY BROKEN IN CFENGINE #
+        <!--<ITEM> # CURRENTLY BROKEN IN CFENGINE #
           <LABEL>Install and update automatically</LABEL>
           <VALUE>addupdate</VALUE>
         </ITEM>-->

@@ -22,7 +22,7 @@
 # If ssh is not installed, install it (linux)
 # Change the server configuration, and restart the daemon
 # if the configuration changed
-# WARNING : You may inadvertently create conflict with processManagement !
+# WARNING : You may inadvertently create conflict with processManagement !
 # This promise restarts sshd if not there, which could be done by processManagement too.
 # dontchange is a generic value to prohibit the edition of the value
 #####################################################################################
@@ -44,9 +44,9 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
       "rudder_openssh_server_startup_command"
         string => "/usr/bin/stopsrc -s sshd \&\& until /usr/bin/lssrc -s sshd | ${paths.grep} -q inoperative; do ${paths.perl} -e 'select(undef,undef,undef,.25)'; done; /usr/bin/startsrc -s sshd";
 
-      # Here are the details about the arguments given to mkssys:
-      ## -p: Specifies the absolute path to the subsystem executable program.
-      ## -s: Specifies a name that uniquely identifies the subsystem.
+      # Here are the details about the arguments given to mkssys:
+      ## -p: Specifies the absolute path to the subsystem executable program.
+      ## -s: Specifies a name that uniquely identifies the subsystem.
       ## -G: Specifies that the subsystem belongs to the Group specified.
       ## -u: Specifies the user ID for the subsystem.
       ## -S: Specifies that the subsystem uses the signals communication method.

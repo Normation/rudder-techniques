@@ -52,13 +52,13 @@ bundle agent check_ssh_key_distribution
       "homedir[${sshkey_distribution_index}]"
         string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}";
 
-    # Only Linuxes (not Slackware), Solaris and FreeBSD support PAM/getent
+    # Only Linuxes (not Slackware), Solaris and FreeBSD support PAM/getent
     (linux.!slackware)|solaris|freebsd::
 
       "userdata_${sshkey_distribution_index}"
         string  => execresult("/usr/bin/getent passwd ${sshkey_distribution_name[${sshkey_distribution_index}]}", "noshell");
 
-    # On systems without PAM, directly read entries from /etc/passwd instead (compatibility)
+    # On systems without PAM, directly read entries from /etc/passwd instead (compatibility)
     !((linux.!slackware)|solaris|freebsd)::
 
       "userdata_${sshkey_distribution_index}"

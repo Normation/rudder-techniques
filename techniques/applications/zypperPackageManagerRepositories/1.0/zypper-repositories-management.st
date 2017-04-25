@@ -48,8 +48,8 @@ bundle agent zypper_repositories_management
 
   classes:
       # Disable repositories if the value of the variable start by true
-      # Since variable is unique, it can contain only one value, however, it is repeated
-      # as many time as there are instance of the directive, rendering the strcmp unusable in this case
+      # Since variable is unique, it can contain only one value, however, it is repeated
+      # as many time as there are instance of the directive, rendering the strcmp unusable in this case
       "zypper_disable_other_repositories" expression  => regcmp("true.*", "&ZYPPER_REPO_DISABLE_OTHER_REPOSITORIES&");
 
   files:

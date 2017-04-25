@@ -62,7 +62,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
         classes       => rudder_common_classes("rudder_reverse_proxy_apache_configuration"),
         comment       => "Edit the Apache reverse proxy file";
 
-  # Class visibility forces us to use these bundles here.
+  # Class visibility forces us to use these bundles here.
   methods:
 
     # Modules edition
@@ -91,7 +91,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
       "apache_reload" usebundle => service_restart("httpd");
 
-    # Apache restart/reload reporting
+    # Apache restart/reload reporting
     service_reload_apache2_ok|service_reload_httpd_ok|service_restart_apache2_ok|service_restart_httpd_ok::
       "any" usebundle  => rudder_common_report("${internal_name}", "log_info", "${${params}[tracking_key]}", "Daemon status", "None", "Apache has been restarted or reloaded");
 
