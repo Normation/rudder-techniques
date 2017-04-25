@@ -287,7 +287,7 @@ bundle agent clean_red_button()
 
   methods:
     safe::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Authorizing Cfengine to restart");
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Authorizing agent to restart");
 
   commands:
     safe.policy_server::
@@ -338,7 +338,7 @@ bundle agent stopClients
 
   methods:
     danger.policy_server::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Red Button", "None", "Actively stopping CFEngine operations on all clients of this policy server (via cf-runagent)");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Red Button", "None", "Actively stopping agent operations on all nodes managed by this server");
 
   commands:
     danger.policy_server::
@@ -382,9 +382,9 @@ bundle agent initialize_ncf()
       # because the first call to the logger may be in audit mode.
       "create ncf expected reports"     usebundle => _create_current_expected_reports_file;
       !logger_rudder_final_resfile_error::
-        "report about ncf init"         usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "The ncf initialization");
+        "report about ncf init"         usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "Configuration library initialization");
       logger_rudder_final_resfile_error::
-        "report about expected reports" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "ncf Initialization", "None", "Could not generate expected reports");
+        "report about expected reports" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "ncf Initialization", "None", "Could not generate expected reports file");
 
 }
 
@@ -419,10 +419,10 @@ bundle agent check_cf_processes_running
   methods:
     pass3.!windows::
 
-      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Process checking", "None", "CFEngine proccesses check is done by the rudder-agent CRON job");
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Process checking", "None", "Rudder agent proccesses check is done by the rudder-agent cron job");
 
     pass3.windows::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of CFEngine processes running on the machine"),
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of Rudder agent processes running"),
       # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
         ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
 
@@ -656,13 +656,13 @@ bundle agent check_rsyslog_version {
   methods:
 
     pass3.(rsyslogd.!check_rsyslog_version_present)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file  ${g.rudder_tools}/check-rsyslog-version is missing");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file ${g.rudder_tools}/check-rsyslog-version is missing");
 
     pass3.rsyslog_limit_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not remove limitation of message in rsyslog");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not remove message limit in rsyslog");
 
     pass3.rsyslog_limit_repaired::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Updated the rsyslog configuration to remove limitation of messages");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Updated the rsyslog configuration to remove message limit");
 
   commands:
     rsyslogd.check_rsyslog_version_present::
@@ -788,16 +788,16 @@ bundle agent check_binaries_freshness
   methods:
 
     binaries_fresh.!binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "The CFEngine binaries in ${sys.workdir}/bin are up to date");
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "The agent binaries in ${sys.workdir}/bin are up to date");
 
     binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Binaries update", "None", "The CFEngine binaries have been updated in ${sys.workdir}/bin");
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Binaries update", "None", "The agent binaries have been updated in ${sys.workdir}/bin");
 
     binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the CFEngine binaries in ${sys.workdir}/bin");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the agent binaries in ${sys.workdir}/bin");
 
     android::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "This is an android machine: no CFEngine binaries update needed");
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "This is an android machine: no agent binaries update needed");
 
     nova_edition::
       "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
@@ -812,25 +812,25 @@ bundle agent update_reports
 {
   methods:
     no_update::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update node's policy (CFEngine promises)");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update configuration policy");
 
     rudder_tools_updated_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update Rudder tools last updated file");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update tools (update flag file)");
 
     rudder_tools_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update Rudder tools");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update tools");
 
     rudder_ncf_hash_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update Rudder ncf update hash file");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common configuration library (update flag file)");
 
     rudder_ncf_common_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common Rudder ncf instance");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common configuration library");
 
     rudder_ncf_local_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update local Rudder ncf instance");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update local configuration library");
 
     rudder_promises_generated_tmp_file_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update node's policy");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update configuration policy");
 
     # Success report relies on several matching conditions (nodes except root_server)
     # On all nodes except root server:
@@ -840,7 +840,7 @@ bundle agent update_reports
     # There must be NO components in repair or error
     # Note: we can't use classes new_promises_available and new_tools_available here because they are local to the update_action bundle
     !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(policy_server|rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update|rudder_ncf_hash_update_error|rudder_ncf_hash_update_repaired)::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools and ncf instance are already up to date. No action required.");
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Policy, tools and configuration library are already up to date. No action required.");
 
     # Success report relies on several matching conditions (root_server only)
     # On the root server only:
@@ -848,22 +848,22 @@ bundle agent update_reports
     #   - Simple test: rudder_ncf_local_updated_ok
     # There must be NO components in repair or error
     root_server.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.!(rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error)::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Rudder ncf instance already up to date on this root server. No action required.");
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Configuration library already up to date on this root server. No action required.");
 
     rudder_tools_updated::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder tools updated");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Tools updated");
 
     rudder_ncf_common_updated::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder ncf common instance updated");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Common configuration library updated");
 
     rudder_ncf_local_updated::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder ncf local instance updated");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Local configuration library updated");
 
     config::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Node's policy (CFEngine promises) updated");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Configuration policy updated");
 
     (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Rudder policy, tools or ncf instance were updated or CFEngine service restarted");
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Policy, tools or configuration library were updated or agent service restarted");
 
     server_ok::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
