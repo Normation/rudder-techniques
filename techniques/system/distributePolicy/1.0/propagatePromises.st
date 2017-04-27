@@ -183,6 +183,10 @@ bundle agent sendInventoryToCmdb
     any::
       "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
       "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
+    SuSE_11|SuSE_10::
+      "curl_tlsv1" string => "";
+    !(SuSE_11|SuSE_10)::
+      "curl_tlsv1" string => "-1";
 
   classes:
     any::
@@ -209,14 +213,14 @@ bundle agent sendInventoryToCmdb
     policy_server.!(root_server|role_rudder_relay_top)::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
+        transformer => "/usr/bin/curl -k ${curl_tlsv1} -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/",
+        transformer => "/usr/bin/curl -k ${curl_tlsv1} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_relay"),
