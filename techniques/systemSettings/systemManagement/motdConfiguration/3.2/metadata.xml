@@ -70,7 +70,7 @@ It is intended to check if the required motd is installed.
       </SELECT1>
       <SELECT1>
         <NAME>MOTD_EMPTY</NAME>
-        <DESCRIPTION>Enforce this MOTD only</DESCRIPTION>
+	<DESCRIPTION>Replace the existing content of the MOTD</DESCRIPTION>
         <LONGDESCRIPTION>This option will remove any existing messages in the motd file and replace them with the text provided above. On Windows, the provided text will always remove any existing message</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
