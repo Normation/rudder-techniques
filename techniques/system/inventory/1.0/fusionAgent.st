@@ -199,7 +199,7 @@ bundle agent fusionAgent
       "xen_tools_package" string => "xen";
 
     # guarding execresult to save a lot of time during policy validation
-    !windows.(force_inventory|inventory_time)::
+    !windows.(force_inventory|inventory_time|initial_promises)::
       "fusion_inventory_version" string => execresult("${g.rudder_base}/bin/run-inventory --version | ${paths.path[grep]} '[0-9]\.[0-9]' | ${paths.path[sed]} 's%.*(\([0-9]\+\)\.\([0-9]\+\).*).*%\1\2%'", "useshell");
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory", policy => "overridable"; # Default value
       "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/.*.ocs", policy => "overridable"; # Default value for editing the inventory files
