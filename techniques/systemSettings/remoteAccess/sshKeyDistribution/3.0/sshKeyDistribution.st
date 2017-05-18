@@ -52,6 +52,10 @@ bundle agent check_ssh_key_distribution
       "homedir[${sshkey_distribution_index}]"
         string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}";
 
+    # Extract key content from the keys
+      "sshkey_distribution_key_content[${sshkey_distribution_index}]"
+        string => execresult("${paths.echo} '${sshkey_distribution_key[${sshkey_distribution_index}]}' | ${paths.sed} 's/(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S+)(\s.*)?/\3/'", "useshell");
+
     # Only Linuxes (not Slackware), Solaris and FreeBSD support PAM/getent
     (linux.!slackware)|solaris|freebsd::
 
@@ -89,7 +93,7 @@ bundle agent check_ssh_key_distribution
         create        => "true",
         edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
         perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
-        edit_line     => append_or_replace_ssh_key("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_index}"),
+        edit_line     => append_or_replace_ssh_key("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content[${sshkey_distribution_index}]}", "${sshkey_distribution_index}"),
         ifvarclass    => canonify("user_${sshkey_distribution_index}_exists"),
         classes       => rudder_common_classes("${key_class_prefix[${sshkey_distribution_index}]}");
 
@@ -130,7 +134,7 @@ bundle agent check_ssh_key_distribution
 #   - key value ends with "="
 #   - no spaces are allowed in options, except in double-quoted strings
 #
-bundle edit_line append_or_replace_ssh_key(keyspec, index)
+bundle edit_line append_or_replace_ssh_key(keyspec, key_content, index)
 {
 
   vars:
@@ -138,16 +142,7 @@ bundle edit_line append_or_replace_ssh_key(keyspec, index)
       "eline"
         comment     => "An escaped version of the keyspec - \Q..\E do not escape everything",
         string      => escape("${keyspec}");
-    key_parsed::
-      "key" string => escape("${keybits[3]}");
-
-  classes:
-    "key_defined"
-      expression => "key_parsed";
-
-    "key_parsed"
-      # Regextract now works up to string of 4096 length (cfengine 3.6), which is enough for keys (by far!).
-      expression    => regextract("(.*\s+)?(ssh-rsa|ssh-dss)\s+(\S+)(\s.*)?$", "${keyspec}", "keybits" );
+      "key" string => escape("${key_content}");
 
   insert_lines:
 
@@ -161,7 +156,6 @@ bundle edit_line append_or_replace_ssh_key(keyspec, index)
     "^(?!${eline}$)(.*${key}.*)$"
       comment       => "Replace a key here",
       replace_with  => value("${keyspec}"),
-      ifvarclass    => "key_defined",
       classes       => always("ssh_key_distribution_replace_step_attempted_${index}");
 
 }
