@@ -73,7 +73,8 @@ bundle agent doInventory_always
 
   classes:
     # The force_inventory class may be specified by the user at runtime, or defined here
-      "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory");
+      "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory"),
+                             scope => "namespace";
 
     uuid_succesfully_downloaded::
       "uuid_valid" expression => regcmp("[a-z0-9-]+","${policy_server_uuid}");
