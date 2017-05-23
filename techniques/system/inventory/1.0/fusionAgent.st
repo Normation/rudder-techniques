@@ -87,7 +87,8 @@ bundle agent doInventory_always
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 &if(INITIAL)&
-      "initial_promises" expression => "any";
+      "initial_promises" expression => "any",
+                              scope => "namespace";
 &endif&
 
   files:
