@@ -618,7 +618,8 @@ bundle agent addInformationsToInventory
 bundle agent checkInventoryFile
 {
   vars:
-      "inventory_file" slist => findfiles("${g.rudder_var_tmp}/inventory/*.ocs");
+      "inventory_file"     slist => findfiles("${g.rudder_var_tmp}/inventory/*.ocs");
+      "inventory_file_count" int => length("inventory_file");
     !windows.has_rudder_perl::
       "perl_command" string => "/opt/rudder/bin/perl -I /opt/rudder/lib/perl5";
     !windows.!has_rudder_perl::
@@ -627,7 +628,8 @@ bundle agent checkInventoryFile
       "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe";
 
   classes:
-      "inventory_file_exist" expression => filesexist("@{inventory_file}");
+      # To check if inventory file is there, we need to count the file (filexists is not enough if inventory_file is an empty list))
+      "inventory_file_exist" expression => isgreaterthan("${inventory_file_count}", "0");
       "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
     pass1.inventory_file_exist.!windows::
       "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}", "noshell"),
