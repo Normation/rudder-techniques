@@ -734,6 +734,7 @@ bundle agent garbage_collection
                                         "${sys.workdir}/promise_summary.log",
                                         "${sys.workdir}/cf_notkept.log",
                                         "${sys.workdir}/cf_repair.log",
+                                        "/var/log/rudder/agent-check/check.log",
                                      };
 
   files:
@@ -750,6 +751,8 @@ bundle agent garbage_collection
         delete => tidy,
         file_select => days_old("&MODIFIED_FILES_TTL&"),
         depth_search => recurse("inf");
+
+      "/var/log/rudder/agent-check/." create => "true";
 
       "${log_files_to_rotate}"
         comment     => "Rotate file if above specified size",
