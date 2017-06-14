@@ -234,7 +234,7 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
     package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
     package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
     package_installed_regex       => ".*";
-    package_name_convention       => "${name}-${version}";
+    package_name_convention       => "${name}";
     package_list_update_ifelapsed => "${rpm_pkg_timeout}";
     package_add_command           => "/usr/bin/yum ${redhat_knowledge.yum_options} -y install";
     package_delete_command        => "/bin/rpm -e";
