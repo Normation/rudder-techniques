@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2017 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -32,6 +32,10 @@ bundle agent file_alteration_monitor
 
       "isfile_${index}" expression => isplain("${monitor_entity[${index}][name]}");
       "isdir_${index}" expression => isdir("${monitor_entity[${index}][name]}");
+
+      # Should the technique report an error if the file does not exist ?
+      &MONITOR_ERROR_NOFILE:{ nofile | "nofile_reports_error_&i&" expression  => strcmp("&nofile&", "true"); 
+}&
 
 
     any::
@@ -69,6 +73,13 @@ bundle agent file_alteration_monitor
         ifvarclass => "${index}_error";
 
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_error", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The entity ${monitor_entity[${index}][name]} does not exist: alteration monitoring impossible"),
-        ifvarclass => "!isdir_${index}.!isfile_${index}";
+        ifvarclass => "(!isdir_${index}.!isfile_${index}).nofile_reports_error_${index}";
+
+      "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_na", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The entity ${monitor_entity[${index}][name]} does not exist: alteration monitoring not applicable"),
+        ifvarclass => "(!isdir_${index}.!isfile_${index}).!nofile_reports_error_${index}";
+
+
+
+
 
 }

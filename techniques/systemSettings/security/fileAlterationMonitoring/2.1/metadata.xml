@@ -21,7 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <COMPATIBLE>
     <OS>Every OS</OS>
-    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
+    <AGENT version=">= 3.6.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>
@@ -42,6 +42,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <NAME>MONITOR_ENTITY_NAME</NAME>
         <DESCRIPTION>Path to the file or directory to monitor</DESCRIPTION>
       </INPUT>
+      <SELECT1>
+        <NAME>MONITOR_ERROR_NOFILE</NAME>
+        <DESCRIPTION>Report an error if the file or directory is absent</DESCRIPTION>
+        <ITEM>
+          <VALUE>true</VALUE>
+          <LABEL>True</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>false</VALUE>
+          <LABEL>False</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
     </SECTION>
   </SECTIONS>
 
