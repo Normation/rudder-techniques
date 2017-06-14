@@ -30,7 +30,7 @@ fi
 # Check that the non-existant log level "log_error" is never used
 find ${REPOSITORY_PATH} -type f -name "*.st" | while read filename
 do
-  if grep -rHn "log_error" "$filename" > /dev/null
+  if grep -rHn '"log_error"' "$filename" > /dev/null
   then
     echo "Reason: illegal log level 'log_error' found in $filename. Use result_error instead"
     exit 1
