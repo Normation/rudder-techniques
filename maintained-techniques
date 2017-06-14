@@ -131,6 +131,7 @@ systemSettings/remoteAccess/sshKeyDistribution/2.0
 systemSettings/remoteAccess/sshKeyDistribution/3.0
 systemSettings/security/fileAlterationMonitoring/1.0
 systemSettings/security/fileAlterationMonitoring/2.0
+systemSettings/security/fileAlterationMonitoring/2.1
 systemSettings/systemManagement/cronManagement/1.0
 systemSettings/systemManagement/cronManagement/2.0
 systemSettings/systemManagement/cronManagement/3.0
