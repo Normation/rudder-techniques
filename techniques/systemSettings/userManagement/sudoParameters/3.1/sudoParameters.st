@@ -17,7 +17,7 @@
 #####################################################################################
 
 ##########################################################################
-# Sudo configuration PT                                                  #
+# Sudo configuration Technique                                                  #
 # ---------------------------------------------------------------------- #
 # Objective : Configure /etc/sudoers according to the given parameters   #
 ##########################################################################
@@ -30,6 +30,9 @@ bundle agent check_sudo_parameters
 }&
 
                 &SUDO_NAME:{name |"sudo_entity_name[&i&]" string => "&name&";
+}&
+
+                &SUDO_DESCRIPTION:{description |"sudo_entity_description[&i&]" string => "&description&";
 }&
 
                 &SUDO_NOPASSWD:{nopasswd |"sudo_entity_nopasswd[&i&]" string => "&nopasswd&";
@@ -91,7 +94,7 @@ bundle agent check_sudo_parameters
 
     ((sudoconfiguration_sudoers_tmp_copy_kept|sudoconfiguration_sudoers_tmp_copy_repaired).(!sudoconfiguration_sudoers_tmp_copy_error))::
       "/etc/sudoers.rudder"
-        edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_directive_id", "${sudo_force_content}"),
+        edit_line => sudo_add_line("check_sudo_parameters.sudo_entity_type", "check_sudo_parameters.sudo_entity_name", "check_sudo_parameters.sudo_entity_nopasswd", "check_sudo_parameters.sudo_entity_all", "check_sudo_parameters.sudo_entity_command", "check_sudo_parameters.sudo_directive_id"),
         create => "true",
         edit_defaults => noempty_backup,
         perms => mog("0440", "root", "0"),
@@ -110,10 +113,30 @@ bundle agent check_sudo_parameters
   methods:
 
       "any"
-
         usebundle => check_sudo_installation("${sudo_directive_id[${sudo_index}]}");
 
+    # Only copy /etc/sudoers if it exists (this is to avoid falling into an
+    # error report below)
+    sudoconfiguration_sudoers_present::
+      "any"
+        usebundle =>  file_copy_from_local_source("/etc/sudoers", "/etc/sudoers.rudder");
 
+    # Question: how do we manage transition from previous version to current version, to prevent duplicated lines ?
+
+
+    # If there is no /etc/sudoers file, remove our local copy before
+    # rebuilding, so that success/repaired reports make sense for the
+    # /etc/sudoers file, not just for our copy of it, and set result classes
+    # as if we had set it up correctly.
+    !sudoconfiguration_sudoers_present::
+      "any"
+        usebundle =>  file_remove("/etc/sudoers.rudder");
+
+
+    # Edit sudoers.rudder file if it's been copied or purged
+    (file_copy_from_local_source__etc_sudoers_rudder_ok.!file_copy_from_local_source__etc_sudoers_rudder_error)|(file_remove__etc_sudoers_rudder_ok)::
+
+    
     pass3.(sudoconfiguration_sudoers_copy_kept.!sudoconfiguration_sudoers_copy_repaired)::
 
       "any" usebundle => rudder_common_report("sudoParameters", "result_success", "${sudo_directive_id[${sudo_index}]}", "sudoersFile", "None", "The sudoers file did not require any modification");
@@ -142,10 +165,6 @@ bundle agent check_sudo_parameters
       "any" usebundle => rudder_common_report("sudoParameters", "result_error", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} could not be handled"),
         ifvarclass => canonify("line_${sudo_index}_add_failed");
 
-    pass3.sudo_all_lines_defined.force.sudo_all_lines_deleted::
-
-      "any" usebundle => rudder_common_report("sudoParameters", "result_repaired", "sudoersFile", "None", "None", "Some lines were deleted from the sudoers file. This implies either a manual edition or an intrusion attempt");
-
   commands:
 
     (sudoconfiguration_sudoers_tmp_edit_repair|sudoconfiguration_sudoers_tmp_edit_kept).pass2::
@@ -157,7 +176,7 @@ bundle agent check_sudo_parameters
 
 }
 
-bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId, force)
+bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId)
 {
 
   vars:
@@ -192,13 +211,17 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "lines[${index}]" string => "${${name}[${index}]}	ALL=(ALL) ${${command}[${index}]}",
         ifvarclass => "(sudo_${index}_isuser.!sudo_${index}_nopasswd.!sudo_${index}_alldo).(sudo_${index}_command_notempty|sudo_${index}_alldo)";
 
+
+      "lines_name[${index}]" string => "${${name}[${index}]}\s+",
+        ifvarclass => "sudo_${index}_isuser";
+
+      "lines_name[${index}]" string => "%${${name}[${index}]}\s+",
+        ifvarclass => "sudo_${index}_isgroup";
+
       "all_lines" slist => getvalues("lines");
 
   classes:
       # some classes are used by reporting from parent bundle (scope namespace)
-      # sudoParameters is declared as unique so this bundle can be called only once 
-
-      "sudo_force_content" expression => strcmp("true", "${force}");
 
       # Is it a group ?
       "sudo_${index}_isgroup" expression => strcmp("${${type}[${index}]}","group");
@@ -224,14 +247,17 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       "sudo_all_lines_defined"    expression => isvariable("all_lines"),
                                   scope => "namespace";
 
+    # Check if line is already there
+    pass1::
+      "sudo_${index}_line_present" expression => regline("${lines[${index}]}", "/etc/sudoers.rudder");
 
-  delete_lines:
+      "sudo_${index}_line_name_present" expression => regline("${lines_name[${index}]}", "/etc/sudoers.rudder");
 
-    sudo_all_lines_defined.force::
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
-      ".*"
-        delete_select => sudo_select_nomatch("${all_lines}"),
-        classes => if_repaired("sudo_all_lines_deleted");
 
   insert_lines:
     replace_attempted_env_reset::
@@ -248,6 +274,109 @@ bundle edit_line sudo_add_line(type, name, nopasswd, alldo, command, directiveId
       classes => always("replace_attempted_env_reset");
 
 }
+
+bundle agent ensure_block_section(filename, key, content, begin, end) {
+  vars:
+      "escaped_key"     string => escape("${key}");
+      "escaped_content" string => escape("${content}");
+      "escaped_begin"   string => escape("${begin}");
+      "canonified_begin"  string => canonify("${begin}");
+  classes:
+      # not used
+      "line_present" expression => regline("^${escaped_key}\s+${escaped_content}$", "${filename}");
+      "section_present" expression => regline("^${escaped_begin}$", "${filename}");
+      "key_present" expression => regline("^${escaped_key}\s+", "${filename}");
+
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+
+# several cases:
+# - section is not there, nor is key => insert the block
+# - section is not there, and the line is there
+#   delete line, and insert the block
+# - section is not there, and only the key is there
+#   delete line, and insert the block
+
+# - section is there, key is not there
+#   force content of section
+# - section is there, key is there
+#   delete key, force content of section
+
+# CAUTION, we should probably not delete keys in others sections (that is what happens now)
+  files:
+      "${filename}" 
+         create => "true",
+         edit_line => ncf_ensure_section_content_and_purge_type("${begin}", "${end}", "${key}	${content}", "preserve_block", "${escaped_key}"),
+         classes =>  classes_generic("edited_section_${canonified_begin}");
+
+  reports:
+"edited_section_${canonified_begin}";
+    "success"
+ifvarclass => "edited_section_${canonified_begin}_kept";
+
+
+    "repaired"
+ifvarclass => "edited_section_${canonified_begin}_repaired";
+
+    "error"
+ifvarclass => "edited_section_${canonified_begin}_error";
+
+
+}
+
+
+
+# Enforce content in section.
+# It will create the section if it does not exist yet.
+# You can choose the insert_type:
+# * Use "preserve_block" to insert blocks of text
+# * Use "literal" to insert independant lines
+# content_to_delete is a regexp to delete all lines (even outside section) matching the contet
+bundle edit_line ncf_ensure_section_content_and_purge_type(section_start, section_end, content, insert_type, content_to_delete)
+{
+  vars:
+      "csection"              string => canonify("$(section_start)");
+      "escaped_section_start" string => escape(${section_start});
+      "escaped_section_end"   string => escape(${section_end});
+
+  classes:
+      # Detect if section is already there
+      "has_$(csection)" expression => regline("${escaped_section_start}", "$(edit.filename)");
+
+      "content_to_delete_defined" not => strcmp("${content_to_delete}", "");
+
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+
+  delete_lines:
+      ".*"
+        select_region => ncf_section_selector("${escaped_section_start}", "${escaped_section_end}"),
+        ifvarclass => "has_$(csection)";
+
+    !pass2::
+      "${content_to_delete}	.*"
+        ifvarclass => "content_to_delete_defined";
+ 
+  insert_lines:
+      # Insert new, empty section if it doesn't exist already.
+      "${section_start}
+${section_end}"
+        insert_type => "preserve_block",
+        ifvarclass => "!has_$(csection)";
+ 
+      # Insert missing lines or block into the section
+      "$(content)"
+        insert_type => "${insert_type}",
+        select_region => ncf_section_selector("${escaped_section_start}", "${escaped_section_end}");
+}
+
+
 
 bundle agent check_sudo_installation(directiveId)
 {
