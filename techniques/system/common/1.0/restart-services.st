@@ -67,12 +67,15 @@ bundle agent restart_services
             ifvarclass => "service_restart_rsyslog_not_ok|service_restart_syslog_ng_not_ok|service_restart_syslog_not_ok|${restart_cmd_class}_not_ok";
 
     # Ensure at least one syslog is running
+    # We cannot detect which one is used for Rudder
     !windows.!aix.!solaris::
-      # We cannot detect which one exist
-      "run_syslog" usebundle   => service_ensure_running("syslog");
-      "run_syslogng" usebundle => service_ensure_running("syslog-ng");
-      "run_rsyslog" usebundle  => service_ensure_running("rsyslog");
+      "run_syslog"   usebundle => service_ensure_running("syslog"),
+                    ifvarclass => "syslogd_conffile_present";
+      "run_syslogng" usebundle => service_ensure_running("syslog-ng"),
+                    ifvarclass => "syslogng_conffile_present";
+      "run_rsyslog" usebundle  => service_ensure_running("rsyslog"),
+                    ifvarclass => "rsyslogd_conffile_present";
     # We have a problem only if all 3 have an error (otherwise at least one is running)
-    !windows.!aix.!solaris.service_ensure_running_syslog_error.service_ensure_running_syslogng_error.service_ensure_running_rsyslog_error::
+    service_ensure_running_syslog_error.service_ensure_running_syslogng_error.service_ensure_running_rsyslog_error::
       "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not start the logging system");
 }

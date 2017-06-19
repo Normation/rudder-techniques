@@ -538,9 +538,9 @@ bundle agent check_log_system
   classes:
 
     !android::
-      "rsyslogd" expression => fileexists("${rsyslog_conffile}");
-      "syslogng" expression => fileexists("${syslogng_conffile}");
-      "syslogd"  expression => fileexists("${syslog_conffile}");
+      "rsyslogd_conffile_present" expression => fileexists("${rsyslog_conffile}"), scope => "namespace";
+      "syslogng_conffile_present" expression => fileexists("${syslogng_conffile}"), scope => "namespace";
+      "syslogd_conffile_present"  expression => fileexists("${syslog_conffile}"), scope => "namespace";
 
     any::
       "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP");
@@ -554,34 +554,34 @@ bundle agent check_log_system
 
   files:
 
-    !windows.rsyslogd::
+    !windows.rsyslogd_conffile_present::
       "${rsyslog_conffile}"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
         edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
-    (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd.!policy_server::
+    (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd_conffile_present.!policy_server::
       "${rsyslog_rudder_conffile}"
         edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
         create => "true",
         edit_defaults => empty_backup,
         classes       => rudder_common_classes("rsyslog");
 
-    SuSE.rsyslogd.policy_server::
+    SuSE.rsyslogd_conffile_present.policy_server::
       # For SuSE, ensure that SYSLOG_DAEMON is set to 'rsyslogd' even if another syslog has been installed before
       "/etc/sysconfig/syslog"
         edit_line => ensure_rsyslogd_on_suse,
         edit_defaults => noempty_backup,
         classes       => rudder_common_classes("rsyslog");
 
-    !windows.syslogng.!policy_server::
+    !windows.syslogng_conffile_present.!policy_server::
       "${syslogng_conffile}"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
         edit_defaults => noempty_backup,
         classes       => rudder_common_classes("syslog_ng");
 
-    !windows.syslogd.!policy_server::
+    !windows.syslogd_conffile_present.!policy_server::
       "${syslog_conffile}"
         edit_line => fix_syslogd("@${server_info.cfserved}"),
         edit_defaults => noempty_backup,
@@ -589,13 +589,13 @@ bundle agent check_log_system
 
   methods:
 
-    pass2.syslogd::
+    pass2.syslogd_conffile_present::
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslogd");
 
-    pass2.syslogng::
+    pass2.syslogng_conffile_present::
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslog-ng");
 
-    pass2.rsyslogd::
+    pass2.rsyslogd_conffile_present::
       "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as rsyslog");
 
     pass3.(syslogd_failed|syslog_ng_failed|rsyslog_failed)::
@@ -604,7 +604,7 @@ bundle agent check_log_system
     pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired)::
       "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Configured logging system for report centralization");
 
-    pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).!(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired).(syslogd.syslogd_kept|syslogng.syslog_ng_kept|rsyslogd.rsyslog_kept))::
+    pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).!(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired).(syslogd_conffile_present.syslogd_kept|syslogng_conffile_present.syslog_ng_kept|rsyslogd_conffile_present.rsyslog_kept))::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system for report centralization is already correctly configured");
 
     pass3.android::
@@ -612,7 +612,7 @@ bundle agent check_log_system
 
   commands:
       
-    rsyslogd.check_rsyslog_version_present::
+    rsyslogd_conffile_present.check_rsyslog_version_present::
       # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
       # The option is probably older though.
       "${g.rudder_tools}/check-rsyslog-version 5.6.4"
