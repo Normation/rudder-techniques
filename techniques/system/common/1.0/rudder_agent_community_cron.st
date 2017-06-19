@@ -5,4 +5,4 @@
 # To temporarily avoid this behaviour, touch /opt/rudder/etc/disable-agent.
 # Don't forget to remove that file when you're done!
 
-0,5,10,15,20,25,30,35,40,45,50,55 * * * * root /opt/rudder/bin/check-rudder-agent >> /var/log/rudder/agent-check/check.log 2>&1
+0,5,10,15,20,25,30,35,40,45,50,55 * * * * root /opt/rudder/bin/check-rudder-agent >> /var/log/rudder/agent-check/check.log 2>\&1
