@@ -506,11 +506,11 @@ bundle agent check_log_system
       "rsyslog_rule_prefix"   string => "@";
       "syslogng_rule_prefix"  string => "udp";
 
-    rsyslogd.rsyslog_version_5_6_4_ok::
+    rsyslogd_conffile_present.rsyslog_version_5_6_4_ok::
 
       "rsyslogd_message_reduction" string => "$RepeatedMsgReduction off${const.n}";
       
-    rsyslogd.rsyslog_version_5_6_4_not_ok::
+    rsyslogd_conffile_present.rsyslog_version_5_6_4_not_ok::
 
       "rsyslogd_message_reduction" string => "";
 
