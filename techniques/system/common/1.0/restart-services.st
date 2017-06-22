@@ -78,4 +78,9 @@ bundle agent restart_services
     # We have a problem only if all 3 have an error (otherwise at least one is running)
     service_ensure_running_syslog_error.service_ensure_running_syslogng_error.service_ensure_running_rsyslog_error::
       "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not start the logging system");
+
+    # Is syslog service had been restarted, we need to log it as well
+    (service_ensure_running_rsyslog_repaired.!service_restart_rsyslog_repaired)|(service_ensure_running_syslog_repaired.!service_restart_syslog_repaired)|(service_ensure_running_syslogng_repaired.!service_restart_syslog_ng_repaired)::
+      "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Started the logging system");
+
 }
