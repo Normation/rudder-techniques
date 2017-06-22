@@ -3,5 +3,5 @@ Alias /policies/&uuid& /var/rudder/share/&uuid&
 <Location /policies/&uuid&>
   Require user &cn&
 </Location>
-
+}
 &

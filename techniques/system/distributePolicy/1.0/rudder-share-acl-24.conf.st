@@ -4,5 +4,5 @@ Alias /policies/&uuid& /var/rudder/share/&uuid&
   AuthMerging And
   Require user &cn&
 </Location>
-
+}
 &
