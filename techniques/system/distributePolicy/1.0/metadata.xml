@@ -23,14 +23,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>install_rsyslogd</NAME>
     <NAME>propagatePromises</NAME>
     <NAME>sendInventoryToCmdb</NAME>
-    <NAME>apache-acl</NAME>
+    <NAME>apache_acl</NAME>
   </BUNDLES>
 
   <TMLS>
     <!-- Note that the policy server is set via the common.xml -->
     <TML name="propagatePromises"/>
     <TML name="rsyslogConf"/>
-    <TML name="apache_acl"/>
+    <TML name="apache-acl"/>
     <TML name="ca.cert">
       <INCLUDED>false</INCLUDED>
     </TML>
