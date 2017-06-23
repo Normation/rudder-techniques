@@ -57,6 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     </TML>
     <TML name="nodeslist.json">
       <INCLUDED>false</INCLUDED>
+      <OUTPATH>distributePolicy/1.0/nodeslist.json</OUTPATH>
     </TML>
   </TMLS>
 
