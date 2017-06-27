@@ -133,7 +133,7 @@ bundle common g
 
     any::
       # Heartbeat interval, in minutes. Only used when in "changes-only" compliance mode
-      # In this mode, we should only send a "StartRun"/"EndRun" message pair if changes occur,
+      # In this mode, we should only send a "start"/"end" message pair if changes occur,
       # or if this interval has elapsed since we last sent one
       "heartbeat_interval" string => "&RUDDER_HEARTBEAT_INTERVAL&";
 
