@@ -21,11 +21,7 @@ bundle agent apache_acl
 
   vars:
       "destination"        string => "/opt/rudder/etc";
-      "acl_file[nodes_22]" string => "rudder-share-acl.conf";
-      "acl_file[nodes_24]" string => "rudder-share-acl-24.conf";
       "ssl_ca_file"        string => "ca.cert";
-
-      "index"             slist => getindices("acl_file");
 
     redhat::
       "apache_service" string => "httpd";
@@ -34,13 +30,6 @@ bundle agent apache_acl
       "apache_service" string => "apache2";
 
   files:
-
-      "${destination}/${acl_file[${index}]}"
-        create        => "true",
-        perms         => mog("600", "root", "0"),
-        copy_from     => local_cp("${this.promise_dirname}/${acl_file[${index}]}"),
-        classes       => rudder_common_classes("rudder_apache_acl"),
-        comment       => "Writing rudder apache ACL";
 
       "${destination}/ssl/${ssl_ca_file}"
         create        => "true",

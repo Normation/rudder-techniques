@@ -35,14 +35,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INCLUDED>false</INCLUDED>
       <OUTPATH>distributePolicy/1.0/ca.cert</OUTPATH>
     </TML>
-    <TML name="rudder-share-acl.conf">
-      <INCLUDED>false</INCLUDED>
-      <OUTPATH>distributePolicy/1.0/rudder-share-acl.conf</OUTPATH>
-    </TML>
-    <TML name="rudder-share-acl-24.conf">
-      <INCLUDED>false</INCLUDED>
-      <OUTPATH>distributePolicy/1.0/rudder-share-acl-24.conf</OUTPATH>
-    </TML>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
