@@ -103,7 +103,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 		  <INPUT>
 		    <NAME>GENERIC_FILE_CONTENT_PAYLOAD</NAME>
 		    <DESCRIPTION>Content of the file</DESCRIPTION>
-		    <LONGDESCRIPTION>Be careful to escape double quotes in the text you are entering, as this Technique does not support automatic escaping yet. Example: use \"hello\" instead of "hello"</LONGDESCRIPTION>
 		    <CONSTRAINT>
 		        <TYPE>textarea</TYPE>
 		        <MAYBEEMPTY>true</MAYBEEMPTY>
