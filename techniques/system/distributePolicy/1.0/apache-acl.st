@@ -20,8 +20,15 @@ bundle agent apache_acl
 {
 
   vars:
-      "destination"        string => "/opt/rudder/etc";
+      "destination"        string => "/opt/rudder/etc/ssl";
       "ssl_ca_file"        string => "ca.cert";
+      "ssl_ca_size"        string => filestat("${this.promise_dirname}/${ssl_ca_file}", "size");
+
+    pass1::
+      "src_ca_file" string => "${this.promise_dirname}/${ssl_ca_file}",
+                ifvarclass => "!empty_ssl_ca";
+      "src_ca_file" string => "${destination}/rudder.crt",
+                ifvarclass => "empty_ssl_ca";
 
     redhat::
       "apache_service" string => "httpd";
@@ -29,12 +36,19 @@ bundle agent apache_acl
     !redhat::
       "apache_service" string => "apache2";
 
-  files:
+  classes:
+      "empty_ssl_ca" expression => strcmp("${ssl_ca_size}", "0");
 
-      "${destination}/ssl/${ssl_ca_file}"
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  files:
+    pass2::
+      "${destination}/${ssl_ca_file}"
         create        => "true",
         perms         => mog("600", "root", "0"),
-        copy_from     => local_cp("${this.promise_dirname}/${ssl_ca_file}"),
+        copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
         classes       => rudder_common_classes("rudder_apache_acl"),
         comment       => "Writing rudder apache ACL";
 
