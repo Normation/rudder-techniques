@@ -43,7 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="SSH key" multivalued="true" component="true" componentKey="SSH_KEY_DISTRIBUTION_TAG">
       <INPUT>
         <NAME>SSH_KEY_DISTRIBUTION_TAG</NAME>
-        <DESCRIPTION>Enter a tag to track this key in reports, i.e. "root #1" or "Operations key"</DESCRIPTION>
+        <DESCRIPTION>Key tag (for tracking only)</DESCRIPTION>
+        <LONGDESCRIPTION>Enter a tag to track this key in reports, i.e. "root #1" or "Operations key". It will not be used in the authorized_keys file.</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>false</MAYBEEMPTY>
           <TYPE>string</TYPE>
@@ -51,21 +52,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>SSH_KEY_DISTRIBUTION_NAME</NAME>
-        <DESCRIPTION>Which user do you want to apply the key on</DESCRIPTION>
+        <DESCRIPTION>Username</DESCRIPTION>
+        <LONGDESCRIPTION>User to apply the key to</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>SSH_KEY_DISTRIBUTION_KEY</NAME>
-        <DESCRIPTION>Which key do you want to insert</DESCRIPTION>
+        <DESCRIPTION>Key</DESCRIPTION>
+        <LONGDESCRIPTION>Full content of the key to insert in authorized_keys format, may include comments.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>textarea</TYPE>
         </CONSTRAINT>
       </INPUT>
       <SELECT1>
         <NAME>SSH_KEY_DISTRIBUTION_EDIT_TYPE</NAME>
-        <DESCRIPTION>Do you want to flush the authorized keys file before updating</DESCRIPTION>
+        <DESCRIPTION>Remove other keys</DESCRIPTION>
+        <LONGDESCRIPTION>Flush the authorized keys file before updating</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>true</VALUE>

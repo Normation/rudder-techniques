@@ -40,7 +40,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="File or directory to monitor" multivalued="true" component="true" componentKey="MONITOR_ENTITY_NAME">
       <INPUT>
         <NAME>MONITOR_ENTITY_NAME</NAME>
-        <DESCRIPTION>Path to the file or directory to monitor</DESCRIPTION>
+        <DESCRIPTION>Full path to the file or directory to monitor</DESCRIPTION>
       </INPUT>
       <SELECT1>
         <NAME>MONITOR_ERROR_NOFILE</NAME>

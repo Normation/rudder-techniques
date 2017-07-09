@@ -45,7 +45,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="NFS mountpoint" multivalued="true" component="true" componentKey="NFS_CLIENT_LOCAL_PATH">
       <SELECT1>
         <NAME>NFS_CLIENT_UMOUNT</NAME>
-        <DESCRIPTION>Which operation should be done on this mountpoint</DESCRIPTION>
+        <DESCRIPTION>Operation on this mountpoint</DESCRIPTION>
         <ITEM>
           <LABEL>Mount</LABEL>
           <VALUE>no</VALUE>
@@ -60,7 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <INPUT>
         <NAME>NFS_CLIENT_LOCAL_PATH</NAME>
-        <DESCRIPTION>Local path to mount the remote on</DESCRIPTION>
+        <DESCRIPTION>Local mount point</DESCRIPTION>
       </INPUT>
       <INPUT>
         <NAME>NFS_CLIENT_REMOTE_SERVER</NAME>
@@ -68,7 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>NFS_CLIENT_REMOTE_PATH</NAME>
-        <DESCRIPTION>Remote path to mount locally</DESCRIPTION>
+        <DESCRIPTION>Remote path</DESCRIPTION>
       </INPUT>
       <SELECT1>
         <NAME>NFS_CLIENT_REMOTE_TYPE</NAME>
@@ -95,7 +95,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_CLIENT_ADDFSTAB</NAME>
-        <DESCRIPTION>Do you want this NFS mount to be persistent upon reboot</DESCRIPTION>
+        <DESCRIPTION>Persist mount accross reboot</DESCRIPTION>
+        <LONGDESCRIPTION>Include it in /etc/fstab</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>true</VALUE>

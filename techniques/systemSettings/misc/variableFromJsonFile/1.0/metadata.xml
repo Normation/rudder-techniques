@@ -16,7 +16,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <TECHNIQUE name="Variable from JSON file (dict)">
   <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
-  <DESCRIPTION>Downloads a JSON file from shared-files and reads it into variables. You can use these variables in the form ${your_namespace.variable_name}</DESCRIPTION>
+  <DESCRIPTION>Downloads a JSON file from shared-files and reads it into variables. You can use these variables in the form ${your_namespace.variable_name}.
+
+    For example a JSON containing { "datacenter": "paris" } read into the variable "machine_info" with prefix "my_company" can be used as ${my_company.machine_info[datacenter]}. Note that the syntax will differ in a mustache template: {{{my_company.machine_info.datacenter}}}.
+  </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS>Every OS</OS>
@@ -45,7 +48,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Variable">
       <INPUT>
         <NAME>NAMESPACE</NAME>
-        <DESCRIPTION>Variable namespace, the prefix that will be used for variables definition</DESCRIPTION>
+        <DESCRIPTION>Variable namespace</DESCRIPTION>
+        <LONGDESCRIPTION>Variable namespace, the prefix that will be used for variables definition. Example: my_company</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
           <REGEX error="Please enter a valid variable namespace"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
@@ -61,7 +65,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>JSON_FILE</NAME>
-        <DESCRIPTION>JSON file</DESCRIPTION>
+        <DESCRIPTION>Relative path of the JSON file</DESCRIPTION>
+        <LONGDESCRIPTION>This is path of the JSON file on the Rudder policy server relative to /var/rudder/configuration-repository/shared-files</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
           <REGEX error="Please enter a valid file name"><![CDATA[ .*[^\\] ]]></REGEX>

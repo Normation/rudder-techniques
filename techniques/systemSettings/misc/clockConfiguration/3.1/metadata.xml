@@ -47,7 +47,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Time synchronization (NTP)" component="true">
       <INPUT>
         <NAME>CLOCK_FQDNNTP</NAME>
-        <DESCRIPTION>NTP server list uses DNS domain names instead of IP addresses?</DESCRIPTION>
+        <DESCRIPTION>Use hostname for NTP servers instead of IP addresses</DESCRIPTION>
         <LONGDESCRIPTION>This should be enabled if a DNS domain name is used as an NTP server instead of an IP address. It is for Windows compatibility.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
@@ -57,7 +57,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SECTION name="clock ntpservers" multivalued="true">
         <INPUT>
           <NAME>CLOCK_NTPSERVERS</NAME>
-          <DESCRIPTION>List of NTP time servers to use</DESCRIPTION>
+          <DESCRIPTION>NTP server</DESCRIPTION>
           <CONSTRAINT>
             <DEFAULT>pool.ntp.org</DEFAULT>
           </CONSTRAINT>
@@ -68,8 +68,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Time zone" component="true">
       <SELECT1>
         <NAME>CLOCK_TIMEZONE</NAME>
-        <DESCRIPTION>City to define time zone</DESCRIPTION>
-        <LONGDESCRIPTION>This City's Timezone will be used to set the standard on each node.</LONGDESCRIPTION>
+        <DESCRIPTION>Time zone</DESCRIPTION>
+        <LONGDESCRIPTION>This city will be used to set the time zone on the node.</LONGDESCRIPTION>
         <ITEM>
           <VALUE>dontchange</VALUE>
           <LABEL>Don't change</LABEL>
@@ -1868,8 +1868,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <INPUT>
         <NAME>CLOCK_TIMEZONE_CUSTOM</NAME>
-        <DESCRIPTION>Custom timezone via String. Used only if dropdown is set to "Custom via Textbox"!</DESCRIPTION>
-        <LONGDESCRIPTION>See http://www.unicode.org/cldr/charts/latest/supplemental/zone_tzid.html Column TZID for valid Timezones</LONGDESCRIPTION>
+        <DESCRIPTION>Custom timezone</DESCRIPTION>
+        <LONGDESCRIPTION>Only if dropdown is set to "Custom via Textbox"! See http://www.unicode.org/cldr/charts/latest/supplemental/zone_tzid.html Column TZID for valid Timezones</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
           <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -1879,7 +1879,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Hardware clock (RTC)" component="true">
       <INPUT>
         <NAME>CLOCK_HWSYNC_ENABLE</NAME>
-        <DESCRIPTION>Synchronize the system clock periodically with the hardware clock</DESCRIPTION>
+        <DESCRIPTION>Set hardware clock from system clock periodically</DESCRIPTION>
         <LONGDESCRIPTION>Save the system clock to the hardware clock periodically. Can cause problems with Xen DomU's!</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>

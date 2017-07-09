@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="File content (key/value format)">
-  <DESCRIPTION>Manage keys-values in file</DESCRIPTION>
+  <DESCRIPTION>Manage key-value pairs in a file</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS>Every OS</OS>
@@ -39,18 +39,20 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SECTION name="File" component="true" componentKey="MANAGE_KEY_VALUE_FILEPATH">
         <INPUT>
           <NAME>MANAGE_KEY_VALUE_FILEPATH</NAME>
-          <DESCRIPTION>Path of the file to manage</DESCRIPTION>
+          <DESCRIPTION>Full path of the file to manage</DESCRIPTION>
         </INPUT>
         <INPUT>
           <NAME>MANAGE_KEY_VALUE_KEY</NAME>
-          <DESCRIPTION>Key to define</DESCRIPTION>
+          <DESCRIPTION>Key</DESCRIPTION>
+          <LONGDESCRIPTION>Key to define</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>string</TYPE>
           </CONSTRAINT>
         </INPUT>
         <INPUT>
           <NAME>MANAGE_KEY_VALUE_VALUE</NAME>
-          <DESCRIPTION>Value to define</DESCRIPTION>
+          <DESCRIPTION>Value</DESCRIPTION>
+          <LONGDESCRIPTION>Value to define</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>string</TYPE>
             <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -58,8 +60,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </INPUT>
         <INPUT>
           <NAME>MANAGE_KEY_VALUE_SEPARATOR</NAME>
-          <DESCRIPTION>Separator between key and value (for example "=")</DESCRIPTION>
-          <LONGDESCRIPTION>If you need to use space as a separator, you should use ${ncf_const.s} value.</LONGDESCRIPTION>
+          <DESCRIPTION>Separator (for example "=")</DESCRIPTION>
+          <LONGDESCRIPTION>Separator between key and value. If you need to use space as a separator, you should use ${ncf_const.s} value.</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>string</TYPE>
           </CONSTRAINT>

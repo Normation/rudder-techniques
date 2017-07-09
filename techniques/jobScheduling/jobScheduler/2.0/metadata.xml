@@ -15,7 +15,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Scheduled jobs">
-  <DESCRIPTION>Runs commands, optionally in the background, optionally with a random distribution across nodes. The command will be run on all nodes, with execution time spread over the period selected. Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
+  <DESCRIPTION>Runs commands, in the background, with a random distribution across nodes. 
+    
+    The execution time will be spread between nodes over the period selected.
+    Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
@@ -40,7 +43,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Job" multivalued="true" component="true" componentKey="JOB_COMMAND">
       <INPUT>
         <NAME>JOB_COMMAND</NAME>
-        <DESCRIPTION>Command to run</DESCRIPTION>
+        <DESCRIPTION>Command(s) to run</DESCRIPTION>
+        <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
         </CONSTRAINT>
@@ -261,7 +265,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>JOB_KEPTCODES</NAME>
-        <DESCRIPTION>Which return codes are to be considered as a success</DESCRIPTION>
+        <DESCRIPTION>Return codes considered as a success</DESCRIPTION>
         <LONGDESCRIPTION>Please input a comma separated list of integers</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
@@ -270,7 +274,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>JOB_REPAIRCODES</NAME>
-        <DESCRIPTION>Which return codes are to be considered as a repairation</DESCRIPTION>
+        <DESCRIPTION>Return codes considered as a repair</DESCRIPTION>
         <LONGDESCRIPTION>Please input a comma separated list of integers</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
@@ -279,7 +283,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>JOB_ERRORCODES</NAME>
-        <DESCRIPTION>Which return codes are to be considered as an error</DESCRIPTION>
+        <DESCRIPTION>Return codes considered as an error</DESCRIPTION>
         <LONGDESCRIPTION>Please input a comma separated list of integers</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>

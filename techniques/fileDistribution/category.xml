@@ -17,6 +17,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <xml>
     <name>Distributing files</name>
     <description>
-        Send files to servers.
+        Manage node files.
     </description>
 </xml>
