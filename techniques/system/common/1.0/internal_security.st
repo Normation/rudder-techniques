@@ -36,6 +36,10 @@ bundle agent internal_security
 
     !windows::
 
+      "${g.rudder_var}/modified-files"
+        perms   => mog("${mode}", "${user}", "${group}"),
+        classes => kept_if_else("security_sanitization_ok", "security_sanitization_repaired", "security_sanitization_failed");
+
       "${sys.workdir}/inputs"
         depth_search => recurse("inf"),
         perms        => mog("${mode}", "${user}", "${group}"),
