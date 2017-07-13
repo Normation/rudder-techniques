@@ -20,7 +20,7 @@
 
 -->
 
-<TECHNIQUE name="Repository GPG Key Management for RPM / APT Systems">
+<TECHNIQUE name="Package repository keys (RPM/APT)">
 
   <!-- This description is displayed in detailed views in the interface.
      It should be used to describe what this Technique does, in detail.

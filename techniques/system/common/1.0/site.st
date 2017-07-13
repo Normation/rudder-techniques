@@ -31,35 +31,32 @@ bundle common g
       "rudder_var"                 string => "/data/rudder";
       "rudder_curl"                string => "/system/bin/curl";
       "rudder_rm"                  string => "/system/xbin/rm";
-      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"                string => "/opt/rudder";
-      "rudder_curl"                string => "/usr/bin/curl";
       "rudder_rm"                  string => "/bin/rm";
+      "rudder_var"                 string => "/var/rudder";
 
     solaris::
-      "rudder_var"                 string => "/opt/rudder/var";
+      "rudder_curl"                string => "/opt/csw/bin/curl";
 
     !solaris.!windows.!android::
-      "rudder_var"                 string => "/var/rudder";
+      "rudder_curl"                string => "/usr/bin/curl";
 
     !windows::
       "rudder_bin"                 string => "${rudder_base}/bin";
+      "rudder_command"             string => "${rudder_bin}/rudder";
       "rudder_sbin"                string => "${rudder_base}/sbin";
       "rudder_var_tmp"             string => "${rudder_var}/tmp"; # tmp generated data
       "rudder_base_sbin"           string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_inventories"         string => "${rudder_var}/inventories";
-      "uuid_file"                  string => "${rudder_base}/etc/uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
+      "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
       "rudder_disable_inventory_file" string => "${rudder_base}/etc/disable-inventory";
       "rudder_tools"               string => "${rudder_var}/tools";
       "rudder_ncf"                 string => "${rudder_var}/ncf";
       "crontab"                    string => "/etc/crontab";
       "gzip"                       string => "/bin/gzip";
-
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies"        string => "${rudder_var}/tools";
 
     windows::
       "rudder_base"                string => "${sys.winprogdir}\Rudder";
@@ -74,40 +71,9 @@ bundle common g
       "rudder_ncf"                 string => "${rudder_var}\ncf";
       "escaped_workdir"            string => escape("${sys.workdir}");
       "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
-      "uuid_file"                  string => "${rudder_base}\etc\uuid.hive";
       "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
+      "rudder_disable_server_file" string => "${rudder_base}\etc\disable-policy-distribution";
       "rudder_disable_inventory_file" string => "${rudder_base}\etc\disable-inventory";
-      "rudder_tools_files_windows" slist => {
-                                              # Rudder utilities
-                                              "uuid.vbs",
-                                              "userlist.bat",
-                                              "registrydns.bat",
-                                              "cpuid-windows-v1.0.vbs",
-
-                                              # GNU iconv
-                                              "iconv.exe",
-                                              "iconv.dll",
-
-                                              # cURL
-                                              "curl/curl.exe",
-                                              "curl/curl-ca-bundle.crt",
-
-                                              # OpenSSL
-                                              "openssl/openssl.exe",
-                                              "openssl/libeay32.dll",
-                                              "openssl/ssleay32.dll",
-
-                                              # Fusion inventory
-                                              "fusionagent.exe",
-
-                                              # NXlog
-                                              "nxlog-ce-2.8.1248.msi",
-                                              "nxlog.conf" 
-                                            };
-
-
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies"        string => "${rudder_sbin}";
 
     aix::
 
@@ -123,13 +89,15 @@ bundle common g
       "gzip"                       string => "/bin/gzip";
 
     any::
-      "uuid"                        string => readfile("${g.uuid_file}", 60);
+      "uuid_file"                   string => "${rudder_roles.uuid_file}";
+      "uuid"                        string => "${rudder_roles.uuid}";
       "server_shares_folder"        string => "/var/rudder/share/${uuid}/promises/shares";
       "rudder_var_reports"          string => "${rudder_var}/reports";
       "davuser"                     string => "&DAVUSER&";
       "davpw"                       string => "&DAVPASSWORD&";
       "minicurl"                    string => "${rudder_bin}/rudder-perl ${sys.workdir}/inputs/common/utilities/minicurl";
       "excludedreps"                slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "ncf_local_excludedreps"      slist => { "50_techniques", @{g.excludedreps}};
       "rudder_tools_origin"         string => "/var/rudder/tools";
 
       # Path where all the configurations (git with techniques, groups, ncf, etc) are stored
@@ -149,11 +117,10 @@ bundle common g
 
       "server_roles_path"           string => "${rudder_base}/etc/server-roles.d/";
 
-      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
-      "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
 
-      # DEPRECATED: This variable is used in pre-2.9 Techniques.
-      "rudder_dependencies_origin"  string => "/var/rudder/tools";
+      "rudder_tools_updated_filename" string => "rudder_tools_updated";
+      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
+      "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
 
     # The time at which the execution started
     windows.!cygwin::
@@ -164,29 +131,7 @@ bundle common g
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
-    !windows.!android::
-      "rudder_tools_files_unix"    slist => { "send-clean.sh",
-                                              "cpuid-linux-V1.0.sh",
-                                              "vmware_info.sh",
-                                              "check-rsyslog-version",
-                                              "apache-vhost.tpl",
-                                            };
-
-    SuSE::
-      "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
-                                              "openvpn-2.2.1-1.i686.rpm",
-                                              "zypper-repo.tpl",
-                                              "check-zypper-version",
-                                              "checkzmd.pl",
-                                            };
     any::
-      "rudder_tools_files"         slist => { @{rudder_tools_files_windows},
-                                              @{rudder_tools_files_android},
-                                              @{rudder_tools_files_unix},
-                                              @{rudder_tools_files_suse},
-                                              "checkroute.pl",
-                                            }, policy => "ifdefined";
-
       # Heartbeat interval, in minutes. Only used when in "changes-only" compliance mode
       # In this mode, we should only send a "StartRun"/"EndRun" message pair if changes occur,
       # or if this interval has elapsed since we last sent one
@@ -201,15 +146,16 @@ bundle common g
     "curl_installed"                 expression => isexecutable("${rudder_curl}");
 
     # Roles
-    "rudder_server_roles_dir_exists" expression => isdir("${server_roles_path}");
-    "role_rudder_server_root"        expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root");
-    "role_rudder_inventory_ldap"     expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-ldap");
-    "role_rudder_jetty"              expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-jetty");
-    "role_rudder_webapp"             expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
-    "role_rudder_inventory_endpoint" expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-endpoint");
-    "role_rudder_reports"            expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
-    "role_rudder_relay_top"          expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-relay-top");
-
+    "rudder_server_roles_dir_exists"       expression => isdir("${server_roles_path}");
+    "role_rudder_server_root"              expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root");
+    "role_rudder_inventory_ldap"           expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-ldap");
+    "role_rudder_jetty"                    expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-jetty");
+    "role_rudder_webapp"                   expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
+    "role_rudder_inventory_endpoint"       expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-endpoint");
+    "role_rudder_reports"                  expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
+    "role_rudder_relay_top"                expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-relay-top");
+    "role_rudder_relay_promises_only"      expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-relay-promises-only");
+    "role_rudder_cfengine_mission_portal"  expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-cfengine-mission-portal");
 }
 
 # defines the path to the ncf configuration file

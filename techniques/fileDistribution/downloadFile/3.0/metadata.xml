@@ -14,16 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the downloadFile PT.
-    Compatibility : Linux Red Hat like, Debian like
-
-It is intended to download a file from a curl
-supported source (such as HTTP) and store it on
-the given destination.
--->
-
-<TECHNIQUE name="Download a file">
+<TECHNIQUE name="File download (HTTP)">
   <DESCRIPTION>This technique downloads a file from a server.
 
   It takes a cURL compatible source (HTTP/FTP/...) and a destination on the target host.

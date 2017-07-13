@@ -14,13 +14,7 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
-<!--
-    This is the sudoParameters PT.
-    Compatibility : Linux like, BSD like
-
-It is intended to configure the /etc/sudoers file.
--->
-<TECHNIQUE name="Sudo utility configuration">
+<TECHNIQUE name="Sudoers">
   <DESCRIPTION>This technique configures the sudo utility.
 
   It will ensure that the defined rights for given users and groups are correctly defined.</DESCRIPTION>

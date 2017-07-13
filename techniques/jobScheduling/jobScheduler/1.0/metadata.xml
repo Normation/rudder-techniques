@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <TECHNIQUE name="Job scheduler">
   <DESCRIPTION>Runs commands, optionally in the background, optionally with a random distribution across nodes. The command will be run on all nodes, with execution time spread over the period selected. Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
+  <DEPRECATED>This version is deprecated, use 2.0 instead.</DEPRECATED>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>

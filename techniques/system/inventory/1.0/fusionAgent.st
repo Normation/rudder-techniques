@@ -86,6 +86,10 @@ bundle agent doInventory_always
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
+&if(INITIAL)&
+      "initial_promises" expression => "any",
+                              scope => "namespace";
+&endif&
 
   files:
     # Clean policy server uuid file defined in 2.11 or earlier version, as location in 3.0+ is ${sys.workdir}/rudder-server-uuid.txt
@@ -96,10 +100,10 @@ bundle agent doInventory_always
       # Compute the inventory time
       "any" usebundle => computeInventoryTime;
 
-    force_inventory|(inventory_time.!inventory_sent)::
+    force_inventory|((inventory_time|initial_promises).!inventory_sent)::
       "any" usebundle => download_server_uuid;
 
-    uuid_valid.(force_inventory|(inventory_time.!inventory_sent))::
+    uuid_valid.(force_inventory|((inventory_time|initial_promises).!inventory_sent))::
       "any" usebundle => fusionAgent;
       "any" usebundle => listInstalledVM;
       "any" usebundle => generateExtraInformations;
@@ -107,21 +111,21 @@ bundle agent doInventory_always
       "any" usebundle => addInformationsToInventory;
       "any" usebundle => checkInventoryFile;
 
-    uuid_valid.(force_inventory|(inventory_time.!inventory_sent)).inventory_valid::
+    uuid_valid.(force_inventory|((inventory_time|initial_promises).!inventory_sent)).inventory_valid::
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => signInventories;
       "any" usebundle => compressInventories;
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
 
-    pass3.(uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid)::
+    pass3.uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve a valid UUID from the policy server");
 
-      # Send reports to confirm this technique success even if we don't need to send an inventory
+    # Send reports to confirm this technique success even if we don't need to send an inventory
     pass3.inventory_sent::
       "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "An inventory was already sent less than 8 hours ago");
 
-    pass3.(!(Night.splaying).!force_inventory)::
+    pass3.!(Night.splaying).!force_inventory::
       "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "inventory", "None", "Next inventory scheduled between 00:00 and 06:00");
 
 }
@@ -159,18 +163,16 @@ bundle agent download_server_uuid
 bundle common inventory
 {
   vars:
-&if(NOVA)&
     windows::
     # Files names
       "UserListFile_cp" string => "\"${g.rudder_var_tmp}\UserList.tmp\"";
       "UserListFile"    string => "\"${g.rudder_var_tmp}\UserList.list\"";
       "cpuid_tool"      string => "\"${g.rudder_tools}\cpuid-windows-V1.0.vbs\"";
-&endif&
 
     android::
       "cpuid_tool"      string => "${g.rudder_tools}/cpuid-android-V1.0.sh";
 
-    !aix.!windows.!android::
+    !aix.!windows.!android.!solaris::
       "cpuid_tool"      string => "${g.rudder_tools}/cpuid-linux-V1.0.sh";
 
     any::
@@ -179,11 +181,9 @@ bundle common inventory
   classes:
 
     windows::
-
       "rudder_inventory_userlist_tool_present" expression => fileexists("${g.rudder_tools}\userlist.bat");
 
     any::
-
       "rudder_inventory_cpuid_tool_present"    expression => fileexists("${cpuid_tool}");
 
 }
@@ -201,7 +201,7 @@ bundle agent fusionAgent
       "xen_tools_package" string => "xen";
 
     # guarding execresult to save a lot of time during policy validation
-    !windows.(force_inventory|inventory_time)::
+    !windows.(force_inventory|inventory_time|initial_promises)::
       "fusion_inventory_version" string => execresult("${g.rudder_base}/bin/run-inventory --version | ${paths.path[grep]} '[0-9]\.[0-9]' | ${paths.path[sed]} 's%.*(\([0-9]\+\)\.\([0-9]\+\).*).*%\1\2%'", "useshell");
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory", policy => "overridable"; # Default value
       "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/.*.ocs", policy => "overridable"; # Default value for editing the inventory files
@@ -276,7 +276,7 @@ bundle agent fusionAgent
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install ocs");
 
     pass3.cant_install_xen::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install xen utils on xen systems");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install Xen utils on Xen system");
 
     pass3.xen_installed::
       "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Xen utils installed");
@@ -286,14 +286,14 @@ bundle agent fusionAgent
 
   commands:
     !windows.inventoryfoldercreated::
-      "${g.rudder_base}/bin/run-inventory --local=${inventory_path} --scan-homedirs"
+      "${g.rudder_base}/bin/run-inventory --local=${inventory_path}"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
 
 &if(NOVA)&
     windows::
       "\"C:\Program Files\Rudder\sbin\run-inventory.bat\""
-        args => "--local=\"${inventory_path}\" --scan-homedirs 2>nul",
+        args => "--local=\"${inventory_path}\" 2>nul",
         contain => in_shell,
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory";
@@ -386,15 +386,15 @@ bundle agent generateExtraInformations
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the user list");
 
     pass3.cpuid_fail::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the cpuid");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not generate the CPUID");
 
-    pass3.(!rudder_inventory_userlist_tool_present)::
+    pass3.!rudder_inventory_userlist_tool_present::
 
-      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "The user list generation tool is not present yet. Skipping...");
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "User list generation tool is not present yet. Skipping...");
 
-    pass3.(!rudder_inventory_cpuid_tool_present)::
+    pass3.!rudder_inventory_cpuid_tool_present::
 
-      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "The CPUID generation tool is not present yet. Skipping...");
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "CPUID generation tool not available for this platform, or not present yet. Skipping...");
 
   commands:
 
@@ -457,55 +457,75 @@ bundle agent turnUsersToUnicode
 bundle agent addInformationsToInventory
 {
   vars:
-&if(NOVA)&
+    # define CFKEY
     windows.!cygwin::
       "CFKEY_cmd"      string => "${sys.winsysdir}\cmd.exe /c \"type \"${sys.workdir}\ppkeys\localhost.pub\"\"";
-      "USER"           string => getenv("USERNAME", 40);
-      "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_tools}/uuid.vbs\"";
-      "polserv_uuid"   string => readfile( "${sys.workdir}\rudder-server-uuid.txt" , "50" );
-      # Somehow, using the variable rather than the path fails with readstringlist
-      "users" slist => { readstringlist("C:\Program Files\Rudder\var\tmp\UserList.list","#.*","[\n| |\r]",50,4000) };
-&endif&
-
-    cygwin::
-      "mywinpath"      string => execresult("/usr/bin/echo $WINDIR ", "useshell");
+    windows.cygwin::
       "CFKEY_cmd"      string => "/usr/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
-      "USER_cmd"       string => "/usr/bin/whoami";
-      "RUDDERUUID_cmd" string => "${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_tools}/uuid.vbs";
-      "polserv_uuid"   string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
-      "users"          slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
+    android::
+      "CFKEY_cmd"      string => "/system/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
+    !windows.!android::
+      "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
+    any::
+      "CFKEY"          string => execresult("${CFKEY_cmd}", "noshell");
+
+    # define USER
+    windows.!cygwin::
+      "USER"           string => getenv("USERNAME", 40);
+    windows.cygwin::
+      "USER"           string => execresult("/usr/bin/whoami", "noshell");
+    android::
+      "USER"           string => execresult("/system/xbin/whoami", "noshell");
+    solaris::
+      "USER"           string => execresult("/usr/bin/id | /usr/bin/cut -d\( -f2 | /usr/bin/cut -d\) -f1", "noshell");
+    !windows.!android.!solaris::
+      "USER"           string => execresult("/usr/bin/whoami", "noshell");
+
+    # define RUDDERUUID
+    windows.!cygwin::  
+      "RUDDERUUID"     string => execresult("${sys.winsysdir}\cscript.exe /Nologo \"${g.rudder_tools}/uuid.vbs\"", "noshell");
+    windows.cygwin::
+      "RUDDERUUID"     string => execresult("${sys.winsysdir}\cscript.exe /Nologo ${g.rudder_tools}/uuid.vbs", "noshell");
+    android::
+      "RUDDERUUID"     string => execresult("/system/xbin/sqlite3 /data/data/com.android.providers.settings/databases/settings.db \"select value from secure where name = 'android_id'\"", "noshell");
+    aix::
+      "RUDDERUUID"     string => execresult("/usr/bin/uname -f", "noshell");
+    solaris::
+      "RUDDERUUID"     string => execresult("smbios | grep UUID | sed 's/  UUID: //'", "useshell");
+    freebsd::
+      "RUDDERUUID"     string => execresult("/usr/local/sbin/dmidecode -s system-uuid", "noshell");
+    linux.!xen::
+      "RUDDERUUID"     string => execresult("/usr/sbin/dmidecode -s system-uuid", "noshell");
+    linux.xen.xenrudderuuid:: # xenrudderuuid is defined at second pass
+      "RUDDERUUID"     string => "${vmarray[1]}";
+    # all cases should have been covered, so no default
 
 
+    # define VMRUDDERUUID when we have xen
     xen.SuSE.xen_domu_pv::
       "VMRUDDERUUID_cmd" string => "/bin/xenstore-read vm";
-
-    xen.(centos|redhat|(SuSE.xen_dom0))::
+    xen.((SuSE.xen_dom0)|centos|redhat)::
       "VMRUDDERUUID_cmd" string => "/usr/bin/xenstore-read vm";
-
-    xen.(!SuSE.!centos.!redhat)::
+    xen.!SuSE.!centos.!redhat::
       "VMRUDDERUUID_cmd" string => "/usr/sbin/xenstore-read vm";
-
     xen::
-      "VMRUDDERUUID" string => execresult("${VMRUDDERUUID_cmd}", "noshell");
+      "VMRUDDERUUID"     string => execresult("${VMRUDDERUUID_cmd}", "noshell");
 
-    xen.xenrudderuuid::
-      "RUDDERUUID" string => "${vmarray[1]}";
-
-    linux.(armv6l|armv7l)::
-      "ARMCPUINFO" string => readfile( "/proc/cpuinfo", "0" );
-
-    linux.(armv6l|armv7l).armv6lorv7lrudderuuid::
-      "RUDDERUUID" string => "${serialarray[1]}";
-
-    !windows::
-      "polserv_uuid"          string => readfile( "${sys.workdir}/rudder-server-uuid.txt" , "50" );
-
+    # define users
+    windows.!cygwin::  
+      # Somehow, using the variable rather than the path fails with readstringlist
+      "users"          slist => { readstringlist("C:\Program Files\Rudder\var\tmp\UserList.list","#.*","[\n| |\r]",50,4000) };
+    windows.cygwin::
+      "users"          slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
     android::
-      "RUDDERUUID_cmd"        string => "/system/xbin/sqlite3 /data/data/com.android.providers.settings/databases/settings.db \"select value from secure where name = 'android_id'\"";
-      "CFKEY_cmd"             string => "/system/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
-      "USER_cmd"              string => "/system/xbin/whoami";
-      "usersnumber"           int =>  "1";
-      "users"                 slist => {"root"};
+      "users"          slist => {"root"};
+    !windows.!android::
+      "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
+      "users"          slist => getindices("userslist");
+
+
+    # define specific variables
+    android::
       "android_kernelname"    string => "linux";
       "android_kernelversion" string => execresult("/system/xbin/uname -r", "noshell");
       "android_name"          string => "Android";
@@ -519,11 +539,22 @@ bundle agent addInformationsToInventory
     aix::
       "RUDDERUUID_cmd" string => "/usr/bin/uname -f";
 
+    solaris::
+      "RUDDERUUID" string => execresult("smbios | grep UUID | sed 's/  UUID: //'", "useshell");
+
+    freebsd::
+      "RUDDERUUID_cmd" string => "/usr/local/sbin/dmidecode -s system-uuid";
+
     !windows.!android::
       "CFKEY_cmd"      string => "/bin/cat ${sys.workdir}/ppkeys/localhost.pub";
-      "USER_cmd"       string => "/usr/bin/whoami";
       "usersnumber"    int =>  readstringarray("userslist","/etc/passwd","#[^\n]*",":",50,16000);
       "users"          slist => getindices("userslist");
+
+    !windows.!android.!solaris::
+      "USER" string => execresult("/usr/bin/whoami", "noshell");
+
+    solaris::
+      "USER" string => execresult("id | cut -d\( -f2 | cut -d\) -f1", "useshell");
 
     any::
       "CFKEY"      string => execresult("${CFKEY_cmd}", "noshell");
@@ -534,6 +565,12 @@ bundle agent addInformationsToInventory
       # Roles of the system, fetch from the server_roles_path folder
       # Don't extract file starting by . (especially . and .., but also hidden files)
       "rudder_roles" slist => lsdir("${g.server_roles_path}", "^[^.].*", "false");
+
+    linux.(armv6l|armv7l)::
+      "ARMCPUINFO" string => readfile( "/proc/cpuinfo", "0" );
+
+    linux.(armv6l|armv7l).armv6lorv7lrudderuuid::
+      "RUDDERUUID" string => "${serialarray[1]}";
 
     !xen.!armv6l.!armv7l::
       "RUDDERUUID" string => execresult("${RUDDERUUID_cmd}", "noshell");
@@ -552,7 +589,7 @@ bundle agent addInformationsToInventory
   files:
     uuiddefined::
       "${fusionAgent.inventory_path_edition}"
-        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${polserv_uuid}),
+        edit_line => add_information_to_inventory(${RUDDERUUID}, ${CFKEY}, ${USER}, ${doInventory_always.policy_server_uuid}),
         comment => "Adding basic informations to Rudder Inventory",
         edit_defaults => def_no_backup_size("25M");
 
@@ -581,7 +618,8 @@ bundle agent addInformationsToInventory
 bundle agent checkInventoryFile
 {
   vars:
-      "inventory_file" slist => findfiles("${g.rudder_var_tmp}/inventory/*.ocs");
+      "inventory_file"     slist => findfiles("${g.rudder_var_tmp}/inventory/*.ocs");
+      "inventory_file_count" int => length("inventory_file");
     !windows.has_rudder_perl::
       "perl_command" string => "/opt/rudder/bin/perl -I /opt/rudder/lib/perl5";
     !windows.!has_rudder_perl::
@@ -590,7 +628,8 @@ bundle agent checkInventoryFile
       "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe";
 
   classes:
-      "inventory_file_exist" expression => filesexist("@{inventory_file}");
+      # To check if inventory file is there, we need to count the file (filexists is not enough if inventory_file is an empty list))
+      "inventory_file_exist" expression => isgreaterthan("${inventory_file_count}", "0");
       "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
     pass1.inventory_file_exist.!windows::
       "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}", "noshell"),
@@ -614,7 +653,7 @@ bundle agent checkInventoryFile
       "********************************************************************************
 * WARNING Generated inventory is not valid, as it is missing mandatory fields. *
 * Not sending it to the Rudder Server                                          *
-* You can check the invalid inventory in ${g.rudder_var_tmp}/inventory/        *
+* You can get a full error message by running: ${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file} 
 ********************************************************************************";
 }
 
@@ -635,7 +674,8 @@ bundle agent signInventories
   vars:
 
     !windows::
-      "sign_script" string => "/opt/rudder/bin/signature.sh";
+      # Keep "/opt/rudder/bin/signature.sh" as a fallback until we don't support agents < 4.0 anymore
+      "sign_script" string => ifelse(fileexists("${g.rudder_base}/bin/rudder-sign"), "${g.rudder_base}/bin/rudder-sign", "${g.rudder_base}/bin/signature.sh");
     windows::
       "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File \"C:\Program Files\Rudder\sbin\signature.ps1\" -file";
 
@@ -644,12 +684,11 @@ bundle agent signInventories
 
   files:
 
-    !windows::
+    !windows.sign_script_exists::
       "${g.rudder_inventories}"
         transformer  => "${sign_script} \"${this.promiser}\"",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
-        ifvarclass   => "sign_script_exists",
         comment      => "Signing inventory files";
 }
 
@@ -672,8 +711,11 @@ bundle agent sendInventory
 {
 
   vars:
-
+&if(INITIAL)&
+      "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/";
+&else&
       "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
+&endif&
 
     # If curl is available, use it
     !windows.curl_installed::

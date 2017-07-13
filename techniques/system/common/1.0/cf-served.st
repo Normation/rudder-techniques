@@ -24,11 +24,16 @@
 
 bundle server access_rules
 {
+&if(NOVA)&
+  vars:
+    enterprise::
+      "query_types" slist => {"delta", "rebase", "full"};
+&endif&
+
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-&if(MANAGED_NODES_NAME)&
-    policy_server::
+    policy_server|role_rudder_relay_promises_only::
       "${def.dir_masterfiles}"
         handle  => "grant_access_policy",
         comment => "Grant access to the policy updates",
@@ -39,6 +44,7 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
 
+&if(MANAGED_NODES_NAME)&
       "${g.rudder_ncf_origin_common}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
@@ -46,6 +52,10 @@ bundle server access_rules
       "${g.rudder_ncf_origin_local}"
         maproot => {  @{def.acl}  },
         admit   => {  @{def.acl}  };
+
+      # Deny access to 50_techniques folder
+      "${g.rudder_ncf_origin_local}/50_techniques"
+        deny    => {  ".*"  };
 
       &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
@@ -55,22 +65,44 @@ bundle server access_rules
 
       &endif&
 
+  &if(NOVA)&
+    role_rudder_cfengine_mission_portal::
+      "${query_types}"
+        handle             => "server_access_grant_${query_types}_for_hub",
+        comment            => "Grant ${query_types} reporting query for the hub on the policy server",
+        resource_type      => "query",
+        report_data_select => rudder_data_select_policy_hub,
+        admit              => { ${def.policy_server}, @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
+
+  &endif&
 
     any::
   &if(SKIPIDENTIFY)&
-    &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
+    &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY: {host, uuid, key |
       "/var/rudder/share/&uuid&/"
-        maproot => { string_downcase(escape("&host&"))  },
-        admit   => { string_downcase(escape("&host&"))  };
+        maproot    => { string_downcase(escape("&host&"))  },
+        admit      => { string_downcase(escape("&host&"))  },
+        admit_keys => { "&key&" };
 
-     } &
+      "/var/rudder/shared-files/&uuid&/"
+        maproot    => { string_downcase(escape("&host&"))  },
+        admit      => { string_downcase(escape("&host&"))  },
+        admit_keys => { "&key&" };
+
+    } &
   &else&
-    &MANAGED_NODES_NAME, MANAGED_NODES_ID : {host, uuid |
+    &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY : {host, uuid, key |
       "/var/rudder/share/&uuid&/"
-        maproot => { host2ip("&host&"), string_downcase(escape("&host&"))  },
-        admit   => { host2ip("&host&"), string_downcase(escape("&host&"))  };
+        maproot    => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit      => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit_keys => { "&key&" };
 
-     } &
+      "/var/rudder/shared-files/&uuid&/"
+        maproot    => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit      => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        admit_keys => { "&key&" };
+
+    } &
   &endif&
 
 &endif&
@@ -82,9 +114,18 @@ bundle server access_rules
         admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
     !windows::
-      "${def.cf_runagent_shell}"
+      "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
         admit => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
 
+&if(NOVA)&
+    enterprise_edition::
+      "${query_types}"
+        handle             => "server_access_grant_${query_types}_for_hosts",
+        comment            => "Grant ${query_types} reporting query for the hub on the hosts",
+        resource_type      => "query",
+        report_data_select => rudder_data_select_host,
+        admit              => { ${def.policy_server}, @{sys.ip_addresses} };
+&endif&
 
   roles:
       # Allow user root to set any class
@@ -116,19 +157,20 @@ bundle common def
 
    # List here the IP masks that we grant access to on the server
 
-&if(AUTHORIZED_NETWORKS)&
     policy_server::
       "acl" slist => {
       "127.0.0.0/8" , "::1",
+&if(AUTHORIZED_NETWORKS)&
       host2ip("${def.policy_server}"), # the policy server can connect to a relay
       &AUTHORIZED_NETWORKS:{net|"&net&",}&
-    };
 &endif&
+
+    };
 
     !policy_server::
       "acl" slist => {
       "${def.policy_server}", host2ip("${def.policy_server}")
-    };
+      };
 
 }
 
@@ -162,6 +204,7 @@ body server control
           &endif&
 
         };
+
 &else&
         trustkeysfrom     => {
           @{def.acl} ,
@@ -181,6 +224,7 @@ body server control
 
         };
 
+
         allowallconnects  => {
           @{def.acl} ,
           &if(MANAGED_NODES_NAME)&
@@ -189,10 +233,19 @@ body server control
           &endif&
 
         };
+
 &endif&
 
         maxconnections    => "1000";
         logallconnections => "true";
+
+        allowlegacyconnects => {
+            host2ip("${def.policy_server}"), # the policy server can connect
+            &if(AUTHORIZED_NETWORKS)&
+            &AUTHORIZED_NETWORKS:{net|"&net&",}&
+            &endif&
+
+        };
 
       windows::
         cfruncommand => "${sys.cf_agent} -I -D cfruncommand -f \"failsafe.cf\"  \&
@@ -201,9 +254,7 @@ body server control
       !windows::
         # last single quote in cfruncommand is left open, so that
         # arguments (like -K and --remote-bundles) are properly appended.
-        cfruncommand => "${def.cf_runagent_shell} -c \'
-                            ${sys.cf_agent} -I -D cfruncommand -f failsafe.cf  \&\&
-                            ${sys.cf_agent} -I -D cfruncommand";
+        cfruncommand => "${g.rudder_command} agent run -uR";
 
         allowusers        => {
           "&POLICYSERVER_ADMIN&",
@@ -248,3 +299,30 @@ body runagent control
 }
 &endif&
 
+&if(NOVA)&
+body report_data_select rudder_data_select_host
+# @brief Data to collect from remote hosts by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include       => { "inventory", "report" };
+    metatags_exclude       => { "noreport" };
+    monitoring_include     => { ".*" };
+    promise_handle_exclude => { "noreport_.*" };
+}
+
+body report_data_select rudder_data_select_policy_hub
+# @brief Data to collect from policy servers by default
+#
+# By convention variables and classes known to be internal, (having no
+# reporting value) should be prefixed with an underscore. By default the policy
+# framework explicitly excludes these variables and classes from collection.
+{
+    metatags_include       => { "inventory", "report" };
+    metatags_exclude       => { "noreport" };
+    monitoring_include     => { ".*" };
+    promise_handle_exclude => { "noreport_.*" };
+}
+&endif&

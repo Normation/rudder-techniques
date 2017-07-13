@@ -30,7 +30,7 @@ fi
 # Check that the non-existant log level "log_error" is never used
 find ${REPOSITORY_PATH} -type f -name "*.st" | while read filename
 do
-  if grep -rHn "log_error" "$filename" > /dev/null
+  if grep -rHn '"log_error"' "$filename" > /dev/null
   then
     echo "Reason: illegal log level 'log_error' found in $filename. Use result_error instead"
     exit 1
@@ -58,27 +58,6 @@ do
   fi
 done || EXIT=1
 
-# Check that logrotate configurations are synchronized from techniques to initial-promises
-if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/server-roles/1.0/rudder-logrotate.st ${REPOSITORY_PATH}/initial-promises/node-server/server-roles/logrotate.conf/rudder
-then
-  echo "Logrotate files ${REPOSITORY_PATH}/techniques/system/server-roles/1.0/rudder-logrotate.st and ${REPOSITORY_PATH}/initial-promises/node-server/server-roles/logrotate.conf/rudder differ"
-  EXIT=1
-fi
-
-# Check that minicurl is synchronized from techniques to initial-promises
-if ! diff -Nauwq ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl
-then
-  echo "The minicurl utility in ${REPOSITORY_PATH}/techniques/system/common/1.0/minicurl.st and ${REPOSITORY_PATH}/initial-promises/node-server/common/utilities/minicurl differ"
-  EXIT=1
-fi
-
-# Check that no StringTemplate thingies were put into the initial-promises ( lines beginning with & or StringTemplate iterators )
-if grep -E -r '^\s*&|&[a-zA-Z_]&' ${REPOSITORY_PATH}/initial-promises
-then
-  echo "There are some StringTemplate definitions in the initial promises"
-  EXIT=1
-fi
-
 # Check that we are not using classes to detect distribution version as DistributionVersion (which does not exists)
 find ${REPOSITORY_PATH}/techniques -type f -name "*.st" | while read filename
 do
@@ -101,13 +80,13 @@ done || EXIT=1
 
 
 # Check that techniques are written in normal ordering
-if ! ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | xargs ${REPOSITORY_PATH}/scripts/ordering.pl
+if ! ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | xargs ${REPOSITORY_PATH}/scripts/ordering.pl
 then
   EXIT=1
 fi
 
 # Check that techniques do not contain $()
-${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v cfengine_stdlib | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
 do
   if grep '$(' "${filename}" >/dev/null; then
     echo "The file ${filename} contains deprecated \$() syntax"
@@ -116,7 +95,7 @@ do
 done || EXIT=1
 
 # check that techniques do not use reports:
-${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | grep -v initial-promises | egrep -v "techniques/system/common/1.0/(rudder_stdlib.st|update.st|promises.st|process_matching.st|rudder_stdlib_core.st)|techniques/system/distributePolicy/1.0/rsyslogConf.st|techniques/system/inventory/1.0/fusionAgent.st" | grep -v cfengine_stdlib | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | egrep -v "common/1.0/(update\.|promises\.|rudder-stdlib-core\.)|distributePolicy/1.0/rsyslogConf\.|inventory/1.0/fusionAgent\." | while read filename
 do
   if egrep '^[[:space:]]*reports:' "${filename}" >/dev/null; then
     echo "The file ${filename} uses reports: instead of rudder_common_report"
@@ -164,6 +143,15 @@ ${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_
 do
   if grep -n -A1 "^[[:space:]]*&endif&[[:space:]]*$" "${filename}" | grep -E -B1 -- "^[[:digit:]]+-.+"; then
     echo "&endif& not followed by an empty line in ${filename}"
+    exit 1
+  fi
+done || EXIT=1
+
+# Check that .cf files do not contain stringtemplate variables ( lines beginning with & or StringTemplate iterators )
+${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' "${REPOSITORY_PATH}/techniques/" | while read filename
+do
+  if grep -E '^\s*&|&[a-zA-Z_]&' "${filename}" > /dev/null; then
+    echo "Stringtemplate variable in .cf file ${filename}"
     exit 1
   fi
 done || EXIT=1

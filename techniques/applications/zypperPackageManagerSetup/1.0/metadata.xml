@@ -13,8 +13,8 @@ GNU General Public License for more details.
 You should have received a copy of the GNU General Public License
 along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
-<TECHNIQUE name="Zypper package manager setup">
-  <DESCRIPTION>This technique setups Zypper package manager.</DESCRIPTION>
+<TECHNIQUE name="Package manager settings (Zypper)">
+  <DESCRIPTION>This technique configures Zypper package manager.</DESCRIPTION>
 
   <COMPATIBLE>
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
