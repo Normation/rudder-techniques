@@ -1,0 +1,8 @@
+[{
+  "inits": [],
+  "directives": ["test_fileTemplate.json", "loadVars.json"],
+  "checks": ["test_fileTemplate.rb"],
+  "sharedFiles":["template1"],
+  "compliance": 100
+}]
+

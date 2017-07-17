@@ -1,0 +1,13 @@
+#!/usr/local/bin/ncf -f 
+bundle agent init {
+  vars:
+    "gen_files" slist => {"test1.conf", "test2.conf", "posthooktest", "persistentPosthooktest"};
+    "src_files" slist => {"template1", "_tmp_test2_conf.tpl"};
+    "other_files" slist => {"/tmp/toRepairPosthook"};
+
+  methods:
+    "any" usebundle => file_remove("/tmp/${gen_files}");
+    "any" usebundle => file_remove("/var/rudder/templates/${src_files}");
+    "any" usebundle => file_remove("${other_files}");
+}
+

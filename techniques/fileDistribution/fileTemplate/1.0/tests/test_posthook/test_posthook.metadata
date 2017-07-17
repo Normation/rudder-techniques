@@ -1,0 +1,8 @@
+[{
+  "inits": ["test_posthook.cf"],
+  "directives": ["test_posthook.json", "loadVars.json"],
+  "checks": ["test_posthook.rb"],
+  "sharedFiles":["template1"],
+  "compliance": 100
+}]
+
