@@ -1,0 +1,8 @@
+[{
+  "inits": ["test_setVars.cf"],
+  "directives": ["test_setVars.json", "check_vars.json"],
+  "checks": ["test_setVars.rb"],
+  "sharedFiles": ["json1.json", "json2.json", "json3.json"],
+  "compliance": 76.47
+}]
+
