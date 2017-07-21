@@ -1,1 +1,2 @@
-&MANAGED_NODES_CERT_PEM&
+&MANAGED_NODES_CERT_PEM: {cert | &cert&
+}&
