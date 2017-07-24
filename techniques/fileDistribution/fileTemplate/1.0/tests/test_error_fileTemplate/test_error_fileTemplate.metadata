@@ -1,0 +1,8 @@
+[{
+  "inits": ["test_error_fileTemplate.cf"],
+  "directives": ["test_error_fileTemplate.json", "loadVars.json"],
+  "checks": ["test_error_fileTemplate.rb"],
+  "sharedFiles":["template1"],
+  "compliance": 66.67
+}]
+

@@ -132,6 +132,24 @@
           </CONSTRAINT>
         </INPUT>
 
+        <SELECT1>
+          <NAME>FILE_TEMPLATE_PERSISTENT_POST_HOOK</NAME>
+          <DESCRIPTION>Retry hook on error</DESCRIPTION>
+          <ITEM>
+            <VALUE>true</VALUE>
+            <LABEL>Yes</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>false</VALUE>
+            <LABEL>False</LABEL>
+          </ITEM>
+
+          <CONSTRAINT>
+            <DEFAULT>true</DEFAULT>
+            <MAYBEEMPTY>false</MAYBEEMPTY>
+          </CONSTRAINT>
+        </SELECT1>
+
         <SECTION name="Expand template" multivalued="false" component="true" componentKey="FILE_TEMPLATE_AGENT_DESTINATION_PATH">
         </SECTION>
 
@@ -150,3 +168,4 @@
     </SECTION>
   </SECTIONS>
 </TECHNIQUE>
+

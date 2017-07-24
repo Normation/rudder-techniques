@@ -45,18 +45,26 @@ bundle agent fileTemplate {
       #Post hook command
       &FILE_TEMPLATE_TEMPLATE_POST_HOOK_COMMAND: {command |"posthook[&i&]" string => "&command&";}&
 
+      #Post hook persistence
+      &FILE_TEMPLATE_PERSISTENT_POST_HOOK: {persistence | "persist[&i&]" string => "&persistence&";}&
+
       #Index
       "index" slist => getindices("dst");
 
       #Name of the template, from its location
       "name[${index}]" string => lastnode("${src[${index}]}", "/");
 
-      #canonified names for reporting
+      #Canonified names for reporting
       "src_canon[${index}]" string => canonify("${relative_src}/${src[${index}]}");
       "dst_canon[${index}]" string => canonify("${dst[${index}]}");
       "temp_canon[${index}]" string => canonify("${temp}/${name[${index}]}");
       "temp_dir_canon" string => canonify("${temp}");
       "posthook_canon[${index}]" string => canonify("${posthook[${index}]}");
+
+      #Cancel persistent classes
+      "cancel" string => "cancel persistence",
+               classes => cancel_all_classes("posthook_rerun_${index}"),
+               ifvarclass => "command_execution_${posthook_canon[${index}]}_ok";
 
   classes:
       "pass3" expression => "pass2";
@@ -67,7 +75,12 @@ bundle agent fileTemplate {
       "posthook_specified_${index}" not => strcmp("${posthook[${index}]}", "");
       "file_modified_${index}" expression =>"permissions_${dst_canon[${index}]}_repaired|file_from_template_${dst_canon[${index}]}_repaired";
       "posthook_launch_${index}" expression =>"posthook_specified_${index}.file_modified_${index}";
-      "posthook_not_launch_${index}" expression =>"posthook_specified_${index}.!(file_modified_${index})";
+      "posthook_persistent_${index}" expression => strcmp("${persist[${index}]}", "true");
+
+      #Check if the posthook is persistent and in error, set up a class for 10000 minutes => about 1 week
+      "posthook_rerun_${index}" expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
+                                     scope => "namespace",
+                                     persistence => "10000";
 
   methods:
       #Ensure the templates are in a safe place
@@ -135,7 +148,7 @@ bundle agent fileTemplate {
       usebundle => command_execution(
         "${posthook[${index}]}"
       ),
-      ifvarclass => "posthook_launch_${index}";
+      ifvarclass => "posthook_launch_${index}|posthook_rerun_${index}";
 
 ################################################################################
 #                                    REPORTING                                 # 
@@ -180,13 +193,13 @@ pass3::
       #Case with execution
       
       "any" usebundle => rudder_common_reports_generic("fileTemplate", "command_execution_${posthook_canon[${index}]}", "${trackingkey[${index}]}", "Posthook", "${dst[${index}]}", "The command ${posthook[${index}]} from postHook execution "),
-      ifvarclass => "posthook_launch_${index}";
+      ifvarclass => "command_execution_${posthook_canon[${index}]}_reached";
 
 
       #Case without execution
 
       "report_${index}" usebundle  => rudder_common_report("fileTemplate", "result_na", "${trackingkey[${index}]}", "Posthook", "${dst[${index}]}", "No post-modification needed to run"),
-      ifvarclass => "!file_modified_${index}.posthook_specified_${index}";
+      ifvarclass => "!file_modified_${index}.posthook_specified_${index}.!command_execution_${posthook_canon[${index}]}_reached";
 
 
       #Case where no posthook set
@@ -194,3 +207,4 @@ pass3::
       "report_hook_${index}" usebundle  => rudder_common_report("fileTemplate", "result_na", "${trackingkey[${index}]}", "Posthook", "${dst[${index}]}", "No post-modification set to run"),
       ifvarclass => "!posthook_specified_${index}";
 }
+
