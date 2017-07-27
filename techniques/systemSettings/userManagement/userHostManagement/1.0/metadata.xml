@@ -1,0 +1,95 @@
+<!--
+Copyright 2016 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<TECHNIQUE name="Users management (any)">
+  <DESCRIPTION>This technique manages the target host(s) users.
+
+    It will ensure that the defined users are present/absent on the system.</DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <AGENT type="dsc">
+    <BUNDLES>
+      <NAME>user_host_management</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="user_host_management.ps1">
+        <OUTPATH>userHostManagement/1.0/user_host_management.ps1</OUTPATH>
+      </TML>
+    
+    </TMLS>
+  </AGENT>
+
+  <AGENT type="cfengine-community">
+    <BUNDLES>
+      <NAME>user_host_management</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="user_host_management"/>
+    </TMLS>
+  </AGENT>
+
+
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>USER_NODE_MANAGEMENT_LOGIN</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <!-- Waiting for a full reporting from the generic method
+    <SECTION name="Password" component="true" componentKey="USER_NODE_MANAGEMENT_LOGIN"/>
+    -->
+    <SECTION name="User Present" multivalued="true" component="true" componentKey="USER_NODE_MANAGEMENT_LOGIN">
+      <INPUT>
+        <NAME>USER_NODE_MANAGEMENT_LOGIN</NAME>
+        <DESCRIPTION>Login name</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+          <REGEX error="Invalid user name">^[\w]+</REGEX>
+        </CONSTRAINT>
+      </INPUT>
+
+      <SELECT1>
+        <NAME>USER_NODE_MANAGEMENT_POLICY</NAME>
+        <DESCRIPTION>Ensure the user is present/absent on the system</DESCRIPTION>
+        <ITEM>
+          <LABEL>Present</LABEL>
+          <VALUE>present</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Absent</LABEL>
+          <VALUE>absent</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>present</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      
+      <INPUT>
+        <NAME>USER_NODE_MANAGEMENT_PASSWORD</NAME>
+        <DESCRIPTION>Password</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+          <TYPE>masterPassword</TYPE>
+          <PASSWORDHASH>linux-shadow-md5,linux-shadow-sha256,linux-shadow-sha512,plain</PASSWORDHASH> 
+          <AUTOSUBVARIABLES>AIX</AUTOSUBVARIABLES>
+        </CONSTRAINT>
+      </INPUT>
+
+    </SECTION>
+  </SECTIONS>
+
+
+</TECHNIQUE>
