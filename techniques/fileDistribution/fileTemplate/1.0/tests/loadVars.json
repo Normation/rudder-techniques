@@ -1,0 +1,73 @@
+{
+  "displayName": "Variable (string)",
+  "enabled": true,
+  "longDescription": "",
+  "parameters": {
+    "section": {
+      "name": "sections",
+      "sections": [
+        {
+          "section": {
+            "name": "Variable definition",
+            "vars": [
+              {
+                "var": {
+                  "name": "GENERIC_VARIABLE_CONTENT",
+                  "value": "Alice"
+                }
+              },
+              {
+                "var": {
+                  "name": "GENERIC_VARIABLE_NAME",
+                  "value": "nom1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "section": {
+            "name": "Variable definition",
+            "vars": [
+              {
+                "var": {
+                  "name": "GENERIC_VARIABLE_CONTENT",
+                  "value": "1 chemin de la rue"
+                }
+              },
+              {
+                "var": {
+                  "name": "GENERIC_VARIABLE_NAME",
+                  "value": "adresse1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "section": {
+            "name": "Variable definition",
+            "vars": [
+              {
+                "var": {
+                  "name": "GENERIC_VARIABLE_CONTENT",
+                  "value": "Bob"
+                }
+              },
+              {
+                "var": {
+                  "name": "GENERIC_VARIABLE_NAME",
+                  "value": "nom2"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "shortDescription": "",
+  "techniqueName": "genericVariableDefinition",
+  "techniqueVersion": "2.0"
+}
+
