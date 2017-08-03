@@ -1,5 +1,5 @@
 <!--
-Copyright 2016 Normation SAS
+Copyright 2017 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -143,6 +143,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <DEFAULT>default</DEFAULT>
           </CONSTRAINT>
         </SELECT1>
+        <INPUT>
+          <NAME>PACKAGE_MANAGER_ALLOW_UNTRUSTED</NAME>
+          <DESCRIPTION>Allow untrusted packages (only with apt for now)</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>PACKAGE_MANAGER_OPTIONS</NAME>
+          <DESCRIPTION>Specify options to pass to the package manager (only with apt for now)</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
       </SECTION>
       <SECTION name="Post-modification script" component="true" componentKey="PACKAGE_LIST">
         <INPUT>

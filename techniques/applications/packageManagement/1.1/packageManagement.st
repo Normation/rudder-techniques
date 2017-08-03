@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2016 Normation SAS
+# Copyright 2017 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -46,6 +46,15 @@ bundle agent package_management {
       &PACKAGE_MANAGER:{manager |"manager[&i0&]" string => "&manager&";
 }&
 
+      &PACKAGE_MANAGER_ALLOW_UNTRUSTED:{allow_untrusted |"allow_untrusted[&i0&]" string => "&allow_untrusted&";
+}&
+
+      &PACKAGE_MANAGER_OPTIONS:{manager_options |"manager_options[&i0&]" string => "&manager_options&";
+}&
+
+      &PACKAGE_MANAGER_ALLOW_UNTRUSTED:{manager_allow_untrusted |"manager_allow_untrusted[&i0&]" string => "&manager_allow_untrusted&";
+}&
+
       &PACKAGE_POST_HOOK_COMMAND:{command |"posthook[&i0&]" string => "&command&";
 }&
 
@@ -77,19 +86,29 @@ bundle agent package_management {
       "version_description[${index_pkg}]" string     => "in version ${version[${index_pkg}]}",
                                           ifvarclass => "version_specified_${index_pkg}";
 
+      # Allow untrusted
+      "manager_final_options[${index_pkg}]" string => "-o Apt::Get::AllowUnauthenticated=true ${manager_options[${index_pkg}]}",
+                                        ifvarclass => "apt_allow_untrusted_${index_pkg}";
+      "manager_final_options[${index_pkg}]" string => "${manager_options[${index_pkg}]}",
+                                        ifvarclass => "!apt_allow_untrusted_${index_pkg}";
+
       # Message for old agents
       "incompatible_error" string => "This technique is not compatible with Rudder 3.1 or older. Skipping.";
 
       # Name of the ncf bundle. We use a variable to avoid breaking the syntax if the bundle does not exist.
-      "bundle_name" string => "package_state";
+      "bundle_name" string => "package_state_options";
    
   classes:
       # This class is different from the one in ncf (where a version number and latest are considered "specified")
       "version_specified_${index_pkg}" expression => strcmp("${version[${index_pkg}]}", "specific");
       "architecture_specified_${index_pkg}" expression => strcmp("${architecture[${index_pkg}]}", "specific");
       "posthook_specified_${index_pkg}" not => strcmp("${posthook[${index_pkg}]}", "");
+      "manager_specified_${index_pkg}" not => strcmp("${manager[${index_pkg}]}", "default");
       "state_present_${index_pkg}" expression => strcmp("${state[${index_pkg}]}", "present");
       "version_latest_${index_pkg}" expression => strcmp("${version[${index_pkg}]}", "latest");
+      "allow_unstrusted_${index_pkg}" expression => strcmp("${manager_allow_untrusted[${index_pkg}]}", "true");
+      "manager_apt_${index_pkg}" expression => strcmp("${manager[${index_pkg}]}", "apt");
+      "apt_allow_untrusted_${index_pkg}" expression => "allow_unstrusted_${index_pkg}.((debian.!manager_specified_${index_pkg})|manager_apt_${index_pkg})";
 
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
@@ -104,7 +123,7 @@ bundle agent package_management {
     # The pass2 is not strictly necessary but prevent future issues if the behavior of pre-evaluation changes (because the evaluation of vars + classes takes 2 passes)
     pass2.!cfengine_3_6::
       # Package
-      "package_${index_pkg}" usebundle => ${bundle_name}("${package[${index_pkg}]}", "${version[${index_pkg}]}", "${architecture[${index_pkg}]}", "${manager[${index_pkg}]}", "${state[${index_pkg}]}");
+      "package_${index_pkg}" usebundle => ${bundle_name}("${package[${index_pkg}]}", "${version[${index_pkg}]}", "${architecture[${index_pkg}]}", "${manager[${index_pkg}]}", "${state[${index_pkg}]}", "${manager_final_options[${index_pkg}]}");
 
       "report_${index_pkg}" usebundle => rudder_common_reports_generic_index("packageManagement", "${class_prefix_package[${index_pkg}]}", "${trackingkey[${index_pkg}]}", "Package", "${package[${index_pkg}]}", "${state_description[${index_pkg}]} of package ${package[${index_pkg}]}${architecture_description[${index_pkg}]}${version_description[${index_pkg}]}", "${index_pkg}");
 
@@ -117,6 +136,6 @@ bundle agent package_management {
 
       "report_${index_pkg}" usebundle  => rudder_common_report("packageManagement", "result_na", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "No post-modification script was set to run"),
                             ifvarclass => "!${class_prefix_script[${index_pkg}]}_reached";
-}
 
+}
 

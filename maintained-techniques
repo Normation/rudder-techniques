@@ -12,7 +12,8 @@ applications/aptPackageManagerSettings/3.0
 applications/aptPackageManagerSettings/3.1
 applications/openvpnClient/3.0
 applications/packageManagement/1.0
-applications/packageManagement/1.1applications/repoGpgKeyManagement/1.0
+applications/packageManagement/1.1
+applications/repoGpgKeyManagement/1.0
 applications/rpmPackageInstallation/7.0
 applications/zmdPackageManagerSettings/3.0
 applications/zypperPackageManagerRepositories/1.0
