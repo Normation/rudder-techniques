@@ -34,7 +34,7 @@ $EscapeControlCharactersOnReceive off
 
 &if(STORE_ALL_CENTRALIZED_LOGS_IN_FILE)&
 # Log everything
-*.*	/var/log/rudder/reports/all.log
+local6.* /var/log/rudder/reports/all.log
 &endif&
 
 
