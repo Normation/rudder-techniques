@@ -48,8 +48,8 @@ bundle agent zypper_repositories_management
 
   classes:
       # Disable repositories if the value of the variable start by true
-      # Since variable is unique, it can contain only one value, however, it is repeated
-      # as many time as there are instance of the directive, rendering the strcmp unusable in this case
+      # Since variable is unique, it can contain only one value, however, it is repeated
+      # as many time as there are instance of the directive, rendering the strcmp unusable in this case
       "zypper_disable_other_repositories" expression  => regcmp("true.*", "&ZYPPER_REPO_DISABLE_OTHER_REPOSITORIES&");
 
   files:
@@ -58,13 +58,13 @@ bundle agent zypper_repositories_management
       "/etc/zypp/repos.d/rudder-${zypper_name[${zypper_index}]}.repo"
         create        => "true",
         perms         => m("644"),
-        edit_line     => configure_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${zypper_autorefresh[${zypper_index}]}", "${sys.workdir}/inputs/zypperPackageManagerRepositories/zypper-repo.tml"),
+        edit_line     => configure_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${zypper_autorefresh[${zypper_index}]}", "${this.promise_dirname}/../zypper-repo.tml"),
         edit_defaults => empty_backup,
         classes       => rudder_common_classes("zypper_repo_${zypper_index}");
 
     SuSE.zypper_disable_other_repositories::
 
-      "/etc/zypp/repos.d/.*"
+      "/etc/zypp/repos.d/"
         delete       => tidy,
         file_select  => ex_list("@{zypper_files}"),
         depth_search => recurse("inf"),
@@ -74,6 +74,12 @@ bundle agent zypper_repositories_management
   methods:
     SuSE::
       "repos_${zypper_index}" usebundle => rudder_common_reports_generic("Zypper Repositories Management", "zypper_repo_${zypper_index}", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]}");
+
+      # Clear package caches
+      "force_package_list_update" usebundle => file_remove("/var/rudder/cfengine-community/state/software_update_timestamp_zypper"),
+        ifvarclass => "zypper_repo_${zypper_index}_repaired";
+      "force_available_package_updates_list_update" usebundle => file_remove("/var/rudder/cfengine-community/state/software_available_updates.csv"),
+        ifvarclass => "zypper_repo_${zypper_index}_repaired";
 
     !SuSE::
       "repos_${zypper_index}" usebundle => rudder_common_report("Zypper Repositories Management", "result_na", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]} can only be added on SUSE/SLES systems");

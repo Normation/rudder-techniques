@@ -1,0 +1,218 @@
+{
+  "displayName": "File content (from remote template) (1,1) (3,1)",
+  "enabled": true,
+  "longDescription": "",
+  "parameters": {
+    "section": {
+      "name": "sections",
+      "sections": [
+        {
+          "section": {
+            "name": "Apply template",
+            "sections": [
+              {
+                "section": {
+                  "name": "Load Template from a file or text input",
+                  "sections": [
+                    {
+                      "section": {
+                        "name": "Expand template"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Posthook"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Put permissions"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Templates directory permissions"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Templates location"
+                      }
+                    }
+                  ],
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_AGENT_DESTINATION_PATH",
+                        "value": "/tmp/posthookTest"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_GROUP_OWNER",
+                        "value": "root"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_OWNER",
+                        "value": "root"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_PERMISSIONS",
+                        "value": "700"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_PERSISTENT_POST_HOOK",
+                        "value": "false"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_RAW_OR_NOT",
+                        "value": "File"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_RAW_TEMPLATE",
+                        "value": ""
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_TEMPLATE",
+                        "value": "template1"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_TEMPLATE_POST_HOOK_COMMAND",
+                        "value": "/bin/true"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_TEMPLATE_TYPE",
+                        "value": "mustache"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        },
+        {
+          "section": {
+            "name": "Apply template",
+            "sections": [
+              {
+                "section": {
+                  "name": "Load Template from a file or text input",
+                  "sections": [
+                    {
+                      "section": {
+                        "name": "Expand template"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Posthook"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Put permissions"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Templates directory permissions"
+                      }
+                    },
+                    {
+                      "section": {
+                        "name": "Templates location"
+                      }
+                    }
+                  ],
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_AGENT_DESTINATION_PATH",
+                        "value": "/tmp/persistentPosthooktest"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_GROUP_OWNER",
+                        "value": "root"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_OWNER",
+                        "value": "root"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_PERMISSIONS",
+                        "value": "700"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_PERSISTENT_POST_HOOK",
+                        "value": "true"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_RAW_OR_NOT",
+                        "value": "File"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_RAW_TEMPLATE",
+                        "value": ""
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_TEMPLATE",
+                        "value": "template1"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_TEMPLATE_POST_HOOK_COMMAND",
+                        "value": "/bin/ls /tmp/toRepairPosthook"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "FILE_TEMPLATE_TEMPLATE_TYPE",
+                        "value": "mustache"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "shortDescription": "",
+  "techniqueName": "fileTemplate",
+  "techniqueVersion": "1.0"
+}
+

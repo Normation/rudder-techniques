@@ -35,6 +35,7 @@ This implemenation is intended as a reference for Technique development best pra
 
   Configuration will adapt the existing sshd_config file by changing the values described below. Each option can be set to "Don't change", which means the existing value will be left as is.
   </DESCRIPTION>
+  <DEPRECATED>This version is deprecated, use 5.0 instead.</DEPRECATED>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
@@ -106,6 +107,7 @@ This implemenation is intended as a reference for Technique development best pra
         <DESCRIPTION>Do you want to define the Ports ?</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SECTION name="SSH ports" multivalued="true">

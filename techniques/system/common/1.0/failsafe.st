@@ -22,10 +22,12 @@
 
 body common control
 {
-        bundlesequence     => { "check_lock_db_problem", "init_files", "update" };
+        bundlesequence     => { "check_uuid", "init_files", "update_action" };
 
         inputs             => { "common/1.0/update.cf" };
         output_prefix      => "rudder";
+
+        protocol_version   => "2";
 }
 
 body agent control {
@@ -36,16 +38,21 @@ bundle common g
 {
   vars:
     android::
-      "rudder_base"              string => "/data/rudder";
-      "rudder_var"               string => "/data/rudder";
+      "rudder_base"               string => "/data/rudder";
+      "rudder_var"                string => "/data/rudder";
+      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"              string => "/opt/rudder";
+      "rudder_tools_files_unix"   slist => { "send-clean.sh",
+                                             "cpuid-linux-V1.0.sh",
+                                             "vmware_info.sh",
+                                             "check-rsyslog-version",
+                                             "apache-vhost.tpl",
+                                           };
 
-    solaris::
-      "rudder_var"               string => "/opt/rudder/var";
 
-    !windows.!android.!solaris::
+    !windows.!android::
       "rudder_var"               string => "/var/rudder";
 
     !windows::
@@ -54,6 +61,8 @@ bundle common g
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_tools"             string => "${rudder_var}/tools";
       "rudder_ncf"               string => "${rudder_var}/ncf";
+      "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
+      "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
 
 &if(NOVA)&
     windows::
@@ -63,35 +72,84 @@ bundle common g
       "rudder_sbin"              string => "${rudder_base}\sbin";
       "rudder_tools"             string => "${rudder_sbin}";
       "rudder_ncf"               string => "${rudder_var}\ncf";
+      "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
+      "rudder_disable_server_file" string => "${rudder_base}\etc\disable-policy-distribution";
+
+      "rudder_tools_files_windows" slist => {
+                                              # Rudder utilities
+                                              "uuid.vbs",
+                                              "userlist.bat",
+                                              "getDate.bat",
+                                              "registrydns.bat",
+                                              "cpuid-windows-v1.0.vbs",
+
+                                              # GNU iconv
+                                              "iconv.exe",
+                                              "iconv.dll",
+
+                                              # cURL
+                                              "curl/curl.exe",
+                                              "curl/curl-ca-bundle.crt",
+
+                                              # OpenSSL
+                                              "openssl/openssl.exe",
+                                              "openssl/libeay32.dll",
+                                              "openssl/ssleay32.dll",
+
+                                              # Fusion inventory
+                                              "fusionagent.exe",
+
+                                              # NXlog
+                                              "nxlog-ce-2.8.1248.msi",
+                                              "nxlog.conf"
+                                            };
 &endif&
 
+    SuSE::
+      "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
+                                              "openvpn-2.2.1-1.i686.rpm",
+                                              "zypper-repo.tpl",
+                                              "check-zypper-version",
+                                              "checkzmd.pl",
+                                            };
     any::
-      "uuid"                     string => "&UUID&";
+      "rudder_tools_files"         slist => { @{rudder_tools_files_windows},
+                                              @{rudder_tools_files_android},
+                                              @{rudder_tools_files_unix},
+                                              @{rudder_tools_files_suse},
+                                              "checkroute.pl",
+                                            }, policy => "ifdefined";
+
+      "uuid"                     string => readfile("${g.uuid_file}", 60);
       "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
+      "ncf_local_excludedreps"    slist => { "50_techniques", @{g.excludedreps}};
       "rudder_tools_origin"      string => "/var/rudder/tools";
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "&CONFIGURATION_REPOSITORY_FOLDER&/ncf";
 
+      "rudder_ncf_hash_file"          string => "ncf_hash_file";
+      "rudder_ncf_origin_common_hash" string => "${rudder_ncf_origin_common}/${rudder_ncf_hash_file}";
+      "rudder_ncf_origin_local_hash"  string => "${rudder_ncf_origin_local}/${rudder_ncf_hash_file}";
+
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
       "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
 
-    # The time at which the execution started
-    (linux|cygwin).!(centos_3|redhat_3|centos_4|redhat_4)::
-      "execRun"                  string => execresult("/bin/date --rfc-3339=second", "noshell");
-    (linux|cygwin).(centos_3|redhat_3|centos_4|redhat_4)::
-      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
-      "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
+
+      "rudder_tools_updated_filename" string => "rudder_tools_updated";
+      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
+      "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
+
+      # The time at which the execution started
 &if(NOVA)&
     windows.!cygwin::
-      "execRun"                  string => execresult("\"${g.rudder_sbin}\getDate.bat\"", "noshell");
+      "execRun"                  string => execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"'{0:yyyy-MM-dd HH:mm:sszzz}' -f (get-date)\"", "noshell");
 &endif&
+
     android::
       "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
-    aix::
-      # AIX's date command doesn't have a "%z" option, so we fake it by using UTC
+    (!windows|cygwin).!android::
+      # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
-    !linux.!cygwin.!windows.!android.!aix::
-      "execRun"                  string => execresult("/bin/date \"+%Y-%m-%d %T%:z\"", "noshell");
 
 # definition of the node roles
   &NODEROLE&
@@ -100,8 +158,6 @@ bundle common g
 bundle common rudder_roles
 {
   classes:
-      # Abort if no uuid is defined
-      "should_not_continue" not        => fileexists("${g.uuid_file}");
       # Policy Server is a machine which delivers promises
       "policy_server"       expression => strcmp("root","${g.uuid}");
       # Root Server is the top policy server machine
@@ -117,7 +173,7 @@ bundle common rudder_roles
 bundle agent init_files
 {
   vars:
-      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "cf-hub" };
+      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key" };
 
     nova_edition::
       "cfengine_install_path" string => "/usr/local";
@@ -130,7 +186,7 @@ bundle agent init_files
   files:
     community_edition.!windows::
       "${sys.workdir}/bin/${components}"
-        perms     => u_p("700"),
+        perms     => u_p("755"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
         action    => immediate;
 
@@ -148,49 +204,6 @@ bundle agent init_files
       "${sys.workdir}/bin/cf-key";
 }
 
-# This bundle will check the "last successful inputs update", and if it is older
-# than 1 hour, remove cf_lock.db (and only this DB), to give CFEngine a chance
-# to run properly again.
-bundle agent check_lock_db_problem{
-  vars:
-
-    cfengine_3_0|cfengine_3_1|cfengine_3_2::
-      "cf_lock_filename" string => "cf_lock.db";
-
-    !(cfengine_3_0|cfengine_3_1|cfengine_3_2)::
-      "cf_lock_filename" string => "cf_lock.tcdb";
-
-  files:
-      # The aim of this promise is to create a class when this file is older
-      # than one hour. The class can not be created without touching but in
-      # order to not modifing the mtime we use WarnOnly.
-      "${sys.workdir}/last_successful_inputs_update"
-        file_select => over_an_hour,
-        touch       => "true",
-        action      => WarnOnly,
-        classes     => success("last_successful_inputs_update_too_old", "last_successful_inputs_update_check_error", "last_successful_inputs_update_ok");
-
-      "${sys.workdir}/state/${cf_lock_filename}"
-        delete     => tidy,
-        ifvarclass => "last_successful_inputs_update_too_old",
-        classes    => success("cf_lock_removed", "cf_lock_error_removing", "cf_lock_not_deleted");
-
-  reports:
-    cf_lock_removed::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Promises had not been updated for over an hour, this could indicate a broken lockfile. cf_lock DB file was removed.";
-
-    cf_lock_error_removing::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Update@@None@@${g.execRun}##${g.uuid}@#Promises have not been updated for over an hour, this could indicate a broken lockfile, but an error occured when trying to remove it";
-}
-
-body file_select over_an_hour()
-{
-        # Select file which are older than one hour
-        # Use of positive mtime instead of negative one
-        # In order to avoid corner effects
-        mtime       => irange(ago(0,0,0,1,0,0), now);
-        file_result => "!mtime";
-}
 
 body depth_search recurse(d)
 {
@@ -214,14 +227,6 @@ body copy_from cp(from,server)
 
 }
 
-body copy_from copy_digest(from)
-{
-        source      => "${from}";
-        copy_backup => "false";
-        preserve    => "true";
-        compare     => "digest";
-}
-
 body action immediate
 {
         ifelapsed => "0";
@@ -239,14 +244,27 @@ body delete tidy
         rmdirs   => "true";
 }
 
-body action WarnOnly
-{
-        action_policy => "warn";
-}
-
 body file_select exclude(name)
 {
         leaf_name  => { "${name}"};
         file_result => "!leaf_name";
 }
 
+body file_select by_fullname(names)
+# @brief Select files that match `names`
+# @param names A regular expression
+{
+      path_name  => { @(names)};
+      file_result => "path_name";
+}
+
+
+# Define a class no matter what the outcome of the promise is
+body classes always(x)
+{
+  promise_repaired => { "${x}" };
+  promise_kept => { "${x}" };
+  repair_failed => { "${x}" };
+  repair_denied => { "${x}" };
+  repair_timeout => { "${x}" };
+}

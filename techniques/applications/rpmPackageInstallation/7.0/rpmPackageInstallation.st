@@ -33,7 +33,7 @@ bundle agent check_rpm_package_installation {
       &RPM_PACKAGE_CHECK_INTERVAL:{check_interval |"rpm_package_check_interval" string => "&check_interval&";
       }&
 
-      "package_number" int => readstringarrayidx("rpm_data","${sys.workdir}/inputs/rpmPackageInstallation/6.1/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
+      "package_number" int => readstringarrayidx("rpm_data","${this.promise_dirname}/rpmPackageInstallationData", "#[^\n]*",":",9000,1600000);
 &! We need to use the i0 notation to have indexes starting at 0, as in readstringarrayidx !&
 
       &RPM_PACKAGE_REDLIST:{name |"rpm_package[&i0&]" string => "&name&";
@@ -51,39 +51,32 @@ bundle agent check_rpm_package_installation {
       "available_updates_file" string => "${sys.workdir}/state/software_available_updates.csv";
 
     redhat::
-      "available_updates_command" string => "/usr/bin/yum --quiet check-update | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
+      "available_updates_command" string => "/usr/bin/yum ${redhat_knowledge.yum_options} check-update | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
     zypper_version_ok::
       "available_updates_command" string => "/usr/bin/zypper --non-interactive list-updates -a | ${paths.path[grep]} '|' | ${paths.path[awk]} -F '|' '{print $3 $5}' | ${paths.path[sed]} 's%[0-9]\+:%%g' > ${available_updates_file}";
 
     # If the promises have been updated, we need to remove previously
     # defined persistent classes (by setting there persistence to 1 minutes)
     # and cancelling also the classes for this run
-    rudder_promises_generated_repaired::
+    rudder_promises_generated_repaired.!pass1.!pass2.!pass3::
+      "package_classes_to_cancel_suffix" slist => { "kept", "repaired", "error", "failed", "denied", "timeout" }; # all classes set by rudder_common_classes_persist body
       "zmd_classes_to_cancel_on_update" slist => { "zmd_kept", "zmd_restarted", "could_not_restart_zmd" };
 
-      "unpersist_rpm_kept_classes_${index_rpmpkg}"
+      "unpersist_available_packages_classes_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_install_kept_${index_rpmpkg}", "1");
+        classes => rudder_always_classes_persist("rpm_package_installation_updated_available_packages_${package_classes_to_cancel_suffix}", "1");
 
-      "rpm_kept_classes_purged_${index_rpmpkg}"
+      "available_packages_classes_purged_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => cancel_all_classes("rpm_package_install_kept_${index_rpmpkg}");
+        classes => cancel_all_classes("rpm_package_installation_updated_available_packages_${package_classes_to_cancel_suffix}");
 
-      "unpersist_rpm_repaired_classes_${index_rpmpkg}"
+      "unpersist_rpm_classes_${index_rpmpkg}_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_installed_${index_rpmpkg}", "1");
+        classes => rudder_always_classes_persist("rpm_package_installation_${index_rpmpkg}_${package_classes_to_cancel_suffix}", "1");
 
-      "rpm_repaired_classes_purged_${index_rpmpkg}"
+      "rpm_classes_purged_${index_rpmpkg}_${package_classes_to_cancel_suffix}"
         string  => "undefine",
-        classes => cancel_all_classes("rpm_package_installed_${index_rpmpkg}");
-
-      "unpersist_rpm_error_classes_${index_rpmpkg}"
-        string  => "undefine",
-        classes => rudder_always_classes_persist("rpm_package_install_failed_${index_rpmpkg}", "1");
-
-      "rpm_error_classes_purged_${index_rpmpkg}"
-        string  => "undefine",
-        classes => cancel_all_classes("rpm_package_install_failed_${index_rpmpkg}");
+        classes => cancel_all_classes("rpm_package_installation_${index_rpmpkg}_${package_classes_to_cancel_suffix}");
 
       "unpersist_${zmd_classes_to_cancel_on_update}"
         string  => "undefine",
@@ -156,7 +149,7 @@ bundle agent check_rpm_package_installation {
       # Case 3: We do have a version defined
       "${rpm_package[${index_rpmpkg}]}"
         package_policy   => "${rpm_data[${index_rpmpkg}][0]}",
-        package_method   => generic_nobulk("30"),
+        package_method   => generic_nobulk_version("30"),
         package_select   => "${rpm_data[${index_rpmpkg}][2]}",
         package_version  => "${rpm_version[${index_rpmpkg}]}",
         classes => rudder_common_classes_persist("rpm_package_installation_${index_rpmpkg}", "${rpm_package_check_interval}"),
@@ -173,51 +166,43 @@ bundle agent check_rpm_package_installation {
 
     pass3.(redhat|SuSE)::
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Performed repair action for RPM package ${rpm_package[${index_rpmpkg}]} to comply with policy: ${rpm_data[${index_rpmpkg}][0]}"),
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_repaired");
+      "any" usebundle => rudder_common_reports_generic_index("packageInstallation", "rpm_package_installation_${index_rpmpkg}", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}", "${index_rpmpkg}");
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"),
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_error");
-
-      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"),
-        ifvarclass => canonify("rpm_package_installation_${index_rpmpkg}_kept");
-
-      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "Error taking action for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]} - could not fetch the version to update", "${index_rpmpkg}"),
         ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.rpm_package_installation_updated_available_packages_error";
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "RHEL/CentOS/SuSE packages", "${rpm_package[${index_rpmpkg}]}", "No action required for RPM package ${rpm_package[${index_rpmpkg}]} with policy: ${rpm_data[${index_rpmpkg}][0]}", "${index_rpmpkg}"),
         ifvarclass => "is_update_action_${index_rpmpkg}.!${index_rpmpkg}_package_version_defined.(rpm_package_installation_updated_available_packages_kept|rpm_package_installation_updated_available_packages_repaired).!${index_rpmpkg}_update_version_valid";
 
       # Post hooks reporting
-      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Successfully executed post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]}"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Successfully executed post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]}", "${index_rpmpkg}"),
         ifvarclass => "rpm_posthook_${index_rpmpkg}_repaired";
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Error executing post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]}"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Error executing post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]}", "${index_rpmpkg}"),
         ifvarclass => "rpm_posthook_${index_rpmpkg}_error";
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Can't executing post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]} as policy ${rpm_data[${index_rpmpkg}][0]} failed"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "Can't executing post hook (${rpm_posthook[${index_rpmpkg}]}) for RPM package ${rpm_package[${index_rpmpkg}]} as policy ${rpm_data[${index_rpmpkg}][0]} failed", "${index_rpmpkg}"),
         ifvarclass => "rpm_package_installation_${index_rpmpkg}_error.execute_command_${index_rpmpkg}";
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "No hook executed since package promise was kept"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "No hook executed since package promise was kept", "${index_rpmpkg}"),
         ifvarclass => "rpm_package_installation_${index_rpmpkg}_kept.execute_command_${index_rpmpkg}";
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_na", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "No post hook execution set for RPM package ${rpm_package[${index_rpmpkg}]}"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_na", "${rpm_data[${index_rpmpkg}][3]}", "Post-modification hook", "${rpm_package[${index_rpmpkg}]}", "No post hook execution set for RPM package ${rpm_package[${index_rpmpkg}]}", "${index_rpmpkg}"),
         ifvarclass => "!execute_command_${index_rpmpkg}";
 
       
-
 
     # ZMD Process presence related reports
     pass3.!(SuSE_10.!zypper_version_ok)::
       "any" usebundle => rudder_common_report("packageInstallation", "result_na", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "ZMD process presence verification not necessary. Skipping ...");
 
-    pass3.SuSE_10.!zmd_restart.zypper_version_ok::
+    pass3.SuSE_10.!zypper_version_ok.!zmd_restart::
       "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD process is present. Skipping ...");
 
-    pass3.service_restart_novell_zmd_ok.zypper_version_ok::
+    pass3.SuSE_10.!zypper_version_ok.!service_restart_novell_zmd_not_ok.service_restart_novell_zmd_ok::
       "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon was successfully restarted");
 
-    pass3.service_restart_novell_zmd_not_ok.zypper_version_ok::
+    pass3.SuSE_10.!zypper_version_ok.service_restart_novell_zmd_not_ok::
       "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${rpm_data[${index_rpmpkg}][3]}", "ZMD process", "None", "The ZMD daemon failed to restart");
 
   processes:
@@ -237,6 +222,7 @@ bundle agent check_rpm_package_installation {
 
 body package_method generic_nobulk(rpm_pkg_timeout) {
 
+
     package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
     package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
 
@@ -247,13 +233,12 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
     package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
     package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
     package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
-
     package_installed_regex       => ".*";
-    package_name_convention       => "${name}-${version}";
+    package_name_convention       => "${name}";
     package_list_update_ifelapsed => "${rpm_pkg_timeout}";
-    package_add_command           => "/usr/bin/yum -y install";
+    package_add_command           => "/usr/bin/yum ${redhat_knowledge.yum_options} -y install";
     package_delete_command        => "/bin/rpm -e";
-    package_update_command        => "/usr/bin/yum -y update";
+    package_update_command        => "/usr/bin/yum ${redhat_knowledge.yum_options} -y update";
     package_verify_command        => "/bin/rpm -V";
 
 
@@ -277,11 +262,58 @@ body package_method generic_nobulk(rpm_pkg_timeout) {
     package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
     package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
     package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
-    
     package_name_convention => "${name}";
     package_add_command => "/usr/bin/rug install -y";
     package_delete_command => "/usr/bin/rug remove -y";
     package_update_command => "/usr/bin/rug update -y";
-    
+    package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
+}
+
+body package_method generic_nobulk_version(rpm_pkg_timeout) {
+
+
+    package_version_less_command  => "${rudder_rpm_knowledge.rpm_compare_less}";
+    package_version_equal_command => "${rudder_rpm_knowledge.rpm_compare_equal}";
+
+    package_changes => "individual";
+
+  redhat::
+    package_list_command          => "/bin/rpm -qa --qf '%{name} %{version}-%{release} %{arch}\n'";
+    package_list_name_regex       => "^(\S+?)\s\S+?\s\S+$";
+    package_list_version_regex    => "^\S+?\s(\S+?)\s\S+$";
+    package_list_arch_regex       => "^\S+?\s\S+?\s(\S+)$";
+    package_installed_regex       => ".*";
+    package_name_convention       => "${name}-${version}";
+    package_list_update_ifelapsed => "${rpm_pkg_timeout}";
+    package_add_command           => "/usr/bin/yum ${redhat_knowledge.yum_options} -y install";
+    package_delete_command        => "/bin/rpm -e";
+    package_update_command        => "/usr/bin/yum ${redhat_knowledge.yum_options} -y update";
+    package_verify_command        => "/bin/rpm -V";
+
+
+  zypper_version_ok::
+    package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+    package_list_update_ifelapsed => "${rpm_pkg_timeout}";
+    package_installed_regex => "i.*";
+    package_list_name_regex => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_arch_regex => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_name_convention => "${name}=${version}";
+    package_add_command => "/usr/bin/zypper --non-interactive install";
+    package_delete_command => "/usr/bin/zypper --non-interactive remove --force-resolution";
+    package_update_command => "/usr/bin/zypper --non-interactive update";
+    package_verify_command => "/usr/bin/zypper --non-interactive verify$";
+
+  SuSE_10.!zypper_version_ok::
+    package_list_command => "/bin/rpm -qa --queryformat \"i | repos | %{name} | %{version}-%{release} | %{arch}\n\"";
+    package_list_update_ifelapsed => "${rpm_pkg_timeout}";
+    package_installed_regex => "i.*";
+    package_list_name_regex    => "[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_version_regex => "[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_list_arch_regex    => "[^|]+\|[^|]+\|[^|]+\|[^|]+\|\s+([^\s]+).*";
+    package_name_convention => "${name}";
+    package_add_command => "/usr/bin/rug install -y";
+    package_delete_command => "/usr/bin/rug remove -y";
+    package_update_command => "/usr/bin/rug update -y";
     package_verify_command => "/usr/bin/rug verify -y$"; # $ means no args
 }

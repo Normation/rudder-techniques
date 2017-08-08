@@ -18,6 +18,9 @@
 
 # Rsyslog Rudder configuration
 
+# Disable Repeated message reduction or reports may be lost
+$RepeatedMsgReduction off
+
 # Provides TCP syslog reception
 $ModLoad imtcp
 $InputTCPServerRun &SYSLOGPORT&
@@ -29,8 +32,11 @@ $UDPServerRun &SYSLOGPORT&
 # for Snare client
 $EscapeControlCharactersOnReceive off
 
+&if(STORE_ALL_CENTRALIZED_LOGS_IN_FILE)&
 # Log everything
-*.*	/var/log/rudder/reports/all.log
+local6.* /var/log/rudder/reports/all.log
+&endif&
+
 
 # Direct to DB
 $ActionQueueType Direct
@@ -44,12 +50,15 @@ $ActionQueueSaveOnShutdown on
 #
 
 # 1 - Send every matching report to the root server
-:msg, ereregex, "R: @@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*" @@${server_info.cfserved}:&SYSLOGPORT&
+:msg, ereregex, "(R: )?@@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*" ${check_log_system.rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&
 
 # 2 - Drop the remaining rudder logs to prevent local storage cluttering
 
 ## Syslog messages from "rudder"
 :programname, contains, "rudder" ~
+:programname, contains, "cf-agent" ~
 
 ## Syslog messages from "rudder" forwarded from AIX
 :msg, ereregex, "from .*: rudder" ~
+:msg, ereregex, "from .*: cf-agent" ~
+

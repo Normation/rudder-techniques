@@ -41,7 +41,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
       "rudder_motd_absent"         not => fileexists("/etc/motd");
 
   files:
-    # Set every MOTD file to the wanted value
+    # Set every MOTD file to the wanted value
     !windows::
       "${rudder_motd_file}"
         create        => "true",
@@ -82,7 +82,4 @@ bundle agent rudder_motd_configuration_reporting(class_prefix, service_name, tra
 {
   methods:
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_file_edition", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file");
-    windows::
-      "any"
-        usebundle  => rudder_common_report("${service_name}", "result_error", "${trackingkey}", "MOTD Configuration", "None", "This is a Windows machine. This Technique currently incompatible with it");
 }

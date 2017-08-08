@@ -16,194 +16,111 @@
 #
 #####################################################################################
 
-# Configure rsyslog on the orchestrator
+# Configure rsyslog on the root/relay servers
 
-# This will provide promises to add the backports repos to Debian Lenny:
-#       - in sources.list
-#       - default apt_preferences to upgrade packages installed from backports
-#       - a package_method to install packages from backports via cfengine
-
-bundle agent setup_debian_backports
+bundle agent install_rsyslogd
 {
   vars:
-      "apt_source_line"       slist => { "deb http://backports.debian.org/debian-backports lenny-backports" };
-      "apt_components"        slist => { "main" };
+&if(INITIAL)&
+    # This will only read the first line if several match
+    "rsyslog_port_defined"     int => getfields("rudder.syslog.port\s*=\s*[0-9]+\s*","/opt/rudder/etc/rudder-web.properties","=","rsyslog_port");
 
-  files:
+    # Use standard rsyslog port number by default if not set in rudder-web.properties
+    rsyslog_port_not_found::
+      "rsyslog_port[2]"    string => "514";
+&endif&
 
-    debian_5::
-
-      "/etc/apt/sources.list"
-        comment => "Include extra apt repos",
-        edit_line => append_if_no_lines("${apt_source_line} ${apt_components}"),
-        edit_defaults => noempty_backup,
-        classes => if_repaired("apt_sources_updated");
-
-      "/etc/apt/preferences"
-        comment => "Set automatic upgrades for packages installed from backports (recommended setting from backports.debian.org)",
-        create => "true",
-        edit_line => append_if_no_lines("Package: *${const.n}Pin: release a=lenny-backports${const.n}Pin-Priority: 200"),
-        edit_defaults => noempty_backup,
-        classes => if_repaired("apt_preferences_repaired");
-
-  commands:
-    apt_sources_updated::
-      "/usr/bin/aptitude"
-        args => "update";
-
-  reports:
-    apt_sources_updated::
-      "apt's sources.list was edited, and an aptitude update will now run";
-
-    apt_preferences_repaired::
-      "apt's /etc/apt/preferences file was changed";
-
-}
-
-
-bundle agent install_rsyslogd {
-  vars:
-
-    root_server::
+    root_server|role_rudder_relay_top::
       "rsyslog_source_file" string => "rudder-rsyslog-root.conf";
+      "rudder_reports_db_name" string => "&RUDDER_REPORTS_DB_NAME&";
+      "rudder_reports_db_user" string => "&RUDDER_REPORTS_DB_USER&";
 
-    policy_server.!root_server::
+    # Define the where to send the syslog messages
+    # default is localhost if the rudder_db is unknown
+    # or if the role rudder-server-root is installed
+
+    root_server.(!role_rudder_db_server_defined|role_rudder_server_root)::
+      "rudder_postgres_server" string => "localhost";
+
+    (root_server|role_rudder_relay_top).role_rudder_db_server_defined.!role_rudder_server_root::
+      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}";
+
+    policy_server.!(root_server|role_rudder_relay_top)::
       "rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
 
+&if(INITIAL)&
+  classes:
+    # There is no "equals" function for ints in CFEngine (currently, at least) so we compare strings
+      "rsyslog_port_not_found" expression => strcmp("${rsyslog_port_defined}","0");
+
+      "rsyslog_port_too_many"  expression => isgreaterthan("${rsyslog_port_defined}","1");
+&endif&
+
   files:
 
-    policy_server::
+    policy_server.!reports_disabled.!role_rudder_relay_promises_only::
 
       "/etc/rsyslog.d/rudder.conf"
         create    => "true",
-        edit_defaults => empty,
-        edit_line => expand_template("${sys.workdir}/inputs/distributePolicy/rsyslog.conf/${rsyslog_source_file}"),
-              classes => cf2_if_else("rudder_rsyslog_conf_copied", "cannot_copy_rudder_rsyslog_conf"),
-              comment => "Copying rsyslog conf";  
+        edit_defaults => empty_size("8388608"), # the template can get pretty big with a lot of entries
+        edit_line => expand_template("${this.promise_dirname}/../rsyslog.conf/${rsyslog_source_file}"),
+        classes => classes_generic("rudder_rsyslog_conf"),
+        comment => "Copying rsyslog conf";  
 
       "/etc/rsyslog.conf"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
         edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
-        classes => cf2_if_else("rsyslog_inc_ok" , "rsyslog_inc_failed");
+        classes => classes_generic("rsyslog_inc");
 
 
       # We need to delete, if it exists, the historical rudder-agent.conf file from before the promotion of the node to relay
       "/etc/rsyslog.d/rudder-agent.conf"
         delete  => tidy,
-        classes => classes_generic("rudder_rsyslog_historical_conf_purged"),
+        classes => classes_generic("rudder_rsyslog_historical_conf"),
         comment => "Deleting historical rudder-agent.conf file if it is there";
 
-    policy_server.debian::
+    (root_server|role_rudder_relay_top).debian.!reports_disabled.!role_rudder_relay_promises_only::
       "/etc/rsyslog.d/pgsql.conf"
         edit_line => comment_all(),
         edit_defaults => noempty_backup,
-        classes => cf2_if_else("rudder_rsyslog_pgsql", "cannot_update_rudder_rsyslog_pgsql"),
-              comment => "Removing the logging of all in the database";  
-
-  packages:
-
-   policy_server.debian_5.!SuSE::
-     "rsyslog"
-       package_policy  => "add",
-       package_method  => debian_backports,
-       classes => cf2_if_else("rsyslog_installed", "cant_install_rsyslog"),
-       comment => "Installing rsyslog using apt backports";
-
-     "rsyslog-pgsql"
-       package_policy  => "add",
-       package_method  => debian_backports,
-       classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
-       comment => "Installing rsyslog_pgsql using apt backports";
-
-   policy_server.!debian_5.!SuSE.!redhat::
-     "rsyslog"
-       package_policy  => "add",
-       package_method  => generic,
-       classes => cf2_if_else("rsyslog_installed", "cant_install_rsyslog"),
-       comment => "Installing rsyslog using apt backports";
-
-     "rsyslog-pgsql"
-       package_policy  => "add",
-       package_method  => generic,
-       classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
-       comment => "Installing rsyslog_pgsql using apt backports";
-
-   policy_server.!debian_5.!SuSE.redhat::
-     "rsyslog"
-       package_policy  => "add",
-       package_method  => rudder_yum,
-       classes => cf2_if_else("rsyslog_installed", "cant_install_rsyslog"),
-       comment => "Installing rsyslog using apt backports";
-
-     "rsyslog-pgsql"
-       package_policy  => "add",
-       package_method  => rudder_yum,
-       classes => cf2_if_else("rsyslog_pgsql_installed", "cant_install_rsyslog_pgsql"),
-       comment => "Installing rsyslog_pgsql using apt backports";
+        classes => classes_generic("rudder_rsyslog_pgsql"),
+        comment => "Removing the logging of all in the database";  
 
   commands:
+    policy_server.!SuSE.(rudder_rsyslog_conf_repaired|rsyslog_inc_repaired|rudder_rsyslog_historical_conf_repaired|rudder_rsyslog_pgsql_repaired)::
+      "${paths.path[service]} rsyslog"
+        args => "restart",
+        classes => classes_generic("rsyslog_restarted"),
+        comment => "restarting rsyslog";
+    policy_server.SuSE.(rudder_rsyslog_conf_repaired|rsyslog_inc_repaired|rudder_rsyslog_historical_conf_repaired|rudder_rsyslog_pgsql_repaired)::
+      "${paths.path[service]} syslog"
+        args => "restart",
+        classes => classes_generic("rsyslog_restarted"),
+        comment => "restarting rsyslog";
 
-    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired).!SuSE::
-      "/etc/init.d/rsyslog"
-        args => "restart",
-                                classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
-                                comment => "restarting rsyslog";
-    policy_server.(rsyslog_installed|rsyslog_pgsql_installed|rudder_rsyslog_conf_copied|rudder_rsyslog_pgsql|rudder_rsyslog_historical_conf_purged_repaired).SuSE::
-      "/etc/init.d/syslog"
-        args => "restart",
-                                classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
-                                comment => "restarting rsyslog";
 
   reports:
-    cant_install_rsyslog|cant_install_rsyslog_pgsql::
-      "Fatal : Can't install rsyslog or rsyslog_pgsql on the Rudder root server !";
 
-    cannot_copy_rudder_rsyslog_conf::
+    rudder_rsyslog_conf_not_ok::
       "Fatal : Can't copy the rsyslog configuration !";
 
-    rsyslog_inc_failed::
+    rsyslog_inc_not_ok::
       "Fatal : Can't enable the rsyslog include directory !";
 
-    cant_restart_rsyslog::
-      "Fatal : Can't restart rsyslog !";
-
-    cannot_update_rudder_rsyslog_pgsql::
+    rudder_rsyslog_pgsql_not_ok::
       "Fatal : Cannot update the pgsql configuration !";
 
-    rsyslog_restarted::
+    rsyslog_restarted_repaired::
       "Info : Restarted rsyslog";
 
-}
+    rsyslog_restarted_not_ok::
+      "Fatal : Can't restart rsyslog !";
 
-# Package method to install packages from debian-backports
-body package_method debian_backports
-{
-
-    debian::
-        package_changes => "bulk";
-        package_list_command => "/usr/bin/dpkg -l";
-        package_list_name_regex    => "ii\s+([^\s]+).*";
-        package_list_version_regex => "ii\s+[^\s]+\s+([^\s]+).*";
-        package_installed_regex => ".*"; # all reported are installed
-        package_name_convention => "${name}";
-        package_list_update_ifelapsed => "240";    # 4 hours
-
-    debian.have_aptitude::
-        package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false -t lenny-backports --assume-yes install";
-        package_list_update_command => "/usr/bin/aptitude update";
-        package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false --assume-yes -q remove";
-        package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/aptitude -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o Aptitude::Delete-Unused=false --assume-yes install";
-        package_verify_command => "/usr/bin/aptitude show";
-        package_noverify_regex => "(State: not installed|E: Unable to locate package .*)";
-
-    debian.!have_aptitude::
-        package_add_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -t lenny-backports install";
-        package_list_update_command => "/usr/bin/apt-get update";
-        package_delete_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes -q remove";
-        package_update_command => "/usr/bin/env DEBIAN_FRONTEND=noninteractive LC_ALL=C /usr/bin/apt-get -o Dpkg::Options::=--force-confold -o Dpkg::Options::=--force-confdef -o APT::Get::AutomaticRemove=false --yes install";
-        package_verify_command => "/usr/bin/dpkg -s";
-        package_noverify_returncode => "1";
+&if(INITIAL)&
+    rsyslog_port_too_many::
+      "Warning: rsyslog port number has been set several times in /opt/rudder/etc/rudder-web.properties";
+&endif&
 
 }
 

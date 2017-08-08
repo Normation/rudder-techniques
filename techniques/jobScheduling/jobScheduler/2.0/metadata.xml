@@ -1,0 +1,292 @@
+<!--
+Copyright 2012 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<TECHNIQUE name="Scheduled jobs">
+  <DESCRIPTION>Runs commands, optionally in the background, optionally with a random distribution across nodes. The command will be run on all nodes, with execution time spread over the period selected. Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
+  <COMPATIBLE>
+    <OS>Every OS</OS>
+    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+
+  <BUNDLES>
+    <NAME>job_scheduler</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="job_scheduler"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>JOB_COMMAND</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <!-- general Section -->
+    <SECTION name="Job" multivalued="true" component="true" componentKey="JOB_COMMAND">
+      <INPUT>
+        <NAME>JOB_COMMAND</NAME>
+        <DESCRIPTION>Command to run</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>JOB_TIME_MIN</NAME>
+        <DESCRIPTION>Lowest hour the command should be run at</DESCRIPTION>
+    <ITEM>
+      <LABEL>0:00</LABEL>
+      <VALUE>00</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>1:00</LABEL>
+      <VALUE>01</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>2:00</LABEL>
+      <VALUE>02</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>3:00</LABEL>
+      <VALUE>03</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>4:00</LABEL>
+      <VALUE>04</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>5:00</LABEL>
+      <VALUE>05</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>6:00</LABEL>
+      <VALUE>06</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>7:00</LABEL>
+      <VALUE>07</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>8:00</LABEL>
+      <VALUE>08</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>9:00</LABEL>
+      <VALUE>09</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>10:00</LABEL>
+      <VALUE>10</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>11:00</LABEL>
+      <VALUE>11</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>12:00</LABEL>
+      <VALUE>12</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>13:00</LABEL>
+      <VALUE>13</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>14:00</LABEL>
+      <VALUE>14</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>15:00</LABEL>
+      <VALUE>15</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>16:00</LABEL>
+      <VALUE>16</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>17:00</LABEL>
+      <VALUE>17</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>18:00</LABEL>
+      <VALUE>18</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>19:00</LABEL>
+      <VALUE>19</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>20:00</LABEL>
+      <VALUE>20</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>21:00</LABEL>
+      <VALUE>21</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>22:00</LABEL>
+      <VALUE>22</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>23:00</LABEL>
+      <VALUE>23</VALUE>
+    </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>08</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>JOB_TIME_MAX</NAME>
+        <DESCRIPTION>Highest hour the command should be run at</DESCRIPTION>
+    <ITEM>
+      <LABEL>1:00</LABEL>
+      <VALUE>01</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>2:00</LABEL>
+      <VALUE>02</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>3:00</LABEL>
+      <VALUE>03</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>4:00</LABEL>
+      <VALUE>04</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>5:00</LABEL>
+      <VALUE>05</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>6:00</LABEL>
+      <VALUE>06</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>7:00</LABEL>
+      <VALUE>07</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>8:00</LABEL>
+      <VALUE>08</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>9:00</LABEL>
+      <VALUE>09</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>10:00</LABEL>
+      <VALUE>10</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>11:00</LABEL>
+      <VALUE>11</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>12:00</LABEL>
+      <VALUE>12</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>13:00</LABEL>
+      <VALUE>13</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>14:00</LABEL>
+      <VALUE>14</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>15:00</LABEL>
+      <VALUE>15</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>16:00</LABEL>
+      <VALUE>16</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>17:00</LABEL>
+      <VALUE>17</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>18:00</LABEL>
+      <VALUE>18</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>19:00</LABEL>
+      <VALUE>19</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>20:00</LABEL>
+      <VALUE>20</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>21:00</LABEL>
+      <VALUE>21</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>22:00</LABEL>
+      <VALUE>22</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>23:00</LABEL>
+      <VALUE>23</VALUE>
+    </ITEM>
+    <ITEM>
+      <LABEL>24:00</LABEL>
+      <VALUE>24</VALUE>
+    </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>20</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>JOB_TIMEOUT</NAME>
+        <DESCRIPTION>Consider the job failed after (minutes)</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <DEFAULT>120</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>JOB_KEPTCODES</NAME>
+        <DESCRIPTION>Which return codes are to be considered as a success</DESCRIPTION>
+        <LONGDESCRIPTION>Please input a comma separated list of integers</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <DEFAULT>0</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>JOB_REPAIRCODES</NAME>
+        <DESCRIPTION>Which return codes are to be considered as a repairation</DESCRIPTION>
+        <LONGDESCRIPTION>Please input a comma separated list of integers</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <DEFAULT>1</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>JOB_ERRORCODES</NAME>
+        <DESCRIPTION>Which return codes are to be considered as an error</DESCRIPTION>
+        <LONGDESCRIPTION>Please input a comma separated list of integers</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <DEFAULT>2</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>

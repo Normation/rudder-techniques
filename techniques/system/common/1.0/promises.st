@@ -21,166 +21,222 @@
 # promises.cf
 #
 #######################################################
+bundle common rudder_roles
+{
+  vars:
+    # moved from bundle common g since they need to be defined in promises.cf
+    android::
+      "uuid_file"         string => "/data/rudder/etc/uuid.hive";
+    windows::
+      "uuid_file"         string => "${sys.winprogdir}\Rudder\etc\uuid.hive";
+    !windows.!android::
+      "uuid_file"         string => "/opt/rudder/etc/uuid.hive";
+    any::
+      "uuid"              string => readfile("${uuid_file}", 60);
+
+  classes:
+
+      # on changes only, we only reports on repaired or error message
+      "changes_only"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "reports_disabled" expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
+
+      # full compliance is the default mode
+      "full_compliance" not => "changes_only|reports_disabled";
+}
+
 body common control
 {
-
     any::
         output_prefix => "rudder";
+        
+        protocol_version   => "2";
 
         inputs => {
-          @{va.ncf_inputs},
-          &INPUTLIST&
+          @{va.inputs_list},
+          "rudder-system-directives.cf",
+&if(!INITIAL)&
+          "rudder-directives.cf"
+&endif&
+
         };
 
-        bundlesequence => { @{va.bs} &BUNDLELIST& , @{va.end} };
+        bundlesequence => { 
+          @{va.common_bs},
+          @{va.specific_bs},
+          rudder_system_directives,
+&if(!INITIAL)&
+          rudder_directives,
+&endif&
 
+          @{va.end}
+        };
+
+&if(!INITIAL)&
     android::
         # if native syslog is not available, use cfengine implementation (eg: android)
         syslog_host => "${server_info.cfserved}";
         syslog_port => "&SYSLOGPORT&";
+&endif&
+
 }
 
 bundle common va
 {
   vars:
-    policy_server::
-      "bs" slist => {
-        "startExecution",
+
+      "end" slist => {
+&if(!INITIAL)&
+        "restart_services", 
+&endif&
+
+        "_clean_current_expected_reports_file",
+        "endExecution"
+      };
+
+      "common_bs" slist => {
+        "startup",
         "check_disable_agent",
         "clean_red_button",
-        "update",
+        "update_reports",
         "configuration",
+        "initialize_ncf",
         "set_red_button",
         "internal_security",
         "check_red_button_status",
         "check_cf_processes",
         "check_uuid",
-        "check_log_system",
-        "check_rsyslog_version",
         "garbage_collection",
         "setup_cronjob",
         "check_cron_daemon",
-        "check_binaries_freshness",
+&if(INITIAL)&
+        "fetchFusionTools",
+        "virtualMachines",
+        "doInventory",
+&else&
+        "configure_rudder_reporting_system",
         "check_zypper",
-        "nxlog_enable"
+        "get_environment_variables",
+        "properties",
+        "nxlog_enable",
+&endif&
+
+      };
+
+    policy_server::
+
+      "specific_bs" slist => {
+&if(INITIAL)&
+        "install_rsyslogd",
+        "propagatePromises",
+        "sendInventoryToCmdb",
+        "root_component_check",
+&endif&
+
+        # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
+        "check_binaries_freshness",
       };
 
     !policy_server::
-      "bs" slist => {
-        "startExecution",
-        "check_disable_agent",
-        "clean_red_button",
-        "update",
-        "configuration",
-        "set_red_button",
-        "internal_security",
-        "check_red_button_status",
-        "check_cf_processes",
-        "garbage_collection",
-        "setup_cronjob",
-        "check_cron_daemon",
-        "check_binaries_freshness",
-        "check_log_system",
-        "check_rsyslog_version",
-        "nxlog_enable",
-        "check_zypper",
-        "check_uuid"
-      };
 
-    any::
-      "end" slist => { "endExecution" };
+      # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
+      "specific_bs" slist => { "check_binaries_freshness" };
 
     !android.!windows::
-      "rudder_var"     string => "/var/rudder";
+      "rudder_var"             string => "/var/rudder";
     android::
-      "rudder_var"     string => "/data/rudder";
+      "rudder_var"             string => "/data/rudder";
+
+    !enterprise_edition::
+      "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
+    enterprise_edition::
+      "capability_option"      string => ""; 
 
     !windows::
-      "ncf_path"       string => "${rudder_var}/ncf";
-      "rudder_tools"   string => "${rudder_var}/tools";
-
-    windows::
-      "rudder_base"    string => "${sys.winprogdir}\Rudder";
-      "rudder_tools"   string => "${rudder_base}\sbin";
-      "ncf_path"       string => "${rudder_base}\ncf";
-
-    !windows::
+      "ncf_path"               string => "${rudder_var}/ncf";
+      "rudder_tools"           string => "${rudder_var}/tools";
+      "shell_type"             string => "useshell";
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
+      "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
 
-      "ncf_common_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "useshell"), "\n", 10000);
-
-      "ncf_common_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/common 50_techniques 60_services", "useshell"), "\n", 10000);
-
-      "ncf_local_inputs_10_40" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 10_ncf_internals 20_cfe_basics 30_generic_methods 40_it_ops_knowledge", "useshell"), "\n", 10000);
-
-      "ncf_local_inputs_50_60" slist => splitstring(execresult("${list_compatible_inputs} ${sys.cf_version} ${ncf_path}/local 50_techniques 60_services", "useshell"), "\n", 10000);
-
-      # ncf_inputs contains all the files of ncf, and ignore the empty lists
-      "ncf_inputs" slist => {
-                             "@{ncf_common_inputs_10_40}",
-                             "@{ncf_common_inputs_50_60}",
-                             "@{ncf_local_inputs_10_40}",
-                             "@{ncf_local_inputs_50_60}",
-                            },
-                  policy => "ifdefined";
     windows::
-      # Windows agent only exists in 3.6 version, so as a shortcut, we can load all files of ncf
-      # It should be replaced by a proper script, as explained in #5659
-      "ncf_common_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\common' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\common\$_ } \"", "useshell"), "\n", 10000);
-      "ncf_local_inputs" slist => splitstring(execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"ls -Path 'c:\Program Files\Rudder\var\ncf\local' -Name *.cf -Recurse -Exclude promises.cf | % { Write-Host c:\Program Files\Rudder\var\ncf\local\$_ } \"", "useshell"), "\n", 10000);
-      # ncf_inputs contains all the files of ncf, and ignore the empty lists
-      "ncf_inputs" slist => {
-                             "@{ncf_common_inputs}",
-                             "@{ncf_local_inputs}",
-                            },
-                  policy => "ifdefined";
+      "rudder_base"            string => "${sys.winprogdir}\Rudder";
+      "rudder_tools"           string => "${rudder_base}\sbin";
+      "ncf_path"               string => "${rudder_base}\var\ncf";
+      "shell_type"             string => "powershell";
 
+      "list_compatible_inputs" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1'";
+      "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${sys.cf_version} '${ncf_path}'";
 
-    # definition of the machine roles
-&NODEROLE&
-}
+    any::
+      "path_ncf_common_inputs_10" slist => splitstring(execresult("${compatible_inputs_cmd} common/10_ncf_internals", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_20" slist => splitstring(execresult("${compatible_inputs_cmd} common/20_cfe_basics", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_30" slist => splitstring(execresult("${compatible_inputs_cmd} common/30_generic_methods", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_40" slist => splitstring(execresult("${compatible_inputs_cmd} common/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_50" slist => splitstring(execresult("${compatible_inputs_cmd} common/50_techniques", "${shell_type}"), "\n", 10000);
+      "path_ncf_common_inputs_60" slist => splitstring(execresult("${compatible_inputs_cmd} common/60_services", "${shell_type}"), "\n", 10000);
 
-bundle common rudder_roles
-{
+      "path_ncf_local_inputs_10" slist => splitstring(execresult("${compatible_inputs_cmd} local/10_ncf_internals", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_20" slist => splitstring(execresult("${compatible_inputs_cmd} local/20_cfe_basics", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_30" slist => splitstring(execresult("${compatible_inputs_cmd} local/30_generic_methods", "${shell_type}"), "\n", 10000);
+      "path_ncf_local_inputs_40" slist => splitstring(execresult("${compatible_inputs_cmd} local/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
+      # Files from 50_techniques are automatically included by Rudder's metadata.xml mechanism
+      "path_ncf_local_inputs_60" slist => splitstring(execresult("${compatible_inputs_cmd} local/60_services", "${shell_type}"), "\n", 10000);
+
+      # Must concatenate all lists + filter, as maplist on an empty element returns cf_null
+      "raw_path_ncf_inputs" slist => { @{path_ncf_common_inputs_10}, @{path_ncf_local_inputs_10}, @{path_ncf_common_inputs_20}, @{path_ncf_local_inputs_20}, @{path_ncf_common_inputs_30}, @{path_ncf_local_inputs_30}, @{path_ncf_common_inputs_40}, @{path_ncf_local_inputs_40}, @{path_ncf_common_inputs_50}, @{path_ncf_common_inputs_60}, @{path_ncf_local_inputs_60}},
+                           policy => "ifdefined";
+
+       "raw_ncf_inputs"     slist => maplist("${ncf_path}/${this}", @{raw_path_ncf_inputs});
+       # Need to remove cf_null from the list
+       "ncf_inputs"         slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
+
+    # create the final input list after ncf
+    any::
+      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+      "inputs_list" slist => { @{ncf_inputs} };
+
+    policy_server::
+&if(INITIAL)&
+      # initial promises server specific inputs cannot be loaded from rudder_system_directives.cf
+      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+      "inputs_list" slist => { @{ncf_inputs}, "distributePolicy/1.0/propagatePromises.cf","distributePolicy/1.0/rsyslogConf.cf","server-roles/1.0/service-check.cf","server-roles/1.0/postgres-check.cf","server-roles/1.0/logrotate-check.cf", "server-roles/1.0/servers-by-role.cf", "server-roles/1.0/integrity-check.cf","server-roles/1.0/technique-reload.cf","server-roles/1.0/network-check.cf","server-roles/1.0/alive-check.cf","server-roles/1.0/password-check.cf", "server-roles/1.0/component-check.cf", "server-roles/1.0/compress-ldap-backups.cf", "server-roles/1.0/compress-webapp-log.cf" };
+&endif&
 
   classes:
-      # Abort if no uuid is defined
-      "should_not_continue" not => fileexists("${g.uuid_file}");
-
+    # I don't know why, but these classes are not evaluated if they are in rudder_roles
       # Policy Server is a machine which delivers promises
-      "policy_server" expression => strcmp("root","${g.uuid}");
+      "policy_server" expression => strcmp("root","${rudder_roles.uuid}");
       # Root Server is the top policy server machine
-      "root_server" expression => strcmp("root","${g.uuid}");
+      "root_server" expression => strcmp("root","${rudder_roles.uuid}");
+
+    # static definition of the machine roles
+&NODEROLE&
+
 }
 
 #########################################################
 # Control execution
 #########################################################
-bundle agent startExecution
+bundle agent startup
 {
-  reports:
-    cfengine_3::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@StartRun@@${g.execRun}##${g.uuid}@#Start execution";
+  methods:
+    # Should we send a message stating this agent is starting up?
+    # Always do it in "full_compliance" mode
+    # In other modes, only do it here if we need to send it as a "heartbeat", that is if it hasn't already been sent recently enough
+    full_compliance|!heartbeat_sent::
+      "Send start message"
+        usebundle => startExecution,
+        action    => immediate;
 }
 
-bundle agent endExecution
-{
-  reports:
-    cfengine_3::
-      "@@Common@@log_info@@&TRACKINGKEY&@@common@@EndRun@@${g.execRun}##${g.uuid}@#End execution";
-
-    rudder_promises_generated_error|no_update::
-		"*********************************************************************************
-* rudder-agent could not get an updated configuration from the policy server.   *
-* This can be caused by a network issue, an unavailable server, or if this      *
-* node was deleted from the Rudder root server.                                 *
-* Any existing configuration policy will continue to be applied without change. *
-*********************************************************************************";
-}
+# startExecution and endExecution have migrated to rudder-stdlib-core.st
 
 ##########################################################
 # Check for "disable-agent" file and cleanly stop and
 # warn about this if it is present
+#
+# All promises in this bundle MUST have action=>immediate,
+# to avoid locking issues in case of several close runs.
 ##########################################################
 bundle agent check_disable_agent
 {
@@ -188,24 +244,29 @@ bundle agent check_disable_agent
       "components" slist => { "cf-serverd", "cf-execd", "cf-monitord" };
 
   classes:
-      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
+      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}"),
+                             action     => immediate;
 
       # Only define this class when we're ready to die - this is a special class name in "abortclasses"
       "should_not_continue"
-        expression => "should_disable_agent",
-        ifvarclass => "abort_report_done";
+        expression => "should_disable_agent.!ignore_disable_agent",
+        ifvarclass => "abort_report_done",
+        action     => immediate;
 
   processes:
     should_disable_agent::
       "${sys.workdir}/bin/${components}"
-        signals       => { "term", "kill" };
+        signals       => { "term", "kill" },
+        action        => immediate;
 
   reports:
     should_disable_agent::
       "FATAL: The file ${g.rudder_disable_agent_file} is present. Rudder will kill all running daemons and halt immediately."
-        classes => if_ok("abort_report_done");
+        classes => if_ok("abort_report_done"),
+        action  => immediate;
 
 }
+
 
 ##########################################################
 # Red Button part.
@@ -220,10 +281,13 @@ bundle agent clean_red_button()
         delete => tidy,
         comment => "Deleting the stop file on clients promises, cfengine is good to go";
 
-    safe.!policy_server::
       "${sys.workdir}/inputs/stopFile"
         delete => tidy,
         comment => "Deleting the stop file, cfengine is good to go";
+
+  methods:
+    safe::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Authorizing agent to restart");
 
   commands:
     safe.policy_server::
@@ -231,9 +295,6 @@ bundle agent clean_red_button()
         args => "-Dsafe",
         comment => "Propagate the safe information to children";
 
-  reports:
-    safe::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Authorizing Cfengine to restart";
 }
 
 bundle agent set_red_button()
@@ -261,11 +322,11 @@ bundle agent setStopFile
 
 
 
-  reports:
+  methods:
     danger.!policy_server::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Creating local stop file for this node";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Creating local stop file for this node");
     danger.policy_server::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Creating stop files for all clients of this policy server";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Creating stop files for all clients of this policy server");
 
 }
 
@@ -275,15 +336,15 @@ bundle agent stopClients
     policy_server::
       "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
 
+  methods:
+    danger.policy_server::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Red Button", "None", "Actively stopping agent operations on all nodes managed by this server");
+
   commands:
     danger.policy_server::
       "${sys.workdir}/bin/cf-runagent"
         args => "-Ddanger",
         comment => "Propagate the danger information to children";
-
-  reports:
-    danger.policy_server::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Actively stopping CFEngine operations on all clients of this policy server (via cf-runagent)";
 
 }
 
@@ -293,32 +354,83 @@ bundle agent check_red_button_status()
     !policy_server::
       "should_not_continue" expression => fileexists("${sys.workdir}/inputs/stopFile");
 
-  reports:
+  methods:
     !should_not_continue::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Red Button@@None@@${g.execRun}##${g.uuid}@#Red Button is not in effect, continuing as normal...";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Red Button", "None", "Red Button is not in effect, continuing as normal...");
+
 }
 
+###################################################
+# Special handler when aborting from ncf
+###################################################
+bundle agent abort_rudder(reason, message)
+{
+  methods:
+      "abort log" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Abort run", "${reason}", "${message}");
+      "end run"   usebundle => endExecution;
+}
 
 ###################################################
-# Check that CFengine services are up
+# Initialize ncf and report about it
+###################################################
+bundle agent initialize_ncf()
+{
+
+  methods:
+      "initialize ncf"                  usebundle => initialization;
+      # Force generating expected reports file for Rudder logger
+      # because the first call to the logger may be in audit mode.
+      "create ncf expected reports"     usebundle => _create_current_expected_reports_file;
+      !logger_rudder_final_resfile_error::
+        "report about ncf init"         usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "Configuration library initialization");
+      logger_rudder_final_resfile_error::
+        "report about expected reports" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "ncf Initialization", "None", "Could not generate expected reports file");
+
+}
+
+###################################################
+# Check that CFEngine services are up
 ###################################################
 bundle agent check_cf_processes
 {
+  methods:
+    !ignore_disable_agent::
+      "any" usebundle => check_cf_processes_running;
+}
+bundle agent check_cf_processes_running
+{
   vars:
 
+    windows::
       # process_term defines how many maximum instances of this
-      # binary should be running before attempting to SIGTERM them.
-      # process_kill is the same for SIGKILL.
-    !windows::
-      # On windows, cf-execd is a service, and there can be only one instance of it running (by design)
-      "process_term[execd]" string => "2";
-      "process_kill[execd]" string => "5";
-
-    any::
+      # binary should be running before attempting to SIGTERM them.
+      # process_kill is the same for SIGKILL.
       "process_term[agent]" string => "5";
       "process_kill[agent]" string => "8";
 
       "binaries"            slist  => getindices("process_term");
+
+  classes:
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+    pass3.!windows::
+
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Process checking", "None", "Rudder agent proccesses check is done by the rudder-agent cron job");
+
+    pass3.windows::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of Rudder agent processes running"),
+      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
+        ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
+
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Process checking", "None", "Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."),
+        ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
+
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Process checking", "None", "ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."),
+        ifvarclass => "${binaries}_has_gone_really_wild";
 
   processes:
     windows::
@@ -326,46 +438,17 @@ bundle agent check_cf_processes
       # And unfortunately, the cf-serverd is not a service.
       "cf-serverd"  restart_class => "start_server";
 
-    !windows::
-
-      "${sys.workdir}/bin/cf-serverd"  restart_class => "start_server";
-      "${sys.workdir}/bin/cf-execd"    restart_class => "start_executor";
-
-      # If there are more than 2 cf-execd's, it means cf-execd is starting to
-      # go crazy, so we ask politely to these processes to shut down.
-
-      "${sys.workdir}/bin/cf-${binaries}"
-        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
-        signals       => { "term" },
-        classes       => if_repaired("${binaries}_has_gone_wild"),
-        comment       => "Checking if cf-${binaries} has gone wild";
-
-      # If there are too much cf-execd's/cf-agents running, it means that they are really
-      # going crazy. Let's be a bit less polite and more violent about killing them.
-      #
-      # These two promises overlap, because when you go past the 2/5-limit treshold,
-      # you still leave a chance for them to die with SIGTERM before the SIGKILL.
-      #
-      # Reason: The backend databases that stores the classes and some runtime
-      # parameters do really not appreciate beeing killed violently and may prevent
-      # the agent from operating properly.
-
-      "${sys.workdir}/bin/cf-${binaries}"
-        process_count => check_range("${binaries}", "0","${process_kill[${binaries}]}"),
-        signals       => { "kill" },
-        classes       => if_repaired("${binaries}_has_gone_really_wild"),
-        comment       => "Checking if cf-${binaries} has gone really wild";
-
-&if(NOVA)&
-    windows::
-
       # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
-
       "cf-${binaries}"
         process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
         signals       => { "term" },
         classes       => if_repaired("${binaries}_has_gone_wild"),
         comment       => "Checking if cf-${binaries} has gone wild";
+
+    windows.should_disable_server::
+      "cf-serverd"
+        signals       => { "term" },
+        action        => immediate;
 
   services:
     # By design, there can be only one cf-execd service running on Windows
@@ -375,53 +458,32 @@ bundle agent check_cf_processes
         service_method => u_bootstart,
         comment => "Start the executor windows service now and at boot time";
 
-&endif&
-
   commands:
-
-    start_server::
+    !should_disable_server.start_server::
       "${sys.cf_serverd}"
         action  => u_ifwin_bg,
         classes => outcome("server");
 
-    start_executor::
-      "${sys.cf_execd}"
-        action  => u_ifwin_bg,
-        classes => outcome("executor");
-
-  reports:
-    cfengine_3::
-
-      "@@Common@@result_success@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#There is an acceptable number of CFEngine processes running on the machine"
-      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
-        ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
-
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."
-        ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
-
-      "@@Common@@result_error@@&TRACKINGKEY&@@Process checking@@None@@${g.execRun}##${g.uuid}@#ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."
-        ifvarclass => "${binaries}_has_gone_really_wild";
-
 }
 
-#######################################################
-# UUID file enforcing
 
-bundle agent check_uuid
-{
-  files:
-      "${g.uuid_file}"
-        create        => "true",
-        edit_line     => enforce_content("${g.uuid}"),
-        edit_defaults => noempty_backup,
-        perms         => m("644"),
-        comment       => "Setting the uuid variable in a machine";
+# Log and reporting configuration not valid in initial promises
+&if(!INITIAL)&
+bundle agent configure_rudder_reporting_system {
+  methods:
+    !reports_disabled::
+      "configure_syslog"    usebundle => check_log_system;
+      "configure_reporting" usebundle => check_rsyslog_version;
+    reports_disabled::
+      "remove_reporting"    usebundle => remove_rudder_syslog_configuration;
 }
-
 
 #######################################################
 # Check the log system, and configure it accordingly
-# This only works with unix flavoured system
+# This only works with UNIX flavoured systems
+#
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
 bundle agent check_log_system
 {
@@ -429,124 +491,135 @@ bundle agent check_log_system
   vars:
 
     debian::
-
       "syslog_ng_source" string => "s_src";
 
     SuSE::
-
       "syslog_ng_source" string => "src";
 
     redhat::
-
       "syslog_ng_source" string => "s_sys";
+
+    use_tcp::
+      "rsyslog_rule_prefix"   string => "@@";
+      "syslogng_rule_prefix"  string => "tcp";
+    use_udp::
+      "rsyslog_rule_prefix"   string => "@";
+      "syslogng_rule_prefix"  string => "udp";
+
+    rsyslogd_conffile_present.rsyslog_version_5_6_4_ok::
+
+      "rsyslogd_message_reduction" string => "$RepeatedMsgReduction off${const.n}";
+      
+    rsyslogd_conffile_present.rsyslog_version_5_6_4_not_ok::
+
+      "rsyslogd_message_reduction" string => "";
+
 
     any::
 
       "syslog_conf_comment"   string => "# Autogenerated by rudder, do not edit${const.n}";
-
-      "syslog_ng_conf_prefix" string => "filter f_local_rudder{facility(local6) and program(\"rudder.*\");};destination loghost {tcp(\"";
-      "syslog_ng_conf_suffix" string => "\" port (&SYSLOGPORT&));};log {source(${syslog_ng_source});filter(f_local_rudder);destination(loghost);";
+      "syslog_ng_conf_prefix" string => "filter f_local_rudder{facility(local6) and program(\"rudder.*|cf-agent.*\");};destination rudder_loghost {";
+      "syslog_ng_conf_proto"  string => "${syslogng_rule_prefix}";
+      "syslog_ng_conf_start"  string => "(\"";
+      "syslog_ng_conf_port"   string => "\" port (";
+      "syslog_ng_conf_portno" string => "&SYSLOGPORT&";
+      "syslog_ng_conf_suffix" string => "));};log {source(${syslog_ng_source});filter(f_local_rudder);destination(rudder_loghost);";
       "syslog_ng_conf_final"  string => "flags(final);};";
 
-      "syslog_ng_conf"        string => concat("${syslog_conf_comment}", "${syslog_ng_conf_prefix}", "${server_info.cfserved}", "${syslog_ng_conf_suffix}", "${syslog_ng_conf_final}");
-      "syslog_ng_conf_regex"  string => concat("filter\ f\_local\_rudder\{facility\(local6\)\ and\ program\(\"rudder\.\*\"\)\;\}\;destination\ loghost\ \{(tcp|udp)\(\"", "[^\"]+", escape("${syslog_ng_conf_suffix}"), ".*");
+      "syslog_ng_conf"        string => concat("${syslog_conf_comment}", "${syslog_ng_conf_prefix}", "${syslog_ng_conf_proto}", "${syslog_ng_conf_start}", "${server_info.cfserved}", "${syslog_ng_conf_port}", "${syslog_ng_conf_portno}", "${syslog_ng_conf_suffix}", "${syslog_ng_conf_final}");
+      "syslog_ng_conf_regex"  string => concat(escape("filter f_local_rudder{facility(local6) and program("), ".*", escape(");};destination rudder_loghost {"), "(tcp|udp)", escape("${syslog_ng_conf_start}"), "[^\"]+", escape("${syslog_ng_conf_port}"), "[0-9]+", escape("${syslog_ng_conf_suffix}"), ".*");
+
+      "rsyslog_conffile"      string => "/etc/rsyslog.conf";
+      "syslogng_conffile"     string => "/etc/syslog-ng/syslog-ng.conf";
+      "syslog_conffile"       string => "/etc/syslog.conf";
+
+      "rsyslog_rudder_conffile" string => "/etc/rsyslog.d/rudder-agent.conf";
 
   classes:
 
     !android::
-      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
+      "rsyslogd_conffile_present" expression => fileexists("${rsyslog_conffile}"), scope => "namespace";
+      "syslogng_conffile_present" expression => fileexists("${syslogng_conffile}"), scope => "namespace";
+      "syslogd_conffile_present"  expression => fileexists("${syslog_conffile}"), scope => "namespace";
 
-      "syslogng" expression => fileexists("/etc/syslog-ng/syslog-ng.conf");
+    any::
+      "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP");
+      "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP");
 
-      "syslogd" expression => fileexists("/etc/syslog.conf");
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+      "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check-rsyslog-version");
 
   files:
-    !windows.rsyslogd::
-      "/etc/rsyslog.conf"
+
+    !windows.rsyslogd_conffile_present::
+      "${rsyslog_conffile}"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
         edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
-    !windows.rsyslogd.!policy_server::
-      "/etc/rsyslog.d/rudder-agent.conf"
-        edit_line => append_if_no_lines("#Rudder log system${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then @@${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~"),
+    (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd_conffile_present.!policy_server::
+      "${rsyslog_rudder_conffile}"
+        edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
         create => "true",
         edit_defaults => empty_backup,
-        classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
+        classes       => rudder_common_classes("rsyslog");
 
-    SuSE.rsyslogd.policy_server::
+    SuSE.rsyslogd_conffile_present.policy_server::
       # For SuSE, ensure that SYSLOG_DAEMON is set to 'rsyslogd' even if another syslog has been installed before
       "/etc/sysconfig/syslog"
         edit_line => ensure_rsyslogd_on_suse,
         edit_defaults => noempty_backup,
-				classes   => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
+        classes       => rudder_common_classes("rsyslog");
 
-    !windows.syslogng.!policy_server::
-      "/etc/syslog-ng/syslog-ng.conf"
+    !windows.syslogng_conffile_present.!policy_server::
+      "${syslogng_conffile}"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
         edit_defaults => noempty_backup,
-        classes => kept_if_else("syslog_ng_kept", "syslog_ng_repaired" , "syslog_ng_failed");
+        classes       => rudder_common_classes("syslog_ng");
 
-    !windows.syslogd.!policy_server::
-      "/etc/syslog.conf"
+    !windows.syslogd_conffile_present.!policy_server::
+      "${syslog_conffile}"
         edit_line => fix_syslogd("@${server_info.cfserved}"),
         edit_defaults => noempty_backup,
-        classes => kept_if_else("syslogd_kept", "syslogd_repaired" , "syslogd_failed");
-      #Probably, we want to do something if it is repaired ?
+        classes       => rudder_common_classes("syslogd");
 
+  methods:
+
+    pass2.syslogd_conffile_present::
+      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslogd");
+
+    pass2.syslogng_conffile_present::
+      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslog-ng");
+
+    pass2.rsyslogd_conffile_present::
+      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as rsyslog");
+
+    pass3.(syslogd_failed|syslog_ng_failed|rsyslog_failed)::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system could not be configured for report centralization");
+
+    pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired)::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Configured logging system for report centralization");
+
+    pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).!(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired).(syslogd_conffile_present.syslogd_kept|syslogng_conffile_present.syslog_ng_kept|rsyslogd_conffile_present.rsyslog_kept))::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system for report centralization is already correctly configured");
+
+    pass3.android::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "This is an android machine: Logging system configuration skipped.");
 
   commands:
-    SuSE.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "/etc/init.d/syslog"
-        args => "restart",
-        comment => "Restarting syslog-ng after it's been updated";
-    syslog_ng_repaired.!SuSE::
-      "/etc/init.d/syslog-ng"
-        args => "restart",
-        comment => "Restarting syslog-ng after it's been updated";
+      
+    rsyslogd_conffile_present.check_rsyslog_version_present::
+      # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
+      # The option is probably older though.
+      "${g.rudder_tools}/check-rsyslog-version 5.6.4"
+        contain => in_shell,
+        module  => "true",
+        comment => "Check rsyslog version to know if it supports RepeatedMsgReduction";
 
-    rsyslog_repaired.!(SuSE|fedora)::
-      "/etc/init.d/rsyslog"
-        args => "restart",
-        comment => "Restarting rsyslog after it's been updated";
-
-    rsyslog_repaired.fedora::
-      "/bin/systemctl"
-        args => "restart rsyslog",
-        comment => "Restarting rsyslog after it's been updated";
-
-    syslogd_repaired.!SuSE.!solaris.!aix::
-      "/etc/init.d/syslog"
-        args => "restart",
-        comment => "Restarting rsyslog after it's been updated";
-
-    solaris.(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired)::
-      "svcadm refresh svc:/system/system-log:default";
-
-    aix.syslogd_repaired::
-      "/usr/bin/refresh -s syslogd";
-
-  reports:
-
-    syslogd::
-      "@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Detected running syslog as syslogd";
-    syslogng::
-      "@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Detected running syslog as syslog-ng";
-    rsyslogd::
-      "@@Common@@log_info@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Detected running syslog as rsyslog";
-
-    syslogd_failed|syslog_ng_failed|rsyslog_failed::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Logging system could not be configured for report centralization";
-
-    syslogd_repaired|syslog_ng_repaired|rsyslog_repaired::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Configured logging system for report centralization";
-
-    (syslogd.syslogd_kept.!syslogd_failed.!syslogd_repaired)|(syslogng.syslog_ng_kept.!syslog_ng_failed.!syslog_ng_repaired)|(rsyslogd.rsyslog_kept.!rsyslog_failed.!rsyslog_repaired)::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Logging system for report centralization is already correctly configured";
-
-    android::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#This is an android machine: Logging system configuration skipped.";
 }
 
 #######################################################
@@ -556,30 +629,40 @@ bundle agent check_log_system
 # as it would make it too complex to read and maintain
 # (we would have needed to delay the restart of the services
 # at later iteration)
+#
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
 bundle agent check_rsyslog_version {
-  vars:
-    SuSE::
-      "syslog_restart_cmd" string => "/etc/init.d/syslog restart";
-
-    fedora::
-      "syslog_restart_cmd" string => "/bin/systemctl restart rsyslog";
-
-    !(SuSE|fedora)::
-      "syslog_restart_cmd" string => "/etc/init.d/rsyslog restart";
 
   classes:
       "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check-rsyslog-version");
-      "rsyslogd" expression => fileexists("/etc/rsyslog.conf");
+      "rsyslogd" expression => fileexists("${check_log_system.rsyslog_conffile}");
+
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
   files:
-    rsyslogd.rsyslog_version_ok::
+    rsyslogd.rsyslog_version_5_7_1_ok::
       "/etc/rsyslog.d/remove_limit.conf"
         edit_line => append_if_no_lines("$SystemLogRateLimitInterval 0"),
         edit_defaults => noempty_backup,
         create    => "true",
         comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
         classes   => rudder_common_classes("rsyslog_limit");
+
+  methods:
+
+    pass3.(rsyslogd.!check_rsyslog_version_present)::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file ${g.rudder_tools}/check-rsyslog-version is missing");
+
+    pass3.rsyslog_limit_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not remove message limit in rsyslog");
+
+    pass3.rsyslog_limit_repaired::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Updated the rsyslog configuration to remove message limit");
 
   commands:
     rsyslogd.check_rsyslog_version_present::
@@ -588,31 +671,56 @@ bundle agent check_rsyslog_version {
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
 
-    rsyslog_limit_repaired::
-      "${syslog_restart_cmd}"
-        args => "restart",
-        classes => cf2_if_else("rsyslog_restarted", "cant_restart_rsyslog"),
-        comment => "restarting rsyslog";
-   
-  reports:
-    rsyslogd.!check_rsyslog_version_present::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#The file ${g.rudder_tools}/check-rsyslog-version is missing, cannot check rsyslog version";
+}
 
-    rsyslog_limit_error::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not remove limitation of message in rsyslog";
+#############################################################
+# Remove syslog configurations that Rudder may have applied #
+#############################################################
+# Note: if any configurations are changed here, corresponding services must be
+# restarted in the restart_services bundle
 
-    rsyslog_limit_repaired::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Updated the rsyslog configuration to remove limitation of messages";
+bundle agent remove_rudder_syslog_configuration {
 
-    rsyslog_restarted::
-      "@@Common@@log_repaired@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Configured logging system for report centralization";
+  vars:
 
-    cant_restart_rsyslog::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Log system for reports@@None@@${g.execRun}##${g.uuid}@#Could not restart the logging system";
+      "syslogng_delete_lines_patterns" slist => {
+        "\s*# Autogenerated by rudder, do not edit.*",
+        ".*destination\(rudder_loghost\);.*",
+      };
 
+      "syslog_delete_lines_patterns" slist => {
+        "\s*# Rudder specific logging parameters.*",
+        "local6.notice\s+@${server_info.cfserved}",
+      };
 
+  classes:
+
+      "syslogng" expression => fileexists("${check_log_system.syslogng_conffile}");
+      "syslogd"  expression => fileexists("${check_log_system.syslog_conffile}");
+
+  files:
+      "${check_log_system.rsyslog_rudder_conffile}"
+        delete         => tidy,
+        classes        => classes_generic("remove_rudder_syslog_configuration_rsyslog");
+
+    syslogng::
+      "${check_log_system.syslogng_conffile}"
+        edit_line      => delete_lines_matching("${syslogng_delete_lines_patterns}"),
+        edit_defaults  => noempty_backup,
+        classes        => classes_generic("remove_rudder_syslog_configuration_syslogng");
+
+    syslogd::
+      "${check_log_system.syslog_conffile}"
+        edit_line      => delete_lines_matching("${syslog_delete_lines_patterns}"),
+        edit_defaults  => noempty_backup,
+        classes        => classes_generic("remove_rudder_syslog_configuration_syslog");
+
+  methods:
+      "merge result classes" usebundle  => _classes_combine_three("remove_rudder_syslog_configuration_rsyslog", "remove_rudder_syslog_configuration_syslogng", "remove_rudder_syslog_configuration_syslog", "remove_rudder_syslog_configuration_result");
+      "reports"              usebundle  => rudder_common_reports_generic("Common", "remove_rudder_syslog_configuration_result", "&TRACKINGKEY&", "Log system for reports", "None", "Rudder syslog configuration removed");
 
 }
+&endif&
 
 ###################################################################
 # Trash every output report and modified files older than the TTL #
@@ -620,6 +728,14 @@ bundle agent check_rsyslog_version {
 
 bundle agent garbage_collection
 {
+  vars:
+      "log_files_to_rotate" slist => {
+                                        "${sys.workdir}/cf3.${sys.uqhost}.runlog",
+                                        "${sys.workdir}/promise_summary.log",
+                                        "${sys.workdir}/cf_notkept.log",
+                                        "${sys.workdir}/cf_repair.log",
+                                        "/var/log/rudder/agent-check/check.log",
+                                     };
 
   files:
 
@@ -627,7 +743,8 @@ bundle agent garbage_collection
 
         delete => tidy,
         file_select => days_old("&CFENGINE_OUTPUTS_TTL&"),
-        depth_search => recurse("inf");
+        depth_search => recurse("inf"),
+        action => if_elapsed_day;
 
       "${g.rudder_var}/modified-files"
 
@@ -635,15 +752,26 @@ bundle agent garbage_collection
         file_select => days_old("&MODIFIED_FILES_TTL&"),
         depth_search => recurse("inf");
 
+      "/var/log/rudder/agent-check/." create => "true";
+
+      "${log_files_to_rotate}"
+        comment     => "Rotate file if above specified size",
+        rename      => rotate("10"),
+        file_select => bigger_than("1M");
+
+  methods:
+
+       # Directly call the cleanup bundle from ncf's logger_rudder
+       "clean old expected reports files" usebundle => _clean_old_expected_reports_file("&CFENGINE_OUTPUTS_TTL&");
+
 }
 
 #######################################################
-# Copy the CFengine binaries from the /opt repository
-# to the CFengine working directory
+# Copy the CFEngine binaries from the /opt repository
+# to the CFEngine working directory
 
 bundle agent check_binaries_freshness
 {
-
   vars:
 
     community_edition::
@@ -654,30 +782,109 @@ bundle agent check_binaries_freshness
 
     !android.!nova_edition::
       "${sys.workdir}/bin/${components}"
-        perms => u_p("700"),
+        perms => u_p("755"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
         classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
         action => immediate,
-        comment => "Copying the CFengine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
+        comment => "Copying the CFEngine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
 
-  reports:
+  methods:
 
     binaries_fresh.!binaries_rotten.!binaries_missing::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#The CFengine binaries in ${sys.workdir}/bin are up to date";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "The agent binaries in ${sys.workdir}/bin are up to date");
 
     binaries_rotten.!binaries_missing::
-      "@@Common@@result_repaired@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#The CFengine binaries have been updated in ${sys.workdir}/bin";
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Binaries update", "None", "The agent binaries have been updated in ${sys.workdir}/bin");
 
     binaries_missing::
-      "@@Common@@result_error@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#An error occurred while updating the CFengine binaries in ${sys.workdir}/bin";
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the agent binaries in ${sys.workdir}/bin");
 
     android::
-      "@@Common@@result_success@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an android machine: no CFEngine binaries update needed";
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "This is an android machine: no agent binaries update needed");
 
     nova_edition::
-      "@@Common@@result_na@@&TRACKINGKEY&@@Binaries update@@None@@${g.execRun}##${g.uuid}@#This is an CFEngine enterprise system: binaries update are handled differently";
+      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
 
 }
+
+#######################################################
+# This bundle is responsible for the reporting of what happened in the update
+# It can work because the classes defined during the update are persistent, so
+# the classes are available for the next 4 minutes
+bundle agent update_reports
+{
+  methods:
+    no_update::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update configuration policy");
+
+    rudder_tools_updated_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update tools (update flag file)");
+
+    rudder_tools_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update tools");
+
+    rudder_ncf_hash_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common configuration library (update flag file)");
+
+    rudder_ncf_common_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common configuration library");
+
+    rudder_ncf_local_update_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update local configuration library");
+
+    rudder_promises_generated_tmp_file_error::
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update configuration policy");
+
+    # Success report relies on several matching conditions (nodes except root_server)
+    # On all nodes except root server:
+    #   - Staggered update: rudder_ncf_hash_update_ok OR (rudder_ncf_hash_update_repaired AND rudder_ncf_common_updated_ok AND rudder_ncf_local_updated_ok)
+    #   - Staggered update: policy_server OR rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
+    #   - Staggered update: rudder_promises_generated_tmp_file_kept OR (rudder_promises_generated_tmp_file_repaired AND config_ok)
+    # There must be NO components in repair or error
+    # Note: we can't use classes new_promises_available and new_tools_available here because they are local to the update_action bundle
+    !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(policy_server|rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update|rudder_ncf_hash_update_error|rudder_ncf_hash_update_repaired)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Policy, tools and configuration library are already up to date. No action required.");
+
+    # Success report relies on several matching conditions (root_server only)
+    # On the root server only:
+    #   - Simple test: rudder_ncf_common_updated_ok
+    #   - Simple test: rudder_ncf_local_updated_ok
+    # There must be NO components in repair or error
+    root_server.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.!(rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Configuration library already up to date on this root server. No action required.");
+
+    rudder_tools_updated::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Tools updated");
+
+    rudder_ncf_common_updated::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Common configuration library updated");
+
+    rudder_ncf_local_updated::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Local configuration library updated");
+
+    config::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Configuration policy updated");
+
+    (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Policy, tools or configuration library were updated or agent service restarted");
+
+    server_ok::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
+    executor_ok::
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the scheduler (cf-execd)");
+
+    reports:
+      # We want to have always reports if something goes bad
+      rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error::
+        "*********************************************************************************
+  * rudder-agent could not get an updated configuration from the policy server.   *
+  * This can be caused by a network issue, an unavailable server, or if this      *
+  * node was deleted from the Rudder root server.                                 *
+  * Any existing configuration policy will continue to be applied without change. *
+  *********************************************************************************"
+        action => immediate;
+}
+
 
 #######################################################
 
@@ -689,7 +896,7 @@ body agent control
     #define here some environment variables
         environment => { "DEBIAN_FRONTEND=noninteractive" };
 
-        abortclasses => { "should_not_continue" };
+        abortclasses => { "should_not_continue", "abort_agent_run" };
 
         agentfacility => "LOG_LOCAL6";
 
@@ -713,7 +920,7 @@ body executor control
         exec_command => "${sys.cf_agent} -f \"${sys.workdir}\inputs\failsafe.cf\" \& ${sys.cf_agent}";
 
    !windows::
-        exec_command => "${sys.cf_agent} -f failsafe.cf \&\& ${sys.cf_agent}";
+        exec_command => "${sys.cf_agent} -f failsafe.cf ; ${sys.cf_agent}";
 
 }
 
@@ -722,7 +929,6 @@ body executor control
 #Enforce that the file only contains this information
 bundle edit_line enforce_content(str)
 {
-
   delete_lines:
       "${str}" not_matching => "true";
 
@@ -730,6 +936,8 @@ bundle edit_line enforce_content(str)
       "${str}";
 }
 
+# Never used in initial promises
+&if(!INITIAL)&
 # Fix syslogd content : caution, the @ must be in the argument
 bundle edit_line fix_syslogd(syslogd)
 {
@@ -752,8 +960,15 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove)
 
   delete_lines:
       "${pattern_to_remove}";
+
+      # Remove any unexpanded variables that may have slipped through due to old bugs or race conditions at installation time
       "\$\(syslog_ng_conf\)";
       "\$\{syslog_ng_conf\}";
+
+      # Remove the syslog config when the loghost was just called "loghost" (now called "rudder_loghost")
+      # This was used in Rudder pre-3.0. We need to keep this in all versions that support upgrading from pre-3.0 versions (up to and including 2.11)
+      # See http://www.rudder-project.org/redmine/issues/5773
+      "filter\ f\_local\_rudder\{facility\(local6\)\ and\ program\(\"rudder\.\*\"\)\;\}\;destination\ loghost\ \{(tcp|udp)\(\"[^\"]+\".*";
 
   insert_lines:
       "${line_to_add}"
@@ -779,3 +994,5 @@ bundle edit_line ensure_rsyslogd_on_suse
         edit_field => col("=","2","\"rsyslogd\"","set"),
         comment => "Match a line starting like key = something";
 }
+&endif&
+
