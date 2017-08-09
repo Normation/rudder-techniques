@@ -95,6 +95,8 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
             classes    => rudder_common_classes("groupmanagement_group_gid_${index}"),
             ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
 
+
+
   methods:
 
     pass3.cfengine::
@@ -116,6 +118,7 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
     commands:
 
+      !aix::
         "/usr/sbin/groupadd"
             args => "-f \"${name}\"",
             classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
@@ -124,6 +127,19 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
         "/usr/sbin/groupadd"
             args => "-f \"${name}\" -g \"${gid}\"",
+            classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
+            ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.groupmanagement_group_${index}_setgid",
+            comment => "Add the group ${name} with GID ${gid} if it doesn't exists";
+
+      aix::
+        "/usr/bin/mkgroup"
+            args => "${name}",
+            classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
+            ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.!groupmanagement_group_${index}_setgid",
+            comment => "Add the group ${name} if it doesn't exists";
+
+        "/usr/bin/mkgroup"
+            args => "id=${gid} ${name}",
             classes => if_else("groupmanagement_group_add_${index}_repaired", "groupmanagement_group_add_${index}_error"),
             ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.groupmanagement_group_${index}_setgid",
             comment => "Add the group ${name} with GID ${gid} if it doesn't exists";
