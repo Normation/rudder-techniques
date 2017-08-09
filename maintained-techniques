@@ -44,6 +44,7 @@ systemSettings/networking/nfsClient/3.0
 systemSettings/networking/nfsServer/3.0
 systemSettings/networking/routingManagement/2.0
 systemSettings/process/servicesManagement/3.0
+systemSettings/process/services/1.0
 systemSettings/remoteAccess/sshConfiguration/4.0
 systemSettings/remoteAccess/sshConfiguration/5.0
 systemSettings/remoteAccess/sshKeyDistribution/3.0
