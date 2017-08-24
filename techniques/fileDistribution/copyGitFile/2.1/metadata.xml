@@ -27,13 +27,28 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <AGENT version=">= 3.2.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
-  <BUNDLES>
-    <NAME>download_from_shared_folder</NAME>
-  </BUNDLES>
 
-  <TMLS>
-    <TML name="copyFileFromSharedFolder"/>
-  </TMLS>
+  <AGENT type="dsc">
+    <BUNDLES>
+      <NAME>copyFileFromSharedFolder</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="copyFileFromSharedFolder.ps1">
+        <OUTPATH>copyGitFile/2.1/copyFileFromSharedFolder.ps1</OUTPATH>
+      </TML>
+    
+    </TMLS>
+  </AGENT>
+
+  <AGENT type="cfengine-community">
+    <BUNDLES>
+      <NAME>download_from_shared_folder</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="copyFileFromSharedFolder"/>
+    </TMLS>
+  </AGENT>
+
     
   <TRACKINGVARIABLE>
     <SAMESIZEAS>COPYFILE_NAME</SAMESIZEAS>
@@ -59,36 +74,38 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <DESCRIPTION>Full path of the destination file or directory</DESCRIPTION>
         <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node</LONGDESCRIPTION>
         </INPUT>
-        <SECTION name="Exclusion/Inclusion" multivalued="false" component="false" displayPriority="low">
-          <SELECT1>
-            <NAME>COPYFILE_EXCLUDE_INCLUDE_OPTION</NAME>
-            <DESCRIPTION>Exclude or include files from the copy</DESCRIPTION>
-            <LONGDESCRIPTION>Limit list of files to copy (include) or don't copy some files matching a pattern (exclude). Only applies if the path to copy from is a directory.</LONGDESCRIPTION>
-            <ITEM>
-              <VALUE>none</VALUE>
-              <LABEL>No include/exclude rules</LABEL>
-            </ITEM>
-            <ITEM>
-              <VALUE>exclude</VALUE>
-              <LABEL>Exclude file(s) matching</LABEL>
-            </ITEM>
-            <ITEM>
-             <VALUE>include</VALUE>
-             <LABEL>Include file(s) matching</LABEL>
-            </ITEM>
-            <CONSTRAINT>
-              <DEFAULT>none</DEFAULT>
-            </CONSTRAINT>
-          </SELECT1>
-          <INPUT>
-            <NAME>COPYFILE_EXCLUDE_INCLUDE</NAME>
-            <DESCRIPTION>Pattern to exclude or include</DESCRIPTION>
-            <LONGDESCRIPTION>If one or several files should be excluded or included in this copy, please insert their name or a regular expression matching the appropriate file name(s))</LONGDESCRIPTION>
-            <CONSTRAINT>
-              <MAYBEEMPTY>true</MAYBEEMPTY>
-            </CONSTRAINT>
-          </INPUT>
-        </SECTION>
+      </SECTION>
+
+      <SECTION name="UNIX specific options" multivalued="false" component="false" displayPriority="low">
+        <SELECT1>
+          <NAME>COPYFILE_EXCLUDE_INCLUDE_OPTION</NAME>
+          <DESCRIPTION>Exclude or include files from the copy</DESCRIPTION>
+          <LONGDESCRIPTION>Limit list of files to copy (include) or don't copy some files matching a pattern (exclude). Only applies if the path to copy from is a directory.</LONGDESCRIPTION>
+          <ITEM>
+            <VALUE>none</VALUE>
+            <LABEL>No include/exclude rules</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>exclude</VALUE>
+            <LABEL>Exclude file(s) matching</LABEL>
+          </ITEM>
+          <ITEM>
+          <VALUE>include</VALUE>
+          <LABEL>Include file(s) matching</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>none</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
+        <INPUT>
+          <NAME>COPYFILE_EXCLUDE_INCLUDE</NAME>
+          <DESCRIPTION>File name patterns to exclude or include</DESCRIPTION>
+        <LONGDESCRIPTION>If one or several files should be excluded or included in this copy, please insert their name or a regular expression matching the appropriate file name(s))</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+        
         <SELECT1>
           <NAME>COPYFILE_RECURSION</NAME>
           <DESCRIPTION>Recursion level</DESCRIPTION>
@@ -214,8 +231,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </CONSTRAINT>
         </INPUT>
       </SECTION>
+      <SECTION name="WINDOWS specific options" multivalued="false" component="false" displayPriority="low">
+      </SECTION>
 
-      <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_NAME" displayPriority="low">
+      <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_NAME">
         <INPUT>
           <NAME>COPYFILE_POST_HOOK_RUN</NAME>
           <DESCRIPTION>Enable post-modification hook</DESCRIPTION>
