@@ -26,76 +26,77 @@ bundle agent check_apt_settings
   vars:
 
     debian_4::
-
       "apt_detected_distro" string => "etch";
 
     debian_5::
-
       "apt_detected_distro" string => "lenny";
 
     debian_6::
-
       "apt_detected_distro" string => "squeeze";
 
     debian_7::
-
-        "apt_detected_distro" string => "wheezy";
+      "apt_detected_distro" string => "wheezy";
 
     debian_8::
+      "apt_detected_distro" string => "jessie";
 
-        "apt_detected_distro" string => "jessie";
+    debian_9::
+      "apt_detected_distro" string => "stretch";
+
+    debian_10::
+      "apt_detected_distro" string => "buster";
 
     ubuntu_karmic|ubuntu_9_10::
-
       "apt_detected_distro" string => "karmic";
 
     ubuntu_lucid|ubuntu_10_4::
-
       "apt_detected_distro" string => "lucid";
 
     ubuntu_maverick|ubuntu_10_10::
-
       "apt_detected_distro" string => "maverick";
 
     ubuntu_natty|ubuntu_11_4::
-
-        "apt_detected_distro" string => "natty";
+      "apt_detected_distro" string => "natty";
 
     ubuntu_oneiric|ubuntu_11_10::
-
-        "apt_detected_distro" string => "oneiric";
+      "apt_detected_distro" string => "oneiric";
 
     ubuntu_precise|ubuntu_12_4::
-
-        "apt_detected_distro" string => "precise";
+      "apt_detected_distro" string => "precise";
 
     ubuntu_quantal|ubuntu_12_10::
-
-        "apt_detected_distro" string => "quantal";
+      "apt_detected_distro" string => "quantal";
 
     ubuntu_raring|ubuntu_13_4::
-
-        "apt_detected_distro" string => "raring";
+      "apt_detected_distro" string => "raring";
 
     ubuntu_saucy|ubuntu_13_10::
-
-        "apt_detected_distro" string => "saucy";
+      "apt_detected_distro" string => "saucy";
 
     ubuntu_trusty|ubuntu_14_4::
-
-        "apt_detected_distro" string => "trusty";
+      "apt_detected_distro" string => "trusty";
 
     ubuntu_utopic|ubuntu_14_10::
-
-        "apt_detected_distro" string => "utopic";
+      "apt_detected_distro" string => "utopic";
 
     ubuntu_vivid|ubuntu_15_4::
-
-        "apt_detected_distro" string => "vivid";
+      "apt_detected_distro" string => "vivid";
 
     ubuntu_willy|ubuntu_15_10::
+      "apt_detected_distro" string => "willy";
 
-        "apt_detected_distro" string => "willy";
+    ubuntu_xenial|ubuntu_16_4::
+      "apt_detected_distro" string => "xenial";
+
+    ubuntu_yakkety|ubuntu_16_10::
+      "apt_detected_distro" string => "yakkety";
+
+    ubuntu_zesty|ubuntu_17_4::
+      "apt_detected_distro" string => "zesty";
+
+    ubuntu_artful|ubuntu_17_10::
+      "apt_detected_distro" string => "artful";
+
     apt_installrecommends_edit::
 
       "aptconf[APT::Install-Recommends]" string => "&APT_INSTALLRECOMMENDS&";
