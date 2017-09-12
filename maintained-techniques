@@ -78,6 +78,7 @@ fileDistribution/downloadFile/1.0
 fileDistribution/downloadFile/2.0
 fileDistribution/downloadFile/3.0
 fileDistribution/manageKeyValueFile/1.0
+fileDistribution/manageKeyValueFile/1.1
 jobScheduling/jobScheduler/1.0
 jobScheduling/jobScheduler/2.0
 system/common/1.0
