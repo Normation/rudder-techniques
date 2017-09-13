@@ -86,7 +86,7 @@ then
 fi
 
 # Check that techniques do not contain $()
-${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' -s 'echo {}|grep -v ".ps1.st$"' "${REPOSITORY_PATH}" | while read filename
 do
   if grep '$(' "${filename}" >/dev/null; then
     echo "The file ${filename} contains deprecated \$() syntax"
