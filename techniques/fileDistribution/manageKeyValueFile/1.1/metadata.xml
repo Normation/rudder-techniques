@@ -65,6 +65,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <TYPE>string</TYPE>
           </CONSTRAINT>
         </INPUT>
+        <SELECT1>
+          <NAME>MANAGE_KEY_VALUE_OPTION</NAME>
+          <DESCRIPTION>Prevent spaces around separator</DESCRIPTION>
+          <LONGDESCRIPTION>If "No spacing" is selected, this will prevent any spaces around the separator, enforcing strictly KEY=VALUE; otherwise any number of spaces will be accepted before or after the separator.</LONGDESCRIPTION>
+          <ITEM>
+            <VALUE>strict</VALUE>
+            <LABEL>No spacing</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>lax</VALUE>
+            <LABEL>Any number of spaces</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>lax</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
       </SECTION>
     </SECTION>
   </SECTIONS>

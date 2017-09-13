@@ -26,6 +26,8 @@ bundle agent manage_key_value_file {
 }&
       &MANAGE_KEY_VALUE_SEPARATOR:{separator |  "separator[&i&]"   string => "&separator&";
 }&
+      &MANAGE_KEY_VALUE_OPTION:{option |  "option[&i&]"   string => "&option&";
+}&
       &TRACKINGKEY:{uuid |  "trackingkey[&i&]" string => "&uuid&";
 }&
 
@@ -35,8 +37,10 @@ bundle agent manage_key_value_file {
     "canonified_file[${index}]"      string => canonify("${file[${index}]}");
     "class_prefix_${index}"          string => "file_ensure_key_value_${canonified_file[${index}]}";
     "technique_name"                 string => "Manage keys-values file";
+
+
   methods:
-    "apply_${index}"   usebundle => file_ensure_key_value("${file[${index}]}", "${key[${index}]}", "${value[${index}]}", "${separator[${index}]}");
-    "report_${index}"  usebundle => rudder_common_reports_generic_index("${technique_name}", "${class_prefix_${index}}",    "${trackingkey[${index}]}", "File", "${file[${index}]}", "The key -> value ${key[${index}]} ${separator[${index}]} ${value[${index}]}", "${index}");
+    "apply_${index}"   usebundle => file_ensure_key_value_option("${file[${index}]}", "${key[${index}]}", "${value[${index}]}", "${separator[${index}]}", "${option[${index}]}");
+    "report_${index}"  usebundle => rudder_common_reports_generic_index("${technique_name}", "${class_prefix_${index}}",    "${trackingkey[${index}]}", "File", "${file[${index}]}", "The key -> value ${key[${index}]} ${separator[${index}]} ${value[${index}]} with ${option[${index}]} spacing around the separator", "${index}");
 
 }
