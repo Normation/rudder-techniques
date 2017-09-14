@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_GROUP_SET_GID</NAME>
-        <DESCRIPTION>Set GID ?</DESCRIPTION>
+        <DESCRIPTION>Set Group ID</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -67,7 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_GROUP_ENFORCE_CONTENT</NAME>
-        <DESCRIPTION>Enforce content of the group</DESCRIPTION>
+        <DESCRIPTION>Set group members</DESCRIPTION>
         <LONGDESCRIPTION>Group content will be enforced even if you don't specify a user list</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
@@ -76,8 +76,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
        <INPUT>
         <NAME>USERGROUP_GROUP_CONTENT</NAME>
-        <DESCRIPTION>Users included in the group</DESCRIPTION>
-        <LONGDESCRIPTION>This should be input as a comma separated list</LONGDESCRIPTION>
+        <DESCRIPTION>Group members</DESCRIPTION>
+        <LONGDESCRIPTION>This should be a comma separated list of user names</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>

@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="DNS settings">
-  <DESCRIPTION>Configure DNS lookups</DESCRIPTION>
+  <DESCRIPTION>Configure DNS resolution</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
@@ -41,8 +41,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Nameserver settings">
       <INPUT>
         <NAME>DNS_RESOLVERS_EDIT</NAME>
-        <DESCRIPTION>Set nameservers?</DESCRIPTION>
-        <LONGDESCRIPTION>If not selected, the nameservers will not be changed. If selected, the nameservers below will be enforced.</LONGDESCRIPTION>
+        <DESCRIPTION>Set nameservers</DESCRIPTION>
+        <LONGDESCRIPTION>If checked, the nameservers below will be enforced. If not checked, the nameservers will not be changed.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -67,8 +67,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Search suffix settings">
       <INPUT>
         <NAME>DNS_SEARCHLIST_EDIT</NAME>
-        <DESCRIPTION>Set DNS search suffix?</DESCRIPTION>
-        <LONGDESCRIPTION>If not selected, the DNS search suffix will not be changed. If selected, the search suffixes below will be enforced.</LONGDESCRIPTION>
+        <DESCRIPTION>Set search suffix</DESCRIPTION>
+        <LONGDESCRIPTION>If checked, the search suffixes below will be enforced. If not checked, the DNS search suffix will not be changed.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -77,7 +77,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SECTION name="DNS search list" multivalued="true">
         <INPUT>
           <NAME>DNS_SEARCHLIST</NAME>
-          <DESCRIPTION>Domain search suffix</DESCRIPTION>
+          <DESCRIPTION>Search suffix</DESCRIPTION>
           <LONGDESCRIPTION>DNS suffix to append to host names that are not fully qualified.</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>string</TYPE>
@@ -93,8 +93,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Option settings" displayPriority="low">
       <INPUT>
         <NAME>DNS_OPTIONS_EDIT</NAME>
-        <DESCRIPTION>Set DNS options?</DESCRIPTION>
-        <LONGDESCRIPTION>If not selected, the DNS options will not be changed. If selected, the options below will be enforced.</LONGDESCRIPTION>
+        <DESCRIPTION>Set DNS options</DESCRIPTION>
+        <LONGDESCRIPTION>If checked, the options below will be enforced. If not checked, the DNS options will not be changed.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -108,7 +108,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <CONSTRAINT>
             <TYPE>string</TYPE>
             <DEFAULT>ndots:1</DEFAULT>
-      <MAYBEEMPTY>true</MAYBEEMPTY>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
         </INPUT>
       </SECTION>

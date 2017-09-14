@@ -15,7 +15,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Variable from JSON file (dict)">
-  <DESCRIPTION>Variable content can be overridden by optional json files read from a different place. You can use these variables in the form ${your_namespace.variable_name}</DESCRIPTION>
+  <DESCRIPTION>Downloads a JSON file from shared-files and reads it into variables. You can use these variables in the form ${your_namespace.variable_name}.
+  
+  For example a JSON containing { "datacenter": "paris" } read into the variable "machine_info" with prefix "my_company" can be used as ${my_company.machine_info[datacenter]}. Note that the syntax will differ in a mustache template: {{{my_company.machine_info.datacenter}}}.
+  </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS>Every OS</OS>

@@ -58,7 +58,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="General">
       <INPUT>
         <NAME>OPENSSH_SERVER_CONFFILE</NAME>
-        <DESCRIPTION>Which SSH configuration file should be edited?</DESCRIPTION>
+        <DESCRIPTION>OpenSSH configuration file full path</DESCRIPTION>
         <CONSTRAINT>
           <DEFAULT>/etc/ssh/sshd_config</DEFAULT>
         </CONSTRAINT>
@@ -68,7 +68,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Service settings">
       <SELECT1>
         <NAME>OPENSSH_SERVER_ADDRESSFAMILY</NAME>
-        <DESCRIPTION>Address family used by sshd</DESCRIPTION>
+        <DESCRIPTION>Address family</DESCRIPTION>
         <ITEM>
           <VALUE>any</VALUE>
           <LABEL>Any</LABEL>
@@ -91,7 +91,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <INPUT>
         <NAME>OPENSSH_SERVER_PORTSEDIT</NAME>
-        <DESCRIPTION>Do you want to define the Ports ?</DESCRIPTION>
+        <DESCRIPTION>Set listening ports</DESCRIPTION>
+        <LONGDESCRIPTION>Do you want to define the Ports ?</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -100,7 +101,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SECTION name="SSH ports" multivalued="true">
         <INPUT>
           <NAME>OPENSSH_SERVER_PORTS</NAME>
-          <DESCRIPTION>Port number that SSH listens on</DESCRIPTION>
+          <DESCRIPTION>Listening port number</DESCRIPTION>
           <CONSTRAINT>
             <TYPE>integer</TYPE>
             <DEFAULT>22</DEFAULT>
@@ -109,7 +110,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SECTION>
       <INPUT>
         <NAME>OPENSSH_SERVER_ADDRESSESEDIT</NAME>
-        <DESCRIPTION>Do you want to define the listening addresses ?</DESCRIPTION>
+        <DESCRIPTION>Set listening addresses</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -118,7 +119,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SECTION name="SSH addresses" multivalued="true">
         <INPUT>
           <NAME>OPENSSH_SERVER_ADDRESSES</NAME>
-          <DESCRIPTION>IP addresses that SSH listens on</DESCRIPTION>
+          <DESCRIPTION>Listening IP address</DESCRIPTION>
+          <LONGDESCRIPTION>Can be IPv4 or IPv6 address</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>ip</TYPE>
             <DEFAULT>0.0.0.0</DEFAULT>
@@ -127,8 +129,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SECTION>
       <INPUT>
         <NAME>OPENSSH_SERVER_PROTOCOL</NAME>
-        <DESCRIPTION>Supported protocol version(s)</DESCRIPTION>
-        <LONGDESCRIPTION>Protocol versions to support</LONGDESCRIPTION>
+        <DESCRIPTION>Protocol version(s)</DESCRIPTION>
+        <LONGDESCRIPTION>Protocol versions to support, use a coma separated list if you need more than one</LONGDESCRIPTION>
         <ITEM>
           <VALUE>1</VALUE>
           <LABEL>1</LABEL>
@@ -152,7 +154,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>OPENSSH_SERVER_MAXSESSIONS</NAME>
         <DESCRIPTION>Maximum open sessions per network connection</DESCRIPTION>
-        <LONGDESCRIPTION>Specifies the maximum number of open sessions permitted per network connection. Doesn't apply on a RedHat/CentOS</LONGDESCRIPTION>
+        <LONGDESCRIPTION>Specifies the maximum number of open sessions permitted per network connection.</LONGDESCRIPTION>
         <CONSTRAINT>
           <DEFAULT>10</DEFAULT>
         </CONSTRAINT>
@@ -240,7 +242,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>OPENSSH_SERVER_PERMITROOTLOGIN</NAME>
-        <DESCRIPTION>Allow root to login using SSH</DESCRIPTION>
+        <DESCRIPTION>Allow root login</DESCRIPTION>
         <ITEM>
           <VALUE>yes</VALUE>
           <LABEL>Yes (Unconditionally)</LABEL>

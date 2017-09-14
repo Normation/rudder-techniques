@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="NFS server">
-  <DESCRIPTION>Configure a NFS server</DESCRIPTION>
+  <DESCRIPTION>Configure an NFS server</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
@@ -44,16 +44,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="NFS server settings" multivalued="true" component="true" componentKey="NFS_SERVER_PATH">
       <INPUT>
         <NAME>NFS_SERVER_PATH</NAME>
-        <DESCRIPTION>Path to be shared</DESCRIPTION>
+        <DESCRIPTION>Path to share</DESCRIPTION>
+        <LONGDESCRIPTION>Full path to a directory</LONGDESCRIPTION>
       </INPUT>
       <INPUT>
         <NAME>NFS_SERVER_NETWORK</NAME>
-        <DESCRIPTION>Which target should be allowed to connect</DESCRIPTION>
+        <DESCRIPTION>Authorized client(s)</DESCRIPTION>
         <LONGDESCRIPTION>You can input either a hostname, an IP or an IP network and a mask (eg. 192.168.1.0/24)</LONGDESCRIPTION>
       </INPUT>
       <SELECT1>
         <NAME>NFS_SERVER_SECURE</NAME>
-        <DESCRIPTION>Should the usage of a reserved port be enforced</DESCRIPTION>
+        <DESCRIPTION>Reserved port</DESCRIPTION>
+        <LONGDESCRIPTION>This is the secure option in the exports file</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Secure</LABEL>
           <VALUE>secure</VALUE>
@@ -68,7 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_READWRITE</NAME>
-        <DESCRIPTION>Which access policy do you want to apply</DESCRIPTION>
+        <DESCRIPTION>Access policy</DESCRIPTION>
         <ITEM>
           <LABEL>Read/Write</LABEL>
           <VALUE>rw</VALUE>
@@ -83,14 +85,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_SYNC</NAME>
-        <DESCRIPTION>Which writing policy do you want to apply</DESCRIPTION>
-        <LONGDESCRIPTION>Synchronized mode is advised for a safe usage and is the default, Asynchronized mode is mainly used if performance is required over all (This violates the plain NFS protocol and might not be compatible with all implementations)</LONGDESCRIPTION>
+        <DESCRIPTION>Writing policy</DESCRIPTION>
+        <LONGDESCRIPTION>Synchronous mode is advised for a safe usage and is the default, asynchronous mode is mainly used if performance is required over all (This violates the plain NFS protocol and might not be compatible with all implementations)</LONGDESCRIPTION>
         <ITEM>
-          <LABEL>Synchronized</LABEL>
+          <LABEL>Synchronous</LABEL>
           <VALUE>sync</VALUE>
         </ITEM>
         <ITEM>
-          <LABEL>Asynchronized</LABEL>
+          <LABEL>Asynchronous</LABEL>
           <VALUE>async</VALUE>
         </ITEM>
         <CONSTRAINT>
@@ -99,8 +101,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_WDELAY</NAME>
-        <DESCRIPTION>If synchronized, do you want to optimize the writing by grouping the requests</DESCRIPTION>
-        <LONGDESCRIPTION>This is generally safe, but might tamper with performance if a lot of tiny independant requests are made</LONGDESCRIPTION>
+        <DESCRIPTION>Write delay (synchronous only)</DESCRIPTION>
+        <LONGDESCRIPTION>Optimize writing by grouping the requests. This is generally safe, but might tamper with performance if a lot of tiny independant requests are made</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>wdelay</VALUE>
@@ -116,7 +118,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SELECT1>
         <NAME>NFS_SERVER_HIDE</NAME>
         <DESCRIPTION>Should a nested filesystem be accessible to the client</DESCRIPTION>
-        <LONGDESCRIPTION>This is a little trick that should normally not be used (might create inode conflicts and be incompatible with some NFS implementations)</LONGDESCRIPTION>
+        <LONGDESCRIPTION>nohide option. This is a little trick that should normally not be used (might create inode conflicts and be incompatible with some NFS implementations)</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>nohide</VALUE>
@@ -131,8 +133,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_SUBTREECHECK</NAME>
-        <DESCRIPTION>Do you need a strict security checking on every access</DESCRIPTION>
-        <LONGDESCRIPTION>Normally, NFS won't do a strict checking on subdirectories for performance (especially on home directories), but you might want to enable this on other cases</LONGDESCRIPTION>
+        <DESCRIPTION>Strict security checking on every access</DESCRIPTION>
+        <LONGDESCRIPTION>subtree_check option. Normally, NFS won't do a strict checking on subdirectories for performance (especially on home directories), but you might want to enable this on other cases</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>subtree_check</VALUE>
@@ -147,15 +149,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_SECURELOCKS</NAME>
-        <DESCRIPTION>Do you want to require authentication for every lock request</DESCRIPTION>
+        <DESCRIPTION>Require authentication for every lock request</DESCRIPTION>
         <LONGDESCRIPTION>This is enabled by default, but might not be desired with old NFS clients</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
-          <VALUE>acl</VALUE>
+          <VALUE>secure_locks</VALUE>
         </ITEM>
         <ITEM>
           <LABEL>No</LABEL>
-          <VALUE>no_acl</VALUE>
+          <VALUE>insecure_locks</VALUE>
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>acl</DEFAULT>
@@ -163,7 +165,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>NFS_SERVER_ACL</NAME>
-        <DESCRIPTION>Should the filesystem ACLs be exposed through NFS</DESCRIPTION>
+        <DESCRIPTION>Expose filesystem ACLs through NFS</DESCRIPTION>
         <LONGDESCRIPTION>This is enabled by default, you might want to disable it on old NFS clients</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>

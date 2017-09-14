@@ -49,13 +49,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <INPUT>
           <NAME>PARTITION_SIZE_MONITORING_FREE_SIZE</NAME>
           <DESCRIPTION>Free size threshold</DESCRIPTION>
-          <LONGDESCRIPTION>How much free space before triggering command execution. Allowed input range: [0-9]+[MBkKgGmb%]</LONGDESCRIPTION>
+          <LONGDESCRIPTION>How much free space before triggering command execution (in percent or in absolute space value). Allowed input range: [0-9]+[MBkKgGmb%]</LONGDESCRIPTION>
         </INPUT>
       </SECTION>
       <SECTION name="Command execution on threshold" multivalued="false" component="true" componentKey="PARTITION_SIZE_MONITORING_PATH">
         <INPUT>
           <NAME>PARTITION_SIZE_MONITORING_CMD_EXEC_REPAIRED_RUN</NAME>
-          <DESCRIPTION>Should the command(s) below be run if the threshold is met?</DESCRIPTION>
+          <DESCRIPTION>Enable post-modification hook</DESCRIPTION>
+          <LONGDESCRIPTION>Run the command(s) below if the threshold is met</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>boolean</TYPE>
             <DEFAULT>false</DEFAULT>

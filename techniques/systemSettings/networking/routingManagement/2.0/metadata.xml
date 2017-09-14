@@ -44,7 +44,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="IPv4 routing parameters" multivalued="true" component="true" componentKey="ROUTING_FOUR_DESTINATION">
       <INPUT>
         <NAME>ROUTING_FOUR_DESTINATION</NAME>
-        <DESCRIPTION>Route destination network/host</DESCRIPTION>
+        <DESCRIPTION>Destination network or host</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
           <REGEX error="Please enter a valid IP address">\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b</REGEX>
@@ -52,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>ROUTING_FOUR_NETMASK</NAME>
-        <DESCRIPTION>Route mask</DESCRIPTION>
+        <DESCRIPTION>Netmask</DESCRIPTION>
         <LONGDESCRIPTION>Please input a netmask in dotted quad notation (eg. 255.255.255.0), for a single host, it will be 255.255.255.255.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
@@ -61,7 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>ROUTING_FOUR_GATEWAY</NAME>
-        <DESCRIPTION>Route destination</DESCRIPTION>
+        <DESCRIPTION>Gateway</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
           <REGEX error="Please enter a valid IP address">\b(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\b</REGEX>

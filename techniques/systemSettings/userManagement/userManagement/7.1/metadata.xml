@@ -49,11 +49,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Users" multivalued="true" component="true" componentKey="USERGROUP_USER_LOGIN">
       <INPUT>
         <NAME>USERGROUP_USER_LOGIN</NAME>
-        <DESCRIPTION>Login name for this account</DESCRIPTION>
+        <DESCRIPTION>Login</DESCRIPTION>
+        <LONGDESCRIPTION>Identifier of this account</LONGDESCRIPTION>
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_USER_GROUP</NAME>
-        <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
+        <DESCRIPTION>Primary group (name or number)</DESCRIPTION>
         <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group (at creation only)</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
@@ -61,14 +62,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_USER_NAME</NAME>
-        <DESCRIPTION>Full name for this account</DESCRIPTION>
+        <DESCRIPTION>Full name</DESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
       <SELECT1>
         <NAME>USERGROUP_USER_ACTION</NAME>
-        <DESCRIPTION>Policy to apply on this account</DESCRIPTION>
+        <DESCRIPTION>Policy to apply</DESCRIPTION>
         <ITEM>
           <LABEL>Create / update</LABEL>
           <VALUE>add</VALUE>
@@ -91,7 +92,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>USERGROUP_USER_PASSWORD_POLICY</NAME>
-        <DESCRIPTION>How often do you want to want to check the password</DESCRIPTION>
+        <DESCRIPTION>Password check policy</DESCRIPTION>
         <ITEM>
           <LABEL>At account creation</LABEL>
           <VALUE>oneshot</VALUE>
@@ -106,7 +107,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <INPUT>
         <NAME>USERGROUP_USER_SHELL</NAME>
-        <DESCRIPTION>Shell for this account</DESCRIPTION>
+        <DESCRIPTION>Shell</DESCRIPTION>
         <LONGDESCRIPTION>Will be used only on UNIX systems</LONGDESCRIPTION>
         <CONSTRAINT>
           <DEFAULT>/bin/bash</DEFAULT>
@@ -123,8 +124,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SECTION name="Home directory" component="true" componentKey="USERGROUP_USER_LOGIN">
         <INPUT>
           <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
-          <DESCRIPTION>Use the default home directory</DESCRIPTION>
-          <LONGDESCRIPTION>If not checked, it will set the defined home directory if "Policy to apply to this acocunt" if "Create/Update"</LONGDESCRIPTION>
+          <DESCRIPTION>Default home directory</DESCRIPTION>
+          <LONGDESCRIPTION>If not checked, it will set the defined home directory only if "Policy to apply" is "Create/Update"</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>boolean</TYPE>
             <DEFAULT>true</DEFAULT>
@@ -150,7 +151,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SECTION name="Password" component="true" componentKey="USERGROUP_USER_LOGIN">
         <INPUT>
           <NAME>USERGROUP_USER_PASSWORD</NAME>
-          <DESCRIPTION>Password for this account</DESCRIPTION>
+          <DESCRIPTION>Password</DESCRIPTION>
           <CONSTRAINT>
             <MAYBEEMPTY>true</MAYBEEMPTY>
             <TYPE>masterPassword</TYPE>

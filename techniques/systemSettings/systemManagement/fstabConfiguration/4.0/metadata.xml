@@ -42,17 +42,18 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Mountpoint" multivalued="true">
       <SELECT1>
         <NAME>FSTAB_ALTERONLY</NAME>
-        <DESCRIPTION>Do you want to add the entry if missing, alter it only or delete it</DESCRIPTION>
+        <DESCRIPTION>Mountpoint state</DESCRIPTION>
+        <LONGDESCRIPTION>Do you want to add the entry if missing, alter it only or delete it</LONGDESCRIPTION>
         <ITEM>
-          <LABEL>Add</LABEL>
+          <LABEL>Present (create if absent)</LABEL>
           <VALUE>false</VALUE>
         </ITEM>
         <ITEM>
-          <LABEL>Alter only</LABEL>
+          <LABEL>Up to date (do not create if absent)</LABEL>
           <VALUE>true</VALUE>
         </ITEM>
         <ITEM>
-          <LABEL>Delete</LABEL>
+          <LABEL>Absent (delete if present)</LABEL>
           <VALUE>delete</VALUE>
         </ITEM>
         <CONSTRAINT>
@@ -62,13 +63,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
       <SELECT1>
         <NAME>FSTAB_MOUNT_SELECTOR</NAME>
-        <DESCRIPTION>Use the Origin or the Destination as reference</DESCRIPTION>
+        <DESCRIPTION>Use the Specification Target as reference</DESCRIPTION>
         <ITEM>
-          <LABEL>Origin</LABEL>
+          <LABEL>Specification</LABEL>
           <VALUE>origin</VALUE>
         </ITEM>
         <ITEM>
-          <LABEL>Destination</LABEL>
+          <LABEL>Target</LABEL>
           <VALUE>destination</VALUE>
         </ITEM>
         <CONSTRAINT>
@@ -78,26 +79,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
       <INPUT>
         <NAME>FSTAB_ORIGIN</NAME>
-        <DESCRIPTION>Mountpoint origin</DESCRIPTION>
+        <DESCRIPTION>Specification</DESCRIPTION>
+        <LONGDESCRIPTION>Block special device or remote filesystem to be mounted.</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
-          <REGEX error="Can't use space in the origin">[^\s]*</REGEX>
+          <REGEX error="Can't use space in the specification">[^\s]*</REGEX>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>FSTAB_DESTINATION</NAME>
-        <DESCRIPTION>Mountpoint destination</DESCRIPTION>
+        <DESCRIPTION>Target</DESCRIPTION>
       </INPUT>
       <INPUT>
         <NAME>FSTAB_FILESYSTEM</NAME>
-        <DESCRIPTION>Mountpoint filesystem</DESCRIPTION>
+        <DESCRIPTION>Filesystem type</DESCRIPTION>
         <CONSTRAINT>
           <DEFAULT>ext3</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <SELECT1>
         <NAME>FSTAB_DEFAULTS</NAME>
-        <DESCRIPTION>Do you want to use the filesystem defaults ("defaults")</DESCRIPTION>
+        <DESCRIPTION>Use the filesystem default options ("defaults")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>defaults</VALUE>
@@ -113,7 +115,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_ASYNC</NAME>
-        <DESCRIPTION>Should all the operations on the filesystem be asynchronous ("async")</DESCRIPTION>
+        <DESCRIPTION>Asynchronous operations ("async")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>async</VALUE>
@@ -133,7 +135,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_ATIME</NAME>
-        <DESCRIPTION>Should every access on a file update its last access inode access time ("atime/relatime/noatime")</DESCRIPTION>
+        <DESCRIPTION>Update inode access time on access ("atime/relatime/noatime")</DESCRIPTION>
         <LONGDESCRIPTION>If set to "No", there is a fair chance that your incremental backup sofware will fail. "Only if modified" is recommended</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
@@ -158,8 +160,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_NOAUTO</NAME>
-        <DESCRIPTION>Should the filesystem be allowed to be mounted automatically ("auto")</DESCRIPTION>
-        <LONGDESCRIPTION>When enabled, the filesystem will mount automatically on boot</LONGDESCRIPTION>
+        <DESCRIPTION>Automatically mount at boot ("auto")</DESCRIPTION>
+        <LONGDESCRIPTION>When enabled, the filesystem will mount automatically at boot</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>auto</VALUE>
@@ -179,7 +181,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_DEV</NAME>
-        <DESCRIPTION>Should the filesystem allow special devices nodes to be interpreted ("dev")</DESCRIPTION>
+        <DESCRIPTION>Allow devices nodes in filesystem ("dev")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>dev</VALUE>
@@ -199,7 +201,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_EXEC</NAME>
-        <DESCRIPTION>Should the filesystem allow binaries to execute ("exec")</DESCRIPTION>
+        <DESCRIPTION>Allow binaries to be executed ("exec")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>exec</VALUE>
@@ -219,7 +221,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_SUID</NAME>
-        <DESCRIPTION>Should the filesystem honor suid or sgid bits ("suid")</DESCRIPTION>
+        <DESCRIPTION>Honor suid and sgid bits ("suid")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>suid</VALUE>
@@ -239,7 +241,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_USER</NAME>
-        <DESCRIPTION>Should any user be allowed to mount the filesystem ("user")</DESCRIPTION>
+        <DESCRIPTION>Allow users to mount the filesystem ("user")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>user</VALUE>
@@ -259,7 +261,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_USERS</NAME>
-        <DESCRIPTION>Should every user be allowed to mount the filesystem ("users")</DESCRIPTION>
+        <DESCRIPTION>Allow any user to unmount the filesystem ("users")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>users</VALUE>
@@ -274,8 +276,25 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </SELECT1>
       <SELECT1>
+        <NAME>FSTAB_OWNER</NAME>
+        <DESCRIPTION>Allow the device owner to mount the filesystem ("owner")</DESCRIPTION>
+        <LONGDESCRIPTION>This option is Linux specific, it will NOT work on other UNIXes</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>owner</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE></VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT></DEFAULT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
         <NAME>FSTAB_GROUP</NAME>
-        <DESCRIPTION>Allow an ordinary (i.e., non-root) user to mount the file system if one of his groups matches the group of the device ("group")</DESCRIPTION>
+        <DESCRIPTION>Allow users in the device owner group to mount the filesystem ("group")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>group</VALUE>
@@ -295,7 +314,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_MAND</NAME>
-        <DESCRIPTION>Should the filesystem allow mandatory locks ("mand")</DESCRIPTION>
+        <DESCRIPTION>Allow mandatory locks ("mand")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>mand</VALUE>
@@ -315,7 +334,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_NETDEV</NAME>
-        <DESCRIPTION>Should the filesystem be mounted only after network interfaces ("_netdev")</DESCRIPTION>
+        <DESCRIPTION>Wait for network interfaces before mounting ("_netdev")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>_netdev</VALUE>
@@ -330,25 +349,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </SELECT1>
       <SELECT1>
-        <NAME>FSTAB_OWNER</NAME>
-        <DESCRIPTION>Should the owner of the mountpoint origin be allowed to mount the filesystem ("owner")</DESCRIPTION>
-        <LONGDESCRIPTION>This option is Linux specific, it will NOT work on other UNIXes</LONGDESCRIPTION>
-        <ITEM>
-          <LABEL>Yes</LABEL>
-          <VALUE>owner</VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>No</LABEL>
-          <VALUE></VALUE>
-        </ITEM>
-        <CONSTRAINT>
-          <DEFAULT></DEFAULT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </SELECT1>
-      <SELECT1>
         <NAME>FSTAB_READWRITE</NAME>
-        <DESCRIPTION>Should the filesystem be mounted read-only ("ro")</DESCRIPTION>
+        <DESCRIPTION>Mount read-only ("ro")</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>ro</VALUE>
@@ -372,7 +374,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <SELECT1>
         <NAME>FSTAB_DUMP</NAME>
-        <DESCRIPTION>Should the filesystem be dumpable via dump(8)</DESCRIPTION>
+        <DESCRIPTION>Allow filesystem backup dump(8)</DESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>1</VALUE>
@@ -387,7 +389,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>FSTAB_FSCKORDER</NAME>
-        <DESCRIPTION>Which order should be applied for the boot time fsck if required</DESCRIPTION>
+        <DESCRIPTION>Fsck check order</DESCRIPTION>
         <LONGDESCRIPTION>This value should be 1 for a root filesystem and 2 for any other one</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Disabled</LABEL>
