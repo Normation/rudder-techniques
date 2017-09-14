@@ -54,7 +54,6 @@ function check_usergroup_user_parameters {
             #Checking password at creation only
             $login_name = $logins[$i]
             $class_name = "users_${login_name}_repaired"
-            write-host $class_name
             if ($local_classes["classes"].contains($class_name)) {
               #User absent => setting password
               $local_classes = Merge-ClassContext $local_classes $(User-Password-Clear -login $logins[$i] -password $passwords[$i] -ReportId $trackingkey[$i] -componentName $passwdSection -TechniqueName $techniqueName -auditOnly:$auditOnly)
