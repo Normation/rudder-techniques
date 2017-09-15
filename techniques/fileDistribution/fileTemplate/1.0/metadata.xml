@@ -6,14 +6,25 @@
   </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
 
+  <AGENT type="dsc">
+    <BUNDLES>
+      <NAME>fileTemplate</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="fileTemplate.ps1">
+        <OUTPATH>fileTemplate/1.0/fileTemplate.ps1</OUTPATH>
+      </TML>
+    </TMLS>
+  </AGENT>
 
-  <TMLS>
-    <TML name="fileTemplate"/>
-  </TMLS>
-
-  <BUNDLES>
-    <NAME>fileTemplate</NAME>
-  </BUNDLES>
+  <AGENT type="cfengine-community">
+    <BUNDLES>
+      <NAME>fileTemplate</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="fileTemplate"/>
+    </TMLS>
+  </AGENT>
 
   <TRACKINGVARIABLE>
     <SAMESIZEAS>FILE_TEMPLATE_AGENT_DESTINATION_PATH</SAMESIZEAS>
@@ -75,80 +86,72 @@
           </CONSTRAINT>
         </INPUT>
 
-        <SELECT1>
-          <NAME>FILE_TEMPLATE_TEMPLATE_TYPE</NAME>
-          <DESCRIPTION>Template type</DESCRIPTION>
-          <ITEM>
-            <VALUE>mustache</VALUE>
-            <LABEL>mustache</LABEL>
-          </ITEM>
-          <ITEM>
-            <VALUE>jinja2</VALUE>
-            <LABEL>jinja2</LABEL>
-          </ITEM>
 
-          <CONSTRAINT>
-            <DEFAULT>mustache</DEFAULT>
-          </CONSTRAINT>
-        </SELECT1>
+        <SECTION name="UNIX specific options" multivalued="false" component="false">
+          <SELECT1>
+            <NAME>FILE_TEMPLATE_TEMPLATE_TYPE</NAME>
+            <DESCRIPTION>Template type</DESCRIPTION>
+            <ITEM>
+              <VALUE>mustache</VALUE>
+              <LABEL>mustache</LABEL>
+            </ITEM>
+            <ITEM>
+              <VALUE>jinja2</VALUE>
+              <LABEL>jinja2</LABEL>
+            </ITEM>
 
-        <INPUT>
-          <NAME>FILE_TEMPLATE_OWNER</NAME>
-          <DESCRIPTION>File owner</DESCRIPTION>
-          <CONSTRAINT>
-            <DEFAULT>root</DEFAULT>
-            <MAYBEEMPTY>false</MAYBEEMPTY>
-            <TYPE>string</TYPE>
-          </CONSTRAINT>
-        </INPUT>
+            <CONSTRAINT>
+              <DEFAULT>mustache</DEFAULT>
+            </CONSTRAINT>
+          </SELECT1>
 
-        <INPUT>
-          <NAME>FILE_TEMPLATE_GROUP_OWNER</NAME>
-          <DESCRIPTION>File group</DESCRIPTION>
-          <CONSTRAINT>
-            <DEFAULT>root</DEFAULT>
-            <MAYBEEMPTY>false</MAYBEEMPTY>
-            <TYPE>string</TYPE>
-          </CONSTRAINT>
-        </INPUT>
+          <INPUT>
+            <NAME>FILE_TEMPLATE_OWNER</NAME>
+            <DESCRIPTION>File owner</DESCRIPTION>
+            <CONSTRAINT>
+              <DEFAULT>root</DEFAULT>
+              <MAYBEEMPTY>false</MAYBEEMPTY>
+              <TYPE>string</TYPE>
+            </CONSTRAINT>
+          </INPUT>
 
-        <INPUT>
-          <NAME>FILE_TEMPLATE_PERMISSIONS</NAME>
-          <DESCRIPTION>File mode</DESCRIPTION>
-          <CONSTRAINT>
-            <MAYBEEMPTY>false</MAYBEEMPTY>
-            <DEFAULT>700</DEFAULT>
-            <TYPE>perm</TYPE>
-          </CONSTRAINT>
-        </INPUT>
+          <INPUT>
+            <NAME>FILE_TEMPLATE_GROUP_OWNER</NAME>
+            <DESCRIPTION>File group</DESCRIPTION>
+            <CONSTRAINT>
+              <DEFAULT>root</DEFAULT>
+              <MAYBEEMPTY>false</MAYBEEMPTY>
+              <TYPE>string</TYPE>
+            </CONSTRAINT>
+          </INPUT>
 
-        <INPUT>
-          <NAME>FILE_TEMPLATE_TEMPLATE_POST_HOOK_COMMAND</NAME>
-          <DESCRIPTION>Command(s) to run after any modification made on the destination file</DESCRIPTION>
-          <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
-          <CONSTRAINT>
-            <MAYBEEMPTY>true</MAYBEEMPTY>
-            <TYPE>string</TYPE>
-          </CONSTRAINT>
-        </INPUT>
+          <INPUT>
+            <NAME>FILE_TEMPLATE_PERMISSIONS</NAME>
+            <DESCRIPTION>File mode</DESCRIPTION>
+            <CONSTRAINT>
+              <MAYBEEMPTY>false</MAYBEEMPTY>
+              <DEFAULT>700</DEFAULT>
+              <TYPE>perm</TYPE>
+            </CONSTRAINT>
+          </INPUT>
+          <SELECT1>
+            <NAME>FILE_TEMPLATE_PERSISTENT_POST_HOOK</NAME>
+            <DESCRIPTION>Retry hook on error</DESCRIPTION>
+            <ITEM>
+              <VALUE>true</VALUE>
+              <LABEL>Yes</LABEL>
+            </ITEM>
+            <ITEM>
+              <VALUE>false</VALUE>
+              <LABEL>False</LABEL>
+            </ITEM>
 
-        <SELECT1>
-          <NAME>FILE_TEMPLATE_PERSISTENT_POST_HOOK</NAME>
-          <DESCRIPTION>Retry hook on error</DESCRIPTION>
-          <ITEM>
-            <VALUE>true</VALUE>
-            <LABEL>Yes</LABEL>
-          </ITEM>
-          <ITEM>
-            <VALUE>false</VALUE>
-            <LABEL>False</LABEL>
-          </ITEM>
-
-          <CONSTRAINT>
-            <DEFAULT>true</DEFAULT>
-            <MAYBEEMPTY>false</MAYBEEMPTY>
-          </CONSTRAINT>
-        </SELECT1>
+            <CONSTRAINT>
+              <DEFAULT>true</DEFAULT>
+              <MAYBEEMPTY>false</MAYBEEMPTY>
+            </CONSTRAINT>
+          </SELECT1>
+        </SECTION>
 
         <SECTION name="Expand template" multivalued="false" component="true" componentKey="FILE_TEMPLATE_AGENT_DESTINATION_PATH">
         </SECTION>
@@ -157,6 +160,15 @@
         </SECTION>
 
         <SECTION name="Posthook" multivalued="false" component="true" componentKey="FILE_TEMPLATE_AGENT_DESTINATION_PATH">
+          <INPUT>
+            <NAME>FILE_TEMPLATE_TEMPLATE_POST_HOOK_COMMAND</NAME>
+            <DESCRIPTION>Command(s) to run after any modification made on the destination file</DESCRIPTION>
+            <LONGDESCRIPTION>List of shell-compatible statements to be executed. Multiple commands may be specified on separate lines.</LONGDESCRIPTION>
+            <CONSTRAINT>
+              <MAYBEEMPTY>true</MAYBEEMPTY>
+              <TYPE>string</TYPE>
+            </CONSTRAINT>
+          </INPUT>
         </SECTION>
 
         <SECTION name="Templates location" multivalued="false" component="true" componentKey="FILE_TEMPLATE_AGENT_DESTINATION_PATH">
