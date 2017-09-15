@@ -129,10 +129,14 @@ bundle agent doInventory_always
 bundle agent download_server_uuid
 {
   vars:
+    SuSE_11|SuSE_10::
+      "curl_tlsv1" string => "";
+    !(SuSE_11|SuSE_10)::
+      "curl_tlsv1" string => "-1";
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.rudder_curl} -L -k ${curl_tlsv1} -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # If not, use minicurl instead
     !windows.!curl_installed::
@@ -141,7 +145,7 @@ bundle agent download_server_uuid
 &if(NOVA)&
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k -1 -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k ${curl_tlsv1} -s -f --noproxy '${server_info.cfserved}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 &endif&
 
   methods:
@@ -672,12 +676,16 @@ bundle agent sendInventory
 {
 
   vars:
-
+    SuSE_11|SuSE_10::
+      "curl_tlsv1" string => "";
+    !(SuSE_11|SuSE_10)::
+      "curl_tlsv1" string => "-1";
+    any::
       "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
 
     # If curl is available, use it
     !windows.curl_installed::
-      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -k ${curl_tlsv1} -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
     # If not, use minicurl instead
@@ -688,7 +696,7 @@ bundle agent sendInventory
 &if(NOVA)&
     # On windows, always use curl
     windows::
-      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} -L -k ${curl_tlsv1} -f -s --noproxy '${server_info.cfserved}' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 &endif&
 
