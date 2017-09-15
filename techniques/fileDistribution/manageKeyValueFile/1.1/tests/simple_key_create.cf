@@ -1,0 +1,8 @@
+#!/usr/local/bin/ncf -f
+
+bundle agent init {
+
+  methods:
+    "any" usebundle => file_remove("/tmp/manage-key-value");
+
+}
