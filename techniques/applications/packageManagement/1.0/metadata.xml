@@ -18,7 +18,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>This technique operates on individual packages.
 
   It will ensure that the defined packages are in the desired state (installed or removed) using the appropriate package manager.</DESCRIPTION>
-  
+
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next major version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 4">RHEL / CentOS</OS>
