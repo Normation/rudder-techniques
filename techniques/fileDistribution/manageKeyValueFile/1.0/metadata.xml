@@ -16,6 +16,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <TECHNIQUE name="File content (key/value format)">
   <DESCRIPTION>Manage key-value pairs in a file</DESCRIPTION>
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next major version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS>Every OS</OS>
