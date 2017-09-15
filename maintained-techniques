@@ -26,6 +26,7 @@ fileDistribution/copyGitFile/2.1
 fileDistribution/downloadFile/3.0
 fileDistribution/fileTemplate/1.0
 fileDistribution/manageKeyValueFile/1.0
+fileDistribution/manageKeyValueFile/1.1
 jobScheduling/jobScheduler/1.0
 jobScheduling/jobScheduler/2.0
 system/common/1.0
