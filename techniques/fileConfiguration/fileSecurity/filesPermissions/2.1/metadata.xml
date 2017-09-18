@@ -60,7 +60,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>FILEPERMISSION_RECURSION</NAME>
         <DESCRIPTION>Apply recursively</DESCRIPTION>
-        <DESCRIPTION>If the path is a directory, the permissions will be adjusted recursively</DESCRIPTION>
+        <LONGDESCRIPTION>If the path is a directory, the permissions will be adjusted recursively</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
