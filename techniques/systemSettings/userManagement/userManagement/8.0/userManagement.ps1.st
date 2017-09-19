@@ -33,7 +33,6 @@ function check_usergroup_user_parameters {
     $check_absent   = "checknothere"
 #END
     $componentName  = "Users"
-    $unixSection    = "UNIX specific options"
     $homeSection    = "Home directory"
     $passwdSection  = "Password"
     $resultNAString = "Not applicable"
@@ -100,7 +99,6 @@ function check_usergroup_user_parameters {
 
       #Unix section reporting
       $state = [ComplianceStatus]::result_na
-      $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $unixSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
       $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $homeSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
     }
 }
