@@ -22,8 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
     <OS version=">= 2003">Windows</OS>
     <OS version=">= 5.3">AIX</OS>
-    <AGENT version=">= 3.5">cfengine-community</AGENT>
-    <AGENT version=">= 3.6">cfengine-enterprise</AGENT>
   </COMPATIBLE>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>

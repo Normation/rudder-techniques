@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>

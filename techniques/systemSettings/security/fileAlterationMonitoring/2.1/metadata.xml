@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <COMPATIBLE>
     <OS>Every OS</OS>
-    <AGENT version=">= 3.6.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>

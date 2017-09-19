@@ -20,7 +20,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <COMPATIBLE>
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
-    <AGENT version=">= 3.5.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>

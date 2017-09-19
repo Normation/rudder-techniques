@@ -18,8 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>This technique will check if the required Message Of The Day is present on the system.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related, Windows">UNIX, Windows</OS>
-    <AGENT version=">= 3.5.3">cfengine-community</AGENT>
-    <AGENT version=">= 3.6.0">cfengine-enterprise</AGENT>
   </COMPATIBLE>
 
   <MULTIINSTANCE>false</MULTIINSTANCE>
