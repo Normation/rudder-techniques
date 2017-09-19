@@ -135,7 +135,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </CONSTRAINT>
         </INPUT>
       </SECTION>
-    <SECTION name="UNIX specific options" multivalued="false" component="true" componentKey="USERGROUP_USER_LOGIN" displayPriority="low">
+    <SECTION name="UNIX specific options" multivalued="false" component="false" componentKey="USERGROUP_USER_LOGIN" displayPriority="low">
       <INPUT>
         <NAME>USERGROUP_USER_GROUP</NAME>
         <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
