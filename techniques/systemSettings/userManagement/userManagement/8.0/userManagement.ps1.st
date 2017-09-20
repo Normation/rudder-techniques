@@ -57,7 +57,11 @@ function check_usergroup_user_parameters {
               #User absent => setting password
               $local_classes = Merge-ClassContext $local_classes $(User-Password-Clear -login $logins[$i] -password $passwords[$i] -ReportId $trackingkey[$i] -componentName $passwdSection -TechniqueName $techniqueName -auditOnly:$auditOnly)
             } else {
-              $state = [ComplianceStatus]::result_na
+              if ($auditOnly) {
+                $state = [ComplianceStatus]::audit_na
+              } else { 
+                $state = [ComplianceStatus]::result_na
+              }
               $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $passwdSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
             }
           }
@@ -73,11 +77,19 @@ function check_usergroup_user_parameters {
         $TestResult = $LastExitCode -eq 0
         if ($TestResult) {
           #User exists
-          $state = [ComplianceStatus]::result_success
+          if ($auditOnly) { 
+            $state = [ComplianceStatus]::audit_compliant
+          } else { 
+            $state = [ComplianceStatus]::result_success
+          }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
         } else {
           #User does not exists
-          $state = [ComplianceStatus]::result_error
+          if ($auditOnly) { 
+            $state = [ComplianceStatus]::audit_noncompliant
+          } else { 
+            $state = [ComplianceStatus]::result_error
+          }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
         }
 
@@ -87,18 +99,30 @@ function check_usergroup_user_parameters {
         $TestResult = $LastExitCode -eq 0
         if ($TestResult) {
           #User exists
-          $state = [ComplianceStatus]::result_error
+          if ($auditOnly) { 
+            $state = [ComplianceStatus]::audit_noncompliant
+          } else { 
+            $state = [ComplianceStatus]::result_error
+          }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
         } else {
           #User does not exists
-          $state = [ComplianceStatus]::result_success
+          if ($auditOnly) { 
+            $state = [ComplianceStatus]::audit_compliant
+          } else { 
+            $state = [ComplianceStatus]::result_success
+          }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
         }
 #END
       }
 
       #Unix section reporting
-      $state = [ComplianceStatus]::result_na
+      if ($auditOnly) { 
+        $state = [ComplianceStatus]::audit_na
+      } else { 
+        $state = [ComplianceStatus]::result_na
+      }
       $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $homeSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
     }
 }
