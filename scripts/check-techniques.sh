@@ -85,10 +85,10 @@ then
   EXIT=1
 fi
 
-# Check that techniques do not contain $()
+# Check that techniques do not contain $() (except for line containing powershell command)
 ${REPOSITORY_PATH}/scripts/technique-files -l -i -f '*.cf' -f '*.st' -s 'echo {}|grep -v ".ps1.st$"' "${REPOSITORY_PATH}" | while read filename
 do
-  if grep '$(' "${filename}" >/dev/null; then
+  if grep '$(' "${filename}" | grep -v "powershell" >/dev/null; then
     echo "The file ${filename} contains deprecated \$() syntax"
     exit 1
   fi

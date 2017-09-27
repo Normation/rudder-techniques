@@ -32,7 +32,8 @@ bundle agent get_environment_variables
     # will be available using the syntax ${node.env[ENV_NAME]}
     windows::
       "script" string => "@echo off
-for /F  \"tokens=1,2* delims==\" %%G IN ('SET') DO ECHO =node.env[%%G]=%%H";
+c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"Get-ChildItem env: | ForEach { Write-Host \\\"=node.env[$($_.name -replace '[^^A-Z0-9_]','_')]=$($_.value)\\\" }\"";
+
 
   files:
     windows::
