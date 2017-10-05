@@ -189,7 +189,7 @@ bundle agent fusionAgent
   vars:
     SuSE.xen_dom0::
       "xen_tools_package" string => "xen-tools";
-    SuSE.xen_domu_pv::
+    SuSE.(xen_domu_pv|xen_domu_hv)::
       "xen_tools_package" string => "xen-tools-domU";
     debian::
       "xen_tools_package" string => "xenstore-utils";
@@ -471,7 +471,7 @@ bundle agent addInformationsToInventory
       "users"          slist => { readstringlist("${inventory.UserListFile}","#.*","[\n| |\r]",10,4000) };
 
 
-    xen.SuSE.xen_domu_pv::
+    xen.SuSE.(xen_domu_pv|xen_domu_hv)::
       "VMRUDDERUUID_cmd" string => "/bin/xenstore-read vm";
 
     xen.(centos|redhat|(SuSE.xen_dom0))::
