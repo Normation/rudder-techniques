@@ -71,8 +71,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </INPUT>
         <INPUT>
           <NAME>COPYFILE_DESTINATION</NAME>
-          <DESCRIPTION>Full path of the destination file or directory</DESCRIPTION>
-        <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node</LONGDESCRIPTION>
+          <DESCRIPTION>Full path of the destination file or directory (on which permissions defined below will be applied)</DESCRIPTION>
+          <LONGDESCRIPTION>This is the absolute path of the file/directory on the managed node. If you are copying a file, the destination
+path needs to contain the destination filename. The permissions defined below will be applied on the whole content of the destination, including files that were not copied.</LONGDESCRIPTION>
         </INPUT>
       </SECTION>
 
@@ -183,21 +184,21 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
         <INPUT>
           <NAME>COPYFILE_OWNER</NAME>
-          <DESCRIPTION>File owner</DESCRIPTION>
+          <DESCRIPTION>File or whole direcotory content owner</DESCRIPTION>
           <CONSTRAINT>
             <DEFAULT>root</DEFAULT>
           </CONSTRAINT>
         </INPUT>
         <INPUT>
           <NAME>COPYFILE_GROUP</NAME>
-          <DESCRIPTION>File group</DESCRIPTION>
+	  <DESCRIPTION>File or whole direcotory content group</DESCRIPTION>
           <CONSTRAINT>
             <DEFAULT>root</DEFAULT>
           </CONSTRAINT>
         </INPUT>
         <INPUT>
           <NAME>COPYFILE_PERM</NAME>
-          <DESCRIPTION>File mode</DESCRIPTION>
+          <DESCRIPTION>File or whole direcotory content mode</DESCRIPTION>
           <CONSTRAINT>
             <TYPE>perm</TYPE>
             <DEFAULT>640</DEFAULT>
