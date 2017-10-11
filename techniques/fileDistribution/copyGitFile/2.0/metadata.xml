@@ -81,8 +81,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </SECTION>
       <INPUT>
         <NAME>COPYFILE_DESTINATION</NAME>
-        <DESCRIPTION>Full path of destination file or directory</DESCRIPTION>
-      <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node</LONGDESCRIPTION>
+        <DESCRIPTION>Full path of destination file or directory (on which permissions defined below will be applied)</DESCRIPTION>
+        <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node. If you are copying a file, the destination
+path needs to contain the destination filename. The permissions defined below will be applied on the whole content of the destination, including files that were not copied.</LONGDESCRIPTION>
       </INPUT>
       <SELECT1>
         <NAME>COPYFILE_RECURSION</NAME>
@@ -161,21 +162,24 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
       <INPUT>
         <NAME>COPYFILE_OWNER</NAME>
-        <DESCRIPTION>Owner of the file</DESCRIPTION>
+        <DESCRIPTION>Owner of the file or whole directory content</DESCRIPTION>
+        <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
         <CONSTRAINT>
           <DEFAULT>root</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>COPYFILE_GROUP</NAME>
-        <DESCRIPTION>Group of the file</DESCRIPTION>
+        <DESCRIPTION>Group of the file or whole directory content</DESCRIPTION>
+        <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
         <CONSTRAINT>
           <DEFAULT>root</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>COPYFILE_PERM</NAME>
-        <DESCRIPTION>Permissions to apply on the file</DESCRIPTION>
+        <DESCRIPTION>Permissions to apply on the file or whole directory content</DESCRIPTION>
+        <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>perm</TYPE>
           <DEFAULT>644</DEFAULT>
