@@ -33,6 +33,9 @@ bundle agent check_usergroup_user_parameters
     &USERGROUP_USER_GROUP:{group |"usergroup_user_groupname[&i&]" string => "&group&";
 }&
 
+    &USERGROUP_FORCE_USER_GROUP:{force_group |"usergroup_force_user_groupname[&i&]" string => "&force_group&";
+}&
+
     &USERGROUP_USER_NAME:{name |"usergroup_user_fullname[&i&]" string => "&name&";
 }&
 
@@ -123,6 +126,13 @@ bundle agent check_usergroup_user_parameters
       "usermanagement_user_move_home_dir_from[${usergroup_user_index}]" string => execresult("${paths.grep} '^${usergroup_user_login[${usergroup_user_index}]}:' /etc/passwd | ${paths.cut} -d: -f6", "useshell"),
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}";
 
+      # Get current user gid (or name) to compare it with the setted on, if we need to force it
+      "user_current_gid[${usergroup_user_index}]"   string => execresult("/usr/bin/id -g ${usergroup_user_login[${usergroup_user_index}]}", "noshell"),
+                                                ifvarclass => "usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_group_is_gid_${usergroup_user_index}";
+
+      "user_current_gid[${usergroup_user_index}]"   string => execresult("/usr/bin/id -g -n ${usergroup_user_login[${usergroup_user_index}]}", "noshell"),
+                                                ifvarclass => "usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.!usermanagement_user_group_is_gid_${usergroup_user_index}";
+
 
   classes:
 
@@ -173,6 +183,15 @@ bundle agent check_usergroup_user_parameters
       "usermanagement_user_group_no_value_${usergroup_user_index}" expression =>  strcmp("", "${usergroup_user_groupname[${usergroup_user_index}]}");
       "usermanagement_user_groupempty_${usergroup_user_index}"     expression => "usermanagement_user_group_no_variable_${usergroup_user_index}|usermanagement_user_group_no_value_${usergroup_user_index}";
 
+
+      # check if user set a gid or a group name
+      "usermanagement_user_group_is_gid_${usergroup_user_index}"   expression => regcmp("[0-9]+", "usergroup_user_fullname[${usergroup_user_index}]"),
+                                                                   ifvarclass => "!usermanagement_user_groupempty_${usergroup_user_index}";
+
+      "usermanagement_force_user_group_${usergroup_user_index}"    expression =>  strcmp("true", "${usergroup_force_user_groupname[${usergroup_user_index}]}");
+      "usermanagement_force_user_group_defined_${usergroup_user_index}" expression => "usermanagement_force_user_group_${usergroup_user_index}.!usermanagement_user_groupempty_${usergroup_user_index}";
+
+
       "usermanagement_user_uid_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_uid[${usergroup_user_index}]");
       "usermanagement_user_uid_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_uid[${usergroup_user_index}]}");
       "usermanagement_user_uid_empty_${usergroup_user_index}"     expression => "usermanagement_user_uid_no_variable_${usergroup_user_index}|usermanagement_user_uid_no_value_${usergroup_user_index}";
@@ -208,6 +227,13 @@ bundle agent check_usergroup_user_parameters
       # - we asked to personnalize, and the values are valid
       "usermanagement_user_current_home_is_invalid_${usergroup_user_index}" not => strcmp("${usermanagement_user_move_home_dir_from[${usergroup_user_index}]}", "${usergroup_user_home[${usergroup_user_index}]}"),
          ifvarclass => "usermanagement_user_current_home_defined_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_home_pershome_invalid_${usergroup_user_index}";
+
+     # check if we need to change the user GID
+     # We need to change it if:
+     # usermanagement_force_user_group_defined and user_current_gid is different from usergroup_user_groupname
+     # if usermanagement_force_user_group but not usermanagement_force_user_group_defined, we'll need to report an error (cannot set to no group)
+     "usermanagement_user_current_group_is_invalid_${usergroup_user_index}" not => strcmp("${user_current_gid[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}"),
+         ifvarclass => "usermanagement_force_user_group_defined_${usergroup_user_index}";
 
 
     any::
@@ -296,9 +322,18 @@ bundle agent check_usergroup_user_parameters
     pass3.showtime::
 
       # Add user
-      ## Does exist (Success)
+      ## Does exist (Success), and gid not requested to be changed
       "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).!usermanagement_force_user_group_${usergroup_user_index}";
+
+      ## Does exist (Success), and gid already correct
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.!usermanagement_user_current_group_is_invalid_${usergroup_user_index})";
+
+      ## Does exist (Success), with a wrong gid
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system, but had the wrong gid"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_repaired)";
+
 
       ## Seems to exist with a wrong Full Name (Repaired)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) had a wrong fullname"),
@@ -323,6 +358,15 @@ bundle agent check_usergroup_user_parameters
       ## Could not be added, as a custom uid was asked for and did exist on the system
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the custom uid \"${usergroup_user_uid[${usergroup_user_index}]}\" already exists"),
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_uid_definition_error_${usergroup_user_index}";
+
+      ## Could not set the gid, as it was requested, but with no gid provided
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not have its gid updated because it was not provided"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_force_user_group_${usergroup_user_index}.usermanagement_user_groupempty_${usergroup_user_index}";
+
+      ## Does exist with a wrong gid that could not be repaired
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system, but with wrong gid that cannot be fixed"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_error)";
+
 
       # Remove user
       ## Does not exist (Success)
@@ -467,6 +511,12 @@ bundle agent check_usergroup_user_parameters
         comment    => "Change home directory definition for user (doesn't move files)",
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.!usermanagement_user_custom_home_move_${usergroup_user_index}";
 
+      ## Change the user gid if necessary
+      "/usr/sbin/usermod"
+        args       => "-g ${usergroup_user_groupname[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
+        classes    => classes_generic("usermanagement_user_gid_change_${usergroup_user_index}"),
+        comment    => "Change user gid for user ${usergroup_user_login[${usergroup_user_index}]}",
+        ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_group_is_invalid_${usergroup_user_index}";
 
 }
 

@@ -58,11 +58,27 @@ It is intended to check the user parameters on the target host.
       <INPUT>
         <NAME>USERGROUP_USER_GROUP</NAME>
         <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
-        <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group (at creation only)</LONGDESCRIPTION>
+        <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
       </INPUT>
+      <SELECT1>
+        <NAME>USERGROUP_FORCE_USER_GROUP</NAME>
+        <DESCRIPTION>Enforce the primary group of the user</DESCRIPTION>
+        <LONGDESCRIPTION>If set to everytime, the user primary group will be checked or updated even if the user alreay exists. The primary group needs to be a GID (and not a group name)</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>At account creation</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Everytime</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
       <INPUT>
         <NAME>USERGROUP_USER_NAME</NAME>
         <DESCRIPTION>Full name for this account</DESCRIPTION>
