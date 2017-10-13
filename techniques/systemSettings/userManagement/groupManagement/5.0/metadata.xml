@@ -67,7 +67,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_GROUP_ENFORCE_CONTENT</NAME>
-        <DESCRIPTION>Set group members</DESCRIPTION>
+        <DESCRIPTION>Enforce only the following users in the group</DESCRIPTION>
         <LONGDESCRIPTION>Group content will be enforced even if you don't specify a user list</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
