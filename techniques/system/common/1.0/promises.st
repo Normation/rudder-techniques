@@ -762,7 +762,7 @@ bundle agent garbage_collection
   methods:
 
        # Directly call the cleanup bundle from ncf's logger_rudder
-       "clean old expected reports files" usebundle => _clean_old_expected_reports_file("&CFENGINE_OUTPUTS_TTL&");
+       "clean old expected reports files" usebundle => _clean_old_expected_reports_file("1");
 
 }
 
