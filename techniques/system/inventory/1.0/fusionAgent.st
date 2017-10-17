@@ -193,7 +193,7 @@ bundle agent fusionAgent
   vars:
     SuSE.xen_dom0::
       "xen_tools_package" string => "xen-tools";
-    SuSE.xen_domu_pv::
+    SuSE.(xen_domu_pv|xen_domu_hv)::
       "xen_tools_package" string => "xen-tools-domU";
     debian::
       "xen_tools_package" string => "xenstore-utils";
@@ -469,6 +469,7 @@ bundle agent addInformationsToInventory
     any::
       "CFKEY"          string => execresult("${CFKEY_cmd}", "noshell");
 
+<<<<<<< HEAD
     # define USER
     windows.!cygwin::
       "USER"           string => getenv("USERNAME", 40);
@@ -502,7 +503,7 @@ bundle agent addInformationsToInventory
 
 
     # define VMRUDDERUUID when we have xen
-    xen.SuSE.xen_domu_pv::
+    xen.SuSE.(xen_domu_pv|xen_domu_hv)::
       "VMRUDDERUUID_cmd" string => "/bin/xenstore-read vm";
     xen.((SuSE.xen_dom0)|centos|redhat)::
       "VMRUDDERUUID_cmd" string => "/usr/bin/xenstore-read vm";
