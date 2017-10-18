@@ -21,7 +21,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>

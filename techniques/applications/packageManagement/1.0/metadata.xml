@@ -26,7 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <OS version=">= 10 SP1">SuSE LES / DES / OpenSuSE</OS>
     <OS version=">= 5">Debian / Ubuntu</OS>
     <OS version=">= 10">FreeBSD</OS>
-    <AGENT version=">= 3.7.0">cfengine-community</AGENT>
+    <AGENT version=">= 4.1.0">rudder</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>

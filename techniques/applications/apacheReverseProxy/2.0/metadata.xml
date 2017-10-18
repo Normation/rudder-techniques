@@ -23,7 +23,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <OS version=">= 5 (Lenny)">Debian</OS>
     <OS version=">= 5 (Tikanga)">RHEL / CentOS</OS>
     <OS version=">= 11 SP1 (Celadon)">SuSE LES / DES / OpenSuSE</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>
