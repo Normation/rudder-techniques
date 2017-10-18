@@ -189,10 +189,11 @@ bundle agent sendInventoryToCmdb
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
+      "disable_upload" expression => fileexists("/opt/rudder/etc/no_inventory_upload");
 
   files:
     # Root server and relay-top send to the endpoint, every other send as usual to their policy server
-    root_server|role_rudder_relay_top::
+    !disable_upload.(root_server|role_rudder_relay_top)::
 
       "${incoming_inventory_files}"
         transformer => "${g.rudder_tools}/send-clean.sh &CMDBENDPOINT& ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
@@ -206,7 +207,7 @@ bundle agent sendInventoryToCmdb
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
-    policy_server.!(root_server|role_rudder_relay_top)::
+    !disable_upload.policy_server.!(root_server|role_rudder_relay_top)::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
@@ -222,7 +223,7 @@ bundle agent sendInventoryToCmdb
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
-    policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_error::
+    !disable_upload.policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_error::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
@@ -242,6 +243,9 @@ bundle agent sendInventoryToCmdb
 
     pass3.(rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Incoming inventories were successfully added to Rudder");
+
+    pass3.disable_upload::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Sending inventories has been disabled");
 
     pass3.rudder_inventory_processing_error::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Some inventories failed to add successfully to Rudder");
