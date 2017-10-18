@@ -469,7 +469,6 @@ bundle agent addInformationsToInventory
     any::
       "CFKEY"          string => execresult("${CFKEY_cmd}", "noshell");
 
-<<<<<<< HEAD
     # define USER
     windows.!cygwin::
       "USER"           string => getenv("USERNAME", 40);
