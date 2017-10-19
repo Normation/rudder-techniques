@@ -21,7 +21,7 @@ bundle common generic_variable_definition
 
   vars:
 
-    &GENERIC_VARIABLE_NAME, GENERIC_VARIABLE_CONTENT:{name, content |"&name&" string => "&content&";
+&GENERIC_VARIABLE_NAME, GENERIC_VARIABLE_CONTENT:{name, content |"&name&" string => "&content&";
 }&
 
 }
