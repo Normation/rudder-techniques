@@ -25,7 +25,7 @@ bundle agent set_vars {
       &SET_VARS_FILE_NAME: {file_name|"files_names[&i&]" string => "&file_name&";}&
 
       #Entries in the text input case, can be a command to execute
-      &SET_VARS_STRING: {entry|"entries[&i&]" string => "&entry&";}&
+&SET_VARS_STRING: {entry|"entries[&i&]" string => "&entry&";}&
 
       #Index
       "index" slist => getindices("complete_names");
