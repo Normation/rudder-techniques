@@ -30,10 +30,6 @@ body common control
         protocol_version   => "2";
 }
 
-body agent control {
-        skipidentify => "&SKIPIDENTIFY&";
-}
-
 bundle common g
 {
   vars:

@@ -18,7 +18,6 @@
   "SHARED_FILES_FOLDER": "/var/rudder/configuration-repository/shared-files",
   "SEND_METRICS": "no",
   "RUDDER_SERVER_ROLES": "rudder-ldap:localhost\nrudder-inventory-endpoint:localhost\nrudder-db:localhost\nrudder-web:localhost\nrudder-relay-top:localhost",
-  "SKIPIDENTIFY": "true",
   "CFENGINE_OUTPUTS_TTL": "7",
   "MODIFIED_FILES_TTL": "30",
   "SKIPIDENTIFY": "true",

@@ -35,33 +35,33 @@ bundle server access_rules
 
     policy_server|role_rudder_relay_promises_only::
       "${def.dir_masterfiles}"
-        handle  => "grant_access_policy",
-        comment => "Grant access to the policy updates",
+        handle    => "grant_access_policy",
+        comment   => "Grant access to the policy updates",
         maproot => {  @{def.acl}  },
-        admit   => {  @{def.acl}  };
+        admit_ips => {  @{def.acl}  };
 
       "${g.rudder_tools}"
         maproot => {  @{def.acl}  },
-        admit   => {  @{def.acl}  };
+        admit_ips => {  @{def.acl}  };
 
 &if(MANAGED_NODES_NAME)&
       "${g.rudder_ncf_origin_common}"
         maproot => {  @{def.acl}  },
-        admit   => {  @{def.acl}  };
+        admit_ips => {  @{def.acl}  };
 
       "${g.rudder_ncf_origin_local}"
         maproot => {  @{def.acl}  },
-        admit   => {  @{def.acl}  };
+        admit_ips => {  @{def.acl}  };
 
       # Deny access to 50_techniques folder
       "${g.rudder_ncf_origin_local}/50_techniques"
-        deny    => {  ".*"  };
+        deny_ips  => {  "0.0.0.0/0"  };
 
       &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
-        comment => "Grant access to the share files",
+        comment   => "Grant access to the share files",
         maproot => {  @{def.acl}  },
-        admit   => {  @{def.acl}  };
+        admit_ips => {  @{def.acl}  };
 
       &endif&
 
@@ -72,38 +72,21 @@ bundle server access_rules
         comment            => "Grant ${query_types} reporting query for the hub on the policy server",
         resource_type      => "query",
         report_data_select => rudder_data_select_policy_hub,
-        admit              => { ${def.policy_server}, @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
+        admit_ips          => { host2ip("${def.policy_server}"), @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
 
   &endif&
 
     any::
-  &if(SKIPIDENTIFY)&
-    &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY: {host, uuid, key |
-      "/var/rudder/share/&uuid&/"
-        maproot    => { string_downcase(escape("&host&"))  },
-        admit      => { string_downcase(escape("&host&"))  },
-        admit_keys => { "&key&" };
-
-      "/var/rudder/shared-files/&uuid&/"
-        maproot    => { string_downcase(escape("&host&"))  },
-        admit      => { string_downcase(escape("&host&"))  },
-        admit_keys => { "&key&" };
-
-    } &
-  &else&
     &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY : {host, uuid, key |
       "/var/rudder/share/&uuid&/"
-        maproot    => { host2ip("&host&"), string_downcase(escape("&host&"))  },
-        admit      => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        maproot => {  @{def.acl}  },
         admit_keys => { "&key&" };
 
       "/var/rudder/shared-files/&uuid&/"
-        maproot    => { host2ip("&host&"), string_downcase(escape("&host&"))  },
-        admit      => { host2ip("&host&"), string_downcase(escape("&host&"))  },
+        maproot => {  @{def.acl}  },
         admit_keys => { "&key&" };
 
     } &
-  &endif&
 
 &endif&
 
@@ -111,11 +94,11 @@ bundle server access_rules
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
     windows::
       "${sys.workdir}\bin\cf-agent.exe"
-        admit   => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+        admit_ips => { host2ip("${server_info.cfserved}") };
 
     !windows::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
-        admit => { host2ip("${server_info.cfserved}"), string_downcase(escape("${server_info.cfserved}")) };
+        admit_ips => { host2ip("${server_info.cfserved}") };
 
 &if(NOVA)&
     enterprise_edition::
@@ -124,7 +107,7 @@ bundle server access_rules
         comment            => "Grant ${query_types} reporting query for the hub on the hosts",
         resource_type      => "query",
         report_data_select => rudder_data_select_host,
-        admit              => { ${def.policy_server}, @{sys.ip_addresses} };
+        admit_ips          => { host2ip("${def.policy_server}"), @{sys.ip_addresses} };
 &endif&
 
   roles:
@@ -159,17 +142,17 @@ bundle common def
 
     policy_server::
       "acl" slist => {
-      "127.0.0.0/8" , "::1",
+        "127.0.0.0/8" , "::1",
 &if(AUTHORIZED_NETWORKS)&
-      host2ip("${def.policy_server}"), # the policy server can connect to a relay
-      &AUTHORIZED_NETWORKS:{net|"&net&",}&
+        host2ip("${def.policy_server}"), # the policy server can connect to a relay
+        &AUTHORIZED_NETWORKS:{net|"&net&",}&
 &endif&
 
     };
 
     !policy_server::
       "acl" slist => {
-      "${def.policy_server}", host2ip("${def.policy_server}")
+        host2ip("${def.policy_server}")
       };
 
 }
@@ -177,75 +160,23 @@ bundle common def
 
 body server control
 {
-&if(SKIPIDENTIFY)&
         trustkeysfrom     => {
           @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          "&it&"};separator=", "&
-          &endif&
-
         }; #trustkey allows the exchange of keys
 
         allowconnects     => {
           @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          "&it&"};separator=", "&
-          &endif&
-
         };
 
         allowallconnects  => {
           @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          "&it&"};separator=", "&
-          &endif&
-
         };
-
-&else&
-        trustkeysfrom     => {
-          @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          host2ip("&it&"), "&it&"};separator=", "&
-          &endif&
-
-        }; #trustkey allows the exchange of keys
-
-        allowconnects     => {
-          @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          host2ip("&it&"), "&it&"};separator=", "&
-          &endif&
-
-        };
-
-
-        allowallconnects  => {
-          @{def.acl} ,
-          &if(MANAGED_NODES_NAME)&
-          &MANAGED_NODES_NAME: {
-          host2ip("&it&"), "&it&"};separator=", "&
-          &endif&
-
-        };
-
-&endif&
 
         maxconnections    => "1000";
         logallconnections => "true";
 
-        allowlegacyconnects => {
-            host2ip("${def.policy_server}"), # the policy server can connect
-            &if(AUTHORIZED_NETWORKS)&
-            &AUTHORIZED_NETWORKS:{net|"&net&",}&
-            &endif&
-
-        };
+        # Disallow old protocol
+        allowlegacyconnects => {};
 
       windows::
         cfruncommand => "${sys.cf_agent} -I -D cfruncommand -f \"failsafe.cf\"  \&

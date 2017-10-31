@@ -900,8 +900,6 @@ body agent control
 
         agentfacility => "LOG_LOCAL6";
 
-        skipidentify => "&SKIPIDENTIFY&";
-
   # Repository where to put the copy of modified files
         default_repository => "${g.rudder_var}/modified-files";
 
