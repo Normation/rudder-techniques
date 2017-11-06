@@ -4,7 +4,7 @@
 #   -Take options in considerations(like perms)
 #   -Reporting
 
-bundle agent fileTemplate {
+bundle agent fileTemplate_RudderUniqueID {
   vars:
       #Tracking key
       &TRACKINGKEY:{key | "trackingkey[&i&]" string => "&key&";}&
@@ -63,7 +63,7 @@ bundle agent fileTemplate {
 
       #Cancel persistent classes
       "cancel" string => "cancel persistence",
-               classes => cancel_all_classes("posthook_rerun_${index}"),
+               classes => cancel_all_classes("posthook_rerun_${index}_RudderUniqueID"),
                ifvarclass => "command_execution_${posthook_canon[${index}]}_ok";
 
   classes:
@@ -78,9 +78,9 @@ bundle agent fileTemplate {
       "posthook_persistent_${index}" expression => strcmp("${persist[${index}]}", "true");
 
       #Check if the posthook is persistent and in error, set up a class for 10000 minutes => about 1 week
-      "posthook_rerun_${index}" expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
-                                     scope => "namespace",
-                                     persistence => "10000";
+      "posthook_rerun_${index}_RudderUniqueID" expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
+                                               scope => "namespace",
+                                               persistence => "10000";
 
   methods:
       #Ensure the templates are in a safe place
@@ -148,7 +148,7 @@ bundle agent fileTemplate {
       usebundle => command_execution(
         "${posthook[${index}]}"
       ),
-      ifvarclass => "posthook_launch_${index}|posthook_rerun_${index}";
+      ifvarclass => "posthook_launch_${index}|posthook_rerun_${index}_RudderUniqueID";
 
 ################################################################################
 #                                    REPORTING                                 # 

@@ -5,6 +5,7 @@
     A limit of 16.383 characters is set for the "template from text" case.
   </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
 
   <AGENT type="dsc">
     <BUNDLES>
@@ -19,7 +20,7 @@
 
   <AGENT type="cfengine-community">
     <BUNDLES>
-      <NAME>fileTemplate</NAME>
+      <NAME>fileTemplate_RudderUniqueID</NAME>
     </BUNDLES>
     <TMLS>
       <TML name="fileTemplate"/>
