@@ -173,7 +173,7 @@ bundle agent propagatePromises
 
 }
 
-# Sending the inventory to cmdb (or syncing with the server if we are a simple relay)
+# Sending the inventory to the Rudder Server (or syncing with the server if we are a simple relay)
 # We cannot use list of paths (i.e. {"incoming", "accepted-nodes-updates"}) to send the inventories because it cause the transformer to fail
 # for some unknown reason, see https://www.rudder-project.org/redmine/issues/4094
 bundle agent sendInventoryToCmdb
@@ -242,31 +242,31 @@ bundle agent sendInventoryToCmdb
   methods:
 
     pass3.(rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Incoming inventories were successfully added to Rudder");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Incoming inventories were successfully added to Rudder");
 
     pass3.disable_upload::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Sending inventories has been disabled");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Sending inventories has been disabled");
 
     pass3.rudder_inventory_processing_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Some inventories failed to add successfully to Rudder");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Some inventories failed to add successfully to Rudder");
 
-    pass3.((root_server|role_rudder_relay_top).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to send");
+    pass3.((root_server|role_rudder_relay_top).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error.!disable_upload)::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "No inventory to send");
 
     pass3.(rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Incoming inventories were successfully relayed to the root server");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Incoming inventories were successfully relayed to the root server");
 
     pass3.rudder_inventory_relay_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Cannot relay some inventories to the root server");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Cannot relay some inventories to the root server");
 
-    pass3.(policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "No inventory to relay");
+    pass3.(policy_server.!(root_server|role_rudder_relay_top).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error.!disable_upload)::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "No inventory to relay");
 
     pass3.(rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "log_info", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Sent incoming inventories were removed from local cache");
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_info", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Sent incoming inventories were removed from local cache");
 
     pass3.rudder_inventory_cleanup_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to CMDB", "None", "Cannot remove incoming inventories from local cache");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Cannot remove incoming inventories from local cache");
 
 }
 
