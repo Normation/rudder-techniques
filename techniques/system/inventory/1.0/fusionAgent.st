@@ -247,39 +247,23 @@ bundle agent fusionAgent
         create => "true";
 &endif&
 
-  packages:
-    xen.!redhat::
-      "${xen_tools_package}"
-        package_policy => "add",
-        package_method => generic,
-        classes        => cf2_if_else("xen_installed", "cant_install_xen"),
-        comment        => "Installing xen package for extended data";
-
-    xen.redhat::
-      "${xen_tools_package}"
-        package_policy => "add",
-        package_method => rudder_yum,
-        classes        => cf2_if_else("xen_installed", "cant_install_xen"),
-        comment        => "Installing xen package for extended data";
-
   methods:
+
+    xen::
+      "any" usebundle => package_present("${xen_tools_package}", "", "", "");
+
     pass3.run_inventory::
       "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Running inventory");
 
     pass3.inventory_failed::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not execute the inventory");
 
-    pass3.cant_install_curl::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install curl");
+    pass3::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install Xen utils on Xen system"),
+           ifvarclass => "package_present_${xen_tools_package}_error";
 
-    pass3.cant_install_ocs::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install ocs");
-
-    pass3.cant_install_xen::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not install Xen utils on Xen system");
-
-    pass3.xen_installed::
-      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Xen utils installed");
+      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Xen utils installed"),
+           ifvarclass => "package_present_${xen_tools_package}_ok";
 
     pass3.curl_installed::
       "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Curl installed");
