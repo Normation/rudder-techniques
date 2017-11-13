@@ -155,6 +155,10 @@ bundle common def
         host2ip("${def.policy_server}")
       };
 
+  classes:
+      "ipv6_enabled" expression => fileexists("/proc/net/if_inet6"),
+                          scope => "namespace";
+
 }
 
 
@@ -198,6 +202,9 @@ body server control
         port => "&COMMUNITYPORT&";
     community_edition.debug_port::
         port => "5310";
+
+    ipv6_enabled::
+        bindtointerface => "::";
 
 }
 
