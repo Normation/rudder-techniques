@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2011-2017 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -32,7 +32,7 @@ bundle agent check_clock_configuration
 
       "target_timezone" string => ifelse( strcmp("&CLOCK_TIMEZONE&", "custom"), "&CLOCK_TIMEZONE_CUSTOM&", "&CLOCK_TIMEZONE&" );
 
-    !windows::
+    !windows.!aix::
       "linux_timezone"   string => "${tz_variables.tz_linux[${target_timezone}]}";
 
     windows::
@@ -54,7 +54,7 @@ bundle agent check_clock_configuration
 
   classes:
 
-    !windows::
+    !windows.!aix::
       "clock_vardef" expression => isvariable("tz_variables.tz_linux[${target_timezone}]");
 
     windows::
@@ -88,7 +88,7 @@ bundle agent check_clock_configuration
         classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
     # Copy the correct localtime file (distro independant)
-    !windows.!clock_timezone_noedit::
+    !windows.!aix.!clock_timezone_noedit::
       "/etc/localtime"
         copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),
         comment => "Updating the /etc/localtime file",
@@ -137,13 +137,18 @@ bundle agent check_clock_configuration
         comment => "Installing xntp using rug";
 
   methods:
+    aix::
+      "start_xntpd" usebundle   => service_ensure_running("xntpd");
 
+    aix.repaired_ntpconf::
+      "restart_xntpd" usebundle => service_restart("xntpd");
 
-    # Global report for the "Time synchronization (NTP)" component - Linux
-    pass3.((ntp_install_kept|(!linux.!windows)).ntpconf_kept.!ntpd_down)::
+    # Global report for the "Time synchronization (NTP)" component
+    pass3.((ntp_install_kept|(!linux.!windows)).ntpconf_kept.!ntpd_down.!service_ensure_running_xntpd_repaired.!service_ensure_running_xntpd_error.!service_restart_xntpd_repaired.!service_restart_xntpd_error)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp daemon installed, configured and running");
 
-    pass3.(ntp_installed|repaired_ntpconf|ntp_restarted)::
+
+    pass3.(ntp_installed|repaired_ntpconf|ntp_restarted|service_ensure_running_xntpd_repaired|service_restart_xntpd_repaired)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp service (package, configuration and/or process) repaired");
 
     # Global report for the "Time synchronization (NTP)" component - Windows
@@ -195,14 +200,17 @@ bundle agent check_clock_configuration
 
 
     # Global reports for the "Time zone" component's parts
+    pass3.aix::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Time zone", "None", "Time zone is not managed on AIX nodes");
+
     pass3.(repaired_localtime|repaired_redhattz|repaired_debiantz|repaired_susetz)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time zone", "None", "Time zone was reset");
 
     pass3.(localtime_kept.((redhat.redhattz_kept)|(debian.debiantz_kept)|(SuSE.susetz_kept)))::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone was already correctly configured");
 
-    pass3.clock_timezone_nochange::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone edition disabled");
+    pass3.clock_timezone_nochange.!aix::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Time zone", "None", "Time zone edition disabled");
 
     pass3.!clock_timezone_nochange.!clock_vardef::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Time zone provided is not valid");
@@ -248,7 +256,10 @@ bundle agent check_clock_configuration
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "SuSE-style time zone parameters already correct (/etc/sysconfig/clock)");
 
     # Global reports for the "Hardware clock (RTC)" component
-    pass3.(!windows.!ntp_hwclock_sync_error.!ntp_hwclock_synced.clock_hwclock_sync)::
+    pass3.aix::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "Hardware clock is not synchronized on AIX");
+
+    pass3.(!windows.!aix.!ntp_hwclock_sync_error.!ntp_hwclock_synced.clock_hwclock_sync)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "It is not yet time to synchronize the hardware clock with the NTP time. Skipping...");
 
     pass3.ntp_hwclock_synced::
@@ -260,8 +271,8 @@ bundle agent check_clock_configuration
     pass3.windows::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "The hardware clock is automatically synchronized with the NTP time on Windows");
 
-    pass3.!clock_hwclock_sync.!windows::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "No synchronization with the hardware clock was requested");
+    pass3.!clock_hwclock_sync.!windows.!aix::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "No synchronization with the hardware clock was requested");
 
   processes:
 
@@ -272,7 +283,7 @@ bundle agent check_clock_configuration
   commands:
 
     # Restart commands
-    !windows.!redhat.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
+    !windows.!redhat.!aix.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
       "/etc/init.d/ntp"
         args => "restart",
         classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
@@ -306,7 +317,7 @@ bundle agent check_clock_configuration
         comment => "Restart the windows NTP service";
 
     # HW clock sync command
-    !windows.clock_hwclock_sync::
+    !windows.!aix.clock_hwclock_sync::
       "/sbin/hwclock"
         args => "--systohc",
         action => if_elapsed("&CLOCK_SYNCSCHED&"),

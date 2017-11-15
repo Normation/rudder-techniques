@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
     <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <OS version=">= 5.3">AIX</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
@@ -69,7 +70,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <SELECT1>
         <NAME>CLOCK_TIMEZONE</NAME>
         <DESCRIPTION>City to define time zone</DESCRIPTION>
-        <LONGDESCRIPTION>This City's Timezone will be used to set the standard on each node.</LONGDESCRIPTION>
+        <LONGDESCRIPTION>This City's Timezone will be used to set the standard on each node. (not available on AIX)</LONGDESCRIPTION>
         <ITEM>
           <VALUE>dontchange</VALUE>
           <LABEL>Don't change</LABEL>
@@ -1880,7 +1881,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>CLOCK_HWSYNC_ENABLE</NAME>
         <DESCRIPTION>Synchronize the system clock periodically with the hardware clock</DESCRIPTION>
-        <LONGDESCRIPTION>Save the system clock to the hardware clock periodically. Can cause problems with Xen DomU's!</LONGDESCRIPTION>
+        <LONGDESCRIPTION>Save the system clock to the hardware clock periodically. Can cause problems with Xen DomU's!. (Not available on AIX)</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>true</DEFAULT>
