@@ -23,15 +23,19 @@ bundle agent root_networks_check
       "policy_server_ip" string => host2ip("${def.policy_server}");
       "policy_server_acl" slist => { "127.0.0.0/8", "::1",  "${policy_server_ip}" };
 
-      "nodes_generate_22"  string => join("${const.n}Allow from ","def.acl");
-      "nodes_generate_24"  string => join("${const.n}Require ip ","def.acl");
-      "policy_server_generate_22"  string => join("${const.n}Allow from ","policy_server_acl");
+      "defacl" slist => filter("0.0.0.0/0", "def.acl", "false", "true", "99999");
+
+      "nodes_acl_22" slist => maplist("Allow from ${this}", "defacl");
+      "nodes_acl_24" slist => maplist("Require ip ${this}", "defacl");
+      "policy_server_acl_22" slist => maplist("Allow from ${this}", "policy_server_acl");
+
+      "nodes_generate_22"  string => join("${const.n}","nodes_acl_22");
+      "nodes_generate_24"  string => join("${const.n}","nodes_acl_24");
+      "policy_server_generate_22"  string => join("${const.n}","policy_server_acl_22");
 
       "network_file[nodes_22]" string => "${g.rudder_base}/etc/rudder-networks.conf";
-      "network_acl[nodes_22]"  string => "Allow from ${nodes_generate_22}";
 
       "network_file[nodes_24]" string => "${g.rudder_base}/etc/rudder-networks-24.conf";
-      "network_acl[nodes_24]"  string => "Require ip ${nodes_generate_24}";
 
       "network_file[policy_server_22]" string => "${g.rudder_base}/etc/rudder-networks-policy-server.conf";
       "network_acl[policy_server_22]"  string => "Allow from ${policy_server_generate_22}";
@@ -40,6 +44,14 @@ bundle agent root_networks_check
       "network_acl[policy_server_24]"  string => "Require local${const.n}Require ip ${policy_server_ip}";
 
       "index"             slist => getindices("network_file");
+
+    has_all_granted::
+      "network_acl[nodes_22]"  string => "Allow from all";
+      "network_acl[nodes_24]"  string => "Require all granted";
+
+    !has_all_granted::
+      "network_acl[nodes_22]"  string => "${nodes_generate_22}";
+      "network_acl[nodes_24]"  string => "${nodes_generate_24}";
 
     redhat::
       "apache_service" string => "httpd";
@@ -52,6 +64,8 @@ bundle agent root_networks_check
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
+
+      "has_all_granted" expression => some("0.0.0.0/0", "def.acl");
 
   files:
 
