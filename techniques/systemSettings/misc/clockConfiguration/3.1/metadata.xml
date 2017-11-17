@@ -1296,7 +1296,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </ITEM>
         <ITEM>
           <VALUE>Etc/GMT</VALUE>
-          <LABEL>Etc/GMT</LABEL>
+          <LABEL>Etc/GMT (UTC)</LABEL>
         </ITEM>
         <ITEM>
           <VALUE>Etc/GMT+1</VALUE>
