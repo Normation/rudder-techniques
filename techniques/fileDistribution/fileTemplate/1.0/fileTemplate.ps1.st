@@ -1,4 +1,4 @@
-function fileTemplate {
+function fileTemplate_RudderUniqueID {
   [CmdletBinding()]
   param (
       [parameter(Mandatory=$true)]  [string]$reportId,
