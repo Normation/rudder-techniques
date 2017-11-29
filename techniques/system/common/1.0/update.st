@@ -372,7 +372,6 @@ bundle agent update_action
        "*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by:                                                        *
-*   * an incorrect DNS resolution of this node                                  *
 *   * an agent key that has been changed                                        *
 *   * if this node is not accepted or deleted node on the Rudder root server    *
 *   * if this node has changed policy server without sending a new inventory    *
