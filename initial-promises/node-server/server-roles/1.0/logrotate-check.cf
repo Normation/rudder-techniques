@@ -48,6 +48,8 @@ bundle agent root_logrotate_check
         string => "reload",
         policy => "overridable";
 
+     "logrotate_duration" string => "30";
+
     ubuntu::
       "syslog_user"             string => "syslog";
 
