@@ -48,6 +48,11 @@ bundle agent root_logrotate_check
         string => "reload",
         policy => "overridable";
 
+    pass1.!duration_configured::
+      "logrotate_duration" string => "30";
+    pass1.duration_configured::
+      "logrotate_duration" string => "${rudder_parameters.log_duration}";
+
     ubuntu::
       "syslog_user"             string => "syslog";
 
@@ -68,8 +73,14 @@ bundle agent root_logrotate_check
 
       "syslog_rotation_method"  string => "rotate";
 
+  classes:
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+      "duration_configured" expression => isvariable("rudder_parameters.log_duration");
+
   files:
 
+    pass2::
       "/etc/logrotate.d/rudder"
         create        => "true",
         edit_defaults => empty_backup,
