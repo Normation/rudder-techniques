@@ -1,4 +1,4 @@
-function copyFileFromSharedFolder {
+function copyFileFromSharedFolder_RudderUniqueID {
   [CmdletBinding()]
   param (
       [parameter(Mandatory=$true)]  [string]$reportId,

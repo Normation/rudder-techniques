@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>This technique ensure that some files are the copy of files on the shared folder of the Rudder Root Server, and let you optionally execute a command if the content of the file was modified</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
@@ -25,9 +26,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <AGENT version=">= 3.2.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
-  <BUNDLES>
-    <NAME>download_from_shared_folder</NAME>
-  </BUNDLES>
+  <AGENT type="dsc">
+    <BUNDLES>
+      <NAME>copyFileFromSharedFolder_RudderUniqueID</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="copyFileFromSharedFolder.ps1">
+        <OUTPATH>copyGitFile/2.1/copyFileFromSharedFolder.ps1</OUTPATH>
+      </TML>
+    
+    </TMLS>
+  </AGENT>
+
+  <AGENT type="cfengine-community">
+    <BUNDLES>
+      <NAME>download_from_shared_folder_RudderUniqueID</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="copyFileFromSharedFolder"/>
+    </TMLS>
+  </AGENT>
 
   <TMLS>
     <TML name="copyFileFromSharedFolder"/>

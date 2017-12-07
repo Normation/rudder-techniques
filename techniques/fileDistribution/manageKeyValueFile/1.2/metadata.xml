@@ -18,13 +18,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 <TECHNIQUE name="Manage keys-values in file">
   <DESCRIPTION>Manage keys-values in file</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <BUNDLES>
-    <NAME>manage_key_value_file</NAME>
+    <NAME>manage_key_value_file_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>

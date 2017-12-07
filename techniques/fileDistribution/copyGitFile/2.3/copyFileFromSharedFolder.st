@@ -17,7 +17,7 @@
 #####################################################################################
 
 
-bundle agent download_from_shared_folder
+bundle agent download_from_shared_folder_RudderUniqueID
 {
 
   vars:
@@ -138,7 +138,7 @@ bundle agent download_from_shared_folder
                             "${copyfile[${index}][group]}"
                            ),
         comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
-        classes      => rudder_common_classes("copy_file_${index}"),
+        classes      => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
         ifvarclass   => "(!exist_${index}|!is_file_${index}).!apply_regex_${index}";
 
        # If it's a directory, with exclusion
@@ -152,7 +152,7 @@ bundle agent download_from_shared_folder
                             "${copyfile[${index}][group]}"
                            ),
         comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
-        classes      => rudder_common_classes("copy_file_${index}"),
+        classes      => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
         ifvarclass   => "(!exist_${index}|!is_file_${index}).need_exclusion_${index}";
 
        # If it's a directory, with inclusion
@@ -166,7 +166,7 @@ bundle agent download_from_shared_folder
                             "${copyfile[${index}][group]}"
                            ),
         comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method with inclusion of '${copyfile[${index}][exclude_include]}'",
-        classes      => rudder_common_classes("copy_file_${index}"),
+        classes      => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
         ifvarclass   => "(!exist_${index}|!is_file_${index}).need_inclusion_${index}";
 
     # If it s a file, the depth_search prevents from enforcing the file content
@@ -182,7 +182,7 @@ bundle agent download_from_shared_folder
                           "${copyfile[${index}][group]}"
                          ),
         comment    => "Enforce content of file ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method with exclusion of '${copyfile[${index}][exclude_include]}'",
-        classes    => rudder_common_classes("copy_file_${index}"),
+        classes    => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
         ifvarclass => "exist_${index}.is_file_${index}";
 
   methods:
@@ -194,10 +194,10 @@ bundle agent download_from_shared_folder
 
     pass3.is_valid::
       "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][destination]}", "The content of the file(s) (copied from ${copyfile[${index}][name]}) is valid"),
-        ifvarclass => "copy_file_${index}_kept.!copy_file_${index}_repaired.!copy_file_${index}_error";
+        ifvarclass => "copy_file_${index}_RudderUniqueID_kept.!copy_file_${index}_RudderUniqueID_repaired.!copy_file_${index}_RudderUniqueID_error";
 
       "any" usebundle => rudder_common_report("copyFile", "result_repaired", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][destination]}", "The content or permissions of the file(s) has been repaired from source ${copyfile[${index}][name]}"),
-        ifvarclass => "copy_file_${index}_repaired.!copy_file_${index}_error";
+        ifvarclass => "copy_file_${index}_RudderUniqueID_repaired.!copy_file_${index}_RudderUniqueID_error";
 
       # Error conditions
 
@@ -207,7 +207,7 @@ bundle agent download_from_shared_folder
 
       ## File access denied
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][destination]}", "The copy of the file failed: access to ${copyfile[${index}][name]} denied by the server"),
-        ifvarclass => "copy_file_${index}_denied";
+        ifvarclass => "copy_file_${index}_RudderUniqueID_denied";
 
       ## User does not exist
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][destination]}", "The permissions could not be applied on the file: user \"${copyfile[${index}][owner]}\" not found"),
@@ -219,30 +219,30 @@ bundle agent download_from_shared_folder
 
       ## Generic failure
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Copy file", "${copyfile[${index}][destination]}", "The content or permissions of the file(s) could not have been repaired (file ${copyfile[${index}][name]} not found?)"),
-        ifvarclass => "copy_file_${index}_error.!copy_file_${index}_dest_notdir.!copy_file_${index}_denied.!copy_file_${index}_user_absent.!copy_file_${index}_group_absent";
+        ifvarclass => "copy_file_${index}_RudderUniqueID_error.!copy_file_${index}_dest_notdir.!copy_file_${index}_RudderUniqueID_denied.!copy_file_${index}_user_absent.!copy_file_${index}_group_absent";
 
     #posthook reports
-      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "No post-hook command for copy of ${copyfile[${index}][name]} to ${copyfile[${index}][destination]} was defined, not executing"),
+      "any" usebundle => rudder_common_report("copyFile", "result_na", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "No post-hook command for copy of ${copyfile[${index}][name]} to ${copyfile[${index}][destination]} was defined, not executing"),
         ifvarclass => "!execute_command_${index}";
 
-      "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "${copyfile[${index}][destination]} was already in the desired state, so no command was executed"),
-        ifvarclass => "execute_command_${index}.!copy_file_${index}_failed.!copy_file_${index}_repaired.copy_file_${index}_kept";
+      "any" usebundle => rudder_common_report("copyFile", "result_na", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "${copyfile[${index}][destination]} was already in the desired state, so no command was executed"),
+        ifvarclass => "execute_command_${index}.!copy_file_${index}_RudderUniqueID_failed.!copy_file_${index}_RudderUniqueID_repaired.copy_file_${index}_RudderUniqueID_kept";
 
       "any" usebundle => rudder_common_report("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "The post-hook command for copy of ${copyfile[${index}][name]} to ${copyfile[${index}][destination]} was correctly executed"),
-        ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_command_run_ok";
+        ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_RudderUniqueID_command_run_ok";
 
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "The post-hook command for copy of ${copyfile[${index}][name]} to ${copyfile[${index}][destination]} couldn't be executed"),
-        ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_command_run_failed";
+        ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_RudderUniqueID_command_run_failed";
 
       # A copy_from + perms could result in any combinaision of success/repaired/failed, so we have to cover the failed.modified which results in no copy
       "any" usebundle => rudder_common_report("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "${copyfile[${index}][destination]} couldn't be copied from ${copyfile[${index}][name]}, so the post-hook command is not executed"),
-        ifvarclass => "execute_command_${index}.copy_file_${index}_error";
+        ifvarclass => "execute_command_${index}.copy_file_${index}_RudderUniqueID_error";
 
   commands:
       "${copyfile[${index}][posthook]}"
         contain    => in_shell,
         classes    => if_else("copyfile_posthook_${index}_command_run_ok", "copyfile_posthook_${index}_command_run_failed"),
-        ifvarclass => "execute_command_${index}.copy_file_${index}_repaired.!copy_file_${index}_error",
+        ifvarclass => "execute_command_${index}.copy_file_${index}_RudderUniqueID_repaired.!copy_file_${index}_RudderUniqueID_error",
         comment    => "Execute the posthook command if a file was changed";
 
 }
