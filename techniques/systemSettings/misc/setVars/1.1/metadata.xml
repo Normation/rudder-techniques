@@ -1,5 +1,4 @@
 <TECHNIQUE name="Variables (any)">
-  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
 
   <DESCRIPTION>This technique loads rudder variables of type string or dict. They can then be used with a given specific prefix. 
     <!--

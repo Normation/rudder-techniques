@@ -33,6 +33,7 @@ systemSettings/misc/genericCommandVariableDefinition/3.0
 systemSettings/misc/genericVariableDefinition/2.0
 systemSettings/misc/partitionSizeMonitoring/3.0
 systemSettings/misc/setVars/1.0
+systemSettings/misc/setVars/1.1
 systemSettings/misc/variableFromJsonFile/2.0
 systemSettings/networking/dnsConfiguration/3.0
 systemSettings/networking/hostsConfiguration/2.0
