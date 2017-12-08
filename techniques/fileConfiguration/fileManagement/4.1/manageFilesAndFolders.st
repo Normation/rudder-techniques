@@ -20,7 +20,7 @@
 # Manage files and folders, enforcing their existence           #
 #################################################################
 
-bundle agent manageFilesAndFolders {
+bundle agent manageFilesAndFolders_RudderUniqueID {
 
 	vars:
 
@@ -124,92 +124,92 @@ bundle agent manageFilesAndFolders {
 
 		# Directory
 		"${file[${index}][path]}/."
-			create => "true",
-			classes => kept_if_else("manageFolders_${index}_kept", "manageFolders_${index}_modified", "manageFolders_${index}_failed"),
-			comment => "Enforcing the existance of folder ${file[${index}][path]}",
+			create     => "true",
+			classes    => rudder_common_classes("manageFolders_${index}_RudderUniqueID"),
+			comment    => "Enforcing the existance of folder ${file[${index}][path]}",
 			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createfile_${index}.manageFilesAndFolders_createdir_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
 		# File
 		"${file[${index}][path]}"
-			create => "true",
-			classes => kept_if_else("manageFiles_${index}_kept", "manageFiles_${index}_modified", "manageFiles_${index}_failed"),
-			comment => "Enforcing the existance of file ${file[${index}][path]}",
+			create     => "true",
+			classes    => rudder_common_classes("manageFiles_${index}_RudderUniqueID"),
+			comment    => "Enforcing the existance of file ${file[${index}][path]}",
 			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
 		# Local copy
 		"${file[${index}][path]}"
-			copy_from => backup_local_cp("${file[${index}][source]}"),
-			classes => kept_if_else("manageCp_${index}_kept", "manageCp_${index}_modified", "manageCp_${index}_failed"),
+			copy_from  => backup_local_cp("${file[${index}][source]}"),
+			classes    => rudder_common_classes("manageCp_${index}_RudderUniqueID"),
 			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.!manageFilesAndFolders_createfile_${index}).manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}",
-			comment => "Create ${file[${index}][path]} file as copy of ${file[${index}][source]}";
+			comment    => "Create ${file[${index}][path]} file as copy of ${file[${index}][source]}";
 
 		# Symlink
 		"${file[${index}][path]}"
-			# create => "true",
-			link_from => ln_s("${file[${index}][source]}"),
+			# create   => "true",
+			link_from  => ln_s("${file[${index}][source]}"),
 			move_obstructions => "${file[${index}][symlink_enforced]}",
-			classes => kept_if_else("manageSyms_${index}_kept", "manageSyms_${index}_modified", "manageSyms_${index}_failed"),
+			classes    => rudder_common_classes("manageSyms_${index}_RudderUniqueID"),
 			ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.!manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_local_cp_${index}.manageFilesAndFolders_createsymlink_${index}",
-			comment => "Create the ${file[${index}][path]} symlink pointing to ${file[${index}][source]}";
+			comment    => "Create the ${file[${index}][path]} symlink pointing to ${file[${index}][source]}";
 
 		# Check the permissions none recursively
 		## With user and group
 		"${file[${index}][path]}"
-			perms => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
-			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			perms      => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
+			classes    => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}";
 		## With user
 		"${file[${index}][path]}"
-			perms => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
-			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			perms      => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
+			classes    => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}";
 		## With group
 		"${file[${index}][path]}"
-			perms => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
-			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
+			perms      => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
+			classes    => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
 			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}";
 		# Check the permissions recursively
 		## With user and group
 		"${file[${index}][path]}"
 			depth_search => recurse_withroot("${file[${index}][recursive]}"),
-			perms => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
-			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}";
+			perms        => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
+			classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+			ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}";
 		## With user
 		"${file[${index}][path]}"
 			depth_search => recurse_withroot("${file[${index}][recursive]}"),
-			perms => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
-			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}";
+			perms        => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
+			classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+			ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}";
 		## With group
 		"${file[${index}][path]}"
 			depth_search => recurse_withroot("${file[${index}][recursive]}"),
-			perms => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
-			classes => kept_if_else("manageFilesAndFolders_perms_${index}_kept", "manageFilesAndFolders_perms_${index}_modified", "manageFilesAndFolders_perms_${index}_failed"),
-			ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}";
+			perms        => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
+			classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+			ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}";
 
 		# This will not delete the parent
 		"${file[${index}][path]}" 
-			delete => tidy,
-			file_select => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
-			ifvarclass => "manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
+			delete       => tidy,
+			file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
+			ifvarclass   => "manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
 			depth_search => recurse("0"),
-			classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
+			classes      => rudder_common_classes("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
 		# This will not delete the parent
 		"${file[${index}][path]}" 
-			delete => tidy,
-			file_select => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
+			delete       => tidy,
+			file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
 			depth_search => recurse("inf"),
-			ifvarclass => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_full_recursive_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
-			classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
+			ifvarclass   => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_full_recursive_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+			classes      => rudder_common_classes("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
 		# This WILL delete the parent
 		"${file[${index}][path]}" 
-			delete => tidy,
-			file_select => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
-			ifvarclass => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
-			classes => kept_if_else("manageFilesAndFolders_delete_${index}_kept", "manageFilesAndFolders_delete_${index}_modified", "manageFilesAndFolders_delete_${index}_failed");
+			delete       => tidy,
+			file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
+			ifvarclass   => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+			classes      => rudder_common_classes("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
   methods:
 
@@ -218,61 +218,61 @@ bundle agent manageFilesAndFolders {
 			# Reporting for creation
 			## Reporting for directory creation
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} already exists"),
-				ifvarclass => "manageFolders_${index}_kept.!manageFolders_${index}_modified.manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_islink_${index}";
+				ifvarclass => "manageFolders_${index}_RudderUniqueID_kept.!manageFolders_${index}_RudderUniqueID_repaired.manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_islink_${index}";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} was successfully created"),
-				ifvarclass => "manageFolders_${index}_modified";
+				ifvarclass => "manageFolders_${index}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} could not be created"),
-				ifvarclass => "manageFolders_${index}_failed|manageFolders_${index}_kept.(manageFilesAndFolders_isfile_${index}|manageFilesAndFolders_islink_${index})";
+				ifvarclass => "manageFolders_${index}_RudderUniqueID_error|manageFolders_${index}_RudderUniqueID_kept.(manageFilesAndFolders_isfile_${index}|manageFilesAndFolders_islink_${index})"; # if we ask for folder creation, promise is kept, but it's a file, then it's a failure
 
 			## Reporting for file creation
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} already exists"),
-				ifvarclass => "manageFiles_${index}_kept.!manageFiles_${index}_modified.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
+				ifvarclass => "manageFiles_${index}_RudderUniqueID_kept.!manageFiles_${index}_RudderUniqueID_repaired.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} was successfully created"),
-				ifvarclass => "manageFiles_${index}_modified";
+				ifvarclass => "manageFiles_${index}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} could not be created"),
-				ifvarclass => "manageFiles_${index}_failed|manageFiles_${index}_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
+				ifvarclass => "manageFiles_${index}_RudderUniqueID_error|manageFiles_${index}_RudderUniqueID_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
 
 			## Reporting for local cp
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} already exists and is up to date"),
-				ifvarclass => "manageCp_${index}_kept.!manageCp_${index}_modified.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
+				ifvarclass => "manageCp_${index}_RudderUniqueID_kept.!manageCp_${index}_RudderUniqueID_repaired.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} was successfully copied from ${file[${index}][source]}"),
-				ifvarclass => "manageCp_${index}_modified";
+				ifvarclass => "manageCp_${index}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} could not be created"),
-				ifvarclass => "manageCp_${index}_failed|manageCp_${index}_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
+				ifvarclass => "manageCp_${index}_RudderUniqueID_error|manageCp_${index}_RudderUniqueID_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
 
 			## Reporting for symlink creation
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} already exists"),
-				ifvarclass => "manageSyms_${index}_kept.!manageSyms_${index}_modified";
+				ifvarclass => "manageSyms_${index}_RudderUniqueID_kept.!manageSyms_${index}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} was successfully created"),
-				ifvarclass => "manageSyms_${index}_modified";
+				ifvarclass => "manageSyms_${index}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} could not be created"),
-				ifvarclass => "manageSyms_${index}_failed";
+				ifvarclass => "manageSyms_${index}_RudderUniqueID_error";
 
 			## Reporting for no change
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "No file creation action specified for ${file[${index}][path]}"),
                                 ifvarclass => "manageFilesAndFolders_nocreate_${index}";
 			
 			# Reporting for the permissions
-			## Success if not set
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to have its permission enforced"),
+			## NA if not set
+      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to have its permission enforced"),
 				ifvarclass => "!manageFilesAndFolders_check_permissions_${index}";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permission of the item ${file[${index}][path]} were correct"),
-				ifvarclass => "manageFilesAndFolders_perms_${index}_kept.!manageFilesAndFolders_perms_${index}_modified";
+				ifvarclass => "manageFilesAndFolders_perms_${index}_RudderUniqueID_kept.!manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permissions of the item ${file[${index}][path]} have been corrected"),
-				ifvarclass => "manageFilesAndFolders_perms_${index}_modified.!manageFilesAndFolders_perms_${index}_failed";
+				ifvarclass => "manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired.!manageFilesAndFolders_perms_${index}_RudderUniqueID_error";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permissions of the item ${file[${index}][path]} could not be set"),
-				ifvarclass => "manageFilesAndFolders_perms_${index}_failed";
+				ifvarclass => "manageFilesAndFolders_perms_${index}_RudderUniqueID_error";
 
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "log_info", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} will be handled recursively"),
@@ -285,33 +285,33 @@ bundle agent manageFilesAndFolders {
 			## Report in the general component of the file
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "File cleaning was requested for ${file[${index}][path]}. Check specific reporting in the 'File cleaning options' component."),
 				ifvarclass => "manageFilesAndFolders_clean_${index}";
-			## Success if not set
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to be deleted"),
+			## N/A if not set
+      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to be deleted"),
 				ifvarclass => "!manageFilesAndFolders_clean_${index}";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} was in conformity with the deletion policy"),
-				ifvarclass => "manageFilesAndFolders_clean_${index}.!manageFilesAndFolders_delete_${index}_modified.!manageFilesAndFolders_delete_${index}_failed";
+				ifvarclass => "manageFilesAndFolders_clean_${index}.!manageFilesAndFolders_delete_${index}_RudderUniqueID_repaired.!manageFilesAndFolders_delete_${index}_RudderUniqueID_error";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} has been put in conformity with the deletion policy"),
-				ifvarclass => "manageFilesAndFolders_delete_${index}_modified";
+				ifvarclass => "manageFilesAndFolders_delete_${index}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} deletion policy could not be enforced"),
-				ifvarclass => "manageFilesAndFolders_delete_${index}_failed";
+				ifvarclass => "manageFilesAndFolders_delete_${index}_RudderUniqueID_error";
 
 			# Reporting for post-command execution
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook did not need running"),
-				ifvarclass => "!manageFilesAndFolders_post_hook_run_${index}|((manageFiles_${index}_kept|manageFolders_${index}_kept|manageSyms_${index}_kept|manageFilesAndFolders_perms_${index}_kept).!(manageFiles_${index}_modified|manageFolders_${index}_modified|manageSyms_${index}_modified|manageFilesAndFolders_perms_${index}_modified))";
+      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook did not need running"),
+				ifvarclass => "!manageFilesAndFolders_post_hook_run_${index}|((manageFiles_${index}_kept|manageFolders_${index}_kept|manageSyms_${index}_kept|manageFilesAndFolders_perms_${index}_RudderUniqueID_kept).!(manageFiles_${index}_RudderUniqueID_repaired|manageFolders_${index}_RudderUniqueID_repaired|manageSyms_${index}_RudderUniqueID_repaired|manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired))";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook successfully run"),
-				ifvarclass => "manageFilesAndFolders_${index}_command_run_ok";
+				ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_ok";
 
       "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "An error occured when running the post-execution hook"),
-				ifvarclass => "manageFilesAndFolders_${index}_command_run_failed";
+				ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_failed";
 
 	commands:
 		"${file[${index}][post_hook_command]}"
-			classes => if_else("manageFilesAndFolders_${index}_command_run_ok", "manageFilesAndFolders_${index}_command_run_failed"),
+			classes => if_else("manageFilesAndFolders_${index}_RudderUniqueID_command_run_ok", "manageFilesAndFolders_${index}_RudderUniqueID_command_run_failed"),
 			contain => in_shell,
-			ifvarclass => "manageFilesAndFolders_post_hook_run_${index}.(manageFiles_${index}_modified|manageFolders_${index}_modified|manageCp_${index}_modified|manageSyms_${index}_modified|manageFilesAndFolders_perms_${index}_modified)";
+			ifvarclass => "manageFilesAndFolders_post_hook_run_${index}.(manageFiles_${index}_RudderUniqueID_repaired|manageFolders_${index}_RudderUniqueID_repaired|manageCp_${index}_RudderUniqueID_repaired|manageSyms_${index}_RudderUniqueID_repaired|manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired)";
 
 }

@@ -2,7 +2,7 @@
 #   -Variables can be defined by a Json  file or a text input
 #    -Allowed types are string and dict
 
-bundle agent set_vars {
+bundle agent set_vars_RudderUniqueID {
   vars:
       #Tracking key
       &TRACKINGKEY:{key | "trackingkey[&i&]" string => "&key&";}&

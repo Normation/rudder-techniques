@@ -12,14 +12,14 @@
     An unrecognized variable may come from a misordering of your rules executions, the execution follows an alphabetical order, based on directives names.
   </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
-
+  <POLICYGENERATION>separated</POLICYGENERATION>
 
   <TMLS>
     <TML name="set-vars"/>
   </TMLS>
 
   <BUNDLES>
-    <NAME>set_vars</NAME>
+    <NAME>set_vars_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TRACKINGVARIABLE>

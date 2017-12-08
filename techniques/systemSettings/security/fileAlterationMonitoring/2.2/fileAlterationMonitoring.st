@@ -17,7 +17,7 @@
 #####################################################################################
 
 
-bundle agent file_alteration_monitor
+bundle agent file_alteration_monitor_RudderUniqueID
 {
 
   vars:
@@ -31,7 +31,7 @@ bundle agent file_alteration_monitor
   classes:
 
       "isfile_${index}" expression => isplain("${monitor_entity[${index}][name]}");
-      "isdir_${index}" expression => isdir("${monitor_entity[${index}][name]}");
+      "isdir_${index}" expression  => isdir("${monitor_entity[${index}][name]}");
 
       # Should the technique report an error if the file does not exist ?
       &MONITOR_ERROR_NOFILE:{ nofile | "nofile_reports_error_&i&" expression  => strcmp("&nofile&", "true"); 
@@ -46,31 +46,28 @@ bundle agent file_alteration_monitor
   files:
 
       "${monitor_entity[${index}][name]}"
-
-        ifvarclass => "isdir_${index}",
-        changes => detect_all_change,
-        classes => kept_if_else("${index}_kept", "${index}_changed", "${index}_error"),
-        depth_search => recurse("inf");
+        changes      => detect_all_change,
+        classes      => rudder_common_classes("file_alteration_monitor_${index}_RudderUniqueID"),
+        depth_search => recurse("inf"),
+        ifvarclass   => "isdir_${index}";
 
       "${monitor_entity[${index}][name]}"
-
-        ifvarclass => "isfile_${index}",
-        changes => detect_all_change,
-        classes => kept_if_else("${index}_kept", "${index}_changed", "${index}_error");
-
+        changes      => detect_all_change,
+        classes      => rudder_common_classes("file_alteration_monitor_${index}_RudderUniqueID"),
+        ifvarclass   => "isfile_${index}";
 
   methods:
 
     pass3.cfengine::
 
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_success", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The content of ${monitor_entity[${index}][name]} is consistent"),
-        ifvarclass => "${index}_kept.!${index}_changed.!${index}_error";
+        ifvarclass => "file_alteration_monitor_${index}_RudderUniqueID_kept.!file_alteration_monitor_${index}_RudderUniqueID_repaired.!file_alteration_monitor_${index}_RudderUniqueID_error";
 
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_repaired", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The content of ${monitor_entity[${index}][name]} is INCONSISTENT: Either the file has changed or one of the elements in the directory has"),
-        ifvarclass => "${index}_changed.!${index}_error";
+        ifvarclass => "file_alteration_monitor_${index}_RudderUniqueID_repaired.!file_alteration_monitor_${index}_RudderUniqueID_error";
 
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_error", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The content of ${monitor_entity[${index}][name]} could not be checked"),
-        ifvarclass => "${index}_error";
+        ifvarclass => "file_alteration_monitor_${index}_RudderUniqueID_error";
 
       "any" usebundle => rudder_common_report("fileAlterationMonitoring", "result_error", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The entity ${monitor_entity[${index}][name]} does not exist: alteration monitoring impossible"),
         ifvarclass => "(!isdir_${index}.!isfile_${index}).nofile_reports_error_${index}";
