@@ -74,7 +74,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SECTIONS>
     <!-- The following sections are for reporting only -->
     <SECTION name="Propagate promises" component="true"/>
-    <SECTION name="Send inventories to CMDB" component="true"/>
+    <SECTION name="Send inventories to Rudder server" component="true"/>
     <SECTION name="Configure ncf" component="true"/>
   </SECTIONS>
 </TECHNIQUE>
