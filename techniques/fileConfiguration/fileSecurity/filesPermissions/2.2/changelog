@@ -1,0 +1,9 @@
+ -- Benoît Peccatte <benoit.peccatte@normation.com> Fri Oct 17 14:10:43 CEST 2014
+  * Version 2.0
+  ** Use rudder_common_report instead of reports:
+ -- Benoît Peccatte <benoit.peccatte@normation.com> Fri Sep 25 11:04:43 2015
+  * Version 2.1
+  ** Add a button to ignore non existent file
+ -- Nicolas Charles <nicolas.charles@normation.com> Tue Dec 12 11:41:14 2017
+  * Version 2.2
+  ** Convert to multiversionned technique
