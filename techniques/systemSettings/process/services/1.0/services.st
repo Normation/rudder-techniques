@@ -30,7 +30,7 @@ bundle agent services
 }&
     &SERVICES_TECHNIQUE_POSTHOOK:{posthook |"posthook[&i&]" string => "&posthook&";
 }&
-    &SERVICES_TECHNIQUE_POSTHOOK_PERSISTENT:{persitent |"persistent[&i&]" string => "&persistent&";
+    &SERVICES_TECHNIQUE_POSTHOOK_PERSISTENT:{persistent |"persistent[&i&]" string => "&persistent&";
 }&
     &TRACKINGKEY:{trackingkey |"trackingkey[&i&]" string => "&trackingkey&";
 }&
