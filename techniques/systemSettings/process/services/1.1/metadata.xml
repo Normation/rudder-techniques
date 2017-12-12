@@ -18,8 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>Check and enforce the state of services</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
   <BUNDLES>
-    <NAME>services</NAME>
+    <NAME>services_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>

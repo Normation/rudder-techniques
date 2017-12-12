@@ -18,7 +18,7 @@
 
 # Enforce the defined services parameters
 
-bundle agent services
+bundle agent services_RudderUniqueID
 {
   vars:
 
@@ -30,15 +30,15 @@ bundle agent services
 }&
     &SERVICES_TECHNIQUE_POSTHOOK:{posthook |"posthook[&i&]" string => "&posthook&";
 }&
-    &SERVICES_TECHNIQUE_POSTHOOK_PERSISTENT:{persitent |"persistent[&i&]" string => "&persistent&";
+    &SERVICES_TECHNIQUE_POSTHOOK_PERSISTENT:{persistent |"persistent[&i&]" string => "&persistent&";
 }&
     &TRACKINGKEY:{trackingkey |"trackingkey[&i&]" string => "&trackingkey&";
 }&
 
       "index" slist => getindices("service");
 
-      "technique_name" string => "Services technique";
-      "service_canon[${index}]" string => canonify("${service[${index}]}");
+      "technique_name"           string => "Services technique";
+      "service_canon[${index}]"  string => canonify("${service[${index}]}");
       "posthook_canon[${index}]" string => canonify("${posthook[${index}]}");
 
   classes:
@@ -47,26 +47,27 @@ bundle agent services
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
-      "boot_enabled_${index}" expression => strcmp("${boot[${index}]}", "enabled");
-      "boot_disabled_${index}" expression => strcmp("${boot[${index}]}", "disabled");
-      "boot_dont_change_${index}" expression => strcmp("${boot[${index}]}", "ignore");
+      "boot_enabled_${index}"       expression => strcmp("${boot[${index}]}", "enabled");
+      "boot_disabled_${index}"      expression => strcmp("${boot[${index}]}", "disabled");
+      "boot_dont_change_${index}"   expression => strcmp("${boot[${index}]}", "ignore");
 
-      "status_running_${index}" expression => strcmp("${status[${index}]}", "running");
-      "status_stopped_${index}" expression => strcmp("${status[${index}]}", "stopped");
+      "status_running_${index}"     expression => strcmp("${status[${index}]}", "running");
+      "status_stopped_${index}"     expression => strcmp("${status[${index}]}", "stopped");
       "status_dont_change_${index}" expression => strcmp("${status[${index}]}", "ignore");
 
 
       #Posthook
-      "posthook_specified_${index}" not => strcmp("${posthook[${index}]}", "");
+      "posthook_specified_${index}"         not => strcmp("${posthook[${index}]}", "");
       "posthook_persistent_${index}" expression => strcmp("${persistent[${index}]}", "true");
 
       "status_repaired_${index}" expression => "service_ensure_running_${service_canon[${index}]}_repaired|service_ensure_stopped_${service_canon[${index}]}_repaired";
-      "boot_repaired_${index}" expression => "service_ensure_started_at_boot_${service_canon[${index}]}_repaired|service_ensure_disabled_at_boot_${service_canon[${index}]}_repaired";
-      "repaired_${index}" expression => "boot_repaired_${index}|status_repaired_${index}";
+      "boot_repaired_${index}"   expression => "service_ensure_started_at_boot_${service_canon[${index}]}_repaired|service_ensure_disabled_at_boot_${service_canon[${index}]}_repaired";
+      "repaired_${index}"        expression => "boot_repaired_${index}|status_repaired_${index}";
 
-      "posthook_lauch_${index}" expression => "posthook_specified_${index}.repaired_${index}";
-      "posthook_rerun_${index}" expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
-                                scope =>"namespace",
+      "posthook_lauch_${index}"  expression => "posthook_specified_${index}.repaired_${index}";
+      "posthook_rerun_${index}_RudderUniqueID"
+                                 expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
+                                      scope => "namespace",
                                 persistence => "10000";
 
   methods:
@@ -86,7 +87,7 @@ bundle agent services
 
     #Posthook
     "posthook_${index}" usebundle => command_execution("${posthook[${index}]}"),
-      ifvarclass => "posthook_lauch_${index}|posthook_rerun_${index}";
+      ifvarclass => "posthook_lauch_${index}|posthook_rerun_${index}_RudderUniqueID";
 
     #Reporting
 

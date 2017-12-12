@@ -1,5 +1,5 @@
 <!--
-Copyright 2011 Normation SAS
+Copyright 2011-2017 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -19,9 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   It will ensure that the defined groups are present on the system.</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
 
   <BUNDLES>
-    <NAME>check_usergroup_grp_parameters</NAME>
+    <NAME>check_usergroup_grp_parameters_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -33,7 +34,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TRACKINGVARIABLE>
     
   <SECTIONS>
-    <!-- groups section , index 1 -->
+    <SECTION name="Group enforce GID"  multivalued="false"  component="true" componentKey="USERGROUP_GROUP_NAME"/>
     <SECTION name="Groups" multivalued="true" component="true" componentKey="USERGROUP_GROUP_NAME">
       <INPUT>
         <NAME>USERGROUP_GROUP_NAME</NAME>

@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2013 Normation SAS
+# Copyright 2013-2017 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -23,7 +23,7 @@
 # Execute a command if threshold is reached
 #
 
-bundle agent monitor_partition_size {
+bundle agent monitor_partition_size_RudderUniqueID {
 
     vars:
 
@@ -57,47 +57,47 @@ bundle agent monitor_partition_size {
             # Partition status reporting
             # Success
       "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has enough free space"),
-                ifvarclass => "!monitorPartitionSize_partition_${index}_full";
+                ifvarclass => "!monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 
             # Error
       "any" usebundle => rudder_common_report("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has not enough free space"),
-                ifvarclass => "monitorPartitionSize_partition_${index}_full";
+                ifvarclass => "monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 
             # Repaired command execution reporting
-            # Success not set
-      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not set"),
+            # NA not set
+      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_na", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not set"),
                 ifvarclass => "!monitorPartitionSize_repaired_cmd_run_${index}";
 
             # Success not needed
       "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not needed"),
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_full";
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 
             # Repaired
       "any" usebundle => rudder_common_report("monitorPartitionSize", "result_repaired", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command executed - ${partition[${index}][repaired_cmd]}"),
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_repaired";
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID_repaired";
 
             # Error
       "any" usebundle => rudder_common_report("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command failed to execute"),
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_error";
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID_error";
 
     commands:
         "${partition[${index}][repaired_cmd]}"
-            classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_${index}"),
+            classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID"),
             contain => in_shell,
-            ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_partition_${index}_full";
+            ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 
 
     storage:
 
         "${partition[${index}][path]}"
-            volume  => freespacecheck("${partition[${index}][freesize]}"),
-            classes => if_notkept("monitorPartitionSize_partition_${index}_full"),
+            volume  => freespacecheck_RudderUniqueID("${partition[${index}][freesize]}"),
+            classes => if_notkept("monitorPartitionSize_partition_${index}_RudderUniqueID_full"),
             comment => "Check free space available on ${partition[${index}][path]}";
 
 
 }
 
-body volume freespacecheck(threshold) {
+body volume freespacecheck_RudderUniqueID(threshold) {
     freespace => "${threshold}";
     # see https://dev.cfengine.com/issues/3016
     sensible_size  => "0";

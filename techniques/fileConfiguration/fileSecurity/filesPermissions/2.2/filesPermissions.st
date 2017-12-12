@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011 Normation SAS
+# Copyright 2011-2017 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -16,31 +16,31 @@
 #
 #####################################################################################
 
-######################################################
-# Adjust file permissions                            #
-# #######################                            #
-#                                                    #
-# This PT adjusts file or directory permissions      #
-# according to user set parameters.                  #
-######################################################
+########################################################
+# Adjust file permissions                              #
+# #######################                              #
+#                                                      #
+# This Technique adjusts file or directory permissions #
+# according to user set parameters.                    #
+########################################################
 
-bundle agent files_permissions
+bundle agent files_permissions_RudderUniqueID
 {
   vars:
 
-      "dim_array" int =>  readstringarrayidx("file","${this.promise_dirname}/../permlist","#[^\n]*",":",1024,102400);
+      "dim_array" int =>  readstringarrayidx("file","${this.promise_dirname}/../RudderUniqueID/permlist","#[^\n]*",":",1024,102400);
 
       "filePerms" slist => getindices("file");
 
   methods:
 
-      "any" usebundle => check_permissions("${file[${filePerms}][0]}",
+      "any" usebundle => check_permissions_RudderUniqueID("${file[${filePerms}][0]}",
       "${file[${filePerms}][1]}",
       "${file[${filePerms}][2]}");
 
 }
 
-bundle agent check_permissions(directiveId, fileName, action_parameters)
+bundle agent check_permissions_RudderUniqueID(directiveId, fileName, action_parameters)
 {
 
 

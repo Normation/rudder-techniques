@@ -1,5 +1,5 @@
 <!--
-Copyright 2011-2013 Normation SAS
+Copyright 2011-2017 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,15 +18,17 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>Set permissions on files</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+
   <BUNDLES>
-    <NAME>files_permissions</NAME>
+    <NAME>files_permissions_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>
     <TML name="filesPermissions"/>
     <TML name="permlist">
       <INCLUDED>false</INCLUDED>
-      <OUTPATH>filesPermissions/permlist</OUTPATH>
+      <OUTPATH>filesPermissions/RudderUniqueID/permlist</OUTPATH>
     </TML>
   </TMLS>
 
