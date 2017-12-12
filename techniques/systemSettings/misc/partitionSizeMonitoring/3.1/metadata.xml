@@ -1,5 +1,5 @@
 <!--
-Copyright 2011 Normation SAS
+Copyright 2011-2017 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -15,10 +15,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Partition size monitoring">
-  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>Execute command(s) when partition free space gets under desired threshold</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
@@ -28,7 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </COMPATIBLE>
 
   <BUNDLES>
-    <NAME>monitor_partition_size</NAME>
+    <NAME>monitor_partition_size_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>

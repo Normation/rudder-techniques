@@ -17,6 +17,7 @@ applications/zypperPackageManagerSetup/1.0
 fileConfiguration/fileManagement/4.0
 fileConfiguration/fileManagement/4.1
 fileConfiguration/fileSecurity/filesPermissions/2.1
+fileConfiguration/fileSecurity/filesPermissions/2.2
 fileDistribution/checkGenericFileContent/7.0
 fileDistribution/copyGitFile/2.1
 fileDistribution/downloadFile/3.0
@@ -33,6 +34,7 @@ systemSettings/misc/clockConfiguration/3.2
 systemSettings/misc/genericCommandVariableDefinition/3.0
 systemSettings/misc/genericVariableDefinition/2.0
 systemSettings/misc/partitionSizeMonitoring/3.0
+systemSettings/misc/partitionSizeMonitoring/3.1
 systemSettings/misc/setVars/1.0
 systemSettings/misc/setVars/1.1
 systemSettings/misc/variableFromJsonFile/2.0
@@ -43,6 +45,7 @@ systemSettings/networking/nfsServer/3.0
 systemSettings/networking/routingManagement/2.0
 systemSettings/process/servicesManagement/3.0
 systemSettings/process/services/1.0
+systemSettings/process/services/1.1
 systemSettings/remoteAccess/sshConfiguration/5.0
 systemSettings/remoteAccess/sshKeyDistribution/3.0
 systemSettings/security/fileAlterationMonitoring/2.0
@@ -52,6 +55,7 @@ systemSettings/systemManagement/cronManagement/3.1
 systemSettings/systemManagement/fstabConfiguration/4.0
 systemSettings/systemManagement/motdConfiguration/3.2
 systemSettings/userManagement/groupManagement/5.0
+systemSettings/userManagement/groupManagement/5.1
 systemSettings/userManagement/sudoParameters/3.1
 systemSettings/userManagement/userManagement/7.1
 systemSettings/userManagement/userManagement/7.2

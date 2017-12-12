@@ -15,12 +15,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Services technique">
-  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>Check and enforce the state of services</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
   <BUNDLES>
-    <NAME>services</NAME>
+    <NAME>services_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>
