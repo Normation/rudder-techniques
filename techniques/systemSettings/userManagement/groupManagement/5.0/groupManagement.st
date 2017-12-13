@@ -17,12 +17,11 @@
 #####################################################################################
 
 ##########################################################################
-# Group management PT                                                    #
+# Group management Technique                                             #
 #                                                                        #
 # Objective : Apply group policies on the target host                    #
 ##########################################################################
 
-# I was forced to truncate brutally the name, as on CF3 3.1.4 more than 32 chars on the bundle name leads to arrays corruption
 bundle agent check_usergroup_grp_parameters {
 
 	vars:
@@ -82,19 +81,19 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
         # Enforce group content on if groupmanagement_group_${index}_enforce_content is set
         "/etc/group"
-            edit_line => groups_file_set("${name}", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
+            edit_line     => groups_file_set("${name}", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
             edit_defaults => noempty_backup,
-            classes => rudder_common_classes("groupmanagement_group_add_${index}"),
-            ifvarclass => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_repaired)",
-            comment => "Set users on the group ${name} only if the group is already present";
+            classes       => rudder_common_classes("groupmanagement_group_add_${index}"),
+            ifvarclass    => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_repaired)",
+            comment       => "Set users on the group ${name} only if the group is already present";
 
         # Append group content on if groupmanagement_group_${index}_enforce_content is not set
         "/etc/group"
-            edit_line => append_user_field("${name}", "4", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
+            edit_line     => append_user_field("${name}", "4", "@(check_usergroup_group_parameters_grouphandle.userlist)"),
             edit_defaults => noempty_backup,
-            classes => rudder_common_classes("groupmanagement_group_add_${index}"),
-            ifvarclass => "!groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_repaired)",
-            comment => "Append users on the group ${name} only if the group is already present";
+            classes       => rudder_common_classes("groupmanagement_group_add_${index}"),
+            ifvarclass    => "!groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_repaired)",
+            comment       => "Append users on the group ${name} only if the group is already present";
 
         # Enforce GID if setgid has been set
         "/etc/group"
@@ -110,16 +109,27 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
     pass3.cfengine::
 
       "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and compliant with the policy"),
-                ifvarclass => "groupmanagement_group_add_${index}_kept.!(groupmanagement_group_add_${index}_repaired|groupmanagement_group_add_${index}_error)";
+           ifvarclass => "groupmanagement_group_add_${index}_kept.!groupmanagement_group_add_${index}_error";
 
       "any" usebundle => rudder_common_report("groupManagement", "result_repaired", "${directiveId}", "Groups", "${name}", "The group ${name} has been updated"),
-                ifvarclass => "groupmanagement_group_add_${index}_repaired.!(groupmanagement_group_add_${index}_kept|groupmanagement_group_add_${index}_error)";
+           ifvarclass => "groupmanagement_group_add_${index}_repaired.!(groupmanagement_group_add_${index}_kept|groupmanagement_group_add_${index}_error)";
 
       "any" usebundle => rudder_common_report("groupManagement", "result_error", "${directiveId}", "Groups", "${name}", "The group ${name} could not be created or updated"),
-                ifvarclass => "groupmanagement_group_add_${index}_error";
+           ifvarclass => "groupmanagement_group_add_${index}_error";
 
       "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is not present and not set to be created"),
-                ifvarclass => "groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_create";
+           ifvarclass => "groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_create";
+
+
+       #Group enforce GID
+      "any" usebundle => rudder_common_reports_generic("groupManagement", "groupmanagement_group_gid_${index}_RudderUniqueID", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} gid set it ${gid}"),
+           ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
+
+      "any" usebundle => rudder_common_report("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not present"),
+           ifvarclass => "groupmanagement_group_${index}_absent";
+
+      "any" usebundle => rudder_common_report("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not set to have its gid set"),
+           ifvarclass => "!groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_setgid";
 
     commands:
 
