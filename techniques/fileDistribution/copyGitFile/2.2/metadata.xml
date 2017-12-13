@@ -43,7 +43,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <SECTIONS>
     <SECTION name="Copy file and PostHook" multivalued="true">
-    <SECTION name="Copy file" multivalued="false" component="true" componentKey="COPYFILE_NAME">
+    <SECTION name="Copy file" multivalued="false" component="true" componentKey="COPYFILE_DESTINATION">
       <INPUT>
         <NAME>COPYFILE_NAME</NAME>
         <DESCRIPTION>Path of the file to be copied</DESCRIPTION>
@@ -218,7 +218,7 @@ path needs to contain the destination filename. The permissions defined below wi
 
     </SECTION>
 
-    <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_NAME" displayPriority="low">
+    <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_DESTINATION" displayPriority="low">
        <INPUT>
           <NAME>COPYFILE_POST_HOOK_RUN</NAME>
           <DESCRIPTION>Should the command(s) below be run if any modifications (permission or overwriting) are made on the files above?</DESCRIPTION>
