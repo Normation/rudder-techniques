@@ -33,7 +33,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TRACKINGVARIABLE>
     
   <SECTIONS>
-    <!-- groups section , index 1 -->
+    <SECTION name="Group enforce GID"  multivalued="false"  component="true" componentKey="USERGROUP_GROUP_NAME"/>
     <SECTION name="Groups" multivalued="true" component="true" componentKey="USERGROUP_GROUP_NAME">
       <INPUT>
         <NAME>USERGROUP_GROUP_NAME</NAME>
