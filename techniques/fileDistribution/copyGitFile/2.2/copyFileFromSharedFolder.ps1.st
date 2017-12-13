@@ -29,7 +29,7 @@ function copyFileFromSharedFolder {
     $local_classes = New-ClassContext
 
     for ($i=0; $i -lt $trackingkey.length; $i++) {
-      $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Destination $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $names[$i])
+      $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Destination $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i])
       $class_prefix  = "copy_file_" 
       $class_prefix += Canonify-Class ($names[$i])
       $class_prefix += "_repaired"
@@ -37,7 +37,7 @@ function copyFileFromSharedFolder {
       #Posthook execution
       $componentName = "Posthook"
       if ($posthooks[$i] -ne "" -And $local_classes["classes"].contains($class_prefix)) {
-        $local_classes = Merge-ClassContext $local_classes $(Command-Execution -CommandName $posthooks[$i] -ComponentKey $names[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
+        $local_classes = Merge-ClassContext $local_classes $(Command-Execution -CommandName $posthooks[$i] -ComponentKey $destinations[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
       } else {
         if ($auditOnly) { 
           $state = [ComplianceStatus]::audit_na
@@ -49,7 +49,7 @@ function copyFileFromSharedFolder {
         } else {
           $PostHookString = "No posthook execution needed"
         }
-        $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $postHookComponent -ComponentKey $names[$i] -Message $PostHookString -report:$true
+        $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $postHookComponent -ComponentKey $destinations[$i] -Message $PostHookString -report:$true
       }
     }
 }
