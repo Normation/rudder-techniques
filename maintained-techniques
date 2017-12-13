@@ -18,6 +18,7 @@ fileConfiguration/fileManagement/4.0
 fileConfiguration/fileSecurity/filesPermissions/2.1
 fileDistribution/checkGenericFileContent/7.0
 fileDistribution/copyGitFile/2.1
+fileDistribution/copyGitFile/2.2
 fileDistribution/downloadFile/3.0
 fileDistribution/fileTemplate/1.0
 fileDistribution/manageKeyValueFile/1.0
