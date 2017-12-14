@@ -25,14 +25,27 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <AGENT version=">= 3.2.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
-  <BUNDLES>
-    <NAME>download_from_shared_folder</NAME>
-  </BUNDLES>
-
-  <TMLS>
-    <TML name="copyFileFromSharedFolder"/>
-  </TMLS>
+  <AGENT type="dsc">
+    <BUNDLES>
+      <NAME>copyFileFromSharedFolder_RudderUniqueID</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="copyFileFromSharedFolder.ps1">
+        <OUTPATH>copyGitFile/2.2/copyFileFromSharedFolder.ps1</OUTPATH>
+      </TML>
     
+    </TMLS>
+  </AGENT>
+
+  <AGENT type="cfengine-community">
+    <BUNDLES>
+      <NAME>download_from_shared_folder_RudderUniqueID</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="copyFileFromSharedFolder"/>
+    </TMLS>
+  </AGENT>
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>COPYFILE_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
