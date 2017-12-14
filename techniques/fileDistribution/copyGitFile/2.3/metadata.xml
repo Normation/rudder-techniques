@@ -46,10 +46,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <TML name="copyFileFromSharedFolder"/>
     </TMLS>
   </AGENT>
-
-  <TMLS>
-    <TML name="copyFileFromSharedFolder"/>
-  </TMLS>
     
   <TRACKINGVARIABLE>
     <SAMESIZEAS>COPYFILE_NAME</SAMESIZEAS>
