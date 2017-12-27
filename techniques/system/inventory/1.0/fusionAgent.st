@@ -191,8 +191,6 @@ bundle common inventory
 bundle agent fusionAgent
 {
   vars:
-    SuSE.xen_dom0::
-      "xen_tools_package" string => "xen-tools";
     SuSE.(xen_domu_pv|xen_domu_hv)::
       "xen_tools_package" string => "xen-tools-domU";
     debian::
@@ -248,14 +246,14 @@ bundle agent fusionAgent
 &endif&
 
   packages:
-    xen.!redhat::
+    xen.!redhat.!xen_dom0::
       "${xen_tools_package}"
         package_policy => "add",
         package_method => generic,
         classes        => cf2_if_else("xen_installed", "cant_install_xen"),
         comment        => "Installing xen package for extended data";
 
-    xen.redhat::
+    xen.redhat.!xen_dom0::
       "${xen_tools_package}"
         package_policy => "add",
         package_method => rudder_yum,
@@ -494,7 +492,7 @@ bundle agent addInformationsToInventory
       "RUDDERUUID"     string => execresult("smbios | grep UUID | sed 's/  UUID: //'", "useshell");
     freebsd::
       "RUDDERUUID"     string => execresult("/usr/local/sbin/dmidecode -s system-uuid", "noshell");
-    linux.!xen::
+    linux.(!xen|xen_dom0)::
       "RUDDERUUID"     string => execresult("/usr/sbin/dmidecode -s system-uuid", "noshell");
     linux.xen.xenrudderuuid:: # xenrudderuuid is defined at second pass
       "RUDDERUUID"     string => "${vmarray[1]}";
@@ -504,11 +502,11 @@ bundle agent addInformationsToInventory
     # define VMRUDDERUUID when we have xen
     xen.SuSE.(xen_domu_pv|xen_domu_hv)::
       "VMRUDDERUUID_cmd" string => "/bin/xenstore-read vm";
-    xen.((SuSE.xen_dom0)|centos|redhat)::
+    xen.(centos|redhat).!xen_dom0::
       "VMRUDDERUUID_cmd" string => "/usr/bin/xenstore-read vm";
-    xen.!SuSE.!centos.!redhat::
+    xen.!SuSE.!centos.!redhat.!xen_dom0::
       "VMRUDDERUUID_cmd" string => "/usr/sbin/xenstore-read vm";
-    xen::
+    xen.!xen_dom0::
       "VMRUDDERUUID"     string => execresult("${VMRUDDERUUID_cmd}", "noshell");
 
     # define users
@@ -533,7 +531,7 @@ bundle agent addInformationsToInventory
       "android_fullname"      string => "Android ${android_version}";
       "logdate"               string => execresult("/system/bin/date '+%Y-%m-%d %H:%M:%S'", "noshell");
 
-    linux.(!xen.!armv6l.!armv7l)::
+    linux.(!xen|(xen.!xen_dom0)).!armv6l.!armv7l::
       "RUDDERUUID_cmd" string => "/usr/sbin/dmidecode -s system-uuid";
 
     aix::
@@ -577,7 +575,7 @@ bundle agent addInformationsToInventory
 
 
   classes:
-    xen::
+    xen.!xen_dom0::
       "xenrudderuuid" expression => regextract("/vm/(.*)", "${VMRUDDERUUID}", "vmarray");
 
     linux.(armv6l|armv7l)::
