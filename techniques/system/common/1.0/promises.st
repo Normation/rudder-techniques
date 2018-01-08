@@ -89,7 +89,6 @@ bundle common va
         "restart_services", 
 &endif&
 
-        "_clean_current_expected_reports_file",
         "endExecution"
       };
 
@@ -377,14 +376,8 @@ bundle agent initialize_ncf()
 {
 
   methods:
-      "initialize ncf"                  usebundle => initialization;
-      # Force generating expected reports file for Rudder logger
-      # because the first call to the logger may be in audit mode.
-      "create ncf expected reports"     usebundle => _create_current_expected_reports_file;
-      !logger_rudder_final_resfile_error::
-        "report about ncf init"         usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "Configuration library initialization");
-      logger_rudder_final_resfile_error::
-        "report about expected reports" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "ncf Initialization", "None", "Could not generate expected reports file");
+      "initialize ncf"        usebundle => initialization;
+      "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "Configuration library initialization");
 
 }
 
@@ -758,11 +751,6 @@ bundle agent garbage_collection
         comment     => "Rotate file if above specified size",
         rename      => rotate("10"),
         file_select => bigger_than("1M");
-
-  methods:
-
-       # Directly call the cleanup bundle from ncf's logger_rudder
-       "clean old expected reports files" usebundle => _clean_old_expected_reports_file("1");
 
 }
 
