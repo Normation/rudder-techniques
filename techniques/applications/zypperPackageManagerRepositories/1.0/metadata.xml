@@ -101,7 +101,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <NAME>ZYPPER_REPO_DISABLE_OTHER_REPOSITORIES</NAME>
         <DESCRIPTION>Delete all other repositories than those managed by Rudder (potentially dangerous)</DESCRIPTION>
         <LONGDESCRIPTION>If true, it will delete all other repositories than those managed. If multiple Directives based on this Technique are applied to one node, then the value for this variable will be the one of the Directive with highest priority</LONGDESCRIPTION>
-        <UNIQUEVARIABLE>true</UNIQUEVARIABLE> 
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>

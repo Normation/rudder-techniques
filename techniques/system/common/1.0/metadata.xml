@@ -140,7 +140,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>OWNER</NAME>
         <DESCRIPTION>User launching cfe (usually root)</DESCRIPTION>
-        <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
       </INPUT>
       <INPUT>
         <NAME>UUID</NAME>
@@ -158,7 +157,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>ALLOWEDNETWORK</NAME>
         <DESCRIPTION>The network(s) allowed to connect to the server (can use the / parameter)</DESCRIPTION>
-        <UNIQUEVARIABLE>true</UNIQUEVARIABLE>
         <CONSTRAINT>
           <MAYBEEMPTY>true</MAYBEEMPTY>
         </CONSTRAINT>
