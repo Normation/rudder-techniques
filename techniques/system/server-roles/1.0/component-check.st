@@ -38,7 +38,7 @@ bundle agent root_component_check
       "service[rudder_slapd][service]"                 string => "rudder-slapd";
 
       "service[rudder_jetty][name]"                    string => "jetty";
-      "service[rudder_jetty][binary]"                  string => ".*java.*/opt/rudder/jetty7/start.jar";
+      "service[rudder_jetty][binary]"                  string => ".*java.*/opt/rudder/jetty/start.jar";
       "service[rudder_jetty][service]"                 string => "rudder-jetty";
 
       "service[rudder_reports][name]"                  string => "postgresql";
