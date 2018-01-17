@@ -21,8 +21,12 @@ bundle agent root_networks_check
 
   vars:
       "policy_server_ip" string => host2ip("${def.policy_server}");
+    server_ip_found::
       "policy_server_acl" slist => { "127.0.0.0/8", "::1",  "${policy_server_ip}" };
+    !server_ip_found::
+      "policy_server_acl" slist => { "127.0.0.0/8", "::1" };
 
+    any::
       "defacl" slist => filter("0.0.0.0/0", "def.acl", "false", "true", "99999");
 
       "nodes_acl_22" slist => maplist("Allow from ${this}", "defacl");
@@ -41,9 +45,13 @@ bundle agent root_networks_check
       "network_acl[policy_server_22]"  string => "Allow from ${policy_server_generate_22}";
 
       "network_file[policy_server_24]" string => "${g.rudder_base}/etc/rudder-networks-policy-server-24.conf";
-      "network_acl[policy_server_24]"  string => "Require local${const.n}Require ip ${policy_server_ip}";
-
       "index"             slist => getindices("network_file");
+
+    server_ip_found::
+      "network_acl[policy_server_24]"  string => "Require local${const.n}Require ip ${policy_server_ip}";
+    !server_ip_found::
+      "network_acl[policy_server_24]"  string => "Require local";
+
 
     has_all_granted::
       "network_acl[nodes_22]"  string => "Allow from all";
@@ -66,7 +74,8 @@ bundle agent root_networks_check
       "pass1" expression => "any";
 
       "has_all_granted" expression => some("0.0.0.0/0", "def.acl");
-
+      "server_ip_found" expression => regcmp("^[0-9.]+$|^[0-9a-fA-F:]+:[0-9a-fA-F:]+$", "${policy_server_ip}");
+    
   files:
 
       "${network_file[${index}]}"
