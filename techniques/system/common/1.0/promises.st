@@ -108,7 +108,6 @@ bundle common va
         "setup_cronjob",
         "check_cron_daemon",
 &if(INITIAL)&
-        "fetchFusionTools",
         "virtualMachines",
         "doInventory",
 &else&

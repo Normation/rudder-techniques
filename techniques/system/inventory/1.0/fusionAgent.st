@@ -135,11 +135,11 @@ bundle agent download_server_uuid
   vars:
 
     # If curl is available, use it
-    !windows.curl_installed::
+    !windows.!aix::
       "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
     # If not, use minicurl instead
-    !windows.!curl_installed::
+    aix::
       "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
@@ -262,9 +262,6 @@ bundle agent fusionAgent
 
       "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Xen utils installed"),
            ifvarclass => "package_present_${xen_tools_package}_ok";
-
-    pass3.curl_installed::
-      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "Curl installed");
 
   commands:
     !windows.inventoryfoldercreated::
@@ -700,12 +697,12 @@ bundle agent sendInventory
 &endif&
 
     # If curl is available, use it
-    !windows.curl_installed::
+    !windows.!aix::
       "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
     # If not, use minicurl instead
-    !windows.!curl_installed::
+    aix::
       "download_command_prefix"   string => "${g.minicurl} --no-verify --put --authentication ${g.davuser}:${g.davpw} --file";
       "download_command_suffix"   string => "--url ${download_endpoint}";
 
