@@ -602,7 +602,7 @@ bundle agent checkInventoryFile
     !windows.has_rudder_perl::
       "perl_command" string => "/opt/rudder/bin/perl -I /opt/rudder/lib/perl5";
     !windows.!has_rudder_perl::
-      "perl_command" string => "/usr/bin/perl";
+      "perl_command" string => "/usr/bin/perl -I /opt/rudder/lib/perl5";
     windows::
       "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe";
 
