@@ -121,6 +121,7 @@ bundle common g
       "rudder_tools_updated_filename" string => "rudder_tools_updated";
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
       "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
+      "shared_files"                string => "/var/rudder/configuration-repository/shared-files";
 
     # The time at which the execution started
     windows.!cygwin::
