@@ -329,8 +329,10 @@ bundle agent sendInventory
   vars:
 &if(INITIAL)&
       "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.policy_server}/inventories/";
+      "min_resend_delay"          string => "15";
 &else&
       "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.policy_server}/inventory-updates/";
+      "min_resend_delay"          string => "480";
 &endif&
 
     # If curl is available, use it
@@ -363,7 +365,7 @@ bundle agent sendInventory
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         depth_search => recurse_visible(1),
         file_select  => by_name("@{g.signed_inventory_file_types}"),
-        classes      => persistant_class("inventory_sent", "cant_send_inventory", 480),
+        classes      => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
 
 &if(NOVA)&
@@ -373,7 +375,7 @@ bundle agent sendInventory
         transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
         depth_search => recurse_visible(1),
         file_select => by_name("@{g.signed_inventory_file_types}"),
-        classes => persistant_class("inventory_sent", "cant_send_inventory", 480),
+        classes => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment => "Sending the inventory to the server";
 &endif&
 
