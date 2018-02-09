@@ -69,6 +69,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>SUB_NODES_ID</NAME>
     <NAME>SUB_NODES_KEYHASH</NAME>
     <NAME>SUB_NODES_SERVER</NAME>
+    <NAME>RELAY_SYNC_METHOD</NAME>
+    <NAME>RELAY_SYNC_PROMISES</NAME>
+    <NAME>RELAY_SYNC_SHAREDFILES</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
