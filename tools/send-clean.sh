@@ -85,21 +85,28 @@ fi
 HTTP_CODE=$(${CURL_BINARY} --proxy '' -f ${SIGNATURE_OPT} -F "file=@${FILENAME}" -o /dev/null -w '%{http_code}' ${SERVER})
 SEND_COMMAND_RET=$?
 
-# 5 - Abort if sending failed
+# 5.1 - Wait if queue is overloaded
+if [ ${SEND_COMMAND_RET} -eq 7 -o "${HTTP_CODE}" -eq 503 ]
+then
+  # Endpoint is too busy (HTTP_CODE == 503), wait for next run before trying other inventories
+  echo "WARNING: queue is overloaded, next inventories will be sent during next round"
+  exit 1
+fi
+# 5.2 - Abort if sending failed
 if [ ${SEND_COMMAND_RET} -eq 7 -o "${HTTP_CODE}" -ge 500 ]
 then
-  # Endpoint is unavailable (ret == 7) or too busy (HTTP_CODE == 503), try again later
+  # Endpoint is unavailable (ret == 7) for any unknown reason
   # Just leave this file in the incoming directory, it will be retried soon
   echo "WARNING: Unable to send ${FILENAME}, inventory endpoint is temporarily unavailable, will retry later"
   echo "This often happens due to rate-throttling in the endpoint to save on memory consumption. This is standard behavior."
   exit ${SEND_COMMAND_RET}
+# 5.3 - Put aside if inventory has a problem and continue
 elif [ ${SEND_COMMAND_RET} -ne 0 -o "${HTTP_CODE}" -ge 400 ]
 then
-  # The server refused our inventory (or there was a problem)
+  # The server refused our inventory (or there was a problem) (401 -> signature failed, 412 -> inventory structure failed)
   echo "ERROR: Failed to send inventory ${FILENAME}, putting it in the failed directory"
   mv "${FILENAME}" "${FAILEDDIR}/`basename ${FILENAME}`-$(date --rfc-3339=date)"
   mv "${FILENAME_SIGN}" "${FAILEDDIR}/`basename ${FILENAME_SIGN}`-$(date --rfc-3339=date)"
-  exit ${SEND_COMMAND_RET}
 fi
 
 # 6 - Sending succeeded, archive original file
