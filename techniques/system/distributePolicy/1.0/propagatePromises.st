@@ -79,43 +79,43 @@ bundle agent propagatePromises
     (policy_server|role_rudder_relay_promises_only).!root_server::
 
       "${client_data}"  #that's a loop on each files in client_inputs
-        copy_from    => remote("${server_info.cfserved}","${server_data}"),
+        copy_from    => remote("${server_info.policy_server}","${server_data}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the promises to propagate",
         classes => if_else("promises_propagated", "could_not_propagate_promise");
 
       "${g.rudder_var}/shared-files/"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_var}/shared-files/${g.uuid}/shared-files"),
+        copy_from    => remote("${server_info.policy_server}","${g.rudder_var}/shared-files/${g.uuid}/shared-files"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching files shared between agents",
         classes => if_else("shared_files_propagated", "could_not_propagate_shared_files");
 
       "${g.rudder_ncf_origin_local}"
-        copy_from    => remote("${server_info.cfserved}","${g.rudder_ncf_origin_local}"),
+        copy_from    => remote("${server_info.policy_server}","${g.rudder_ncf_origin_local}"),
         depth_search => recurse_visible("inf"),
         comment      => "Fetching the ncf local to propagate",
         classes      => if_else("ncf_local_promises_propagated", "could_not_propagate_ncf_local_promise");
 
       "${g.rudder_ncf_origin_common}"
-        copy_from    => remote_unsecured_without_perms("${server_info.cfserved}","${g.rudder_ncf_origin_common}"),
+        copy_from    => remote_unsecured_without_perms("${server_info.policy_server}","${g.rudder_ncf_origin_common}"),
         depth_search => recurse_visible("inf"),
         comment      => "Fetching the ncf common to propagate",
         classes      => if_else("ncf_common_promises_propagated", "could_not_propagate_ncf_common_promise");
 
       "&SHARED_FILES_FOLDER&"
-        copy_from    => remote("${server_info.cfserved}","&SHARED_FILES_FOLDER&"),
+        copy_from    => remote("${server_info.policy_server}","&SHARED_FILES_FOLDER&"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the files shared for the promises execution",
         classes => if_else("files_propagated", "could_not_propagate_files");
 
       "${g.rudder_tools}"
-        copy_from    => remote_unsecured("${server_info.cfserved}","${g.rudder_tools}"),
+        copy_from    => remote_unsecured("${server_info.policy_server}","${g.rudder_tools}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the tools for the promises execution",
         classes => classes_generic("propagate_tools");
 
       "${sys.workdir}/masterfiles"
-        copy_from    => remote("${server_info.cfserved}","${sys.workdir}/masterfiles"),
+        copy_from    => remote("${server_info.policy_server}","${sys.workdir}/masterfiles"),
         depth_search => recurse_visible("inf"),
         file_select => no_license_dat, #We don't want to propagate a wrong license.dat
         comment => "Fetching the bootstrap promises",
@@ -246,14 +246,14 @@ bundle agent sendInventoryToCmdb
     !disable_upload.policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only)::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/",
+        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user rudder:rudder -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.policy_server}/inventories/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/",
+        transformer => "/usr/bin/curl -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T ${this.promiser}  ${g.inventory_upload_protocol}://${server_info.policy_server}/inventory-updates/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
         classes => rudder_common_classes("rudder_inventory_relay"),

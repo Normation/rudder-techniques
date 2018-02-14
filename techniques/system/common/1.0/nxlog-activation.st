@@ -111,7 +111,7 @@ bundle agent nxlog_configure
       "${nxlog_config_file}"
         create        => "true",
         classes       => rudder_common_classes("nxlog_configure"),
-        edit_line     => nxlog_parameters("${server_info.cfserved}", "&SYSLOGPORT&", "${nxlog_common.transport_module}", "${nxlog_common.nxlog_tpl}", "${nxlog_configure.install_path}"),
+        edit_line     => nxlog_parameters("${server_info.policy_server}", "&SYSLOGPORT&", "${nxlog_common.transport_module}", "${nxlog_common.nxlog_tpl}", "${nxlog_configure.install_path}"),
         edit_defaults => empty_backup;
 
   methods:

@@ -105,10 +105,10 @@ bundle common server_info
         comment => "Path to file containing address to policy server";
 
       # Use "rudder" as default policy_server if no policy_server.dat exists
-      "cfserved" string => ifelse(fileexists("${policy_server_file}"),
+      "policy_server" string => ifelse(fileexists("${policy_server_file}"),
                                   readfile("${policy_server_file}", 2048),
                                   "rudder");
-      "policy_server" string => "${cfserved}";
+      "cfserved"      string => "${policy_server}";
 
   classes:
       "should_disable_server" expression => fileexists("${g.rudder_disable_server_file}");
@@ -224,7 +224,7 @@ bundle agent update_action
 
     !root_server::
       "${client_inputs}/${rudder_promises_timestamp_tmp}"
-        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}","${server_inputs}/${rudder_promises_timestamp}"),
+        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}","${server_inputs}/${rudder_promises_timestamp}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept");
@@ -233,13 +233,13 @@ bundle agent update_action
 &if(!INITIAL)&
       # Check if the hashes of ncf changed
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
-        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}","${g.rudder_ncf_origin_common_hash}"),
+        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}","${g.rudder_ncf_origin_common_hash}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
 
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
-        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}","${g.rudder_ncf_origin_local_hash}"),
+        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}","${g.rudder_ncf_origin_local_hash}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
@@ -249,7 +249,7 @@ bundle agent update_action
     # a short while ago
     new_promises_available.!root_server::
       "${client_inputs}"
-        copy_from         => remote("${server_info.cfserved}","${server_inputs}"),
+        copy_from         => remote("${server_info.policy_server}","${server_inputs}"),
         depth_search      => recurse("inf"),
         action            => immediate,
         move_obstructions => "true",
@@ -261,7 +261,7 @@ bundle agent update_action
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
     !root_server.(new_promises_available|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
-        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_ncf_origin_common}"),
+        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_common_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
@@ -270,7 +270,7 @@ bundle agent update_action
         comment           => "Update the common Rudder ncf instance";
 
       "${g.rudder_ncf}/local"
-        copy_from         => remote("${server_info.cfserved}", "${g.rudder_ncf_origin_local}"),
+        copy_from         => remote("${server_info.policy_server}", "${g.rudder_ncf_origin_local}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
@@ -307,7 +307,7 @@ bundle agent update_action
     # Copy the tools only if the file rudder_tools_updated is not up to date
     !policy_server::
       "${g.rudder_tools}/${rudder_tools_updated_tmp}"
-        copy_from         => remote_unsecured_without_perms("${server_info.cfserved}", "${g.rudder_tools_updated_origin}"),
+        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}", "${g.rudder_tools_updated_origin}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_tools_updated_repaired", "rudder_tools_updated_error", "rudder_tools_updated_kept"),
@@ -316,7 +316,7 @@ bundle agent update_action
     # We copy only if we have new tools based on the timestamp
     !policy_server.new_tools_available::
       "${g.rudder_tools}"
-        copy_from         => remote_unsecured("${server_info.cfserved}", "${g.rudder_tools_origin}"),
+        copy_from         => remote_unsecured("${server_info.policy_server}", "${g.rudder_tools_origin}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
         file_select       => by_fullname(@{rudder_tools_files_to_select}),
         action            => immediate,

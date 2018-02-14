@@ -94,11 +94,11 @@ bundle server access_rules
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
     windows::
       "${sys.workdir}\bin\cf-agent.exe"
-        admit_ips => { host2ip("${server_info.cfserved}") };
+        admit_ips => { host2ip("${server_info.policy_server}") };
 
     !windows::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
-        admit_ips => { host2ip("${server_info.cfserved}") };
+        admit_ips => { host2ip("${server_info.policy_server}") };
 
 &if(NOVA)&
     enterprise_edition::

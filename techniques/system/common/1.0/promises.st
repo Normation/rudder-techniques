@@ -74,7 +74,7 @@ body common control
 &if(!INITIAL)&
     android::
         # if native syslog is not available, use cfengine implementation (eg: android)
-        syslog_host => "${server_info.cfserved}";
+        syslog_host => "${server_info.policy_server}";
         syslog_port => "&SYSLOGPORT&";
 &endif&
 
@@ -518,7 +518,7 @@ bundle agent check_log_system
       "syslog_ng_conf_suffix" string => "));};log {source(${syslog_ng_source});filter(f_local_rudder);destination(rudder_loghost);";
       "syslog_ng_conf_final"  string => "flags(final);};";
 
-      "syslog_ng_conf"        string => concat("${syslog_conf_comment}", "${syslog_ng_conf_prefix}", "${syslog_ng_conf_proto}", "${syslog_ng_conf_start}", "${server_info.cfserved}", "${syslog_ng_conf_port}", "${syslog_ng_conf_portno}", "${syslog_ng_conf_suffix}", "${syslog_ng_conf_final}");
+      "syslog_ng_conf"        string => concat("${syslog_conf_comment}", "${syslog_ng_conf_prefix}", "${syslog_ng_conf_proto}", "${syslog_ng_conf_start}", "${server_info.policy_server}", "${syslog_ng_conf_port}", "${syslog_ng_conf_portno}", "${syslog_ng_conf_suffix}", "${syslog_ng_conf_final}");
       "syslog_ng_conf_regex"  string => concat(escape("filter f_local_rudder{facility(local6) and program("), ".*", escape(");};destination rudder_loghost {"), "(tcp|udp)", escape("${syslog_ng_conf_start}"), "[^\"]+", escape("${syslog_ng_conf_port}"), "[0-9]+", escape("${syslog_ng_conf_suffix}"), ".*");
 
       "rsyslog_conffile"      string => "/etc/rsyslog.conf";
@@ -555,7 +555,7 @@ bundle agent check_log_system
 
     (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd_conffile_present.!policy_server::
       "${rsyslog_rudder_conffile}"
-        edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
+        edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
         create => "true",
         edit_defaults => empty_backup,
         classes       => rudder_common_classes("rsyslog");
@@ -575,7 +575,7 @@ bundle agent check_log_system
 
     !windows.syslogd_conffile_present.!policy_server::
       "${syslog_conffile}"
-        edit_line => fix_syslogd("@${server_info.cfserved}"),
+        edit_line => fix_syslogd("@${server_info.policy_server}"),
         edit_defaults => noempty_backup,
         classes       => rudder_common_classes("syslogd");
 
@@ -682,7 +682,7 @@ bundle agent remove_rudder_syslog_configuration {
 
       "syslog_delete_lines_patterns" slist => {
         "\s*# Rudder specific logging parameters.*",
-        "local6.notice\s+@${server_info.cfserved}",
+        "local6.notice\s+@${server_info.policy_server}",
       };
 
   classes:

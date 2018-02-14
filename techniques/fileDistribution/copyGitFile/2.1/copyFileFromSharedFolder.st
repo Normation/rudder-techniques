@@ -130,7 +130,7 @@ bundle agent download_from_shared_folder
       # Suid and sgid may be setted only if the option to set it recursively, and recursion level is 1, or we are managing a file
       # If it's a directory, without exclusion
       "${copyfile[${index}][destination]}"
-        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),
+        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.policy_server}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),
         depth_search => recurse("${copyfile[${index}][recursion]}"),
         perms        => mog(
                             "${extended_modes_${index}}${copyfile[${index}][perm]}",
@@ -143,7 +143,7 @@ bundle agent download_from_shared_folder
 
        # If it's a directory, with exclusion
       "${copyfile[${index}][destination]}"
-        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),
+        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.policy_server}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),
         depth_search => recurse("${copyfile[${index}][recursion]}"),
         file_select  => exclude("${copyfile[${index}][exclude_include]}"),
         perms        => mog(
@@ -157,7 +157,7 @@ bundle agent download_from_shared_folder
 
        # If it's a directory, with inclusion
       "${copyfile[${index}][destination]}"
-        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),
+        copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.policy_server}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),
         depth_search => recurse("${copyfile[${index}][recursion]}"),
         file_select  => by_name("${copyfile[${index}][exclude_include]}"),
         perms        => mog(
@@ -175,7 +175,7 @@ bundle agent download_from_shared_folder
     # directory does not make sense.
     # Don't take purge in account as well.
       "${copyfile[${index}][destination]}"
-        copy_from  => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.cfserved}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
+        copy_from  => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.policy_server}", "${copyfile[${index}][compare_method]}", "false", "false", "false"),
         perms      => mog(
                           "${extended_modes_${index}}${copyfile[${index}][perm]}",
                           "${copyfile[${index}][owner]}",
