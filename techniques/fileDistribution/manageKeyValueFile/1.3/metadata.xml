@@ -83,6 +83,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </CONSTRAINT>
         </SELECT1>
       </SECTION>
+      <SECTION name="Post-modification script" component="true" componentKey="MANAGE_KEY_VALUE_FILEPATH">
+        <INPUT>
+          <NAME>MANAGE_KEY_VALUE_POST_HOOK_COMMAND</NAME>
+          <DESCRIPTION>Command to run after changes on one file</DESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>textarea</TYPE>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
     </SECTION>
   </SECTIONS>
 </TECHNIQUE>
