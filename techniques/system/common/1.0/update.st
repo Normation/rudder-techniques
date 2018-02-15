@@ -108,6 +108,7 @@ bundle common server_info
       "cfserved" string => ifelse(fileexists("${policy_server_file}"),
                                   readfile("${policy_server_file}", 2048),
                                   "rudder");
+      "policy_server" string => "${cfserved}";
 
   classes:
       "should_disable_server" expression => fileexists("${g.rudder_disable_server_file}");
