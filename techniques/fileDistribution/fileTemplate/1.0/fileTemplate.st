@@ -33,7 +33,7 @@ bundle agent fileTemplate {
       #Raw template text
       &FILE_TEMPLATE_RAW_TEMPLATE: {txt|"rawTemplate[&i&]" string => "&txt&";}&
 
-      #Absolute path of the template expension
+      #Absolute path of the template expansion
       &FILE_TEMPLATE_AGENT_DESTINATION_PATH: {dst_path|"dst[&i&]" string => "&dst_path&";}&
 
       #Permissions rights
@@ -181,7 +181,7 @@ pass3::
 
 #Expand the template
 
-      "any" usebundle => rudder_common_reports_generic("fileTemplate", "file_from_template_${dst_canon[${index}]}", "${trackingkey[${index}]}", "Expand template", "${dst[${index}]}", "The expension of the template ${temp}/${name[${index}]} in ${dst[${index}]}");
+      "any" usebundle => rudder_common_reports_generic("fileTemplate", "file_from_template_${dst_canon[${index}]}", "${trackingkey[${index}]}", "Expand template", "${dst[${index}]}", "The expansion of the template ${temp}/${name[${index}]} in ${dst[${index}]}");
 
 
 #Permmissions on the generated conf file
