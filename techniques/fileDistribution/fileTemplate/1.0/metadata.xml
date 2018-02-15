@@ -57,7 +57,7 @@
         <INPUT>
           <NAME>FILE_TEMPLATE_TEMPLATE</NAME>
           <DESCRIPTION>Relative template file path</DESCRIPTION>
-          <LONGDESCRIPTION>Relative to /var/rudder/configuration-repository/repository/shared-files/</LONGDESCRIPTION>
+          <LONGDESCRIPTION>Relative to /var/rudder/configuration-repository/shared-files/</LONGDESCRIPTION>
           <CONSTRAINT>
             <MAYBEEMPTY>true</MAYBEEMPTY>
             <TYPE>string</TYPE>
