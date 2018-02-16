@@ -37,6 +37,8 @@ bundle agent propagatePromises
     rudder_tools_updated_exists::
       "tools_timestamp"   string => readfile("${g.rudder_tools_updated_origin}", 2048);
 
+    
+
   classes:
     # Ensure the validity of the timestamp file for tools
     rudder_tools_updated_exists::
@@ -44,6 +46,17 @@ bundle agent propagatePromises
 
     root_server::
       "rudder_tools_updated_exists" expression => fileexists("${g.rudder_tools_updated_origin}");
+
+    !root_server::
+       "sync_method_disable" expression => strcmp("&RELAY_SYNC_METHOD&", "disable");
+       "sync_method_rsync" expression => strcmp("&RELAY_SYNC_METHOD&", "rsync");
+       "sync_promises" expression => strcmp("&RELAY_SYNC_PROMISES&", "true");
+       "sync_sharedfiles" expression => strcmp("&RELAY_SYNC_SHAREDFILES&", "true");
+
+       "disable_classic_promises" expression => "sync_promises.(sync_method_rsync|sync_method_disable)";
+       "disable_classic_sharedfiles" expression => "sync_sharedfiles.(sync_method_rsync|sync_method_disable)";
+       "rsync_promises" expression => "sync_promises.sync_method_rsync";
+       "rsync_sharedfiles" expression => "sync_sharedfiles.sync_method_rsync";
 
     any::
       "pass3" expression => "pass2";
@@ -76,13 +89,15 @@ bundle agent propagatePromises
         comment      => "Enforce the ncf configuration file",
         classes      => classes_generic("configure_ncf_config");
 
-    (policy_server|role_rudder_relay_promises_only).!root_server::
+    (policy_server|role_rudder_relay_promises_only).!root_server.!disable_classic_promises::
 
       "${client_data}"  #that's a loop on each files in client_inputs
         copy_from    => remote("${server_info.cfserved}","${server_data}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the promises to propagate",
         classes => if_else("promises_propagated", "could_not_propagate_promise");
+
+    (policy_server|role_rudder_relay_promises_only).!root_server.!disable_classic_sharedfiles::
 
       "${g.rudder_var}/shared-files/"
         copy_from    => remote("${server_info.cfserved}","${g.rudder_var}/shared-files/${g.uuid}/shared-files"),
@@ -160,6 +175,15 @@ bundle agent propagatePromises
         comment => "Copying list of nodes under this policy server",
         classes => if_else("nodeslist_copied", "could_not_copy_nodeslist");
 
+
+  commands:
+    policy_server.!root_server.rsync_promises::
+      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.cfserved}:${server_data}/ ${client_data}"
+        classes => if_else("promises_propagated", "could_not_propagate_promise");
+    policy_server.!root_server.rsync_sharedfiles::
+      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.cfserved}:&SHARED_FILES_FOLDER&/ &SHARED_FILES_FOLDER&/"
+        classes => if_else("files_propagated", "could_not_propagate_files");
+
   methods:
     root_server::
       "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "&TRACKINGKEY&", "Configure ncf", "None", "Configure configuration library");
@@ -170,13 +194,17 @@ bundle agent propagatePromises
     # Success if files are updated or not changed (kept or repaired).
     # root server have only tools to be updated and others have tools,
     # promises, masterfiles folder to be updated.
-    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.(promises_propagated|empty_promises_to_propagate).(shared_files_propagated|sharedfiles_not_existent).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied)).!(propagate_tools_error|promises_to_propagate_not_copied|sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
+    pass3.(((root_server.propagate_tools_ok)|(!root_server.propagate_tools_ok.(promises_propagated|empty_promises_to_propagate|disable_classic_promises).(shared_files_propagated|sharedfiles_not_existent|disable_classic_sharedfiles).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied)).!(propagate_tools_error|promises_to_propagate_not_copied|sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Propagate promises", "None", "All files have been propagated");
+
     pass3.promises_to_propagate_not_copied::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate policy");
 
     pass3.sharedfiles_not_copied::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate shared files");
+
+    pass3.could_not_propagate_promise::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate promises");
 
     pass3.could_not_propagate_files::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Propagate promises", "None", "Cannot propagate shared files");
