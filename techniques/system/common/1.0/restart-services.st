@@ -33,10 +33,7 @@ bundle agent restart_services
       "restart_cmd"       string => "${paths.path[svcadm]} refresh svc:/system/system-log:default";
     aix::
       "restart_cmd"       string => "/usr/bin/refresh -s syslogd";
-    !solaris.!aix::
-      "restart_cmd"       string => "/bin/true"; # necessary to avoid CFEngine just not doing stuff because the variable isn't defined, but won't actually be called
-
-    any::
+    solaris|aix::
       "restart_cmd_class" string => canonify("command_execution_${restart_cmd}");
   
   methods:
@@ -58,13 +55,21 @@ bundle agent restart_services
     (aix|solaris).(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired|remove_rudder_syslog_configuration_result_repaired)::
       "restart_syslog" usebundle => command_execution("${restart_cmd}");
       
-    any::
+    solaris|aix::
       # Final report about (sys)log setting enforcement / restart
       "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system has been restarted"),
-            ifvarclass => "service_restart_rsyslog_repaired|service_restart_syslog_ng_repaired|service_restart_syslog_repaired|${restart_cmd_class}_repaired";
+            ifvarclass => "${restart_cmd_class}_repaired";
 
       "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system"),
-            ifvarclass => "service_restart_rsyslog_not_ok|service_restart_syslog_ng_not_ok|service_restart_syslog_not_ok|${restart_cmd_class}_not_ok";
+            ifvarclass => "${restart_cmd_class}_not_ok";
+    !(solaris|aix)::
+      # Final report about (sys)log setting enforcement / restart
+      "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system has been restarted"),
+            ifvarclass => "service_restart_rsyslog_repaired|service_restart_syslog_ng_repaired|service_restart_syslog_repaired";
+
+      "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system"),
+            ifvarclass => "service_restart_rsyslog_not_ok|service_restart_syslog_ng_not_ok|service_restart_syslog_not_ok";
+
 
     # Ensure at least one syslog is running
     # We cannot detect which one is used for Rudder
