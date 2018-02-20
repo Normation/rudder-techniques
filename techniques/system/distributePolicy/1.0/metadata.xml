@@ -69,11 +69,16 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>SUB_NODES_ID</NAME>
     <NAME>SUB_NODES_KEYHASH</NAME>
     <NAME>SUB_NODES_SERVER</NAME>
+    <NAME>RELAY_SYNC_METHOD</NAME>
+    <NAME>RELAY_SYNC_PROMISES</NAME>
+    <NAME>RELAY_SYNC_SHAREDFILES</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
     <!-- The following sections are for reporting only -->
-    <SECTION name="Propagate promises" component="true"/>
+    <SECTION name="Synchronize policies" component="true"/>
+    <SECTION name="Synchronize files" component="true"/>
+    <SECTION name="Synchronize resources" component="true"/>
     <SECTION name="Send inventories to Rudder server" component="true"/>
     <SECTION name="Configure ncf" component="true"/>
   </SECTIONS>
