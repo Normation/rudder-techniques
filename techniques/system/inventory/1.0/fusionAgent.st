@@ -757,7 +757,7 @@ bundle agent sendInventory
       "${g.rudder_var_tmp}/inventory"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         depth_search => recurse_visible(1),
-        file_select  => by_name_old("@{g.signed_inventory_file_types}", 2),
+        file_select  => fusion_by_name_old("@{g.signed_inventory_file_types}", 2),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
@@ -772,10 +772,10 @@ bundle agent sendInventory
       "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Could not delete inventory file after sending to server");
 
 }
-body file_select by_name_old(names,days)
+body file_select fusion_by_name_old(names,days)
 {
       leaf_name   => { @(names) };
-      mtime       => irange(0,ago(0,0,"$(days)",0,0,0));
+      mtime       => irange(0,ago(0,0,"${days}",0,0,0));
       file_result => "mtime.leaf_name";
 }
 
