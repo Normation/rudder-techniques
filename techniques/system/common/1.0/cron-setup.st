@@ -98,7 +98,10 @@ bundle agent check_cron_daemon
   methods:
 
     pass2.restart_crond::
+      "restart_cron" usebundle => disable_reporting;
+      "restart_cron" usebundle => _method_reporting_context("CRON Daemon", "None");
       "restart_cron" usebundle => service_restart("${service_name}");
+      "restart_cron" usebundle => enable_reporting;
 
     # Fake success result, since we don't actually call service_restart unless it's needed
     pass2.!(android|windows|aix).!restart_crond::

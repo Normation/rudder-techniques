@@ -248,7 +248,10 @@ bundle agent fusionAgent
   methods:
 
     xen.!xen_dom0::
-      "any" usebundle => package_present("${xen_tools_package}", "", "", "");
+      "xen_tools_present" usebundle => disable_reporting;
+      "xen_tools_present" usebundle => _method_reporting_context("Install xen tools", "None");
+      "xen_tools_present" usebundle => package_present("${xen_tools_package}", "", "", "");
+      "xen_tools_present" usebundle => enable_reporting;
 
     pass3.run_inventory::
       "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Running inventory");

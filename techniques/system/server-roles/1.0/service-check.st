@@ -23,8 +23,10 @@ bundle agent generic_process_check_process(binary, initscript, name) {
       "c_initscript" string => canonify("${initscript}");
 
   methods:
-
-      "start_process" usebundle => service_ensure_running_path("${initscript}", "${binary}");
+      "start_process_${name}" usebundle => disable_reporting;
+      "start_process_${name}" usebundle => _method_reporting_context("Check ${name} process", "None");
+      "start_process_${name}" usebundle => service_ensure_running_path("${initscript}", "${binary}");
+      "start_process_${name}" usebundle => enable_reporting;
 
       "any"           usebundle => rudder_common_reports_generic("server-roles", "service_ensure_running_${c_initscript}", "&TRACKINGKEY&", "Check ${name} process", "None", "Check ${name} process running");
 
@@ -38,7 +40,10 @@ bundle agent generic_process_check_bootstart(binary, initscript, name) {
 
   methods:
 
-      "bootstart_service" usebundle => service_ensure_started_at_boot("${initscript}");
+      "bootstart_service_${name}" usebundle => disable_reporting;
+      "bootstart_service_${name}" usebundle => _method_reporting_context("Check ${name} boot script", "None");
+      "bootstart_service_${name}" usebundle => service_ensure_started_at_boot("${initscript}");
+      "bootstart_service_${name}" usebundle => enable_reporting;
       "any" usebundle => rudder_common_reports_generic("server-roles", "service_ensure_started_at_boot_${c_initscript}", "&TRACKINGKEY&", "Check ${name} boot script", "None", "Check ${name} boot starting parameters");
 
 }

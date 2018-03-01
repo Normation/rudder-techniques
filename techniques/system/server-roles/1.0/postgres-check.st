@@ -44,7 +44,10 @@ bundle agent root_postgres_check
   methods:
 
     pass2.SuSE.psql_conf_updated::
+      "restart_postgresql" usebundle => disable_reporting;
+      "restart_postgresql" usebundle => _method_reporting_context("Check PostgreSQL configuration", "None");
       "restart_postgresql" usebundle => service_restart("postgresql");
+      "restart_postgresql" usebundle => enable_reporting;
 
     # Report about the configuration file editing
     pass3.SuSE.psql_conf_ok.!psql_conf_updated.!psql_conf_update_error::

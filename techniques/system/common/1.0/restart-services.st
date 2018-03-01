@@ -38,8 +38,9 @@ bundle agent restart_services
   
   methods:
   
+    "restart_syslog" usebundle => disable_reporting;
+    "restart_syslog" usebundle => _method_reporting_context("Restarting log system", "None");
     # (sys)log service
-
     (!SuSE.!aix.!solaris).(syslogd_repaired|remove_rudder_syslog_configuration_syslog_repaired)::
       "restart_syslog" usebundle => service_restart("syslog");
 
@@ -54,7 +55,9 @@ bundle agent restart_services
 
     (aix|solaris).(syslog_ng_repaired|rsyslog_repaired|syslogd_repaired|remove_rudder_syslog_configuration_result_repaired)::
       "restart_syslog" usebundle => command_execution("${restart_cmd}");
-      
+    
+    any::
+      "restart_syslog" usebundle => enable_reporting;
     solaris|aix::
       # Final report about (sys)log setting enforcement / restart
       "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system has been restarted"),
@@ -74,12 +77,15 @@ bundle agent restart_services
     # Ensure at least one syslog is running
     # We cannot detect which one is used for Rudder
     !windows.!aix.!solaris::
-      "run_syslog"   usebundle => service_ensure_running("syslog"),
-                    ifvarclass => "SuSE|syslogd_conffile_present";
-      "run_syslogng" usebundle => service_ensure_running("syslog-ng"),
-                    ifvarclass => "!SuSE.syslogng_conffile_present";
-      "run_rsyslog" usebundle  => service_ensure_running("rsyslog"),
-                    ifvarclass => "!SuSE.rsyslogd_conffile_present";
+      "run_syslog"      usebundle => disable_reporting;
+      "run_syslog"      usebundle => _method_reporting_context("Make sure syslog service runs", "None");
+      "run_syslog"      usebundle => service_ensure_running("syslog"),
+                        ifvarclass => "SuSE|syslogd_conffile_present";
+      "run_syslogng"    usebundle => service_ensure_running("syslog-ng"),
+                        ifvarclass => "!SuSE.syslogng_conffile_present";
+      "run_rsyslog"     usebundle  => service_ensure_running("rsyslog"),
+                        ifvarclass => "!SuSE.rsyslogd_conffile_present";
+      "run_syslog"      usebundle => enable_reporting;
     # We have a problem only if all 3 have an error (otherwise at least one is running)
     service_ensure_running_syslog_error.service_ensure_running_syslog_ng_error.service_ensure_running_rsyslog_error::
       "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not start the logging system");
