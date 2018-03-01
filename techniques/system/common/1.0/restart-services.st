@@ -29,6 +29,9 @@ bundle agent restart_services
 {
 
   vars:
+
+      "report_data.identifier" string => "&TRACKINGKEY&";
+      "report_data.technique_name" string => "Common";
     solaris::
       "restart_cmd"       string => "${paths.path[svcadm]} refresh svc:/system/system-log:default";
     aix::
