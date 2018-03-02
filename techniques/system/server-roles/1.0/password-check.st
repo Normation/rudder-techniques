@@ -151,9 +151,10 @@ bundle agent root_password_check_ldap
   methods:
 
     pass2.rudder_ldap_password_integrity_changed::
-
+      "restart_slapd" usebundle => disable_reporting; 
+      "restart_slapd" usebundle => _method_reporting_context("Check LDAP in rudder-webabb.properties", "None");
       "restart_slapd" usebundle => service_restart("rudder-slapd");
-
+      "restart_slapd" usebundle => enable_reporting;  
     pass3.root_server.rudder_web_password_integrity_ok.!rudder_web_password_integrity_changed.!rudder_web_password_integrity_failed::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check LDAP in rudder-webapp.properties", "None", "Web interface configuration files are correct (checked LDAP password)");
 
@@ -259,8 +260,10 @@ bundle agent root_password_restart_jetty
   methods:
 
     pass2.rudder_web_password_integrity_changed::
-
-      "restart_jetty" usebundle => service_restart("rudder-jetty");
+      "restart_jetty_password" usebundle => disable_reporting; 
+      "restart_jetty_password" usebundle => _method_reporting_context("Check rudder-webapp.properties", "None");
+      "restart_jetty_password" usebundle => service_restart("rudder-jetty");
+      "restart_jetty_password" usebundle => enable_reporting;  
 
     pass3.service_restart_rudder_jetty_repaired::
       "any" usebundle => rudder_common_report("server-roles", "log_info", "&TRACKINGKEY&", "Check rudder-webapp.properties", "None", "Jetty has been restarted");

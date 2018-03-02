@@ -54,7 +54,10 @@ bundle agent apache_acl
 
   methods:
     rudder_apache_acl_repaired::
-      "any" usebundle => service_reload("${apache_service}");
+      "reload_apache" usebundle => disable_reporting; 
+      "reload_apache" usebundle => _method_reporting_context("Configure apache ACL", "None"); 
+      "reload_apache" usebundle => service_reload("${apache_service}");
+      "reload_apache" usebundle => enable_reporting; 
 
     rudder_apache_acl_ok.!rudder_apache_acl_repaired.!rudder_apache_acl_error::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache ACLs are correct");

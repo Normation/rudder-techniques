@@ -50,10 +50,12 @@ bundle agent generic_alive_check(app)
   methods:
 
     root_server::
-
-      "any" usebundle => service_restart("rudder-jetty"),
-        ifvarclass => "site_alivecheck_restart_jetty_${sitename}",
-        classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
+      "restart_jetty" usebundle => disable_reporting; 
+      "restart_jetty" usebundle => _method_reporting_context("Check ${app} status", "None"); 
+      "restart_jetty" usebundle => service_restart("rudder-jetty"),
+                             if => "site_alivecheck_restart_jetty_${sitename}",
+                        classes => set_persist_classes("site_alivecheck_jetty_restarted_${sitename}", "site_down_once_${sitename}" ,"0");
+      "restart_jetty" usebundle => enable_reporting; 
 
     pass3.root_server::
 
