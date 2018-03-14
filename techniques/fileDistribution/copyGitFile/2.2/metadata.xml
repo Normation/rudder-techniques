@@ -27,7 +27,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <AGENT type="dsc">
     <BUNDLES>
-      <NAME>copyFileFromSharedFolder_RudderUniqueID</NAME>
+      <NAME>copyFileFromSharedFolder</NAME>
     </BUNDLES>
     <TMLS>
       <TML name="copyFileFromSharedFolder.ps1">
@@ -39,7 +39,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <AGENT type="cfengine-community">
     <BUNDLES>
-      <NAME>download_from_shared_folder_RudderUniqueID</NAME>
+      <NAME>download_from_shared_folder</NAME>
     </BUNDLES>
     <TMLS>
       <TML name="copyFileFromSharedFolder"/>
