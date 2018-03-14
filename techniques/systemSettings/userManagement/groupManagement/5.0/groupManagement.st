@@ -122,7 +122,7 @@ bundle agent check_usergroup_group_parameters_grouphandle(name, create, setgid, 
 
 
        #Group enforce GID
-      "any" usebundle => rudder_common_reports_generic("groupManagement", "groupmanagement_group_gid_${index}_RudderUniqueID", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} gid set it ${gid}"),
+      "any" usebundle => rudder_common_reports_generic("groupManagement", "groupmanagement_group_gid_${index}", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} gid set it ${gid}"),
            ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
 
       "any" usebundle => rudder_common_report("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not present"),
