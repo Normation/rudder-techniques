@@ -108,7 +108,6 @@ bundle common va
         "setup_cronjob",
         "check_cron_daemon",
 &if(INITIAL)&
-        "virtualMachines",
         "doInventory",
 &else&
         "configure_rudder_reporting_system",

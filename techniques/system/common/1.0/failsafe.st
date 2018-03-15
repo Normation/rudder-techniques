@@ -36,13 +36,10 @@ bundle common g
     android::
       "rudder_base"               string => "/data/rudder";
       "rudder_var"                string => "/data/rudder";
-      "rudder_tools_files_android" slist => { "cpuid-android-V1.0.sh" };
 
     !windows.!android::
       "rudder_base"              string => "/opt/rudder";
       "rudder_tools_files_unix"   slist => { "send-clean.sh",
-                                             "cpuid-linux-V1.0.sh",
-                                             "vmware_info.sh",
                                              "check-rsyslog-version",
                                              "apache-vhost.tpl",
                                            };
@@ -73,27 +70,8 @@ bundle common g
 
       "rudder_tools_files_windows" slist => {
                                               # Rudder utilities
-                                              "uuid.vbs",
-                                              "userlist.bat",
                                               "getDate.bat",
                                               "registrydns.bat",
-                                              "cpuid-windows-v1.0.vbs",
-
-                                              # GNU iconv
-                                              "iconv.exe",
-                                              "iconv.dll",
-
-                                              # cURL
-                                              "curl/curl.exe",
-                                              "curl/curl-ca-bundle.crt",
-
-                                              # OpenSSL
-                                              "openssl/openssl.exe",
-                                              "openssl/libeay32.dll",
-                                              "openssl/ssleay32.dll",
-
-                                              # Fusion inventory
-                                              "fusionagent.exe",
 
                                               # NXlog
                                               "nxlog-ce-2.8.1248.msi",
@@ -102,8 +80,7 @@ bundle common g
 &endif&
 
     SuSE::
-      "rudder_tools_files_suse"    slist => { "openvpn-2.2.1-1.x86_64.rpm",
-                                              "openvpn-2.2.1-1.i686.rpm",
+      "rudder_tools_files_suse"    slist => { 
                                               "zypper-repo.tpl",
                                               "check-zypper-version",
                                               "checkzmd.pl",
