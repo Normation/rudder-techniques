@@ -15,11 +15,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Sudoers">
-  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique configures the sudo utility.
 
   It will ensure that the defined rights for given users and groups are correctly defined.</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
@@ -28,7 +29,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </COMPATIBLE>
 
   <BUNDLES>
-    <NAME>check_sudo_parameters</NAME>
+    <NAME>check_sudo_parameters_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -39,9 +40,22 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SAMESIZEAS>SUDO_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
 
+  <RUNHOOKS>
+    <PRE bundle="runhook_package">
+      <REPORT name="Install sudo"/>
+      <PARAMETER name="name" value="sudo"/>
+    </PRE>
+    <PRE bundle="runhook_sudo_pre_hook">
+      <REPORT name="PLACEHOLDER"/>
+    </PRE>
+    <POST bundle="runhook_sudo_post_hook">
+      <REPORT name="Permissions"/>
+    </POST>
+  </RUNHOOKS>
+
   <SECTIONS>
 
-    <SECTION name="Install" component="true" />
+    <SECTION name="Install sudo" component="true" />
     <SECTION name="sudoersFile" component="true" />
 
     <!-- permissions Section , index 1-->

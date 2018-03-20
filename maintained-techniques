@@ -62,6 +62,7 @@ systemSettings/systemManagement/motdConfiguration/3.2
 systemSettings/userManagement/groupManagement/5.0
 systemSettings/userManagement/groupManagement/5.1
 systemSettings/userManagement/sudoParameters/3.1
+systemSettings/userManagement/sudoParameters/3.2
 systemSettings/userManagement/userManagement/7.1
 systemSettings/userManagement/userManagement/7.2
 systemSettings/userManagement/userManagement/8.0
