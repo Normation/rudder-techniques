@@ -128,6 +128,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="ncf Initialization" component="true" />
     <SECTION name="Security parameters" component="true" />
     <SECTION name="Log system for reports" component="true" />
+    <SECTION name="Log system running" component="true" />
     <SECTION name="CRON Daemon" component="true" />
     <SECTION name="Binaries update" component="true" />
     <SECTION name="Process checking" component="true" />
