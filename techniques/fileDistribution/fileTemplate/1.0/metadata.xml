@@ -61,7 +61,7 @@
             <CONSTRAINT>
               <MAYBEEMPTY>true</MAYBEEMPTY>
               <TYPE>textarea</TYPE>
-            <REGEX error="You can't exceed 16.383 chars, please load your template from a remote file!">^.{1,16383}$</REGEX>
+            <REGEX error="You can't exceed 16.000 chars, please load your template from a remote file!">^[\S\s]{1,16000}$</REGEX>
             </CONSTRAINT>
           </INPUT>
 
