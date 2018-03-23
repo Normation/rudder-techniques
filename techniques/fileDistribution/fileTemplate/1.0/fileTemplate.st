@@ -112,7 +112,7 @@ bundle agent fileTemplate_RudderUniqueID {
           "${relative_src}/${src[${index}]}",
           "${temp}/${name[${index}]}"
         ),
-        ifvarclass => "!raw_${index}.!rudder_server_root";
+        ifvarclass => "!raw_${index}.!role_rudder_server_root";
 
       #Not needed, but due to the bug #11116 if you want to
       #apply the technique on your policy server you have to 
@@ -124,7 +124,7 @@ bundle agent fileTemplate_RudderUniqueID {
       #    "${relative_src}/${src[${index}]}",
       #    "${temp}/${name[${index}]}"
       #  ),
-      #  ifvarclass => "!raw_${index}.rudder_server_root";
+      #  ifvarclass => "!raw_${index}.role_rudder_server_root";
 
       #Expand the template on the given location
       "expand_${src[${index}]}"
@@ -168,11 +168,11 @@ pass3::
 #File copy in /var/rudder/tmp/
 
       "any" usebundle => rudder_common_reports_generic("fileTemplate", "file_copy_from_remote_source_${temp_canon[${index}]}", "${trackingkey[${index}]}", "Load Template from a file or text input", "${dst[${index}]}", "The copy of the file ${relative_src}/${src[${index}]} from the policy server to ${temp}/${name[${index}]}"),
-      ifvarclass => "!rudder_server_root";
+      ifvarclass => "!role_rudder_server_root";
 
 
       "any" usebundle => rudder_common_reports_generic("fileTemplate", "file_copy_from_local_source_${temp_canon[${index}]}", "${trackingkey[${index}]}", "Load Template from a file or text input", "${dst[${index}]}", "The copy of the file ${relative_src}/${src[${index}]} from the policy server to ${temp}/${name[${index}]}"),
-      ifvarclass => "rudder_server_root";
+      ifvarclass => "role_rudder_server_root";
 
 #Creation of the file from a raw input template
 
