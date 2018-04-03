@@ -1,5 +1,5 @@
 {
-        "displayName": "Manage keys-values in file /tmp/manage-key-value",
+        "displayName": "Test_manageKeyValueFile_v1_0_Manage keys-values in file /tmp/manage-key-value",
         "shortDescription": "",
         "longDescription": "Set key=value in this file",
         "techniqueName": "manageKeyValueFile",
