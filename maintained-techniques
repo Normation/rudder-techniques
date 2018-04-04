@@ -12,6 +12,7 @@ applications/packageManagement/1.0
 applications/packageManagement/1.1
 applications/packageManagement/1.2
 applications/repoGpgKeyManagement/1.0
+applications/repoGpgKeyManagement/1.1
 applications/zmdPackageManagerSettings/3.0
 applications/zypperPackageManagerRepositories/1.0
 applications/zypperPackageManagerSetup/1.0

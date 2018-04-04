@@ -21,7 +21,6 @@
 -->
 
 <TECHNIQUE name="Package repository keys (RPM/APT)">
-  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
 
   <!-- This description is displayed in detailed views in the interface.
      It should be used to describe what this Technique does, in detail.
