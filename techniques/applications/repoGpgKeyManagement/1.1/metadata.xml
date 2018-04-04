@@ -1,6 +1,8 @@
 <!--
 
  Copyright (c) 2015 Janos Mattyasovszky
+ Copyright (c) 2018 Normation
+
 
  This program is free software: you can redistribute it and/or modify
  it under the terms of the GNU General Public License as published by
@@ -22,9 +24,6 @@
 
 <TECHNIQUE name="Package repository keys (RPM/APT)">
 
-  <!-- This description is displayed in detailed views in the interface.
-     It should be used to describe what this Technique does, in detail.
-     New lines will be ignored. -->
   <DESCRIPTION>
    Manages trusted GPG Keys for the RPM / zypper / APT Package Managers.
    It uses `rpm --import' and `apt-key add' to load, and `rpm -e' and `apt-key remove' to remove keys.
@@ -32,10 +31,8 @@
    when conflicting actions are specified on the same hash by different directives, it will flip-flop!
   </DESCRIPTION>
 
-  <!-- Can several Directives based on this Technique be applied to the same node?
-     If so, the Technique will have to be written to support multi-valued variables.
-     -->
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
 
   <!-- List of .st files (also called templates or TMLS)
      in this Technique to import and parse variables in.
@@ -49,7 +46,7 @@
        Technically, they don't have to have the same name as the
      TML, but if there is one bundle per TML, it is recommended. -->
   <BUNDLES>
-    <NAME>check_repo_gpg_key</NAME>
+    <NAME>check_repo_gpg_key_RudderUniqueID</NAME>
   </BUNDLES>
 
   <!-- Define agent and OS compatibility for this Technique.
@@ -66,6 +63,12 @@
   <TRACKINGVARIABLE>
     <SAMESIZEAS>GPG_KEY_HASH</SAMESIZEAS>
   </TRACKINGVARIABLE>
+
+  <RUNHOOKS>
+    <PRE bundle="runhook_repoGpgKeyManagementGetKeys">
+      <REPORT name="PLACEHOLDER"/>
+    </PRE>
+  </RUNHOOKS>
 
   <!-- From here on, define variables to display in the web interface
      All variables must be contained in a section.

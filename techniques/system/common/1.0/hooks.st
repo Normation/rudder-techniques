@@ -257,3 +257,96 @@ bundle agent runhook_sudo_post_hook(json) {
         comment => "Checking new sudoers validity";
 
 }
+
+
+########################################################
+## Package repository keys (RPM/APT) specific hooks
+########################################################
+
+# This is a pre hook for Package repository keys (RPM/APT)
+# If any of report mode is enforce, then it will effectively get all the keys in repos, 
+# create {repo_gpg_homedir}/. folder
+# If all are in audit mode, then it won't do anything
+# This method does not report at all
+bundle agent runhook_repoGpgKeyManagementGetKeys(json) {
+  vars:
+      "definitions" data => parsejson("${json}");
+
+      "reporting"   data => mergedata("definitions[reports]");
+
+      "reportkeys" slist => getindices("reporting");
+
+
+
+   # actual implementation
+
+      "repo_gpg_binary"   string => "/usr/bin/gpg",
+        comment => "The gpg binary used to verify the keys and enumerate the long hash from the RPM-s";
+
+      "repo_gpg_homedir"  string => "${g.rudder_var_tmp}/repo_gpg",
+        comment => "The temporary home directory of GPG, where it puts its trust.db, required to perform all queries by GPG.";
+
+
+      "repo_gpg_options"  string => "--homedir ${repo_gpg_homedir} --quiet --with-colon --keyid-format=long",
+        comment => "Common options to provide to either gpg reading the rpm -q's output or apt-key adv, which is forwarded to a gpg invocation";
+
+    repo_gpg_uses_rpm::
+      "repo_gpg_getallkeys" string => "${paths.rpm} -q gpg-pubkey --qf '%{description}\n' | ${repo_gpg_binary} ${repo_gpg_options}",
+        comment => "We use GPG to decode the whole PGP PUBLIC KEY BLOCK stored in %{description}, because rpm only stores the first 8 chars of the hash";
+
+    repo_gpg_uses_apt::
+      "repo_gpg_getallkeys" string => "${paths.apt_key} adv --fingerprint ${repo_gpg_options}",
+        comment => "'apt-key adv' is an invocation of gpg directly, so we can use the same parameters as for rpm and parse the same output format later via pipe";
+
+
+  classes:
+      # define if there is at least one enforce
+      "is_enforce"            expression => strcmp("${reporting[${reportkeys}][mode]}", "enforce");
+
+      # For reporting, detect each enforce/audit
+      "is_enforce_${reportkeys}" expression => strcmp("${reporting[${reportkeys}][mode]}", "enforce");
+
+      "repo_gpg_has_gpg_binary"
+        expression => isexecutable("${repo_gpg_binary}"),
+        comment    => "This defines if we have an executable gpg binary, necessary for gpg validation or enumerate the gpg keys on an RPM system";
+
+      "repo_gpg_has_awk_binary"
+        and     => { isvariable("paths.awk"), isexecutable("${paths.awk}") },
+        comment => "We use awk to parse gpg's output, so it's required to be present for this to work...";
+
+      "repo_gpg_uses_apt"
+        and     => { isvariable("paths.apt_key"), isexecutable("${paths.apt_key}"), "repo_gpg_has_awk_binary" },
+        comment => "We use apt if the path is known and is executable";
+
+      "repo_gpg_has_rpm"
+        and     => { isvariable("paths.rpm"), isexecutable("${paths.rpm}") },
+        comment => "Here we check if it's and rpm-based system, but this does not mean we actually can handle the actions: we just know we could run";
+
+      "repo_gpg_uses_rpm"
+        and     => { "repo_gpg_has_rpm", "repo_gpg_has_gpg_binary", "repo_gpg_has_awk_binary" },
+        comment => "We also need the GPG binary if on RPM-Based systems to check the long hash";
+
+    any::
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  files:
+    is_enforce::
+      "${repo_gpg_homedir}/."
+        comment       => "Here we put our gpg keyring's home dir - required for gpg-related commands",
+        create        => "true",
+        perms         => m("0700"),
+        classes       => classes_generic("hook_repo_gpg_homedir_created");
+
+
+  commands:
+    is_enforce.(repo_gpg_uses_apt|repo_gpg_uses_rpm)::
+
+      "${repo_gpg_getallkeys} | ${paths.awk} -F ':' '$1 ~ /^pub/ { printf \"+hook_repo_gpg_key_%s_present\n\", tolower($5); }'"
+        comment    => "We use this module instead of looking up each gpg key, because each apt-key call takes about 3-5 seconds, so this way we have O(1) instead of O(n)...",
+        ifvarclass => "repo_gpg_has_awk_binary",
+        classes    => classes_generic("hook_repo_gpg_hashes_read"),
+        contain    => outputable,
+        module     => "true";
+}
