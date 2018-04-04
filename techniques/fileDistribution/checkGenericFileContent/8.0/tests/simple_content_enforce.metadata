@@ -1,0 +1,5 @@
+{
+  "directive": "simple_content_enforce.json",
+  "check": "simple_content_enforce.rb", 
+  "compliance": 100
+}
