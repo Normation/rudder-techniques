@@ -1,6 +1,8 @@
-{
-  "init": "simple_content_replace.cf",
-  "directive": "simple_content_replace.json",
-  "check": "simple_content_replace.rb", 
+[{
+  "inits": ["simple_content_replace.cf"],
+  "directives": ["simple_content_replace.json"],
+  "checks": ["simple_content_replace.rb"],
+  "sharedFiles":[],
+  "name": "Test_checkGenericFileContent_v8_0_simple_content_replace",
   "compliance": 100
-}
+}]
