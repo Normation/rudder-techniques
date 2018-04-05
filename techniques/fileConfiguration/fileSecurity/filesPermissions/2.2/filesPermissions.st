@@ -28,7 +28,7 @@ bundle agent files_permissions_RudderUniqueID
 {
   vars:
 
-      "dim_array" int =>  readstringarrayidx("file","${this.promise_dirname}/../RudderUniqueID/permlist","#[^\n]*",":",1024,102400);
+      "dim_array" int =>  readstringarrayidx("file","${this.promise_dirname}/permlist","#[^\n]*",":",1024,102400);
 
       "filePerms" slist => getindices("file");
 
