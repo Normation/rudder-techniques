@@ -502,9 +502,9 @@ bundle agent addInformationsToInventory
     # define VMRUDDERUUID when we have xen
     xen.SuSE.(xen_domu_pv|xen_domu_hv)::
       "VMRUDDERUUID_cmd" string => "/bin/xenstore-read vm";
-    xen.(centos|redhat).!xen_dom0::
+    xen.(centos|redhat|debian).!xen_dom0::
       "VMRUDDERUUID_cmd" string => "/usr/bin/xenstore-read vm";
-    xen.!SuSE.!centos.!redhat.!xen_dom0::
+    xen.!SuSE.!centos.!redhat.!debian.!xen_dom0::
       "VMRUDDERUUID_cmd" string => "/usr/sbin/xenstore-read vm";
     xen.!xen_dom0::
       "VMRUDDERUUID"     string => execresult("${VMRUDDERUUID_cmd}", "noshell");
