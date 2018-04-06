@@ -3,6 +3,7 @@
   "directives": ["test_fileTemplate.json", "loadVars.json"],
   "checks": ["test_fileTemplate.rb"],
   "sharedFiles":["template1"],
+  "name": "Test_fileTemplate_v1_0_test_fileTemplate",
   "compliance": 100
 }]
 
