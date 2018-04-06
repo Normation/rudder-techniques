@@ -91,6 +91,7 @@ bundle agent check_clock_configuration
     !windows.!aix.!clock_timezone_noedit::
       "/etc/localtime"
         copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),
+        perms => system_owned("0644"),
         comment => "Updating the /etc/localtime file",
         classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
 
