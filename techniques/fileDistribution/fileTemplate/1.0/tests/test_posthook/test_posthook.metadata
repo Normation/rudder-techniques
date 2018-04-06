@@ -3,6 +3,7 @@
   "directives": ["test_posthook.json", "loadVars.json"],
   "checks": ["test_posthook.rb"],
   "sharedFiles":["template1"],
+  "name": "Test_fileTemplate_v1_0_test_posthook",
   "compliance": 100
 }]
 
