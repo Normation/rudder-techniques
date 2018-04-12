@@ -65,6 +65,10 @@ function check_usergroup_user_parameters {
               $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $passwdSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
             }
           }
+        } else {
+          $state = [ComplianceStatus]::result_na
+          $passwordAbsent = "$resultNAString, no password defined"
+          $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $passwdSection -ComponentKey $logins[$i] -Message $passwordAbsent -report:$true
         }
 
       } elseif ($policies[$i] -eq $absent) {
