@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="SSH authorised keys">
-  <DESCRIPTION>This technique will check if the required SSH keys are present on a user directory. Key format supported are ssh-rsa, ssh-dss, ssh-ed25519, ssh-ecdsa, ssh-dsa.</DESCRIPTION>
+  <DESCRIPTION>This technique will check if the required SSH keys are present on a user directory. Supported key formats are ssh-rsa|ssh-dss|ssh-ed25519|ecdsa-sha2-nistp521|ecdsa-sha2-nistp384|ecdsa-sha2-nistp256|ssh-dsa.</DESCRIPTION>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>

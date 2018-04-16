@@ -52,7 +52,7 @@ bundle agent check_ssh_key_distribution
       "homedir[${sshkey_distribution_index}]"
         string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][5]}";
 
-      "ssh_types" string => "ssh-rsa|ssh-dss|ssh-ed25519|ssh-ecdsa|ssh-dsa";
+      "ssh_types" string => "ssh-rsa|ssh-dss|ssh-ed25519|ecdsa-sha2-nistp521|ecdsa-sha2-nistp384|ecdsa-sha2-nistp256|ssh-dsa";
 
     # Extract key content from the keys
     # -E option to get rid of escaping char
@@ -105,7 +105,7 @@ bundle agent check_ssh_key_distribution
 
   methods:
 
-    !windows::
+    pass2.!windows::
 
       "SSH Key Report"
         usebundle     => rudder_common_reports_generic(
