@@ -1,0 +1,8 @@
+[{
+  "inits": [],
+  "directives": "[simple_content_enforce.json"],
+  "checks": ["simple_content_enforce.rb"],
+  "sharedFiles":[],
+  "name": "Test_checkGenericFileContent_v8_0_simple_content_enforce",
+  "compliance": 100
+}]

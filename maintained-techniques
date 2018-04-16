@@ -21,6 +21,7 @@ fileConfiguration/fileManagement/4.1
 fileConfiguration/fileSecurity/filesPermissions/2.1
 fileConfiguration/fileSecurity/filesPermissions/2.2
 fileDistribution/checkGenericFileContent/7.0
+fileDistribution/checkGenericFileContent/8.0
 fileDistribution/copyGitFile/2.1
 fileDistribution/copyGitFile/2.2
 fileDistribution/copyGitFile/2.3
