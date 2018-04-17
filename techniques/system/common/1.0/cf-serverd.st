@@ -44,7 +44,6 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit_ips => {  @{def.acl}  };
 
-&if(MANAGED_NODES_NAME)&
       "${g.rudder_ncf_origin_common}"
         maproot => {  @{def.acl}  },
         admit_ips => {  @{def.acl}  };
@@ -56,6 +55,8 @@ bundle server access_rules
       # Deny access to 50_techniques folder
       "${g.rudder_ncf_origin_local}/50_techniques"
         deny_ips  => {  "0.0.0.0/0"  };
+
+&if(MANAGED_NODES_NAME)&
 
       &if(SHARED_FILES_FOLDER)&
       "&SHARED_FILES_FOLDER&"
