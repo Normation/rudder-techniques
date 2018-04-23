@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SYSTEM>true</SYSTEM>
 
   <TMLS>
+    <TML name="monitoring" />
     <TML name="cf-serverd"/>
     <TML name="rudder-lib" />
     <TML name="rudder-stdlib-core" />
@@ -132,6 +133,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="CRON Daemon" component="true" />
     <SECTION name="Binaries update" component="true" />
     <SECTION name="Process checking" component="true" />
+    <SECTION name="Monitoring" component="true" />
 
     <SECTION name="common">
       <INPUT>
