@@ -2,7 +2,6 @@
 # This is where you test your rule
 
 require 'spec_helper'
-require 'test_report'
 
 def test_sshKeyDistribution(status)
   describe user('keyTesting') do
