@@ -96,13 +96,10 @@ bundle common va
       "common_bs" slist => {
         "startup",
         "check_disable_agent",
-        "clean_red_button",
         "update_reports",
         "configuration",
         "initialize_ncf",
-        "set_red_button",
         "internal_security",
-        "check_red_button_status",
         "check_cf_processes",
         "check_uuid",
         "garbage_collection",
@@ -263,99 +260,6 @@ bundle agent check_disable_agent
       "FATAL: The file ${g.rudder_disable_agent_file} is present. Rudder will kill all running daemons and halt immediately."
         classes => if_ok("abort_report_done"),
         action  => immediate;
-
-}
-
-
-##########################################################
-# Red Button part.
-# When the file ${sys.workdir}/inputs/stop exists, we must stop the
-# execution of the agent on all client machines
-##########################################################
-bundle agent clean_red_button()
-{
-  files:
-    safe.policy_server::
-      "${g.rudder_var}/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
-        delete => tidy,
-        comment => "Deleting the stop file on clients promises, cfengine is good to go";
-
-      "${sys.workdir}/inputs/stopFile"
-        delete => tidy,
-        comment => "Deleting the stop file, cfengine is good to go";
-
-  methods:
-    safe::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Authorizing agent to restart");
-
-  commands:
-    safe.policy_server::
-      "${sys.workdir}/bin/cf-runagent"
-        args => "-Dsafe",
-        comment => "Propagate the safe information to children";
-
-}
-
-bundle agent set_red_button()
-{
-  classes:
-    policy_server::
-      "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
-  methods:
-    danger::
-      "any" usebundle => setStopFile;
-
-    danger.policy_server::
-      "any" usebundle => stopClients;
-}
-
-bundle agent setStopFile
-{
-  files:
-    danger.!policy_server::
-      "${sys.workdir}/inputs/stopFile"
-        create => "true";
-    danger.policy_server::
-      "${g.rudder_var}/share/[a-f0-9A-F\-]+/rules/cfengine-(community|nova)/stopFile"
-        create => "true";
-
-
-
-  methods:
-    danger.!policy_server::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Creating local stop file for this node");
-    danger.policy_server::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Red Button", "None", "Creating stop files for all clients of this policy server");
-
-}
-
-bundle agent stopClients
-{
-  classes:
-    policy_server::
-      "danger" expression => fileexists("${g.rudder_var}/share/root/stopFile");
-
-  methods:
-    danger.policy_server::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Red Button", "None", "Actively stopping agent operations on all nodes managed by this server");
-
-  commands:
-    danger.policy_server::
-      "${sys.workdir}/bin/cf-runagent"
-        args => "-Ddanger",
-        comment => "Propagate the danger information to children";
-
-}
-
-bundle agent check_red_button_status()
-{
-  classes:
-    !policy_server::
-      "should_not_continue" expression => fileexists("${sys.workdir}/inputs/stopFile");
-
-  methods:
-    !should_not_continue::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Red Button", "None", "Red Button is not in effect, continuing as normal...");
 
 }
 
