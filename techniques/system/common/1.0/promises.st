@@ -89,6 +89,7 @@ bundle common va
         "restart_services", 
 &endif&
 
+        "monitoring_hook_post",
         "endExecution"
       };
 
@@ -117,6 +118,7 @@ bundle common va
         "nxlog_enable",
 &endif&
 
+        "monitoring_hook_pre"
       };
 
     policy_server::
