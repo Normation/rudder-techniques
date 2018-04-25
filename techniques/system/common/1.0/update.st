@@ -387,11 +387,13 @@ bundle agent update_action
 bundle agent check_uuid
 {
   classes:
-    # Abort if no uuid is defined
-    "should_not_continue" expression => "wrong_uuid|no_uuid";
-    "no_uuid" not => fileexists("${g.uuid_file}");
+      # Abort if no uuid is defined
+      "should_not_continue" expression => "wrong_uuid|no_uuid";
+    community_edition::
+      "no_uuid" not => fileexists("${g.uuid_file}");
 &if(!INITIAL)&
-    "wrong_uuid" not => strcmp("&UUID&", "${g.uuid}");
+    !no_uuid::
+      "wrong_uuid" not => strcmp("&UUID&", "${g.uuid}");
 &endif&
 
   reports:
