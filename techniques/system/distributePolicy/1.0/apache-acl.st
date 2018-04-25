@@ -44,7 +44,7 @@ bundle agent apache_acl
       "pass1" expression => "any";
 
   files:
-    pass2::
+    !role_rudder_relay_promises_only.pass2::
       "${destination}/${ssl_ca_file}"
         create        => "true",
         perms         => mog("600", "root", "0"),
@@ -74,4 +74,8 @@ bundle agent apache_acl
 
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache failed to reload"),
             ifvarclass => "service_reload_${apache_service}_error";
+
+    role_rudder_relay_promises_only::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache is not managed");
+
 }
