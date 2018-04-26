@@ -1,0 +1,26 @@
+<TECHNIQUE name="Rudder SNMP Configuration">
+  <DESCRIPTION>
+    Configuration of the SNMP service and rudder agent monitoring.
+    Snmpd will be installed if needed, and the required configuration will be appended to /etc/snmp/snmpd.conf, without destroying any existing user config.
+  </DESCRIPTION>
+  <BUNDLES>
+    <NAME>rudderSNMP</NAME>
+  </BUNDLES>
+  <TMLS>
+    <TML name="rudderSNMP" />
+  </TMLS>
+  <FILES>
+    <FILE name="rudder_health.sh" />
+  </FILES>
+  <SECTIONS>
+    <SECTION component="true" name="Presence of a scripts directory whithin /etc/snmp/" />
+    <SECTION component="true" name="Presence of the rudder agent health evaluation script whithin /etc/snmp/scripts/" />
+    <SECTION component="true" name="Presence of the SNMP server package" />
+    <SECTION component="true" name="SNMP configuration file contains required OID" />
+    <SECTION component="true" name="SNMP configuration file contains required community" />
+    <SECTION component="true" name="Execution permission for the rudder agent health evaluation script" />
+    <SECTION component="true" name="Ensure SNMP service is running" />
+    <SECTION component="true" name="Ensure SNMP service is enabled at boot time" />
+    <SECTION component="true" name="SNMP service restart" />
+  </SECTIONS>
+</TECHNIQUE>
