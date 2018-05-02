@@ -87,9 +87,9 @@ bundle common va
       "end" slist => {
 &if(!INITIAL)&
         "restart_services", 
+        "monitoring_hook_post",
 &endif&
 
-        "monitoring_hook_post",
         "endExecution"
       };
 
@@ -116,9 +116,9 @@ bundle common va
         "get_environment_variables",
         "properties",
         "nxlog_enable",
+        "monitoring_hook_pre",
 &endif&
 
-        "monitoring_hook_pre"
       };
 
     policy_server::
