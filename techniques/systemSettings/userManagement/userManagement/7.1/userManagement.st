@@ -407,7 +407,11 @@ bundle agent check_usergroup_user_parameters
 
       ## In case of update, but the home was not correct, and could not be moved, this is error
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory could not be moved"),
-        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_login_home_move_${usergroup_user_index}_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_home_move_${usergroup_user_index}_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+
+      ## In case of update, but the home was not correct, and could not be changed, this is error
+      "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory could not be changed"),
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_home_change_${usergroup_user_index}_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
 
       ## In case of check only, and the home was not correct, this is error
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was invalid"),
