@@ -36,10 +36,13 @@ bundle agent manage_key_value_file_RudderUniqueID {
 
     "index" slist => getindices("file");
 
-    "canonified_file[${index}]"      string => canonify("${file[${index}]}");
+    "args"  slist => { "${file[${index}]}", "${key[${index}]}", "${value[${index}]}","${separator[${index}]}", "${option[${index}]}" };
+    "report_param[${index}]"         string => join("_", args);
+    "canonified_params[${index}]"    string => canonify("${report_param[${index}]}");
     "canonified_hook[${index}]"      string => canonify("${post_hook[${index}]}");
-    "class_prefix_${index}"          string => "file_ensure_key_value_${canonified_file[${index}]}";
-    "hook_class_prefix_${index}"      string => "command_execution_${canonified_hook[${index}]}";
+
+    "class_prefix_${index}"          string => "file_ensure_key_value_${canonified_params[${index}]}";
+    "hook_class_prefix_${index}"     string => "command_execution_${canonified_hook[${index}]}";
     "technique_name"                 string => "Manage keys-values file";
 
   classes:
