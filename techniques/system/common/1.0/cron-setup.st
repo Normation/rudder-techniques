@@ -83,9 +83,9 @@ bundle agent check_cron_daemon
 {
   vars:
 
-    redhat|fedora::
+    redhat|fedora|slackware::
       "service_name" string => "crond";
-    !(redhat|fedora)::
+    !(redhat|fedora|slackware)::
       "service_name" string => "cron";
 
   classes:
