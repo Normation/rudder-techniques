@@ -678,6 +678,6 @@ select_end => "\S*:\s*";
 
 body process_select cron_bin
 {
-  command => "(/usr/sbin/)?crond?( -n| -f)?";
+  command => "(/usr/sbin/)?crond?( -n| -f | -l notice)*";
   process_result => "command";
 }
