@@ -125,7 +125,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SECTIONS>
 
     <!-- The following sections are for reporting only, variable are defined in the main section below -->
-    <SECTION name="Red Button" component="true" />
     <SECTION name="Update" component="true" />
     <SECTION name="ncf Initialization" component="true" />
     <SECTION name="Security parameters" component="true" />
