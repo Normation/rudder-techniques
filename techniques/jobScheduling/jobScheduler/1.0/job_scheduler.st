@@ -43,7 +43,7 @@ bundle agent job_scheduler
 
   classes:
 
-      "job_scheduler_random_time" expression => splayclass("${sys.host}${sys.ipv4}","hourly");
+      "job_scheduler_random_time" expression => splayclass("${sys.host}","hourly");
 
     # This is only necessary because the above ifvarclass produces errors like: "Unable to parse class expression: [garbage]"
       "test_${all_hours}_enclosed_${iterator}" and => { isgreaterthan("${all_hours}", "${job_scheduler_time_min[${iterator}]}"), islessthan("${all_hours}", "${job_scheduler_time_max[${iterator}]}") };
