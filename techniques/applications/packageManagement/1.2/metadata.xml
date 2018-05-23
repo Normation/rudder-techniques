@@ -141,6 +141,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <LABEL>pkg</LABEL>
             <VALUE>pkg</VALUE>
           </ITEM>
+          <ITEM>
+            <LABEL>slackpkg</LABEL>
+            <VALUE>slackpkg</VALUE>
+          </ITEM>
           <CONSTRAINT>
             <DEFAULT>default</DEFAULT>
           </CONSTRAINT>
