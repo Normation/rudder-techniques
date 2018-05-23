@@ -16,8 +16,7 @@
     <SECTION component="true" name="Presence of a scripts directory whithin /etc/snmp/" />
     <SECTION component="true" name="Presence of the rudder agent health evaluation script whithin /etc/snmp/scripts/" />
     <SECTION component="true" name="Presence of the SNMP server package" />
-    <SECTION component="true" name="SNMP configuration file contains required OID" />
-    <SECTION component="true" name="SNMP configuration file contains required community" />
+    <SECTION component="true" name="SNMP configuration file contains required OID and community" />
     <SECTION component="true" name="Execution permission for the rudder agent health evaluation script" />
     <SECTION component="true" name="Ensure SNMP service is running" />
     <SECTION component="true" name="Ensure SNMP service is enabled at boot time" />
