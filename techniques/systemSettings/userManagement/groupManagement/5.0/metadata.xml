@@ -69,7 +69,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>USERGROUP_GROUP_ENFORCE_CONTENT</NAME>
         <DESCRIPTION>Enforce only the following users in the group</DESCRIPTION>
-        <LONGDESCRIPTION>Group content will be enforced even if you don't specify a user list</LONGDESCRIPTION>
+        <LONGDESCRIPTION>If checked, group content will be completly replaced by the user list, otherwise, the userlist is appended</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
