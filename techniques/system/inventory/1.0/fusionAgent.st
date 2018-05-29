@@ -76,6 +76,9 @@ bundle agent doInventory_always
       "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory"),
                              scope => "namespace";
 
+      "inventory_proxy_defined" expression => isvariable("node.properties[inventory_proxy]"),
+                             scope => "namespace";
+
     uuid_succesfully_downloaded::
       "uuid_valid" expression => regcmp("[a-z0-9-]+","${policy_server_uuid}");
       "uuid_validity_checked"
@@ -135,8 +138,12 @@ bundle agent download_server_uuid
   vars:
 
     # If curl is available, use it
-    !windows.curl_installed::
+    !windows.curl_installed.!inventory_proxy_defined::
       "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+
+    !windows.curl_installed.inventory_proxy_defined::
+      "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '${node.properties[inventory_proxy]}' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+
 
     # If not, use minicurl instead
     !windows.!curl_installed::
@@ -716,8 +723,12 @@ bundle agent sendInventory
 &endif&
 
     # If curl is available, use it
-    !windows.curl_installed::
+    !windows.curl_installed.!inventory_proxy_defined::
       "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_suffix"   string => "${download_endpoint}";
+
+    !windows.curl_installed.inventory_proxy_defined::
+      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '${node.properties[inventory_proxy]}' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
     # If not, use minicurl instead
