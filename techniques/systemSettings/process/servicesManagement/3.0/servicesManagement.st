@@ -86,16 +86,18 @@ bundle agent services_management
                            ifvarclass => "bootstart_prevent_process_${index}|(stop_process_${index}.graceful_stop_process_${index})";
 
 
-    # On Windows, we can't use processes: promises to detect the current status, so
-    # we just call the service_{start,stop} bundles to ensure service state
+    # This is doner after the CFEngine built in services promises (which are used at the end of the bundle)
+    # The process name must be filled in order to manage the process status
       "start_process"       usebundle => service_start("${service[${index}][name]}"),
-                           ifvarclass => "(process_${index}_restart|windows).start_process_${index}";
+                           ifvarclass => "(process_${index}_restart|windows).start_process_${index}.defined_process_name_${index}";
 
+    # Stop process is used only when a "gracefull" stop is selected by the user
       "stop_process"        usebundle => service_stop("${service[${index}][name]}"),
-                           ifvarclass => "(!process_${index}_restart|windows).(stop_process_${index}.!service_${index}_already_stopped)";
+                           ifvarclass => "(!process_${index}_restart|windows).(stop_process_${index}.!service_${index}_already_stopped).defined_process_name_${index}";
 
+    # Used when the process number is out of range
       "restart_process"     usebundle => service_restart("${service[${index}][name]}"),
-                           ifvarclass => "${service[${index}][canon_name]}_out_of_range";
+                           ifvarclass => "${service[${index}][canon_name]}_out_of_range.defined_process_name_${index}";
 
     pass3::
 
@@ -104,9 +106,11 @@ bundle agent services_management
 
     # On windows, we don't use processes promises type to check if process are running, as we rely directly on services
     !windows.pass3::
+    # Error when a state (start, stop, etc.) is selected but no process name is given
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Cannot check the status of ${service[${index}][name]}: the process name is not filed"),
         ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
 
+    # Process start/restart
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is running"),
         ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
 
@@ -116,6 +120,8 @@ bundle agent services_management
       "any" usebundle => rudder_common_report("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process couldn't be started"),
         ifvarclass => "service_start_${service[${index}][canon_name]}_not_ok";
 
+    # Process stop
+    # For graceful stop we use the ncf service_stop, for less graceful stopping we use unix signals and cf-engine processes promises
       "any" usebundle => rudder_common_report("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running"),
         ifvarclass => "stop_process_${index}.process_${index}_restart.graceful_stop_process_${index}";
 
@@ -189,14 +195,14 @@ bundle agent services_management
         classes => kept_if_else("service_${index}_running", "service_${index}_anomaly", "service_${index}_error"),
         ifvarclass => "defined_process_name_${index}.(start_process_${index}|(stop_process_${index}.graceful_stop_process_${index}))";
 
-    # enforce that the process is stopped not so gracefully
+    # enforce that the process is stopped except when "gracefully" is selected
       "${service[${index}][process]}"
         comment => "Stop not so gracefully the process",
         signals => { "${service[${index}][killMethod]}" },
         classes => kept_if_else("service_${index}_already_stopped", "service_${index}_stopped", "service_${index}_error"),
         ifvarclass => "defined_process_name_${index}.stop_process_${index}.(term_stop_process_${index}|kill_stop_process_${index})";
 
-    # check the range
+    # check the process number
       "${service[${index}][process]}"
         comment => "Check the range of process",
         process_count => check_range("${service[${index}][name]}", "${service[${index}][min_instance]}", "${service[${index}][max_instance]}"),
