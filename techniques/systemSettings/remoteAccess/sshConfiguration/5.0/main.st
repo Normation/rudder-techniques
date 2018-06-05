@@ -161,6 +161,7 @@ bundle agent rudder_openssh_server_configuration(class_prefix, service_name, par
     aix::
 
       "${rudder_openssh_server_startup_command}"
+        contain    => in_shell,
         classes    => cf2_if_else("${class_prefix}_daemon_restart_repaired", "${class_prefix}_daemon_restart_error"),
         ifvarclass => "${class_prefix}_ports_repaired||${class_prefix}_addresses_repaired|${class_prefix}_configuration_repaired|${class_prefix}_down",
         comment    => "Restarting the OpenSSH server daemon";
