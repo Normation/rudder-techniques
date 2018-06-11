@@ -377,9 +377,16 @@ bundle agent abort_rudder(reason, message)
 ###################################################
 bundle agent initialize_ncf()
 {
+  vars:
+      "local_modules" string => "${g.rudder_ncf}/local/10_ncf_internals/modules/";
+
+  classes:
+      "local_modules_exist" expression => isdir("${local_modules}");
 
   methods:
       "initialize ncf"                  usebundle => initialization;
+      "add local modules"               usebundle => additional_modules("${local_modules}"),
+                                       ifvarclass => "local_modules_exist";
       # Force generating expected reports file for Rudder logger
       # because the first call to the logger may be in audit mode.
       "create ncf expected reports"     usebundle => _create_current_expected_reports_file;
