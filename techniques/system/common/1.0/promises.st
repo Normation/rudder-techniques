@@ -280,11 +280,17 @@ bundle agent abort_rudder(reason, message)
 ###################################################
 bundle agent initialize_ncf()
 {
+  vars:
+      "local_modules" string => "${g.rudder_ncf}/local/10_ncf_internals/modules/";
+
+  classes:
+      "local_modules_exist" expression => isdir("${local_modules}");
 
   methods:
       "initialize ncf"        usebundle => initialization;
+      "add local modules"     usebundle => additional_modules("${local_modules}"),
+                             ifvarclass => "local_modules_exist";
       "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "Configuration library initialization");
-
 }
 
 ###################################################
