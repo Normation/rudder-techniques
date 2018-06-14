@@ -9,7 +9,7 @@
 
   <AGENT type="dsc">
     <BUNDLES>
-      <NAME>fileTemplate</NAME>
+      <NAME>fileTemplate_RudderUniqueID</NAME>
     </BUNDLES>
     <TMLS>
       <TML name="fileTemplate.ps1">
