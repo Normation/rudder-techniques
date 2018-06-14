@@ -1,5 +1,5 @@
 #####################################################################################
-# Copyright 2011-2016 Normation SAS
+# Copyright 2011-2018 Normation SAS
 #####################################################################################
 #
 # This program is free software: you can redistribute it and/or modify
@@ -22,7 +22,7 @@
 # Objective : Apply user/group policies on the target host               #
 ##########################################################################
 
-bundle agent check_usergroup_user_parameters
+bundle agent check_usergroup_user_parameters_RudderUniqueID
 {
 
   vars:
@@ -245,13 +245,13 @@ bundle agent check_usergroup_user_parameters
     !windows::
       "/etc/passwd"
         create        => "false",
-        edit_line     => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        edit_line     => set_user_fullname_RudderUniqueID("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
         ifvarclass    => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
       "/etc/passwd"
         create        => "false",
-        edit_line     => set_user_fullname("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
+        edit_line     => set_user_fullname_RudderUniqueID("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
         action        => WarnOnly,
         ifvarclass    => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
@@ -262,8 +262,8 @@ bundle agent check_usergroup_user_parameters
         create        => "false",
         edit_line     => set_colon_field("${usergroup_user_login[${usergroup_user_index}]}", "2", "!"),
         edit_defaults => noempty_backup,
-        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
-        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}_RudderUniqueID"),
+        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
     !windows.!aix::
       # Define password when user has already been created
@@ -271,8 +271,8 @@ bundle agent check_usergroup_user_parameters
         create        => "false",
         edit_line     => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
-        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
-        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}_RudderUniqueID"),
+        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
       # Check password if we are in "check only (account should exist)
       # Due to https://tracker.mender.io/browse/CFE-2424, if password is correct, no class is defined. Waiting for fix in the agent
@@ -281,7 +281,7 @@ bundle agent check_usergroup_user_parameters
         edit_line     => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 2, "${usergroup_user_password[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
         action        => WarnOnly,
-        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}_RudderUniqueID"),
         ifvarclass    => "!usermanagement_user_pwempty_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
     aix::
@@ -289,15 +289,15 @@ bundle agent check_usergroup_user_parameters
         create        => "false",
         edit_line     => ncf_ensure_AIX_password("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
-        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
-        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}_RudderUniqueID"),
+        ifvarclass    => "(usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
       # set the last update date if password has been updated
       "/etc/security/passwd"
         create        => "false",
         edit_line     => ncf_edit_lastupdate_AIX_password("${usergroup_user_login[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
-        ifvarclass    => "usermanagement_user_password_${usergroup_user_index}_repaired.((usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}))";
+        ifvarclass    => "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_repaired.((usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}))";
 
 
       "/etc/security/passwd"
@@ -305,18 +305,18 @@ bundle agent check_usergroup_user_parameters
         edit_line     => ncf_ensure_AIX_password("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"),
         edit_defaults => noempty_backup,
         action        => WarnOnly,
-        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+        classes       => classes_generic("usermanagement_user_password_${usergroup_user_index}_RudderUniqueID"),
         ifvarclass    => "!usermanagement_user_pwempty_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
 
   methods:
     windows::
       # check user password
-      "check_user_password" usebundle => check_usergroup_user_parameters_windows_password("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}", "${usergroup_user_index}"),
-        ifvarclass                    => "(usermanagement_login_add_${usergroup_user_index}_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
+      "check_user_password" usebundle => check_usergroup_user_parameters_windows_password_RudderUniqueID("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}", "${usergroup_user_index}"),
+        ifvarclass                    => "(usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})|(usermanagement_user_update_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index})";
 
       # check user fullname
-      "check_user_fullname" usebundle => check_usergroup_user_parameters_windows_fullname("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}", "${usergroup_user_action[${usergroup_user_index}]}", "${nameopt[${usergroup_user_index}]}", "${usergroup_user_index}"),
+      "check_user_fullname" usebundle => check_usergroup_user_parameters_windows_fullname_RudderUniqueID("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}", "${usergroup_user_action[${usergroup_user_index}]}", "${nameopt[${usergroup_user_index}]}", "${usergroup_user_index}"),
         ifvarclass                    => "(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index}).!usermanagement_user_nameempty_${usergroup_user_index}";
 
     pass3.showtime::
@@ -324,28 +324,28 @@ bundle agent check_usergroup_user_parameters
       # Add user
       ## Does exist (Success), and gid not requested to be changed
       "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).!usermanagement_force_user_group_${usergroup_user_index}";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).!usermanagement_force_user_group_${usergroup_user_index}";
 
       ## Does exist (Success), and gid already correct
       "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.!usermanagement_user_current_group_is_invalid_${usergroup_user_index})";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.!usermanagement_user_current_group_is_invalid_${usergroup_user_index})";
 
       ## Does exist (Success), with a wrong gid
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system, but had the wrong gid"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_repaired)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_RudderUniqueID_repaired)";
 
 
       ## Seems to exist with a wrong Full Name (Repaired)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) had a wrong fullname"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_repaired|usermanagement_fullname_edit_${usergroup_user_index}_error)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error)";
 
       ## Added (Repaired)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) has been added to the system"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_login_add_${usergroup_user_index}_repaired";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired";
 
       ## Error
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system"),
-        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_login_add_${usergroup_user_index}_error";
+        ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_error";
 
       ## Could not be added, for the default path was not selected, but the custom one was not defined
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system because the default home directory was not selected, but the custom path was not specified"),
@@ -365,7 +365,7 @@ bundle agent check_usergroup_user_parameters
 
       ## Does exist with a wrong gid that could not be repaired
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system, but with wrong gid that cannot be fixed"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_error)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_RudderUniqueID_error)";
 
 
       # Remove user
@@ -375,11 +375,11 @@ bundle agent check_usergroup_user_parameters
 
       ## Removed (Repaired)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) has been removed from the system"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}.usermanagement_login_remove_${usergroup_user_index}_repaired";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}.usermanagement_login_remove_${usergroup_user_index}_RudderUniqueID_repaired";
 
       ## Error
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be removed from the system"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}.usermanagement_login_remove_${usergroup_user_index}_error";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}.usermanagement_login_remove_${usergroup_user_index}_RudderUniqueID_error";
 
       # Check user not exists
       ## Does not exist (Success)
@@ -393,31 +393,31 @@ bundle agent check_usergroup_user_parameters
       # Check user exists
       ## Does exist (Success)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, which is in conformance with the presence policy"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_kept)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept)";
 
       ## Seems to exist with a wrong Full Name (Error)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, but does not have the right fullname"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_repaired|usermanagement_fullname_edit_${usergroup_user_index}_error)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error)";
 
       ## Does not exist (Error)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is not present on the system, which violates the presence policy"),
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
       # Password handling
-      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}"),
+      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}"),
            ifvarclass => "!usermanagement_user_checkpres_${usergroup_user_index}";
 
       # Password handling in check only
-      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}"),
+      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}"),
            ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}";
 
       ## Change not needed (Success)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"),
-        ifvarclass => "((!usermanagement_user_password_${usergroup_user_index}_kept.!usermanagement_user_password_${usergroup_user_index}_repaired.!usermanagement_user_password_${usergroup_user_index}_error).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_pwempty_${usergroup_user_index}|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.(usermanagement_user_group_definition_error_${usergroup_user_index}|usermanagement_user_uid_definition_error_${usergroup_user_index}))))|usermanagement_user_remove_${usergroup_user_index}";
+        ifvarclass => "((!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_kept.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_repaired.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_error).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_pwempty_${usergroup_user_index}|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.(usermanagement_user_group_definition_error_${usergroup_user_index}|usermanagement_user_uid_definition_error_${usergroup_user_index}))))|usermanagement_user_remove_${usergroup_user_index}";
 
       ## Change not needed (N/A)
       "any" usebundle => rudder_common_report("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required"),
-        ifvarclass => "(!usermanagement_user_password_${usergroup_user_index}_kept.!usermanagement_user_password_${usergroup_user_index}_repaired.!usermanagement_user_password_${usergroup_user_index}_error).((usermanagement_user_checkpres_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index})|(usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}))|usermanagement_user_checkabs_${usergroup_user_index}";
+        ifvarclass => "(!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_kept.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_repaired.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_error).((usermanagement_user_checkpres_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index})|(usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}))|usermanagement_user_checkabs_${usergroup_user_index}";
 
 
       # Homedir management
@@ -439,19 +439,19 @@ bundle agent check_usergroup_user_parameters
 
       ## In case of update, but the home was not correct, and could be changed, this is repaired
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was changed (but not moved)"),
-        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.(usermanagement_login_home_change_${usergroup_user_index}_repaired.!usermanagement_login_home_change_${usergroup_user_index}_error).usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.(usermanagement_login_home_change_${usergroup_user_index}_RudderUniqueID_repaired.!usermanagement_login_home_change_${usergroup_user_index}_RudderUniqueID_error).usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
 
       ## In case of update, but the home was not correct, and could not be changed, this is error
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory could not be changed"),
-        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_login_home_change_${usergroup_user_index}_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_login_home_change_${usergroup_user_index}_RudderUniqueID_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
 
       ## In case of update, but the home was not correct, and could be moved, this is repaired
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was moved"),
-        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.(usermanagement_login_home_move_${usergroup_user_index}_repaired.!usermanagement_login_home_move_${usergroup_user_index}_error).usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.(usermanagement_login_home_move_${usergroup_user_index}_RudderUniqueID_repaired.!usermanagement_login_home_move_${usergroup_user_index}_RudderUniqueID_error).usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
 
       ## In case of update, but the home was not correct, and could not be moved, this is error
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory could not be moved"),
-        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_login_home_move_${usergroup_user_index}_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.usermanagement_login_home_move_${usergroup_user_index}_RudderUniqueID_error.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index})";
 
       ## In case of check only, and the home was not correct, this is error
       "any" usebundle => rudder_common_report("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was invalid"),
@@ -464,13 +464,13 @@ bundle agent check_usergroup_user_parameters
 
       "\"${sys.winsysdir}\net.exe\""
         args => "USER ${usergroup_user_login[${usergroup_user_index}]} ${usergroup_user_password[${usergroup_user_index}]} /ADD ${nameopt[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired", "usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_error"),
         comment => "Create the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}";
 
       "\"${sys.winsysdir}\net.exe\""
         args => "USER ${usergroup_user_login[${usergroup_user_index}]} /DELETE",
-        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
+        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_RudderUniqueID_repaired", "usermanagement_login_remove_${usergroup_user_index}_RudderUniqueID_error"),
         comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
 
@@ -480,19 +480,19 @@ bundle agent check_usergroup_user_parameters
 
       "/usr/sbin/useradd"
         args => "${useropt[${usergroup_user_index}]} ${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired", "usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_error"),
         comment => "Create the user",
         ifvarclass => "!usermanagement_user_uid_definition_error_${usergroup_user_index}.!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_pershome_${usergroup_user_index}";
 
       "/usr/sbin/useradd"
         args => "${useropt[${usergroup_user_index}]} ${groupopt[${usergroup_user_index}]} -m ${nameopt[${usergroup_user_index}]} -s ${usergroup_user_shell[${usergroup_user_index}]} -d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_repaired", "usermanagement_login_add_${usergroup_user_index}_error"),
+        classes => cf2_if_else("usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired", "usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_error"),
         comment => "Create the user with a custom home directory",
         ifvarclass => "!usermanagement_user_uid_definition_error_${usergroup_user_index}.!usermanagement_user_group_definition_error_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_custom_home_defined_${usergroup_user_index}";
 
       "/usr/sbin/userdel"
         args => "${usergroup_user_login[${usergroup_user_index}]}",
-        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_repaired", "usermanagement_login_remove_${usergroup_user_index}_error"),
+        classes => cf2_if_else("usermanagement_login_remove_${usergroup_user_index}_RudderUniqueID_repaired", "usermanagement_login_remove_${usergroup_user_index}_RudderUniqueID_error"),
         comment => "Delete the user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_remove_${usergroup_user_index}";
 
@@ -500,39 +500,39 @@ bundle agent check_usergroup_user_parameters
       ## Move the home dir
       "/usr/sbin/usermod"
         args       => "-d ${usergroup_user_home[${usergroup_user_index}]} -m ${usergroup_user_login[${usergroup_user_index}]}",
-        classes    => cf2_if_else("usermanagement_login_home_move_${usergroup_user_index}_repaired", "usermanagement_home_move_${usergroup_user_index}_error"),
+        classes    => cf2_if_else("usermanagement_login_home_move_${usergroup_user_index}_RudderUniqueID_repaired", "usermanagement_home_move_${usergroup_user_index}_RudderUniqueID_error"),
         comment    => "Change home directory (move it)",
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_custom_home_move_valid_${usergroup_user_index}";
 
       ## Doesn't move the home dir
       "/usr/sbin/usermod"
         args       => "-d ${usergroup_user_home[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes    => cf2_if_else("usermanagement_login_home_change_${usergroup_user_index}_repaired", "usermanagement_home_change_${usergroup_user_index}_error"),
+        classes    => cf2_if_else("usermanagement_login_home_change_${usergroup_user_index}_RudderUniqueID_repaired", "usermanagement_login_home_change_${usergroup_user_index}_RudderUniqueID_error"),
         comment    => "Change home directory definition for user (doesn't move files)",
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.!usermanagement_user_custom_home_move_${usergroup_user_index}";
 
       ## Change the user gid if necessary
       "/usr/sbin/usermod"
         args       => "-g ${usergroup_user_groupname[${usergroup_user_index}]} ${usergroup_user_login[${usergroup_user_index}]}",
-        classes    => classes_generic("usermanagement_user_gid_change_${usergroup_user_index}"),
+        classes    => classes_generic("usermanagement_user_gid_change_${usergroup_user_index}_RudderUniqueID"),
         comment    => "Change user gid for user ${usergroup_user_login[${usergroup_user_index}]}",
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_group_is_invalid_${usergroup_user_index}";
 
 }
 
-bundle edit_line set_user_fullname(user,user_index,fullname)
+bundle edit_line set_user_fullname_RudderUniqueID(user,user_index,fullname)
 {
   field_edits:
       "${user}:.*"
       # Edit GECOS on /etc/passwd
         edit_field => col(":", "5", "${fullname}", "set"),
-        classes    => classes_generic("usermanagement_fullname_edit_${user_index}");
+        classes    => classes_generic("usermanagement_fullname_edit_${user_index}_RudderUniqueID");
 
 }
 
 # Bundle to check the full name of a user on windows
 # Takes the user login, the expected fullname, the action (checkhere for not editing), the FULLNAME set attribute for net.exe and the index for reporting
-bundle agent check_usergroup_user_parameters_windows_fullname(user, fullname, usergroup_user_action, nameopt, usergroup_user_index) {
+bundle agent check_usergroup_user_parameters_windows_fullname_RudderUniqueID(user, fullname, usergroup_user_action, nameopt, usergroup_user_index) {
   vars:
       "current_fullname" string => execresult("Get-WMIObject Win32_UserAccount | where Name -eq  '${user}' | ForEach { write-host $_.FullName }", "powershell");
 
@@ -542,35 +542,35 @@ bundle agent check_usergroup_user_parameters_windows_fullname(user, fullname, us
 
   methods:
     user_valid::
-      "already_correct" usebundle => _classes_success("usermanagement_fullname_edit_${usergroup_user_index}");
+      "already_correct" usebundle => _classes_success("usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID");
 
     !user_valid.usermanagement_user_checkpres::
       # fullname is not valid, but don't request to change it
-      "invalid_user"    usebundle => _classes_failure("usermanagement_fullname_edit_${usergroup_user_index}");
+      "invalid_user"    usebundle => _classes_failure("usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID");
 
   commands:
     # if user is invalid, and we want to enforce fullname:
     !user_valid.!usermanagement_user_checkpres::
       "\"${sys.winsysdir}\net.exe\""
           args    => "USER ${user} ${nameopt}",
-          classes => classes_generic("usermanagement_fullname_edit_${usergroup_user_index}");
+          classes => classes_generic("usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID");
 }
 
 # Enforce user password
 # takes the user login, the expected password (clear text), and the index for reports
-bundle agent check_usergroup_user_parameters_windows_password(user, password, usergroup_user_index) {
+bundle agent check_usergroup_user_parameters_windows_password_RudderUniqueID(user, password, usergroup_user_index) {
   vars:
    "password_valid" string => execresult("Add-Type -AssemblyName System.DirectoryServices.AccountManagement; $DS = New-Object System.DirectoryServices.AccountManagement.PrincipalContext('machine', $env:COMPUTERNAME); $DS.ValidateCredentials('${user}', '${password}')", "powershell");
 
 
   classes:
-      "usermanagement_user_password_${usergroup_user_index}_kept" expression => strcmp("True", "${password_valid}"),
+      "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_kept" expression => strcmp("True", "${password_valid}"),
         scope => "namespace";
 
   commands:
       "\"${sys.winsysdir}\net.exe\""
             args    => "USER ${user} ${password}",
-         classes    => classes_generic("usermanagement_user_password_${usergroup_user_index}"),
+         classes    => classes_generic("usermanagement_user_password_${usergroup_user_index}_RudderUniqueID"),
          ifvarclass => "!usermanagement_user_password_${usergroup_user_index}_kept";
 
 }

@@ -1,4 +1,4 @@
-function check_usergroup_user_parameters {
+function check_usergroup_user_parameters_RudderUniqueID {
   [CmdletBinding()]
   param (
       [parameter(Mandatory=$true)]  [string]$reportId,

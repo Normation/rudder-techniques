@@ -1,5 +1,5 @@
 <!--
-Copyright 2017 Normation SAS
+Copyright 2017-2018 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -18,6 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>This technique manages the target host(s) users.
   It will ensure that the defined users are present on the system.</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
 
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
@@ -26,22 +27,23 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <OS version=">= 2008">Windows</OS>
     <OS version=">= 5.3">AIX</OS>
     <AGENT version=">= 3.6.0">cfengine-community</AGENT>
+    <AGENT version=">= 4.2.0">Rudder dsc agent</AGENT>
   </COMPATIBLE>
 
   <AGENT type="dsc">
     <BUNDLES>
-      <NAME>check_usergroup_user_parameters</NAME>
+      <NAME>check_usergroup_user_parameters_RudderUniqueID</NAME>
     </BUNDLES>
     <TMLS>
       <TML name="userManagement.ps1">
-        <OUTPATH>userManagement/userManagement/8.0/userManagement.ps1</OUTPATH>
+        <OUTPATH>userManagement/9.0/userManagement.ps1</OUTPATH>
       </TML>
     </TMLS>
   </AGENT>
 
   <AGENT type="cfengine-community">
     <BUNDLES>
-      <NAME>check_usergroup_user_parameters</NAME>
+      <NAME>check_usergroup_user_parameters_RudderUniqueID</NAME>
     </BUNDLES>
     <TMLS>
       <TML name="userManagement"/>
