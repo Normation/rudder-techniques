@@ -126,16 +126,16 @@ bundle agent sudo_parameter_edit_sudoers_RudderUniqueID(filename, entity, nopass
     pass1::
 
       "command_all[${index}]" string => "ALL=(ALL) NOPASSWD:ALL",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.sudo_${index}_nopasswd).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.sudo_${index}_RudderUniqueID_nopasswd).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) ALL",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.!sudo_${index}_nopasswd).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.!sudo_${index}_RudderUniqueID_nopasswd).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) NOPASSWD:${${command}[${index}]}",
-                      ifvarclass => "(sudo_${index}_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) ${${command}[${index}]}",
-                      ifvarclass => "(!sudo_${index}_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(!sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
 
 
   classes:
