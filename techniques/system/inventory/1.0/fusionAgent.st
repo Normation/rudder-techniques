@@ -140,7 +140,7 @@ bundle agent download_server_uuid
 
     # If not, use minicurl instead
     !windows.!curl_installed::
-      "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url http://${server_info.cfserved}/uuid";
 
 &if(NOVA)&
     # On windows, always use curl
@@ -709,10 +709,14 @@ bundle agent sendInventory
 {
 
   vars:
+    !windows.!curl_installed::
+      "protocol"                  string => "http";
+    (windows|curl_installed)::
+      "protocol"                  string => "${g.inventory_upload_protocol}";
 &if(INITIAL)&
-      "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventories/";
+      "download_endpoint"         string => "${protocol}://${server_info.cfserved}/inventories/";
 &else&
-      "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.cfserved}/inventory-updates/";
+      "download_endpoint"         string => "${protocol}://${server_info.cfserved}/inventory-updates/";
 &endif&
 
     # If curl is available, use it
