@@ -131,12 +131,12 @@ bundle agent download_server_uuid
   vars:
 
     # If curl is available, use it
-    !windows.!aix::
+    !windows.curl_installed::
       "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.policy_server}/uuid";
 
     # If not, use minicurl instead
-    aix::
-      "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url ${g.inventory_upload_protocol}://${server_info.policy_server}/uuid";
+    !windows.!curl_installed::
+      "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url http://${server_info.policy_server}/uuid";
 
 &if(NOVA)&
     # On windows, always use curl
@@ -327,11 +327,15 @@ bundle agent sendInventory
 {
 
   vars:
+    !windows.!curl_installed::
+      "protocol"                  string => "http";
+    (windows|curl_installed)::
+      "protocol"                  string => "${g.inventory_upload_protocol}";
 &if(INITIAL)&
-      "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.policy_server}/inventories/";
+      "download_endpoint"         string => "${protocol}://${server_info.policy_server}/inventories/";
       "min_resend_delay"          string => "15";
 &else&
-      "download_endpoint"         string => "${g.inventory_upload_protocol}://${server_info.policy_server}/inventory-updates/";
+      "download_endpoint"         string => "${protocol}://${server_info.policy_server}/inventory-updates/";
       "min_resend_delay"          string => "480";
 &endif&
 
