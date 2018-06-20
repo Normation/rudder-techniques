@@ -361,6 +361,7 @@ bundle agent sendInventory
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
+      "http_only" expression => strcmp("${protocol}", "http");
 
   files:
 
@@ -413,6 +414,8 @@ bundle agent sendInventory
 
     pass3.cant_delete_inventory_file::
       "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Could not delete inventory file after sending to server");
+    pass3.http_only::
+      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Inventory sent via HTTP without TLS");
 
 }
 body file_select fusion_by_name_old(names,days)
