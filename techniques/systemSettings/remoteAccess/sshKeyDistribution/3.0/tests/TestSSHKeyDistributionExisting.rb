@@ -60,6 +60,9 @@ def test_sshKeyDistribution(status)
   test_report_present('sshKeyDistribution', "result_error", 'SSH key', 'key-wrong-format', "Wrong SSH key format \"key-wrong-format\" for user keyTesting")
 end
 
+describe command('cp /home/keyTesting/.ssh/* /tmp') do
+  its(:exit_status) { should eq 0 }
+end
 
-test_sshKeyDistribution('repaired')
+test_sshKeyDistribution('success')
 
