@@ -1,11 +1,11 @@
 [{
   "checks": [
-    "TestSSHKeyDistribution.rb"
+    "TestSSHKeyDistributionExisting.rb"
   ],
   "compliance": 77.78,
   "directives": [
     "TestSSHKeyDistribution.json"
   ],
-  "inits": [ "TestSSHKeyDistributionCleanSSHKeyFile.sh" ],
+  "inits": [ "TestSSHKeyDistributionExisting.sh" ],
   "sharedFiles": []
 }]
