@@ -55,8 +55,18 @@ bundle agent computeInventoryTime
 
 bundle agent doInventory
 {
+  vars:
+    resend_inventory::
+      "cant_send_inventory" string => "undefine", 
+                            classes => cancel_all_classes("cant_send_inventory");
+      
   classes:
-    "disable_inventory" expression => fileexists("${g.rudder_disable_inventory_file}");
+      "disable_inventory" expression => fileexists("${g.rudder_disable_inventory_file}");
+
+    cant_send_inventory::
+      "resend_inventory" expression => "any",
+                         scope => "namespace";
+
   methods:
     ignore_disable_inventory|!disable_inventory::
       "any" usebundle => doInventory_always;
@@ -111,6 +121,8 @@ bundle agent doInventory_always
       "any" usebundle => moveInventoryToFinalDestination;
       "any" usebundle => signInventories;
       "any" usebundle => compressInventories;
+
+    uuid_valid.(force_inventory|resend_inventory|((inventory_time|initial_promises).!inventory_sent)).inventory_valid::
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
 
