@@ -86,13 +86,13 @@ bundle agent check_apt_package_installation
 
     pass3.debian::
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_repaired", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "Performed repair action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_repaired", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "Performed repair action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}", "${index_aptpkg}"),
         ifvarclass => canonify("debian_installed_${apt_package[${index_aptpkg}]}");
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_error", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "Error taking action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_error", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "Error taking action for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}", "${index_aptpkg}"),
         ifvarclass => canonify("debian_install_failed_${apt_package[${index_aptpkg}]}");
 
-      "any" usebundle => rudder_common_report("packageInstallation", "result_success", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "No action required for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}"),
+      "any" usebundle => rudder_common_report_index("packageInstallation", "result_success", "${apt_policy_instance_uuid[${index_aptpkg}]}", "Debian/Ubuntu packages", "${apt_package[${index_aptpkg}]}", "No action required for deb package ${apt_package[${index_aptpkg}]} with policy: ${apt_action[${index_aptpkg}]}", "${index_aptpkg}"),
         ifvarclass => canonify("debian_install_kept_${apt_package[${index_aptpkg}]}");
 
 }

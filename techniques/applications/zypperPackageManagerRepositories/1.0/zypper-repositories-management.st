@@ -73,7 +73,7 @@ bundle agent zypper_repositories_management
 
   methods:
     SuSE::
-      "repos_${zypper_index}" usebundle => rudder_common_reports_generic("Zypper Repositories Management", "zypper_repo_${zypper_index}", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]}");
+      "repos_${zypper_index}" usebundle => rudder_common_reports_generic_index("Zypper Repositories Management", "zypper_repo_${zypper_index}", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]}", "${zypper_index}");
 
       # Clear package caches
       "force_package_list_update" usebundle => file_remove("/var/rudder/cfengine-community/state/software_update_timestamp_zypper"),
@@ -82,11 +82,11 @@ bundle agent zypper_repositories_management
         ifvarclass => "zypper_repo_${zypper_index}_repaired";
 
     !SuSE::
-      "repos_${zypper_index}" usebundle => rudder_common_report("Zypper Repositories Management", "result_na", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]} can only be added on SUSE/SLES systems");
+      "repos_${zypper_index}" usebundle => rudder_common_report_index("Zypper Repositories Management", "result_na", "${zypper_uuid[${zypper_index}]}", "Repositories", "${zypper_name[${zypper_index}]}", "Repository ${zypper_name[${zypper_index}]} can only be added on SUSE/SLES systems", "${zypper_index}");
 
     # we must report on the deletion of other reports for all instances of the directives
     SuSE.zypper_disable_other_repositories::
-      "deletion_${zypper_reports_value}" usebundle => rudder_common_reports_generic("Zypper Repositories Management", "zypper_other_repos_disabled", "${zypper_reports_value}", "Purge other repositories", "None", "Deletion of others repositories");
+      "deletion_${zypper_reports_value}" usebundle => rudder_common_reports_generic_index("Zypper Repositories Management", "zypper_other_repos_disabled", "${zypper_reports_value}", "Purge other repositories", "None", "Deletion of others repositories", "${zypper_index}");
 
     # For deletion of others repos, if there is effectively no others files in the folders, then
     # CFEngine will not define any classes at all: since there is nothing to promise on, there

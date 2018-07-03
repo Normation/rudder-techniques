@@ -47,7 +47,7 @@ bundle agent generic_variable_def_report
 
     pass3.((linux|!linux))::
 
-      "any" usebundle => rudder_common_report("genericVariableDefinition", "result_success", "${generic_name_uuid[${generic_variable_name_index}]}", "Variable definition", "${generic_variable_name[${generic_variable_name_index}]}", "A generic variable definition is set for variable ${generic_variable_name[${generic_variable_name_index}]}");
+      "any" usebundle => rudder_common_report_index("genericVariableDefinition", "result_success", "${generic_name_uuid[${generic_variable_name_index}]}", "Variable definition", "${generic_variable_name[${generic_variable_name_index}]}", "A generic variable definition is set for variable ${generic_variable_name[${generic_variable_name_index}]}", "${generic_variable_name_index}");
 
 }
 

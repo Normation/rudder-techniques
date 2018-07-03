@@ -44,6 +44,6 @@ bundle agent generic_cmd_var_def_report {
 
     pass3.cfengine_3::
 
-      "any" usebundle => rudder_common_report("genericCommandVariableDefinition", "result_success", "${generic_command_name_uuid[${generic_cmd_variable_name_index}]}", "Variable command definition", "${generic_cmd_variable_name[${generic_cmd_variable_name_index}]}", "A generic command variable definition is set for variable ${generic_cmd_variable_name[${generic_cmd_variable_name_index}]}");
+      "any" usebundle => rudder_common_report_index("genericCommandVariableDefinition", "result_success", "${generic_command_name_uuid[${generic_cmd_variable_name_index}]}", "Variable command definition", "${generic_cmd_variable_name[${generic_cmd_variable_name_index}]}", "A generic command variable definition is set for variable ${generic_cmd_variable_name[${generic_cmd_variable_name_index}]}", "${generic_cmd_variable_name_index}");
 
 }
