@@ -46,6 +46,9 @@ bundle agent check_apt_settings
     debian_10::
       "apt_detected_distro" string => "buster";
 
+    debian_11::
+      "apt_detected_distro" string => "bullseye";
+
     ubuntu_karmic|ubuntu_9_10::
       "apt_detected_distro" string => "karmic";
 
@@ -96,6 +99,12 @@ bundle agent check_apt_settings
 
     ubuntu_artful|ubuntu_17_10::
       "apt_detected_distro" string => "artful";
+
+    ubuntu_bionic|ubuntu_18_4::
+      "apt_detected_distro" string => "bionic";
+
+    ubuntu_cosmic|ubuntu_18_10::
+      "apt_detected_distro" string => "cosmic";
 
     apt_installrecommends_edit::
 
