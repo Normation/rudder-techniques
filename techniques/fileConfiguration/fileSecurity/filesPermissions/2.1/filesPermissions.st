@@ -36,11 +36,12 @@ bundle agent files_permissions
 
       "any" usebundle => check_permissions("${file[${filePerms}][0]}",
       "${file[${filePerms}][1]}",
-      "${file[${filePerms}][2]}");
+      "${file[${filePerms}][2]}",
+      "${filePerms}");
 
 }
 
-bundle agent check_permissions(directiveId, fileName, action_parameters)
+bundle agent check_permissions(directiveId, fileName, action_parameters, index)
 {
 
 
@@ -174,69 +175,69 @@ bundle agent check_permissions(directiveId, fileName, action_parameters)
   methods:
 
     pass3.is_symlink::
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Will not adjust permissions on ${fileName}, because it is a symlink");
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Will not adjust permissions on ${fileName}, because it is a symlink", "${index}");
 
     pass3.!file_exists.ignore_absent::
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "${fileName} does not exist but is ignored");
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "${fileName} does not exist but is ignored", "${index}");
 
     pass3.!file_exists.!ignore_absent::
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "File or directory not found: ${fileName}");
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "File or directory not found: ${fileName}", "${index}");
 
     pass3.user_absent.edit_owner::
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested user (${user}) was not found on this machine: ${fileName}'s owner can't be set");
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested user (${user}) was not found on this machine: ${fileName}'s owner can't be set", "${index}");
 
     pass3.group_absent.edit_group::
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested group (${group}) was not found on this machine: ${fileName}'s group can't be set");
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "The requested group (${group}) was not found on this machine: ${fileName}'s group can't be set", "${index}");
 
     pass3.edit_recurse::
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Permissions will be applied recursively for ${fileName}");
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Permissions will be applied recursively for ${fileName}", "${index}");
 
     pass3.(file_exists.can_edit_suid_sgid)::
 
       # User
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} already matches current owner for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} already matches current owner for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_owner_ok.!${identifier}_owner_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner reset to ${user} for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner reset to ${user} for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_owner_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} could not be set for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner ${user} could not be set for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_owner_not_repaired";
 
       # Group
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Group ${group} already matches current group for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Group ${group} already matches current group for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_group_ok.!${identifier}_group_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Group reset to ${group} for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Group reset to ${group} for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_group_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Group ${group} could not be set for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Group ${group} could not be set for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_group_not_repaired";
 
       # Mode
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} already matches current mode for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "log_info", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} already matches current mode for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_mode_ok.!${identifier}_mode_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Mode reset to ${extended_modes}${mode} for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "log_repaired", "${directiveId}", "File permissions", "${fileName}", "Mode reset to ${extended_modes}${mode} for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_mode_repaired";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} could not be set for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Mode ${extended_modes}${mode} could not be set for: ${fileName}", "${index}"),
         ifvarclass => "${identifier}_mode_not_repaired";
 
   # Final report
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "Owner, group and permissions already correct for ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_success", "${directiveId}", "File permissions", "${fileName}", "Owner, group and permissions already correct for ${fileName}", "${index}"),
         # Success if nothing in error AND nothing repaired
         ifvarclass => "(!${identifier}_owner_not_repaired.!${identifier}_group_not_repaired.!${identifier}_mode_not_repaired).(!${identifier}_owner_repaired.!${identifier}_group_repaired.!${identifier}_mode_repaired)";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions were fixed for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_repaired", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions were fixed for: ${fileName}", "${index}"),
         # Repaired if nothing in error AND something repaired
         ifvarclass => "!${identifier}_owner_not_repaired.!${identifier}_group_not_repaired.!${identifier}_mode_not_repaired.(${identifier}_owner_repaired|${identifier}_group_repaired|${identifier}_mode_repaired)";
 
-      "any" usebundle => rudder_common_report("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions could not be set for: ${fileName}"),
+      "any" usebundle => rudder_common_report_index("FilesPermissions", "result_error", "${directiveId}", "File permissions", "${fileName}", "Owner, group or permissions could not be set for: ${fileName}", "${index}"),
         # Error if something in error
         ifvarclass => "${identifier}_owner_not_repaired|${identifier}_group_not_repaired|${identifier}_mode_not_repaired";
 

@@ -96,33 +96,33 @@ bundle agent check_cron_configuration
 
     # Reports about the creation of the cron entries
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was present. Skipping..."),
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was present. Skipping...", "${cron_index}"),
         ifvarclass => "cron_file_${cron_index}_kept.!cron_file_${cron_index}_edited";
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was created successfully"),
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} was created successfully", "${cron_index}"),
         ifvarclass => "cron_file_${cron_index}_edited";
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "Could not create the cron file ${cron_name[${cron_index}]}"),
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "Could not create the cron file ${cron_name[${cron_index}]}", "${cron_index}"),
         ifvarclass => "cron_file_${cron_index}_failed";
 
     # Reports about the cron process presence
 
     pass3.!cron_restart::
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process is running. Skipping...");
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process is running. Skipping...", "${cron_index}");
 
     pass3.cron_restart.(service_restart_cron_ok|service_restart_crond_ok)::
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process has been restarted");
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_repaired", "${cron_uuid[${cron_index}]}", "Cron process", "None", "The cron process has been restarted", "${cron_index}");
 
     pass3.cron_restart.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "Could not restart the cron process!");
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "Could not restart the cron process!", "${cron_index}");
 
     pass3.(!windows.cron_absent)::
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "log_warn", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "The crontab is absent");
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "log_warn", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "The crontab is absent", "${cron_index}");
 
     pass3.windows::
 
-      "any" usebundle => rudder_common_report("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "This is a Windows machine. This Technique currently incompatible with it");
+      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "This is a Windows machine. This Technique currently incompatible with it", "${cron_index}");
 
   processes:
       "cron"
