@@ -217,95 +217,95 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
 
 			# Reporting for creation
 			## Reporting for directory creation
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} already exists"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} already exists", "${index}"),
 				ifvarclass => "manageFolders_${index}_RudderUniqueID_kept.!manageFolders_${index}_RudderUniqueID_repaired.manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_islink_${index}";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} was successfully created"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} was successfully created", "${index}"),
 				ifvarclass => "manageFolders_${index}_RudderUniqueID_repaired";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} could not be created"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} could not be created", "${index}"),
 				ifvarclass => "manageFolders_${index}_RudderUniqueID_error|manageFolders_${index}_RudderUniqueID_kept.(manageFilesAndFolders_isfile_${index}|manageFilesAndFolders_islink_${index})"; # if we ask for folder creation, promise is kept, but it's a file, then it's a failure
 
 			## Reporting for file creation
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} already exists"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} already exists", "${index}"),
 				ifvarclass => "manageFiles_${index}_RudderUniqueID_kept.!manageFiles_${index}_RudderUniqueID_repaired.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} was successfully created"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} was successfully created", "${index}"),
 				ifvarclass => "manageFiles_${index}_RudderUniqueID_repaired";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} could not be created"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} could not be created", "${index}"),
 				ifvarclass => "manageFiles_${index}_RudderUniqueID_error|manageFiles_${index}_RudderUniqueID_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
 
 			## Reporting for local cp
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} already exists and is up to date"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} already exists and is up to date", "${index}"),
 				ifvarclass => "manageCp_${index}_RudderUniqueID_kept.!manageCp_${index}_RudderUniqueID_repaired.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_islink_${index}";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} was successfully copied from ${file[${index}][source]}"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} was successfully copied from ${file[${index}][source]}", "${index}"),
 				ifvarclass => "manageCp_${index}_RudderUniqueID_repaired";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} could not be created"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The file ${file[${index}][path]} could not be created", "${index}"),
 				ifvarclass => "manageCp_${index}_RudderUniqueID_error|manageCp_${index}_RudderUniqueID_kept.(manageFilesAndFolders_isdir_${index}|manageFilesAndFolders_islink_${index})";
 
 			## Reporting for symlink creation
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} already exists"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} already exists", "${index}"),
 				ifvarclass => "manageSyms_${index}_RudderUniqueID_kept.!manageSyms_${index}_RudderUniqueID_repaired";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} was successfully created"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} was successfully created", "${index}"),
 				ifvarclass => "manageSyms_${index}_RudderUniqueID_repaired";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} could not be created"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The symlink ${file[${index}][path]} could not be created", "${index}"),
 				ifvarclass => "manageSyms_${index}_RudderUniqueID_error";
 
 			## Reporting for no change
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "No file creation action specified for ${file[${index}][path]}"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "No file creation action specified for ${file[${index}][path]}", "${index}"),
                                 ifvarclass => "manageFilesAndFolders_nocreate_${index}";
 			
 			# Reporting for the permissions
 			## NA if not set
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to have its permission enforced"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to have its permission enforced", "${index}"),
 				ifvarclass => "!manageFilesAndFolders_check_permissions_${index}";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permission of the item ${file[${index}][path]} were correct"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permission of the item ${file[${index}][path]} were correct", "${index}"),
 				ifvarclass => "manageFilesAndFolders_perms_${index}_RudderUniqueID_kept.!manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permissions of the item ${file[${index}][path]} have been corrected"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permissions of the item ${file[${index}][path]} have been corrected", "${index}"),
 				ifvarclass => "manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired.!manageFilesAndFolders_perms_${index}_RudderUniqueID_error";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permissions of the item ${file[${index}][path]} could not be set"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The permissions of the item ${file[${index}][path]} could not be set", "${index}"),
 				ifvarclass => "manageFilesAndFolders_perms_${index}_RudderUniqueID_error";
 
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "log_info", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} will be handled recursively"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "log_info", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} will be handled recursively", "${index}"),
 				ifvarclass => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_recursive_${index}";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "log_warn", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} will NOT be handled recursively, because it is either a file or a symlink"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "log_warn", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} will NOT be handled recursively, because it is either a file or a symlink", "${index}"),
 				ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_recursive_${index}";
 
 			# Reporting for the deletion
 			## Report in the general component of the file
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "File cleaning was requested for ${file[${index}][path]}. Check specific reporting in the 'File cleaning options' component."),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "File cleaning was requested for ${file[${index}][path]}. Check specific reporting in the 'File cleaning options' component.", "${index}"),
 				ifvarclass => "manageFilesAndFolders_clean_${index}";
 			## N/A if not set
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to be deleted"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to be deleted", "${index}"),
 				ifvarclass => "!manageFilesAndFolders_clean_${index}";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} was in conformity with the deletion policy"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} was in conformity with the deletion policy", "${index}"),
 				ifvarclass => "manageFilesAndFolders_clean_${index}.!manageFilesAndFolders_delete_${index}_RudderUniqueID_repaired.!manageFilesAndFolders_delete_${index}_RudderUniqueID_error";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} has been put in conformity with the deletion policy"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} has been put in conformity with the deletion policy", "${index}"),
 				ifvarclass => "manageFilesAndFolders_delete_${index}_RudderUniqueID_repaired";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} deletion policy could not be enforced"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} deletion policy could not be enforced", "${index}"),
 				ifvarclass => "manageFilesAndFolders_delete_${index}_RudderUniqueID_error";
 
 			# Reporting for post-command execution
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook did not need running"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook did not need running", "${index}"),
 				ifvarclass => "!manageFilesAndFolders_post_hook_run_${index}|((manageFiles_${index}_kept|manageFolders_${index}_kept|manageSyms_${index}_kept|manageFilesAndFolders_perms_${index}_RudderUniqueID_kept).!(manageFiles_${index}_RudderUniqueID_repaired|manageFolders_${index}_RudderUniqueID_repaired|manageSyms_${index}_RudderUniqueID_repaired|manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired))";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook successfully run"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook successfully run", "${index}"),
 				ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_ok";
 
-      "any" usebundle => rudder_common_report("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "An error occured when running the post-execution hook"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "An error occured when running the post-execution hook", "${index}"),
 				ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_failed";
 
 	commands:

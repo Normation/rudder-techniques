@@ -92,39 +92,39 @@ bundle agent services_RudderUniqueID
     #Reporting
 
     #Technique
-    "any" usebundle => rudder_common_reports_generic("${technique_name}", "service_ensure_running_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services status", "${service[${index}]}", "The service status \"running\" for ${service[${index}]}"),
+    "any" usebundle => rudder_common_reports_generic_index("${technique_name}", "service_ensure_running_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services status", "${service[${index}]}", "The service status \"running\" for ${service[${index}]}", "${index}"),
       ifvarclass => "status_running_${index}";
 
-    "any" usebundle => rudder_common_reports_generic("${technique_name}", "service_ensure_stopped_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services status", "${service[${index}]}", "The service status \"stopped\" for ${service[${index}]}"),
+    "any" usebundle => rudder_common_reports_generic_index("${technique_name}", "service_ensure_stopped_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services status", "${service[${index}]}", "The service status \"stopped\" for ${service[${index}]}", "${index}"),
       ifvarclass => "status_stopped_${index}";
 
-    "report_${index}" usebundle  => rudder_common_report("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services status", "${service[${index}]}", "No status imposed"),
+    "report_${index}" usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services status", "${service[${index}]}", "No status imposed", "${index}"),
       ifvarclass => "status_dont_change_${index}";
 
 
 
 
-    "any" usebundle => rudder_common_reports_generic("${technique_name}", "service_ensure_started_at_boot_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services boot status", "${service[${index}]}", "The service boot status \"enabled\" for ${service[${index}]}"),
+    "any" usebundle => rudder_common_reports_generic_index("${technique_name}", "service_ensure_started_at_boot_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services boot status", "${service[${index}]}", "The service boot status \"enabled\" for ${service[${index}]}", "${index}"),
       ifvarclass => "boot_enabled_${index}";
 
-    "any" usebundle => rudder_common_reports_generic("${technique_name}", "service_ensure_disabled_at_boot_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services boot status", "${service[${index}]}", "The service boot status \"disabled\" for ${service[${index}]}"),
+    "any" usebundle => rudder_common_reports_generic_index("${technique_name}", "service_ensure_disabled_at_boot_${service_canon[${index}]}", "${trackingkey[${index}]}", "Services boot status", "${service[${index}]}", "The service boot status \"disabled\" for ${service[${index}]}", "${index}"),
       ifvarclass => "boot_disabled_${index}";
 
-    "report_${index}" usebundle  => rudder_common_report("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services boot status", "${service[${index}]}", "No boot status imposed"),
+    "report_${index}" usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services boot status", "${service[${index}]}", "No boot status imposed", "${index}"),
       ifvarclass => "boot_dont_change_${index}";
 
     pass3::
       #Posthook
       #Case with execution
-      "any" usebundle => rudder_common_reports_generic("${technique_name}", "command_execution_${posthook_canon[${index}]}", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "The command ${posthook[${index}]} from postHook execution "),
+      "any" usebundle => rudder_common_reports_generic_index("${technique_name}", "command_execution_${posthook_canon[${index}]}", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "The command ${posthook[${index}]} from postHook execution ", "${index}"),
         ifvarclass => "command_execution_${posthook_canon[${index}]}_reached";
 
       #Case without execution
-      "report_${index}" usebundle  => rudder_common_report("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "No post-modification needed to run"),
+      "report_${index}" usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "No post-modification needed to run", "${index}"),
         ifvarclass => "!repaired_${index}.posthook_specified_${index}.!command_execution_${posthook_canon[${index}]}_reached";
 
       #Case where no posthook set
-      "report_hook_${index}" usebundle  => rudder_common_report("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "No post-modification set to run"),
+      "report_hook_${index}" usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "No post-modification set to run", "${index}"),
         ifvarclass => "!posthook_specified_${index}";
 
 }

@@ -110,10 +110,10 @@ bundle agent check_sudo_parameters_RudderUniqueID
         usebundle => sudo_parameter_edit_sudoers_RudderUniqueID("${sudoers_file}", "check_sudo_parameters_RudderUniqueID.entity", "check_sudo_parameters_RudderUniqueID.sudo_entity_nopasswd", "check_sudo_parameters_RudderUniqueID.sudo_entity_all", "check_sudo_parameters_RudderUniqueID.sudo_entity_command");
 
     pass3::
-      "any" usebundle => rudder_common_report("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "Entry for ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is invalid (no command given), and has been ignored"), 
+      "any" usebundle => rudder_common_report_index("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "Entry for ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is invalid (no command given), and has been ignored", "${sudo_index}"), 
         ifvarclass => "!sudo_${sudo_index}_RudderUniqueID_command_notempty.!sudo_${sudo_index}_RudderUniqueID_alldo";
 
-      "any" usebundle => rudder_common_reports_generic("sudoParameters", "sudo_parameter_edited_section_${csection_name[${sudo_index}]}_RudderUniqueID", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]}");
+      "any" usebundle => rudder_common_reports_generic_index("sudoParameters", "sudo_parameter_edited_section_${csection_name[${sudo_index}]}_RudderUniqueID", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]}", "${sudo_index}");
 
 }
 

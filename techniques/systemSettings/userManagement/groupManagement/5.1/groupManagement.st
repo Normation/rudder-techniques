@@ -109,26 +109,26 @@ bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, c
 
     pass3.cfengine::
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and compliant with the policy"),
+      "any" usebundle => rudder_common_report_index("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and compliant with the policy", "${index}"),
                 ifvarclass => "groupmanagement_group_add_${index}_RudderUniqueID_kept.!(groupmanagement_group_add_${index}_RudderUniqueID_repaired|groupmanagement_group_add_${index}_RudderUniqueID_error)";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_repaired", "${directiveId}", "Groups", "${name}", "The group ${name} has been updated"),
+      "any" usebundle => rudder_common_report_index("groupManagement", "result_repaired", "${directiveId}", "Groups", "${name}", "The group ${name} has been updated", "${index}"),
                 ifvarclass => "groupmanagement_group_add_${index}_RudderUniqueID_repaired.!groupmanagement_group_add_${index}_RudderUniqueID_error";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_error", "${directiveId}", "Groups", "${name}", "The group ${name} could not be created or updated"),
+      "any" usebundle => rudder_common_report_index("groupManagement", "result_error", "${directiveId}", "Groups", "${name}", "The group ${name} could not be created or updated", "${index}"),
                 ifvarclass => "groupmanagement_group_add_${index}_RudderUniqueID_error";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is not present and not set to be created"),
+      "any" usebundle => rudder_common_report_index("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is not present and not set to be created", "${index}"),
                 ifvarclass => "groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_create";
 
        #Group enforce GID
-      "any" usebundle => rudder_common_reports_generic("groupManagement", "groupmanagement_group_gid_${index}_RudderUniqueID", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} gid set it ${gid}"),
+      "any" usebundle => rudder_common_reports_generic_index("groupManagement", "groupmanagement_group_gid_${index}_RudderUniqueID", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} gid set it ${gid}", "${index}"),
                 ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not present"),
+      "any" usebundle => rudder_common_report_index("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not present", "${index}"),
                 ifvarclass => "groupmanagement_group_${index}_absent";
 
-      "any" usebundle => rudder_common_report("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not set to have its gid set"),
+      "any" usebundle => rudder_common_report_index("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not set to have its gid set", "${index}"),
                 ifvarclass => "!groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_setgid";
 
 

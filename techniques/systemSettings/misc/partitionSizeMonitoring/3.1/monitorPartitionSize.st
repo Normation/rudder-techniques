@@ -56,28 +56,28 @@ bundle agent monitor_partition_size_RudderUniqueID {
 
             # Partition status reporting
             # Success
-      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has enough free space"),
+      "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has enough free space", "${index}"),
                 ifvarclass => "!monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 
             # Error
-      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has not enough free space"),
+      "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has not enough free space", "${index}"),
                 ifvarclass => "monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 
             # Repaired command execution reporting
             # NA not set
-      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_na", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not set"),
+      "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_na", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not set", "${index}"),
                 ifvarclass => "!monitorPartitionSize_repaired_cmd_run_${index}";
 
             # Success not needed
-      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not needed"),
+      "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not needed", "${index}"),
                 ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 
             # Repaired
-      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_repaired", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command executed - ${partition[${index}][repaired_cmd]}"),
+      "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_repaired", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command executed - ${partition[${index}][repaired_cmd]}", "${index}"),
                 ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID_repaired";
 
             # Error
-      "any" usebundle => rudder_common_report("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command failed to execute"),
+      "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command failed to execute", "${index}"),
                 ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID_error";
 
     commands:
