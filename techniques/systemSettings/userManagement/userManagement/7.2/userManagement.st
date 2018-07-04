@@ -404,11 +404,11 @@ bundle agent check_usergroup_user_parameters
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
       # Password handling
-      "any" usebundle => rudder_common_report_indexs_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}", "${usergroup_user_index}"),
+      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}"),
            ifvarclass => "!usermanagement_user_checkpres_${usergroup_user_index}";
 
       # Password handling in check only
-      "any" usebundle => rudder_common_report_indexs_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}", "${usergroup_user_index}"),
+      "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}"),
            ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}";
 
       ## Change not needed (Success)
