@@ -117,8 +117,8 @@ bundle agent package_management {
   methods:
     # 3.2 does not support agents older than 2.11, hence CFEngine 3.6
     pass2.cfengine_3_6::
-      "report_${index_pkg}" usebundle  => rudder_common_report("packageManagement", "result_error", "${trackingkey[${index_pkg}]}", "Package", "${package[${index_pkg}]}", "${incompatible_error}");
-      "report_${index_pkg}" usebundle  => rudder_common_report("packageManagement", "result_error", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "${incompatible_error}");
+      "report_${index_pkg}" usebundle  => rudder_common_report_index("packageManagement", "result_error", "${trackingkey[${index_pkg}]}", "Package", "${package[${index_pkg}]}", "${incompatible_error}", "${index_pkg}");
+      "report_${index_pkg}" usebundle  => rudder_common_report_index("packageManagement", "result_error", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "${incompatible_error}", "${index_pkg}");
 
     # The pass2 is not strictly necessary but prevent future issues if the behavior of pre-evaluation changes (because the evaluation of vars + classes takes 2 passes)
     pass2.!cfengine_3_6::
@@ -134,7 +134,7 @@ bundle agent package_management {
       "report_${index_pkg}" usebundle  => rudder_common_reports_generic_index("packageManagement", "${class_prefix_script[${index_pkg}]}", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "Execution of the post-modification script", "${index_pkg}"),
                             ifvarclass => "${class_prefix_script[${index_pkg}]}_reached";
 
-      "report_${index_pkg}" usebundle  => rudder_common_report("packageManagement", "result_na", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "No post-modification script was set to run"),
+      "report_${index_pkg}" usebundle  => rudder_common_report_index("packageManagement", "result_na", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "No post-modification script was set to run", "${index_pkg}"),
                             ifvarclass => "!${class_prefix_script[${index_pkg}]}_reached";
 
 }
