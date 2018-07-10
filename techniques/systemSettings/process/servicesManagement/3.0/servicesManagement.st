@@ -179,10 +179,10 @@ bundle agent services_management
       "any" usebundle => rudder_common_report_index("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required", "${index}"),
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
         
-      "any" usebundle => rudder_common_report_indexs_generic("ServicesManagement", "service_ensure_started_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
+      "any" usebundle => rudder_common_reports_generic_index("ServicesManagement", "service_ensure_started_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
         ifvarclass => "bootstart_process_${index}";
           
-      "any" usebundle => rudder_common_report_indexs_generic("ServicesManagement", "service_ensure_disabled_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
+      "any" usebundle => rudder_common_reports_generic_index("ServicesManagement", "service_ensure_disabled_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
         ifvarclass => "bootstart_prevent_process_${index}";
 
 
