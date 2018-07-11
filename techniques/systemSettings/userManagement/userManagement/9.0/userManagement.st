@@ -256,6 +256,19 @@ bundle agent check_usergroup_user_parameters_RudderUniqueID
         action        => WarnOnly,
         ifvarclass    => "usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
+      "/etc/passwd"
+        create        => "false",
+        edit_line     => set_user_shellRudderUniqueID("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_shell[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        ifvarclass    => "usermanagement_user_update_${usergroup_user_index}";
+
+      "/etc/passwd"
+        create        => "false",
+        edit_line     => set_user_shellRudderUniqueID("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_shell[${usergroup_user_index}]}"),
+        edit_defaults => noempty_backup,
+        action        => WarnOnly,
+        ifvarclass    => "usermanagement_user_checkpres_${usergroup_user_index}";
+
     aix::
       # On AIX, if password is supplied and user must exist, then the second field needs to be a ! to allow login
       "/etc/passwd"
@@ -324,20 +337,30 @@ bundle agent check_usergroup_user_parameters_RudderUniqueID
       # Add user
       ## Does exist (Success), and gid not requested to be changed
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system", "${usergroup_user_index}"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).!usermanagement_force_user_group_${usergroup_user_index}";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_kept.!usermanagement_force_user_group_${usergroup_user_index}";
 
       ## Does exist (Success), and gid already correct
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system", "${usergroup_user_index}"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.!usermanagement_user_current_group_is_invalid_${usergroup_user_index})";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_kept.(usermanagement_force_user_group_defined_${usergroup_user_index}.!usermanagement_user_current_group_is_invalid_${usergroup_user_index})";
 
       ## Does exist (Success), with a wrong gid
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is already present on the system, but had the wrong gid", "${usergroup_user_index}"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_RudderUniqueID_repaired)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_login_add_${usergroup_user_index}_RudderUniqueID_repaired.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_kept.(usermanagement_force_user_group_defined_${usergroup_user_index}.usermanagement_user_gid_change_${usergroup_user_index}_RudderUniqueID_repaired)";
 
 
       ## Seems to exist with a wrong Full Name (Repaired)
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) had a wrong fullname", "${usergroup_user_index}"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error).usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_kept";
+
+      ## Seems to exist with a wrong Shell (Repaired)
+      "any" usebundle => rudder_common_report_index("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) had a wrong shell", "${usergroup_user_index}"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.(usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_error).!(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error)";
+
+      ## Seems to exist with a wrong Full Name and Shell (Repaired)
+      "any" usebundle => rudder_common_report_index("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) had a wrong fullname and shell", "${usergroup_user_index}"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error).usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_repaired";
+
+
 
       ## Added (Repaired)
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) has been added to the system", "${usergroup_user_index}"),
@@ -393,22 +416,31 @@ bundle agent check_usergroup_user_parameters_RudderUniqueID
       # Check user exists
       ## Does exist (Success)
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, which is in conformance with the presence policy", "${usergroup_user_index}"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.(usermanagement_user_nameempty_${usergroup_user_index}|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept).usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_kept";
 
       ## Seems to exist with a wrong Full Name (Error)
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, but does not have the right fullname", "${usergroup_user_index}"),
-        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error)";
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error).usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_kept";
+
+     ## Seems to exist with a wrong Shell (Error)
+      "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, but does not have the right shell", "${usergroup_user_index}"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_error).usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_kept";
+
+      ## Seems to exist with a wrong Shell and wrong Full Name (Error)
+      "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is present on the system, but does not have the right fullname not shell", "${usergroup_user_index}"),
+        ifvarclass => "usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}.(usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_fullname_edit_${usergroup_user_index}_RudderUniqueID_error).(usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_repaired|usermanagement_shell_edit_${usergroup_user_index}_RudderUniqueID_error)";
+ 
 
       ## Does not exist (Error)
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is not present on the system, which violates the presence policy", "${usergroup_user_index}"),
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
       # Password handling
-      "any" usebundle => rudder_common_report_indexs_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}", "${usergroup_user_index}"),
+      "any" usebundle => rudder_common_report_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}", "${usergroup_user_index}"),
            ifvarclass => "!usermanagement_user_checkpres_${usergroup_user_index}";
 
       # Password handling in check only
-      "any" usebundle => rudder_common_report_indexs_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}", "${usergroup_user_index}"),
+      "any" usebundle => rudder_common_report_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}", "${usergroup_user_index}"),
            ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}";
 
       ## Change not needed (Success)
@@ -528,6 +560,15 @@ bundle edit_line set_user_fullname_RudderUniqueID(user,user_index,fullname)
         edit_field => col(":", "5", "${fullname}", "set"),
         classes    => classes_generic("usermanagement_fullname_edit_${user_index}_RudderUniqueID");
 
+}
+
+bundle edit_line set_user_shell_RudderUniqueID(user,user_index,shell)
+{
+  field_edits:
+      "${user}:.*"
+      # Edit shell on /etc/passwd
+        edit_field => col(":", "7", "${shell}", "set"),
+        classes    => classes_generic("usermanagement_shell_edit_${user_index}_RudderUniqueID");
 }
 
 # Bundle to check the full name of a user on windows
