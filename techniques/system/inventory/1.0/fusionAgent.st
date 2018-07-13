@@ -725,6 +725,7 @@ bundle agent sendInventory
       "protocol"                  string => "http";
     (windows|curl_installed)::
       "protocol"                  string => "${g.inventory_upload_protocol}";
+    any::
 &if(INITIAL)&
       "download_endpoint"         string => "${protocol}://${server_info.cfserved}/inventories/";
 &else&
