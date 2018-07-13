@@ -343,6 +343,7 @@ bundle agent sendInventory
       "protocol"                  string => "http";
     (windows|curl_installed)::
       "protocol"                  string => "${g.inventory_upload_protocol}";
+    any::
 &if(INITIAL)&
       "download_endpoint"         string => "${protocol}://${server_info.policy_server}/inventories/";
       "min_resend_delay"          string => "15";
