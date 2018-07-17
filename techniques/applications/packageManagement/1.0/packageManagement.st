@@ -71,11 +71,14 @@ bundle agent package_management {
 
       # Version
       "version_description[${index_pkg}]" string     => "in latest available version",
-                                          ifvarclass => "version_latest_${index_pkg}";
+                                          ifvarclass => "version_latest_${index_pkg}.state_present_${index_pkg}";
       "version_description[${index_pkg}]" string     => "in any version",
                                           ifvarclass => "!version_latest_${index_pkg}.!version_specified_${index_pkg}";
       "version_description[${index_pkg}]" string     => "in version ${version[${index_pkg}]}",
                                           ifvarclass => "version_specified_${index_pkg}";
+      # Non compatibility check is done by the "package_state_options" this is just to inform the user
+      "version_description[${index_pkg}]" string     => "in latest available version is not supported and",
+                                          ifvarclass => "version_latest_${index_pkg}.!state_present_${index_pkg}";
 
       # Message for old agents
       "incompatible_error" string => "This technique is not compatible with Rudder 3.1 or older. Skipping.";
