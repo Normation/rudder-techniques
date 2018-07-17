@@ -80,11 +80,14 @@ bundle agent package_management_RudderUniqueID {
 
       # Version
       "version_description[${index_pkg}]" string     => "in latest available version",
-                                          ifvarclass => "version_latest_${index_pkg}";
+                                          ifvarclass => "version_latest_${index_pkg}.state_present_${index_pkg}";
       "version_description[${index_pkg}]" string     => "in any version",
                                           ifvarclass => "!version_latest_${index_pkg}.!version_specified_${index_pkg}";
       "version_description[${index_pkg}]" string     => "in version ${version[${index_pkg}]}",
                                           ifvarclass => "version_specified_${index_pkg}";
+      # Non compatibility check is done by the "package_state_options" this is just to inform the user
+      "version_description[${index_pkg}]" string     => "in latest available version is not supported and",
+                                          ifvarclass => "version_latest_${index_pkg}.!state_present_${index_pkg}";
 
       # Allow untrusted
       "manager_final_options[${index_pkg}]" string => "-o Apt::Get::AllowUnauthenticated=true ${manager_options[${index_pkg}]}",
