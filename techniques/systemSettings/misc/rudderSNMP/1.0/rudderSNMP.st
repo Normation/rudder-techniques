@@ -26,7 +26,10 @@ bundle agent rudderSNMP
     
       "method_call" usebundle => directory_create("/etc/snmp/scripts");
       "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "directory_create__etc_snmp_scripts", "&TRACKINGKEY&", "Presence of a scripts directory whithin /etc/snmp/", "None", "Directory /etc/snmp/scripts");
-    
+     
+     "method_call" usebundle => file_copy_from_local_source("${this.promise_dirname}/rudder_health.sh", "/etc/snmp/scripts/rudder_health.sh");
+      "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "file_copy_from_local_source__etc_snmp_scripts_rudder_health_sh", "&TRACKINGKEY&","Presence of the rudder agent health evaluation script whithin /etc/snmp/scripts/", "None", "Copy rudder_health.sh");
+
       "method_call" usebundle => permissions("/etc/snmp/scripts/rudder_health.sh", "755", "root", "root");
       "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "permissions__etc_snmp_scripts_rudder_health_sh", "&TRACKINGKEY&", "Execution permission for the rudder agent health evaluation script", "None", "Check permissions on rudder_health.sh");
     
@@ -36,9 +39,6 @@ bundle agent rudderSNMP
       "method_call" usebundle => service_ensure_started_at_boot("snmpd");
       "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "service_ensure_started_at_boot_snmpd", "&TRACKINGKEY&", "Ensure SNMP service is enabled at boot time", "None", "Checking snmpd service enabled at boot time");
      
-     "method_call" usebundle => file_copy_from_local_source("${this.promise_dirname}/rudder_health.sh", "/etc/snmp/scripts/rudder_health.sh");
-      "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "file_copy_from_local_source__etc_snmp_scripts_rudder_health_sh", "&TRACKINGKEY&","Presence of the rudder agent health evaluation script whithin /etc/snmp/scripts/", "None", "Copy rudder_health.sh");
-
     file_ensure_lines_present__etc_snmp_snmpd_conf_repaired::
       "method_call" usebundle => service_restart("snmpd");
       "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "service_restart_snmpd", "&TRACKINGKEY&", "SNMP service restart", "None", "Restarted SNMP service");
