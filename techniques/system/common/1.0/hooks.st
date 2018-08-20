@@ -341,7 +341,7 @@ bundle agent runhook_repoGpgKeyManagementGetKeys(json) {
 
 
   commands:
-    is_enforce.(repo_gpg_uses_apt|repo_gpg_uses_rpm)::
+    repo_gpg_uses_apt|repo_gpg_uses_rpm::
 
       "${repo_gpg_getallkeys} | ${paths.awk} -F ':' '$1 ~ /^pub/ { printf \"+hook_repo_gpg_key_%s_present\n\", tolower($5); }'"
         comment    => "We use this module instead of looking up each gpg key, because each apt-key call takes about 3-5 seconds, so this way we have O(1) instead of O(n)...",
