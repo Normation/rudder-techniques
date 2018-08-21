@@ -56,6 +56,7 @@ systemSettings/process/services/1.0
 systemSettings/process/services/1.1
 systemSettings/remoteAccess/sshConfiguration/5.0
 systemSettings/remoteAccess/sshKeyDistribution/3.0
+systemSettings/remoteAccess/sshKeyDistribution/4.0
 systemSettings/security/fileAlterationMonitoring/2.0
 systemSettings/security/fileAlterationMonitoring/2.1
 systemSettings/security/fileAlterationMonitoring/2.2
