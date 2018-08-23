@@ -2,7 +2,7 @@
   "checks": [
     "TestSSHKeyDistribution.rb"
   ],
-  "compliance": 77.78,
+  "compliance": 88.89,
   "directives": [
     "TestSSHKeyDistribution.json"
   ],

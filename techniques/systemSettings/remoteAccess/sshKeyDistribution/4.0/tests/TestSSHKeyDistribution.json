@@ -1,10 +1,9 @@
 {
-  "id": "49edeedb-eb14-44c2-8eb2-9c395bfd009a",
-  "displayName": "Test_SSHKeyDistribution_v3_0",
+  "displayName": "Test_SSHKeyDistribution_v4_0",
   "shortDescription": "",
   "longDescription": "",
   "techniqueName": "sshKeyDistribution",
-  "techniqueVersion": "3.0",
+  "techniqueVersion": "4.0",
   "parameters": {
     "section": {
       "name": "sections",

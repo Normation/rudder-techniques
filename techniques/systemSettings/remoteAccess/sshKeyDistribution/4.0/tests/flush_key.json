@@ -1,5 +1,5 @@
 {
-  "displayName": "Test_SSHKeyDistribution_Flush_key_V3_0",
+  "displayName": "Test_SSHKeyDistribution_Flush_key_V4_0",
   "enabled": true,
   "longDescription": "",
   "parameters": {
@@ -73,5 +73,5 @@
   },
   "shortDescription": "",
   "techniqueName": "sshKeyDistribution",
-  "techniqueVersion": "3.0"
+  "techniqueVersion": "4.0"
 }
