@@ -29,20 +29,11 @@ bundle agent root_networks_check
     any::
       "defacl" slist => filter("0.0.0.0/0", "def.acl", "false", "true", "99999");
 
-      "nodes_acl_22" slist => maplist("Allow from ${this}", "defacl");
       "nodes_acl_24" slist => maplist("Require ip ${this}", "defacl");
-      "policy_server_acl_22" slist => maplist("Allow from ${this}", "policy_server_acl");
 
-      "nodes_generate_22"  string => join("${const.n}","nodes_acl_22");
       "nodes_generate_24"  string => join("${const.n}","nodes_acl_24");
-      "policy_server_generate_22"  string => join("${const.n}","policy_server_acl_22");
-
-      "network_file[nodes_22]" string => "${g.rudder_base}/etc/rudder-networks.conf";
 
       "network_file[nodes_24]" string => "${g.rudder_base}/etc/rudder-networks-24.conf";
-
-      "network_file[policy_server_22]" string => "${g.rudder_base}/etc/rudder-networks-policy-server.conf";
-      "network_acl[policy_server_22]"  string => "Allow from ${policy_server_generate_22}";
 
       "network_file[policy_server_24]" string => "${g.rudder_base}/etc/rudder-networks-policy-server-24.conf";
       "index"             slist => getindices("network_file");
@@ -54,11 +45,9 @@ bundle agent root_networks_check
 
 
     has_all_granted::
-      "network_acl[nodes_22]"  string => "Allow from all";
       "network_acl[nodes_24]"  string => "Require all granted";
 
     !has_all_granted::
-      "network_acl[nodes_22]"  string => "${nodes_generate_22}";
       "network_acl[nodes_24]"  string => "${nodes_generate_24}";
 
     redhat::
