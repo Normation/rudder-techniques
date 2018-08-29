@@ -82,9 +82,19 @@ bundle agent runhook_package(json) {
       "configure_dry_run_mode_${reporting[0][id]}"
          usebundle => set_dry_run_mode("${set_dry_mode}");
 
+      # All GM reports at least a log_info, so we need to set the reporting context correctly
+      "set_reporting_context_for_GM"
+        usebundle => rudder_reporting_context_id("${reporting[0][id]}", "${reporting[0][technique]}");
+
+      "disable_reporting_sudo_pre_hook"
+         usebundle => disable_reporting;
+
       "install_package"
         usebundle  => package_present("${parameters[name]}", "", "", ""),
         ifvarclass => "${class_condition}";
+
+      "reenable_reporting_sudo_pre_hook"
+         usebundle => enable_reporting;
 
       # here we need to report correctly based on each mode for each directive
       "reporting" 
