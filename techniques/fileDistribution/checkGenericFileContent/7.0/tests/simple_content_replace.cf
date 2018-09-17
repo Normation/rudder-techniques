@@ -1,7 +1,0 @@
-bundle agent init {
-
-  methods:
-    "any" usebundle => file_enforce_content("/tmp/simple_content_replace", "replaceme", "true");
-
-}
-

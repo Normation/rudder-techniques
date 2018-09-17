@@ -1,8 +1,0 @@
-[{
-  "inits": ["test_service.cf"],
-  "directives": ["test_service.json", "test_service_cron.json"],
-  "checks": ["test_service.rb"],
-  "sharedFiles": [],
-  "compliance": 100
-}]
-

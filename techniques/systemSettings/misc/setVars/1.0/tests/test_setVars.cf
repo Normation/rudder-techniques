@@ -1,7 +1,0 @@
-#!/usr/local/bin/ncf -f 
-bundle agent init {
-  methods:
-    "any" usebundle => file_remove("/tmp/result");
-    "any" usebundle => file_enforce_content("/tmp/json4.json", "{ \"key1\": \"test4\", \"key2\": \"is ok\"}", "true");
-}
-

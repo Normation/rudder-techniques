@@ -1,6 +1,0 @@
- -- Alexis Mousset <alexis.mousset@normation.com>  Mon, 26 Sep 2016 17:19:00 +0100
-  * Version 1.0
-  ** Use the new package promises
- -- Alexis Mousset <alexis.mousset@normation.com> Thu Aug  3 16:53:40 2017
-  * Version 1.1
-  ** Add options for package managers

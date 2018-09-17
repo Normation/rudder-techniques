@@ -1,6 +1,0 @@
- -- Benoît Peccatte <benoit.peccatte@normation.com> Fri Oct 17 14:10:43 CEST 2014
-  * Version 2.0
-  ** Use rudder_common_report instead of reports:
- -- Nicolas Charles <nicolas.charles@normation.com> Wed Jun 14 15:07:55 2017
-  * Version 2.1
-  ** Add exception for non-existent files
