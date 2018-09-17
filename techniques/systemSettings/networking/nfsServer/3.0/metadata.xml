@@ -15,6 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="NFS server">
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder.</DEPRECATED>
   <DESCRIPTION>Configure an NFS server</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
