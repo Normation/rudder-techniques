@@ -1,0 +1,101 @@
+<!--
+Copyright 2018 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+
+<TECHNIQUE name="SNMP installation">
+  <DESCRIPTION>Install an SNMP agent, and configure it</DESCRIPTION>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+  
+  <MULTIINSTANCE>false</MULTIINSTANCE>
+
+  <AGENT type="dsc">
+    <BUNDLES>
+      <NAME>snmp</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="snmp.ps1">
+        <OUTPATH>snmp/1.0/snmp.ps1</OUTPATH>
+      </TML>
+    </TMLS>
+  </AGENT>
+
+  <AGENT type="cfengine-community">
+    <BUNDLES>
+      <NAME>snmp</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="snmp"/>
+    </TMLS>
+  </AGENT>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>SNMP_COMMUNITY_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  
+  <SECTIONS>
+    <SECTION name="SNMP installation" component="true"/>
+    <SECTION name="Communities configuration" component="true"/>
+
+    <SECTION name="Authorized Servers" multivalued="false" component="true">
+      <INPUT>
+        <NAME>SNMP_AUTHORIZED_SOURCES</NAME>
+        <DESCRIPTION>Sources authorized to access to the agent via following communities. Comma separated</DESCRIPTION>
+        <LONGDESCRIPTION>Sources can be hostname, IP address or IP subnet. Just enter "any" if you do not want to restrict the access.</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+    <SECTION name="Windows Options" multivalued="false" component="false">
+      <INPUT>
+        <DESCRIPTION>Flush the snmp configuration</DESCRIPTION>
+        <LONGDESCRIPTION>This will ensure that only the configuration defined in Rudder will be applied on the Windows nodes.</LONGDESCRIPTION>
+        <NAME>SNMP_FLUSH</NAME>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+
+    <SECTION name="Communities" multivalued="true" component="false">
+      <INPUT>
+        <DESCRIPTION>Community name</DESCRIPTION>
+        <NAME>SNMP_COMMUNITY_NAME</NAME>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>SNMP_COMMUNITY_ACL</NAME>
+        <DESCRIPTION>Access restrictions for the given community</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+        </CONSTRAINT>
+        <ITEM>
+          <VALUE>rocommunity</VALUE>
+          <LABEL>Read Only</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>rwcommunity</VALUE>
+          <LABEL>Read Write</LABEL>
+        </ITEM>
+      </SELECT1>
+    </SECTION>
+  </SECTIONS>
+</TECHNIQUE>       
