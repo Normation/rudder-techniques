@@ -114,6 +114,9 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
   !root_server::
     servers  => { "${server}" };
 
+  root_server::
+    link_type => "absolute";
+
   community_edition::
     portnumber => "&COMMUNITYPORT&";
 }
