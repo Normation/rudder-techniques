@@ -138,6 +138,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
             <VALUE>zypper</VALUE>
           </ITEM>
           <ITEM>
+            <LABEL>zypper pattern</LABEL>
+            <VALUE>zypper_pattern</VALUE>
+          </ITEM>
+          <ITEM>
             <LABEL>pkg</LABEL>
             <VALUE>pkg</VALUE>
           </ITEM>
