@@ -98,7 +98,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           </SECTION>
       <INPUT>
         <NAME>COPYFILE_DESTINATION</NAME>
-        <DESCRIPTION>Full path of destination file or directory (on which permissions defined below will be applied)</DESCRIPTION>
+        <DESCRIPTION>Full path of destination file or directory (WARNING: if the source is a file, the filename must be included)</DESCRIPTION>
         <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node. If you are copying a file, the destination
 path needs to contain the destination filename. The permissions defined below will be applied on the whole content of the destination, including files that were not copied.</LONGDESCRIPTION>
       </INPUT>
