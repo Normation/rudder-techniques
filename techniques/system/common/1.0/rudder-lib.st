@@ -110,8 +110,6 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
     preserve => "${preserve}"; # Preserve the permissions
     purge    => "${purge}";
     copy_backup => "timestamp";
-
-  !root_server::
     servers  => { "${server}" };
 
   community_edition::
