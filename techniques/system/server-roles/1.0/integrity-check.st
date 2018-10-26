@@ -18,6 +18,8 @@
 
 bundle agent root_integrity_check
 {
+  vars:
+      "key_destination"  string => "${sys.workdir}/ppkeys/root-${sys.key_digest}.pub";
 
   classes:
     any::
@@ -41,6 +43,9 @@ bundle agent root_integrity_check
         comment      => "Delete the git locking file in the configuration-repository if older than 5 minutes";
 
   methods:
+    root_server::
+      "link the key" usebundle => file_create_symlink("${sys.workdir}/ppkeys/localhost.pub", "${key_destination}"),
+                       comment => "Creating a link of the server key to itself to allow auto-copy";
 
     pass3.root_server.rudder_integrity_ok.!rudder_integrity_failed::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "The ${g.rudder_configuration_repository} directory is present");
