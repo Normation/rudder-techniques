@@ -41,7 +41,11 @@ bundle common g
       "rudder_curl"                string => "/opt/csw/bin/curl";
 
     !solaris.!windows.!android::
-      "rudder_curl"                string => "/usr/bin/curl";
+      "rudder_curl"                string => "/usr/bin/curl",
+                                   unless => fileexists("/opt/rudder/bin/curl");
+
+      "rudder_curl"                string => "/opt/rudder/bin/curl",
+                                       if => fileexists("/opt/rudder/bin/curl");
 
     !windows::
       "rudder_bin"                 string => "${rudder_base}/bin";
