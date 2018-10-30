@@ -31,9 +31,9 @@ body file control {
 
 
 bundle agent rudder_directives {
-
+  # The directive sequence will be correctly indented by the generated variable so we can support multiline variable
   methods:
-      &RUDDER_DIRECTIVES_SEQUENCE&
+&RUDDER_DIRECTIVES_SEQUENCE&
 
 }
 
