@@ -44,8 +44,11 @@ bundle agent root_integrity_check
 
   methods:
     root_server::
+      "link the key" usebundle => disable_reporting;
       "link the key" usebundle => file_create_symlink("${sys.workdir}/ppkeys/localhost.pub", "${key_destination}"),
                        comment => "Creating a link of the server key to itself to allow auto-copy";
+      "link the key" usebundle => enable_reporting; 
+
 
     pass3.root_server.rudder_integrity_ok.!rudder_integrity_failed::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "&TRACKINGKEY&", "Check configuration-repository folder", "None", "The ${g.rudder_configuration_repository} directory is present");
