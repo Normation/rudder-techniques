@@ -201,6 +201,11 @@ bundle common va
 &endif&
 
   classes:
+    # OS classes for compatibility
+      "SUSE" expression => "sles";
+      "SuSE" expression => "sles";
+      "suse" expression => "sles";
+
     # I don't know why, but these classes are not evaluated if they are in rudder_roles
       # Policy Server is a machine which delivers promises
       "policy_server" expression => strcmp("root","${rudder_roles.uuid}");
