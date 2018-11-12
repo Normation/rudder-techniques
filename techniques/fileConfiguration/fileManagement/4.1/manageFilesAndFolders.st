@@ -119,7 +119,7 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
-	files:
+    files:
       iteration_2::
 
 		# Directory
@@ -215,8 +215,8 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
 
     pass3::
 
-			# Reporting for creation
-			## Reporting for directory creation
+      # Reporting for creation
+      ## Reporting for directory creation
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "The folder ${file[${index}][path]} already exists", "${index}"),
 				ifvarclass => "manageFolders_${index}_RudderUniqueID_kept.!manageFolders_${index}_RudderUniqueID_repaired.manageFilesAndFolders_isdir_${index}.!manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_islink_${index}";
 
@@ -298,20 +298,24 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "File cleaning options", "${file[${index}][path]}", "The item ${file[${index}][path]} deletion policy could not be enforced", "${index}"),
 				ifvarclass => "manageFilesAndFolders_delete_${index}_RudderUniqueID_error";
 
-			# Reporting for post-command execution
-      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook did not need running", "${index}"),
-				ifvarclass => "!manageFilesAndFolders_post_hook_run_${index}|((manageFiles_${index}_kept|manageFolders_${index}_kept|manageSyms_${index}_kept|manageFilesAndFolders_perms_${index}_RudderUniqueID_kept).!(manageFiles_${index}_RudderUniqueID_repaired|manageFolders_${index}_RudderUniqueID_repaired|manageSyms_${index}_RudderUniqueID_repaired|manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired))";
+      # Reporting for post-command execution
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "No post-execution hook set to run", "${index}"),
+           ifvarclass => "!manageFilesAndFolders_post_hook_run_${index}";
+
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook did not need running", "${index}"),
+           ifvarclass => "manageFilesAndFolders_post_hook_run_${index}.!(manageFilesAndFolders_delete_${index}_RudderUniqueID_repaired|manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired|manageFolders_${index}_RudderUniqueID_repaired|manageFiles_${index}_RudderUniqueID_repaired|manageCp_${index}_RudderUniqueID_repaired|manageSyms_${index}_RudderUniqueID_repaired)";
 
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook successfully run", "${index}"),
-				ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_ok";
+           ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_ok";
 
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "An error occured when running the post-execution hook", "${index}"),
-				ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_failed";
+           ifvarclass => "manageFilesAndFolders_${index}_RudderUniqueID_command_run_failed";
 
-	commands:
-		"${file[${index}][post_hook_command]}"
-			classes => if_else("manageFilesAndFolders_${index}_RudderUniqueID_command_run_ok", "manageFilesAndFolders_${index}_RudderUniqueID_command_run_failed"),
-			contain => in_shell,
-			ifvarclass => "manageFilesAndFolders_post_hook_run_${index}.(manageFiles_${index}_RudderUniqueID_repaired|manageFolders_${index}_RudderUniqueID_repaired|manageCp_${index}_RudderUniqueID_repaired|manageSyms_${index}_RudderUniqueID_repaired|manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired)";
+  commands:
+    pass2::
+      "${file[${index}][post_hook_command]}"
+              classes => if_else("manageFilesAndFolders_${index}_RudderUniqueID_command_run_ok", "manageFilesAndFolders_${index}_RudderUniqueID_command_run_failed"),
+              contain => in_shell,
+           ifvarclass => "manageFilesAndFolders_post_hook_run_${index}.(manageFilesAndFolders_delete_${index}_RudderUniqueID_repaired|manageFilesAndFolders_perms_${index}_RudderUniqueID_repaired|manageFolders_${index}_RudderUniqueID_repaired|manageFiles_${index}_RudderUniqueID_repaired|manageCp_${index}_RudderUniqueID_repaired|manageSyms_${index}_RudderUniqueID_repaired)";
 
 }
