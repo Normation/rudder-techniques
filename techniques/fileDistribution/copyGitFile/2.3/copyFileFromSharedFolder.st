@@ -228,7 +228,7 @@ bundle agent download_from_shared_folder_RudderUniqueID
       "any" usebundle => rudder_common_report_index("copyFile", "result_na", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "${copyfile[${index}][destination]} was already in the desired state, so no command was executed", "${index}"),
         ifvarclass => "execute_command_${index}.!copy_file_${index}_RudderUniqueID_failed.!copy_file_${index}_RudderUniqueID_repaired.copy_file_${index}_RudderUniqueID_kept";
 
-      "any" usebundle => rudder_common_report_index("copyFile", "result_success", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "The post-hook command for copy of ${copyfile[${index}][name]} to ${copyfile[${index}][destination]} was correctly executed", "${index}"),
+      "any" usebundle => rudder_common_report_index("copyFile", "result_repaired", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "The post-hook command for copy of ${copyfile[${index}][name]} to ${copyfile[${index}][destination]} was correctly executed", "${index}"),
         ifvarclass => "execute_command_${index}.copyfile_posthook_${index}_RudderUniqueID_command_run_ok";
 
       "any" usebundle => rudder_common_report_index("copyFile", "result_error", "${copyfile[${index}][uuid]}", "Post-modification hook", "${copyfile[${index}][destination]}", "The post-hook command for copy of ${copyfile[${index}][name]} to ${copyfile[${index}][destination]} couldn't be executed", "${index}"),
@@ -241,7 +241,7 @@ bundle agent download_from_shared_folder_RudderUniqueID
   commands:
       "${copyfile[${index}][posthook]}"
         contain    => in_shell,
-        classes    => if_else("copyfile_posthook_${index}_command_run_ok", "copyfile_posthook_${index}_command_run_failed"),
+        classes    => if_else("copyfile_posthook_${index}_RudderUniqueID_command_run_ok", "copyfile_posthook_${index}_RudderUniqueID_command_run_failed"),
         ifvarclass => "execute_command_${index}.copy_file_${index}_RudderUniqueID_repaired.!copy_file_${index}_RudderUniqueID_error",
         comment    => "Execute the posthook command if a file was changed";
 
