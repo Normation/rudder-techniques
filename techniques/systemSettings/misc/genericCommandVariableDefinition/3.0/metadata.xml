@@ -40,6 +40,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>GENERIC_COMMAND_VARIABLE_NAME</NAME>
         <DESCRIPTION>Variable name for the output of this command</DESCRIPTION>
+	<LONGDESCRIPTION>
+        Its value can be used in other Directive parameters with the following syntax: ${generic_cmd_var_def.variablename}.</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>string</TYPE>
           <REGEX error="Please enter a valid variable name"><![CDATA[ [a-zA-Z][a-zA-Z0-9_]* ]]></REGEX>
