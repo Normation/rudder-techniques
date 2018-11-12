@@ -70,8 +70,11 @@ all: rudder-templates-cli.jar test
 	mv initial-promises/node-server/server-roles/1.0/rudder-server-roles.cf initial-promises/node-server/rudder-server-roles.conf
 	# Bring variables.json back to its initial state
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
-	# Initial ncf reporting empty
+	# Initial ncf reporting empty (for compatibility with pre-4.3 servers)
 	touch initial-promises/rudder_expected_reports.csv
+	# Provide a default rudder.json
+	cp variables.json initial-promises/rudder.json
+
 
 rudder-templates-cli.jar:
 	$(GET) rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
