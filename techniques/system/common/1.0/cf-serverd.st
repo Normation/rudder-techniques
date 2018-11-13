@@ -73,7 +73,7 @@ bundle server access_rules
         comment            => "Grant ${query_types} reporting query for the hub on the policy server",
         resource_type      => "query",
         report_data_select => rudder_data_select_policy_hub,
-        admit_ips          => { host2ip("${def.policy_server}"), @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
+        admit_ips          => { host2ip("${server_info.policy_server}"), @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
 
   &endif&
 
@@ -108,7 +108,7 @@ bundle server access_rules
         comment            => "Grant ${query_types} reporting query for the hub on the hosts",
         resource_type      => "query",
         report_data_select => rudder_data_select_host,
-        admit_ips          => { host2ip("${def.policy_server}"), @{sys.ip_addresses} };
+        admit_ips          => { host2ip("${server_info.policy_server}"), @{sys.ip_addresses} };
 &endif&
 
   roles:
@@ -119,16 +119,6 @@ bundle server access_rules
 bundle common def
 {
   vars:
-      "policy_server_file"
-        string  => translatepath("${sys.workdir}/policy_server.dat"),
-        comment => "Path to file containing address to policy server";
-
-      # Use "rudder" as default policy_server if no policy_server.dat exists
-      "policy_server"
-        string  => ifelse(fileexists("${policy_server_file}"),
-                          readfile("${policy_server_file}", 2048),
-                          "rudder"),
-        comment => "IP address or hostname to locate your policy host.";
 
     !windows::
       "cf_runagent_shell" 
@@ -145,7 +135,7 @@ bundle common def
       "acl" slist => {
         "127.0.0.0/8" , "::1", @{sys.ip_addresses},
 &if(AUTHORIZED_NETWORKS)&
-        host2ip("${def.policy_server}"), # the policy server can connect to a relay
+        host2ip("${server_info.policy_server}"), # the policy server can connect to a relay
         &AUTHORIZED_NETWORKS:{net|"&net&",}&
 &endif&
 
@@ -153,7 +143,7 @@ bundle common def
 
     !policy_server::
       "acl" slist => {
-        host2ip("${def.policy_server}")
+        host2ip("${server_info.policy_server}")
       };
 
   classes:

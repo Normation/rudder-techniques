@@ -97,7 +97,7 @@ bundle agent propagatePromises
 
     (policy_server|role_rudder_relay_promises_only).!root_server.!disable_classic_sharedfiles::
       "&SHARED_FILES_FOLDER&"
-        copy_from    => remote("${server_info.cfserved}","&SHARED_FILES_FOLDER&"),
+        copy_from    => remote("${server_info.policy_server}","&SHARED_FILES_FOLDER&"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the files shared for the promises execution",
         classes => if_else("files_propagated", "could_not_propagate_files");
@@ -240,10 +240,10 @@ bundle agent propagatePromises
 
   commands:
     policy_server.!root_server.rsync_promises::
-      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.cfserved}:${server_data}/ ${client_data}"
+      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.policy_server}:${server_data}/ ${client_data}"
         classes => if_else("promises_propagated", "could_not_propagate_promises");
     policy_server.!root_server.rsync_sharedfiles::
-      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.cfserved}:&SHARED_FILES_FOLDER&/ &SHARED_FILES_FOLDER&/"
+      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.policy_server}:&SHARED_FILES_FOLDER&/ &SHARED_FILES_FOLDER&/"
         classes => if_else("files_propagated", "could_not_propagate_files");
 
 }

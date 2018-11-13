@@ -473,7 +473,7 @@ bundle agent check_log_system
 
     (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd_conffile_present.!policy_server::
       "${rsyslog_rudder_conffile}"
-        edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.cfserved}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
+        edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
         create => "true",
         edit_defaults => empty_backup,
         classes       => rudder_common_classes("rsyslog");
