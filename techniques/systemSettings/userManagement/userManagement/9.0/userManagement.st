@@ -435,11 +435,11 @@ bundle agent check_usergroup_user_parameters_RudderUniqueID
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is not present on the system, which violates the presence policy", "${usergroup_user_index}"),
         ifvarclass => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_checkpres_${usergroup_user_index}";
 
-      # Password handling
+      ### Password handling
       "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}"),
            ifvarclass => "!usermanagement_user_checkpres_${usergroup_user_index}";
 
-      # Password handling in check only
+      ## Password handling in check only
       "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_RudderUniqueID", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The check of password for user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) ", "${usergroup_user_index}"),
            ifvarclass => "usermanagement_user_checkpres_${usergroup_user_index}";
 
@@ -450,6 +450,12 @@ bundle agent check_usergroup_user_parameters_RudderUniqueID
       ## Change not needed (N/A)
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password change is not required", "${usergroup_user_index}"),
         ifvarclass => "(!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_kept.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_repaired.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_error).((usermanagement_user_checkpres_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index})|(usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}))|usermanagement_user_checkabs_${usergroup_user_index}";
+
+      ## Error when no password class defined and not in a previous N/A or Success case
+      #  This huge statement is built from three previous password reports:
+      #  (no class _reached defined).!(change not needed Success).!(change not needed N/A)
+      "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password could not be verified", "${usergroup_user_index}"),
+           ifvarclass => "!(usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_reached).!((!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_kept.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_repaired.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_error).((usermanagement_user_checkpres_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index})|(usermanagement_user_checkpres_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}))|usermanagement_user_checkabs_${usergroup_user_index}).!(((!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_kept.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_repaired.!usermanagement_user_password_${usergroup_user_index}_RudderUniqueID_error).((usermanagement_user_pwoneshot_${usergroup_user_index}.usermanagement_user_exists_${usergroup_user_index})|usermanagement_user_pwempty_${usergroup_user_index}|(usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_exists_${usergroup_user_index}.(usermanagement_user_group_definition_error_${usergroup_user_index}|usermanagement_user_uid_definition_error_${usergroup_user_index}))))|usermanagement_user_remove_${usergroup_user_index})";
 
 
       # Homedir management
