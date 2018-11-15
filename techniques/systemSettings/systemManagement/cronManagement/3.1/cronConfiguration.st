@@ -43,19 +43,28 @@ bundle agent check_cron_configuration
 
       "cron_index" slist => getindices("cron_name");
 
-      "normalorderingtwist" string => "done";
+      "cron_map[hourly]"  string => "0 * * * *";
+      "cron_map[daily]"   string => "0 0 * * *";
+      "cron_map[weekly]"  string => "0 0 * * 0";
+      "cron_map[monthly]" string => "0 0 1 * *";
+
+    pass1::
+      # if we have non default value (user or frequency), construct the time + user
+      "${cron_index}_cron_parameter" string => "${cron_manual[${cron_index}]} ${cron_user[${cron_index}]}",
+        ifvarclass => "${cron_index}_custom_frequency";
+
+      "${cron_index}_cron_parameter" string => "${cron_map[${cron_frequency[${cron_index}]}]} ${cron_user[${cron_index}]}",
+        ifvarclass => "!${cron_index}_custom_frequency.${cron_index}_manual";
 
   classes:
 
       "crontab_absent" not => fileexists("/etc/crontab");
 
-      "normalorderingtwist" expression => strcmp("${normalorderingtwist}", "done");
+      # if user is not default, or if frequency is user defined, then we need to fallback to manual
+      "${cron_index}_custom_frequency" expression => strcmp("${cron_frequency[${cron_index}]}", "d");
+      "${cron_index}_non_default_user"        not => strcmp("${cron_user[${cron_index}]}", "root");
 
-    normalorderingtwist::
-
-      "${cron_index}_manual" expression => strcmp("${cron_frequency[${cron_index}]}", "d");
-
-      "showtime" expression => strcmp("true", "true");
+      "${cron_index}_manual"           expression => "${cron_index}_custom_frequency|${cron_index}_non_default_user";
 
     any::
       "pass3" expression => "pass2";
@@ -64,23 +73,23 @@ bundle agent check_cron_configuration
 
   files:
 
-    showtime::
+    pass2::
 
       "/etc/cron.d/${cron_name[${cron_index}]}"
-        create => "true",
+        create        => "true",
         edit_defaults => empty_backup,
-        perms  => mog("644", "root", "0"),
-        edit_line => insert_lines("${cron_manual[${cron_index}]} ${cron_user[${cron_index}]} ${cron_command[${cron_index}]}"),
-        ifvarclass => "${cron_index}_manual",
-        classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
+        perms         => mog("644", "root", "0"),
+        edit_line     => insert_lines("${${cron_index}_cron_parameter} ${cron_command[${cron_index}]}"),
+        ifvarclass    => "${cron_index}_manual",
+        classes       => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
 
       "/etc/cron.${cron_frequency[${cron_index}]}/${cron_name[${cron_index}]}"
-        create => "true",
+        create        => "true",
         edit_defaults => empty_backup,
-        perms  => mog("755", "root", "0"),
-        edit_line => insert_lines("${cron_command[${cron_index}]}"),
-        ifvarclass => "!${cron_index}_manual",
-        classes => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
+        perms         => mog("755", "root", "0"),
+        edit_line     => insert_lines("${cron_command[${cron_index}]}"),
+        ifvarclass    => "!${cron_index}_manual",
+        classes       => kept_if_else("cron_file_${cron_index}_kept", "cron_file_${cron_index}_edited", "cron_file_${cron_index}_failed");
 
   methods:
 
