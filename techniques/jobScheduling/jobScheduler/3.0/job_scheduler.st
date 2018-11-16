@@ -16,10 +16,10 @@
 #
 #####################################################################################
 
-bundle agent job_scheduler
+
+bundle agent job_scheduler_RudderUniqueID
 {
   vars:
-      "all_hours" slist => { "00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23" };
 
     &JOB_COMMAND:{command |"job_scheduler_command[&i&]" string => "&command&";
 }&
@@ -37,101 +37,87 @@ bundle agent job_scheduler
 }&
     &TRACKINGKEY:{uuid |"job_scheduler_uuids[&i&]" string => "&uuid&";
 }&
-      "iterator" slist => getindices("job_scheduler_uuids");
+
+      "iterator"                               slist => getindices("job_scheduler_uuids");
 
       "job_scheduler_canon_name[${iterator}]" string => canonify("${job_scheduler_command[${iterator}]}");
 
-      "kept_returncodes_${iterator}" slist => splitstring("${job_scheduler_keptcodes[${iterator}]}",",","128");
 
-      "repaired_returncodes_${iterator}" slist => splitstring("${job_scheduler_repaircodes[${iterator}]}",",","128");
+      
+      "kept_returncodes_${iterator}"          slist => splitstring("${job_scheduler_keptcodes[${iterator}]}",",","128");
 
-      "error_returncodes_${iterator}" slist => splitstring("${job_scheduler_errorcodes[${iterator}]}",",","128");
+      "repaired_returncodes_${iterator}"      slist => splitstring("${job_scheduler_repaircodes[${iterator}]}",",","128");
 
-    nos::
-      "test_hours_${iterator}[${all_hours}]" string => "job_scheduler_${all_hours}_${iterator}",
-        ifvarclass => "test_${all_hours}_${iterator}";
+      "error_returncodes_${iterator}"         slist => splitstring("${job_scheduler_errorcodes[${iterator}]}",",","128");
 
-        # This should work, but produces errors when CFEngine checks the promises like: "Unable to parse class expression: [garbage]"
-        # ifvarclass => or(and(isgreaterthan("${all_hours}", "${job_scheduler_time_min[${iterator}]}"), islessthan("${all_hours}", "${job_scheduler_time_max[${iterator}]}")), strcmp("${job_scheduler_time_min[${iterator}]}", "${all_hours}"));
+      "agent_run_interval"                   string => "5",
+                                             unless => isvariable("g.agent_run_interval");
 
-      "test_hours_list_${iterator}" slist => getvalues("test_hours_${iterator}"),
-        ifvarclass => "test_${all_hours}_${iterator}";
+      "agent_run_interval"                   string => "${g.agent_run_interval}",
+                                                 if => isvariable("g.agent_run_interval");
+
+    pass1::
+      "max_execution_delay_hours_real_${iterator}" string => eval("${job_scheduler_time_max[${iterator}]}-${job_scheduler_time_min[${iterator}]}", "math", "infix"),
+                                               ifvarclass => "min_time_before_max_time_${iterator}";
+
+      "max_execution_delay_hours_real_${iterator}" string => eval("24-${job_scheduler_time_min[${iterator}]}+${job_scheduler_time_max[${iterator}]}", "math", "infix"),
+                                               ifvarclass => "!min_time_before_max_time_${iterator}";
+
+      "max_execution_delay_hours_${iterator}" string => format("%d", "${max_execution_delay_hours_real_${iterator}}");
 
   classes:
-
-      "job_scheduler_random_time" expression => splayclass("${sys.host}","hourly");
-
-    # This is only necessary because the above ifvarclass produces errors like: "Unable to parse class expression: [garbage]"
-      "test_${all_hours}_enclosed_${iterator}" and => { isgreaterthan("${all_hours}", "${job_scheduler_time_min[${iterator}]}"), islessthan("${all_hours}", "${job_scheduler_time_max[${iterator}]}") };
-      "test_${all_hours}_${iterator}"          or  => { "test_${all_hours}_enclosed_${iterator}", strcmp("${job_scheduler_time_min[${iterator}]}", "${all_hours}") };
-
-    nos::
-      # this has the side effect to create a class named by the promisee, not the promiser (which is unused)
-      "run_time_${iterator}" select_class => { "@{test_hours_list_${iterator}}" };
+      # we need to check if min time is greater than max time or not
+      "min_time_before_max_time_${iterator}" expression => islessthan("${job_scheduler_time_min[${iterator}]}", "${job_scheduler_time_max[${iterator}]}");
 
     any::
-      "nos3" expression => "nos2";
-      "nos2" expression => "nos";
-      "nos" expression => "any";
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
 
   methods:
-    nos3::
+    pass2::
+      # check if the job should run
+      "schedule_${iterator}" usebundle => 
+         schedule_simple("${job_scheduler_canon_name[${iterator}]}_RudderUniqueID", "${agent_run_interval}", 0, "${max_execution_delay_hours_${iterator}}", "0", "${job_scheduler_time_min[${iterator}]}", "0", "0", "24", "0", "nodups");
+
+
+    pass3::
       # Note: if the command has not been executed (ever or since > frequency), no report will be sent until the splayclass is defined
       # This will cause Rudder to report an "Unknown" status, and is by design
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "result_success", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job returned a success return code after the last completed execution (${job_scheduler_command[${iterator}]})", "${iterator}"),
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_ok";
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_kept";
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "result_repaired", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job returned a repaired return code on last completed execution (${job_scheduler_command[${iterator}]})", "${iterator}"),
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_repaired";
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_repaired";
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "result_error", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job failed on last completed execution (${job_scheduler_command[${iterator}]})", "${iterator}"),
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_failed";
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_error";
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job has been launched (${job_scheduler_command[${iterator}]}), result will be reported on next run", "${iterator}"),
-        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time.!job_scheduler_lock_${iterator}",
+        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_repaired.!job_scheduler_lock_${iterator}_RudderUniqueID",
         # we define here the persistent class, as the command exection is done on the last iteration
         comment    => "Define a persistent class to prevent multiple job executions",
-        classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}", "5");
+        classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}_RudderUniqueID", "5");
 
-      "any" usebundle => rudder_common_report_index("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "The command will be run at a random time after ${all_hours}:00 on this node (${job_scheduler_command[${iterator}]})", "${iterator}"),
-        ifvarclass => "job_scheduler_${all_hours}_${iterator}";
+      "any" usebundle => rudder_common_report_index("jobScheduler", "result_error", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Schedule is not valid (from ${job_scheduler_time_min[${iterator}]} to ${job_scheduler_time_max[${iterator}]}", "${iterator}"),
+        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_error";
+
+      "any" usebundle => rudder_common_report_index("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "The command will be run at a random time after ${job_scheduler_time_min[${iterator}]}:00 on this node", "${iterator}");
 
   commands:
 
-    nos2::
+    pass2::
       "${job_scheduler_command[${iterator}]}"
         action     => bg("10", "${job_scheduler_timeout[${iterator}]}"),
         contain    => in_shell,
-        ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time.!job_scheduler_lock_${iterator}",
-        classes    => kept_if_else_exclusive_persist("${job_scheduler_canon_name[${iterator}]}_ok",
-      "${job_scheduler_canon_name[${iterator}]}_repaired",
-      "${job_scheduler_canon_name[${iterator}]}_failed",
-      "1440", # Persist the reporting classes for 24 hours, this PT deals with daily jobs (for now anyway)
-      "@{job_scheduler.kept_returncodes_${iterator}}",
-      "@{job_scheduler.repaired_returncodes_${iterator}}",
-      "@{job_scheduler.error_returncodes_${iterator}}");
+        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_repaired.!job_scheduler_lock_${iterator}",
+        classes    => common_classes_exclusive_persist_codes("${job_scheduler_canon_name[${iterator}]}_RudderUniqueID",
+                      "1440", # Persist the reporting classes for 24 hours, this technique deals with daily jobs (for now anyway)
+                      "@{job_scheduler_RudderUniqueID.kept_returncodes_${iterator}}",
+                      "@{job_scheduler_RudderUniqueID.repaired_returncodes_${iterator}}",
+                      "@{job_scheduler_RudderUniqueID.error_returncodes_${iterator}}");
 
 }
 
-body classes kept_if_else_exclusive_persist(kept, repaired, failed, persist, keptcodes, repairedcodes, errorcodes)
-{
-
-        kept_returncodes => { "@{keptcodes}" };
-        repaired_returncodes => { "@{repairedcodes}" };
-        failed_returncodes => { "@{errorcodes}" };
-
-        promise_kept     => { "${kept}" };
-        cancel_kept      => { "${repaired}", "${failed}" };
-
-        promise_repaired => { "${repaired}" };
-        cancel_repaired  => { "${kept}", "${failed}" };
-
-        repair_failed    => { "${failed}" };
-        repair_denied    => { "${failed}" };
-        repair_timeout   => { "${failed}" };
-        cancel_notkept   => { "${kept}", "${repaired}" };
-
-        persist_time     => "${persist}";
-
-}

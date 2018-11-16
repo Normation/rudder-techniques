@@ -21,13 +21,14 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
+    <AGENT version=">= 3.10">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
 
   <BUNDLES>
-    <NAME>job_scheduler</NAME>
+    <NAME>job_scheduler_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>
@@ -51,7 +52,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
       <SELECT1>
         <NAME>JOB_TIME_MIN</NAME>
-        <DESCRIPTION>Lowest hour the command should be run at</DESCRIPTION>
+        <DESCRIPTION>Lowest time the command should be run at</DESCRIPTION>
     <ITEM>
       <LABEL>0:00</LABEL>
       <VALUE>00</VALUE>
@@ -154,7 +155,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </SELECT1>
       <SELECT1>
         <NAME>JOB_TIME_MAX</NAME>
-        <DESCRIPTION>Highest hour the command should be run at</DESCRIPTION>
+        <DESCRIPTION>Highest time the command should be run at</DESCRIPTION>
     <ITEM>
       <LABEL>1:00</LABEL>
       <VALUE>01</VALUE>
