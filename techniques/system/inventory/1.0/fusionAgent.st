@@ -153,7 +153,7 @@ bundle agent download_server_uuid
 &if(NOVA)&
     # On windows, always use curl
     windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k -1 -s -f --noproxy '${server_info.policy_server}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.cfserved}/uuid";
+      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k -1 -s -f --noproxy '${server_info.policy_server}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.policy_server}/uuid";
 &endif&
 
   methods:

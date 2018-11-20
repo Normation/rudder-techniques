@@ -104,12 +104,10 @@ bundle common server_info
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-      # Use "rudder" as default policy_server if no policy_server.dat exists
+      # Use "" as default policy_server if no policy_server.dat exists
       "policy_server" string => ifelse(fileexists("${policy_server_file}"),
                                   readfile("${policy_server_file}", 2048),
-                                  "rudder");
-      "cfserved"      string => "${policy_server}";
-
+                                  "");
   classes:
       "should_disable_server" expression => fileexists("${g.rudder_disable_server_file}");
 }

@@ -20,7 +20,7 @@ bundle agent root_networks_check
 {
 
   vars:
-      "policy_server_ip" string => host2ip("${def.policy_server}");
+      "policy_server_ip" string => host2ip("${server_info.policy_server}");
     server_ip_found::
       "policy_server_acl" slist => { "127.0.0.0/8", "::1",  "${policy_server_ip}" };
     !server_ip_found::
