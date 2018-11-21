@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="File download (Rudder server)">
-  <DESCRIPTION>This technique ensure that some files are the copy of files on the shared folder of the Rudder Root Server, and let you optionally execute a command if the content of the file was modified</DESCRIPTION>
+  <DESCRIPTION>This technique ensure that some files are the copy of files on the shared directory of the Rudder Root Server, and let you optionally execute a command if the content of the file was modified</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
@@ -61,7 +61,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>COPYFILE_NAME</NAME>
         <DESCRIPTION>Source path, relative to /var/rudder/configuration-repository/shared-files/</DESCRIPTION>
-        <LONGDESCRIPTION>This is the relative path of the file/folder to be copied, on the Rudder policy server</LONGDESCRIPTION>
+        <LONGDESCRIPTION>This is the relative path of the file/directory to be copied, on the Rudder policy server</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>sharedfile</TYPE>
         </CONSTRAINT>
@@ -99,7 +99,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>COPYFILE_DESTINATION</NAME>
         <DESCRIPTION>Full path of destination file or directory (WARNING: if the source is a file, the filename must be included)</DESCRIPTION>
-        <LONGDESCRIPTION>This is the absolute path of the file/folder on the managed node. If you are copying a file, the destination
+        <LONGDESCRIPTION>This is the absolute path of the file/directory on the managed node. If you are copying a file, the destination
 path needs to contain the destination filename. The permissions defined below will be applied on the whole content of the destination, including files that were not copied.</LONGDESCRIPTION>
       </INPUT>
       <SELECT1>
@@ -107,15 +107,15 @@ path needs to contain the destination filename. The permissions defined below wi
         <DESCRIPTION>What should be the recursion level of the copy</DESCRIPTION>
         <ITEM>
           <VALUE>0</VALUE>
-          <LABEL>Only this file</LABEL>
+          <LABEL>Only this file (or nothing for a directory)</LABEL>
         </ITEM>
         <ITEM>
           <VALUE>1</VALUE>
-          <LABEL>The whole content of the folder</LABEL>
+          <LABEL>The direct content of the directory (one level)</LABEL>
         </ITEM>
         <ITEM>
           <VALUE>inf</VALUE>
-          <LABEL>The folder, its content, and all the subfolders</LABEL>
+          <LABEL>The whole content of the directory (recursively)</LABEL>
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>0</DEFAULT>
@@ -222,8 +222,8 @@ path needs to contain the destination filename. The permissions defined below wi
       </INPUT>
       <INPUT>
         <NAME>COPYFILE_STICKY_FOLDER</NAME>
-        <DESCRIPTION>Apply the sticky bit to the whole folder? (caution, use with care)</DESCRIPTION>
-        <LONGDESCRIPTION>If set, and the path is a folder, and recursion is set to "The whole content of the folder", apply on the whole folder (won't apply to subfolders, for obvious security reasons).</LONGDESCRIPTION>
+        <DESCRIPTION>Apply the sticky bit to the whole directory? (caution, use with care)</DESCRIPTION>
+        <LONGDESCRIPTION>If set, and the path is a directory, and recursion level is not "Only this file (or nothing for a directory)", apply on the directory direct subfiles (won't apply to subdirectories for security reasons).</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
