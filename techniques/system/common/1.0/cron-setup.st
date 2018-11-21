@@ -33,11 +33,11 @@ bundle agent setup_cronjob
     community_edition.!aix.!windows::
 
       "/etc/cron.d/rudder-agent"
-        create        => "true",
-        perms         => mog("644", "root", "0"),
-        edit_defaults => empty_backup,
+        create          => "true",
+        perms           => mog("644", "root", "0"),
+        edit_defaults   => empty_backup,
         template_method => "mustache",
-        edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder-agent-community-cron");
+        edit_template   => "${sys.workdir}/inputs/common/cron/rudder-agent-community-cron";
 &if(NOVA)&
 
     nova_edition.!aix.!windows::
