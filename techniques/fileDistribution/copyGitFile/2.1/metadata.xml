@@ -18,7 +18,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <DESCRIPTION>This technique downloads a file from Rudder server.
     
-    It ensures that some files are the copy of files on the shared folder of the Rudder Root Server, and optionally allows running a command in case a change was made.</DESCRIPTION>
+    It ensures that some files are the copy of files on the shared directory of the Rudder Root Server, and optionally allows running a command in case a change was made.</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
@@ -65,7 +65,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <INPUT>
           <NAME>COPYFILE_NAME</NAME>
           <DESCRIPTION>Relative path of the source file</DESCRIPTION>
-          <LONGDESCRIPTION>This is path of the file/folder to be copied on the Rudder policy server relative to /var/rudder/configuration-repository/shared-files</LONGDESCRIPTION>
+          <LONGDESCRIPTION>This is path of the file/directory to be copied on the Rudder policy server relative to /var/rudder/configuration-repository/shared-files</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>sharedfile</TYPE>
           </CONSTRAINT>
@@ -113,15 +113,15 @@ path needs to contain the destination filename. The permissions defined below wi
           <DESCRIPTION>Recursion level</DESCRIPTION>
           <ITEM>
             <VALUE>0</VALUE>
-            <LABEL>Only this file</LABEL>
+            <LABEL>Only this file (or nothing for a directory)</LABEL>
           </ITEM>
           <ITEM>
             <VALUE>1</VALUE>
-            <LABEL>Folder content</LABEL>
+            <LABEL>The direct content of the directory (one level)</LABEL>
           </ITEM>
           <ITEM>
             <VALUE>inf</VALUE>
-            <LABEL>Folder content and all the subcontent</LABEL>
+            <LABEL>The whole content of the directory (recursively)</LABEL>
           </ITEM>
           <CONSTRAINT>
             <DEFAULT>0</DEFAULT>
@@ -226,7 +226,7 @@ path needs to contain the destination filename. The permissions defined below wi
         <INPUT>
           <NAME>COPYFILE_STICKY_FOLDER</NAME>
           <DESCRIPTION>Sticky bit for folder (caution, use with care)</DESCRIPTION>
-          <LONGDESCRIPTION>If set, and the path is a folder, and recursion is set to "Folder content", apply on folder (won't apply to subfolders, for obvious security reasons).</LONGDESCRIPTION>
+          <LONGDESCRIPTION>If set, and the source path is a directory, and recursion level is not "Only this file (or nothing for a directory)", apply on the directory direct subfiles (won't apply to subdirectories for security reasons).</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>boolean</TYPE>
             <DEFAULT>false</DEFAULT>
