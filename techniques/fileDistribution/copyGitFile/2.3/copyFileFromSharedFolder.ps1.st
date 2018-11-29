@@ -49,12 +49,12 @@ function copyFileFromSharedFolder_RudderUniqueID {
     for ($i=0; $i -lt $trackingkey.length; $i++) {
       $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Destination $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i])
       $class_prefix  = "copy_file_" 
-      $class_prefix += Canonify-Class ($names[$i])
+      $class_prefix += Canonify-Class $destinations[$i]
       $class_prefix += "_repaired"
 
       #Posthook execution
       $componentName = "Posthook"
-      if ($posthooks[$i] -ne "" -And $local_classes["classes"].contains($class_prefix)) {
+      if ((-not([String]::IsNullOrEmpty($posthooks[$i]))) -And ($local_classes["classes"].contains($class_prefix))) {
         $local_classes = Merge-ClassContext $local_classes $(Command-Execution -CommandName $posthooks[$i] -ComponentKey $destinations[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
       } else {
         if ($auditOnly) { 
@@ -62,7 +62,7 @@ function copyFileFromSharedFolder_RudderUniqueID {
         } else { 
           $state = [ComplianceStatus]::result_na
         }
-        if ($posthooks[$i] -eq "") {
+        if ([String]::IsNullOrEmpty($posthooks[$i])) {
           $PostHookString = "No posthook defined"
         } else {
           $PostHookString = "No posthook execution needed"
