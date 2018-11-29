@@ -15,7 +15,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="File download (Rudder server)">
-  <DESCRIPTION>This technique ensure that some files are the copy of files on the shared directory of the Rudder Root Server, and let you optionally execute a command if the content of the file was modified</DESCRIPTION>
+  <DESCRIPTION>This technique ensure that some files are the copy of files on the shared folder of the Rudder Root Server, and let you optionally execute a command if the content of the file was modified</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
@@ -66,36 +66,36 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <TYPE>sharedfile</TYPE>
         </CONSTRAINT>
       </INPUT>
-          <SECTION name="Exclusion/Inclusion" multivalued="false" component="false" displayPriority="low">
-            <SELECT1>
-              <NAME>COPYFILE_EXCLUDE_INCLUDE_OPTION</NAME>
-              <DESCRIPTION>Exclude or include files from the copy</DESCRIPTION>
-              <LONGDESCRIPTION>Limit list of files to copy (include) or don't copy some files matching a pattern (exclude). Only applies if the path to copy from is a directory.</LONGDESCRIPTION>
-              <ITEM>
-                <VALUE>none</VALUE>
-                <LABEL>No include/exclude rules</LABEL>
-              </ITEM>
-              <ITEM>
-                <VALUE>exclude</VALUE>
-                <LABEL>Exclude file(s) matching</LABEL>
-              </ITEM>
-              <ITEM>
-               <VALUE>include</VALUE>
-               <LABEL>Include file(s) matching</LABEL>
-              </ITEM>
-              <CONSTRAINT>
-                <DEFAULT>none</DEFAULT>
-              </CONSTRAINT>
-            </SELECT1>
+      <SECTION name="Exclusion/Inclusion" multivalued="false" component="false" displayPriority="low">
+        <SELECT1>
+          <NAME>COPYFILE_EXCLUDE_INCLUDE_OPTION</NAME>
+          <DESCRIPTION>Exclude or include files from the copy</DESCRIPTION>
+          <LONGDESCRIPTION>Limit list of files to copy (include) or don't copy some files matching a pattern (exclude). Only applies if the path to copy from is a directory.</LONGDESCRIPTION>
+          <ITEM>
+            <VALUE>none</VALUE>
+            <LABEL>No include/exclude rules</LABEL>
+          </ITEM>
+          <ITEM>
+            <VALUE>exclude</VALUE>
+            <LABEL>Exclude file(s) matching</LABEL>
+          </ITEM>
+          <ITEM>
+           <VALUE>include</VALUE>
+           <LABEL>Include file(s) matching</LABEL>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>none</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
         <INPUT>
           <NAME>COPYFILE_EXCLUDE_INCLUDE</NAME>
           <DESCRIPTION>File name patterns to exclude or include</DESCRIPTION>
-        <LONGDESCRIPTION>If one or several files should be excluded or included in this copy, please insert their name or a regular expression matching the appropriate file name(s))</LONGDESCRIPTION>
-              <CONSTRAINT>
-                <MAYBEEMPTY>true</MAYBEEMPTY>
-              </CONSTRAINT>
+          <LONGDESCRIPTION>If one or several files should be excluded or included in this copy, please insert their name or a regular expression matching the appropriate file name(s))</LONGDESCRIPTION>
+            <CONSTRAINT>
+              <MAYBEEMPTY>true</MAYBEEMPTY>
+            </CONSTRAINT>
         </INPUT>
-          </SECTION>
+      </SECTION>
       <INPUT>
         <NAME>COPYFILE_DESTINATION</NAME>
         <DESCRIPTION>Full path of destination file or directory (WARNING: if the source is a file, the filename must be included)</DESCRIPTION>
@@ -134,7 +134,7 @@ path needs to contain the destination filename. The permissions defined below wi
           <LABEL>True</LABEL>
         </ITEM>
         <CONSTRAINT>
-                <DEFAULT>false</DEFAULT>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </SELECT1> 
       <SELECT1>
@@ -177,79 +177,80 @@ path needs to contain the destination filename. The permissions defined below wi
         </CONSTRAINT>
       </SELECT1>
 
-      <INPUT>
-        <NAME>COPYFILE_OWNER</NAME>
-        <DESCRIPTION>Owner of the destination file or whole directory content</DESCRIPTION>
-        <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <DEFAULT>root</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>COPYFILE_GROUP</NAME>
-        <DESCRIPTION>Group of the destination file or whole directory content</DESCRIPTION>
-        <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <DEFAULT>root</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>COPYFILE_PERM</NAME>
-        <DESCRIPTION>Permissions to apply on the file or whole directory content</DESCRIPTION>
-        <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>perm</TYPE>
-          <DEFAULT>644</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>COPYFILE_SUID</NAME>
-        <DESCRIPTION>Set SetUID bit?</DESCRIPTION>
-        <LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>COPYFILE_SGID</NAME>
-        <DESCRIPTION>Set SetGID bit?</DESCRIPTION>
-        <LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>COPYFILE_STICKY_FOLDER</NAME>
-        <DESCRIPTION>Apply the sticky bit to the whole directory? (caution, use with care)</DESCRIPTION>
-        <LONGDESCRIPTION>If set, and the path is a directory, and recursion level is not "Only this file (or nothing for a directory)", apply on the directory direct subfiles (won't apply to subdirectories for security reasons).</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-
-    </SECTION>
-
-    <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_DESTINATION" displayPriority="low">
-       <INPUT>
-          <NAME>COPYFILE_POST_HOOK_RUN</NAME>
-          <DESCRIPTION>Should the command(s) below be run if any modifications (permission or overwriting) are made on the files above?</DESCRIPTION>
+      <SECTION name="Linux Options" multivalued="false" component="false">
+        <INPUT>
+          <NAME>COPYFILE_OWNER</NAME>
+          <DESCRIPTION>Owner of the destination file or whole directory content</DESCRIPTION>
+          <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <DEFAULT>root</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>COPYFILE_GROUP</NAME>
+          <DESCRIPTION>Group of the destination file or whole directory content</DESCRIPTION>
+          <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <DEFAULT>root</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>COPYFILE_PERM</NAME>
+          <DESCRIPTION>Permissions to apply on the file or whole directory content</DESCRIPTION>
+          <LONGDESCRIPTION>If the destination is a directory, this will apply to the whole content, including files that were not copied.</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>perm</TYPE>
+            <DEFAULT>644</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>COPYFILE_SUID</NAME>
+          <DESCRIPTION>Set SetUID bit?</DESCRIPTION>
+          <LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>boolean</TYPE>
             <DEFAULT>false</DEFAULT>
           </CONSTRAINT>
-       </INPUT>
-       <INPUT>
-          <NAME>COPYFILE_POST_HOOK_COMMAND</NAME>
-          <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
+        </INPUT>
+        <INPUT>
+          <NAME>COPYFILE_SGID</NAME>
+          <DESCRIPTION>Set SetGID bit?</DESCRIPTION>
+          <LONGDESCRIPTION>Note: The SetUID and SetGID bits will not be applied recursively, for obvious security reasons.</LONGDESCRIPTION>
           <CONSTRAINT>
-            <TYPE>textarea</TYPE>
-            <MAYBEEMPTY>true</MAYBEEMPTY>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
           </CONSTRAINT>
-       </INPUT>
-     </SECTION>
+        </INPUT>
+        <INPUT>
+          <NAME>COPYFILE_STICKY_FOLDER</NAME>
+          <DESCRIPTION>Apply the sticky bit to the whole folder? (caution, use with care)</DESCRIPTION>
+          <LONGDESCRIPTION>If set, and the path is a folder, and recursion is set to "The whole content of the folder", apply on the whole folder (won't apply to subfolders, for obvious security reasons).</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+    </SECTION>
+
+    <SECTION name="Post-modification hook" component="true" multivalued="false" componentKey="COPYFILE_DESTINATION" displayPriority="low">
+      <INPUT>
+         <NAME>COPYFILE_POST_HOOK_RUN</NAME>
+         <DESCRIPTION>Should the command(s) below be run if any modifications (permission or overwriting) are made on the files above?</DESCRIPTION>
+         <CONSTRAINT>
+           <TYPE>boolean</TYPE>
+           <DEFAULT>false</DEFAULT>
+         </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+         <NAME>COPYFILE_POST_HOOK_COMMAND</NAME>
+         <DESCRIPTION>Command to run after any modifications</DESCRIPTION>
+         <CONSTRAINT>
+           <TYPE>textarea</TYPE>
+           <MAYBEEMPTY>true</MAYBEEMPTY>
+         </CONSTRAINT>
+      </INPUT>
+    </SECTION>
   </SECTION>
   </SECTIONS>
 
