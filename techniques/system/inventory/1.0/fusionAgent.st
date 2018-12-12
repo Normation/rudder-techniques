@@ -171,26 +171,22 @@ bundle agent download_server_uuid
 bundle agent fusionAgent
 {
   vars:
+    any::
+      "inventory_name"           string => "${sys.uqhost}-${g.uuid}.ocs";
+
     # guarding execresult to save a lot of time during policy validation
     !windows.(force_inventory|inventory_time|initial_promises)::
       "fusion_inventory_version" string => execresult("${g.rudder_base}/bin/run-inventory --version | ${paths.path[grep]} '[0-9]\.[0-9]' | ${paths.path[sed]} 's%.*(\([0-9]\+\)\.\([0-9]\+\).*).*%\1\2%'", "useshell");
-      "inventory_path"           string => "${g.rudder_var_tmp}/inventory", policy => "overridable"; # Default value
-      "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/.*.ocs", policy => "overridable"; # Default value for editing the inventory files
 
-
-    !windows.fusion_inventory_version_23_or_later::
-      # FusionInventory 2.3+ permits to specify the exact inventory file name we want
-      "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${sys.uqhost}-${g.uuid}.ocs";
-      "inventory_path_edition"   string => "${g.rudder_var_tmp}/inventory/${sys.uqhost}-${g.uuid}.ocs";
+    !windows::
+      "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${inventory_name}";
 
     windows:: # We assume we always have FusionInventory 2.3+ on Windows
-      "inventory_path"           string => "${g.rudder_var_tmp}\inventory\${sys.uqhost}-${g.uuid}.ocs";
-      "inventory_path_edition"   string => "${g.rudder_var_tmp}\inventory\${sys.uqhost}-${g.uuid}.ocs";
+      "inventory_path"           string => "${g.rudder_var_tmp}\inventory\${inventory_name}";
 
   classes:
     !windows::
-      # CFEngine doesn't have a ">=" operator, so I'm using "! <" instead
-      "fusion_inventory_version_23_or_later" not => islessthan("${fusion_inventory_version}", "23");
+      "fusion_inventory_version_22_or_earlier" expression => islessthan("${fusion_inventory_version}", "23");
 
     any::
       "pass3" expression => "pass2";
@@ -222,6 +218,9 @@ bundle agent fusionAgent
     pass3.run_inventory::
       "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Running inventory");
 
+    pass3.fusion_inventory_version_22_or_earlier::
+      # FusionInventory 2.3+ permits to specify the exact inventory file name we want which is now mandatory
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Fusion inventory version not supported");
     pass3.inventory_failed::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not execute the inventory");
 
@@ -246,8 +245,6 @@ bundle agent fusionAgent
 bundle agent checkInventoryFile
 {
   vars:
-      "inventory_file"     slist => findfiles("${g.rudder_var_tmp}/inventory/*.ocs");
-      "inventory_file_count" int => length("inventory_file");
     !windows.has_rudder_perl::
       "perl_command" string => "/opt/rudder/bin/perl -I /opt/rudder/lib/perl5";
     !windows.!has_rudder_perl::
@@ -256,15 +253,14 @@ bundle agent checkInventoryFile
       "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe";
 
   classes:
-      # To check if inventory file is there, we need to count the file (filexists is not enough if inventory_file is an empty list))
-      "inventory_file_exist" expression => isgreaterthan("${inventory_file_count}", "0");
+      "inventory_file_exist" expression => fileexists("${fusionAgent.inventory_path}");
       "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
     pass1.inventory_file_exist.!windows::
-      "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file}", "noshell"),
+      "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${fusionAgent.inventory_path}", "noshell"),
                         scope => "namespace";
 
     pass1.inventory_file_exist.windows::
-      "inventory_valid" expression => returnszero("\"${perl_command}\" \"${this.promise_dirname}/test-inventory.pl\" \"${inventory_file}\"", "noshell"),
+      "inventory_valid" expression => returnszero("\"${perl_command}\" \"${this.promise_dirname}/test-inventory.pl\" \"${fusionAgent.inventory_path}\"", "noshell"),
                         scope => "namespace";
 
     any::
@@ -281,7 +277,7 @@ bundle agent checkInventoryFile
       "********************************************************************************
 * WARNING Generated inventory is not valid, as it is missing mandatory fields. *
 * Not sending it to the Rudder Server                                          *
-* You can get a full error message by running: ${perl_command} ${this.promise_dirname}/test-inventory.pl ${inventory_file} 
+* You can get a full error message by running: ${perl_command} ${this.promise_dirname}/test-inventory.pl ${fusionAgent.inventory_path} 
 ********************************************************************************";
 }
 
@@ -290,9 +286,7 @@ bundle agent moveInventoryToFinalDestination
 {
   files:
       "${g.rudder_inventories}"
-        copy_from    => copy("${g.rudder_var_tmp}/inventory"),
-        depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.inventory_file_types}"),
+        copy_from    => copy("${fusionAgent.inventory_path}"),
         comment      => "Moving inventory files to the final location";
 }
 
@@ -313,10 +307,8 @@ bundle agent signInventories
   files:
 
     !windows.sign_script_exists::
-      "${g.rudder_inventories}"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}"
         transformer  => "${sign_script} \"${this.promiser}\"",
-        depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
         comment      => "Signing inventory files";
 }
 
@@ -327,10 +319,8 @@ bundle agent compressInventories
 
     !windows.gzip_installed::
 
-      "${g.rudder_inventories}"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}"
         transformer  => "${g.gzip} -fq ${this.promiser}",
-        depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.uncompressed_inventory_file_types}"),
         comment      => "gzip inventory files";
 }
 
@@ -379,30 +369,24 @@ bundle agent sendInventory
   files:
 
     !windows::
-      "${g.rudder_inventories}"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
-        depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.signed_inventory_file_types}"),
         classes      => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
 
 &if(NOVA)&
     # On windows, the this.promiser variable is not evaluated the same way. We are forced to duplicate this block
     windows::
-      "${g.rudder_inventories}"
+      "${g.rudder_inventories}\${fusionAgent.inventory_name}"
         transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
-        depth_search => recurse_visible(1),
-        file_select => by_name("@{g.signed_inventory_file_types}"),
         classes => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment => "Sending the inventory to the server";
 &endif&
 
   # Once we've successfully sent all inventories, remove them
     !windows.inventory_sent.!cant_send_inventory::
-      "${g.rudder_inventories}"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
-        depth_search => recurse_visible(1),
-        file_select  => by_name("@{g.signed_inventory_file_types}"),
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
 
