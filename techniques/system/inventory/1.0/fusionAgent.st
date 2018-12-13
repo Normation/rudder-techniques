@@ -285,7 +285,7 @@ bundle agent checkInventoryFile
 bundle agent moveInventoryToFinalDestination
 {
   files:
-      "${g.rudder_inventories}"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}"
         copy_from    => copy("${fusionAgent.inventory_path}"),
         comment      => "Moving inventory files to the final location";
 }
@@ -369,7 +369,7 @@ bundle agent sendInventory
   files:
 
     !windows::
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         classes      => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
@@ -377,7 +377,7 @@ bundle agent sendInventory
 &if(NOVA)&
     # On windows, the this.promiser variable is not evaluated the same way. We are forced to duplicate this block
     windows::
-      "${g.rudder_inventories}\${fusionAgent.inventory_name}"
+      "${g.rudder_inventories}\${fusionAgent.inventory_name}\..*"
         transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
         classes => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment => "Sending the inventory to the server";
@@ -385,7 +385,7 @@ bundle agent sendInventory
 
   # Once we've successfully sent all inventories, remove them
     !windows.inventory_sent.!cant_send_inventory::
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
