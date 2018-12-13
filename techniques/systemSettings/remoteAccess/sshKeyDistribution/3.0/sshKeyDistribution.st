@@ -88,8 +88,6 @@ bundle agent check_ssh_key_distribution
 
   files:
 
-    !windows::
-
       "${homedir[${sshkey_distribution_index}]}/.ssh/."
         create        => "true",
         perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
@@ -105,7 +103,7 @@ bundle agent check_ssh_key_distribution
 
   methods:
 
-    pass2.!windows::
+    pass2::
 
       "SSH Key Report"
         usebundle     => rudder_common_reports_generic(
@@ -139,14 +137,6 @@ bundle agent check_ssh_key_distribution
         ),
         ifvarclass    => "!user_${sshkey_distribution_index}_exists.!correct_ssh_key_format_${sshkey_distribution_index}";
 
-    windows::
-
-      "No Windows Support Report"
-        usebundle     => rudder_common_report(
-          "${technique_name}", "result_error",
-          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
-          "Unable to add a SSH key for ${sshkey_distribution_name[${sshkey_distribution_index}]}: This Technique does not support Windows"
-        );
 }
 
 # authorized_keys file contains one line per key, in the following format:

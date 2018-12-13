@@ -89,23 +89,17 @@ bundle agent services_management
     # This is doner after the CFEngine built in services promises (which are used at the end of the bundle)
     # The process name must be filled in order to manage the process status
       "start_process"       usebundle => service_start("${service[${index}][name]}"),
-                           ifvarclass => "(process_${index}_restart|windows).start_process_${index}.defined_process_name_${index}";
+                           ifvarclass => "(process_${index}_restart).start_process_${index}.defined_process_name_${index}";
 
     # Stop process is used only when a "gracefull" stop is selected by the user
       "stop_process"        usebundle => service_stop("${service[${index}][name]}"),
-                           ifvarclass => "(!process_${index}_restart|windows).(stop_process_${index}.!service_${index}_already_stopped).defined_process_name_${index}";
+                           ifvarclass => "(!process_${index}_restart).(stop_process_${index}.!service_${index}_already_stopped).defined_process_name_${index}";
 
     # Used when the process number is out of range
       "restart_process"     usebundle => service_restart("${service[${index}][name]}"),
                            ifvarclass => "${service[${index}][canon_name]}_out_of_range.defined_process_name_${index}";
 
     pass3::
-
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]} didn't need to have its process checked", "${index}"),
-        ifvarclass => "!start_process_${index}.!stop_process_${index}";
-
-    # On windows, we don't use processes promises type to check if process are running, as we rely directly on services
-    !windows.pass3::
     # Error when a state (start, stop, etc.) is selected but no process name is given
       "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Cannot check the status of ${service[${index}][name]}: the process name is not filed", "${index}"),
         ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
@@ -141,19 +135,12 @@ bundle agent services_management
       "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process count could't be stopped", "${index}"),
         ifvarclass => "stop_process_${index}.service_${index}_error.!graceful_stop_process_${index}";
 
-  # on windows, the generic methods are directly defining the correct classes, without relying on the process check before hand
-    windows.pass3::
-      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_start_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Service ${service[${index}][name]} start" ),
-           ifvarclass => "start_process_${index}";
-      "any" usebundle => rudder_common_reports_generic("ServicesManagement", "service_stop_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Service ${service[${index}][name]} stop" ),
-           ifvarclass => "stop_process_${index}";
+      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]} didn't need to have its process checked", "${index}"),
+        ifvarclass => "!start_process_${index}.!stop_process_${index}";
 
-    pass3::
       "any" usebundle => rudder_common_report_index("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range is not to be checked for service ${service[${index}][name]}", "${index}"),
         ifvarclass => "!check_process_range_${index}";
 
-    # The number of process range is not checked on windows
-    !windows.pass3::
       "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} cannot to be checked, for the process name is not set", "${index}"),
         ifvarclass => "check_process_range_${index}.!defined_process_name_${index}";
 
@@ -169,13 +156,7 @@ bundle agent services_management
       "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, and could not be repaired", "${index}"),
         ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][canon_name]}_not_ok";
 
-    windows.pass3::
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "Checking the number of processes within a range is not implemened on Windows", "${index}"),
-        ifvarclass => "check_process_range_${index}";
-
-
     # Service boot starting parameters
-    pass3::
       "any" usebundle => rudder_common_report_index("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required", "${index}"),
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
         
@@ -187,7 +168,6 @@ bundle agent services_management
 
 
   processes:
-    !windows::
     # check the service status
       "${service[${index}][process]}"
         comment => "Check the process status",

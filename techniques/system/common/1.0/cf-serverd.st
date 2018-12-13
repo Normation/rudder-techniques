@@ -93,11 +93,7 @@ bundle server access_rules
 
     # Allow server to remotely run the agent
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
-    windows::
-      "${sys.workdir}\bin\cf-agent.exe"
-        admit_ips => { host2ip("${server_info.policy_server}") };
-
-    !windows::
+    any::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
         admit_ips => { host2ip("${server_info.policy_server}") };
 
@@ -119,13 +115,9 @@ bundle server access_rules
 bundle common def
 {
   vars:
-
-    !windows::
       "cf_runagent_shell" 
         string  => "/bin/sh",
         comment => "Define path to shell used by cf-runagent";
-
-    any::
 
       "dir_masterfiles" string => translatepath("${sys.workdir}/masterfiles");
 
@@ -173,11 +165,6 @@ body server control
         # Disallow old protocol
         allowlegacyconnects => {};
 
-      windows::
-        cfruncommand => "${sys.cf_agent} -I -D cfruncommand -f \"failsafe.cf\"  \&
-                        ${sys.cf_agent} -I -D cfruncommand";
-
-      !windows::
         # last single quote in cfruncommand is left open, so that
         # arguments (like -K and --remote-bundles) are properly appended.
         cfruncommand => "${g.rudder_command} agent run -uR";

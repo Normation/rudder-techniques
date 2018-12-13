@@ -17,7 +17,6 @@
 #####################################################################################
 
 #Check the dns configuration, and correct it if required
-#CAUTION : the loop for windows does not work well, a bug is opened (#82)
 
 bundle agent check_dns_configuration
 {
@@ -32,15 +31,6 @@ bundle agent check_dns_configuration
       "spaced_searchlist" string => join(" ", "searchlist");
 
       "spaced_options" string => join(" ", "options");
-
-&if(NOVA)&
-    windows::
-      "searchkey" string => join("\,", searchlist);
-      "resolvkey" string => join("\,", resolvers);
-      "adapters" string => execresult("\"${g.rudder_sbin}\registrydns.bat\"", "noshell"),
-        comment => "Fetching all the adapter";
-      "adapterslist" slist => splitstring("${adapters}", ";", "15");
-&endif&
 
   classes:
 
@@ -60,8 +50,6 @@ bundle agent check_dns_configuration
 
   files:
 
-    !windows::
-
       "${sys.resolv}"
         create     => "true",
         edit_line  => resolv_edition("${this.spaced_searchlist}",  "@{this.resolvers}", "${this.spaced_options}"),
@@ -70,82 +58,22 @@ bundle agent check_dns_configuration
 
   methods:
 
-&if(NOVA)&
-    windows.dns_resolver_edit::
-      "any" usebundle => checkDNS(${adapterslist}, ${resolvkey});
-
-    pass3.(windows.((dns_repaired_resolver.!cant_repair_dns_resolver.dns_resolver_edit)|(dns_repaired_searchlist.!cant_repair_dns_searchlist.dns_searchlist_edit)))::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_repaired", "&TRACKINGKEY&", "dnsConfiguration", "None", "DNS settings were updated");
-
-    pass3.(windows.((dns_resolver_edit.dns_resolver_kept.!dns_repaired_resolver)|!dns_resolver_edit).((dns_searchlist_edit.dns_searchlist_kept.!dns_repaired_searchlist)|!dns_searchlist_edit))::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_success", "&TRACKINGKEY&", "dnsConfiguration", "None", "The DNS is correctly configured");
-
-    pass3.cant_repair_dns_searchlist::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not set DNS search list in the Windows registry");
-
-    pass3.cant_repair_dns_resolver::
-      "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not set DNS resolver list in the Windows registry");
-&endif&
-
     pass3.dns_resolver_edit::
       "any" usebundle => rudder_common_report("ConfigureDNS", "log_debug", "&TRACKINGKEY&", "dnsConfiguration", "None", "Settings are to edit DNS resolvers");
 
     pass3.dns_searchlist_edit::
       "any" usebundle => rudder_common_report("ConfigureDNS", "log_debug", "&TRACKINGKEY&", "dnsConfiguration", "None", "Settings are to edit DNS searchlist");
 
-    pass3.((!windows.dns_repaired))::
+    pass3.dns_repaired::
       "any" usebundle => rudder_common_report("ConfigureDNS", "result_repaired", "&TRACKINGKEY&", "dnsConfiguration", "None", "DNS settings were updated");
 
     pass3.cant_repair_dns::
       "any" usebundle => rudder_common_report("ConfigureDNS", "result_error", "&TRACKINGKEY&", "dnsConfiguration", "None", "Could not edit the ${sys.resolv} configuration file");
 
-    pass3.(!windows.dns_kept.!dns_repaired.!cant_repair_dns)::
+    pass3.dns_kept.!dns_repaired.!cant_repair_dns::
       "any" usebundle => rudder_common_report("ConfigureDNS", "result_success", "&TRACKINGKEY&", "dnsConfiguration", "None", "The DNS is correctly configured");
 
-&if(NOVA)&
-  databases:
-
-    windows.dns_resolver_edit::
-      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
-        database_operation => "verify",
-        database_type => "ms_registry",
-        database_rows => { "NameServer,REG_SZ,${resolvkey}"},
-        comment => "Set the top level resolver",
-        classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
-
-    windows.dns_searchlist_edit::
-      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters"
-        database_operation => "verify",
-        database_type => "ms_registry",
-        database_rows => { "SearchList,REG_SZ,${searchkey}"},
-        comment => "Set the search list",
-        classes => kept_if_else("dns_searchlist_kept", "dns_repaired_searchlist", "cant_repair_dns_searchlist");
-&endif&
-
 }
-
-&if(NOVA)&
-######################################################
-# For each adapter passed in arguement, add the value
-# NameServer, regKey
-######################################################
-bundle agent checkDNS(adapter, regKey)
-{
-  classes:
-      "valid" expression => regcmp("{.*","${adapter}"),
-        comment => "A valid adapter starts with {";
-
-
-  databases:
-    valid::
-      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\Tcpip\Parameters\Interfaces\${adapter}"
-        database_operation => "verify",
-        database_type => "ms_registry",
-        database_rows => { "NameServer,REG_SZ,${regKey}"},
-        classes => kept_if_else("dns_resolver_kept", "dns_repaired_resolver", "cant_repair_dns_resolver");
-
-}
-&endif&
 
 #######################################################
 # Add lines in the file, formated for resolv.conf file

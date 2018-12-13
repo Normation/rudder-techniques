@@ -26,13 +26,6 @@ bundle common g
 {
   vars:
 
-    android::
-      "rudder_base"                string => "/data/rudder";
-      "rudder_var"                 string => "/data/rudder";
-      "rudder_curl"                string => "/system/bin/curl";
-      "rudder_rm"                  string => "/system/xbin/rm";
-
-    !windows.!android::
       "rudder_base"                string => "/opt/rudder";
       "rudder_rm"                  string => "/bin/rm";
       "rudder_var"                 string => "/var/rudder";
@@ -40,14 +33,13 @@ bundle common g
     solaris::
       "rudder_curl"                string => "/opt/csw/bin/curl";
 
-    !solaris.!windows.!android::
+    !solaris::
       "rudder_curl"                string => "/usr/bin/curl",
                                    unless => fileexists("/opt/rudder/bin/curl");
 
       "rudder_curl"                string => "/opt/rudder/bin/curl",
                                        if => fileexists("/opt/rudder/bin/curl");
 
-    !windows::
       "rudder_bin"                 string => "${rudder_base}/bin";
       "rudder_command"             string => "${rudder_bin}/rudder";
       "rudder_sbin"                string => "${rudder_base}/sbin";
@@ -62,23 +54,6 @@ bundle common g
       "crontab"                    string => "/etc/crontab";
       "gzip"                       string => "/bin/gzip";
 
-    windows::
-      "rudder_base"                string => "${sys.winprogdir}\Rudder";
-      "rudder_bin"                 string => "${rudder_base}\bin";
-      "rudder_sbin"                string => "${rudder_base}\sbin";
-      "rudder_var"                 string => "${sys.winprogdir}\Rudder\var";
-      "rudder_var_tmp"             string => "${rudder_var}\tmp"; # tmp generated data
-      "rudder_base_sbin"           string => "${rudder_base}\sbin"; #folder where tools are installed
-      "rudder_inventories"         string => "${rudder_var}\inventories";
-      "rudder_base_sbin_arg"       string => "${sys.winprogdir}\Rudder\sbin"; # for the installer command line
-      "rudder_tools"               string => "${rudder_sbin}";
-      "rudder_ncf"                 string => "${rudder_var}\ncf";
-      "escaped_workdir"            string => escape("${sys.workdir}");
-      "rudder_curl"                string => "\"${rudder_base_sbin}\curl\curl.exe\"";
-      "rudder_disable_agent_file"  string => "${rudder_base}\etc\disable-agent";
-      "rudder_disable_server_file" string => "${rudder_base}\etc\disable-policy-distribution";
-      "rudder_disable_inventory_file" string => "${rudder_base}\etc\disable-inventory";
-
     aix::
 
       "gzip"                       string => "/usr/bin/gzip";
@@ -88,11 +63,8 @@ bundle common g
 
       "inventory_upload_protocol"  string => "https";
 
-    !aix.!windows::
-
-      "gzip"                       string => "/bin/gzip";
-
     any::
+      "gzip"                       string => "/bin/gzip";
       "uuid_file"                   string => "${rudder_roles.uuid_file}";
       "uuid"                        string => "${rudder_roles.uuid}";
       "server_shares_folder"        string => "/var/rudder/share/${uuid}/promises/shares";
@@ -127,16 +99,9 @@ bundle common g
       "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
       "shared_files"                string => "/var/rudder/configuration-repository/shared-files";
 
-    # The time at which the execution started
-    windows.!cygwin::
-      "execRun"                    string => execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"'{0:yyyy-MM-dd HH:mm:sszzz}' -f (get-date)\"", "noshell");
-    android::
-      "execRun"                    string => execresult("/system/xbin/date \"+%Y-%m-%d %T%z\" | sed 's/\([-+][0-9][0-9]\)\([0-9][0-9]\)$/\1:\2/'", "useshell");
-    (!windows|cygwin).!android::
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                    string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
-    any::
       # Heartbeat interval, in minutes. Only used when in "changes-only" compliance mode
       # In this mode, we should only send a "start"/"end" message pair if changes occur,
       # or if this interval has elapsed since we last sent one

@@ -20,21 +20,11 @@ bundle agent internal_security
 {
   vars:
 
-    !windows::
-
       "mode"  string => "600";
       "user"  string => "root";
       "group" string => "0"; # This is "root" on most UNIX-like systems, but "system" on AIX
 
-    #windows::
-
-    #	"mode"  string => "755";
-    #	"user"  string => "Administrator";
-    #	"group" string => "Administrators";
-
   files:
-
-    !windows::
 
       "${g.rudder_var}/modified-files"
         perms   => mog("${mode}", "${user}", "${group}"),
@@ -68,8 +58,4 @@ bundle agent internal_security
 
     security_sanitization_failed::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Security parameters", "None", "The internal environment security is NOT acceptable!");
-
-    windows::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Security parameters", "None", "No internal security parameters defined for Windows OSes yet");
-
 }

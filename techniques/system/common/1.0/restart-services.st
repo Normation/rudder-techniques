@@ -79,7 +79,7 @@ bundle agent restart_services
 
     # Ensure at least one syslog is running
     # We cannot detect which one is used for Rudder
-    !windows.!aix.!solaris::
+    !aix.!solaris::
       "run_syslog"      usebundle => disable_reporting;
       "run_syslog"      usebundle => _method_reporting_context("Make sure syslog service runs", "None");
       "run_syslog"      usebundle => service_ensure_running("syslog"),

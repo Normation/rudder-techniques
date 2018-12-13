@@ -101,7 +101,7 @@ bundle agent check_cron_configuration
 
       "restart_cron" usebundle => service_restart("crond");
 
-    pass3.(!windows)::
+    pass3::
 
     # Reports about the creation of the cron entries
 
@@ -125,13 +125,9 @@ bundle agent check_cron_configuration
     pass3.cron_restart.(service_restart_cron_not_ok|service_restart_crond_not_ok)::
       "any" usebundle => rudder_common_report_index("cronConfiguration", "result_success", "${cron_uuid[${cron_index}]}", "Cron process", "None", "Could not restart the cron process!", "${cron_index}");
 
-    pass3.(!windows.cron_absent)::
+    pass3.cron_absent::
 
       "any" usebundle => rudder_common_report_index("cronConfiguration", "log_warn", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "The crontab is absent", "${cron_index}");
-
-    pass3.windows::
-
-      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "This is a Windows machine. This Technique currently incompatible with it", "${cron_index}");
 
   processes:
       "cron"

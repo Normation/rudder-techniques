@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="rudder-lib" />
     <TML name="rudder-stdlib-core" />
     <TML name="internal-security" />
-    <TML name="nxlog-activation"/>
     <TML name="cron-setup" />
     <TML name="site"/>
     <TML name="update"/>
@@ -131,7 +130,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Log system for reports" component="true" />
     <SECTION name="CRON Daemon" component="true" />
     <SECTION name="Binaries update" component="true" />
-    <SECTION name="Process checking" component="true" />
     <SECTION name="Monitoring" component="true" />
 
     <SECTION name="common">

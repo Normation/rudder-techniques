@@ -33,22 +33,12 @@ body common control
 bundle common g
 {
   vars:
-    android::
-      "rudder_base"               string => "/data/rudder";
-      "rudder_var"                string => "/data/rudder";
-
-    !windows.!android::
       "rudder_base"              string => "/opt/rudder";
       "rudder_tools_files_unix"   slist => { "send-clean.sh",
                                              "check-rsyslog-version",
                                              "apache-vhost.tpl",
                                            };
-
-
-    !windows.!android::
       "rudder_var"               string => "/var/rudder";
-
-    !windows::
       "rudder_bin"               string => "${rudder_base}/bin";
       "rudder_sbin"              string => "${rudder_base}/sbin";
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
@@ -57,37 +47,13 @@ bundle common g
       "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
       "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
 
-&if(NOVA)&
-    windows::
-      "rudder_base"              string => "${sys.winprogdir}\Rudder";
-      "rudder_var"               string => "${sys.winprogdir}\Rudder\var";
-      "rudder_bin"               string => "${rudder_base}\bin";
-      "rudder_sbin"              string => "${rudder_base}\sbin";
-      "rudder_tools"             string => "${rudder_sbin}";
-      "rudder_ncf"               string => "${rudder_var}\ncf";
-      "uuid_file"                string => "${rudder_base}\etc\uuid.hive";
-      "rudder_disable_server_file" string => "${rudder_base}\etc\disable-policy-distribution";
-
-      "rudder_tools_files_windows" slist => {
-                                              # Rudder utilities
-                                              "getDate.bat",
-                                              "registrydns.bat",
-
-                                              # NXlog
-                                              "nxlog-ce-2.8.1248.msi",
-                                              "nxlog.conf"
-                                            };
-&endif&
-
     SuSE::
       "rudder_tools_files_suse"    slist => { 
                                               "zypper-repo.tpl",
                                               "checkzmd.pl",
                                             };
     any::
-      "rudder_tools_files"         slist => { @{rudder_tools_files_windows},
-                                              @{rudder_tools_files_android},
-                                              @{rudder_tools_files_unix},
+      "rudder_tools_files"         slist => { @{rudder_tools_files_unix},
                                               @{rudder_tools_files_suse},
                                               "checkroute.pl",
                                             }, policy => "ifdefined";
@@ -111,15 +77,6 @@ bundle common g
       "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
       "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
 
-      # The time at which the execution started
-&if(NOVA)&
-    windows.!cygwin::
-      "execRun"                  string => execresult("c:\Windows\System32\WindowsPowerShell\v1.0\powershell.exe -Command \"'{0:yyyy-MM-dd HH:mm:sszzz}' -f (get-date)\"", "noshell");
-&endif&
-
-    android::
-      "execRun"                  string => execresult("/system/xbin/date \"+%Y-%m-%d %T+02:00\"", "noshell");
-    (!windows|cygwin).!android::
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
@@ -156,7 +113,7 @@ bundle agent init_files
       "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
 
   files:
-    community_edition.!windows::
+    community_edition::
       "${sys.workdir}/bin/${components}"
         perms     => u_p("755"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
@@ -164,15 +121,7 @@ bundle agent init_files
 
 
   commands:
-    cygwin.missing_key::
-      "${sys.workdir}/bin/cf-key.exe";
-
-&if(NOVA)&
-    windows.missing_key.!cygwin::
-      "\"${sys.workdir}\bin\cf-key\"";
-&endif&
-
-    !windows.!cygwin.missing_key::
+    missing_key::
       "${sys.workdir}/bin/cf-key";
 }
 

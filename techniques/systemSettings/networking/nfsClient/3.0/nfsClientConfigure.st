@@ -55,7 +55,7 @@ bundle agent check_nfs_client_configuration
 
   methods:
 
-    pass3.(!windows)::
+    pass3::
 
       "any" usebundle => rudder_common_report("nfsClient", "result_repaired", "${nfs_client_uuid[${nfs_client_index}]}", "NFS mountpoint", "${nfs_client_local_path[${nfs_client_index}]}", "The path ${nfs_client_local_path[${nfs_client_index}]} was successfully mounted on ${nfs_client_remote_server[${nfs_client_index}]}:${nfs_client_remote_path[${nfs_client_index}]}"),
         ifvarclass => "${nfs_client_index}_operation_ok.index_${nfs_client_index}_add";
@@ -76,8 +76,6 @@ bundle agent check_nfs_client_configuration
         ifvarclass => "${nfs_client_index}_operation_failed.!${nfs_client_index}_operation_ok.index_${nfs_client_index}_remove";
 
   storage:
-
-    !windows::
 
       "${nfs_client_local_path[${nfs_client_index}]}"
         mount => rudder_nfs("${nfs_client_remote_server[${nfs_client_index}]}","${nfs_client_remote_path[${nfs_client_index}]}", "${nfs_client_remote_type[${nfs_client_index}]}", "${nfs_client_addfstab[${nfs_client_index}]}"),

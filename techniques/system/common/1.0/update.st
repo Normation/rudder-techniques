@@ -326,29 +326,17 @@ bundle agent update_action
         comment => "Deleting ${g.rudder_tools_updated} as the tools couldn't be updated";
 
   processes:
-    config.!windows::
+    config::
       "cf-serverd" restart_class => "start_server";
       "cf-execd"   restart_class => "start_exec";
 
-&if(NOVA)&
-  services:
-    windows::
-      "CfengineNovaExec"
-        service_policy => "start",
-        service_method => u_bootstart,
-        classes        => success("executor_ok", "executor_error", "executor_kept"),
-        comment        => "Start the executor windows service now and at boot time";
-&endif&
-
   commands:
-    start_exec.(!windows|cygwin)::
+    start_exec::
       "${sys.cf_execd}"
-        action  => u_ifwin_bg,
         classes => success("executor_ok", "executor_error", "executor_kept");
 
     !should_disable_server.start_server::
       "${sys.cf_serverd}"
-        action  => u_ifwin_bg,
         classes => success("server_ok", "server_error", "server_kept");
 
   reports:
@@ -424,12 +412,6 @@ body classes success(if, else, kept)
 }
 
 ############################################
-body action u_ifwin_bg
-{
-    windows::
-        background => "true";
-}
-
 body service_method u_bootstart
 {
         service_autostart_policy => "boot_time";
@@ -438,7 +420,6 @@ body service_method u_bootstart
 body perms u_mog(mode,user,group)
 {
   mode   => "${mode}";
-!windows::
   owners => { "${user}" };
   groups => { "${group}" };
 }

@@ -95,7 +95,7 @@ bundle agent check_routing_parameters
 
   commands:
 
-    !windows.checkroute_present::
+    checkroute_present::
 
       "${g.rudder_tools}/checkroute.pl ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} linux"
         contain => in_shell,
@@ -108,27 +108,6 @@ bundle agent check_routing_parameters
         classes => cf2_if_else("route_${routing_index}_added", "route_${routing_index}_add_failed");
 
       "/sbin/route del -net ${route[${routing_index}]} netmask ${mask[${routing_index}]} gw ${gateway[${routing_index}]}"
-        contain => in_shell,
-        ifvarclass => canonify("route_${routing_index}_delete"),
-        classes => cf2_if_else("route_${routing_index}_deleted", "route_${routing_index}_delete_failed");
-
-
-    windows.checkroute_present::
-
-      "\"${g.rudder_base_sbin}\perl\bin\perl.exe\""
-        args => "\"${g.rudder_tools}\checkroute.pl\" ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} windows",
-        contain => in_shell,
-        module => "true",
-        comment => "Analysing routes";
-
-      "\"${sys.winsysdir}\route.exe\""
-        args => "ADD ${route[${routing_index}]} MASK ${mask[${routing_index}]} ${gateway[${routing_index}]}",
-        contain => in_shell,
-        ifvarclass => canonify("route_${routing_index}_add"),
-        classes => cf2_if_else("route_${routing_index}_added", "route_${routing_index}_add_failed");
-
-      "\"${sys.winsysdir}\route.exe\""
-        args => "DELETE ${route[${routing_index}]}",
         contain => in_shell,
         ifvarclass => canonify("route_${routing_index}_delete"),
         classes => cf2_if_else("route_${routing_index}_deleted", "route_${routing_index}_delete_failed");

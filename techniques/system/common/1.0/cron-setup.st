@@ -18,8 +18,6 @@
 
 bundle agent setup_cronjob
 {
-  vars:
-
   files:
 
     linux::
@@ -30,7 +28,7 @@ bundle agent setup_cronjob
       "/etc/cron.d/rudder-agent-uuid"
         delete => tidy;
 
-    community_edition.!aix.!windows::
+    community_edition.!aix::
 
       "/etc/cron.d/rudder-agent"
         create          => "true",
@@ -40,7 +38,7 @@ bundle agent setup_cronjob
         edit_template   => "${sys.workdir}/inputs/common/cron/rudder-agent-community-cron";
 &if(NOVA)&
 
-    nova_edition.!aix.!windows::
+    nova_edition.!aix::
 
       "/etc/cron.d/rudder-agent-nova"
         create        => "true",
@@ -110,21 +108,18 @@ bundle agent check_cron_daemon
       "restart_cron" usebundle => enable_reporting;
 
     # Fake success result, since we don't actually call service_restart unless it's needed
-    pass2.!(android|windows|aix).!restart_crond::
+    pass2.!aix.!restart_crond::
       "any" usebundle => _classes_success("service_restart_${service_name}");
 
-    pass3.!(android|windows|aix)::
+    pass3.!aix::
       "any" usebundle => rudder_common_reports_generic("Common", "service_restart_${service_name}", "&TRACKINGKEY&", "CRON Daemon", "None", "Cron daemon status");
-
-    (android|windows)::
-      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "This is a system without CRON: CRON verifications skipped");
 
     aix::
       "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "CRON is not a service on AIX: CRON verifications skipped");
 
   processes:
 
-    !android.!windows.!aix::
+    !aix::
       "cron"
         process_select => cron_bin,
         restart_class => "restart_crond";

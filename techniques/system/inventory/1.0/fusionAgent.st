@@ -143,18 +143,12 @@ bundle agent download_server_uuid
   vars:
 
     # If curl is available, use it
-    !windows.curl_installed::
+    curl_installed::
       "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.policy_server}/uuid";
 
     # If not, use minicurl instead
-    !windows.!curl_installed::
+    !curl_installed::
       "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url http://${server_info.policy_server}/uuid";
-
-&if(NOVA)&
-    # On windows, always use curl
-    windows::
-      "download_command"   string => "\"${g.rudder_base_sbin}\curl\curl.exe\" -L -k -1 -s -f --noproxy '${server_info.policy_server}' -o \"${sys.workdir}\rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.policy_server}/uuid";
-&endif&
 
   methods:
     could_not_download_uuid::
@@ -175,26 +169,20 @@ bundle agent fusionAgent
       "inventory_name"           string => "${sys.uqhost}-${g.uuid}.ocs";
 
     # guarding execresult to save a lot of time during policy validation
-    !windows.(force_inventory|inventory_time|initial_promises)::
+    force_inventory|inventory_time|initial_promises::
       "fusion_inventory_version" string => execresult("${g.rudder_base}/bin/run-inventory --version | ${paths.path[grep]} '[0-9]\.[0-9]' | ${paths.path[sed]} 's%.*(\([0-9]\+\)\.\([0-9]\+\).*).*%\1\2%'", "useshell");
 
-    !windows::
+    any::
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${inventory_name}";
 
-    windows:: # We assume we always have FusionInventory 2.3+ on Windows
-      "inventory_path"           string => "${g.rudder_var_tmp}\inventory\${inventory_name}";
-
   classes:
-    !windows::
       "fusion_inventory_version_22_or_earlier" expression => islessthan("${fusion_inventory_version}", "23");
 
-    any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
   files:
-    !windows|cygwin::
       "${g.rudder_var_tmp}/inventory/."
         create => "true",
         comment => "Creating inventory directory",
@@ -202,17 +190,6 @@ bundle agent fusionAgent
 
       "${g.rudder_var_reports}/."
         create => "true";
-
-&if(NOVA)&
-    windows.!cygwin::
-      "${g.rudder_var_tmp}\inventory\."
-        create => "true",
-        comment => "Creating inventory directory",
-        classes => if_ok("inventoryfoldercreated");
-
-      "${g.rudder_var_reports}\."
-        create => "true";
-&endif&
 
   methods:
     pass3.run_inventory::
@@ -225,42 +202,26 @@ bundle agent fusionAgent
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not execute the inventory");
 
   commands:
-    !windows.inventoryfoldercreated::
+    inventoryfoldercreated::
       "${g.rudder_base}/bin/run-inventory --local=${inventory_path}"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
-
-&if(NOVA)&
-    windows::
-      "\"C:\Program Files\Rudder\sbin\run-inventory.bat\""
-        args => "--local=\"${inventory_path}\" 2>nul",
-        contain => in_shell,
-        classes => cf2_if_else("run_inventory", "inventory_failed"),
-        comment => "Generating inventory";
-&endif&
-
 }
 
 # Check that the inventory file is valid
 bundle agent checkInventoryFile
 {
   vars:
-    !windows.has_rudder_perl::
+    has_rudder_perl::
       "perl_command" string => "/opt/rudder/bin/perl -I /opt/rudder/lib/perl5";
-    !windows.!has_rudder_perl::
+    !has_rudder_perl::
       "perl_command" string => "/usr/bin/perl -I /opt/rudder/lib/perl5";
-    windows::
-      "perl_command" string => "C:\Program Files\FusionInventory-Agent\perl\bin\perl.exe";
 
   classes:
       "inventory_file_exist" expression => fileexists("${fusionAgent.inventory_path}");
       "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
-    pass1.inventory_file_exist.!windows::
+    pass1.inventory_file_exist::
       "inventory_valid" expression => returnszero("${perl_command} ${this.promise_dirname}/test-inventory.pl ${fusionAgent.inventory_path}", "noshell"),
-                        scope => "namespace";
-
-    pass1.inventory_file_exist.windows::
-      "inventory_valid" expression => returnszero("\"${perl_command}\" \"${this.promise_dirname}/test-inventory.pl\" \"${fusionAgent.inventory_path}\"", "noshell"),
                         scope => "namespace";
 
     any::
@@ -294,19 +255,14 @@ bundle agent moveInventoryToFinalDestination
 bundle agent signInventories
 {
   vars:
-
-    !windows::
       # Keep "/opt/rudder/bin/signature.sh" as a fallback until we don't support agents < 4.0 anymore
       "sign_script" string => ifelse(fileexists("${g.rudder_base}/bin/rudder-sign"), "${g.rudder_base}/bin/rudder-sign", "${g.rudder_base}/bin/signature.sh");
-    windows::
-      "sign_script" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File \"C:\Program Files\Rudder\sbin\signature.ps1\" -file";
 
   classes:
       "sign_script_exists" expression => fileexists("${sign_script}");
 
   files:
-
-    !windows.sign_script_exists::
+    sign_script_exists::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}"
         transformer  => "${sign_script} \"${this.promiser}\"",
         comment      => "Signing inventory files";
@@ -316,9 +272,7 @@ bundle agent signInventories
 bundle agent compressInventories
 {
   files:
-
-    !windows.gzip_installed::
-
+    gzip_installed::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}"
         transformer  => "${g.gzip} -fq ${this.promiser}",
         comment      => "gzip inventory files";
@@ -329,9 +283,9 @@ bundle agent sendInventory
 {
 
   vars:
-    !windows.!curl_installed::
+    !curl_installed::
       "protocol"                  string => "http";
-    (windows|curl_installed)::
+    curl_installed::
       "protocol"                  string => "${g.inventory_upload_protocol}";
     any::
 &if(INITIAL)&
@@ -343,7 +297,7 @@ bundle agent sendInventory
 &endif&
 
     # If curl is available, use it
-    !windows.!aix::
+    !aix::
       "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
@@ -351,13 +305,6 @@ bundle agent sendInventory
     aix::
       "download_command_prefix"   string => "${g.minicurl} --no-verify --put --authentication ${g.davuser}:${g.davpw} --file";
       "download_command_suffix"   string => "--url ${download_endpoint}";
-
-&if(NOVA)&
-    # On windows, always use curl
-    windows::
-      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --noproxy '${server_info.policy_server}' --user ${g.davuser}:${g.davpw} -T";
-      "download_command_suffix"   string => "${download_endpoint}";
-&endif&
 
   classes:
     any::
@@ -367,24 +314,14 @@ bundle agent sendInventory
       "http_only" expression => strcmp("${protocol}", "http");
 
   files:
-
-    !windows::
+    any::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         classes      => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
 
-&if(NOVA)&
-    # On windows, the this.promiser variable is not evaluated the same way. We are forced to duplicate this block
-    windows::
-      "${g.rudder_inventories}\${fusionAgent.inventory_name}\..*"
-        transformer => "${download_command_prefix} \"${this.promiser}\" ${download_command_suffix}",
-        classes => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
-        comment => "Sending the inventory to the server";
-&endif&
-
   # Once we've successfully sent all inventories, remove them
-    !windows.inventory_sent.!cant_send_inventory::
+    inventory_sent.!cant_send_inventory::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),

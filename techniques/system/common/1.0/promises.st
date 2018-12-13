@@ -25,13 +25,7 @@ bundle common rudder_roles
 {
   vars:
     # moved from bundle common g since they need to be defined in promises.cf
-    android::
-      "uuid_file"         string => "/data/rudder/etc/uuid.hive";
-    windows::
-      "uuid_file"         string => "${sys.winprogdir}\Rudder\etc\uuid.hive";
-    !windows.!android::
       "uuid_file"         string => "/opt/rudder/etc/uuid.hive";
-    any::
       "uuid"              string => readfile("${uuid_file}", 60);
 
   classes:
@@ -72,14 +66,6 @@ body common control
 
           @{va.end}
         };
-
-&if(!INITIAL)&
-    android::
-        # if native syslog is not available, use cfengine implementation (eg: android)
-        syslog_host => "${server_info.policy_server}";
-        syslog_port => "&SYSLOGPORT&";
-&endif&
-
 }
 
 bundle common va
@@ -102,7 +88,6 @@ bundle common va
         "configuration",
         "initialize_ncf",
         "internal_security",
-        "check_cf_processes",
         "check_uuid",
         "garbage_collection",
         "setup_cronjob",
@@ -113,7 +98,6 @@ bundle common va
         "configure_rudder_reporting_system",
         "get_environment_variables",
         "properties",
-        "nxlog_enable",
         "monitoring_hook_pre",
 &endif&
 
@@ -138,33 +122,19 @@ bundle common va
       # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
       "specific_bs" slist => { "check_binaries_freshness" };
 
-    !android.!windows::
-      "rudder_var"             string => "/var/rudder";
-    android::
-      "rudder_var"             string => "/data/rudder";
-
     !enterprise_edition::
       "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
     enterprise_edition::
       "capability_option"      string => ""; 
 
-    !windows::
+    any::
+      "rudder_var"             string => "/var/rudder";
       "ncf_path"               string => "${rudder_var}/ncf";
       "rudder_tools"           string => "${rudder_var}/tools";
       "shell_type"             string => "useshell";
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
       "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
 
-    windows::
-      "rudder_base"            string => "${sys.winprogdir}\Rudder";
-      "rudder_tools"           string => "${rudder_base}\sbin";
-      "ncf_path"               string => "${rudder_base}\var\ncf";
-      "shell_type"             string => "powershell";
-
-      "list_compatible_inputs" string => "C:\Windows\System32\WindowsPowershell\v1.0\powershell.exe -ExecutionPolicy Bypass -File '${ncf_path}\common\10_ncf_internals\list-compatible-inputs.ps1'";
-      "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${sys.cf_version} '${ncf_path}'";
-
-    any::
       "path_ncf_common_inputs_10" slist => splitstring(execresult("${compatible_inputs_cmd} common/10_ncf_internals", "${shell_type}"), "\n", 10000);
       "path_ncf_common_inputs_20" slist => splitstring(execresult("${compatible_inputs_cmd} common/20_cfe_basics", "${shell_type}"), "\n", 10000);
       "path_ncf_common_inputs_30" slist => splitstring(execresult("${compatible_inputs_cmd} common/30_generic_methods", "${shell_type}"), "\n", 10000);
@@ -188,8 +158,7 @@ bundle common va
        "ncf_inputs"         slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
 
     # create the final input list after ncf
-    any::
-      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+    # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
       "inputs_list" slist => { @{ncf_inputs} };
 
     policy_server::
@@ -297,85 +266,6 @@ bundle agent initialize_ncf()
       "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "Configuration library initialization");
 }
 
-###################################################
-# Check that CFEngine services are up
-###################################################
-bundle agent check_cf_processes
-{
-  methods:
-    !ignore_disable_agent::
-      "any" usebundle => check_cf_processes_running;
-}
-bundle agent check_cf_processes_running
-{
-  vars:
-
-    windows::
-      # process_term defines how many maximum instances of this
-      # binary should be running before attempting to SIGTERM them.
-      # process_kill is the same for SIGKILL.
-      "process_term[agent]" string => "5";
-      "process_kill[agent]" string => "8";
-
-      "binaries"            slist  => getindices("process_term");
-
-  classes:
-    any::
-      "pass3" expression => "pass2";
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
-
-  methods:
-    pass3.!windows::
-
-      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Process checking", "None", "Rudder agent proccesses check is done by the rudder-agent cron job");
-
-    pass3.windows::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of Rudder agent processes running"),
-      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
-        ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
-
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Process checking", "None", "Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."),
-        ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
-
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Process checking", "None", "ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."),
-        ifvarclass => "${binaries}_has_gone_really_wild";
-
-  processes:
-    windows::
-      # Using the path on windows fails, as process are not reported the same way
-      # And unfortunately, the cf-serverd is not a service.
-      "cf-serverd"  restart_class => "start_server";
-
-      # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
-      "cf-${binaries}"
-        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
-        signals       => { "term" },
-        classes       => if_repaired("${binaries}_has_gone_wild"),
-        comment       => "Checking if cf-${binaries} has gone wild";
-
-    windows.should_disable_server::
-      "cf-serverd"
-        signals       => { "term" },
-        action        => immediate;
-
-  services:
-    # By design, there can be only one cf-execd service running on Windows
-    windows::
-      "CfengineNovaExec"
-        service_policy => "start",
-        service_method => u_bootstart,
-        comment => "Start the executor windows service now and at boot time";
-
-  commands:
-    !should_disable_server.start_server::
-      "${sys.cf_serverd}"
-        action  => u_ifwin_bg,
-        classes => outcome("server");
-
-}
-
-
 # Log and reporting configuration not valid in initial promises
 &if(!INITIAL)&
 bundle agent configure_rudder_reporting_system {
@@ -446,12 +336,11 @@ bundle agent check_log_system
 
   classes:
 
-    !android::
+    any::
       "rsyslogd_conffile_present" expression => fileexists("${rsyslog_conffile}"), scope => "namespace";
       "syslogng_conffile_present" expression => fileexists("${syslogng_conffile}"), scope => "namespace";
       "syslogd_conffile_present"  expression => fileexists("${syslog_conffile}"), scope => "namespace";
 
-    any::
       "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP");
       "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP");
 
@@ -463,14 +352,14 @@ bundle agent check_log_system
 
   files:
 
-    !windows.rsyslogd_conffile_present::
+    rsyslogd_conffile_present::
       "${rsyslog_conffile}"
         edit_line => append_if_no_lines("$IncludeConfig /etc/rsyslog.d/*.conf"),
         edit_defaults => noempty_backup,
         comment => "Add the rsyslog.conf.d include if not already present",
         classes => kept_if_else("rsyslog_kept", "rsyslog_repaired" , "rsyslog_failed");
 
-    (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).!windows.rsyslogd_conffile_present.!policy_server::
+    (rsyslog_version_5_6_4_ok|rsyslog_version_5_6_4_not_ok).rsyslogd_conffile_present.!policy_server::
       "${rsyslog_rudder_conffile}"
         edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
         create => "true",
@@ -484,13 +373,13 @@ bundle agent check_log_system
         edit_defaults => noempty_backup,
         classes       => rudder_common_classes("rsyslog");
 
-    !windows.syslogng_conffile_present.!policy_server::
+    syslogng_conffile_present.!policy_server::
       "${syslogng_conffile}"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
         edit_defaults => noempty_backup,
         classes       => rudder_common_classes("syslog_ng");
 
-    !windows.syslogd_conffile_present.!policy_server::
+    syslogd_conffile_present.!policy_server::
       "${syslog_conffile}"
         edit_line => fix_syslogd("@${server_info.policy_server}"),
         edit_defaults => noempty_backup,
@@ -515,9 +404,6 @@ bundle agent check_log_system
 
     pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).!(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired).(syslogd_conffile_present.syslogd_kept|syslogng_conffile_present.syslog_ng_kept|rsyslogd_conffile_present.rsyslog_kept))::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system for report centralization is already correctly configured");
-
-    pass3.android::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "This is an android machine: Logging system configuration skipped.");
 
   commands:
       
@@ -684,7 +570,7 @@ bundle agent check_binaries_freshness
 
   files:
 
-    !android.!nova_edition::
+    !nova_edition::
       "${sys.workdir}/bin/${components}"
         perms => u_p("755"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
@@ -702,9 +588,6 @@ bundle agent check_binaries_freshness
 
     binaries_missing::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the agent binaries in ${sys.workdir}/bin");
-
-    android::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "This is an android machine: no agent binaries update needed");
 
     nova_edition::
       "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
@@ -817,13 +700,7 @@ body executor control
         schedule         => { &AGENT_RUN_SCHEDULE& };
         executorfacility => "LOG_DAEMON";
 
-   windows::
-        # CFEngine best practice is to use full paths on Windows
-        exec_command => "${sys.cf_agent} -f \"${sys.workdir}\inputs\failsafe.cf\" \& ${sys.cf_agent}";
-
-   !windows::
         exec_command => "${sys.cf_agent} -f failsafe.cf ; ${sys.cf_agent}";
-
 }
 
 ########################################################

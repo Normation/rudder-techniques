@@ -44,8 +44,6 @@ bundle agent check_hosts_configuration
 
   files:
 
-    !windows::
-
       "/etc/hosts"
 
         create => "true",
@@ -58,22 +56,6 @@ bundle agent check_hosts_configuration
 
         edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip", "${hosts_base_template}"),
         classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
-
-    windows::
-
-      "${sys.winsysdir}\drivers\etc\hosts"
-
-        create => "true",
-        # perms => m("644"),
-&if (HOSTS_ENFORCE)&
-        edit_defaults => empty_backup,
-&else&
-        edit_defaults => noempty_backup,
-&endif&
-
-        edit_line => set_hosts_values("check_hosts_configuration.hosts_host", "check_hosts_configuration.hosts_ip"),
-        classes => kept_if_else("hosts_edition_kept", "hosts_edition_done", "hosts_edition_failed");
-
 
   methods:
 

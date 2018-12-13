@@ -64,8 +64,6 @@ bundle agent check_fstab_configuration
 
   files:
 
-    !windows::
-
       "/etc/fstab"
         edit_line => fstab_add_line("check_fstab_configuration.fstab", "check_fstab_configuration.fields", "check_fstab_configuration.fstab_alteronly"),
         create => "true",
@@ -87,12 +85,6 @@ bundle agent check_fstab_configuration
     fstab_failed::
 
       "any" usebundle => rudder_common_report_index("fstabConfiguration", "log_warn", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstab file could NOT be edited by at least one instance of this technique!", "${fstab_index}");
-
-&if(NOVA)&
-    windows::
-
-      "any" usebundle => rudder_common_report_index("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "None", "The fstabConfiguration Technique is not intended to be run on windows. Skipping.", "${fstab_index}");
-&endif&
 
     any::
       "any" usebundle => rudder_common_report_index("fstabConfiguration", "result_error", "${fstab[${fstab_index}][uuid]}", "fstabConfiguration", "${fstab[${fstab_index}][destination]}", "The entry for ${fstab[${fstab_index}][destination]} is invalid, for it doesn't contain an origin : how can it be updated/inserted/deleted?", "${fstab_index}"),

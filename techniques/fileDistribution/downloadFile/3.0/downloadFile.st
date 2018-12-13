@@ -26,16 +26,12 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
   vars:
 
     # If curl is here, use it
-    !windows.curl_installed::
+    curl_installed::
       "download_command" string => "${g.rudder_curl} -L -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
 
     # If no curl is present, fallback to minicurl
-    !windows.!curl_installed::
+    !curl_installed::
       "download_command" string => "${g.minicurl} --get --file \"&DOWNLOADFILE_DESTINATION&\" --url &DOWNLOADFILE_SOURCE&";
-
-    # Windows always use curl
-    windows::
-      "download_command" string => "\"${g.rudder_curl}\" -L -f --proxy '' -o \"&DOWNLOADFILE_DESTINATION&\" &DOWNLOADFILE_SOURCE&";
 
   classes:
 
@@ -48,7 +44,6 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
 
   files:
 
-    !windows::
       "&DOWNLOADFILE_DESTINATION&"
         pathtype => "literal", 	# force literal interpretation
         perms => mog("&DOWNLOADFILE_MODE&","&DOWNLOADFILE_USER&","&DOWNLOADFILE_GROUP&"),
@@ -70,17 +65,14 @@ bundle agent execute_file_download # WARNING : If there is many instance, isn't 
       "any" usebundle => rudder_common_report("downloadFile", "result_error", "&TRACKINGKEY&", "Download a file", "&DOWNLOADFILE_SOURCE&", "The file &DOWNLOADFILE_SOURCE& was could not be downloaded");
 
     # File permissions part
-    pass3.(!windows.file_perms_idle.!file_perms_ok.!file_perms_fail)::
+    pass3.(file_perms_idle.!file_perms_ok.!file_perms_fail)::
       "any" usebundle => rudder_common_report("downloadFile", "result_success", "&TRACKINGKEY&", "Permissions (on UNIX systems)", "&DOWNLOADFILE_SOURCE&", "The permissions on file &DOWNLOADFILE_SOURCE& are ok. Skipping ...");
 
-    pass3.(!windows.file_perms_ok.!file_perms_fail)::
+    pass3.(file_perms_ok.!file_perms_fail)::
       "any" usebundle => rudder_common_report("downloadFile", "result_repaired", "&TRACKINGKEY&", "Permissions (on UNIX systems)", "&DOWNLOADFILE_SOURCE&", "The permissions on file &DOWNLOADFILE_SOURCE& were successfully fixed");
 
-    pass3.(!windows.file_perms_fail)::
+    pass3.(file_perms_fail)::
       "any" usebundle => rudder_common_report("downloadFile", "result_error", "&TRACKINGKEY&", "Permissions (on UNIX systems)", "&DOWNLOADFILE_SOURCE&", "The permissions on file &DOWNLOADFILE_SOURCE& were could not be fixed");
-
-    pass3.windows::
-      "any" usebundle => rudder_common_report("downloadFile", "result_success", "&TRACKINGKEY&", "Permissions (on UNIX systems)", "&DOWNLOADFILE_SOURCE&", "This is a windows machine. The &DOWNLOADFILE_SOURCE& file permissions will not be altered.");
 
   commands:
 
