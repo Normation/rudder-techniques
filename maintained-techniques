@@ -27,7 +27,6 @@ system/common/1.0
 system/distributePolicy/1.0
 system/inventory/1.0
 system/server-roles/1.0
-systemSettings/misc/clockConfiguration/3.1
 systemSettings/misc/clockConfiguration/3.2
 systemSettings/misc/genericCommandVariableDefinition/3.0
 systemSettings/misc/genericVariableDefinition/2.0
@@ -38,7 +37,6 @@ systemSettings/misc/variableFromJsonFile/2.0
 systemSettings/networking/dnsConfiguration/3.0
 systemSettings/networking/hostsConfiguration/2.0
 systemSettings/networking/nfsClient/3.0
-systemSettings/networking/nfsServer/3.0
 systemSettings/networking/routingManagement/2.0
 systemSettings/process/servicesManagement/3.0
 systemSettings/process/services/1.1
@@ -50,7 +48,4 @@ systemSettings/systemManagement/fstabConfiguration/4.0
 systemSettings/systemManagement/motdConfiguration/3.2
 systemSettings/userManagement/groupManagement/5.1
 systemSettings/userManagement/sudoParameters/3.2
-systemSettings/userManagement/userManagement/7.2
-systemSettings/userManagement/userManagement/8.0
-systemSettings/userManagement/userManagement/8.1
 systemSettings/userManagement/userManagement/9.0
