@@ -142,17 +142,15 @@ bundle agent download_server_uuid
 {
   vars:
 
-    # If curl is available, use it
-    curl_installed::
+    # curl should always be available now
       "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.policy_server}/uuid";
-
-    # If not, use minicurl instead
-    !curl_installed::
-      "download_command"   string => "${g.minicurl} --no-verify --get --file \"${sys.workdir}/rudder-server-uuid.txt\" --url http://${server_info.policy_server}/uuid";
 
   methods:
     could_not_download_uuid::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server");
+
+    !curl_installed::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not use curl to retrieve server UUID because it is not installed");
 
   commands:
 
@@ -296,15 +294,9 @@ bundle agent sendInventory
       "min_resend_delay"          string => "480";
 &endif&
 
-    # If curl is available, use it
-    !aix::
+    # curl is always available now
       "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
-
-    # If not, use minicurl instead
-    aix::
-      "download_command_prefix"   string => "${g.minicurl} --no-verify --put --authentication ${g.davuser}:${g.davpw} --file";
-      "download_command_suffix"   string => "--url ${download_endpoint}";
 
   classes:
     any::

@@ -18,7 +18,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>This technique downloads a file from a HTTP server.
 
   It takes a cURL compatible source (HTTP/FTP/...) and a destination on the target host.
-  If cURL is not available, it will try to use minicurl.pl, a LWP-based Perl script.
   </DESCRIPTION>
 
   <BUNDLES>

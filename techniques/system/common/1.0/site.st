@@ -71,7 +71,6 @@ bundle common g
       "rudder_var_reports"          string => "${rudder_var}/reports";
       "davuser"                     string => "&DAVUSER&";
       "davpw"                       string => "&DAVPASSWORD&";
-      "minicurl"                    string => "${rudder_bin}/rudder-perl ${sys.workdir}/inputs/common/utilities/minicurl";
       "excludedreps"                slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "ncf_local_excludedreps"      slist => { "50_techniques", @{g.excludedreps}};
       "rudder_tools_origin"         string => "/var/rudder/tools";

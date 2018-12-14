@@ -82,10 +82,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>common/cron/rudder-agent-nova-cron</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </FILE>
-    <FILE name="minicurl">
-      <OUTPATH>common/utilities/minicurl</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </FILE>
   </FILES>
 
   <SYSTEMVARS>
