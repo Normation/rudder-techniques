@@ -111,7 +111,6 @@ bundle common va
         "doInventory",
 &else&
         "configure_rudder_reporting_system",
-        "check_zypper",
         "get_environment_variables",
         "properties",
         "nxlog_enable",

@@ -82,7 +82,6 @@ bundle common g
     SuSE::
       "rudder_tools_files_suse"    slist => { 
                                               "zypper-repo.tpl",
-                                              "check-zypper-version",
                                               "checkzmd.pl",
                                             };
     any::
