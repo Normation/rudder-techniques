@@ -58,6 +58,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>distributePolicy/ncf/ncf.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </FILE>
+    <FILE name="send-clean.sh">
+      <INCLUDED>false</INCLUDED>
+    </FILE>
   </FILES>
 
   <SYSTEMVARS>

@@ -68,7 +68,7 @@ bundle agent check_zmd_settings
       "zmd_disablerepositories" not => strcmp("&ZMD_DISABLEREPOSITORIES&","false");
 
     # Is the checkzmd script present ?
-      "checkzmd_present" expression => fileexists("${g.rudder_tools}/checkzmd.pl");
+      "checkzmd_present" expression => fileexists("${this.promise_dirname}/checkzmd.pl");
 
     # Do we want to set the proxy ?
       "proxy_edit" not => strcmp("&ZMD_PROXY_URL&", "");
@@ -161,7 +161,7 @@ bundle agent check_zmd_settings
 
     showtime.SuSE.checkzmd_present::
 
-      "${g.rudder_tools}/checkzmd.pl \"${zmd_name[${zmd_index}]}\" \"${zmd_url[${zmd_index}]}\" ${zmd_index}"
+      "${this.promise_dirname}/checkzmd.pl \"${zmd_name[${zmd_index}]}\" \"${zmd_url[${zmd_index}]}\" ${zmd_index}"
         contain => in_shell,
         module => "true",
         comment => "Analyzing ZMD's output";

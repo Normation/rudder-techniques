@@ -35,6 +35,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="routingManagement"/>
   </TMLS>
 
+  <FILES>
+    <FILE name="checkroute.pl">
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+  </FILES>
+
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>ROUTING_FOUR_DESTINATION</SAMESIZEAS>
   </TRACKINGVARIABLE>

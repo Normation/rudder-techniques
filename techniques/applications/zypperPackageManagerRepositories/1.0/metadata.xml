@@ -29,11 +29,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <TMLS>
     <TML name="zypper-repositories-management"/>
-    <TML name="zypper-repo-tml">
-      <OUTPATH>zypperPackageManagerRepositories/zypper-repo.tml</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </TML>
   </TMLS>
+
+  <FILES>
+    <FILE name="zypper-repo.tml">
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+  </FILES>
 
   <TRACKINGVARIABLE>
     <SAMESIZEAS>ZYPPER_REPO_URL</SAMESIZEAS>

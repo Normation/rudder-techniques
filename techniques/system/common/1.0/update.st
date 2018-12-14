@@ -127,10 +127,6 @@ bundle agent update_action
   vars:
       "client_inputs"        string => "${sys.workdir}/inputs";  #where to put the files on the client when downloaded
 
-      # Tools to copy - all defined in bundle g + the timestamp file (for our two phase update needs, see below)
-      "rudder_tools_files_to_copy"      slist => { "${g.rudder_tools_updated_filename}", @{g.rudder_tools_files} }, policy => "ifdefined";
-      "rudder_tools_files_to_select"    slist => maplist("${g.rudder_tools_origin}/${this}", @{rudder_tools_files_to_copy}); # file_select needs full path
-
        # The check is in two phase:
        # First copy rudder_promises_timestamp_tmp from the policy server, and check if it's newer
        # (based on the timestamp written in it) than rudder_promises_timestamp.
@@ -138,21 +134,13 @@ bundle agent update_action
        "rudder_promises_timestamp"     string => "rudder_promises_generated";
        "rudder_promises_timestamp_tmp" string => "rudder_promises_generated.tmp";
 
-       # Same for rudder-tools
-       "rudder_tools_updated_tmp"   string => "${g.rudder_tools_updated_filename}.tmp";
-
      current_promise_timestamp_defined::
        "current_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp}", 2048);
-     current_tools_timestamp_defined::
-       "current_tools_timestamp"   string => readfile("${g.rudder_tools_updated}", 2048);
 
      # File ought to be there only in second pass, but since classes are persistent, we need to 
      # enforce the check on pass_2
      pass2.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired).!rudder_promises_generated_tmp_file_error::
        "target_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp_tmp}", 2048);
-
-     pass2.(rudder_tools_updated_repaired|rudder_tools_updated_kept).!rudder_tools_updated_error::
-       "target_tools_timestamp"    string => readfile("${g.rudder_tools}/${rudder_tools_updated_tmp}", 2048);
 
      enterprise_edition::
        "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
@@ -163,14 +151,10 @@ bundle agent update_action
     current_promise_timestamp_defined::
       "current_promise_timestamp_valid" expression => regcmp("[0-9]+", "${current_promises_timestamp}");
 
-    current_tools_timestamp_defined::
-      "current_tools_timestamp_valid" expression => regcmp("[0-9]+", "${current_tools_timestamp}");
-
     any::
       "current_promise_timestamp_defined" expression => fileexists("${client_inputs}/${rudder_promises_timestamp}");
-      "current_tools_timestamp_defined"   expression => fileexists("${g.rudder_tools_updated}");
 
-    # Check for the validity of the content of the files, and check if we ought to update the promises/tools
+    # Check for the validity of the content of the files, and check if we ought to update the promises
 
     pass2.current_promise_timestamp_valid.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
       "new_promises_available" expression => isgreaterthan("${target_promises_timestamp}", "${current_promises_timestamp}");
@@ -180,12 +164,6 @@ bundle agent update_action
     pass2.!current_promise_timestamp_valid.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
       "new_promises_available" expression => "any";
       "availability_checked" expression => "any";
-
-    pass2.current_tools_timestamp_valid.(rudder_tools_updated_repaired|rudder_tools_updated_kept)::
-      "new_tools_available"    expression => isgreaterthan("${target_tools_timestamp}", "${current_tools_timestamp}");
-
-    pass2.!current_tools_timestamp_valid.(rudder_tools_updated_repaired|rudder_tools_updated_kept)::
-      "new_tools_available"    expression => "any";
 
     # We need the pass_2 otherwise CFEngine tries to be clever, defines pass_1 and go back to define all other vars, including those that
     # shouldn't yet (notably target_promises_timestamp)
@@ -298,32 +276,6 @@ bundle agent update_action
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
-
-    # Copy the tools only if the file rudder_tools_updated is not up to date
-    !policy_server::
-      "${g.rudder_tools}/${rudder_tools_updated_tmp}"
-        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}", "${g.rudder_tools_updated_origin}"),
-        action            => immediate,
-        move_obstructions => "true",
-        classes           => success("rudder_tools_updated_repaired", "rudder_tools_updated_error", "rudder_tools_updated_kept"),
-        comment           => "Check if we need to update the tools";
-
-    # We copy only if we have new tools based on the timestamp
-    !policy_server.new_tools_available::
-      "${g.rudder_tools}"
-        copy_from         => remote_unsecured("${server_info.policy_server}", "${g.rudder_tools_origin}"),
-        depth_search      => recurse_ignore("inf", @{g.excludedreps}),
-        file_select       => by_fullname(@{rudder_tools_files_to_select}),
-        action            => immediate,
-        move_obstructions => "true",
-        classes           => success("rudder_tools_updated", "rudder_tools_update_error", "rudder_tools_updated_ok"),
-        comment           => "Update the Rudder tools";
-
-    # If we couldn't update the tools, then we must force a copy at next run
-    rudder_tools_update_error::
-      "${g.rudder_tools_updated}"
-        delete => tidy,
-        comment => "Deleting ${g.rudder_tools_updated} as the tools couldn't be updated";
 
   processes:
     config::
