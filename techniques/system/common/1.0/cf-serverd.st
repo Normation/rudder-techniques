@@ -24,11 +24,9 @@
 
 bundle server access_rules
 {
-&if(NOVA)&
   vars:
-    enterprise::
+    enterprise_edition::
       "query_types" slist => {"delta", "rebase", "full"};
-&endif&
 
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
@@ -66,7 +64,6 @@ bundle server access_rules
 
       &endif&
 
-  &if(NOVA)&
     role_rudder_cfengine_mission_portal::
       "${query_types}"
         handle             => "server_access_grant_${query_types}_for_hub",
@@ -75,7 +72,6 @@ bundle server access_rules
         report_data_select => rudder_data_select_policy_hub,
         admit_ips          => { host2ip("${server_info.policy_server}"), @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
 
-  &endif&
 
     any::
     &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY : {host, uuid, key |
@@ -97,7 +93,6 @@ bundle server access_rules
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
         admit_ips => { host2ip("${server_info.policy_server}") };
 
-&if(NOVA)&
     enterprise_edition::
       "${query_types}"
         handle             => "server_access_grant_${query_types}_for_hosts",
@@ -105,7 +100,6 @@ bundle server access_rules
         resource_type      => "query",
         report_data_select => rudder_data_select_host,
         admit_ips          => { host2ip("${server_info.policy_server}"), @{sys.ip_addresses} };
-&endif&
 
   roles:
       # Allow user root to set any class
@@ -191,21 +185,21 @@ body server control
 &if(MANAGED_NODES_NAME)&
 body runagent control
 {
-  &if(NOVA)&
+  enterprise_edition::
   # If using enterprise, the nodes to connect to are using default port
         hosts => {
           &MANAGED_NODES_NAME: {
           "&it&",}&
         };
-  &else&
+
+  !enterprise_edition::
   # When using community, we must use the port &COMMUNITYPORT& to connect to nodes
         hosts => {
           &MANAGED_NODES_NAME: {
           "&it&:&COMMUNITYPORT&",}&
         };
 
-  &endif&
-
+    any::
         max_children => "25";
 
     community_edition.!debug_port::
@@ -215,7 +209,6 @@ body runagent control
 }
 &endif&
 
-&if(NOVA)&
 body report_data_select rudder_data_select_host
 # @brief Data to collect from remote hosts by default
 #
@@ -241,4 +234,3 @@ body report_data_select rudder_data_select_policy_hub
     monitoring_include     => { ".*" };
     promise_handle_exclude => { "noreport_.*" };
 }
-&endif&

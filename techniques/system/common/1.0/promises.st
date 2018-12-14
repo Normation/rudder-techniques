@@ -570,7 +570,7 @@ bundle agent check_binaries_freshness
 
   files:
 
-    !nova_edition::
+    !enterprise_edition::
       "${sys.workdir}/bin/${components}"
         perms => u_p("755"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
@@ -589,7 +589,7 @@ bundle agent check_binaries_freshness
     binaries_missing::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the agent binaries in ${sys.workdir}/bin");
 
-    nova_edition::
+    enterprise_edition::
       "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
 
 }

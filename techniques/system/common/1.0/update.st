@@ -154,7 +154,7 @@ bundle agent update_action
      pass2.(rudder_tools_updated_repaired|rudder_tools_updated_kept).!rudder_tools_updated_error::
        "target_tools_timestamp"    string => readfile("${g.rudder_tools}/${rudder_tools_updated_tmp}", 2048);
 
-     nova_edition::
+     enterprise_edition::
        "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-nova"; #actual directory with promises
      community_edition::
        "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises

@@ -22,7 +22,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="monitoring" />
     <TML name="cf-serverd"/>
     <TML name="rudder-lib" />
-    <TML name="rudder-stdlib-core" />
     <TML name="internal-security" />
     <TML name="cron-setup" />
     <TML name="site"/>
@@ -61,6 +60,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <FILES>
     <FILE name="rudder-stdlib.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="rudder-stdlib-core.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
     <FILE name="check-zypper.cf">

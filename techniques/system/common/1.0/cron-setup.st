@@ -36,16 +36,14 @@ bundle agent setup_cronjob
         edit_defaults   => empty_backup,
         template_method => "mustache",
         edit_template   => "${sys.workdir}/inputs/common/cron/rudder-agent-community-cron";
-&if(NOVA)&
 
-    nova_edition.!aix::
+    enterprise_edition.!aix::
 
       "/etc/cron.d/rudder-agent-nova"
         create        => "true",
         perms         => mog("644", "root", "0"),
         edit_defaults => empty_backup,
         edit_line     => expand_template("${sys.workdir}/inputs/common/cron/rudder-agent-nova-cron");
-&endif&
 
     aix::
 

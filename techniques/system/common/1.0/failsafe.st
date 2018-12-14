@@ -104,7 +104,7 @@ bundle agent init_files
   vars:
       "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key" };
 
-    nova_edition::
+    enterprise_edition::
       "cfengine_install_path" string => "/usr/local";
     community_edition::
       "cfengine_install_path" string => "${g.rudder_base}";

@@ -134,12 +134,11 @@ bundle agent propagatePromises
         comment => "Fetching the bootstrap promises",
         classes => if_else("masterfiles_propagated", "could_not_propagate_masterfiles");
 
-&if(NOVA)&
+    enterprise_edition::
       "${sys.workdir}/masterfiles/license.dat"
         copy_from    => local_cp("${sys.workdir}/inputs/license.dat"),
         comment      => "Putting the right license in the bootstrap",
         classes      => if_else("license_copied", "could_not_copy_license");
-&endif&
 
     # If rudder_tools_updated doesn't exist, or if the tools have been updated,
     # set rudder_tools_updated content to current timestamp
