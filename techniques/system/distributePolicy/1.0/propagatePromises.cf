@@ -47,10 +47,10 @@ bundle agent propagatePromises
 
     !root_server::
        # configure the Relay synchronization method
-       "sync_method_disabled" expression => strcmp("&RELAY_SYNC_METHOD&", "disable");
-       "sync_method_rsync"    expression => strcmp("&RELAY_SYNC_METHOD&", "rsync");
-       "sync_promises"        expression => strcmp("&RELAY_SYNC_PROMISES&", "true");
-       "sync_sharedfiles"     expression => strcmp("&RELAY_SYNC_SHAREDFILES&", "true");
+       "sync_method_disabled" expression => strcmp("${distribute_policy_common.relay_sync_method}", "disable");
+       "sync_method_rsync"    expression => strcmp("${distribute_policy_common.relay_sync_method}", "rsync");
+       "sync_promises"        expression => strcmp("${distribute_policy_common.relay_sync_promises}", "true");
+       "sync_sharedfiles"     expression => strcmp("${distribute_policy_common.relay_sync_sharedfiles}", "true");
 
        "disable_classic_promises"    expression => "sync_method_rsync|sync_method_disabled";
        "disable_classic_sharedfiles" expression => "sync_method_rsync|sync_method_disabled";
@@ -96,8 +96,8 @@ bundle agent propagatePromises
         classes => if_else("promises_propagated", "could_not_propagate_promises");
 
     (policy_server|role_rudder_relay_promises_only).!root_server.!disable_classic_sharedfiles::
-      "&SHARED_FILES_FOLDER&"
-        copy_from    => remote("${server_info.policy_server}","&SHARED_FILES_FOLDER&"),
+      "${system_common.system_common}"
+        copy_from    => remote("${server_info.policy_server}","${system_common.system_common}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the files shared for the promises execution",
         classes => if_else("files_propagated", "could_not_propagate_files");
@@ -174,75 +174,75 @@ bundle agent propagatePromises
 
   methods:
     root_server::
-      "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "&TRACKINGKEY&", "Configure ncf", "None", "Configure configuration library");
+      "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "${distribute_policy_common.directiveId}", "Configure ncf", "None", "Configure configuration library");
 
     !root_server::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure ncf", "None", "Configuration of configuration library is not necessary on non root servers");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Configure ncf", "None", "Configuration of configuration library is not necessary on non root servers");
 
     # Success if resources are updated or not changed (kept or repaired).
     # root server have only tools and nodelist to be updated
     # relays have tools, ncf, masterfiles nodelist and shared_files folder to be updated.
     pass3.root_server.propagate_tools_ok.nodeslist_copied.!(propagate_tools_error|could_not_copy_nodeslist)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize resources", "None", "All resources have been updated");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "All resources have been updated");
 
     pass3.!root_server.propagate_tools_ok.(shared_files_propagated|sharedfiles_not_existent).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied).!(propagate_tools_error|sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize resources", "None", "All resources have been synchronized");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "All resources have been synchronized");
 
     pass3.sharedfiles_not_copied::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot synchronize shared files");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot synchronize shared files");
 
     pass3.root_server::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Synchronize policies", "None", "Rudder server does not need to synchronize its policies");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Synchronize policies", "None", "Rudder server does not need to synchronize its policies");
     pass3.(sync_method_disabled|(!sync_promises.sync_method_rsync))::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Synchronize policies", "None", "Policies need to be synchronized by an external system");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Synchronize policies", "None", "Policies need to be synchronized by an external system");
 
     pass3.could_not_propagate_promises.((!sync_method_rsync.!update_successful)|sync_method_rsync)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize policies", "None", "Cannot synchronize policies");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize policies", "None", "Cannot synchronize policies");
 
     pass3.promises_propagated.sync_method_rsync::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize policies", "None", "Policies synchronized using rsync");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Synchronize policies", "None", "Policies synchronized using rsync");
     pass3.(promises_propagated|(could_not_propagate_promises.update_successful)).!sync_method_rsync::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize policies", "None", "Policies synchronized using classic method");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Synchronize policies", "None", "Policies synchronized using classic method");
 
     pass3.root_server::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Synchronize files", "None", "Rudder server does not need to synchronize its shared files");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Synchronize files", "None", "Rudder server does not need to synchronize its shared files");
     pass3.(sync_method_disabled|(!sync_sharedfiles.sync_method_rsync))::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Synchronize files", "None", "Shared files need to be synchronized by an external system");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Synchronize files", "None", "Shared files need to be synchronized by an external system");
 
     pass3.could_not_propagate_files::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize files", "None", "Cannot propagate shared files");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize files", "None", "Cannot propagate shared files");
 
     pass3.files_propagated.sync_method_rsync::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize files", "None", "Shared files synchronized using rsync");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Synchronize files", "None", "Shared files synchronized using rsync");
     pass3.(files_propagated|(could_not_propagate_files.update_successful)).!sync_method_rsync::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize files", "None", "Shared files synchronized using classic method");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Synchronize files", "None", "Shared files synchronized using classic method");
 
 
 
     pass3.propagate_tools_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot propagate tools");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot propagate tools");
 
     pass3.could_not_propagate_ncf_local_promise::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot propagate local configuration library");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot propagate local configuration library");
 
     pass3.could_not_propagate_ncf_common_promise::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot propagate common configuration library");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot propagate common configuration library");
 
     pass3.could_not_propagate_masterfiles::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot propagate masterfiles");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot propagate masterfiles");
 
     pass3.could_not_copy_license::
-      "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot copy local license");
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot copy local license");
 
     pass3.could_not_copy_nodeslist::
-      "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot copy local nodes list");
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot copy local nodes list");
 
   commands:
     policy_server.!root_server.rsync_promises::
       "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.policy_server}:${server_data}/ ${client_data}"
         classes => if_else("promises_propagated", "could_not_propagate_promises");
     policy_server.!root_server.rsync_sharedfiles::
-      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.policy_server}:&SHARED_FILES_FOLDER&/ &SHARED_FILES_FOLDER&/"
+      "/usr/bin/rsync --archive --checksum --compress --sparse --delete ${server_info.policy_server}:/${system_common.system_common} ${system_common.system_common}/"
         classes => if_else("files_propagated", "could_not_propagate_files");
 
 }
@@ -257,14 +257,12 @@ bundle agent sendInventoryToCmdb
     any::
       "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
       "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
-&if(CMDBENDPOINT)&
-      "rudder_inventory_endpoint" string => "&CMDBENDPOINT&";
-&else&
-    !role_rudder_inventory_endpoint_server_defined::
+    has_cmdb_endpoint::
+      "rudder_inventory_endpoint" string => "${distribute_policy_common.cmdb_endpoint}";
+    !has_cmdb_endpoint.!role_rudder_inventory_endpoint_server_defined::
       "rudder_inventory_endpoint" string => "http://localhost:8080/endpoint/upload/";
-    role_rudder_inventory_endpoint_server_defined::
+    !has_cmdb_endpoint.role_rudder_inventory_endpoint_server_defined::
       "rudder_inventory_endpoint" string => "http://${rudder_servers_by_role.roles[rudder-inventory-endpoint]}:8080/endpoint/upload/";
-&endif&
 
   classes:
     any::
@@ -324,31 +322,31 @@ bundle agent sendInventoryToCmdb
   methods:
 
     pass3.(rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Incoming inventories were successfully sent to the inventory API");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Incoming inventories were successfully sent to the inventory API");
 
     pass3.disable_upload::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Sending inventories has been disabled");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Sending inventories has been disabled");
 
     pass3.rudder_inventory_processing_error::
 
     pass3.((root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error.!disable_upload)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "No inventory to send");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "No inventory to send");
 
     pass3.(rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Incoming inventories were successfully relayed to the root server");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Incoming inventories were successfully relayed to the root server");
 
     pass3.rudder_inventory_relay_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Cannot relay some inventories to the root server");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Cannot relay some inventories to the root server");
 
     pass3.(policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_relay_repaired.!rudder_inventory_relay_error.!disable_upload)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "No inventory to relay");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "No inventory to relay");
 
 
     pass3.(rudder_inventory_cleanup_repaired.!rudder_inventory_cleanup_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "log_info", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Sent incoming inventories were removed from local cache");
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_info", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Sent incoming inventories were removed from local cache");
 
     pass3.rudder_inventory_cleanup_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Send inventories to Rudder server", "None", "Cannot remove incoming inventories from local cache");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Cannot remove incoming inventories from local cache");
 
 }
 

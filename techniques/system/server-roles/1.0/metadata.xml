@@ -19,15 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SYSTEM>true</SYSTEM>
 
   <TMLS>
-    <TML name="component-check"/>
-    <TML name="alive-check"/>
-    <TML name="service-check"/>
-    <TML name="integrity-check"/>
-    <TML name="network-check"/>
-    <TML name="password-check"/>
-    <TML name="postgres-check"/>
-    <TML name="logrotate-check"/>
-    <TML name="technique-reload"/>
+    <TML name="common"/>
     <TML name="rudder-server-roles">
       <OUTPATH>rudder-server-roles.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
@@ -36,6 +28,33 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TMLS>
 
   <FILES>
+    <FILE name="component-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="alive-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="service-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="integrity-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="network-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="password-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="postgres-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="logrotate-check.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="technique-reload.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
     <FILE name="compress-webapp-log.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>

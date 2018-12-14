@@ -19,13 +19,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <SYSTEM>true</SYSTEM>
 
   <TMLS>
-    <TML name="monitoring" />
+    <TML name="common"/>
     <TML name="cf-serverd"/>
-    <TML name="rudder-lib" />
-    <TML name="internal-security" />
-    <TML name="cron-setup" />
-    <TML name="site"/>
-    <TML name="update"/>
     <TML name="failsafe">
       <OUTPATH>failsafe.cf</OUTPATH>
       <INCLUDED>false</INCLUDED>
@@ -53,12 +48,34 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>run_interval</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="restart-services"/>
     <TML name="rudder-groups"/>
-    <TML name="hooks"/>
   </TMLS>
 
   <FILES>
+    <FILE name="hooks.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="cron-setup.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="site.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="update.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="monitoring.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="restart-services.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="rudder-lib.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="internal-security.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
     <FILE name="rudder-stdlib.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>

@@ -21,19 +21,18 @@
 bundle agent install_rsyslogd
 {
   vars:
-&if(INITIAL)&
-    # This will only read the first line if several match
-    "rsyslog_port_defined"     int => getfields("rudder.syslog.port\s*=\s*[0-9]+\s*","/opt/rudder/etc/rudder-web.properties","=","rsyslog_port");
+    initial_promises::
+      # This will only read the first line if several match
+      "rsyslog_port_defined"     int => getfields("rudder.syslog.port\s*=\s*[0-9]+\s*","/opt/rudder/etc/rudder-web.properties","=","rsyslog_port");
 
     # Use standard rsyslog port number by default if not set in rudder-web.properties
-    rsyslog_port_not_found::
+    initial_promises.rsyslog_port_not_found::
       "rsyslog_port[2]"    string => "514";
-&endif&
 
     root_server|role_rudder_relay_top::
       "rsyslog_source_file" string => "rudder-rsyslog-root.conf";
-      "rudder_reports_db_name" string => "&RUDDER_REPORTS_DB_NAME&";
-      "rudder_reports_db_user" string => "&RUDDER_REPORTS_DB_USER&";
+      "rudder_reports_db_name" string => "${distribute_policy_common.report_db_name}";
+      "rudder_reports_db_user" string => "${distribute_policy_common.report_db_user}";
 
     # Define the where to send the syslog messages
     # default is localhost if the rudder_db is unknown
@@ -48,13 +47,12 @@ bundle agent install_rsyslogd
     policy_server.!(root_server|role_rudder_relay_top)::
       "rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
 
-&if(INITIAL)&
   classes:
+    initial_promises::
     # There is no "equals" function for ints in CFEngine (currently, at least) so we compare strings
       "rsyslog_port_not_found" expression => strcmp("${rsyslog_port_defined}","0");
 
       "rsyslog_port_too_many"  expression => isgreaterthan("${rsyslog_port_defined}","1");
-&endif&
 
   files:
 
@@ -117,11 +115,8 @@ bundle agent install_rsyslogd
     rsyslog_restarted_not_ok::
       "Fatal : Can't restart rsyslog !";
 
-&if(INITIAL)&
-    rsyslog_port_too_many::
+    initial_promises.rsyslog_port_too_many::
       "Warning: rsyslog port number has been set several times in /opt/rudder/etc/rudder-web.properties";
-&endif&
-
 }
 
 bundle edit_line comment_all()

@@ -38,7 +38,7 @@ body copy_from remote(server, path)
         purge      => "true";
         copy_backup => "false";
     community_edition::
-        portnumber => "&COMMUNITYPORT&";
+        portnumber => "${system_common.community_port}";
 
 }
 
@@ -58,7 +58,7 @@ body copy_from remote_unsecured(server, path)
         purge      => "true";
         copy_backup => "false";
     community_edition::
-        portnumber => "&COMMUNITYPORT&";
+        portnumber => "${system_common.community_port}";
 
 }
 
@@ -71,7 +71,7 @@ body copy_from copy_digest_without_perms(from)
         compare     => "digest";
         purge       => "true";
     community_edition::
-        portnumber => "&COMMUNITYPORT&";
+        portnumber => "${system_common.community_port}";
 }
 
 # Use for non-sensitive policy files
@@ -90,7 +90,7 @@ body copy_from remote_unsecured_without_perms(server, path)
         purge      => "true";
         copy_backup => "false";
     community_edition::
-        portnumber => "&COMMUNITYPORT&";
+        portnumber => "${system_common.community_port}";
 
 }
 
@@ -221,8 +221,7 @@ bundle agent update_action
         classes           => success("config", "no_update", "config_ok");
 
 
-&if(!INITIAL)&
-    root_server::
+    initial_promises.root_server::
       "${g.rudder_ncf}/common"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
@@ -240,7 +239,6 @@ bundle agent update_action
         move_obstructions => "true",
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment           => "Update the local Rudder ncf instance";
-&endif&
 
     # do not copy potentialy incompatible ncf if inputs are not up to date
     !root_server.(availability_checked.!no_update)::
@@ -374,16 +372,12 @@ bundle agent check_uuid
       "should_not_continue" expression => "wrong_uuid|no_uuid";
     community_edition::
       "no_uuid" not => fileexists("${g.uuid_file}");
-&if(!INITIAL)&
-    !no_uuid::
-      "wrong_uuid" not => strcmp("&UUID&", "${g.uuid}");
-&endif&
+    initial_promises.!no_uuid::
+      "wrong_uuid" not => strcmp("${system_common.uuid}", "${g.uuid}");
 
   reports:
-&if(!INITIAL)&
-    wrong_uuid::
-      "FATAL: The UUID in ${g.uuid_file} (${g.uuid}) doesn't match the UUID recorded for this node in your Rudder server (&UUID&)";
-&endif&
+    initial_promises.wrong_uuid::
+      "FATAL: The UUID in ${g.uuid_file} (${g.uuid}) doesn't match the UUID recorded for this node in your Rudder server (${system_common.uuid})";
 
     no_uuid::
       "FATAL: The UUID file ${g.uuid_file} is missing. Please run 'rudder agent check' to generate a new one or restore it from a backup.";

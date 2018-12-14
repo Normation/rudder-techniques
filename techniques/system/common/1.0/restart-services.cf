@@ -30,7 +30,7 @@ bundle agent restart_services
 
   vars:
 
-      "report_data.identifier" string => "&TRACKINGKEY&";
+      "report_data.identifier" string => "${system_common.directiveId}";
       "report_data.technique_name" string => "Common";
     solaris::
       "restart_cmd"       string => "${paths.path[svcadm]} refresh svc:/system/system-log:default";
@@ -63,17 +63,17 @@ bundle agent restart_services
       "restart_syslog" usebundle => enable_reporting;
     solaris|aix::
       # Final report about (sys)log setting enforcement / restart
-      "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system has been restarted"),
+      "any"  usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Log system for reports", "None", "Logging system has been restarted"),
             ifvarclass => "${restart_cmd_class}_repaired";
 
-      "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system"),
+      "any"  usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "Could not restart the logging system"),
             ifvarclass => "${restart_cmd_class}_not_ok";
     !(solaris|aix)::
       # Final report about (sys)log setting enforcement / restart
-      "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system has been restarted"),
+      "any"  usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Log system for reports", "None", "Logging system has been restarted"),
             ifvarclass => "service_restart_rsyslog_repaired|service_restart_syslog_ng_repaired|service_restart_syslog_repaired";
 
-      "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not restart the logging system"),
+      "any"  usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "Could not restart the logging system"),
             ifvarclass => "service_restart_rsyslog_not_ok|service_restart_syslog_ng_not_ok|service_restart_syslog_not_ok";
 
 
@@ -91,10 +91,10 @@ bundle agent restart_services
       "run_syslog"      usebundle => enable_reporting;
     # We have a problem only if all 3 have an error (otherwise at least one is running)
     service_ensure_running_syslog_error.service_ensure_running_syslog_ng_error.service_ensure_running_rsyslog_error::
-      "any"  usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not start the logging system");
+      "any"  usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "Could not start the logging system");
 
     # If syslog service had been restarted, we need to log it as well
     service_ensure_running_rsyslog_repaired|service_ensure_running_syslog_repaired|service_ensure_running_syslog_ng_repaired::
-      "any"  usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Started the logging system");
+      "any"  usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Log system for reports", "None", "Started the logging system");
 
 }

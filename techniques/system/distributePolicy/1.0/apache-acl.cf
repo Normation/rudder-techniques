@@ -60,22 +60,22 @@ bundle agent apache_acl
       "reload_apache" usebundle => enable_reporting; 
 
     rudder_apache_acl_ok.!rudder_apache_acl_repaired.!rudder_apache_acl_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache ACLs are correct");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache ACLs are correct");
 
     rudder_apache_acl_repaired.!rudder_apache_acl_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_repaired", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache ACLs have been repaired");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_repaired", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache ACLs have been repaired");
 
     rudder_apache_acl_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache ACLs could not be edited");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache ACLs could not be edited");
 
     rudder_apache_acl_repaired::
-      "any" usebundle => rudder_common_report("DistributePolicy", "log_repaired", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache has been reloaded successfully"),
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_repaired", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache has been reloaded successfully"),
             ifvarclass => "service_reload_${apache_service}_repaired";
 
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache failed to reload"),
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache failed to reload"),
             ifvarclass => "service_reload_${apache_service}_error";
 
     role_rudder_relay_promises_only::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure apache ACL", "None", "Apache is not managed");
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache is not managed");
 
 }

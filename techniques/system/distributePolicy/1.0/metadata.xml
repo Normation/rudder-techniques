@@ -28,9 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <TMLS>
     <!-- Note that the policy server is set via the common.xml -->
-    <TML name="propagatePromises"/>
-    <TML name="rsyslogConf"/>
-    <TML name="apache-acl"/>
+    <TML name="common"/>
     <TML name="ca.cert">
       <INCLUDED>false</INCLUDED>
       <OUTPATH>distributePolicy/1.0/ca.cert</OUTPATH>
@@ -54,6 +52,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TMLS>
 
   <FILES>
+    <FILE name="rsyslogConf.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="propagatePromises.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="apache-acl.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
     <FILE name="rudder-ncf-conf">
       <OUTPATH>distributePolicy/ncf/ncf.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
