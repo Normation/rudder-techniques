@@ -166,27 +166,23 @@ bundle common va
       "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${sys.cf_version} '${ncf_path}'";
 
     any::
-      "path_ncf_common_inputs_10" slist => splitstring(execresult("${compatible_inputs_cmd} common/10_ncf_internals", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_20" slist => splitstring(execresult("${compatible_inputs_cmd} common/20_cfe_basics", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_30" slist => splitstring(execresult("${compatible_inputs_cmd} common/30_generic_methods", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_40" slist => splitstring(execresult("${compatible_inputs_cmd} common/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_50" slist => splitstring(execresult("${compatible_inputs_cmd} common/50_techniques", "${shell_type}"), "\n", 10000);
-      "path_ncf_common_inputs_60" slist => splitstring(execresult("${compatible_inputs_cmd} common/60_services", "${shell_type}"), "\n", 10000);
+      "raw_path_ncf_common_inputs" slist => splitstring(execresult("${compatible_inputs_cmd} common", "${shell_type}"), "\n", 10000);
+      "raw_path_ncf_local_inputs"  slist => splitstring(execresult("${compatible_inputs_cmd} local", "${shell_type}"), "\n", 10000);
 
-      "path_ncf_local_inputs_10" slist => splitstring(execresult("${compatible_inputs_cmd} local/10_ncf_internals", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_20" slist => splitstring(execresult("${compatible_inputs_cmd} local/20_cfe_basics", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_30" slist => splitstring(execresult("${compatible_inputs_cmd} local/30_generic_methods", "${shell_type}"), "\n", 10000);
-      "path_ncf_local_inputs_40" slist => splitstring(execresult("${compatible_inputs_cmd} local/40_it_ops_knowledge", "${shell_type}"), "\n", 10000);
-      # Files from 50_techniques are automatically included by Rudder's metadata.xml mechanism
-      "path_ncf_local_inputs_60" slist => splitstring(execresult("${compatible_inputs_cmd} local/60_services", "${shell_type}"), "\n", 10000);
+      # filtering files at the root of common (ncf built-in loading tools)
+      "path_ncf_common_inputs" slist => filter("common/[^/]+.cf", "raw_path_ncf_common_inputs", "true", "true", 10000);
+
+      # filtering out 50_techniques from local list
+      "path_ncf_local_inputs" slist  => filter("local/50_techniques.*", "raw_path_ncf_local_inputs", "true", "true", 10000);
+
 
       # Must concatenate all lists + filter, as maplist on an empty element returns cf_null
-      "raw_path_ncf_inputs" slist => { @{path_ncf_common_inputs_10}, @{path_ncf_local_inputs_10}, @{path_ncf_common_inputs_20}, @{path_ncf_local_inputs_20}, @{path_ncf_common_inputs_30}, @{path_ncf_local_inputs_30}, @{path_ncf_common_inputs_40}, @{path_ncf_local_inputs_40}, @{path_ncf_common_inputs_50}, @{path_ncf_common_inputs_60}, @{path_ncf_local_inputs_60}},
-                           policy => "ifdefined";
+      "raw_path_ncf_inputs"    slist => { @{path_ncf_common_inputs}, @{path_ncf_local_inputs}},
+                              policy => "ifdefined";
 
-       "raw_ncf_inputs"     slist => maplist("${ncf_path}/${this}", @{raw_path_ncf_inputs});
-       # Need to remove cf_null from the list
-       "ncf_inputs"         slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
+      "raw_ncf_inputs"        slist => maplist("${ncf_path}/${this}", @{raw_path_ncf_inputs});
+      # Need to remove cf_null from the list
+      "ncf_inputs"            slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
 
     # create the final input list after ncf
     any::
