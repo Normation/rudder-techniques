@@ -42,6 +42,7 @@ systemSettings/process/servicesManagement/3.0
 systemSettings/process/services/1.1
 systemSettings/remoteAccess/sshConfiguration/5.0
 systemSettings/remoteAccess/sshKeyDistribution/3.0
+systemSettings/remoteAccess/sshKeyDistribution/4.0
 systemSettings/security/fileAlterationMonitoring/2.2
 systemSettings/systemManagement/cronManagement/3.1
 systemSettings/systemManagement/fstabConfiguration/4.0

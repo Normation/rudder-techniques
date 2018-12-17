@@ -1,0 +1,102 @@
+<!--
+Copyright 2011 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<TECHNIQUE name="SSH authorised keys">
+  <DESCRIPTION>This technique will check if the required SSH keys are present on a user directory. Supported key formats are ssh-rsa|ssh-dss|ssh-ed25519|ecdsa-sha2-nistp521|ecdsa-sha2-nistp384|ecdsa-sha2-nistp256|ssh-dsa.</DESCRIPTION>
+  <COMPATIBLE>
+    <OS version=">= 4 (Etch)">Debian</OS>
+    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
+    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
+    <OS version=">= 5.3">AIX</OS>
+    <AGENT version=">= 3.7">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+
+  <BUNDLES>
+    <NAME>check_ssh_key_distribution_RudderUniqueID</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="sshKeyDistribution"/>
+  </TMLS>
+
+  <RUNHOOKS>
+    <PRE bundle="runhook_sshKeyDistribution_pre_hook">
+      <REPORT name="PLACEHOLDER"/>
+    </PRE>
+    <POST bundle="runhook_sshKeyDistribution_post_hook">
+      <REPORT name="PLACEHOLDER"/>
+    </POST>
+  </RUNHOOKS>
+
+  <!-- Policy Instance Settings -->
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>SSH_KEY_DISTRIBUTION_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+   <SECTION name="SSH key management" multivalued="true">
+    <SECTION name="SSH key" component="true" componentKey="SSH_KEY_DISTRIBUTION_TAG">
+      <INPUT>
+        <NAME>SSH_KEY_DISTRIBUTION_TAG</NAME>
+        <DESCRIPTION>Key tag (for tracking only)</DESCRIPTION>
+        <LONGDESCRIPTION>Enter a tag to track this key in reports, i.e. "root #1" or "Operations key". It will not be used in the authorized_keys file.</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+          <TYPE>string</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>SSH_KEY_DISTRIBUTION_NAME</NAME>
+        <DESCRIPTION>Username</DESCRIPTION>
+        <LONGDESCRIPTION>User to apply the key to</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
+        <NAME>SSH_KEY_DISTRIBUTION_KEY</NAME>
+        <DESCRIPTION>Key</DESCRIPTION>
+        <LONGDESCRIPTION>Full content of the key to insert in authorized_keys format, may include comments.</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>textarea</TYPE>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+    <SECTION name="Flush SSH file" component="true" componentKey="SSH_KEY_DISTRIBUTION_TAG">
+      <SELECT1>
+        <NAME>SSH_KEY_DISTRIBUTION_EDIT_TYPE</NAME>
+        <DESCRIPTION>Remove other keys</DESCRIPTION>
+        <LONGDESCRIPTION>Flush the authorized keys file - only keys managed by Rudder will remain in this file. If any key for a user has this parameter set, and is not in audit mode, then all keys non managed by Rudder for this user will be purged. Also, if any keys checked in audit mode is non compliant for a given user, the keys won't be purged.</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Yes</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>No</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+   </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
