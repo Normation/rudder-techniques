@@ -1,0 +1,6 @@
+ -- Benoit PECCATTE <benoit.peccatte@normation.com> Tue Sep  9 08:52:55 CEST 2014
+  * Version 3.0
+  ** Rewrite with normal ordering and {}
+ -- Nicolas Charles <nicolas.charles@normation.com> Tue Aug 21 17:06:54 2018
+  * Version 4.0
+  ** Port sshKeyDistribution to multiversionned technique

@@ -1,0 +1,11 @@
+[{
+  "checks": [
+    "flush_key.rb"
+  ],
+  "compliance": 100,
+  "directives": [
+    "flush_key.json"
+  ],
+  "inits": [ "FlushKey_TestSSHKeyDistribution.sh"],
+  "sharedFiles": []
+}]

@@ -1,0 +1,12 @@
+[{
+  "checks": [
+    "TestSSHKeyDistribution.rb"
+  ],
+  "compliance": 88.89,
+  "directives": [
+    "TestSSHKeyDistribution.json"
+  ],
+  "inits": [ "TestSSHKeyDistributionCleanSSHKeyFile.sh" ],
+  "sharedFiles": [],
+  "resources"  : [ "common_sshKeyDistribution_test.rb" ] 
+}]
