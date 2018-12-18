@@ -195,8 +195,6 @@ bundle agent startup
         action    => immediate;
 }
 
-# startExecution and endExecution have migrated to rudder-stdlib-core.st
-
 ##########################################################
 # Check for "disable-agent" file and cleanly stop and
 # warn about this if it is present
@@ -759,4 +757,28 @@ bundle edit_line ensure_rsyslogd_on_suse
         comment => "Match a line starting like key = something";
 }
 &endif&
+
+#
+# Insert the standard Rudder disclaimer into a file
+#
+bundle edit_line rudder_common_disclaimer
+{
+  vars:
+      "file_edit_header" string => "${rudder_parameters.rudder_file_edit_header}";
+
+  defaults:
+      "file_edit_header" string => "#############################################################
+### This file is protected by your Rudder infrastructure. ###
+### Manually editing the file might lead your Rudder      ###
+### infrastructure to change back the server's            ###
+### configuration and/or to raise a compliance alert.     ###
+#############################################################
+",
+        if_match_regex => "${const.dollar}{rudder_parameters.rudder_file_edit_header}";
+
+  insert_lines:
+      "${file_edit_header}"
+        location    => start,
+        insert_type => "preserve_block";
+}
 
