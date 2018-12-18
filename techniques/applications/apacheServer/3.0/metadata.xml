@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   Configuration will create a rudder vhost file.
   </DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder.</DEPRECATED>
   <COMPATIBLE>
     <OS version=">= 5 (Lenny)">Debian</OS>
     <OS version=">= 5 (Tikanga)">RHEL / CentOS</OS>

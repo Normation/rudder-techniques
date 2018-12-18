@@ -1,6 +1,0 @@
- -- Nicolas Charles <nicolas.charles@normation.com> Tue Sep 12 18:45:08 2017
-  * Version 1.1
-  ** Add an option to be strict on spaces around separator
- -- Nicolas Charles <nicolas.charles@normation.com> Thu Dec  7 17:20:54 2017
-  * Version 1.2
-  ** Convert to multiversionned technique
