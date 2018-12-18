@@ -35,6 +35,12 @@ bundle agent check_clock_configuration
     !aix::
       "linux_timezone"   string => "${tz_variables.tz_linux[${target_timezone}]}";
 
+    linux.!SuSE_10::
+      "rudder_ntp_package_name" string => "ntp";
+
+    SuSE_10::
+      "rudder_ntp_package_name" string => "xntp";
+
   classes:
 
     !aix::
@@ -89,30 +95,10 @@ bundle agent check_clock_configuration
         edit_line => EditDebianTimezone("${linux_timezone}"),
         classes => kept_if_else("debiantz_kept", "repaired_debiantz", "not_repaired_debiantz");
 
-  # Install the NTP package
-  packages:
-    linux.!SuSE_10.!SuSE_11::
-      "ntp"
-        package_policy  => "add",
-        package_method  => generic,
-        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing ntp";
-
-    SuSE_11::
-      "ntp"
-        package_policy => "add",
-        package_method => zypper,
-        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing ntp using zypper";
-
-    SuSE_10::
-      "xntp"
-        package_policy => "add",
-        package_method => rudder_rug,
-        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing xntp using rug";
-
   methods:
+    linux::
+      "any" usebundle           => package_present("${rudder_ntp_package_name}");
+
     aix::
       "start_xntpd" usebundle   => service_ensure_running("xntpd");
 
@@ -128,14 +114,8 @@ bundle agent check_clock_configuration
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp service (package, configuration and/or process) repaired");
 
     # Individual reports for the "Time synchronization (NTP)" component's parts
-    pass3.cant_install_ntp::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp package could not be installed");
-
-    pass3.ntp_installed::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp package installed");
-
-    pass3.ntp_install_kept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp package already installed");
+    pass3.linux
+      "any" usebundle => rudder_common_reports_generic("ntpConfiguration", "package_present_${rudder_ntp_package_name}", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "The ${rudder_ntp_package_name} package installation");
 
     pass3.!linux::
       "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "Support to check if ntp is installed not available on this platform");

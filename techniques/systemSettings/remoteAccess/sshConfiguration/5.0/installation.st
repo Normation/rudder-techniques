@@ -30,20 +30,15 @@ bundle agent rudder_openssh_server_installation(class_prefix, service_name, para
       "rudder_openssh_server_package_name"
         string => "openssh";
 
-  packages:
-    # Install OpenSSH if needed, using generic installation.
+  methods:
     linux::
-      "${rudder_openssh_server_package_name}"
-        package_policy  => "add",
-        package_method  => generic,
-        classes         => rudder_common_classes("${class_prefix}_package"),
-        comment         => "Installing ${service_name} using the generic package manager method";
+      "any" usebundle => package_present("${rudder_openssh_server_package_name}");
 }
 
 bundle agent rudder_openssh_server_installation_reporting(class_prefix, service_name, params)
 {
   methods:
-      "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_package", "${${params}[report]}", "SSH installation", "None", "The ${service_name} package installation");
+      "any" usebundle => rudder_common_reports_generic("${service_name}", "package_present_${rudder_openssh_server_package_name}", "${${params}[report]}", "SSH installation", "None", "The ${service_name} package installation");
 
     !linux::
       "any" usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH installation", "None", "Support to check if ${service_name} is installed not available on this platform");
