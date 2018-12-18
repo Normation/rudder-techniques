@@ -33,6 +33,7 @@ fileDistribution/manageKeyValueFile/1.1
 fileDistribution/manageKeyValueFile/1.2
 fileDistribution/manageKeyValueFile/1.3
 jobScheduling/jobScheduler/2.0
+jobScheduling/jobScheduler/3.0
 system/common/1.0
 system/distributePolicy/1.0
 system/inventory/1.0
