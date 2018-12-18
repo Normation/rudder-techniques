@@ -1,0 +1,54 @@
+{
+        "displayName": "Manage keys-values in file /tmp/manage-key-value",
+        "shortDescription": "",
+        "longDescription": "Set key=value in this file",
+        "techniqueName": "manageKeyValueFile",
+        "techniqueVersion": "1.0",
+        "parameters": {
+          "section": {
+            "name": "sections",
+            "sections": [
+              {
+                "section": {
+                  "name": "File to manage",
+                  "sections": [
+                    {
+                      "section": {
+                        "name": "File",
+                        "vars": [
+                          {
+                            "var": {
+                              "name": "MANAGE_KEY_VALUE_FILEPATH",
+                              "value": "/tmp/manage-key-value"
+                            }
+                          },
+                          {
+                            "var": {
+                              "name": "MANAGE_KEY_VALUE_KEY",
+                              "value": "key"
+                            }
+                          },
+                          {
+                            "var": {
+                              "name": "MANAGE_KEY_VALUE_SEPARATOR",
+                              "value": "="
+                            }
+                          },
+                          {
+                            "var": {
+                              "name": "MANAGE_KEY_VALUE_VALUE",
+                              "value": "value"
+                            }
+                          }
+                        ]
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+
+
+}
