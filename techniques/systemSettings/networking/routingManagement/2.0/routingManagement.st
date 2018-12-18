@@ -49,7 +49,7 @@ bundle agent check_routing_parameters
 
   classes:
 
-      "checkroute_present" expression => fileexists("${g.rudder_tools}/checkroute.pl");
+      "checkroute_present" expression => fileexists("${this.promise_dirname}/checkroute.pl");
 
     any::
       "pass3" expression => "pass2";
@@ -97,7 +97,7 @@ bundle agent check_routing_parameters
 
     checkroute_present::
 
-      "${g.rudder_tools}/checkroute.pl ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} linux"
+      "${this.promise_dirname}/checkroute.pl ${route[${routing_index}]} ${mask[${routing_index}]} ${gateway[${routing_index}]} ${routing_index} ${action[${routing_index}]} linux"
         contain => in_shell,
         module => "true",
         comment => "Analysing routes";

@@ -39,6 +39,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="apacheServerInstall"/>
   </TMLS>
 
+  <FILES>
+    <FILE name="apache-vhost.tpl">
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+  </FILES>
+
   <TRACKINGVARIABLE>
     <SAMESIZEAS>APACHE_AUTOSTART</SAMESIZEAS>
   </TRACKINGVARIABLE>

@@ -38,10 +38,6 @@ bundle server access_rules
         maproot => {  @{def.acl}  },
         admit_ips => {  @{def.acl}  };
 
-      "${g.rudder_tools}"
-        maproot => {  @{def.acl}  },
-        admit_ips => {  @{def.acl}  };
-
       "${g.rudder_ncf_origin_common}"
         maproot => {  @{def.acl}  },
         admit_ips => {  @{def.acl}  };

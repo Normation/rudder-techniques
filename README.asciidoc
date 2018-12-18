@@ -46,8 +46,6 @@ initial-promises:: Contains the cfengine promises used to "bootstrap" a new Rudd
 
 techniques:: The Techniques Library
 
-tools:: Contains the tools used by the Techniques Library to perform some tasks
-
 === Usage
 
 This project is part of Rudder, and as such is bundled with every Rudder server.

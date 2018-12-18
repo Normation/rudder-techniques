@@ -34,17 +34,8 @@ bundle agent propagatePromises
       "ncf_common_sha_sum" string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_common} -not -name ${g.rudder_ncf_hash_file} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
       "ncf_local_sha_sum"  string => execresult("${paths.path[find]} ${g.rudder_ncf_origin_local} -not -name ${g.rudder_ncf_hash_file} -type f -print0  | ${paths.path[sort]} -z | /usr/bin/xargs -0 /usr/bin/sha1sum | /usr/bin/sha1sum", "useshell");
 
-    rudder_tools_updated_exists::
-      "tools_timestamp"   string => readfile("${g.rudder_tools_updated_origin}", 2048);
 
   classes:
-    # Ensure the validity of the timestamp file for tools
-    rudder_tools_updated_exists::
-      "tools_timestamp_invalid" not => regcmp("[0-9]+", "${tools_timestamp}");
-
-    root_server::
-      "rudder_tools_updated_exists" expression => fileexists("${g.rudder_tools_updated_origin}");
-
     !root_server::
        # configure the Relay synchronization method
        "sync_method_disabled" expression => strcmp("&RELAY_SYNC_METHOD&", "disable");
@@ -66,7 +57,7 @@ bundle agent propagatePromises
     # Detect if relay-server protocols works ok (update is ok), but nothing to update (no node behind the relay)
     # Class definition for no propagate promises transfer, but correct promises transfer -> folder for promises for relay is empty on the server, or folder inexistent
     pass3::
-     "update_successful"                expression => "root_server|((rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error))";
+     "update_successful"                expression => "root_server|((rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error))";
 
      "sharedfiles_not_existent" expression => "update_successful.!shared_files_propagated"; # If shared-files doesn't exist, error class is defined, if it is empty, no class is defined
      "sharedfiles_not_copied"   expression => "!update_successful.could_not_propagate_shared_files";
@@ -75,12 +66,6 @@ bundle agent propagatePromises
   files:
 
     root_server::
-
-      "${g.rudder_tools}"
-        copy_from    => copy("${g.rudder_base}/share/tools"),
-        depth_search => recurse_visible("inf"),
-        comment => "Fetching the tools for the promises execution",
-        classes => classes_generic("propagate_tools");
 
       "${g.rudder_ncf_origin_local}/ncf.conf"
         copy_from    => copy_digest_without_perms("${sys.workdir}/inputs/distributePolicy/ncf/ncf.conf"),
@@ -121,12 +106,6 @@ bundle agent propagatePromises
         comment      => "Fetching the ncf common to propagate",
         classes      => if_else("ncf_common_promises_propagated", "could_not_propagate_ncf_common_promise");
 
-      "${g.rudder_tools}"
-        copy_from    => remote_unsecured("${server_info.policy_server}","${g.rudder_tools}"),
-        depth_search => recurse_visible("inf"),
-        comment => "Fetching the tools for the promises execution",
-        classes => classes_generic("propagate_tools");
-
       "${sys.workdir}/masterfiles"
         copy_from    => remote("${server_info.policy_server}","${sys.workdir}/masterfiles"),
         depth_search => recurse_visible("inf"),
@@ -139,15 +118,6 @@ bundle agent propagatePromises
         copy_from    => local_cp("${sys.workdir}/inputs/license.dat"),
         comment      => "Putting the right license in the bootstrap",
         classes      => if_else("license_copied", "could_not_copy_license");
-
-    # If rudder_tools_updated doesn't exist, or if the tools have been updated,
-    # set rudder_tools_updated content to current timestamp
-    root_server.(!rudder_tools_updated_exists|propagate_tools_repaired|tools_timestamp_invalid)::
-      "${g.rudder_tools_updated_origin}"
-        create        => "true",
-        edit_defaults => empty,
-        edit_line     => insert_lines("${sys.systime}"),
-        comment       => "Update the timestamp in the rudder tool updated file";
 
     # each run, update the hash files of ncf
     # these hashes are used by node to know if they should update their copy of ncf
@@ -180,12 +150,12 @@ bundle agent propagatePromises
       "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "&TRACKINGKEY&", "Configure ncf", "None", "Configuration of configuration library is not necessary on non root servers");
 
     # Success if resources are updated or not changed (kept or repaired).
-    # root server have only tools and nodelist to be updated
-    # relays have tools, ncf, masterfiles nodelist and shared_files folder to be updated.
-    pass3.root_server.propagate_tools_ok.nodeslist_copied.!(propagate_tools_error|could_not_copy_nodeslist)::
+    # root server have only nodelist to be updated
+    # relays have ncf, masterfiles nodelist and shared_files folder to be updated.
+    pass3.root_server.nodeslist_copied.!could_not_copy_nodeslist::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize resources", "None", "All resources have been updated");
 
-    pass3.!root_server.propagate_tools_ok.(shared_files_propagated|sharedfiles_not_existent).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied).!(propagate_tools_error|sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
+    pass3.!root_server.(shared_files_propagated|sharedfiles_not_existent).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied).!(sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist))::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize resources", "None", "All resources have been synchronized");
 
     pass3.sharedfiles_not_copied::
@@ -216,11 +186,6 @@ bundle agent propagatePromises
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize files", "None", "Shared files synchronized using rsync");
     pass3.(files_propagated|(could_not_propagate_files.update_successful)).!sync_method_rsync::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize files", "None", "Shared files synchronized using classic method");
-
-
-
-    pass3.propagate_tools_error::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot propagate tools");
 
     pass3.could_not_propagate_ncf_local_promise::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "&TRACKINGKEY&", "Synchronize resources", "None", "Cannot propagate local configuration library");
@@ -278,13 +243,13 @@ bundle agent sendInventoryToCmdb
     !disable_upload.(root_server|role_rudder_relay_top)::
 
       "${incoming_inventory_files}"
-        transformer => "${g.rudder_tools}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         classes => rudder_common_classes("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
       "${updates_inventory_files}"
-        transformer => "${g.rudder_tools}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         classes => rudder_common_classes("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";

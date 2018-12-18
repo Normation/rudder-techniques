@@ -130,7 +130,6 @@ bundle common va
     any::
       "rudder_var"             string => "/var/rudder";
       "ncf_path"               string => "${rudder_var}/ncf";
-      "rudder_tools"           string => "${rudder_var}/tools";
       "shell_type"             string => "useshell";
       "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
       "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
@@ -344,7 +343,7 @@ bundle agent check_log_system
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
-      "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check-rsyslog-version");
+      "check_rsyslog_version_present" expression => fileexists("${this.promise_dirname}/check-rsyslog-version");
 
   files:
 
@@ -406,7 +405,7 @@ bundle agent check_log_system
     rsyslogd_conffile_present.check_rsyslog_version_present::
       # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
       # The option is probably older though.
-      "${g.rudder_tools}/check-rsyslog-version 5.6.4"
+      "${this.promise_dirname}/check-rsyslog-version 5.6.4"
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version to know if it supports RepeatedMsgReduction";
@@ -427,7 +426,7 @@ bundle agent check_log_system
 bundle agent check_rsyslog_version {
 
   classes:
-      "check_rsyslog_version_present" expression => fileexists("${g.rudder_tools}/check-rsyslog-version");
+      "check_rsyslog_version_present" expression => fileexists("${this.promise_dirname}/check-rsyslog-version");
       "rsyslogd" expression => fileexists("${check_log_system.rsyslog_conffile}");
 
     any::
@@ -447,7 +446,7 @@ bundle agent check_rsyslog_version {
   methods:
 
     pass3.(rsyslogd.!check_rsyslog_version_present)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file ${g.rudder_tools}/check-rsyslog-version is missing");
+      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file ${this.promise_dirname}/check-rsyslog-version is missing");
 
     pass3.rsyslog_limit_error::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not remove message limit in rsyslog");
@@ -457,7 +456,7 @@ bundle agent check_rsyslog_version {
 
   commands:
     rsyslogd.check_rsyslog_version_present::
-      "${g.rudder_tools}/check-rsyslog-version"
+      "${this.promise_dirname}/check-rsyslog-version"
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
@@ -600,12 +599,6 @@ bundle agent update_reports
     no_update::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update configuration policy");
 
-    rudder_tools_updated_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update tools (update flag file)");
-
-    rudder_tools_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update tools");
-
     rudder_ncf_hash_update_error::
       "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common configuration library (update flag file)");
 
@@ -621,12 +614,11 @@ bundle agent update_reports
     # Success report relies on several matching conditions (nodes except root_server)
     # On all nodes except root server:
     #   - Staggered update: rudder_ncf_hash_update_ok OR (rudder_ncf_hash_update_repaired AND rudder_ncf_common_updated_ok AND rudder_ncf_local_updated_ok)
-    #   - Staggered update: policy_server OR rudder_tools_updated_kept OR (rudder_tools_updated_repaired AND rudder_tools_updated_ok)
     #   - Staggered update: rudder_promises_generated_tmp_file_kept OR (rudder_promises_generated_tmp_file_repaired AND config_ok)
     # There must be NO components in repair or error
-    # Note: we can't use classes new_promises_available and new_tools_available here because they are local to the update_action bundle
-    !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(policy_server|rudder_tools_updated_kept|(rudder_tools_updated_repaired.rudder_tools_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_updated|rudder_tools_update_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update|rudder_ncf_hash_update_error|rudder_ncf_hash_update_repaired)::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Policy, tools and configuration library are already up to date. No action required.");
+    # Note: we can't use classe new_promises_available here because they are local to the update_action bundle
+    !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update|rudder_ncf_hash_update_error|rudder_ncf_hash_update_repaired)::
+      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Policy and configuration library are already up to date. No action required.");
 
     # Success report relies on several matching conditions (root_server only)
     # On the root server only:
@@ -635,9 +627,6 @@ bundle agent update_reports
     # There must be NO components in repair or error
     root_server.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.!(rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error)::
       "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Configuration library already up to date on this root server. No action required.");
-
-    rudder_tools_updated::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Tools updated");
 
     rudder_ncf_common_updated::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Common configuration library updated");
@@ -648,8 +637,8 @@ bundle agent update_reports
     config::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Configuration policy updated");
 
-    (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Policy, tools or configuration library were updated or agent service restarted");
+    (config|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Policy or configuration library were updated or agent service restarted");
 
     server_ok::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");

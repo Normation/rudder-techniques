@@ -49,7 +49,6 @@ bundle common g
       "rudder_disable_agent_file"  string => "${rudder_base}/etc/disable-agent";
       "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
       "rudder_disable_inventory_file" string => "${rudder_base}/etc/disable-inventory";
-      "rudder_tools"               string => "${rudder_var}/tools";
       "rudder_ncf"                 string => "${rudder_var}/ncf";
       "crontab"                    string => "/etc/crontab";
       "gzip"                       string => "/bin/gzip";
@@ -73,7 +72,6 @@ bundle common g
       "davpw"                       string => "&DAVPASSWORD&";
       "excludedreps"                slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "ncf_local_excludedreps"      slist => { "50_techniques", @{g.excludedreps}};
-      "rudder_tools_origin"         string => "/var/rudder/tools";
 
       # Path where all the configurations (git with techniques, groups, ncf, etc) are stored
       "rudder_configuration_repository"
@@ -92,10 +90,6 @@ bundle common g
 
       "server_roles_path"           string => "${rudder_base}/etc/server-roles.d/";
 
-
-      "rudder_tools_updated_filename" string => "rudder_tools_updated";
-      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
-      "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
       "shared_files"                string => "/var/rudder/configuration-repository/shared-files";
 
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)

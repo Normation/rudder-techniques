@@ -34,48 +34,24 @@ bundle common g
 {
   vars:
       "rudder_base"              string => "/opt/rudder";
-      "rudder_tools_files_unix"   slist => { "send-clean.sh",
-                                             "check-rsyslog-version",
-                                             "apache-vhost.tpl",
-                                           };
       "rudder_var"               string => "/var/rudder";
       "rudder_bin"               string => "${rudder_base}/bin";
       "rudder_sbin"              string => "${rudder_base}/sbin";
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
-      "rudder_tools"             string => "${rudder_var}/tools";
       "rudder_ncf"               string => "${rudder_var}/ncf";
       "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
       "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
 
-    SuSE::
-      "rudder_tools_files_suse"    slist => { 
-                                              "zypper-repo.tpl",
-                                              "checkzmd.pl",
-                                            };
     any::
-      "rudder_tools_files"         slist => { @{rudder_tools_files_unix},
-                                              @{rudder_tools_files_suse},
-                                              "checkroute.pl",
-                                            }, policy => "ifdefined";
-
       "uuid"                     string => readfile("${g.uuid_file}", 60);
       "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "ncf_local_excludedreps"    slist => { "50_techniques", @{g.excludedreps}};
-      "rudder_tools_origin"      string => "/var/rudder/tools";
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "&CONFIGURATION_REPOSITORY_FOLDER&/ncf";
 
       "rudder_ncf_hash_file"          string => "ncf_hash_file";
       "rudder_ncf_origin_common_hash" string => "${rudder_ncf_origin_common}/${rudder_ncf_hash_file}";
       "rudder_ncf_origin_local_hash"  string => "${rudder_ncf_origin_local}/${rudder_ncf_hash_file}";
-
-      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/rudder_tools_updated";
-      "rudder_tools_updated"        string => "${rudder_tools}/rudder_tools_updated";
-
-
-      "rudder_tools_updated_filename" string => "rudder_tools_updated";
-      "rudder_tools_updated_origin" string => "${rudder_tools_origin}/${rudder_tools_updated_filename}";
-      "rudder_tools_updated"        string => "${rudder_tools}/${rudder_tools_updated_filename}";
 
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
