@@ -25,6 +25,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>execute_file_download</NAME>
   </BUNDLES>
 
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+
   <TMLS>
     <TML name="downloadFile"/>
   </TMLS>
