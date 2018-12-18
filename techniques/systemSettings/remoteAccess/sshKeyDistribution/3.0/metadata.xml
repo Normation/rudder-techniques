@@ -23,7 +23,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <OS version=">= 5.3">AIX</OS>
     <AGENT version=">= 3.4.4">cfengine-community</AGENT>
   </COMPATIBLE>
-
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
 
   <BUNDLES>

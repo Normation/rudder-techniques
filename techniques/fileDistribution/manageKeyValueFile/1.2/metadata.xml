@@ -19,6 +19,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>Manage keys-values in file</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
+  <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.5">cfengine-community</AGENT>

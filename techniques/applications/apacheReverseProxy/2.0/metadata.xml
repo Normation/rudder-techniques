@@ -25,6 +25,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <OS version=">= 11 SP1 (Celadon)">SuSE LES / DES / OpenSuSE</OS>
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder.</DEPRECATED>
 
   <BUNDLES>
     <NAME>rudder_reverse_proxy_apache</NAME>
