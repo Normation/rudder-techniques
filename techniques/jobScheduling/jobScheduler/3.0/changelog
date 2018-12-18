@@ -1,0 +1,6 @@
+ -- Benoît Peccatte <benoit.peccatte@normation.com> Thu Oct 23 13:41:08 CEST 2014
+  * Version 2.0
+  ** Use rudder_common_report instead of reports:
+ -- Nicolas Charles <nicolas.charles@normation.com> Fri Nov 16 10:41:19 2018
+  * Version 3.0
+  ** Support non default agent schedule
