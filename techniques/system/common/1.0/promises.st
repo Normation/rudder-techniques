@@ -239,7 +239,7 @@ bundle agent check_disable_agent
 bundle agent abort_rudder(reason, message)
 {
   methods:
-      "abort log" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Abort run", "${reason}", "${message}");
+      "abort log" usebundle => rudder_common_report("Common", "log_info", "${system_common.directiveId}", "Abort run", "${reason}", "${message}");
       "end run"   usebundle => endExecution;
 }
 
@@ -258,7 +258,7 @@ bundle agent initialize_ncf()
       "initialize ncf"        usebundle => initialization;
       "add local modules"     usebundle => additional_modules("${local_modules}"),
                              ifvarclass => "local_modules_exist";
-      "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "&TRACKINGKEY&", "ncf Initialization", "None", "Configuration library initialization");
+      "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "${system_common.directiveId}", "ncf Initialization", "None", "Configuration library initialization");
 }
 
 # Log and reporting configuration not valid in initial promises
@@ -383,22 +383,22 @@ bundle agent check_log_system
   methods:
 
     pass2.syslogd_conffile_present::
-      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslogd");
+      "any" usebundle => rudder_common_report("Common", "log_info", "${system_common.directiveId}", "Log system for reports", "None", "Detected running syslog as syslogd");
 
     pass2.syslogng_conffile_present::
-      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as syslog-ng");
+      "any" usebundle => rudder_common_report("Common", "log_info", "${system_common.directiveId}", "Log system for reports", "None", "Detected running syslog as syslog-ng");
 
     pass2.rsyslogd_conffile_present::
-      "any" usebundle => rudder_common_report("Common", "log_info", "&TRACKINGKEY&", "Log system for reports", "None", "Detected running syslog as rsyslog");
+      "any" usebundle => rudder_common_report("Common", "log_info", "${system_common.directiveId}", "Log system for reports", "None", "Detected running syslog as rsyslog");
 
     pass3.(syslogd_failed|syslog_ng_failed|rsyslog_failed)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system could not be configured for report centralization");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "Logging system could not be configured for report centralization");
 
     pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired)::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Configured logging system for report centralization");
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "${system_common.directiveId}", "Log system for reports", "None", "Configured logging system for report centralization");
 
     pass3.!(syslogd_failed|syslog_ng_failed|rsyslog_failed).!(syslogd_repaired|syslog_ng_repaired|rsyslog_repaired).(syslogd_conffile_present.syslogd_kept|syslogng_conffile_present.syslog_ng_kept|rsyslogd_conffile_present.rsyslog_kept))::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Log system for reports", "None", "Logging system for report centralization is already correctly configured");
+      "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Log system for reports", "None", "Logging system for report centralization is already correctly configured");
 
   commands:
       
@@ -446,13 +446,13 @@ bundle agent check_rsyslog_version {
   methods:
 
     pass3.(rsyslogd.!check_rsyslog_version_present)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "The file ${this.promise_dirname}/check-rsyslog-version is missing");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "The file ${this.promise_dirname}/check-rsyslog-version is missing");
 
     pass3.rsyslog_limit_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Log system for reports", "None", "Could not remove message limit in rsyslog");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "Could not remove message limit in rsyslog");
 
     pass3.rsyslog_limit_repaired::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Log system for reports", "None", "Updated the rsyslog configuration to remove message limit");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Log system for reports", "None", "Updated the rsyslog configuration to remove message limit");
 
   commands:
     rsyslogd.check_rsyslog_version_present::
@@ -507,7 +507,7 @@ bundle agent remove_rudder_syslog_configuration {
 
   methods:
       "merge result classes" usebundle  => _classes_combine_three("remove_rudder_syslog_configuration_rsyslog", "remove_rudder_syslog_configuration_syslogng", "remove_rudder_syslog_configuration_syslog", "remove_rudder_syslog_configuration_result");
-      "reports"              usebundle  => rudder_common_reports_generic("Common", "remove_rudder_syslog_configuration_result", "&TRACKINGKEY&", "Log system for reports", "None", "Rudder syslog configuration removed");
+      "reports"              usebundle  => rudder_common_reports_generic("Common", "remove_rudder_syslog_configuration_result", "${system_common.directiveId}", "Log system for reports", "None", "Rudder syslog configuration removed");
 
 }
 &endif&
@@ -576,16 +576,16 @@ bundle agent check_binaries_freshness
   methods:
 
     binaries_fresh.!binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Binaries update", "None", "The agent binaries in ${sys.workdir}/bin are up to date");
+      "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Binaries update", "None", "The agent binaries in ${sys.workdir}/bin are up to date");
 
     binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Binaries update", "None", "The agent binaries have been updated in ${sys.workdir}/bin");
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "${system_common.directiveId}", "Binaries update", "None", "The agent binaries have been updated in ${sys.workdir}/bin");
 
     binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Binaries update", "None", "An error occurred while updating the agent binaries in ${sys.workdir}/bin");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Binaries update", "None", "An error occurred while updating the agent binaries in ${sys.workdir}/bin");
 
     enterprise_edition::
-      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
+      "any" usebundle => rudder_common_report("Common", "result_na", "${system_common.directiveId}", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
 
 }
 
@@ -597,19 +597,19 @@ bundle agent update_reports
 {
   methods:
     no_update::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update configuration policy");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update configuration policy");
 
     rudder_ncf_hash_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common configuration library (update flag file)");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update common configuration library (update flag file)");
 
     rudder_ncf_common_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update common configuration library");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update common configuration library");
 
     rudder_ncf_local_update_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update local configuration library");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update local configuration library");
 
     rudder_promises_generated_tmp_file_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Update", "None", "Cannot update configuration policy");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update configuration policy");
 
     # Success report relies on several matching conditions (nodes except root_server)
     # On all nodes except root server:
@@ -618,7 +618,7 @@ bundle agent update_reports
     # There must be NO components in repair or error
     # Note: we can't use classe new_promises_available here because they are local to the update_action bundle
     !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update|rudder_ncf_hash_update_error|rudder_ncf_hash_update_repaired)::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Policy and configuration library are already up to date. No action required.");
+      "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Policy and configuration library are already up to date. No action required.");
 
     # Success report relies on several matching conditions (root_server only)
     # On the root server only:
@@ -626,24 +626,24 @@ bundle agent update_reports
     #   - Simple test: rudder_ncf_local_updated_ok
     # There must be NO components in repair or error
     root_server.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok.!(rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error)::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Update", "None", "Configuration library already up to date on this root server. No action required.");
+      "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Configuration library already up to date on this root server. No action required.");
 
     rudder_ncf_common_updated::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Common configuration library updated");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Common configuration library updated");
 
     rudder_ncf_local_updated::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Local configuration library updated");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Local configuration library updated");
 
     config::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Configuration policy updated");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Configuration policy updated");
 
     (config|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Policy or configuration library were updated or agent service restarted");
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "${system_common.directiveId}", "Update", "None", "Policy or configuration library were updated or agent service restarted");
 
     server_ok::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Started the server (cf-serverd)");
     executor_ok::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the scheduler (cf-execd)");
+      "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Started the scheduler (cf-execd)");
 
     reports:
       # We want to have always reports if something goes bad

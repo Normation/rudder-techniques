@@ -60,18 +60,18 @@ bundle agent setup_cronjob
       # Cleanup the crontab without logfile
       "/var/spool/cron/crontabs/root"
         edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/rudder \&\& /opt/rudder/bin/rudder agent check >/dev/null");
+        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/rudder && /opt/rudder/bin/rudder agent check >/dev/null");
 
       # Cleanup crontab again
       "/var/spool/cron/crontabs/root"
         edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/rudder \&\& /opt/rudder/bin/rudder agent check >> /var/log/rudder/agent-check/check.log 2>\&1");
+        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/rudder && /opt/rudder/bin/rudder agent check >> /var/log/rudder/agent-check/check.log 2>&1");
 
       # Add Rudder entry
       "/var/spool/cron/crontabs/root"
         create        => "true",
         perms         => mog("600", "root", "cron"),
-        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * /opt/rudder/bin/rudder agent check -q >> /var/log/rudder/agent-check/check.log 2>\&1"),
+        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * /opt/rudder/bin/rudder agent check -q >> /var/log/rudder/agent-check/check.log 2>&1"),
         classes       => rudder_common_classes("rudder_aix_crontab_insertion"),
         comment       => "Insert an AIX-compatible user crontab to run /opt/rudder/bin/rudder agent check";
 
@@ -110,10 +110,10 @@ bundle agent check_cron_daemon
       "any" usebundle => _classes_success("service_restart_${service_name}");
 
     pass3.!aix::
-      "any" usebundle => rudder_common_reports_generic("Common", "service_restart_${service_name}", "&TRACKINGKEY&", "CRON Daemon", "None", "Cron daemon status");
+      "any" usebundle => rudder_common_reports_generic("Common", "service_restart_${service_name}", "${system_common.directiveId}", "CRON Daemon", "None", "Cron daemon status");
 
     aix::
-      "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "CRON Daemon", "None", "CRON is not a service on AIX: CRON verifications skipped");
+      "any" usebundle => rudder_common_report("Common", "result_na", "${system_common.directiveId}", "CRON Daemon", "None", "CRON is not a service on AIX: CRON verifications skipped");
 
   processes:
 

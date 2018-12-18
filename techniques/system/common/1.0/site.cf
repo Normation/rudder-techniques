@@ -68,14 +68,14 @@ bundle common g
       "uuid"                        string => "${rudder_roles.uuid}";
       "server_shares_folder"        string => "/var/rudder/share/${uuid}/promises/shares";
       "rudder_var_reports"          string => "${rudder_var}/reports";
-      "davuser"                     string => "&DAVUSER&";
-      "davpw"                       string => "&DAVPASSWORD&";
+      "davuser"                     string => "${system_common.davuser}";
+      "davpw"                       string => "${system_common.davpw}";
       "excludedreps"                slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
       "ncf_local_excludedreps"      slist => { "50_techniques", @{g.excludedreps}};
 
       # Path where all the configurations (git with techniques, groups, ncf, etc) are stored
       "rudder_configuration_repository"
-                                    string => "&CONFIGURATION_REPOSITORY_FOLDER&";
+                                    string => "${system_common.rudder_configuration_repository}";
 
       "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"     string => "${rudder_configuration_repository}/ncf";
@@ -98,10 +98,10 @@ bundle common g
       # Heartbeat interval, in minutes. Only used when in "changes-only" compliance mode
       # In this mode, we should only send a "start"/"end" message pair if changes occur,
       # or if this interval has elapsed since we last sent one
-      "heartbeat_interval" string => "&RUDDER_HEARTBEAT_INTERVAL&";
-      "agent_run_interval" string => "&AGENT_RUN_INTERVAL&";
+      "heartbeat_interval" string => "${system_common.heartbeat_interval}";
+      "agent_run_interval" string => "${system_common.agent_run_interval}";
 
-      "rudder_node_config_id" string => "&RUDDER_NODE_CONFIG_ID&";
+      "rudder_node_config_id" string => "${system_common.rudder_node_config_id}";
 
   classes:
 

@@ -40,8 +40,8 @@ bundle agent monitoring_hook_post
     "reporting" usebundle => enable_reporting;
     
     csv_exists::
-    "reporting" usebundle => rudder_common_reports_generic("Common", "sharedfile_to_node_rudder_monitoring_csv", "&TRACKINGKEY&", "Monitoring", "None", "Share Rudder monitoring information with the server");
+    "reporting" usebundle => rudder_common_reports_generic("Common", "sharedfile_to_node_rudder_monitoring_csv", "${system_common.directiveId}", "Monitoring", "None", "Share Rudder monitoring information with the server");
 
     !csv_exists::
-    "reporting" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Monitoring", "None", "No Rudder monitoring information to share with the server");
+    "reporting" usebundle => rudder_common_report("Common", "result_na", "${system_common.directiveId}", "Monitoring", "None", "No Rudder monitoring information to share with the server");
 }

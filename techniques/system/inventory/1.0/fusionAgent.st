@@ -96,10 +96,6 @@ bundle agent doInventory_always
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
-&if(INITIAL)&
-      "initial_promises" expression => "any",
-                              scope => "namespace";
-&endif&
 
   files:
     # Clean policy server uuid file defined in 2.11 or earlier version, as location in 3.0+ is ${sys.workdir}/rudder-server-uuid.txt
@@ -285,15 +281,14 @@ bundle agent sendInventory
       "protocol"                  string => "http";
     curl_installed::
       "protocol"                  string => "${g.inventory_upload_protocol}";
-    any::
-&if(INITIAL)&
+    initial_promises::
       "download_endpoint"         string => "${protocol}://${server_info.policy_server}/inventories/";
       "min_resend_delay"          string => "15";
-&else&
+    !initial_promises::
       "download_endpoint"         string => "${protocol}://${server_info.policy_server}/inventory-updates/";
       "min_resend_delay"          string => "480";
-&endif&
 
+    any::
     # curl is always available now
       "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";

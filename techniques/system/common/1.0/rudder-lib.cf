@@ -78,7 +78,7 @@ body copy_from cp(from,server)
         source      => "${from}";
         compare     => "digest";
     community_edition::
-        portnumber => "&COMMUNITYPORT&";
+        portnumber => "${system_common.community_port}";
 
 }
 
@@ -94,7 +94,7 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge)
         purge    => "${purge}";
         copy_backup => "timestamp";
     community_edition::
-        portnumber => "&COMMUNITYPORT&";
+        portnumber => "${system_common.community_port}";
 }
 
 # This is an evolved version of copy_from scp that uses local copies if we are
@@ -113,7 +113,7 @@ body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
     servers  => { "${server}" };
 
   community_edition::
-    portnumber => "&COMMUNITYPORT&";
+    portnumber => "${system_common.community_port}";
 }
 
 body copy_from copy(from)
