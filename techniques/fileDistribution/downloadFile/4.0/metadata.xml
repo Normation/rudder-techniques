@@ -22,7 +22,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </DESCRIPTION>
 
   <BUNDLES>
-    <NAME>execute_file_download</NAME>
+    <NAME>execute_file_download_RudderUniqueID</NAME>
   </BUNDLES>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
@@ -37,7 +37,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   </TRACKINGVARIABLE>
 
   <SECTIONS>
-    <!-- First Section , index 1 -->
+   <SECTION name="File" multivalued="true">
     <SECTION name="Download a file" component="true" componentKey="DOWNLOADFILE_SOURCE">
       <INPUT>
         <NAME>DOWNLOADFILE_SOURCE</NAME>
@@ -55,7 +55,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       </INPUT>
     </SECTION>
 
-    <!-- Second Section, Linux specific , index 10 -->
     <SECTION name="Permissions (on UNIX systems)" component="true" componentKey="DOWNLOADFILE_SOURCE">
       <INPUT>
         <NAME>DOWNLOADFILE_USER</NAME>
@@ -80,6 +79,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         </CONSTRAINT>
       </INPUT>
     </SECTION>
+   </SECTION>
   </SECTIONS>
 
 </TECHNIQUE>

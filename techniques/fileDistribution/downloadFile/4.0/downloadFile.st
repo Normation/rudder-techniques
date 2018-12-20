@@ -67,11 +67,11 @@ bundle agent execute_file_download_RudderUniqueID
       "pass1" expression => "any";
 
   files:
-    !windows::
+    !windows.pass2::
       "${destination[${index}]}"
         pathtype => "literal", 	# force literal interpretation
         perms    => mog("${mode[${index}]}","${user[${index}]}","${group[${index}]}"),
-        classes => rudder_common_classes("file_download_perms_${index}_RudderUniqueID");
+        classes  => rudder_common_classes("file_download_perms_${index}_RudderUniqueID");
 
   methods:
     # File downloading part
@@ -91,6 +91,9 @@ bundle agent execute_file_download_RudderUniqueID
     # File permissions part
     pass3.!windows::
       "any" usebundle => rudder_common_reports_generic("downloadFile", "file_download_perms_${index}_RudderUniqueID", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "Permissions on file ${source[${index}]}");
+
+      "any" usebundle => rudder_common_report("downloadFile", "result_error", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "The file ${source[${index}]} was could not be downloaded"),
+           ifvarclass => "!file_download_perms_${index}_RudderUniqueID_reached";
 
     pass3.windows::
       "any" usebundle => rudder_common_report("downloadFile", "result_na", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "This is a windows machine. The ${source[${index}]} file permissions will not be altered.");

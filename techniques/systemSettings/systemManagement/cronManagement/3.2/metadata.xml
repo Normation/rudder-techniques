@@ -17,18 +17,26 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>This technique enables you to set tasks (or "jobs") that will be launched regularily using crond.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
-    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
+    <AGENT version=">= 3.10.0">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
 
   <BUNDLES>
-    <NAME>check_cron_configuration</NAME>
+    <NAME>check_cron_configuration_RudderUniqueID</NAME>
   </BUNDLES>
 
   <TMLS>
     <TML name="cronConfiguration"/>
   </TMLS>
+
+  <RUNHOOKS>
+    <POST bundle="runhook_cron_process_post_hook">
+      <REPORT name="Cron process"/>
+    </POST>
+  </RUNHOOKS>
+
 
   <TRACKINGVARIABLE>
     <SAMESIZEAS>CRON_NAME</SAMESIZEAS>

@@ -660,3 +660,89 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
         );
 
 }
+
+########################################################
+## Cron management specific hooks
+########################################################
+# 
+# Ensure that a process cron(d) is up and running
+#
+bundle agent runhook_cron_process_post_hook(json) {
+  vars:
+      "definitions" data => parsejson("${json}");
+
+      "parameters"  data => mergedata("definitions[parameters]");
+
+      "reporting"   data => mergedata("definitions[reports]");
+
+      "reportkeys" slist => getindices("reporting");
+
+
+    !redhat::
+
+      "cron_service" string => "cron";
+
+    redhat::
+
+      "cron_service" string => "crond";
+
+
+    pass1.is_enforce::
+      "set_dry_mode"   string => "false";
+
+    pass1.!is_enforce::
+      "set_dry_mode"   string => "true";
+
+
+
+  classes:
+      # define if there is at least one enforce
+      "is_enforce"               expression => strcmp("${reporting[${reportkeys}][mode]}", "enforce");
+
+      # For reporting, detect each enforce/audit
+      "is_enforce_${reportkeys}" expression => strcmp("${reporting[${reportkeys}][mode]}", "enforce");
+
+
+    any::
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+
+  methods:
+    pass2::
+      "configure_dry_run_mode_${reporting[0][id]}"
+         usebundle => set_dry_run_mode("${set_dry_mode}");
+
+      # All GM reports at least a log_info, so we need to set the reporting context correctly
+      "set_reporting_context_for_GM"
+        usebundle => rudder_reporting_context_id("${reporting[0][id]}", "${reporting[0][technique]}");
+
+      "disable_reporting_cron_post_hook"
+         usebundle => disable_reporting;
+
+    pass2.cron_restart::
+
+      "restart_cron" usebundle => service_restart("${cron_service}");
+
+    pass2::
+      "reenable_reporting_cron_post_hook"
+         usebundle => enable_reporting;
+
+      # here we need to report correctly based on each mode for each directive
+      "reporting" 
+        usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "service_restart_${cron_service}", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Restarting service ${cron_service}", "${reporting[${reportkeys}][mode]}"),
+        ifvarclass => "cron_restart";
+
+      "na_report"
+        usebundle  => _rudder_common_report_hooks("${reporting[${reportkeys}][technique]}", "result_na", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Restarting service ${cron_service}", "${reporting[${reportkeys}][mode]}"),
+        ifvarclass => "!cron_restart";
+
+      "clean_reporting_context_${reporting[0][id]}"
+        usebundle  => clean_reporting_context;
+
+
+  processes:
+      "cron"
+        process_select => cron_bin,
+        restart_class => "cron_restart";
+}
