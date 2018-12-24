@@ -35,9 +35,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <NAME>check_usergroup_user_parameters_RudderUniqueID</NAME>
     </BUNDLES>
     <TMLS>
-      <TML name="userManagement.ps1">
-        <OUTPATH>userManagement/9.0/userManagement.ps1</OUTPATH>
-      </TML>
+      <TML name="userManagement.ps1"/>
     </TMLS>
   </AGENT>
 
