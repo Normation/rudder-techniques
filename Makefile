@@ -74,10 +74,10 @@ all: rudder-templates-cli.jar test
 	touch initial-promises/rudder_expected_reports.csv
 
 rudder-templates-cli.jar:
-	$(GET) rudder-templates-cli.jar http://www.normation.com/tarball/rudder-templates-cli/rudder-templates-cli.jar
+	$(GET) rudder-templates-cli.jar https://repository.rudder.io/build-dependencies/rudder-templates-cli/rudder-templates-cli.jar
 
 scripts/technique-files:
-	$(GET) scripts/technique-files https://www.rudder-project.org/tools/technique-files
+	$(GET) scripts/technique-files https://repository.rudder.io/tools/technique-files
 	chmod +x scripts/technique-files
 
 test: scripts/technique-files
