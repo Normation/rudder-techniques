@@ -27,7 +27,7 @@ bundle edit_line rudder_openssh_server_parameters_configuration(parameter_name, 
 
   delete_lines:
       "${parameter_name}.*"
-        delete_select => rudder_delete_if_not_in_list("@{this.entries}");
+        delete_select => ncf_delete_if_not_in_list("@{this.entries}");
 
   insert_lines:
       "${entries}";
