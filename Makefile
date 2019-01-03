@@ -45,8 +45,6 @@ all: rudder-templates-cli.jar test
 	cp techniques/system/common/1.0/rudder-agent-nova-cron initial-promises/node-server/common/cron/
 	mv initial-promises/node-server/common/1.0/run_interval.cf initial-promises/node-server/run_interval
 	mkdir -p initial-promises/node-server/common/utilities
-	cp techniques/system/common/1.0/minicurl initial-promises/node-server/common/utilities/
-	chmod +x initial-promises/node-server/common/utilities/minicurl
 	# The inventory technique
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "inventory-all@@inventory-all@@00",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0/ techniques/system/inventory/1.0/*.st
