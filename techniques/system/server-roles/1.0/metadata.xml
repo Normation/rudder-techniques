@@ -24,10 +24,12 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <OUTPATH>rudder-server-roles.conf</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </TML>
-    <TML name="metrics-reporting"/>
   </TMLS>
 
   <FILES>
+    <FILE name="metrics-reporting.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
     <FILE name="component-check.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>

@@ -76,9 +76,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <FILE name="internal-security.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="check-zypper.cf">
-      <INCLUDED>true</INCLUDED>
-    </FILE>
     <FILE name="environment-variables.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
