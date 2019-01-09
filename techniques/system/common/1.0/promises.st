@@ -152,7 +152,7 @@ bundle common va
 
 &if(INITIAL)&
       # Idealy these should be generated at compile time from metadata.xml and put into variable.json
-      "common_input_list" => { "common/1.0/common.cf", "common/1.0/cf-serverd.cf", "common/1.0/rudder-groups.cf", "common/1.0/hooks.cf", "common/1.0/cron-setup.cf", "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/monitoring.cf", "common/1.0/restart-services.cf", "common/1.0/rudder-lib.cf", "common/1.0/internal-security.cf",  "common/1.0/environment-variables.cf", "common/1.0/properties.cf" };
+      "common_input_list" => { "common/1.0/common.cf", "common/1.0/cf-serverd.cf", "common/1.0/rudder-groups.cf", "common/1.0/hooks.cf", "common/1.0/cron-setup.cf", "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/monitoring.cf", "common/1.0/restart-services.cf", "common/1.0/internal-security.cf",  "common/1.0/environment-variables.cf", "common/1.0/properties.cf" };
       "inventory_input_list" => { "inventory/1.0/fusionAgent.cf" };
       "distribute_policy_input_list" => { "distributePolicy/1.0/common.cf", "distributePolicy/1.0/rsyslogConf.cf", "distributePolicy/1.0/propagatePromises.cf", "distributePolicy/1.0/apache-acl.cf" };
       "server_roles_input_list" => { "server-roles/1.0/common.cf", "server-roles/1.0/component-check.cf", "server-roles/1.0/alive-check.cf", "server-roles/1.0/service-check.cf", "server-roles/1.0/integrity-check.cf", "server-roles/1.0/network-check.cf", "server-roles/1.0/password-check.cf", "server-roles/1.0/postgres-check.cf", "server-roles/1.0/logrotate-check.cf", "server-roles/1.0/technique-reload.cf", "server-roles/1.0/compress-webapp-log.cf", "server-roles/1.0/compress-ldap-backups.cf", "server-roles/1.0/servers-by-role.cf" };
@@ -565,7 +565,7 @@ bundle agent check_binaries_freshness
 
     !enterprise_edition::
       "${sys.workdir}/bin/${components}"
-        perms => u_p("755"),
+        perms => m("755"),
         copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
         classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
         action => immediate,

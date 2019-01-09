@@ -304,7 +304,7 @@ bundle agent sendInventory
     any::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
-        classes      => persistant_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
+        classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
 
   # Once we've successfully sent all inventories, remove them

@@ -147,15 +147,6 @@ body file_select exclude(name)
         file_result => "!leaf_name";
 }
 
-body file_select by_fullname(names)
-# @brief Select files that match `names`
-# @param names A regular expression
-{
-      path_name  => { @(names)};
-      file_result => "path_name";
-}
-
-
 # Define a class no matter what the outcome of the promise is
 body classes always(x)
 {

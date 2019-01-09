@@ -70,9 +70,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <FILE name="restart-services.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="rudder-lib.cf">
-      <INCLUDED>true</INCLUDED>
-    </FILE>
     <FILE name="internal-security.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
