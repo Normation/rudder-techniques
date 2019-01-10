@@ -208,14 +208,12 @@ bundle agent check_disable_agent
       "components" slist => { "cf-serverd", "cf-execd", "cf-monitord" };
 
   classes:
-      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}"),
-                             action     => immediate;
+      "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
 
       # Only define this class when we're ready to die - this is a special class name in "abortclasses"
       "should_not_continue"
         expression => "should_disable_agent.!ignore_disable_agent",
-        ifvarclass => "abort_report_done",
-        action     => immediate;
+        ifvarclass => "abort_report_done";
 
   processes:
     should_disable_agent::
