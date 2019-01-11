@@ -26,9 +26,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <NAME>snmp</NAME>
     </BUNDLES>
     <TMLS>
-      <TML name="snmp.ps1">
-        <OUTPATH>snmp/1.0/snmp.ps1</OUTPATH>
-      </TML>
+      <TML name="snmp.ps1"/>
     </TMLS>
   </AGENT>
 

@@ -31,10 +31,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <NAME>copyFileFromSharedFolder_RudderUniqueID</NAME>
     </BUNDLES>
     <TMLS>
-      <TML name="copyFileFromSharedFolder.ps1">
-        <OUTPATH>copyGitFile/2.1/copyFileFromSharedFolder.ps1</OUTPATH>
-      </TML>
-    
+      <TML name="copyFileFromSharedFolder.ps1"/>    
     </TMLS>
   </AGENT>
 

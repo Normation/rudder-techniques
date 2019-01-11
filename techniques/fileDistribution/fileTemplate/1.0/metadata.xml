@@ -28,9 +28,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <NAME>fileTemplate_RudderUniqueID</NAME>
     </BUNDLES>
     <TMLS>
-      <TML name="fileTemplate.ps1">
-        <OUTPATH>fileTemplate/1.0/fileTemplate.ps1</OUTPATH>
-      </TML>
+      <TML name="fileTemplate.ps1"/>
     </TMLS>
   </AGENT>
 
