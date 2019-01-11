@@ -27,6 +27,7 @@ fileDistribution/copyGitFile/2.1
 fileDistribution/copyGitFile/2.2
 fileDistribution/copyGitFile/2.3
 fileDistribution/downloadFile/3.0
+fileDistribution/downloadFile/4.0
 fileDistribution/fileTemplate/1.0
 fileDistribution/manageKeyValueFile/1.0
 fileDistribution/manageKeyValueFile/1.1
@@ -63,6 +64,7 @@ systemSettings/security/fileAlterationMonitoring/2.0
 systemSettings/security/fileAlterationMonitoring/2.1
 systemSettings/security/fileAlterationMonitoring/2.2
 systemSettings/systemManagement/cronManagement/3.1
+systemSettings/systemManagement/cronManagement/3.2
 systemSettings/systemManagement/fstabConfiguration/4.0
 systemSettings/systemManagement/motdConfiguration/3.2
 systemSettings/userManagement/groupManagement/5.0
