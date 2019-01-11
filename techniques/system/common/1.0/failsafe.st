@@ -58,6 +58,12 @@ bundle common g
 
 # definition of the node roles
   &NODEROLE&
+
+  classes:
+      # OS classes for compatibility
+      "SUSE" expression => "sles";
+      "SuSE" expression => "sles";
+      "suse" expression => "sles";
 }
 
 bundle common rudder_roles
