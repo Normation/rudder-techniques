@@ -19,6 +19,7 @@ fileConfiguration/fileSecurity/filesPermissions/2.2
 fileDistribution/checkGenericFileContent/8.0
 fileDistribution/copyGitFile/2.3
 fileDistribution/downloadFile/3.0
+fileDistribution/downloadFile/4.0
 fileDistribution/fileTemplate/1.0
 fileDistribution/manageKeyValueFile/1.2
 fileDistribution/manageKeyValueFile/1.3
@@ -48,6 +49,7 @@ systemSettings/remoteAccess/sshKeyDistribution/3.0
 systemSettings/remoteAccess/sshKeyDistribution/4.0
 systemSettings/security/fileAlterationMonitoring/2.2
 systemSettings/systemManagement/cronManagement/3.1
+systemSettings/systemManagement/cronManagement/3.2
 systemSettings/systemManagement/fstabConfiguration/4.0
 systemSettings/systemManagement/motdConfiguration/3.2
 systemSettings/userManagement/groupManagement/5.1
