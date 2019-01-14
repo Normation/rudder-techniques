@@ -198,7 +198,7 @@ bundle agent root_password_check_psql
 
     root_server::
 
-      "psql_cant_connect" not => returnszero("/usr/bin/psql --host localhost --username rudder --dbname rudder --quiet --output /dev/null --command 'select 1' 2> /dev/null","useshell");
+      "psql_cant_connect" not => returnszero("/usr/bin/psql --no-password --host localhost --username rudder --dbname rudder --quiet --output /dev/null --command 'select 1' 2> /dev/null","useshell");
 
     any::
       "pass3" expression => "pass2";
@@ -242,7 +242,7 @@ bundle agent root_password_check_psql
 
     psql_cant_connect|rudder_postgres_pgpass_repaired::
 
-      "/usr/bin/psql -q -c \"ALTER USER rudder WITH PASSWORD '${p.psql_password[2]}'\""
+      "/usr/bin/psql --no-password -q -c \"ALTER USER rudder WITH PASSWORD '${p.psql_password[2]}'\""
         contain => setuid_sh("postgres"),
         classes => if_else("postgres_updated", "postgres_update_failed");
 
