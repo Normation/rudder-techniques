@@ -143,7 +143,7 @@ bundle agent download_server_uuid
 
   methods:
     could_not_download_uuid::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server. Please check that the defined Policy Server exists, and that this Node IP address is in the Allowed Networks of its policy server.");
 
     !curl_installed::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not use curl to retrieve server UUID because it is not installed");
