@@ -49,7 +49,8 @@ bundle agent fileTemplate_RudderUniqueID {
       &FILE_TEMPLATE_RAW_OR_NOT: {rawornot|"rawOrNot[&i&]" string => "&rawornot&";}&
 
       #Raw template text
-      &FILE_TEMPLATE_RAW_TEMPLATE: {txt|"rawTemplate[&i&]" string => "&txt&";}&
+&FILE_TEMPLATE_RAW_TEMPLATE: {txt|"rawTemplate[&i&]" string => "&txt&";
+}&
 
       #Absolute path of the template expansion
       &FILE_TEMPLATE_AGENT_DESTINATION_PATH: {dst_path|"dst[&i&]" string => "&dst_path&";}&
