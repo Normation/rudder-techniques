@@ -122,8 +122,3 @@ bundle common g
     "role_rudder_cfengine_mission_portal"  expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-cfengine-mission-portal");
 }
 
-# defines the path to the ncf configuration file
-bundle common ncf_configuration {
-  vars:
-    "ncf_configuration_file" string => "${g.rudder_ncf}/local/ncf.conf";
-}

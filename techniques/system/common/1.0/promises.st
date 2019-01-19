@@ -170,6 +170,9 @@ bundle common va
       "SUSE" expression => "sles";
       "SuSE" expression => "sles";
       "suse" expression => "sles";
+    
+    # We are inside Rudder policies
+      "rudder_policies" => "any";
 
     # I don't know why, but these classes are not evaluated if they are in rudder_roles
       # Policy Server is a machine which delivers promises

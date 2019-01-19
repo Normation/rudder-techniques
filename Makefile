@@ -55,7 +55,6 @@ all: rudder-templates-cli.jar test
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0/ techniques/system/distributePolicy/1.0/*.st
 	cp techniques/system/distributePolicy/1.0/*.cf initial-promises/node-server/distributePolicy/1.0/ || true
 	mkdir -p initial-promises/node-server/distributePolicy/ncf
-	cp techniques/system/distributePolicy/1.0/rudder-ncf-conf initial-promises/node-server/distributePolicy/ncf/ncf.conf
 	mkdir -p initial-promises/node-server/distributePolicy/rsyslog.conf
 	mv initial-promises/node-server/distributePolicy/1.0/rudder-rsyslog-root.cf initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-root.conf
 	mv initial-promises/node-server/distributePolicy/1.0/rudder-rsyslog-relay.cf initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf

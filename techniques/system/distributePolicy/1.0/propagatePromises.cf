@@ -64,16 +64,7 @@ bundle agent propagatePromises
 
 
   files:
-
-    root_server::
-
-      "${g.rudder_ncf_origin_local}/ncf.conf"
-        copy_from    => copy_digest_without_perms("${sys.workdir}/inputs/distributePolicy/ncf/ncf.conf"),
-        comment      => "Enforce the ncf configuration file",
-        classes      => classes_generic("configure_ncf_config");
-
     (policy_server|role_rudder_relay_promises_only).!root_server.!disable_classic_promises::
-
       "${client_data}"  #that's a loop on each files in client_inputs
         copy_from    => remote("${server_info.policy_server}","${server_data}"),
         depth_search => recurse_visible("inf"),
@@ -143,12 +134,6 @@ bundle agent propagatePromises
         classes => if_else("nodeslist_copied", "could_not_copy_nodeslist");
 
   methods:
-    root_server::
-      "any" usebundle => rudder_common_reports_generic("DistributePolicy", "configure_ncf_config", "${distribute_policy_common.directiveId}", "Configure ncf", "None", "Configure configuration library");
-
-    !root_server::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Configure ncf", "None", "Configuration of configuration library is not necessary on non root servers");
-
     # Success if resources are updated or not changed (kept or repaired).
     # root server have only nodelist to be updated
     # relays have ncf, masterfiles nodelist and shared_files folder to be updated.

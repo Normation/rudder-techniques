@@ -61,10 +61,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <FILE name="apache-acl.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="rudder-ncf-conf">
-      <OUTPATH>distributePolicy/ncf/ncf.conf</OUTPATH>
-      <INCLUDED>false</INCLUDED>
-    </FILE>
     <FILE name="send-clean.sh">
       <INCLUDED>false</INCLUDED>
     </FILE>
@@ -99,7 +95,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Synchronize files" component="true"/>
     <SECTION name="Synchronize resources" component="true"/>
     <SECTION name="Send inventories to Rudder server" component="true"/>
-    <SECTION name="Configure ncf" component="true"/>
     <SECTION name="Configure apache ACL" component="true"/>
   </SECTIONS>
 </TECHNIQUE>
