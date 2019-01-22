@@ -133,17 +133,13 @@ bundle agent fileTemplate_RudderUniqueID {
         ),
         ifvarclass => "!raw_${index}.!role_rudder_server_root";
 
-      #Not needed, but due to the bug #11116 if you want to
-      #apply the technique on your policy server you have to 
-      #uncomment the lines belows.
-      #See https://www.rudder-project.org/redmine/issues/11116
-
-      #"copy_${src[${index}]}"
-      #  usebundle => file_copy_from_local_source(
-      #    "${relative_src}/${src[${index}]}",
-      #    "${temp}/${name[${index}]}"
-      #  ),
-      #  ifvarclass => "!raw_${index}.role_rudder_server_root";
+      # On the root server, we copy from itself
+      "copy_${src[${index}]}"
+        usebundle => file_copy_from_local_source(
+          "${relative_src}/${src[${index}]}",
+          "${temp}/${name[${index}]}"
+        ),
+        ifvarclass => "!raw_${index}.role_rudder_server_root";
 
       #Expand the template on the given location
       "expand_${src[${index}]}"
