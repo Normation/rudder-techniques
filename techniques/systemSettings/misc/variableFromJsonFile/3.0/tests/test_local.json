@@ -1,0 +1,83 @@
+{
+  "displayName": "Test_variableFromJsonFile_v3_0_test_local",
+  "enabled": true,
+  "longDescription": "",
+  "parameters": {
+    "section": {
+      "name": "sections",
+      "sections": [
+        {
+          "section": {
+            "name": "File copy"
+          }
+        },
+        {
+          "section": {
+            "name": "Json files to merge",
+            "vars": [
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_JSON_FILE",
+                  "value": "/tmp/file2"
+                }
+              },
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_SOURCE",
+                  "value": "local"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "section": {
+            "name": "Json files to merge",
+            "vars": [
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_JSON_FILE",
+                  "value": "/tmp/file3"
+                }
+              },
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_SOURCE",
+                  "value": "local"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "section": {
+            "name": "Variable definition",
+            "vars": [
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_BASE_FILE",
+                  "value": "/tmp/file1"
+                }
+              },
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_BASE_SOURCE",
+                  "value": "local"
+                }
+              },
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_VARIABLE_NAME",
+                  "value": "prefix6.variable6"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "shortDescription": "",
+  "techniqueName": "variableFromJsonFile",
+  "techniqueVersion": "3.0"
+}
