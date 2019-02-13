@@ -198,7 +198,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
           <LABEL>Don't change</LABEL>
         </ITEM>
         <CONSTRAINT>
-          <DEFAULT>yes</DEFAULT>
+          <DEFAULT>dontchange</DEFAULT>
         </CONSTRAINT>
       </SELECT1>
       <SELECT1>
