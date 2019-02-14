@@ -68,25 +68,6 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
     pass2.!windows.rudder_motd_absent::
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_repaired", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file was absent, it will be created");
-
-&if(NOVA)&
-  databases:
-    windows::
-      "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-        database_operation => "create",
-        database_rows => { "legalnoticecaption,REG_SZ,Notice"},
-        database_type => "ms_registry",
-        comment => "Editing the windows registry";
-
-      "HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-        database_operation => "create",
-        database_rows => { "legalnoticetext,REG_SZ,${rudder_motd_payload}"},
-        database_type => "ms_registry",
-        comment => "Editing the windows registry",
-        classes => rudder_common_classes("${class_prefix}_file_edition");
-&endif&
-
-
 }
 
 # The reporting is made on separate bundles to abstract the complexity

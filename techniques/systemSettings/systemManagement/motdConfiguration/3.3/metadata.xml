@@ -18,24 +18,29 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <DESCRIPTION>This technique will check if the required Message Of The Day is present on the system.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related, Windows">UNIX, Windows</OS>
-    <AGENT version=">= 3.5.3">cfengine-community</AGENT>
-    <AGENT version=">= 3.6.0">cfengine-enterprise</AGENT>
+    <AGENT version=">= 3.10">cfengine-community</AGENT>
   </COMPATIBLE>
 
   <MULTIINSTANCE>false</MULTIINSTANCE>
 
-  <BUNDLES>
-    <NAME>rudder_motd</NAME>
-  </BUNDLES>
+  <AGENT type="cfengine-community">
+    <BUNDLES>
+      <NAME>rudder_motd</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="config"/>
+      <TML name="main"/>
+    </TMLS>
+  </AGENT>
 
-  <SYSTEMVARS>
-    <NAME>NOVA</NAME>
-  </SYSTEMVARS>
-
-  <TMLS>
-    <TML name="config"/>
-    <TML name="main"/>
-  </TMLS>
+  <AGENT type="dsc">
+    <BUNDLES>
+      <NAME>rudderMotd</NAME>
+    </BUNDLES>
+    <TMLS>
+      <TML name="motd.ps1"/>    
+    </TMLS>
+  </AGENT>
 
   <SECTIONS>
     <SECTION name="MOTD Configuration" component="true">
