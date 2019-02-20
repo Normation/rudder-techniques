@@ -16,7 +16,6 @@
 #
 #####################################################################################
 
-
 #
 # Define what an agent has to do when it updates
 # its promises
@@ -25,7 +24,6 @@
 # Use for sensitive files
 body copy_from remote(server, path)
 {
-
         servers    => {
           "${server}"
         };
@@ -39,27 +37,6 @@ body copy_from remote(server, path)
         copy_backup => "false";
     community_edition::
         portnumber => "${system_common.community_port}";
-
-}
-
-# Use for big and non sensitive files
-body copy_from remote_unsecured(server, path)
-{
-
-        servers    => {
-          "${server}"
-        };
-        encrypt    => "false";
-        trustkey   => "true";
-        source     => "${path}";
-        compare    => "mtime";
-        preserve   => "true"; #preserve permissions
-        verify     => "true";
-        purge      => "true";
-        copy_backup => "false";
-    community_edition::
-        portnumber => "${system_common.community_port}";
-
 }
 
 # Local copy
@@ -74,30 +51,9 @@ body copy_from copy_digest_without_perms(from)
         portnumber => "${system_common.community_port}";
 }
 
-# Use for non-sensitive policy files
-body copy_from remote_unsecured_without_perms(server, path)
-{
-
-        servers    => {
-          "${server}"
-        };
-        encrypt    => "false";
-        trustkey   => "true";
-        source     => "${path}";
-        compare    => "digest";
-        preserve   => "false";
-        verify     => "true";
-        purge      => "true";
-        copy_backup => "false";
-    community_edition::
-        portnumber => "${system_common.community_port}";
-
-}
-
 bundle common server_info
 {
   vars:
-    any::
       "policy_files" string => "/var/rudder/share/${g.uuid}";   #directory where to look for promises in the server for that client
 
       "policy_server_file"
@@ -183,7 +139,7 @@ bundle agent update_action
     # check if new promises are available
     !root_server::
       "${client_inputs}/${rudder_promises_timestamp_tmp}"
-        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}","${server_inputs}/${rudder_promises_timestamp}"),
+        copy_from         => remote("${server_info.policy_server}","${server_inputs}/${rudder_promises_timestamp}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept");
@@ -222,13 +178,13 @@ bundle agent update_action
     !root_server.(availability_checked.!no_update)::
       # Check if the hashes of ncf changed
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
-        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}","${g.rudder_ncf_origin_common_hash}"),
+        copy_from         => remote("${server_info.policy_server}","${g.rudder_ncf_origin_common_hash}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
 
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
-        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}","${g.rudder_ncf_origin_local_hash}"),
+        copy_from         => remote("${server_info.policy_server}","${g.rudder_ncf_origin_local_hash}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok");
@@ -236,7 +192,7 @@ bundle agent update_action
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
     !root_server.(new_promises_available|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
-        copy_from         => remote_unsecured_without_perms("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
+        copy_from         => remote("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_common_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
@@ -336,11 +292,6 @@ bundle agent check_uuid
 }
 
 ############################################
-body classes outcome(x)
-{
-        promise_repaired => {"${x}_ok"};
-}
-############################################
 body classes success(if, else, kept)
 {
         promise_kept     => { "${kept}" };
@@ -355,12 +306,6 @@ body classes success(if, else, kept)
         # persist for 4 minutes so that it wont overlap with the next
         # execution in 5 minutes
         persist_time     => "4"; 
-}
-
-############################################
-body service_method u_bootstart
-{
-        service_autostart_policy => "boot_time";
 }
 
 body perms u_mog(mode,user,group)

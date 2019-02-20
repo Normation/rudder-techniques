@@ -92,7 +92,7 @@ bundle agent propagatePromises
         classes      => if_else("ncf_local_promises_propagated", "could_not_propagate_ncf_local_promise");
 
       "${g.rudder_ncf_origin_common}"
-        copy_from    => remote_unsecured_without_perms("${server_info.policy_server}","${g.rudder_ncf_origin_common}"),
+        copy_from    => remote("${server_info.policy_server}","${g.rudder_ncf_origin_common}"),
         depth_search => recurse_visible("inf"),
         comment      => "Fetching the ncf common to propagate",
         classes      => if_else("ncf_common_promises_propagated", "could_not_propagate_ncf_common_promise");
