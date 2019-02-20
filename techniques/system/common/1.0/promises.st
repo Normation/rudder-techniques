@@ -344,7 +344,7 @@ bundle agent check_log_system
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
-      "check_rsyslog_version_present" expression => fileexists("${this.promise_dirname}/check-rsyslog-version");
+      "check_rsyslog_version_present" expression => fileexists("${this.promise_dirname}/common/1.0/check-rsyslog-version");
 
   files:
 
@@ -406,7 +406,7 @@ bundle agent check_log_system
     rsyslogd_conffile_present.check_rsyslog_version_present::
       # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
       # The option is probably older though.
-      "${this.promise_dirname}/check-rsyslog-version 5.6.4"
+      "/bin/sh ${this.promise_dirname}/common/1.0/check-rsyslog-version 5.6.4"
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version to know if it supports RepeatedMsgReduction";
@@ -427,7 +427,7 @@ bundle agent check_log_system
 bundle agent check_rsyslog_version {
 
   classes:
-      "check_rsyslog_version_present" expression => fileexists("${this.promise_dirname}/check-rsyslog-version");
+      "check_rsyslog_version_present" expression => fileexists("${this.promise_dirname}/common/1.0/check-rsyslog-version");
       "rsyslogd" expression => fileexists("${check_log_system.rsyslog_conffile}");
 
     any::
@@ -447,7 +447,7 @@ bundle agent check_rsyslog_version {
   methods:
 
     pass3.(rsyslogd.!check_rsyslog_version_present)::
-      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "The file ${this.promise_dirname}/check-rsyslog-version is missing");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "The file ${this.promise_dirname}/common/1.0/check-rsyslog-version is missing");
 
     pass3.rsyslog_limit_error::
       "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "Could not remove message limit in rsyslog");
@@ -457,7 +457,7 @@ bundle agent check_rsyslog_version {
 
   commands:
     rsyslogd.check_rsyslog_version_present::
-      "${this.promise_dirname}/check-rsyslog-version"
+      "/bin/sh ${this.promise_dirname}/common/1.0/check-rsyslog-version"
         contain => in_shell,
         module  => "true",
         comment => "Check rsyslog version in order to add or not a configuration line in rsyslog.conf";
