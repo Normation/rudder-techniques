@@ -86,7 +86,7 @@ bundle agent zypper_repositories_management
 
     # we must report on the deletion of other reports for all instances of the directives
     SuSE.zypper_disable_other_repositories::
-      "deletion_${zypper_reports_value}" usebundle => rudder_common_reports_generic_index("Zypper Repositories Management", "zypper_other_repos_disabled", "${zypper_reports_value}", "Purge other repositories", "None", "Deletion of others repositories", "${zypper_index}");
+      "deletion_${zypper_reports_value}" usebundle => rudder_common_reports_generic("Zypper Repositories Management", "zypper_other_repos_disabled", "${zypper_reports_value}", "Purge other repositories", "None", "Deletion of others repositories");
 
     # For deletion of others repos, if there is effectively no others files in the folders, then
     # CFEngine will not define any classes at all: since there is nothing to promise on, there
