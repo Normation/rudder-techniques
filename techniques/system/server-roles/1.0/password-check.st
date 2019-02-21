@@ -30,11 +30,13 @@ bundle common p
 
     root_server::
 
+      "root_home_path" string => execresult("/usr/bin/getent passwd root | cut -d: -f6", "useshell");
+
       "no" int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","psql_password");
       "no2" int => getfields("RUDDER_OPENLDAP_BIND_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","ldap_password");
 
       "properties_files" slist => { "${g.rudder_base}/etc/rudder-web.properties", "${g.rudder_base}/etc/inventory-web.properties" };
-      "managed_files" slist => { "@{properties_files}", "/root/.pgpass", "${g.rudder_base}/etc/openldap/slapd.conf" };
+      "managed_files" slist => { "@{properties_files}", "/${root_home_path}/.pgpass", "${g.rudder_base}/etc/openldap/slapd.conf" };
 
 }
 
@@ -86,7 +88,7 @@ bundle agent root_password_check_file
         perms => mog("600", "root", "0"),
         classes => kept_if_else("file_ok", "file_repaired", "file_error");
 
-      "/root/.pgpass"
+      "/${p.root_home_path}/.pgpass"
         create    => "true",
         edit_line => root_password_check_file_pgpass("root_password_check_file.pgpass"),
         classes   => rudder_common_classes("rudder_postgres_pgpass");
