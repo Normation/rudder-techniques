@@ -23,7 +23,8 @@ function snmp {
       [parameter(Mandatory=$true)]  [string]$techniqueName,
       [switch]$auditOnly
   )
-    $sources = ("&SNMP_AUTHORIZED_SOURCES&" -Split ",").Trim() | Select-Object -Unique
+    $sources = ("&SNMP_AUTHORIZED_SOURCES&").Split(",") | foreach { $_.Trim() }
+    $sources = $sources | Select-Object -Unique
     $flush = "&SNMP_FLUSH&"
   
     $acls = @(
@@ -86,9 +87,9 @@ function snmp {
     $indices = (Get-Item -Path "Registry::${snmpPermittedServerKey}").property
     $nextIndice = ($indices | Measure-Object -Maximum).maximum + 1
 
-    foreach ($iSource in $sources.GetEnumerator()) {
+    foreach ($iSource in $sources) {
       $permitted = 0
-      foreach ($iIndice in $indices.GetEnumerator()) {
+      foreach ($iIndice in $indices) {
         if (($entries).($iIndice) -eq $iSource) {
           $permitted = 1;
           break
