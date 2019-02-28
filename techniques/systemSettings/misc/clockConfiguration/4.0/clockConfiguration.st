@@ -28,37 +28,52 @@ bundle agent check_clock_configuration
 {
 
   vars:
+      "technique_name" string => "ntpConfiguration";
       "ntpServers" slist => {&CLOCK_NTPSERVERS: { "&it&"};separator=", "&};
 
       "target_timezone" string => ifelse( strcmp("&CLOCK_TIMEZONE&", "custom"), "&CLOCK_TIMEZONE_CUSTOM&", "&CLOCK_TIMEZONE&" );
 
-    !windows.!aix::
-      "linux_timezone"   string => "${tz_variables.tz_linux[${target_timezone}]}";
+    # Package name def
 
-    windows::
-      # For windows, we must extract both ip and domain name values
-      #"ipv4" slist => grep("(?:\\d{1,3}\.){3}\\d{1,3}","ntpServers");
+    !SuSE_10::
+      "rudder_ntp_package_name" string => "ntp";
+    SuSE_10::
+      "rudder_ntp_package_name" string => "xntp";
 
-      #domain slist => not one of the above
-      # check that list aren't empty using reglist
+    # Service name def
+    aix:: 
+      "rudder_ntp_service_name" string => "xntpd";
+    redhat::
+      "rudder_ntp_service_name" string => "ntpd";
+    !redhat.!aix::
+      "rudder_ntp_service_name" string => "ntp";
 
-      &if(CLOCK_FQDNNTP)&
-      "keytemp" string => join("\,0x1 ", ntpServers);
-      "serverskey" string => "${keytemp}\,0x1";
-      &else&
-      "serverskey" string => join(" ", ntpServers);
-      &endif&
+    !aix::
+      "rudder_ntp_timezone" string => "${tz_variables.tz_linux[${target_timezone}]}";
+      "rudder_ntp_timezone_path_canonified" string => canonify("/usr/share/zoneinfo/${rudder_ntp_timezone}");
 
-      "current_timezone" string => execresult("\"${sys.winsysdir}\tzutil.exe\" /g", "useshell");
-      "windows_timezone" string => "${tz_variables.tz_win[${target_timezone}]}";
+    # Only used in log reporting
+    SuSE.!systemd::
+      "reporting_timezone_file" string => "(/etc/sysconfig/clock)";
+      "reporting_timezone_name" string => "SuSE";
+    redhat.!systemd::
+      "reporting_timezone_file" string => "(/etc/sysconfig/clock)";
+      "reporting_timezone_name" string => "Redhat";
+    debian.!systemd::
+      "reporting_timezone_file" string => "(/etc/timezone)";
+      "reporting_timezone_name" string => "Debian";
+    systemd::
+      "reporting_timezone_file" string => "";
+      "reporting_timezone_name" string => "Systemd";
+
 
   classes:
 
-    !windows.!aix::
+    !aix::
       "clock_vardef" expression => isvariable("tz_variables.tz_linux[${target_timezone}]");
-
-    windows::
-      "clock_vardef" expression => isvariable("tz_variables.tz_win[${target_timezone}]");
+    
+    systemd.pass1::
+      "need_to_modify_timezone" expression => "file_check_symlinkto__etc_localtime_${rudder_ntp_timezone_path_canonified}_not_ok";
 
     any::
       # We don't edit the TZ if no valid variable is present - probably user input field gone wrong.
@@ -69,198 +84,131 @@ bundle agent check_clock_configuration
 
       "ntp_config_file_exists" expression => fileexists("/etc/ntp.conf");
 
-    clock_vardef.windows::
-      # check if we need to change the windows timezone
-      "need_to_change_timezone" not => strcmp("${windows_timezone}", "${current_timezone}");
-
-    any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
+    pass3::
+      "localtime_kept"     expression => "systemd.systemd_ntp_enabled_ok.!need_to_modify_timezone";
+      "localtime_repaired" expression => "systemd.systemd_ntp_enabled_ok.need_to_modify_timezone.systemd_timezone_ok";
+      "localtime_error"    expression => "systemd.!(localtime_kept|localtime_repaired)";
+
   files:
 
     # Adjust ntp.conf (Add the servers)
-    !windows.(ntp_config_file_exists|ntp_installed)::
+    (ntp_config_file_exists|(package_present_ntp_repaired|package_present_xntp_repaired))::
       "/etc/ntp.conf"
         edit_line => setNtpServer("@{this.ntpServers}"),
         edit_defaults => noempty_backup,
-        classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
+        classes => kept_if_else("ntpconf_kept", "ntpconf_repaired", "ntpconf_error");
 
     # Copy the correct localtime file (distro independant)
-    !windows.!aix.!clock_timezone_noedit::
+    !systemd.!aix.!clock_timezone_noedit::
       "/etc/localtime"
-        copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),
+        copy_from => digest_cp("/usr/share/zoneinfo/${rudder_ntp_timezone}"),
         perms => system_owned("0644"),
         comment => "Updating the /etc/localtime file",
-        classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
+        classes => kept_if_else("localtime_kept", "localtime_repaired", "localtime_error");
 
     # Edit the distro dependant files to set the TZ on boot
-    redhat.!clock_timezone_noedit::
+    !systemd.redhat.!clock_timezone_noedit::
       "/etc/sysconfig/clock"
-        edit_line => EditCentOSTimezone("${linux_timezone}"),
+        edit_line => EditCentOSTimezone("${rudder_ntp_timezone}"),
         edit_defaults => noempty_backup,
-        classes => kept_if_else("redhattz_kept", "repaired_redhattz", "not_repaired_redhattz");
+        classes => kept_if_else("redhattz_kept", "redhattz_repaired", "redhattz_error");
 
-    SuSE.!clock_timezone_noedit::
+    !systemd.SuSE.!clock_timezone_noedit::
       "/etc/sysconfig/clock"
-        edit_line => EditSuSETimezone("${linux_timezone}"),
+        edit_line => EditSuSETimezone("${rudder_ntp_timezone}"),
         edit_defaults => noempty_backup,
-        classes => kept_if_else("susetz_kept", "repaired_susetz", "not_repaired_susetz");
+        classes => kept_if_else("susetz_kept", "susetz_repaired", "susetz_error");
 
-    debian.!clock_timezone_noedit::
+    !systemd.debian.!clock_timezone_noedit::
       "/etc/timezone"
         edit_defaults => empty_backup,
-        edit_line => EditDebianTimezone("${linux_timezone}"),
-        classes => kept_if_else("debiantz_kept", "repaired_debiantz", "not_repaired_debiantz");
-
-  # Install the NTP package
-  packages:
-    linux.!SuSE_10.!SuSE_11::
-      "ntp"
-        package_policy  => "add",
-        package_method  => generic,
-        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing ntp";
-
-    SuSE_11::
-      "ntp"
-        package_policy => "add",
-        package_method => zypper,
-        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing ntp using zypper";
-
-    SuSE_10::
-      "xntp"
-        package_policy => "add",
-        package_method => rudder_rug,
-        classes => kept_if_else("ntp_install_kept", "ntp_installed", "cant_install_ntp"),
-        comment => "Installing xntp using rug";
+        edit_line => EditDebianTimezone("${rudder_ntp_timezone}"),
+        classes => kept_if_else("debiantz_kept", "debiantz_repaired", "debiantz_error");
 
   methods:
-    aix::
-      "start_xntpd" usebundle   => service_ensure_running("xntpd");
+    systemd.!clock_timezone_noedit.pass1::
+      "systemd_timezone" usebundle => file_check_symlinkto("/etc/localtime", "/usr/share/zoneinfo/${rudder_ntp_timezone}");
 
-    aix.repaired_ntpconf::
-      "restart_xntpd" usebundle => service_restart("xntpd");
+    any::
+    # Install the NTP package
+      "ntp" usebundle => package_present("${rudder_ntp_package_name}", "latest", "default", "default");
 
-    # Global report for the "Time synchronization (NTP)" component
-    pass3.((ntp_install_kept|(!linux.!windows)).ntpconf_kept.!ntpd_down.!service_ensure_running_xntpd_repaired.!service_ensure_running_xntpd_error.!service_restart_xntpd_repaired.!service_restart_xntpd_error)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp daemon installed, configured and running");
+    # Service commands
+      "start_ntp_service" usebundle   => service_ensure_running("${rudder_ntp_service_name}");
 
+    ntpconf_repaired|localtime_repaired|debiantz_repaired|susetz_repaired|redhattz_repaired::
+      "restart_ntp_service" usebundle => service_restart("${rudder_ntp_service_name}");
 
-    pass3.(ntp_installed|repaired_ntpconf|ntp_restarted|service_ensure_running_xntpd_repaired|service_restart_xntpd_repaired)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp service (package, configuration and/or process) repaired");
+    ## Reporting
 
-    # Global report for the "Time synchronization (NTP)" component - Windows
-    pass3.ntp_regkept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "NTP service configured and running");
+    pass3::
+    # Package install
+      "package_install" usebundle => rudder_common_reports_generic("${technique_name}", "package_present_${rudder_ntp_package_name}", "&TRACKINGKEY&", "Package status", "None", "The ${rudder_ntp_package_name} package presence");
 
-    pass3.(ntp_regset.ntp_win32time_started)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "NTP service repaired, it is now configured and running");
+    # Service running
+      "service_running" usebundle => rudder_common_reports_generic("${technique_name}", "service_ensure_running_${rudder_ntp_service_name}", "&TRACKINGKEY&", "Service status", "None", "Service ${rudder_ntp_service_name} running state");
 
-    # Individual reports for the "Time synchronization (NTP)" component's parts
-    pass3.cant_install_ntp::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp package could not be installed");
+    # Service restart
+    ntpconf_repaired|localtime_repaired|debiantz_repaired|susetz_repaired|redhattz_repaired::
+      "service_restart" usebundle => rudder_common_reports_generic("${technique_name}", "service_restart_${rudder_ntp_service_name}", "&TRACKINGKEY&", "Service restart", "None", "Service ${rudder_ntp_package_name} restart");
 
-    pass3.ntp_installed::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp package installed");
+    pass3.!(ntpconf_repaired|localtime_repaired|debiantz_repaired|susetz_repaired|redhattz_repaired)::
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&", "Service restart", "None", "${rudder_ntp_service_name} did not need to be restarted");
 
-    pass3.ntp_install_kept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp package already installed");
+    # NTP conf file
+    pass3.ntpconf_repaired::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "NTP configuration", "None", "${rudder_ntp_service_name} configuration updated");
 
-    pass3.(!linux.!windows)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "Support to check if ntp is installed not available on this platform");
+    pass3.ntpconf_error::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "NTP configuration", "None", "${rudder_ntp_service_name} configuration could not be changed");
 
-    pass3.repaired_ntpconf::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd configuration updated");
-
-    pass3.not_repaired_ntpconf::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd configuration could not be changed");
-
-    pass3.ntpd_down::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd process was not running");
-
-    pass3.ntp_restarted::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd process restarted");
-
-    pass3.cant_restart_ntp::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntpd process could not be restarted");
-
-    pass3.ntp_regset::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "NTP service configured in the Windows registry. W32Time will restart");
-
-    pass3.ntp_regfail::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "NTP service could not be configured in the Windows registry");
-
-    pass3.ntp_regkept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "NTP service was already configured in the Windows registry");
-
-    pass3.ntp_win32time_started::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "NTP service (W32Time) restarted");
-
+    pass3.ntpconf_kept::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "NTP configuration", "None", "${rudder_ntp_service_name} configuration was kept");
 
     # Global reports for the "Time zone" component's parts
     pass3.aix::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Time zone", "None", "Time zone is not managed on AIX nodes");
 
-    pass3.(repaired_localtime|repaired_redhattz|repaired_debiantz|repaired_susetz)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time zone", "None", "Time zone was reset");
+    pass3.(localtime_repaired|redhattz_repaired|debiantz_repaired|susetz_repaired)::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time zone", "None", "Time zone ${target_timezone} was reset");
 
-    pass3.(localtime_kept.((redhat.redhattz_kept)|(debian.debiantz_kept)|(SuSE.susetz_kept)))::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone was already correctly configured");
+    pass3.(localtime_kept.((redhat.redhattz_kept)|(debian.debiantz_kept)|(SuSE.susetz_kept)|systemd))::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone ${target_timezone} was already correctly configured");
 
     pass3.clock_timezone_nochange.!aix::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Time zone", "None", "Time zone edition disabled");
 
     pass3.!clock_timezone_nochange.!clock_vardef::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Time zone provided is not valid");
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Time zone provided is not valid: ${target_timezone}");
 
-    # Individual reports for the "Time zone" component's parts
-    pass3.((windows.!clock_timezone_noedit).clock_vardef.!need_to_change_timezone)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Time zone", "None", "Time zone was already correctly configured");
+    pass3.(localtime_error)::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Time zone ${target_timezone} could not be set (localtime file could not be changed)");
+    pass3.(redhattz_error|debiantz_error|susetz_error|(systemd.(systemd_ntp_enabled_error|systemd_timezone_error)))::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Could not update ${reporting_timezone_name}-style time zone parameters ${reporting_timezone_file}");
 
-    pass3.(timezone_change_repaired|repaired_localtime)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "Time zone was reset (localtime file changed)");
-
-    pass3.(not_repaired_localtime|timezone_change_failed)::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Time zone could not be set (localtime file could not be changed)");
+    # Info logs
+    pass3.(localtime_repaired)::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "Time zone ${target_timezone} was reset (localtime file changed)");
 
     pass3.localtime_kept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "Time zone was already set (localtime file didn't need changing)");
+      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "Time zone ${target_timezone} was already set (localtime file didn't need changing)");
 
-    pass3.repaired_redhattz::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "Red Hat-style specific time zone parameters updated (/etc/sysconfig/clock)");
+    pass3.(redhattz_kept|debiantz_kept|susetz_kept|(systemd.systemd_ntp_enabled_ok))::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "${reporting_timezone_name}-style time zone parameters already correct ${reporting_timezone_file}");
 
-    pass3.not_repaired_redhattz::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Could not update Red Hat-style time zone parameters (/etc/sysconfig/clock)");
-
-    pass3.redhattz_kept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "Red Hat-style time zone parameters already correct (/etc/sysconfig/clock)");
-
-    pass3.repaired_debiantz::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "Debian-style time zone parameters updated (/etc/timezone)");
-
-    pass3.not_repaired_debiantz::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Could not update Debian-style time zone parameters (/etc/timezone)");
-
-    pass3.debiantz_kept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "Debian-style time zone parameters already correct (/etc/timezone)");
-
-    pass3.repaired_susetz::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "SuSE-style time zone parameters updated (/etc/sysconfig/clock)");
-
-    pass3.not_repaired_susetz::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Time zone", "None", "Could not update SuSE-style time zone parameters (/etc/sysconfig/clock)");
-
-    pass3.susetz_kept::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "log_info", "&TRACKINGKEY&", "Time zone", "None", "SuSE-style time zone parameters already correct (/etc/sysconfig/clock)");
+    # We can not really know if it was repaired for systemd here
+    pass3.(redhattz_repaired|debiantz_repaired|susetz_repaired)::
+      "any" usebundle => rudder_common_report("ntpConfiguration", "log_repaired", "&TRACKINGKEY&", "Time zone", "None", "${reporting_timezone_name}-style time zone parameters updated ${reporting_timezone_file}");
 
     # Global reports for the "Hardware clock (RTC)" component
     pass3.aix::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "Hardware clock is not synchronized on AIX");
 
-    pass3.(!windows.!aix.!ntp_hwclock_sync_error.!ntp_hwclock_synced.clock_hwclock_sync)::
+    pass3.(!aix.!ntp_hwclock_sync_error.!ntp_hwclock_synced.clock_hwclock_sync)::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "It is not yet time to synchronize the hardware clock with the NTP time. Skipping...");
 
     pass3.ntp_hwclock_synced::
@@ -269,78 +217,31 @@ bundle agent check_clock_configuration
     pass3.ntp_hwclock_sync_error::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_error", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "The hardware clock could not be synchronized with the NTP time");
 
-    pass3.windows::
-      "any" usebundle => rudder_common_report("ntpConfiguration", "result_success", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "The hardware clock is automatically synchronized with the NTP time on Windows");
-
-    pass3.!clock_hwclock_sync.!windows.!aix::
+    pass3.!clock_hwclock_sync.!aix::
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_na", "&TRACKINGKEY&", "Hardware clock (RTC)", "None", "No synchronization with the hardware clock was requested");
-
-  processes:
-
-    # If NTP is down, define its restart class
-      "ntpd"
-        restart_class => "ntpd_down";
 
   commands:
 
-    # Restart commands
-    !windows.!redhat.!aix.(repaired_ntpconf|repaired_localtime|repaired_debiantz|repaired_susetz|ntpd_down)::
-      "/etc/init.d/ntp"
-        args => "restart",
-        classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
-        comment => "restarting ntp";
-
-    redhat.(repaired_ntpconf|repaired_localtime|repaired_redhattz|ntpd_down)::
-      "/etc/init.d/ntpd"
-        args => "restart",
-        classes => cf2_if_else("ntp_restarted", "cant_restart_ntp"),
-        comment => "restarting ntp";
-
-    (windows.!clock_timezone_noedit).clock_vardef.need_to_change_timezone::
-      "\"${sys.winsysdir}\tzutil.exe\""
-        args => "/s \"${windows_timezone}\"",
-        contain => in_shell,
-        classes => rudder_common_classes("timezone_change"),
-        comment => "set the windows time zone";
-
-    (windows.!clock_timezone_noedit).ntp_regset::
-      "\"${sys.winsysdir}\net.exe\""
-        args => "stop W32Time",
-        contain => in_shell,
-        classes => cf2_if_else("ntp_winsvcstop", "ntp_winsvcstop"),
-        comment => "Restart the windows NTP service";
-
-    (windows.!clock_timezone_noedit).ntp_winsvcstop::
-      "\"${sys.winsysdir}\net.exe\""
-        args => "start W32Time",
-        contain => in_shell,
-        classes => cf2_if_else("ntp_win32time_started", "ntp_win32time_error"),
-        comment => "Restart the windows NTP service";
-
     # HW clock sync command
-    !windows.!aix.clock_hwclock_sync::
+    !aix.clock_hwclock_sync::
       "/sbin/hwclock"
         args => "--systohc",
         action => if_elapsed("&CLOCK_SYNCSCHED&"),
         classes => cf2_if_else("ntp_hwclock_synced", "ntp_hwclock_sync_error"),
         comment => "synchronizing hardware clock";
 
-&if(NOVA)&
-  databases:
+    systemd::
+      "$(paths.timedatectl)"
+        args => "set-ntp true",
+        classes => cf2_if_else("systemd_ntp_enabled_ok", "systemd_ntp_enabled_error"),
+        comment => "enabling ntp as clock sync method";
 
-    windows::
-
-      "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\Services\W32Time\Parameters"
-
-        database_operation => "create",
-        database_rows => { "Type,REG_SZ,NTP", "NtpServer,REG_SZ,${serverskey}"},
-        database_type => "ms_registry",
-        comment => "Editing the windows registry to set the required NTP entries",
-        classes => kept_if_else("ntp_regkept", "ntp_regset", "ntp_regfail");
-&endif&
-
+    systemd.!clock_timezone_noedit.need_to_modify_timezone::
+      "$(paths.timedatectl)"
+        args => "set-timezone ${rudder_ntp_timezone}",
+        classes => cf2_if_else("systemd_timezone_ok", "systemd_timezone_error"),
+        comment => "setting timezone";
 }
-
 
 bundle edit_line setNtpServer(serverlist)
 {

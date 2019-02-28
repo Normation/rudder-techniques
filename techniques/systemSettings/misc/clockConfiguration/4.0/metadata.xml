@@ -1,6 +1,5 @@
 <!--
-Copyright 2011 Normation SAS
-Copyright 2015 Janos Mattyasovszky
+Copyright 2019 Normation SAS
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
@@ -25,10 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <AGENT version=">= 3.1.5">cfengine-community</AGENT>
   </COMPATIBLE>
 
-  <SYSTEMVARS>
-    <NAME>NOVA</NAME>
-  </SYSTEMVARS>
-
   <BUNDLES>
     <NAME>tz_variables</NAME>
     <NAME>check_clock_configuration</NAME>
@@ -45,7 +40,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
   <SECTIONS>
     <!-- general Section -->
-    <SECTION name="Time synchronization (NTP)" component="true">
+    <SECTION name="Service status" component="true"/>
+    <SECTION name="Service restart" component="true"/>
+    <SECTION name="Package status" component="true"/>
+    <SECTION name="NTP configuration" component="true">
       <INPUT>
         <NAME>CLOCK_FQDNNTP</NAME>
         <DESCRIPTION>NTP server list uses DNS domain names instead of IP addresses?</DESCRIPTION>
