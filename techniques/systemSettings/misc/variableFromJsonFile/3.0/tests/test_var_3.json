@@ -1,0 +1,64 @@
+{
+  "displayName": "Test_variableFromJsonFile_v3_0_test_var_3",
+  "enabled": true,
+  "longDescription": "",
+  "parameters": {
+    "section": {
+      "name": "sections",
+      "sections": [
+        {
+          "section": {
+            "name": "File copy"
+          }
+        },
+        {
+          "section": {
+            "name": "Json files to merge",
+            "vars": [
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_JSON_FILE",
+                  "value": ""
+                }
+              },
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_SOURCE",
+                  "value": "remote"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "section": {
+            "name": "Variable definition",
+            "vars": [
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_BASE_FILE",
+                  "value": "file3"
+                }
+              },
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_BASE_SOURCE",
+                  "value": "remote"
+                }
+              },
+              {
+                "var": {
+                  "name": "VARIABLE_FROM_JSON_FILE_VARIABLE_NAME",
+                  "value": "prefix3.variable3"
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "shortDescription": "",
+  "techniqueName": "variableFromJsonFile",
+  "techniqueVersion": "3.0"
+}

@@ -1,0 +1,8 @@
+[{
+  "inits": ["test_merging.cf"],
+  "checks": ["test_merging.rb"],
+  "directives": ["test_merging.json", "test_var_1.json", "test_var_2.json", "test_var_3.json", "test_var_4.json", "test_var_5.json", "test_local.json"],
+  "sharedFiles":["file1", "file2", "file3", "file6"],
+  "name": "Test_variableFromJsonFile_v3_0_test_merging",
+  "compliance": 95.24
+}]
