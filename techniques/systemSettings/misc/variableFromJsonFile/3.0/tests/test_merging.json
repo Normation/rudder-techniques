@@ -1,0 +1,222 @@
+{
+  "displayName": "ZTest_variableFromJsonFile_v3_0_test_merging",
+  "enabled": true,
+  "longDescription": "",
+  "parameters": {
+    "section": {
+      "name": "sections",
+      "sections": [
+        {
+          "section": {
+            "name": "File to manage",
+            "sections": [
+              {
+                "section": {
+                  "name": "Enforce content by section",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_SECTION_MANAGEMENT",
+                        "value": "false"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_SECTION_CONTENT",
+                        "value": ""
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_SECTION_FOOTER",
+                        "value": ""
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_SECTION_HEADER",
+                        "value": ""
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "section": {
+                  "name": "Enforce content only in zone",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_MIGRATE_TO_ZONE_BOOLEAN",
+                        "value": "false"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_ZONE_FOOTER",
+                        "value": "### End of section managed by Rudder"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_ZONE_HEADER",
+                        "value": "### Beginning of section managed by Rudder"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "section": {
+                  "name": "File",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_CREATE_BOOLEAN",
+                        "value": "true"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_DELETION_BOOLEAN",
+                        "value": "false"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_ENFORCE",
+                        "value": "true"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_ENFORCE_CREATE_ONLY_BOOLEAN",
+                        "value": "false"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_MODIFICATION_BOOLEAN",
+                        "value": "false"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_ONLY_ZONE_BOOLEAN",
+                        "value": "false"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_PATH",
+                        "value": "/tmp/result"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "section": {
+                  "name": "File content",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_PAYLOAD",
+                        "value": "${prefix1.variable1[key1]}\r\n${prefix1.variable1[key2]}\r\n${prefix1.variable1[key3]}\r\n\r\n${prefix2.variable2[key3]}\r\n\r\n${prefix3.variable3[key3]}\r\n\r\n${prefix4.variable4[key1]}\r\n${prefix4.variable4[key2]}\r\n${prefix4.variable4[key3]}\r\n${prefix4.variable4[key6]}\r\n\r\n${prefix6.variable6[key1]}\r\n${prefix6.variable6[key2]}\r\n${prefix6.variable6[key3]}\r\n\r\n${prefix5.variable5[key1]}\r\n${prefix5.variable5[key2]}\r\n${prefix5.variable5[key3]}"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "section": {
+                  "name": "Line deletion regular expressions",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_DELETION_REGEXP",
+                        "value": "deleteme.*"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "section": {
+                  "name": "Line replacement regular expressions",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_MODIFICATION_DESTINATION",
+                        "value": ""
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_MODIFICATION_REGEXP",
+                        "value": "replaceme.*"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "section": {
+                  "name": "Permission adjustment",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_GROUP",
+                        "value": "root"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_OWNER",
+                        "value": "root"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_PERM",
+                        "value": "644"
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_PERMISSION_ADJUSTMENT",
+                        "value": "false"
+                      }
+                    }
+                  ]
+                }
+              },
+              {
+                "section": {
+                  "name": "Post-modification hook",
+                  "vars": [
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_POST_HOOK_COMMAND",
+                        "value": ""
+                      }
+                    },
+                    {
+                      "var": {
+                        "name": "GENERIC_FILE_CONTENT_POST_HOOK_RUN",
+                        "value": "false"
+                      }
+                    }
+                  ]
+                }
+              }
+            ]
+          }
+        }
+      ]
+    }
+  },
+  "shortDescription": "",
+  "techniqueName": "checkGenericFileContent",
+  "techniqueVersion": "8.0"
+}

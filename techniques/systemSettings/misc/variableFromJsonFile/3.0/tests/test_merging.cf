@@ -1,0 +1,9 @@
+#!/usr/local/bin/ncf -f 
+bundle agent init {
+  methods:
+    "any" usebundle => file_remove("/tmp/test_output.log");
+    "any" usebundle => file_enforce_content("/tmp/file1", "{ \"key1\": \"value1\", \"key2\": \"value1\", \"key3\":\"value1\"}", "true");
+    "any" usebundle => file_enforce_content("/tmp/file2", "{ \"key2\": \"value2\", \"key3\":\"value2\"}", "true");
+    "any" usebundle => file_enforce_content("/tmp/file3", "{ \"key3\": \"value3\"}", "true");
+}
+

@@ -1,0 +1,121 @@
+<!--
+Copyright 2019 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<TECHNIQUE name="Variable from JSON file (dict)">
+  <DESCRIPTION>Read and merge successive local or remote JSON files to define a local variable. You can use these variables in the form ${your_namespace.variable_name}.
+  The technique will start by defining a the variable with the "base file", which is mandatory. Then, it will try to override this variable with the successive merge of the "override files". If a an "override file" could not be found, it will not prevent the variable creation but will report an error.If an "override files" entry is left blank/empty, it will not prevent the variable definition and will report a "not applicable" report for this specific file.
+  
+  For example a JSON containing { "datacenter": "paris" } read into the variable "machine_info" with prefix "my_company" can be used as ${my_company.machine_info[datacenter]}. Note that the syntax will differ in a mustache template: {{{vars.my_company.machine_info.datacenter}}}.
+  </DESCRIPTION>
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+
+  <COMPATIBLE>
+    <OS>Every OS</OS>
+    <AGENT version=">= 3.10">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>variable_from_json_file_RudderUniqueID</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="variableFromJsonFile"/>
+  </TMLS>
+
+  <SYSTEMVARS>
+    <NAME>SHARED_FILES_FOLDER</NAME>
+  </SYSTEMVARS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>VARIABLE_FROM_JSON_FILE_JSON_FILE</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="Base file" component="true" componentKey="VARIABLE_FROM_JSON_FILE_JSON_FILE" />
+    <SECTION name="File copy" component="true" componentKey="VARIABLE_FROM_JSON_FILE_JSON_FILE" />
+    <SECTION name="Variable definition" component="true" componentKey="VARIABLE_FROM_JSON_FILE_JSON_FILE" >
+      <INPUT>
+        <NAME>VARIABLE_FROM_JSON_FILE_VARIABLE_NAME</NAME>
+        <DESCRIPTION>Variable name</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+          <REGEX error="The variable name must be of the form my_prefix.my_name">^[\w]+\.[\w]+$</REGEX>
+        </CONSTRAINT>
+      </INPUT>
+
+      <SELECT1>
+        <NAME>VARIABLE_FROM_JSON_FILE_BASE_SOURCE</NAME>
+        <DESCRIPTION>File location</DESCRIPTION>
+        <ITEM>
+          <VALUE>remote</VALUE>
+          <LABEL>Rudder server</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>local</VALUE>
+          <LABEL>Local node</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+          <DEFAULT>remote</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
+      <INPUT>
+        <NAME>VARIABLE_FROM_JSON_FILE_BASE_FILE</NAME>
+        <DESCRIPTION>File path</DESCRIPTION>
+        <LONGDESCRIPTION>Path relative to /var/rudder/configuration-repository/shared-files/ for remote sources. Absolute path for local ones.</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+
+    </SECTION>
+
+    <SECTION name="Overriding file" multivalued="true" component="true" componentKey="VARIABLE_FROM_JSON_FILE_JSON_FILE" >
+      <SELECT1>
+        <NAME>VARIABLE_FROM_JSON_FILE_SOURCE</NAME>
+        <DESCRIPTION>File location</DESCRIPTION>
+        <ITEM>
+          <VALUE>remote</VALUE>
+          <LABEL>Remote server</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>local</VALUE>
+          <LABEL>Local node</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <MAYBEEMPTY>false</MAYBEEMPTY>
+          <DEFAULT>remote</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+
+
+      <INPUT>
+        <NAME>VARIABLE_FROM_JSON_FILE_JSON_FILE</NAME>
+        <DESCRIPTION>File path</DESCRIPTION>
+        <LONGDESCRIPTION>Path relative to /var/rudder/configuration-repository/shared-files/ for remote sources. Absolute path for local ones. It will override the previous one if necessary.</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>string</TYPE>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+
+</TECHNIQUE>
