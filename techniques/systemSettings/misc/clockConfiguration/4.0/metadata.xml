@@ -43,7 +43,15 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Service status" component="true"/>
     <SECTION name="Service restart" component="true"/>
     <SECTION name="Package status" component="true"/>
-    <SECTION name="NTP configuration" component="true">
+    <SECTION name="Time synch configuration" component="true">
+      <INPUT>
+        <NAME>SYNCH_ENABLED</NAME>
+        <DESCRIPTION>Enable NTP</DESCRIPTION>
+        <CONSTRAINT>
+          <TYPE>boolean</TYPE>
+          <DEFAULT>true</DEFAULT>
+        </CONSTRAINT>
+      </INPUT>
       <INPUT>
         <NAME>CLOCK_FQDNNTP</NAME>
         <DESCRIPTION>NTP server list uses DNS domain names instead of IP addresses?</DESCRIPTION>
