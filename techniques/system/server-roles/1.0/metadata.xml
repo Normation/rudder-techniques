@@ -25,7 +25,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <TML name="integrity-check"/>
     <TML name="network-check"/>
     <TML name="password-check"/>
-    <TML name="postgres-check"/>
     <TML name="logrotate-check"/>
     <TML name="technique-reload"/>
     <TML name="rudder-server-roles">
@@ -68,7 +67,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <SECTION name="Check apache process" component="true"/>
     <SECTION name="Check postgresql boot script" component="true"/>
     <SECTION name="Check apache boot script" component="true"/>
-    <SECTION name="Check PostgreSQL configuration" component="true"/>
     <SECTION name="Check logrotate configuration" component="true"/>
     <SECTION name="Check configuration-repository folder" component="true"/>
     <SECTION name="Check configuration-repository GIT lock" component="true"/>
