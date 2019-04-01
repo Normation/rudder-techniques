@@ -84,7 +84,7 @@ bundle common rudder_roles
 bundle agent init_files
 {
   vars:
-      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key" };
+      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-promises", "cf-runagent", "cf-key" };
 
     enterprise_edition::
       "cfengine_install_path" string => "/usr/local";
