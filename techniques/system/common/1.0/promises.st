@@ -240,7 +240,7 @@ bundle agent startup
 bundle agent check_disable_agent
 {
   vars:
-      "components" slist => { "cf-serverd", "cf-execd", "cf-monitord" };
+      "components" slist => { "cf-serverd", "cf-execd" };
 
   classes:
       "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
@@ -675,7 +675,7 @@ bundle agent check_binaries_freshness
 
     community_edition::
 
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-monitord", "cf-promises", "cf-runagent", "cf-key", "rpmvercmp" };
+      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-promises", "cf-runagent", "cf-key", "rpmvercmp" };
 
   files:
 
