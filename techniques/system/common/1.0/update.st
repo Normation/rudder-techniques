@@ -104,14 +104,23 @@ bundle common server_info
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
+    pass2.policy_server_file_exists::
+      "policy_server" string => readfile("${policy_server_file}", 2048);
+
+    pass2.!policy_server_file_exists::
       # Use "" as default policy_server if no policy_server.dat exists
-      "policy_server" string => ifelse(fileexists("${policy_server_file}"),
-                                  readfile("${policy_server_file}", 2048),
-                                  "");
+      "policy_server" string => "";
+
+    pass2::
       "cfserved"      string => "${policy_server}";
 
   classes:
-      "should_disable_server" expression => fileexists("${g.rudder_disable_server_file}");
+      "should_disable_server"     expression => fileexists("${g.rudder_disable_server_file}");
+
+      "policy_server_file_exists" expression => fileexists("${policy_server_file}");
+
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 }
 
 # The update is now split in two parts
