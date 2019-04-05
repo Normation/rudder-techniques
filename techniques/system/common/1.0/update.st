@@ -104,23 +104,22 @@ bundle common server_info
         string  => translatepath("${sys.workdir}/policy_server.dat"),
         comment => "Path to file containing address to policy server";
 
-    pass2.policy_server_file_exists::
+    #This part work, because for some reason, the evaluation converge in one pass, and allows to have
+    # the correct value in policy_server value. In verbose output, policy_server_file_exists is defined first
+    policy_server_file_exists::
       "policy_server" string => readfile("${policy_server_file}", 2048);
 
-    pass2.!policy_server_file_exists::
+    !policy_server_file_exists::
       # Use "" as default policy_server if no policy_server.dat exists
       "policy_server" string => "";
 
-    pass2::
+    any::
       "cfserved"      string => "${policy_server}";
 
   classes:
       "should_disable_server"     expression => fileexists("${g.rudder_disable_server_file}");
 
       "policy_server_file_exists" expression => fileexists("${policy_server_file}");
-
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
 }
 
 # The update is now split in two parts
