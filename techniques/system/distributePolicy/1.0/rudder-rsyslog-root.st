@@ -45,7 +45,7 @@ $ActionQueueSaveOnShutdown on
 $ActionQueueType LinkedList
 $ActionQueueSize 100000
 $ActionQueueWorkerThreads 2
-
+$ActionQueueDiscardMark 80000
 
 # The RudderReportsFormat template specifies how to store
 # the report in the database.
