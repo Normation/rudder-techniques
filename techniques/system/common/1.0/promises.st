@@ -56,10 +56,6 @@ body common control
         inputs => {
           @{va.inputs_list},
           "rudder-system-directives.cf",
-&if(!INITIAL)&
-          "rudder-directives.cf"
-&endif&
-
         };
 
         bundlesequence => { 
