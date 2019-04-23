@@ -29,6 +29,14 @@ bundle agent root_component_check
 
       "apache_dist_specific_name"                      string => "httpd";
 
+    # on systemd system, detect postgresql name
+    systemd::
+      "postgresql_service_name" string => execresult("${paths.systemctl} --no-ask-password list-unit-files --type service | ${paths.awk} -F'.' '{print $1}' | ${paths.grep} -E \"^postgresql-?[0-9]*$\" | tail -n 1", "useshell");
+
+    !systemd::
+      "postgresql_service_name" string => "postgresql";
+
+
     any::
 
       "technique_name"                                 string => "server-roles";
@@ -42,8 +50,8 @@ bundle agent root_component_check
       "service[rudder_jetty][service]"                 string => "rudder-jetty";
 
       "service[rudder_reports][name]"                  string => "postgresql";
-      "service[rudder_reports][binary]"                string => "postgres:.* writer process";
-      "service[rudder_reports][service]"               string => "postgresql";
+      "service[rudder_reports][binary]"                string => "postgres:.*writer";
+      "service[rudder_reports][service]"               string => "${postgresql_service_name}"";
 
       "service[apache][name]"                          string => "apache";
       "service[apache][binary]"                        string => "${apache_dist_specific_name}";
