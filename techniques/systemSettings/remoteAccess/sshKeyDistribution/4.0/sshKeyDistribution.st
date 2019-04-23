@@ -101,9 +101,16 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
 
       "correct_ssh_key_format_${sshkey_distribution_index}" expression => regcmp("(.*\s+)?(${ssh_types})\s+(\S+)(\s.*)?", "${sshkey_distribution_key[${sshkey_distribution_index}]}"); 
 
+      "home_directory_${sshkey_distribution_index}_exists" expression => isdir("${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}");
 
   files:
     pass2.!windows::
+      # if home dir doesn't exist, create it with correct permission
+      "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}/."
+        create        => "true",
+        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_name[${sshkey_distribution_index}]}]}"),
+        ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.!home_directory_${sshkey_distribution_index}_exists");
+
       "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}/.ssh/."
         create        => "true",
         perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_name[${sshkey_distribution_index}]}]}"),
