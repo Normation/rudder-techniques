@@ -69,6 +69,24 @@ bundle agent root_component_check
       # Make sure every required logrotate entry is present
       "any" usebundle => root_logrotate_check;
 
+    # Check that Postgresql is up and running before checking its password
+    role_rudder_reports::
+      "any" usebundle => root_postgres_check;
+      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
+      "any" usebundle => generic_process_check_bootstart("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
+
+    !role_rudder_reports::
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
+          "Check PostgreSQL configuration", "None", "Checking PostgreSQL configuration is unnecessary on this machine, skipping."
+        );
+
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
+          "Check postgresql process", "None", "Checking postgresql process state is unnecessary on this machine, skipping."
+        );
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
+          "Check postgresql boot script", "None", "Checking postgresql boot settings is unnecessary on this machine, skipping."
+        );
+
     # This is to be done only if the package rudder-server-root is present
     role_rudder_server_root::
       # Password management is expected to be done manually in case of a splitted/relayed installation for now.
@@ -148,23 +166,6 @@ bundle agent root_component_check
     !role_rudder_inventory_ldap::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check slapd process", "None", "Checking slapd process state is unnecessary on this machine, skipping."
-        );
-
-    role_rudder_reports::
-      "any" usebundle => root_postgres_check;
-      "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
-      "any" usebundle => generic_process_check_bootstart("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
-
-    !role_rudder_reports::
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "Check PostgreSQL configuration", "None", "Checking PostgreSQL configuration is unnecessary on this machine, skipping."
-        );
-
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "Check postgresql process", "None", "Checking postgresql process state is unnecessary on this machine, skipping."
-        );
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "Check postgresql boot script", "None", "Checking postgresql boot settings is unnecessary on this machine, skipping."
         );
 
 }
