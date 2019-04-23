@@ -81,14 +81,22 @@ bundle agent check_ssh_key_distribution
       "pass1" expression => "any";
       "begin_evaluation" expression => isvariable("sshkey_distribution_index");
 
-   pass2::
+    pass2::
       "correct_ssh_key_format_${sshkey_distribution_index}" expression => regcmp("(.*\s+)?(${ssh_types})\s+(\S+)(\s.*)?", "${sshkey_distribution_key[${sshkey_distribution_index}]}"); 
     begin_evaluation::
       "user_${sshkey_distribution_index}_exists" expression => userexists("${sshkey_distribution_name[${sshkey_distribution_index}]}");
 
+      # Check that home directory indeed exists
+      "home_directory_${sshkey_distribution_index}_exists" expression => isdir("${homedir[${sshkey_distribution_index}]}");
+
   files:
 
     !windows::
+      # if home dir doesn't exist, create it with correct permission
+      "${homedir[${sshkey_distribution_index}]}/."
+        create        => "true",
+        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
+        ifvarclass    => "user_${sshkey_distribution_index}_exists.correct_ssh_key_format_${sshkey_distribution_index}.!home_directory_${sshkey_distribution_index}_exists";
 
       "${homedir[${sshkey_distribution_index}]}/.ssh/."
         create        => "true",
