@@ -18,7 +18,6 @@
 
 bundle agent root_networks_check
 {
-
   vars:
       "policy_server_ip" string => host2ip("${server_info.policy_server}");
     server_ip_found::
@@ -56,8 +55,10 @@ bundle agent root_networks_check
     !redhat::
       "apache_service" string => "apache2";
 
-  classes:
     any::
+      "service_class_prefix" string => canonify("service_reload_${apache_service}");
+
+  classes:
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
@@ -66,7 +67,6 @@ bundle agent root_networks_check
       "server_ip_found" expression => regcmp("^[0-9.]+$|^[0-9a-fA-F:]+:[0-9a-fA-F:]+$", "${policy_server_ip}");
     
   files:
-
       "${network_file[${index}]}"
         create        => "true",
         perms         => mog("600", "root", "0"),
@@ -76,6 +76,8 @@ bundle agent root_networks_check
         comment       => "Writing rudder apache configuration";
 
   methods:
+    rudder_networks_repaired::
+      "any" usebundle => service_reload("${apache_service}");
 
     pass3.rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration is correct");
@@ -86,18 +88,9 @@ bundle agent root_networks_check
     pass3.rudder_networks_failed::
       "any" usebundle => rudder_common_report("server-roles", "result_error", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration could not be edited");
 
-    pass3.apache_reloaded.!apache_reload_failed::
-      "any" usebundle => rudder_common_report("server-roles", "log_info", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Apache has been reloaded successfully");
-
-    pass3.apache_reload_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Apache failed to reload");
-
-  commands:
-
-    rudder_networks_repaired::
-
-      "${paths.path[service]}"
-        args => "${apache_service} reload",
-        classes => if_else("apache_reloaded", "apache_reload_failed");
-
+    pass3::
+      "any" usebundle => rudder_common_report("server-roles", "log_repaired", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Apache has been reloaded successfully"),
+                   if => "${service_class_prefix}_repaired.!${service_class_prefix}_error";
+      "any" usebundle => rudder_common_report("server-roles", "result_error", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Apache failed to reload"),
+                   if => "${service_class_prefix}_error";
 }

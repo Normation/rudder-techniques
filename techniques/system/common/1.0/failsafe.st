@@ -47,8 +47,7 @@ bundle common g
 
     any::
       "uuid"                     string => readfile("${g.uuid_file}", 60);
-      "excludedreps"             slist  => { "\.X11", ".*kde.*", "\.svn", "perl" };
-      "ncf_local_excludedreps"    slist => { "50_techniques", @{g.excludedreps}};
+      "ncf_local_excludedreps"    slist => { "50_techniques" };
       "rudder_ncf_origin_common" string => "/usr/share/ncf/tree";
       "rudder_ncf_origin_local"  string => "&CONFIGURATION_REPOSITORY_FOLDER&/ncf";
 
