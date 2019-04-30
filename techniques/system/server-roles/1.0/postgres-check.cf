@@ -20,21 +20,16 @@ bundle agent root_postgres_check
 {
 
   vars:
-
     SuSE::
-
       "configuration_statements" slist => { "host    all             rudder             ::1/128              md5", "host    all             rudder          127.0.0.1/32            md5" };
 
   classes:
-    any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
   files:
-
     SuSE::
-
       "/var/lib/pgsql/data/pg_hba.conf"
         edit_line => prepend("${configuration_statements}"),
         edit_defaults => noempty_backup,
@@ -42,7 +37,6 @@ bundle agent root_postgres_check
         comment => "Edit the SuSE postgresql configuration to enable account-less logins";
 
   methods:
-
     pass2.SuSE.psql_conf_updated::
       "restart_postgresql" usebundle => disable_reporting;
       "restart_postgresql" usebundle => _method_reporting_context("Check PostgreSQL configuration", "None");

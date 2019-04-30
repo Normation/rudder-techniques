@@ -20,33 +20,14 @@ bundle agent root_logrotate_check
 {
   vars:
 
-      "syslog_user"
-        string => "root",
-        policy => "overridable";
+      "syslog_user"      string => "root";
+      "syslog_group"     string => "root";
+      "syslog_file_mode" string => "640";
 
-      "syslog_group"
-        string => "root",
-        policy => "overridable";
-
-      "syslog_file_mode"
-        string => "640",
-        policy => "overridable";
-
-      "service_restart_utility"
-        string => "/sbin/service",
-        policy => "overridable";
-
-      "apache_service_name"
-        string => "apache2",
-        policy => "overridable";
-
-      "syslog_service_name"
-        string => "rsyslog",
-        policy => "overridable";
-
-      "syslog_rotation_method"
-        string => "reload",
-        policy => "overridable";
+      "service_restart_utility" string => "/sbin/service";
+      "apache_service_name"     string => "apache2";
+      "syslog_service_name"     string => "rsyslog";
+      "syslog_rotation_method"  string => "reload";
 
     pass1.!duration_configured::
       "logrotate_duration" string => "30";
@@ -55,22 +36,18 @@ bundle agent root_logrotate_check
 
     ubuntu::
       "syslog_user"             string => "syslog";
-
     debian::
       "syslog_group"            string => "adm";
 
     redhat::
       "apache_service_name"     string => "httpd";
-
     SuSE::
       "syslog_service_name"     string => "syslog";
 
     debian|ubuntu::
-
       "service_restart_utility" string => "/usr/sbin/service";
 
     debian.!debian_5.!debian_6::
-
       "syslog_rotation_method"  string => "rotate";
 
   classes:
@@ -79,7 +56,6 @@ bundle agent root_logrotate_check
       "duration_configured" expression => isvariable("rudder_parameters.log_duration");
 
   files:
-
     pass2::
       "/etc/logrotate.d/rudder"
         create        => "true",
@@ -89,7 +65,6 @@ bundle agent root_logrotate_check
         comment       => "Copying the Rudder logrotate configuration";
 
   methods:
-
     rudder_logrotate_conf_ok.!rudder_logrotate_conf_copied.!cannot_copy_rudder_logrotate_conf::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "${server_roles_common.directiveId}", "Check logrotate configuration", "None", "The logrotate configuration is correct");
 
@@ -98,5 +73,4 @@ bundle agent root_logrotate_check
 
     cannot_copy_rudder_logrotate_conf::
       "any" usebundle => rudder_common_report("server-roles", "result_error", "${server_roles_common.directiveId}", "Check logrotate configuration", "None", "The logrotate configuration could not be repaired");
-
 }
