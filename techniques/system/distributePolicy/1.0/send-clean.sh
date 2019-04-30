@@ -32,8 +32,11 @@ ARCHIVEDIR=${3}
 FAILEDDIR=${4}
 BASENAME=$(basename ${2})
 
-CURL_BINARY="/usr/bin/curl"
-GZIP_BINARY="/bin/gzip"
+if [ -x "/opt/rudder/bin/curl" ]; then
+  CURL_BINARY="/opt/rudder/bin/curl"
+else
+  CURL_BINARY="/usr/bin/curl"
+fi
 # Maximum number of minute to wait before assuming the signature is missing
 MAX_SIGNATURE_WAIT=1
 
@@ -66,7 +69,7 @@ fi
 #    ${VARIABLE##*.} extracts the file extension
 if [ "${BASENAME##*.}" = "gz" ]
 then
-  ${GZIP_BINARY} --force --quiet --decompress ${FILENAME}
+  gzip --force --quiet --decompress ${FILENAME}
   UNZIP_COMMAND_RET=$?
   if [ $UNZIP_COMMAND_RET -ne 0 ]
   then

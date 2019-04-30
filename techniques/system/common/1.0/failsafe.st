@@ -28,6 +28,9 @@ body common control
         output_prefix      => "rudder";
 
         protocol_version   => "2";
+
+        # force tls1.2
+        tls_min_version => "1.2";
 }
 
 bundle common g

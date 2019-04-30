@@ -56,11 +56,6 @@ bundle common g
     aix::
 
       "gzip"                       string => "/usr/bin/gzip";
-      "inventory_upload_protocol"  string => "http";
-
-    !aix::
-
-      "inventory_upload_protocol"  string => "https";
 
     any::
       "gzip"                       string => "/bin/gzip";

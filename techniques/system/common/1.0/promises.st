@@ -53,6 +53,9 @@ body common control
           "rudder-directives.cf"
         };
 
+        # force tls1.2
+        tls_min_version => "1.2";
+
         bundlesequence => { 
           @{va.common_bs},
           @{va.specific_bs},

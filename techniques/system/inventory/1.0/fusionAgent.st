@@ -139,7 +139,7 @@ bundle agent download_server_uuid
   vars:
 
     # curl should always be available now
-      "download_command"   string => "${g.rudder_curl} -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" ${g.inventory_upload_protocol}://${server_info.policy_server}/uuid";
+      "download_command"   string => "${g.rudder_curl} --tlsv1.2 -L -k -1 -s -f --proxy '' -o \"${sys.workdir}/rudder-server-uuid.txt\" https://${server_info.policy_server}/uuid";
 
   methods:
     could_not_download_uuid::
@@ -277,20 +277,16 @@ bundle agent sendInventory
 {
 
   vars:
-    !curl_installed::
-      "protocol"                  string => "http";
-    curl_installed::
-      "protocol"                  string => "${g.inventory_upload_protocol}";
     initial_promises::
-      "download_endpoint"         string => "${protocol}://${server_info.policy_server}/inventories/";
+      "download_endpoint"         string => "https://${server_info.policy_server}/inventories/";
       "min_resend_delay"          string => "15";
     !initial_promises::
-      "download_endpoint"         string => "${protocol}://${server_info.policy_server}/inventory-updates/";
+      "download_endpoint"         string => "https://${server_info.policy_server}/inventory-updates/";
       "min_resend_delay"          string => "480";
 
     any::
     # curl is always available now
-      "download_command_prefix"   string => "${g.rudder_curl} -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
+      "download_command_prefix"   string => "${g.rudder_curl} --tlsv1.2 -L -k -1 -f -s --proxy '' --user ${g.davuser}:${g.davpw} -T";
       "download_command_suffix"   string => "${download_endpoint}";
 
   classes:
@@ -298,7 +294,6 @@ bundle agent sendInventory
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
-      "http_only" expression => strcmp("${protocol}", "http");
 
   files:
     any::
@@ -335,8 +330,6 @@ bundle agent sendInventory
 
     pass3.cant_delete_inventory_file::
       "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Could not delete inventory file after sending to server");
-    pass3.http_only::
-      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Inventory sent via HTTP without TLS");
 
 }
 body file_select fusion_by_name_old(names,days)
