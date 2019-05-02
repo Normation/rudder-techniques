@@ -51,7 +51,7 @@ bundle agent root_component_check
 
       "service[rudder_reports][name]"                  string => "postgresql";
       "service[rudder_reports][binary]"                string => "postgres:.*writer";
-      "service[rudder_reports][service]"               string => "${postgresql_service_name}"";
+      "service[rudder_reports][service]"               string => "${postgresql_service_name}";
 
       "service[apache][name]"                          string => "apache";
       "service[apache][binary]"                        string => "${apache_dist_specific_name}";
