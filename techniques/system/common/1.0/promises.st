@@ -50,7 +50,6 @@ body common control
         inputs => {
           @{va.inputs_list},
           "rudder-system-directives.cf",
-          "rudder-directives.cf"
         };
 
         # force tls1.2
