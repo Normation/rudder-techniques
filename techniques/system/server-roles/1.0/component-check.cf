@@ -49,6 +49,18 @@ bundle agent root_component_check
           "Relayd service configuration", "None", "Checking relayd configuration is unnecessary on this machine, skipping."
         );
 
+    # Check that Postgresql is up and running before checking its password
+    role_rudder_reports::
+      "any" usebundle => root_postgres_check;
+      "any" usebundle => rudder_generic_service("postgresql", "${postgresql_service_name}");
+
+    !role_rudder_reports::
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
+          "Check PostgreSQL configuration", "None", "Checking PostgreSQL configuration is unnecessary on this machine, skipping."
+        );
+      "any" usebundle => rudder_generic_service_na("postgresql");
+
+
     # This is to be done only if the package rudder-server-root is present
     role_rudder_server_root::
       # Password management is expected to be done manually in case of a splitted/relayed installation for now.
@@ -119,13 +131,4 @@ bundle agent root_component_check
     !role_rudder_inventory_ldap::
       "any" usebundle => rudder_generic_service_na("slapd");
 
-    role_rudder_reports::
-      "any" usebundle => root_postgres_check;
-      "any" usebundle => rudder_generic_service("postgresql", "${postgresql_service_name}");
-
-    !role_rudder_reports::
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
-          "Check PostgreSQL configuration", "None", "Checking PostgreSQL configuration is unnecessary on this machine, skipping."
-        );
-      "any" usebundle => rudder_generic_service_na("postgresql");
 }
