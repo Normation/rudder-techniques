@@ -211,7 +211,8 @@ bundle agent update_action
         comment => "Make sure the ncf directory exists";
 
     # check if new promises are available
-    !root_server::
+    # ncf_only is used to update only ncf and nothing that could be private (this can be used when an agent is not yet registered)
+    !root_server.!ncf_only::
       "${client_inputs}/${rudder_promises_timestamp_tmp}"
         copy_from         => remote_unsecured_without_perms("${server_info.policy_server}","${server_inputs}/${rudder_promises_timestamp}"),
         action            => immediate,
@@ -219,7 +220,7 @@ bundle agent update_action
         classes           => success("rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept");
 
     # The defined class are persistent, so if they are already set, promises has already been updated a short while ago
-    new_promises_available.!root_server::
+    new_promises_available.!root_server.!ncf_only::
       "${client_inputs}"
         copy_from         => remote("${server_info.policy_server}","${server_inputs}"),
         depth_search      => recurse("inf"),
@@ -286,7 +287,7 @@ bundle agent update_action
         comment           => "Update the local Rudder ncf instance";
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
-    new_promises_available.!root_server.no_update::
+    new_promises_available.!root_server.no_update.!ncf_only::
       "${client_inputs}/${rudder_promises_timestamp}"
         delete  => tidy,
         comment => "Deleting ${rudder_promises_timestamp} as the policy files couldn't be downloaded";
@@ -301,14 +302,14 @@ bundle agent update_action
         delete  => tidy,
         comment => "Deleting ${g.rudder_ncf_hash_file} as custom ncf files couldn't be downloaded";
 
-    root_server|(rudder_promises_generated_tmp_file_kept|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error)::
+    root_server|(rudder_promises_generated_tmp_file_kept|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error).!ncf_only::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
 
     # Copy the tools only if the file rudder_tools_updated is not up to date
-    !policy_server::
+    !policy_server.!ncf_only::
       "${g.rudder_tools}/${rudder_tools_updated_tmp}"
         copy_from         => remote_unsecured_without_perms("${server_info.policy_server}", "${g.rudder_tools_updated_origin}"),
         action            => immediate,
@@ -317,7 +318,7 @@ bundle agent update_action
         comment           => "Check if we need to update the tools";
 
     # We copy only if we have new tools based on the timestamp
-    !policy_server.new_tools_available::
+    !policy_server.new_tools_available.!ncf_only::
       "${g.rudder_tools}"
         copy_from         => remote_unsecured("${server_info.policy_server}", "${g.rudder_tools_origin}"),
         depth_search      => recurse_ignore("inf", @{g.excludedreps}),
@@ -328,7 +329,7 @@ bundle agent update_action
         comment           => "Update the Rudder tools";
 
     # If we couldn't update the tools, then we must force a copy at next run
-    rudder_tools_update_error::
+    rudder_tools_update_error.!ncf_only::
       "${g.rudder_tools_updated}"
         delete => tidy,
         comment => "Deleting ${g.rudder_tools_updated} as the tools couldn't be updated";
@@ -372,7 +373,7 @@ bundle agent update_action
 *********************************************************************************"
       action => immediate;
 
-     !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error)::
+     !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error).!ncf_only::
        "*********************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by:                                                        *
