@@ -93,20 +93,12 @@ bundle agent init_files
     community_edition::
       "cfengine_install_path" string => "${g.rudder_base}";
 
-  classes:
-      "missing_key" not => fileexists("${sys.workdir}/ppkeys/localhost.priv");
-
   files:
     community_edition::
       "${sys.workdir}/bin/${components}"
         perms     => u_p("755"),
         copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
         action    => immediate;
-
-
-  commands:
-    missing_key::
-      "${sys.workdir}/bin/cf-key";
 }
 
 
