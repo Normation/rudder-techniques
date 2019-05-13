@@ -22,7 +22,7 @@
 
 body common control
 {
-        bundlesequence     => { "check_uuid", "init_files", "update_action" };
+        bundlesequence     => { "check_uuid", "update_action" };
 
         inputs             => { "common/1.0/common.cf", "common/1.0/update.cf" };
         output_prefix      => "rudder";
@@ -81,26 +81,6 @@ bundle common rudder_roles
 }
 
 ############################################
-
-#generate a key if not present
-bundle agent init_files
-{
-  vars:
-      "components"            slist  => { "cf-agent", "cf-serverd", "cf-execd", "cf-promises", "cf-runagent", "cf-key" };
-
-    enterprise_edition::
-      "cfengine_install_path" string => "/usr/local";
-    community_edition::
-      "cfengine_install_path" string => "${g.rudder_base}";
-
-  files:
-    community_edition::
-      "${sys.workdir}/bin/${components}"
-        perms     => u_p("755"),
-        copy_from => cp("${cfengine_install_path}/bin/${components}","localhost"),
-        action    => immediate;
-}
-
 
 body depth_search recurse(d)
 {

@@ -111,14 +111,12 @@ bundle common va
         "root_component_check",
 &endif&
 
-        # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
-        "check_binaries_freshness",
       };
 
     !policy_server::
 
       # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
-      "specific_bs" slist => { "check_binaries_freshness" };
+      "specific_bs" slist => { };
 
     !enterprise_edition::
       "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
@@ -551,44 +549,6 @@ bundle agent garbage_collection
         comment     => "Rotate file if above specified size",
         rename      => rotate("10"),
         file_select => bigger_than("1M");
-
-}
-
-#######################################################
-# Copy the CFEngine binaries from the /opt repository
-# to the CFEngine working directory
-
-bundle agent check_binaries_freshness
-{
-  vars:
-
-    community_edition::
-
-      "components" slist => { "cf-agent", "cf-serverd", "cf-execd", "cf-promises", "cf-runagent", "cf-key", "rpmvercmp" };
-
-  files:
-
-    !enterprise_edition::
-      "${sys.workdir}/bin/${components}"
-        perms => m("755"),
-        copy_from => cp("${g.rudder_bin}/${components}", "localhost"),
-        classes => kept_if_else("binaries_fresh", "binaries_rotten", "binaries_missing"),
-        action => immediate,
-        comment => "Copying the CFEngine binaries from ${g.rudder_sbin}/sbin to ${sys.workdir}/bin";
-
-  methods:
-
-    binaries_fresh.!binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Binaries update", "None", "The agent binaries in ${sys.workdir}/bin are up to date");
-
-    binaries_rotten.!binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "${system_common.directiveId}", "Binaries update", "None", "The agent binaries have been updated in ${sys.workdir}/bin");
-
-    binaries_missing::
-      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Binaries update", "None", "An error occurred while updating the agent binaries in ${sys.workdir}/bin");
-
-    enterprise_edition::
-      "any" usebundle => rudder_common_report("Common", "result_na", "${system_common.directiveId}", "Binaries update", "None", "This is an CFEngine enterprise system: binaries update are handled differently");
 
 }
 
