@@ -46,17 +46,12 @@ bundle agent execute_file_download_RudderUniqueID
       "index" slist => getindices("destination");
 
     # If curl is here, use it
-    !windows.curl_installed::
+    curl_installed::
       "download_command[${index}]" string => "${g.rudder_curl} -L -f --proxy '' -o \"${destination[${index}]}\" ${source[${index}]}";
 
     # If no curl is present, fallback to minicurl
-    !windows.!curl_installed::
+    !curl_installed::
       "download_command[${index}]" string => "${g.minicurl} --get --file \"${destination[${index}]}\" --url ${source[${index}]}";
-
-    # Windows always use curl
-    windows::
-      "download_command[${index}]" string => "\"${g.rudder_curl}\" -L -f --proxy '' -o \"${destination[${index}]}\" ${source[${index}]}";
-
 
   classes:
       "file_not_found_${index}" not => fileexists("${destination[${index}]}");
@@ -67,7 +62,7 @@ bundle agent execute_file_download_RudderUniqueID
       "pass1" expression => "any";
 
   files:
-    !windows.pass2::
+    pass2::
       "${destination[${index}]}"
         pathtype => "literal", 	# force literal interpretation
         perms    => mog("${mode[${index}]}","${user[${index}]}","${group[${index}]}"),
@@ -89,14 +84,11 @@ bundle agent execute_file_download_RudderUniqueID
            ifvarclass => "file_download_${index}_RudderUniqueID_error";
 
     # File permissions part
-    pass3.!windows::
+    pass3::
       "any" usebundle => rudder_common_reports_generic("downloadFile", "file_download_perms_${index}_RudderUniqueID", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "Permissions on file ${source[${index}]}");
 
       "any" usebundle => rudder_common_report("downloadFile", "result_error", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "The file ${source[${index}]} was could not be downloaded"),
            ifvarclass => "!file_download_perms_${index}_RudderUniqueID_reached";
-
-    pass3.windows::
-      "any" usebundle => rudder_common_report("downloadFile", "result_na", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "This is a windows machine. The ${source[${index}]} file permissions will not be altered.");
 
   commands:
       "${download_command[${index}]}"

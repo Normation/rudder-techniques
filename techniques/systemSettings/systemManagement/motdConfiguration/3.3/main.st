@@ -37,7 +37,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
     !debian::
       "rudder_motd_file"         slist => { "/etc/motd" };
 
-    pass2.set_banner.!(windows|android)::
+    pass2.set_banner::
       "banner_files"             slist => { "/etc/issue", "/etc/issue.net" };
 
     pass2::
@@ -55,7 +55,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
 
   files:
     # Set every MOTD file to the wanted value
-    pass2.!windows::
+    pass2::
       "${rudder_motd_issue_files}"
         create        => "true",
         edit_defaults => rudder_empty_select("${rudder_motd_empty}"),
@@ -65,7 +65,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
 
   methods:
     # Here, we will define reports for elements which only have a local visibility (like the MOTD file presence detection).
-    pass2.!windows.rudder_motd_absent::
+    pass2.rudder_motd_absent::
       "any"
         usebundle  => rudder_common_report("${service_name}", "log_repaired", "${trackingkey}", "MOTD Configuration", "None", "The ${service_name} file was absent, it will be created");
 }

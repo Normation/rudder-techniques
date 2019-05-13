@@ -651,14 +651,6 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
           "The keys for user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} cannot be flushed - a key is not compliant for a directive in audit mode"
         ),
         ifvarclass => "ssh_key_distribution_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_prevent_flush.ssh_key_distribution_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_to_flush";
-
-    windows::
-      "No Windows Support Report" usebundle     => rudder_common_report(
-          "${technique_name}", "${error[${audit_mode[${bundles}]}]}",
-          "${${bundles}.sshkey_distribution_uuid[${array[${bundles}]}]}", "${component_name}", "${${bundles}.sshkey_distribution_tag[${array[${bundles}]}]}",
-          "Unable to manage keys for user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}; this Technique does not support Windows"
-        );
-
 }
 
 ########################################################
