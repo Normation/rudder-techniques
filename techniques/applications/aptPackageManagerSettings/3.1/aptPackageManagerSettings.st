@@ -52,59 +52,65 @@ bundle agent check_apt_settings
     ubuntu_karmic|ubuntu_9_10::
       "apt_detected_distro" string => "karmic";
 
-    ubuntu_lucid|ubuntu_10_4::
+    ubuntu_lucid|ubuntu_10_4|ubuntu_10_04::
       "apt_detected_distro" string => "lucid";
 
     ubuntu_maverick|ubuntu_10_10::
       "apt_detected_distro" string => "maverick";
 
-    ubuntu_natty|ubuntu_11_4::
+    ubuntu_natty|ubuntu_11_4|ubuntu_11_04::
       "apt_detected_distro" string => "natty";
 
     ubuntu_oneiric|ubuntu_11_10::
       "apt_detected_distro" string => "oneiric";
 
-    ubuntu_precise|ubuntu_12_4::
+    ubuntu_precise|ubuntu_12_4|ubuntu_12_04::
       "apt_detected_distro" string => "precise";
 
     ubuntu_quantal|ubuntu_12_10::
       "apt_detected_distro" string => "quantal";
 
-    ubuntu_raring|ubuntu_13_4::
+    ubuntu_raring|ubuntu_13_4|ubuntu_13_04::
       "apt_detected_distro" string => "raring";
 
     ubuntu_saucy|ubuntu_13_10::
       "apt_detected_distro" string => "saucy";
 
-    ubuntu_trusty|ubuntu_14_4::
+    ubuntu_trusty|ubuntu_14_4|ubuntu_14_04::
       "apt_detected_distro" string => "trusty";
 
     ubuntu_utopic|ubuntu_14_10::
       "apt_detected_distro" string => "utopic";
 
-    ubuntu_vivid|ubuntu_15_4::
+    ubuntu_vivid|ubuntu_15_4|ubuntu_15_04::
       "apt_detected_distro" string => "vivid";
 
     ubuntu_willy|ubuntu_15_10::
       "apt_detected_distro" string => "willy";
 
-    ubuntu_xenial|ubuntu_16_4::
+    ubuntu_xenial|ubuntu_16_4|ubuntu_16_04::
       "apt_detected_distro" string => "xenial";
 
     ubuntu_yakkety|ubuntu_16_10::
       "apt_detected_distro" string => "yakkety";
 
-    ubuntu_zesty|ubuntu_17_4::
+    ubuntu_zesty|ubuntu_17_4|ubuntu_17_04::
       "apt_detected_distro" string => "zesty";
 
     ubuntu_artful|ubuntu_17_10::
       "apt_detected_distro" string => "artful";
 
-    ubuntu_bionic|ubuntu_18_4::
+    ubuntu_bionic|ubuntu_18_4|ubuntu_18_04::
       "apt_detected_distro" string => "bionic";
 
     ubuntu_cosmic|ubuntu_18_10::
       "apt_detected_distro" string => "cosmic";
+
+    ubuntu_disco|ubuntu_19_4|ubuntu_19_04::
+      "apt_detected_distro" string => "disco";
+
+    ubuntu_eoan|ubuntu_19_10::
+      "apt_detected_distro" string => "eoan";
 
     apt_installrecommends_edit::
 
