@@ -658,7 +658,7 @@ body executor control
         schedule         => { &AGENT_RUN_SCHEDULE& };
         executorfacility => "LOG_DAEMON";
 
-        exec_command => "${sys.cf_agent} -f failsafe.cf ; ${sys.cf_agent}";
+        exec_command => "${g.rudder_command} agent run -uR";
 }
 
 ########################################################
