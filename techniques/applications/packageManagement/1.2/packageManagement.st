@@ -94,12 +94,6 @@ bundle agent package_management_RudderUniqueID {
                                         ifvarclass => "apt_allow_untrusted_${index_pkg}";
       "manager_final_options[${index_pkg}]" string => "${manager_options[${index_pkg}]}",
                                         ifvarclass => "!apt_allow_untrusted_${index_pkg}";
-
-      # Message for old agents
-      "incompatible_error" string => "This technique is not compatible with Rudder 3.1 or older. Skipping.";
-
-      # Name of the ncf bundle. We use a variable to avoid breaking the syntax if the bundle does not exist.
-      "bundle_name" string => "package_state_options";
    
   classes:
       # This class is different from the one in ncf (where a version number and latest are considered "specified")
@@ -118,15 +112,10 @@ bundle agent package_management_RudderUniqueID {
       "pass1" expression => "any";
 
   methods:
-    # 3.2 does not support agents older than 2.11, hence CFEngine 3.6
-    pass2.cfengine_3_6::
-      "report_${index_pkg}" usebundle  => rudder_common_report("packageManagement", "result_error", "${trackingkey[${index_pkg}]}", "Package", "${package[${index_pkg}]}", "${incompatible_error}");
-      "report_${index_pkg}" usebundle  => rudder_common_report("packageManagement", "result_error", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "${incompatible_error}");
-
     # The pass2 is not strictly necessary but prevent future issues if the behavior of pre-evaluation changes (because the evaluation of vars + classes takes 2 passes)
-    pass2.!cfengine_3_6::
+    pass2::
       # Package
-      "package_${index_pkg}" usebundle => ${bundle_name}("${package[${index_pkg}]}", "${version[${index_pkg}]}", "${architecture[${index_pkg}]}", "${manager[${index_pkg}]}", "${state[${index_pkg}]}", "${manager_final_options[${index_pkg}]}");
+      "package_${index_pkg}" usebundle => package_state_options("${package[${index_pkg}]}", "${version[${index_pkg}]}", "${architecture[${index_pkg}]}", "${manager[${index_pkg}]}", "${state[${index_pkg}]}", "${manager_final_options[${index_pkg}]}");
 
       "report_${index_pkg}" usebundle => rudder_common_reports_generic_index("packageManagement", "${class_prefix_package[${index_pkg}]}", "${trackingkey[${index_pkg}]}", "Package", "${package[${index_pkg}]}", "${state_description[${index_pkg}]} of package ${package[${index_pkg}]}${architecture_description[${index_pkg}]}${version_description[${index_pkg}]}", "${index_pkg}");
 

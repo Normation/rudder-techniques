@@ -91,15 +91,8 @@ bundle agent check_cron_configuration_RudderUniqueID
         classes       => rudder_common_classes("cron_file_${cron_index}_RudderUniqueID");
 
   methods:
-    pass3.!windows::
+    pass3::
     # Reports about the creation of the cron entries
 
       "any" usebundle => rudder_common_reports_generic_index("cronConfiguration", "cron_file_${cron_index}_RudderUniqueID", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} ", "${cron_index}");
-
-
-    pass3.windows::
-
-      "any" usebundle => rudder_common_report_index("cronConfiguration", "result_error", "${cron_uuid[${cron_index}]}", "cronConfiguration", "None", "This is a Windows machine. This Technique currently incompatible with it", "${cron_index}");
-
-
 }

@@ -47,7 +47,7 @@ bundle agent root_logrotate_check
     debian|ubuntu::
       "service_restart_utility" string => "/usr/sbin/service";
 
-    debian.!debian_5.!debian_6::
+    debian::
       "syslog_rotation_method"  string => "rotate";
 
   classes:

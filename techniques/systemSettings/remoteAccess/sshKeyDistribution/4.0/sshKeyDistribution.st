@@ -104,7 +104,7 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
       "home_directory_${sshkey_distribution_index}_exists" expression => isdir("${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}");
 
   files:
-    pass2.!windows::
+    pass2::
       # if home dir doesn't exist, create it with correct permission
       "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}/."
         create        => "true",
@@ -134,7 +134,7 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
 
 
   methods:
-    pass2.!windows::
+    pass2::
       "SSH Key Report"
         usebundle     => rudder_common_reports_generic(
           "${technique_name}", "${key_class_prefix[${sshkey_distribution_index}]}_RudderUniqueID",
@@ -166,14 +166,6 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
           "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, and the SSH key format is wrong"
         ),
         ifvarclass    => "!ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists.!correct_ssh_key_format_${sshkey_distribution_index}";
-
-    windows::
-      "No Windows Support Report"
-        usebundle     => rudder_common_report(
-          "${technique_name}", "result_error",
-          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
-          "Unable to add a SSH key for ${sshkey_distribution_name[${sshkey_distribution_index}]}: This Technique does not support Windows"
-        );
 }
 
 # authorized_keys file contains one line per key, in the following format:
