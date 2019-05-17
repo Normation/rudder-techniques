@@ -133,7 +133,7 @@ bundle agent doInventory_always
     pass3.inventory_sent::
       "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "An inventory was already sent less than 8 hours ago");
 
-    pass3.!(Night.splaying).!force_inventory::
+    pass3.!inventory_time.!force_inventory::
       "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "inventory", "None", "Next inventory scheduled between 00:00 and 06:00");
 
 }
