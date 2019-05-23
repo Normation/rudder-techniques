@@ -63,7 +63,10 @@ bundle common server_info
     #This part work, because for some reason, the evaluation converge in one pass, and allows to have
     # the correct value in policy_server value. In verbose output, policy_server_file_exists is defined first
     policy_server_file_exists::
-      "policy_server" string => readfile("${policy_server_file}", 2048);
+      "policy_server_temp" string => readfile("${policy_server_file}", 2048);
+       # trim space in poilcy_server.dat
+      "policy_server"      string => regex_replace("${policy_server_temp}", " ", "", "");
+
 
     !policy_server_file_exists::
       # Use "" as default policy_server if no policy_server.dat exists
