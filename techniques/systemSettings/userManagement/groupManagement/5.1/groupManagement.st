@@ -84,7 +84,7 @@ bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, c
         "/etc/group"
             edit_line     => groups_file_set_RudderUniqueID("${name}", "@(check_usergroup_group_parameters_grouphandle_RudderUniqueID.userlist)"),
             edit_defaults => noempty_backup,
-            classes       => rudder_common_classes("groupmanagement_group_add_${index}_RudderUniqueID"),
+            classes       => classes_generic("groupmanagement_group_add_${index}_RudderUniqueID"),
             ifvarclass    => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_RudderUniqueID_repaired)",
             comment       => "Set users on the group ${name} only if the group is already present";
 
@@ -92,7 +92,7 @@ bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, c
         "/etc/group"
             edit_line     => append_user_field("${name}", "4", "@(check_usergroup_group_parameters_grouphandle_RudderUniqueID.userlist)"),
             edit_defaults => noempty_backup,
-            classes       => rudder_common_classes("groupmanagement_group_add_${index}_RudderUniqueID"),
+            classes       => classes_generic("groupmanagement_group_add_${index}_RudderUniqueID"),
             ifvarclass    => "!groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_RudderUniqueID_repaired)",
             comment       => "Append users on the group ${name} only if the group is already present";
 
@@ -100,7 +100,7 @@ bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, c
         "/etc/group"
             create     => "false",
             edit_line  => set_user_field("${name}", 3, "${gid}"),
-            classes    => rudder_common_classes("groupmanagement_group_gid_${index}_RudderUniqueID"),
+            classes    => classes_generic("groupmanagement_group_gid_${index}_RudderUniqueID"),
             ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
 
 

@@ -82,7 +82,7 @@ bundle agent monitor_partition_size_RudderUniqueID {
 
     commands:
         "${partition[${index}][repaired_cmd]}"
-            classes => rudder_common_classes("monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID"),
+            classes => classes_generic("monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID"),
             contain => in_shell,
             ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_partition_${index}_RudderUniqueID_full";
 

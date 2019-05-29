@@ -47,13 +47,13 @@ bundle agent file_alteration_monitor_RudderUniqueID
 
       "${monitor_entity[${index}][name]}"
         changes      => detect_all_change,
-        classes      => rudder_common_classes("file_alteration_monitor_${index}_RudderUniqueID"),
+        classes      => classes_generic("file_alteration_monitor_${index}_RudderUniqueID"),
         depth_search => recurse("inf"),
         ifvarclass   => "isdir_${index}";
 
       "${monitor_entity[${index}][name]}"
         changes      => detect_all_change,
-        classes      => rudder_common_classes("file_alteration_monitor_${index}_RudderUniqueID"),
+        classes      => classes_generic("file_alteration_monitor_${index}_RudderUniqueID"),
         ifvarclass   => "isfile_${index}";
 
   methods:

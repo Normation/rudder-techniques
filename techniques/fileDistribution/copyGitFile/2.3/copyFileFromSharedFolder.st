@@ -142,7 +142,7 @@ bundle agent download_from_shared_folder_RudderUniqueID
                             "${copyfile[${index}][group]}"
                            ),
         comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
-        classes      => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
+        classes      => classes_generic("copy_file_${index}_RudderUniqueID"),
         ifvarclass   => "(!exist_${index}|!is_file_${index}).!apply_regex_${index}";
 
        # If it's a directory, with exclusion
@@ -156,7 +156,7 @@ bundle agent download_from_shared_folder_RudderUniqueID
                             "${copyfile[${index}][group]}"
                            ),
         comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method",
-        classes      => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
+        classes      => classes_generic("copy_file_${index}_RudderUniqueID"),
         ifvarclass   => "(!exist_${index}|!is_file_${index}).need_exclusion_${index}";
 
        # If it's a directory, with inclusion
@@ -170,7 +170,7 @@ bundle agent download_from_shared_folder_RudderUniqueID
                             "${copyfile[${index}][group]}"
                            ),
         comment      => "Enforce content of ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method with inclusion of '${copyfile[${index}][exclude_include]}'",
-        classes      => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
+        classes      => classes_generic("copy_file_${index}_RudderUniqueID"),
         ifvarclass   => "(!exist_${index}|!is_file_${index}).need_inclusion_${index}";
 
     # If it s a file, the depth_search prevents from enforcing the file content
@@ -186,7 +186,7 @@ bundle agent download_from_shared_folder_RudderUniqueID
                           "${copyfile[${index}][group]}"
                          ),
         comment    => "Enforce content of file ${copyfile[${index}][destination]} based on the content on the Rudder server with ${copyfile[${index}][compare_method]} method with exclusion of '${copyfile[${index}][exclude_include]}'",
-        classes    => rudder_common_classes("copy_file_${index}_RudderUniqueID"),
+        classes    => classes_generic("copy_file_${index}_RudderUniqueID"),
         ifvarclass => "exist_${index}.is_file_${index}";
 
   methods:

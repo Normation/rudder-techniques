@@ -508,13 +508,13 @@ bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
     # to move, we delete from everywhere, and add it back in the proper location
     section_edition.migrate_to_zone.edit_section_valid::
       "${section_delimiters}"
-        classes => rudder_common_classes("delete_out_of_zone_section_${index}_RudderUniqueID"),
+        classes => classes_generic("delete_out_of_zone_section_${index}_RudderUniqueID"),
         comment => "Removing matched lines out of zone ...";
 
     # remove line out of zone if we decide to do so
     edit_content.migrate_to_zone.pass_two::
       "${escaped_content[${content_line_index}]}"
-        classes => rudder_common_classes("delete_out_of_zone_content_${index}_RudderUniqueID"),
+        classes => classes_generic("delete_out_of_zone_content_${index}_RudderUniqueID"),
         comment => "Removing matched lines out of zone ...";
 
   insert_lines:

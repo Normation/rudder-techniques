@@ -80,7 +80,7 @@ bundle agent check_cron_configuration_RudderUniqueID
         perms         => mog("644", "root", "0"),
         edit_line     => insert_lines("${${cron_index}_cron_parameter} ${cron_command[${cron_index}]}"),
         ifvarclass    => "${cron_index}_manual",
-        classes       => rudder_common_classes("cron_file_${cron_index}_RudderUniqueID");
+        classes       => classes_generic("cron_file_${cron_index}_RudderUniqueID");
 
       "/etc/cron.${cron_frequency[${cron_index}]}/${cron_name[${cron_index}]}"
         create        => "true",
@@ -88,7 +88,7 @@ bundle agent check_cron_configuration_RudderUniqueID
         perms         => mog("755", "root", "0"),
         edit_line     => insert_lines("${cron_command[${cron_index}]}"),
         ifvarclass    => "!${cron_index}_manual",
-        classes       => rudder_common_classes("cron_file_${cron_index}_RudderUniqueID");
+        classes       => classes_generic("cron_file_${cron_index}_RudderUniqueID");
 
   methods:
     pass3::

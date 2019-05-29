@@ -227,13 +227,13 @@ bundle agent sendInventoryToCmdb
 
       "${incoming_inventory_files}"
         transformer => "${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        classes => rudder_common_classes("rudder_inventory_processing"),
+        classes => classes_generic("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
       "${updates_inventory_files}"
         transformer => "${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        classes => rudder_common_classes("rudder_inventory_processing"),
+        classes => classes_generic("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
@@ -243,14 +243,14 @@ bundle agent sendInventoryToCmdb
         transformer => "${g.rudder_curl} --tlsv1.2 --insecure --fail --silent --proxy '' --user rudder:rudder --upload-file ${this.promiser} https://${server_info.policy_server}/inventories/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
-        classes => rudder_common_classes("rudder_inventory_relay"),
+        classes => classes_generic("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "${g.rudder_curl} --tlsv1.2 --insecure --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${this.promiser} https://${server_info.policy_server}/inventory-updates/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
-        classes => rudder_common_classes("rudder_inventory_relay"),
+        classes => classes_generic("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
     !disable_upload.policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_relay_error::
@@ -259,14 +259,14 @@ bundle agent sendInventoryToCmdb
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
-        classes => rudder_common_classes("rudder_inventory_cleanup"),
+        classes => classes_generic("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "/bin/rm -f ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
-        classes => rudder_common_classes("rudder_inventory_cleanup"),
+        classes => classes_generic("rudder_inventory_cleanup"),
         comment => "Purging the received inventory files after processing";
 
   methods:

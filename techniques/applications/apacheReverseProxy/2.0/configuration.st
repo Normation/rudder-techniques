@@ -59,7 +59,7 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
         create        => "true",
         edit_defaults => empty_backup,
         edit_line     => insert_proxy_entries("${rudder_reverse_proxy_apache_proxies}"),
-        classes       => rudder_common_classes("rudder_reverse_proxy_apache_configuration"),
+        classes       => classes_generic("rudder_reverse_proxy_apache_configuration"),
         comment       => "Edit the Apache reverse proxy file";
 
   # Class visibility forces us to use these bundles here.
@@ -108,13 +108,13 @@ bundle agent rudder_reverse_proxy_apache_configuration(service_name, internal_na
 
     debian::
       "/usr/sbin/a2enmod ${rudder_reverse_proxy_apache_debian_modules}"
-        classes    => rudder_common_classes("rudder_reverse_proxy_apache_modules"),
+        classes    => classes_generic("rudder_reverse_proxy_apache_modules"),
         ifvarclass => "!rudder_reverse_proxy_apache_mod_${rudder_reverse_proxy_apache_debian_modules}_loaded",
         comment    => "Enable Apache modules on Debian";
 
     rudder_reverse_proxy_apache_selinux_adjust.!rudder_reverse_proxy_apache_selinux_proxy_policy::
       "/usr/sbin/setsebool httpd_can_network_relay on"
-        classes => rudder_common_classes("rudder_reverse_proxy_apache_selinux"),
+        classes => classes_generic("rudder_reverse_proxy_apache_selinux"),
         comment => "Enable SELinux Apache entry to let Apache proxy entries";
 
 }

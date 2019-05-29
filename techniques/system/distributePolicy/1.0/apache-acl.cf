@@ -49,7 +49,7 @@ bundle agent apache_acl
         create        => "true",
         perms         => mog("600", "root", "0"),
         copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
-        classes       => rudder_common_classes("rudder_apache_acl"),
+        classes       => classes_generic("rudder_apache_acl"),
         comment       => "Writing rudder apache ACL";
 
   methods:

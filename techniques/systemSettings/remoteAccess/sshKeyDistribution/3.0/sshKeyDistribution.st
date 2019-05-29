@@ -106,7 +106,7 @@ bundle agent check_ssh_key_distribution
         edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
         perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
         edit_line     => append_or_replace_ssh_key("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
-        classes       => rudder_common_classes("${key_class_prefix[${sshkey_distribution_index}]}"),
+        classes       => classes_generic("${key_class_prefix[${sshkey_distribution_index}]}"),
         ifvarclass    => concat(canonify("user_${sshkey_distribution_index}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}");
 
   methods:
