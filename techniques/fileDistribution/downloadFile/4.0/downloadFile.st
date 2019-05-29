@@ -71,7 +71,7 @@ bundle agent execute_file_download_RudderUniqueID
       "${destination[${index}]}"
         pathtype => "literal", 	# force literal interpretation
         perms    => mog("${mode[${index}]}","${user[${index}]}","${group[${index}]}"),
-        classes  => rudder_common_classes("file_download_perms_${index}_RudderUniqueID");
+        classes  => classes_generic("file_download_perms_${index}_RudderUniqueID");
 
   methods:
     # File downloading part
@@ -101,7 +101,7 @@ bundle agent execute_file_download_RudderUniqueID
   commands:
       "${download_command[${index}]}"
         comment => "Getting the file from the server",
-        classes => rudder_common_classes("file_download_${index}_RudderUniqueID"),
+        classes => classes_generic("file_download_${index}_RudderUniqueID"),
         ifvarclass => "file_not_found_${index}";
 
 }
