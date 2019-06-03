@@ -39,7 +39,7 @@ bundle agent rudder_reverse_proxy_apache_installation(service_name, internal_nam
       "${apache_package_name}"
         package_policy  => "add",
         package_method  => rudder_rug,
-        classes         => rudder_common_classes("rudder_reverse_proxy_apache_package"),
+        classes         => classes_generic("rudder_reverse_proxy_apache_package"),
         comment         => "Installing apache using the rug interface";
 
     !SuSE_10.rudder_reverse_proxy_apache_install_package::
@@ -47,7 +47,7 @@ bundle agent rudder_reverse_proxy_apache_installation(service_name, internal_nam
       "${apache_package_name}"
         package_policy  => "add",
         package_method  => generic,
-        classes         => rudder_common_classes("rudder_reverse_proxy_apache_package"),
+        classes         => classes_generic("rudder_reverse_proxy_apache_package"),
         comment         => "Installing apache using generic interface";
 
 }

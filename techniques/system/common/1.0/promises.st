@@ -360,26 +360,26 @@ bundle agent check_log_system
         edit_line => append_if_no_lines("#Rudder log system${const.n}${rsyslogd_message_reduction}${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'rudder' then ~${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ${rsyslog_rule_prefix}${server_info.policy_server}:&SYSLOGPORT&${const.n}if $syslogfacility-text == 'local6' and $programname startswith 'cf-agent' then ~"),
         create => "true",
         edit_defaults => empty_backup,
-        classes       => rudder_common_classes("rsyslog");
+        classes       => classes_generic("rsyslog");
 
     SuSE.rsyslogd_conffile_present.policy_server::
       # For SuSE, ensure that SYSLOG_DAEMON is set to 'rsyslogd' even if another syslog has been installed before
       "/etc/sysconfig/syslog"
         edit_line => ensure_rsyslogd_on_suse,
         edit_defaults => noempty_backup,
-        classes       => rudder_common_classes("rsyslog");
+        classes       => classes_generic("rsyslog");
 
     syslogng_conffile_present.!policy_server::
       "${syslogng_conffile}"
         edit_line => edit_syslog_conf_file("${syslog_ng_conf}", "${syslog_ng_conf_regex}"),
         edit_defaults => noempty_backup,
-        classes       => rudder_common_classes("syslog_ng");
+        classes       => classes_generic("syslog_ng");
 
     syslogd_conffile_present.!policy_server::
       "${syslog_conffile}"
         edit_line => fix_syslogd("@${server_info.policy_server}"),
         edit_defaults => noempty_backup,
-        classes       => rudder_common_classes("syslogd");
+        classes       => classes_generic("syslogd");
 
   methods:
 
@@ -442,7 +442,7 @@ bundle agent check_rsyslog_version {
         edit_defaults => noempty_backup,
         create    => "true",
         comment   => "Add a config line in the rsyslog.conf file to prevent from dropping rudder messages",
-        classes   => rudder_common_classes("rsyslog_limit");
+        classes   => classes_generic("rsyslog_limit");
 
   methods:
 

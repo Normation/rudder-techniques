@@ -60,7 +60,7 @@ bundle agent zypper_repositories_management
         perms         => m("644"),
         edit_line     => configure_zypper_repos("${zypper_name[${zypper_index}]}", "${zypper_url[${zypper_index}]}", "${zypper_enabled[${zypper_index}]}", "${zypper_type[${zypper_index}]}", "${zypper_autorefresh[${zypper_index}]}", "${this.promise_dirname}/zypper-repo.tml"),
         edit_defaults => empty_backup,
-        classes       => rudder_common_classes("zypper_repo_${zypper_index}");
+        classes       => classes_generic("zypper_repo_${zypper_index}");
 
     SuSE.zypper_disable_other_repositories::
 
@@ -68,7 +68,7 @@ bundle agent zypper_repositories_management
         delete       => tidy,
         file_select  => ex_list("@{zypper_files}"),
         depth_search => recurse("inf"),
-        classes      => rudder_common_classes("zypper_other_repos_disabled"),
+        classes      => classes_generic("zypper_other_repos_disabled"),
         comment      => "Delete the unwanted repos as requested";
 
   methods:

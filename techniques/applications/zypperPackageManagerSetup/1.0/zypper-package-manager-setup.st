@@ -43,7 +43,7 @@ bundle agent zypper_package_manager_setup
         perms         => mog("644", "root", "0"),
         edit_defaults => noempty_backup,
         edit_line     => set_variable_values_ini("zypper_package_manager_setup.zmdconf", "${zypper_sections}"),
-        classes       => rudder_common_classes("${class_prefix}");
+        classes       => classes_generic("${class_prefix}");
 
 
   methods:

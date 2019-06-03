@@ -126,21 +126,21 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
     # Directory
     "${file[${index}][path]}/."
       create     => "true",
-      classes    => rudder_common_classes("manageFolders_${index}_RudderUniqueID"),
+      classes    => classes_generic("manageFolders_${index}_RudderUniqueID"),
       comment    => "Enforcing the existance of folder ${file[${index}][path]}",
       ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createfile_${index}.manageFilesAndFolders_createdir_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
     # File
     "${file[${index}][path]}"
       create     => "true",
-      classes    => rudder_common_classes("manageFiles_${index}_RudderUniqueID"),
+      classes    => classes_generic("manageFiles_${index}_RudderUniqueID"),
       comment    => "Enforcing the existance of file ${file[${index}][path]}",
       ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
     # Local copy
     "${file[${index}][path]}"
       copy_from  => backup_local_cp("${file[${index}][source]}"),
-      classes    => rudder_common_classes("manageCp_${index}_RudderUniqueID"),
+      classes    => classes_generic("manageCp_${index}_RudderUniqueID"),
       ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.!manageFilesAndFolders_createfile_${index}).manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}",
       comment    => "Create ${file[${index}][path]} file as copy of ${file[${index}][source]}";
 
@@ -149,7 +149,7 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
       # create   => "true",
       link_from  => ln_s("${file[${index}][source]}"),
       move_obstructions => "${file[${index}][symlink_enforced]}",
-      classes    => rudder_common_classes("manageSyms_${index}_RudderUniqueID"),
+      classes    => classes_generic("manageSyms_${index}_RudderUniqueID"),
       ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.!manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_local_cp_${index}.manageFilesAndFolders_createsymlink_${index}",
       comment    => "Create the ${file[${index}][path]} symlink pointing to ${file[${index}][source]}";
 
@@ -157,53 +157,53 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
     ## With user and group
     "${file[${index}][path]}"
       perms      => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
-      classes    => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes    => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}";
     ## With user
     "${file[${index}][path]}"
       perms      => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
-      classes    => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes    => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}";
     ## With group
     "${file[${index}][path]}"
       perms      => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
-      classes    => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes    => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}";
     # Check the permissions recursively on a folder
     ## With user and group
     "${file[${index}][path]}"
       depth_search => recurse_withroot("${file[${index}][recursive]}"),
       perms        => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
-      classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes      => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_isfile_${index}.manageFilesAndFolders_isdir_${index}";
     ## With user
     "${file[${index}][path]}"
       depth_search => recurse_withroot("${file[${index}][recursive]}"),
       perms        => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
-      classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes      => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_isfile_${index}.manageFilesAndFolders_isdir_${index}";
     ## With group
     "${file[${index}][path]}"
       depth_search => recurse_withroot("${file[${index}][recursive]}"),
       perms        => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
-      classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes      => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_isfile_${index}.manageFilesAndFolders_isdir_${index}";
     # Check the permissions recursively on a file
     # Occurs when the recursive option is set, but in fact, we force a non recursive check due to an issue which prevents the check of a single file when using a recursive pattern.
     ## With user and group
     "${file[${index}][path]}"
       perms        => mog("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}", "${file[${index}][group]}"),
-      classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes      => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.manageFilesAndFolders_groupset_${index}.manageFilesAndFolders_isfile_${index}.!manageFilesAndFolders_isdir_${index}";
     ## With user
     "${file[${index}][path]}"
       perms        => mo("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][owner]}"),
-      classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes      => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_isfile_${index}.manageFilesAndFolders_isdir_${index}";
     ## With group
     "${file[${index}][path]}"
       perms        => mg("${extended_modes_${index}}${file[${index}][mode]}", "${file[${index}][group]}"),
-      classes      => rudder_common_classes("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
+      classes      => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_isfile_${index}.manageFilesAndFolders_isdir_${index}";
 
     # This will not delete the parent
@@ -212,7 +212,7 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
       file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
       ifvarclass   => "manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
       depth_search => recurse("0"),
-      classes      => rudder_common_classes("manageFilesAndFolders_delete_${index}_RudderUniqueID");
+      classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
     # This will not delete the parent
     "${file[${index}][path]}" 
@@ -220,14 +220,14 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
       file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
       depth_search => recurse("inf"),
       ifvarclass   => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_full_recursive_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
-      classes      => rudder_common_classes("manageFilesAndFolders_delete_${index}_RudderUniqueID");
+      classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
     # This WILL delete the parent
     "${file[${index}][path]}" 
       delete       => tidy,
       file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
       ifvarclass   => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
-      classes      => rudder_common_classes("manageFilesAndFolders_delete_${index}_RudderUniqueID");
+      classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
   methods:
 

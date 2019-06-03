@@ -61,7 +61,7 @@ bundle agent rudder_motd_configuration(class_prefix, service_name, trackingkey, 
         edit_defaults => rudder_empty_select("${rudder_motd_empty}"),
         perms         => mog("644", "root", "${rudder_motd_group}"),
         edit_line     => rudder_line_insertion("${rudder_motd_payload}", "${rudder_motd_location}"),
-        classes       => rudder_common_classes("${class_prefix}_file_edition");
+        classes       => classes_generic("${class_prefix}_file_edition");
 
   methods:
     # Here, we will define reports for elements which only have a local visibility (like the MOTD file presence detection).
