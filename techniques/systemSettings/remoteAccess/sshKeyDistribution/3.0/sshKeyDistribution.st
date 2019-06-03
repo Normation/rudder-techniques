@@ -60,6 +60,20 @@ bundle agent check_ssh_key_distribution
         string => execresult("${paths.echo} '${sshkey_distribution_key[${sshkey_distribution_index}]}' | ${paths.sed} -E 's/(.*\s+)?(${ssh_types})\s+(\S+)(\s.*)?/\3/'", "useshell"),
         ifvarclass => "correct_ssh_key_format_${sshkey_distribution_index}";
 
+
+      # Default home dir mode
+      "homedir_mode_to_use" string => "700";
+
+    etc_login_defs_exists::
+      # read the /etc/login.defs to get umask for home creation if home dir is not there
+      "nb_line_read" int => readstringarray("login_defs_content", "/etc/login.defs","#[^\n]*", "\s+", "99999", "9999999");
+      # Use the umask to get the value
+      "homedir_mode_real" string => eval("777-${login_defs_content[UMASK][1]}", "math", "infix");
+      # Format to int
+      "homedir_mode_int" string => format("%0.0f", ${homedir_mode_real});
+      "homedir_mode_to_use" string => "${homedir_mode_int}";
+
+
     # Only Linuxes (not Slackware), Solaris and FreeBSD support PAM/getent
     (linux.!slackware)|solaris|freebsd::
 
@@ -77,6 +91,8 @@ bundle agent check_ssh_key_distribution
         string  => "${userarray_${sshkey_distribution_index}[${sshkey_distribution_name[${sshkey_distribution_index}]}][3]}";
 
   classes:
+      "etc_login_defs_exists" expression => fileexists("/etc/login.defs");
+
       "pass2" expression => "pass1";
       "pass1" expression => "any";
       "begin_evaluation" expression => isvariable("sshkey_distribution_index");
@@ -93,7 +109,7 @@ bundle agent check_ssh_key_distribution
       # if home dir doesn't exist, create it with correct permission
       "${homedir[${sshkey_distribution_index}]}/."
         create        => "true",
-        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
+        perms         => mog("${homedir_mode_to_use}", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
         ifvarclass    => "user_${sshkey_distribution_index}_exists.correct_ssh_key_format_${sshkey_distribution_index}.!home_directory_${sshkey_distribution_index}_exists";
 
       "${homedir[${sshkey_distribution_index}]}/.ssh/."
