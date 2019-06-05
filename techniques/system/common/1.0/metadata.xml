@@ -79,6 +79,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <FILE name="properties.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
+    <FILE name="reporting-http.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
     <FILE name="rudder-agent-community-cron">
       <OUTPATH>common/cron/rudder-agent-community-cron</OUTPATH>
       <INCLUDED>false</INCLUDED>
@@ -125,6 +128,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>RUDDER_SYSLOG_PROTOCOL</NAME>
     <NAME>RUDDER_NODE_GROUPS_VARS</NAME>
     <NAME>RUDDER_NODE_GROUPS_CLASSES</NAME>
+    <NAME>REPORTING_PROTOCOL</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>

@@ -31,21 +31,21 @@ bundle common rudder_roles
   classes:
 
       # on changes only, we only reports on repaired or error message
-      "changes_only_mode"     expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
-      "reports_disabled_mode" expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
-      "changes_only"          expression => "changes_only_mode.!force_full_compliance";
-      "reports_disabled"      expression => "reports_disabled_mode.!force_full_compliance";
+      "changes_only_mode"      expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
+      "reports_disabled_mode"  expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
+      "changes_only"           expression => "changes_only_mode.!force_full_compliance";
+      "reports_disabled"       expression => "reports_disabled_mode.!force_full_compliance";
+      "rudder_reporting_https" expression => strcmp("&REPORTING_PROTOCOL&", "HTTPS");
 
       # full compliance is the default mode
       "full_compliance" not => "changes_only|reports_disabled";
+      "rudder_reporting_syslog" not => "rudder_reporting_https";
 }
 
 body common control
 {
-    any::
         output_prefix => "rudder";
-        
-        protocol_version   => "2";
+        protocol_version => "2";
 
         inputs => {
           @{va.inputs_list},
@@ -157,7 +157,7 @@ bundle common va
       "common_input_list" slist => { "common/1.0/common.cf", "common/1.0/cf-serverd.cf", "common/1.0/rudder-groups.cf", "common/1.0/hooks.cf", "common/1.0/cron-setup.cf", "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/monitoring.cf", "common/1.0/restart-services.cf", "common/1.0/internal-security.cf",  "common/1.0/environment-variables.cf", "common/1.0/properties.cf" };
       "inventory_input_list" slist => { "inventory/1.0/fusionAgent.cf" };
       "distribute_policy_input_list" slist => { "distributePolicy/1.0/common.cf", "distributePolicy/1.0/rsyslogConf.cf", "distributePolicy/1.0/propagatePromises.cf", "distributePolicy/1.0/apache-acl.cf" };
-      "server_roles_input_list" slist => { "server-roles/1.0/common.cf", "server-roles/1.0/component-check.cf", "server-roles/1.0/alive-check.cf", "server-roles/1.0/service-check.cf", "server-roles/1.0/integrity-check.cf", "server-roles/1.0/network-check.cf", "server-roles/1.0/password-check.cf", "server-roles/1.0/postgres-check.cf", "server-roles/1.0/logrotate-check.cf", "server-roles/1.0/technique-reload.cf", "server-roles/1.0/compress-webapp-log.cf", "server-roles/1.0/compress-ldap-backups.cf", "server-roles/1.0/servers-by-role.cf" };
+      "server_roles_input_list" slist => { "server-roles/1.0/common.cf", "server-roles/1.0/relayd.cf", "server-roles/1.0/component-check.cf", "server-roles/1.0/alive-check.cf", "server-roles/1.0/service-check.cf", "server-roles/1.0/integrity-check.cf", "server-roles/1.0/network-check.cf", "server-roles/1.0/password-check.cf", "server-roles/1.0/postgres-check.cf", "server-roles/1.0/logrotate-check.cf", "server-roles/1.0/technique-reload.cf", "server-roles/1.0/compress-webapp-log.cf", "server-roles/1.0/compress-ldap-backups.cf", "server-roles/1.0/servers-by-role.cf" };
 
     policy_server::
       "inputs_list" slist => { @{ncf_inputs}, @{common_input_list}, @{inventory_input_list}, @{distribute_policy_input_list}, @{server_roles_input_list} };
@@ -179,7 +179,8 @@ bundle common va
       "policy_server" expression => strcmp("root","${rudder_roles.uuid}");
       # Root Server is the top policy server machine
       "root_server" expression => strcmp("root","${rudder_roles.uuid}");
-
+      # Relay server is a non-root policy server (= a simple relay)
+      "relay_server" expression => "policy_server.!root_server";
     # static definition of the machine roles
 &NODEROLE&
 
@@ -262,29 +263,29 @@ bundle agent initialize_ncf()
       "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "${system_common.directiveId}", "ncf Initialization", "None", "Configuration library initialization");
 }
 
-# Log and reporting configuration not valid in initial promises
 &if(!INITIAL)&
 bundle agent configure_rudder_reporting_system {
   methods:
-    !reports_disabled::
+    rudder_reporting_syslog.!reports_disabled::
       "configure_syslog"    usebundle => check_log_system;
       "configure_reporting" usebundle => check_rsyslog_version;
-    reports_disabled::
+
+    (rudder_reporting_syslog.reports_disabled)|rudder_reporting_https::
       "remove_reporting"    usebundle => remove_rudder_syslog_configuration;
+
+    rudder_reporting_https::
+      "make http reports"   usebundle => send_rudder_reports;
 }
 
 #######################################################
 # Check the log system, and configure it accordingly
-# This only works with UNIX flavoured systems
 #
 # Note: if any configurations are changed here, corresponding services must be
 # restarted in the restart_services bundle
 
 bundle agent check_log_system
 {
-
   vars:
-
     debian::
       "syslog_ng_source" string => "s_src";
 
@@ -304,11 +305,10 @@ bundle agent check_log_system
     rsyslogd_conffile_present.rsyslog_version_5_6_4_ok::
 
       "rsyslogd_message_reduction" string => "$RepeatedMsgReduction off${const.n}";
-      
+
     rsyslogd_conffile_present.rsyslog_version_5_6_4_not_ok::
 
       "rsyslogd_message_reduction" string => "";
-
 
     any::
 
@@ -402,7 +402,7 @@ bundle agent check_log_system
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Log system for reports", "None", "Logging system for report centralization is already correctly configured");
 
   commands:
-      
+
     rsyslogd_conffile_present.check_rsyslog_version_present::
       # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
       # The option is probably older though.
@@ -471,9 +471,7 @@ bundle agent check_rsyslog_version {
 # restarted in the restart_services bundle
 
 bundle agent remove_rudder_syslog_configuration {
-
   vars:
-
       "syslogng_delete_lines_patterns" slist => {
         "\s*# Autogenerated by rudder, do not edit.*",
         ".*destination\(rudder_loghost\);.*",
@@ -485,7 +483,6 @@ bundle agent remove_rudder_syslog_configuration {
       };
 
   classes:
-
       "syslogng" expression => fileexists("${check_log_system.syslogng_conffile}");
       "syslogd"  expression => fileexists("${check_log_system.syslog_conffile}");
 
@@ -658,7 +655,7 @@ body executor control
         schedule         => { &AGENT_RUN_SCHEDULE& };
         executorfacility => "LOG_DAEMON";
 
-        exec_command => "${g.rudder_command} agent run -uR";
+        exec_command => "${g.rudder_command} agent run -uRN";
 }
 
 ########################################################
@@ -691,7 +688,6 @@ bundle edit_line fix_syslogd(syslogd)
 
 }
 
-
 bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove)
 {
 
@@ -706,26 +702,19 @@ bundle edit_line edit_syslog_conf_file(line_to_add, pattern_to_remove)
       # This was used in Rudder pre-3.0. We need to keep this in all versions that support upgrading from pre-3.0 versions (up to and including 2.11)
       # See http://www.rudder-project.org/redmine/issues/5773
       "filter\ f\_local\_rudder\{facility\(local6\)\ and\ program\(\"rudder\.\*\"\)\;\}\;destination\ loghost\ \{(tcp|udp)\(\"[^\"]+\".*";
-
   insert_lines:
       "${line_to_add}"
         location => syslogng_log_part;
-
 }
-
 body location syslogng_log_part
 {
-
         select_line_matching => "^\s*log\s*\{.*";
         before_after => "before";
         first_last => "first";
-
 }
-
 bundle edit_line ensure_rsyslogd_on_suse
 {
   field_edits:
-
       # match a line starting like 'SYSLOG_DAEMON=something'
       "^SYSLOG_DAEMON=.*$"
         edit_field => col("=","2","\"rsyslogd\"","set"),

@@ -16,6 +16,23 @@
 #
 #####################################################################################
 
+bundle agent rudder_postgresql {
+    root_server|role_rudder_relay_top::
+      "db_name" string => "${distribute_policy_common.report_db_name}";
+      "db_user" string => "${distribute_policy_common.report_db_user}";
+      "db_pass" string => "${p.psql_password[2]}";
+
+    # Define the where to send the syslog messages
+    # default is localhost if the rudder_db is unknown
+    # or if the role rudder-server-root is installed
+
+    root_server.(!role_rudder_db_server_defined|role_rudder_server_root)::
+      "host" string => "localhost";
+
+    (root_server|role_rudder_relay_top).role_rudder_db_server_defined.!role_rudder_server_root::
+      "host" string => "${rudder_servers_by_role.roles[rudder-db]}";
+}
+
 # Configure rsyslog on the root/relay servers
 
 bundle agent install_rsyslogd
@@ -31,18 +48,6 @@ bundle agent install_rsyslogd
 
     root_server|role_rudder_relay_top::
       "rsyslog_source_file" string => "rudder-rsyslog-root.conf";
-      "rudder_reports_db_name" string => "${distribute_policy_common.report_db_name}";
-      "rudder_reports_db_user" string => "${distribute_policy_common.report_db_user}";
-
-    # Define the where to send the syslog messages
-    # default is localhost if the rudder_db is unknown
-    # or if the role rudder-server-root is installed
-
-    root_server.(!role_rudder_db_server_defined|role_rudder_server_root)::
-      "rudder_postgres_server" string => "localhost";
-
-    (root_server|role_rudder_relay_top).role_rudder_db_server_defined.!role_rudder_server_root::
-      "rudder_postgres_server" string => "${rudder_servers_by_role.roles[rudder-db]}";
 
     policy_server.!(root_server|role_rudder_relay_top)::
       "rsyslog_source_file" string => "rudder-rsyslog-relay.conf";

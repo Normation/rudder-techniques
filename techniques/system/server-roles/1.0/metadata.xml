@@ -69,6 +69,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <FILE name="relayd.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
+    <FILE name="relayd.conf.tpl">
+      <OUTPATH>server-roles/1.0/relayd.conf.tpl</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </FILE>
     <FILE name="rudder-logrotate">
       <OUTPATH>server-roles/logrotate.conf/rudder</OUTPATH>
       <INCLUDED>false</INCLUDED>

@@ -22,7 +22,7 @@
 # If fusion agent is not installed,
 # the installation is done
 #
-# Then the inventory file is improved with external informations (UUID, cf-key, VMs)
+# Then the inventory file is improved with external information (UUID, cf-key, VMs)
 
 # Compute the inventory time
 bundle agent computeInventoryTime
