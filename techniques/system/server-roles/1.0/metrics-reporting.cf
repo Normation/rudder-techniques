@@ -37,5 +37,5 @@ bundle agent metrics_reporting
     run_metrics.!(metrics_ok|metrics_error)::
       "/opt/rudder/bin/rudder-metrics-reporting -s"
         # 10080 mn is 7 days
-        classes => classes_generic_persist("metrics" ,"10080");
+        classes => rudder_common_classes_persist("metrics" ,"10080");
 }
