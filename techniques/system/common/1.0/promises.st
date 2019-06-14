@@ -179,8 +179,6 @@ bundle common va
       "policy_server" expression => strcmp("root","${rudder_roles.uuid}");
       # Root Server is the top policy server machine
       "root_server" expression => strcmp("root","${rudder_roles.uuid}");
-      # Relay server is a non-root policy server (= a simple relay)
-      "relay_server" expression => "policy_server.!root_server";
     # static definition of the machine roles
 &NODEROLE&
 

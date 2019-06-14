@@ -16,9 +16,9 @@ directory = "{{{vars.g.rudder_var}}}/inventories"
 {{#classes.root_server}}
 output = "disabled"
 {{/classes.root_server}}
-{{#classes.relay_server}}
+{{^classes.root_server}}
 output = "upstream"
-{{/classes.relay_server}}
+{{/classes.root_server}}
 
 [processing.inventory.catchup]
 frequency = 10
@@ -29,16 +29,21 @@ directory = "{{{vars.g.rudder_var}}}/reports"
 {{#classes.root_server}}
 output = "database"
 {{/classes.root_server}}
-{{#classes.relay_server}}
+{{^classes.root_server}}
 output = "upstream"
-{{/classes.relay_server}}
+{{/classes.root_server}}
 
 [processing.reporting.catchup]
 frequency = 10
 limit = 50
 
 [output.database]
+{{#classes.root_server}}
 url = "postgres://{{{vars.rudder_postgresql.db_user}}}:{{{vars.rudder_postgresql.db_pass}}}@{{{vars.rudder_postgresql.host}}}/{{{vars.rudder_postgresql.db_name}}}"
+{{/classes.root_server}}
+{{^classes.root_server}}
+url = "postgres://user:password@host/rudder"
+{{/classes.root_server}}
 max_pool_size = 10
 
 [output.upstream]
