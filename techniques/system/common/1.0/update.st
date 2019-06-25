@@ -109,7 +109,7 @@ bundle common server_info
     policy_server_file_exists::
       "policy_server_temp" string => readfile("${policy_server_file}", 2048);
        # trim space in poilcy_server.dat
-      "policy_server"      string => regex_replace("${policy_server_temp}", " ", "", "");
+      "policy_server"      string => regex_replace("${policy_server_temp}", " ", "", "g");
 
 
     !policy_server_file_exists::
