@@ -49,7 +49,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <DESCRIPTION>Enable NTP</DESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
-          <DEFAULT>true</DEFAULT>
+          <DEFAULT>false</DEFAULT>
         </CONSTRAINT>
       </INPUT>
       <INPUT>
