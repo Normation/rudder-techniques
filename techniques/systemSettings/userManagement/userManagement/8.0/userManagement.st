@@ -462,7 +462,7 @@ bundle agent check_usergroup_user_parameters
       ## Move the home dir
       "/usr/sbin/usermod"
         args       => "-d ${usergroup_user_home[${usergroup_user_index}]} -m ${usergroup_user_login[${usergroup_user_index}]}",
-        classes    => cf2_if_else("usermanagement_login_home_move_${usergroup_user_index}_repaired", "usermanagement_home_move_${usergroup_user_index}_error"),
+        classes    => cf2_if_else("usermanagement_login_home_move_${usergroup_user_index}_repaired", "usermanagement_login_home_move_${usergroup_user_index}_error"),
         comment    => "Change home directory (move it)",
         ifvarclass => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_current_home_is_invalid_${usergroup_user_index}.usermanagement_user_custom_home_move_valid_${usergroup_user_index}";
 
