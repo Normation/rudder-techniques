@@ -55,6 +55,9 @@ It is intended to check the user parameters on the target host.
       <INPUT>
         <NAME>USERGROUP_USER_LOGIN</NAME>
         <DESCRIPTION>Login name for this account</DESCRIPTION>
+        <CONSTRAINT>
+          <REGEX error="User login with comma are not supported.">[^,]+</REGEX>
+        </CONSTRAINT>
       </INPUT>
       <INPUT>
         <NAME>USERGROUP_USER_GROUP</NAME>

@@ -63,6 +63,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>USERGROUP_USER_LOGIN</NAME>
         <DESCRIPTION>Login name for this account</DESCRIPTION>
+        <CONSTRAINT>
+          <REGEX error="User login with comma are not supported.">[^,]+</REGEX>
+        </CONSTRAINT>
       </INPUT>
       <SELECT1>
         <NAME>USERGROUP_USER_ACTION</NAME>
