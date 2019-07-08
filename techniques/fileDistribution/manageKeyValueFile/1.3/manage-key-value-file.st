@@ -28,7 +28,7 @@ bundle agent manage_key_value_file_RudderUniqueID {
 }&
       &MANAGE_KEY_VALUE_OPTION:{option |  "option[&i&]"   string => "&option&";
 }&
-      &MANAGE_KEY_VALUE_POST_HOOK_COMMAND:{post_hook |  "post_hook[&i&]"   string => "&post_hook&";
+&MANAGE_KEY_VALUE_POST_HOOK_COMMAND:{post_hook |  "post_hook[&i&]"   string => "&post_hook&";
 }&
       &TRACKINGKEY:{uuid |  "trackingkey[&i&]" string => "&uuid&";
 }&

@@ -56,7 +56,7 @@ bundle agent download_from_shared_folder_RudderUniqueID
       &COPYFILE_DESTINATION:{destination |"copyfile[&i&][raw_destination]" string => "&destination&";
 }&
 
-      &COPYFILE_POST_HOOK_COMMAND:{command |"copyfile[&i&][posthook]" string => "&command&";
+&COPYFILE_POST_HOOK_COMMAND:{command |"copyfile[&i&][posthook]" string => "&command&";
 }&
 
       &TRACKINGKEY:{piuuid |"copyfile[&i&][uuid]" string => "&piuuid&";

@@ -55,7 +55,7 @@ bundle agent package_management_RudderUniqueID {
       &PACKAGE_MANAGER_ALLOW_UNTRUSTED:{manager_allow_untrusted |"manager_allow_untrusted[&i0&]" string => "&manager_allow_untrusted&";
 }&
 
-      &PACKAGE_POST_HOOK_COMMAND:{command |"posthook[&i0&]" string => "&command&";
+&PACKAGE_POST_HOOK_COMMAND:{command |"posthook[&i0&]" string => "&command&";
 }&
 
       "index_pkg" slist => getindices("package");
