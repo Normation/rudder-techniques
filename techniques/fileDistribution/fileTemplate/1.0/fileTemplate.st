@@ -62,7 +62,8 @@ bundle agent fileTemplate_RudderUniqueID {
       &FILE_TEMPLATE_TEMPLATE_TYPE: {type|"types[&i&]" string => "&type&";}&
 
       #Post hook command
-      &FILE_TEMPLATE_TEMPLATE_POST_HOOK_COMMAND: {command |"posthook[&i&]" string => "&command&";}&
+&FILE_TEMPLATE_TEMPLATE_POST_HOOK_COMMAND: {command |"posthook[&i&]" string => "&command&";
+}&
 
       #Post hook persistence
       &FILE_TEMPLATE_PERSISTENT_POST_HOOK: {persistence | "persist[&i&]" string => "&persistence&";}&

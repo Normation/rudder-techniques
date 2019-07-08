@@ -28,7 +28,7 @@ bundle agent services_RudderUniqueID
 }&
     &SERVICES_TECHNIQUE_BOOT:{boot |"boot[&i&]" string => "&boot&";
 }&
-    &SERVICES_TECHNIQUE_POSTHOOK:{posthook |"posthook[&i&]" string => "&posthook&";
+&SERVICES_TECHNIQUE_POSTHOOK:{posthook |"posthook[&i&]" string => "&posthook&";
 }&
     &SERVICES_TECHNIQUE_POSTHOOK_PERSISTENT:{persistent |"persistent[&i&]" string => "&persistent&";
 }&
