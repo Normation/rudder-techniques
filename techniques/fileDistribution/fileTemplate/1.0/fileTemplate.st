@@ -91,11 +91,11 @@ bundle agent fileTemplate_RudderUniqueID {
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
-      "raw_${index}" expression => strcmp("${rawOrNot[${index}]}", "Raw");
-      "posthook_specified_${index}" not => strcmp("${posthook[${index}]}", "");
-      "file_modified_${index}" expression =>"permissions_${dst_canon[${index}]}_repaired|file_from_template_${dst_canon[${index}]}_repaired";
-      "posthook_launch_${index}" expression =>"posthook_specified_${index}.file_modified_${index}";
-      "posthook_persistent_${index}" expression => strcmp("${persist[${index}]}", "true");
+      "raw_${index}"                   expression => strcmp("${rawOrNot[${index}]}", "Raw");
+      "no_posthook_specified_${index}" expression => strcmp("${posthook[${index}]}", "");
+      "file_modified_${index}"         expression => "permissions_${dst_canon[${index}]}_repaired|file_from_template_${dst_canon[${index}]}_repaired";
+      "posthook_launch_${index}"       expression => "!no_posthook_specified_${index}.file_modified_${index}";
+      "posthook_persistent_${index}"   expression => strcmp("${persist[${index}]}", "true");
 
       #Check if the posthook is persistent and in error, set up a class for 10000 minutes => about 1 week
       "posthook_rerun_${index}_RudderUniqueID" expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
@@ -215,12 +215,12 @@ pass3::
       #Case without execution
 
       "report_${index}" usebundle  => rudder_common_report("fileTemplate", "result_na", "${trackingkey[${index}]}", "Posthook", "${dst[${index}]}", "No post-modification needed to run"),
-      ifvarclass => "!file_modified_${index}.posthook_specified_${index}.!command_execution_${posthook_canon[${index}]}_reached";
+      ifvarclass => "!file_modified_${index}.!no_posthook_specified_${index}.!command_execution_${posthook_canon[${index}]}_reached";
 
 
       #Case where no posthook set
 
       "report_hook_${index}" usebundle  => rudder_common_report("fileTemplate", "result_na", "${trackingkey[${index}]}", "Posthook", "${dst[${index}]}", "No post-modification set to run"),
-      ifvarclass => "!posthook_specified_${index}";
+      ifvarclass => "no_posthook_specified_${index}";
 }
 

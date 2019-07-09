@@ -27,7 +27,7 @@ bundle agent check_zmd_settings
 
         &TRACKINGKEY:{policyInstanceId |"zmdconf_uuid[&i&]" string => "&policyInstanceId&";
 }&
-    proxy_edit::
+    !no_proxy_edit::
 
       "zmdconf[Network][proxy-url]" string => "&ZMD_PROXY_URL&";
 
@@ -71,7 +71,7 @@ bundle agent check_zmd_settings
       "checkzmd_present" expression => fileexists("${this.promise_dirname}/checkzmd.pl");
 
     # Do we want to set the proxy ?
-      "proxy_edit" not => strcmp("&ZMD_PROXY_URL&", "");
+      "no_proxy_edit" expression => strcmp("&ZMD_PROXY_URL&", "");
 
     # Do we want to set the proxy username ?
       "proxy_edit_user" not => strcmp("&ZMD_PROXY_USER&", "");

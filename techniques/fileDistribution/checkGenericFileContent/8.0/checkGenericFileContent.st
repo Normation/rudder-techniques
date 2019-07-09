@@ -120,7 +120,9 @@ bundle agent check_generic_file_content_RudderUniqueID {
 
       # Check that value has been set before to edit the file
       "generic_file_content_modification_destination_defined_${index}" not => strcmp("${generic_file_content_modification_destination[${index}]}", "");
-      "edit_content_${index}" not => strcmp("${generic_file_content_payload[${index}]}", "");
+      "no_edit_content_${index}" expression => strcmp("${generic_file_content_payload[${index}]}", "");
+      "edit_content"                    not => strcmp("${generic_file_content_payload[${index}]}", "");
+      # if both these classes are unset, then we are dealing with variables that couldn't expand
 
     pass1::
       # if the file absent and we don't plan to create it, then there is nothing to do on it
@@ -186,7 +188,7 @@ bundle agent check_generic_file_content_RudderUniqueID {
       # No line migrations
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
+        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
         ifvarclass => "!migrate_to_zone_${index}.file_content_${index}_RudderUniqueID_repaired.file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error";
@@ -196,7 +198,7 @@ bundle agent check_generic_file_content_RudderUniqueID {
 
       # if we want to migrate lines
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired.delete_out_of_zone_content_${index}_RudderUniqueID_kept.!delete_out_of_zone_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
+        ifvarclass => "migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired.delete_out_of_zone_content_${index}_RudderUniqueID_kept.!delete_out_of_zone_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
         ifvarclass => "migrate_to_zone_${index}.(file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error).(file_content_${index}_RudderUniqueID_repaired|delete_out_of_zone_content_${index}_RudderUniqueID_repaired)";
@@ -206,7 +208,12 @@ bundle agent check_generic_file_content_RudderUniqueID {
 
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "No content was given to check file ${generic_file_content_path[${index}]}, skipping", "${index}"),
-        ifvarclass => "!edit_content_${index}.!file_nothing_to_do_${index}";
+        ifvarclass => "no_edit_content_${index}.!file_nothing_to_do_${index}";
+
+
+      "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "Content contains variables that do not expand properly, replace `$` by `$\{const.dollar\}` (without the \ ), skipping", "${index}"),
+        ifvarclass => "!(file_edition_global_files_status_${index}_RudderUniqueID_error|file_edition_global_files_status_${index}_RudderUniqueID_repaired|file_edition_global_files_status_${index}_RudderUniqueID_kept).!edit_content_${index}.!no_edit_content_${index}.!file_nothing_to_do_${index}.!creation_only_but_already_exists_${index}";
+
 
       # Files edition - deletion
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created", "${index}"),
@@ -242,7 +249,7 @@ bundle agent check_generic_file_content_RudderUniqueID {
 
       # File edition - enforce only at creation
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} already exists, skipping content editing", "${index}"),
-        ifvarclass => "edit_content_${index}.creation_only_but_already_exists_${index}";
+        ifvarclass => "!no_edit_content_${index}.creation_only_but_already_exists_${index}";
 
       # Permissions edition
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created", "${index}"),
@@ -350,8 +357,8 @@ bundle edit_line check_generic_file_content_edition_RudderUniqueID(
       "preserve_content" expression => strcmp("true", "${enforce_content_boolean}");
 
       # when need to check the validity of the content on the original value, otherwise local context is always true
-      "edit_content" not => strcmp("${content}", "");
-      "delete_lines" expression => strcmp("${deletion_boolean}", "true");
+      "no_edit_content" expression => strcmp("${content}", "");
+      "delete_lines"    expression => strcmp("${deletion_boolean}", "true");
 
       "replace_lines" expression => strcmp("${modification_boolean}", "true");
       "replace_lines_destination_defined" not => strcmp("${modification_replacement}", "");
@@ -379,13 +386,13 @@ bundle edit_line check_generic_file_content_edition_RudderUniqueID(
         ifvarclass    => "has_${csection}";
 
   insert_lines:
-    preserve_content.edit_content::
+    preserve_content.!no_edit_content::
       "${content}"
         classes     => classes_generic("file_content_${index}_RudderUniqueID"),
         insert_type => "preserve_block",
         comment     => "Editing ...";
 
-    !preserve_content.edit_content::
+    !preserve_content.!no_edit_content::
       "${content}"
         classes => classes_generic("file_content_${index}_RudderUniqueID"),
         comment => "Editing ...";
@@ -456,8 +463,8 @@ bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
       "preserve_content" expression => strcmp("true", "${enforce_content_boolean}");
  
       # when need to check the validity of the content on the original value, otherwise local context is always true
-      "edit_content"        not => strcmp("${content}", "");
-      "delete_lines" expression => strcmp("${deletion_boolean}", "true");
+      "no_edit_content" expression => strcmp("${content}", "");
+      "delete_lines"    expression => strcmp("${deletion_boolean}", "true");
 
       "replace_lines" expression => strcmp("${modification_boolean}", "true");
       "replace_lines_destination_defined" not => strcmp("${modification_replacement}", "");
@@ -512,7 +519,7 @@ bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
         comment => "Removing matched lines out of zone ...";
 
     # remove line out of zone if we decide to do so
-    edit_content.migrate_to_zone.pass_two::
+    !no_edit_content.migrate_to_zone.pass_two::
       "${escaped_content[${content_line_index}]}"
         classes => classes_generic("delete_out_of_zone_content_${index}_RudderUniqueID"),
         comment => "Removing matched lines out of zone ...";
@@ -523,14 +530,14 @@ bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
 ${zone_end}";
 
 
-   preserve_content.edit_content.pass_two::
+   preserve_content.!no_edit_content.pass_two::
       "${content}"
         classes       => classes_generic("file_content_${index}_RudderUniqueID"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         insert_type   => "preserve_block",
         comment       => "Editing ...";
 
-    !preserve_content.edit_content.pass_two::
+    !preserve_content.!no_edit_content.pass_two::
       "${content}"
         classes       => classes_generic("file_content_${index}_RudderUniqueID"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
