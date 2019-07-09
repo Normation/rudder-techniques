@@ -57,14 +57,14 @@ bundle agent services_RudderUniqueID
 
 
       #Posthook
-      "posthook_specified_${index}"         not => strcmp("${posthook[${index}]}", "");
-      "posthook_persistent_${index}" expression => strcmp("${persistent[${index}]}", "true");
+      "no_posthook_specified_${index}" expression => strcmp("${posthook[${index}]}", "");
+      "posthook_persistent_${index}"   expression => strcmp("${persistent[${index}]}", "true");
 
       "status_repaired_${index}" expression => "service_ensure_running_${service_canon[${index}]}_repaired|service_ensure_stopped_${service_canon[${index}]}_repaired";
       "boot_repaired_${index}"   expression => "service_ensure_started_at_boot_${service_canon[${index}]}_repaired|service_ensure_disabled_at_boot_${service_canon[${index}]}_repaired";
       "repaired_${index}"        expression => "boot_repaired_${index}|status_repaired_${index}";
 
-      "posthook_lauch_${index}"  expression => "posthook_specified_${index}.repaired_${index}";
+      "posthook_lauch_${index}"  expression => "!no_posthook_specified_${index}.repaired_${index}";
       "posthook_rerun_${index}_RudderUniqueID"
                                  expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
                                       scope => "namespace",
@@ -121,11 +121,11 @@ bundle agent services_RudderUniqueID
 
       #Case without execution
       "report_${index}" usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "No post-modification needed to run", "${index}"),
-        ifvarclass => "!repaired_${index}.posthook_specified_${index}.!command_execution_${posthook_canon[${index}]}_reached";
+        ifvarclass => "!repaired_${index}.!no_posthook_specified_${index}.!command_execution_${posthook_canon[${index}]}_reached";
 
       #Case where no posthook set
       "report_hook_${index}" usebundle  => rudder_common_report_index("${technique_name}", "result_na", "${trackingkey[${index}]}", "Services posthook", "${service[${index}]}", "No post-modification set to run", "${index}"),
-        ifvarclass => "!posthook_specified_${index}";
+        ifvarclass => "no_posthook_specified_${index}";
 
 }
 

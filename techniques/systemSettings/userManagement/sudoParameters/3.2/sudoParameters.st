@@ -111,7 +111,7 @@ bundle agent check_sudo_parameters_RudderUniqueID
 
     pass3::
       "any" usebundle => rudder_common_report_index("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "Entry for ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is invalid (no command given), and has been ignored", "${sudo_index}"), 
-        ifvarclass => "!sudo_${sudo_index}_RudderUniqueID_command_notempty.!sudo_${sudo_index}_RudderUniqueID_alldo";
+        ifvarclass => "sudo_${sudo_index}_RudderUniqueID_command_empty.!sudo_${sudo_index}_RudderUniqueID_alldo";
 
       "any" usebundle => rudder_common_reports_generic_index("sudoParameters", "sudo_parameter_edited_section_${csection_name[${sudo_index}]}_RudderUniqueID", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]}", "${sudo_index}");
 
@@ -126,16 +126,16 @@ bundle agent sudo_parameter_edit_sudoers_RudderUniqueID(filename, entity, nopass
     pass1::
 
       "command_all[${index}]" string => "ALL=(ALL) NOPASSWD:ALL",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.sudo_${index}_RudderUniqueID_nopasswd).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.sudo_${index}_RudderUniqueID_nopasswd).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) ALL",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.!sudo_${index}_RudderUniqueID_nopasswd).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.!sudo_${index}_RudderUniqueID_nopasswd).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) NOPASSWD:${${command}[${index}]}",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) ${${command}[${index}]}",
-                      ifvarclass => "(!sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(sudo_${index}_RudderUniqueID_command_notempty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(!sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
 
 
   classes:
@@ -149,7 +149,7 @@ bundle agent sudo_parameter_edit_sudoers_RudderUniqueID(filename, entity, nopass
                             scope => "namespace";
     pass2::
       # Is command empty ?
-      "sudo_${index}_RudderUniqueID_command_notempty" not => strcmp("${${command}[${index}]}",""),
+      "sudo_${index}_RudderUniqueID_command_empty" expression => strcmp("${${command}[${index}]}",""),
                                        scope => "namespace";
 
       # detect if file has been changed by edition
