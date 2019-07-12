@@ -361,7 +361,8 @@ bundle edit_line check_generic_file_content_edition_RudderUniqueID(
       "delete_lines"    expression => strcmp("${deletion_boolean}", "true");
 
       "replace_lines" expression => strcmp("${modification_boolean}", "true");
-      "replace_lines_destination_defined" not => strcmp("${modification_replacement}", "");
+      "replace_lines_destination_defined"           not => strcmp("${modification_replacement}", "");
+      "no_replace_lines_destination_defined" expression => strcmp("${modification_replacement}", "");
 
       "section_edition" expression => strcmp("${section_boolean}", "true");
 
@@ -411,14 +412,14 @@ ${section_end}"
 
 
   replace_patterns:
-    replace_lines.replace_lines_destination_defined::
+    replace_lines.(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with => value("${modification_replacement}"),
         classes      => classes_generic("file_content_modification_${index}_RudderUniqueID"),
         comment      => "Replacing lines using the given regexps...";
 
 
-    replace_lines.!replace_lines_destination_defined::
+    replace_lines.!(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with => value(""),
         classes      => classes_generic("file_content_modification_${index}_RudderUniqueID"),
@@ -467,7 +468,9 @@ bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
       "delete_lines"    expression => strcmp("${deletion_boolean}", "true");
 
       "replace_lines" expression => strcmp("${modification_boolean}", "true");
-      "replace_lines_destination_defined" not => strcmp("${modification_replacement}", "");
+      "replace_lines_destination_defined"           not => strcmp("${modification_replacement}", "");
+      "no_replace_lines_destination_defined" expression => strcmp("${modification_replacement}", "");
+
 
       "section_edition" expression => strcmp("${section_boolean}", "true");
 
@@ -556,20 +559,17 @@ ${section_end}"
         classes       => classes_generic("file_content_section_content_modification_${index}_RudderUniqueID");
 
   replace_patterns:
-    replace_lines.replace_lines_destination_defined::
+    replace_lines.(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with  => value("${modification_replacement}"),
         classes       => classes_generic("file_content_modification_${index}_RudderUniqueID"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         comment       => "Replacing lines using the given regexps...";
 
-
-    replace_lines.!replace_lines_destination_defined::
+    replace_lines.!(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with  => value(""),
         classes       => classes_generic("file_content_modification_${index}_RudderUniqueID"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         comment       => "Replacing lines using the given regexps...";
-
-
 } 
