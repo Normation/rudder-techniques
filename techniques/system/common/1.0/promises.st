@@ -56,74 +56,71 @@ body common control
         tls_min_version => "1.2";
 
         bundlesequence => { 
-          @{va.common_bs},
-          @{va.specific_bs},
+          rudder_init,
+          rudder_common_system_directive,
           rudder_system_directives,
           rudder_directives,
-          @{va.end}
+          rudder_common_system_end,
+          rudder_end
         };
+}
+
+bundle agent rudder_init {
+  methods:
+      "Abort if agent is disabled"     usebundle => check_disable_agent;
+      "Abort on some cfengine version" usebundle => rudder_check_agent_version;
+      "Abort on invalid UUID"          usebundle => check_uuid;
+      "Startup report log"             usebundle => startup;
+      "Initialize ncf"                 usebundle => initialize_ncf;
+      "Define environment variables"   usebundle => get_environment_variables;
+&if(!INITIAL)&
+      "Load properties"                usebundle => properties;
+&endif&
+
+}
+
+bundle agent rudder_common_system_directive {
+  methods:
+      "Send agent update report"          usebundle => update_reports;
+      "Update cfengine files permissions" usebundle => internal_security;
+      "Cleanup log files"                 usebundle => garbage_collection;
+      "Setup agent check cron"            usebundle => setup_cronjob;
+      "Make sure cron daemon is running"  usebundle => check_cron_daemon;
+&if(INITIAL)&
+      "Run initial inventory"             usebundle => doInventory;
+&else&
+      "Configure logs for reporting"      usebundle => configure_rudder_reporting_system;
+      "Pre hook for monitoring methods"   usebundle => monitoring_hook_pre;
+&endif&
+
+    policy_server::
+&if(INITIAL)&
+      "Check root services"               usebundle => root_component_check;
+&endif&
+
+}
+
+bundle agent common_system_end {
+  methods:
+&if(!INITIAL)&
+      "Post hook for monitoring methods"  usebundle => monitoring_hook_post;
+&endif&
+
+      "End report log"                    usebundle => endExecution;
+      # keep this at real end to avoid breaking reporting if syslog still works
+      "Restart syslog if needed"          usebundle => restart_services;
+}
+
+bundle agent rudder_end {
+# may contain methods some day
+# Keep this for rudder agent run-directive to work
 }
 
 bundle common va
 {
   vars:
-
-      "end" slist => {
-&if(!INITIAL)&
-        "restart_services", 
-        "monitoring_hook_post",
-&endif&
-
-        "endExecution"
-      };
-
-      "common_bs" slist => {
-        "startup",
-        "check_disable_agent",
-        "update_reports",
-        "configuration",
-        "initialize_ncf",
-	# We need ncf to be loaded and initialized
-	"rudder_check_agent_version",
-        "internal_security",
-        "check_uuid",
-        "garbage_collection",
-        "setup_cronjob",
-        "check_cron_daemon",
-&if(INITIAL)&
-        "doInventory",
-&else&
-        "configure_rudder_reporting_system",
-        "get_environment_variables",
-        "properties",
-        "monitoring_hook_pre",
-&endif&
-
-      };
-
-    policy_server::
-
-      "specific_bs" slist => {
-&if(INITIAL)&
-        "install_rsyslogd",
-        "propagatePromises",
-        "sendInventoryToCmdb",
-        "root_component_check",
-&endif&
-
-      };
-
-    !policy_server::
-
-      # This bundle is duplicated to avoid having empty lists and cfnull in bundlesequence
-      "specific_bs" slist => { };
-
-    !enterprise_edition::
-      "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
-    enterprise_edition::
-      "capability_option"      string => ""; 
-
     any::
+      "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
       "rudder_var"             string => "/var/rudder";
       "ncf_path"               string => "${rudder_var}/ncf";
       "shell_type"             string => "useshell";
