@@ -1,6 +1,8 @@
-# Common variable for distribute policy system technique
-bundle common distribute_policy_common {
+# Common variable for server system technique
+bundle common server_common {
   vars:
+    "directiveId"            string => "&TRACKINGKEY&";
+    "send_metrics"           string => "&SEND_METRICS&";
     "directiveId"            string => "&TRACKINGKEY&";
     "report_db_name"         string => "&RUDDER_REPORTS_DB_NAME&";
     "report_db_user"         string => "&RUDDER_REPORTS_DB_USER&";
@@ -13,5 +15,4 @@ bundle common distribute_policy_common {
 &if(CMDBENDPOINT)&
     "has_cmdb_endpoint" expression => "any", scope => "namespace";
 &endif&
-
 }

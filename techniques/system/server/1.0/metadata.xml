@@ -1,0 +1,181 @@
+<!--
+Copyright 2014 Normation SAS
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, Version 3.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+-->
+
+<TECHNIQUE name="Server roles">
+    <DESCRIPTION>Configure the server roles</DESCRIPTION>
+    <SYSTEM>true</SYSTEM>
+    
+    <TMLS>
+        <TML name="common" />
+        <TML name="rudder-server-roles">
+            <OUTPATH>rudder-server-roles.conf</OUTPATH>
+            <INCLUDED>false</INCLUDED>
+        </TML>
+        <TML name="ca.cert">
+            <INCLUDED>false</INCLUDED>
+            <OUTPATH>server/1.0/ca.cert</OUTPATH>
+        </TML>
+        <TML name="clientlist">
+            <OUTPATH>clientlist/clientlist.cf</OUTPATH>
+            <INCLUDED>false</INCLUDED>
+        </TML>
+        <TML name="rudder-rsyslog-root">
+            <OUTPATH>server/rsyslog.conf/rudder-rsyslog-root.conf</OUTPATH>
+            <INCLUDED>false</INCLUDED>
+        </TML>
+        <TML name="rudder-rsyslog-relay">
+            <OUTPATH>dserver/rsyslog.conf/rudder-rsyslog-relay.conf</OUTPATH>
+            <INCLUDED>false</INCLUDED>
+        </TML>
+        <TML name="nodeslist.json">
+            <INCLUDED>false</INCLUDED>
+            <OUTPATH>server/1.0/nodeslist.json</OUTPATH>
+        </TML>
+    </TMLS>
+    
+    <FILES>
+        <FILE name="metrics-reporting.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="component-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="alive-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="service-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="integrity-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="network-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="password-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="postgres-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="logrotate-check.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="technique-reload.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="compress-webapp-log.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="compress-ldap-backups.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="servers-by-role.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="relayd.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="relayd.conf.tpl">
+            <OUTPATH>server/1.0/relayd.conf.tpl</OUTPATH>
+            <INCLUDED>false</INCLUDED>
+        </FILE>
+        <FILE name="rudder-logrotate">
+            <OUTPATH>server/logrotate.conf/rudder</OUTPATH>
+            <INCLUDED>false</INCLUDED>
+        </FILE>
+        <FILE name="rsyslogConf.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="propagatePromises.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="apache-acl.cf">
+            <INCLUDED>true</INCLUDED>
+        </FILE>
+        <FILE name="send-clean.sh">
+            <INCLUDED>false</INCLUDED>
+        </FILE>
+    </FILES>
+    
+    <BUNDLES>
+        <NAME>install_rsyslogd</NAME>
+        <NAME>propagatePromises</NAME>
+        <NAME>sendInventoryToCmdb</NAME>
+        <NAME>apache_acl</NAME>
+        <NAME>root_component_check</NAME>
+        <NAME>metrics_reporting</NAME>
+    </BUNDLES>
+    
+    <SYSTEMVARS>
+        <NAME>RUDDER_SERVER_ROLES</NAME>
+        <NAME>SEND_METRICS</NAME>
+        <NAME>CMDBENDPOINT</NAME>
+        <NAME>CLIENTSFOLDERS</NAME>
+        <NAME>SYSLOGPORT</NAME>
+        <NAME>SHARED_FILES_FOLDER</NAME>
+        <NAME>STORE_ALL_CENTRALIZED_LOGS_IN_FILE</NAME>
+        <NAME>MANAGED_NODES_IP</NAME>
+        <NAME>MANAGED_NODES_CERT_UUID</NAME>
+        <NAME>MANAGED_NODES_CERT_CN</NAME>
+        <NAME>MANAGED_NODES_CERT_PEM</NAME>
+        <NAME>AUTHORIZED_NETWORKS</NAME>
+        <NAME>NOVA</NAME>
+        <NAME>RUDDER_REPORTS_DB_NAME</NAME>
+        <NAME>RUDDER_REPORTS_DB_USER</NAME>
+        <NAME>SUB_NODES_NAME</NAME>
+        <NAME>SUB_NODES_ID</NAME>
+        <NAME>SUB_NODES_KEYHASH</NAME>
+        <NAME>SUB_NODES_SERVER</NAME>
+        <NAME>RELAY_SYNC_METHOD</NAME>
+        <NAME>RELAY_SYNC_PROMISES</NAME>
+        <NAME>RELAY_SYNC_SHAREDFILES</NAME>
+    </SYSTEMVARS>
+    
+    <SECTIONS>
+        <SECTION name="Check postgresql process" component="true" />
+        <SECTION name="Check jetty process" component="true" />
+        <SECTION name="Check slapd process" component="true" />
+        <SECTION name="Check apache process" component="true" />
+        <SECTION name="Check relayd process" component="true" />
+        <SECTION name="Check postgresql boot script" component="true" />
+        <SECTION name="Check jetty boot script" component="true" />
+        <SECTION name="Check slapd boot script" component="true" />
+        <SECTION name="Check apache boot script" component="true" />
+        <SECTION name="Check relayd boot script" component="true" />
+        <SECTION name="Check PostgreSQL configuration" component="true" />
+        <SECTION name="Check logrotate configuration" component="true" />
+        <SECTION name="Check configuration-repository folder" component="true" />
+        <SECTION name="Check configuration-repository GIT lock" component="true" />
+        <SECTION name="Check allowed networks configuration" component="true" />
+        <SECTION name="Check rudder status" component="true" />
+        <SECTION name="Check endpoint status" component="true" />
+        <SECTION name="Check rudder-passwords.conf and pgpass files" component="true" />
+        <SECTION name="Check LDAP credentials" component="true" />
+        <SECTION name="Check LDAP in rudder-webapp.properties" component="true" />
+        <SECTION name="Check SQL credentials" component="true" />
+        <SECTION name="Check SQL in rudder-webapp.properties" component="true" />
+        <SECTION name="Check WebDAV credentials" component="true" />
+        <SECTION name="Relayd service configuration" component="true" />
+        <SECTION name="Send metrics to rudder-project" component="true" />
+        <SECTION name="Synchronize policies" component="true" />
+        <SECTION name="Synchronize files" component="true" />
+        <SECTION name="Synchronize resources" component="true" />
+        <SECTION name="Send inventories to Rudder server" component="true" />
+        <SECTION name="Configure apache ACL" component="true" />
+    </SECTIONS>
+    
+</TECHNIQUE>

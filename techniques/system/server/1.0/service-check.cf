@@ -29,16 +29,16 @@ bundle agent rudder_generic_service(name, service_name) {
       "${name}" usebundle => service_enabled("${service_name}");
 
       "${name}" usebundle => enable_reporting;
-      "${name}" usebundle => rudder_common_reports_generic("server-roles", "service_started_${c_service_name}", "${server_roles_common.directiveId}", "Check ${name} process", "None", "${name} service running");
-      "${name}" usebundle => rudder_common_reports_generic("server-roles", "service_enabled_${c_service_name}", "${server_roles_common.directiveId}", "Check ${name} boot script", "None", "${name} service enabled");
+      "${name}" usebundle => rudder_common_reports_generic("server", "service_started_${c_service_name}", "${server_common.directiveId}", "Check ${name} process", "None", "${name} service running");
+      "${name}" usebundle => rudder_common_reports_generic("server", "service_enabled_${c_service_name}", "${server_common.directiveId}", "Check ${name} boot script", "None", "${name} service enabled");
 }
 
 bundle agent rudder_generic_service_na(name) {
     methods:
-      "any" usebundle => rudder_common_report("server-roles", "result_na", "${server_roles_common.directiveId}",
+      "any" usebundle => rudder_common_report("server", "result_na", "${server_common.directiveId}",
           "Check ${name} process", "None", "Checking ${name} process state is unnecessary on this machine, skipping."
         );
-      "any" usebundle => rudder_common_report("server-roles", "result_na", "${server_roles_common.directiveId}",
+      "any" usebundle => rudder_common_report("server", "result_na", "${server_common.directiveId}",
           "Check ${name} boot script", "None", "Checking ${name} boot settings is unnecessary on this machine, skipping."
         );
 }

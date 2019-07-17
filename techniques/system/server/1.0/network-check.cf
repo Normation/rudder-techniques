@@ -80,17 +80,17 @@ bundle agent root_networks_check
       "any" usebundle => service_reload("${apache_service}");
 
     pass3.rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_success", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration is correct");
+      "any" usebundle => rudder_common_report("server", "result_success", "${server_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration is correct");
 
     pass3.rudder_networks_repaired.!rudder_networks_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_repaired", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration has been repaired");
+      "any" usebundle => rudder_common_report("server", "result_repaired", "${server_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration has been repaired");
 
     pass3.rudder_networks_failed::
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration could not be edited");
+      "any" usebundle => rudder_common_report("server", "result_error", "${server_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration could not be edited");
 
     pass3::
-      "any" usebundle => rudder_common_report("server-roles", "log_repaired", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Apache has been reloaded successfully"),
+      "any" usebundle => rudder_common_report("server", "log_repaired", "${server_common.directiveId}", "Check allowed networks configuration", "None", "Apache has been reloaded successfully"),
                    if => "${service_class_prefix}_repaired.!${service_class_prefix}_error";
-      "any" usebundle => rudder_common_report("server-roles", "result_error", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Apache failed to reload"),
+      "any" usebundle => rudder_common_report("server", "result_error", "${server_common.directiveId}", "Check allowed networks configuration", "None", "Apache failed to reload"),
                    if => "${service_class_prefix}_error";
 }
