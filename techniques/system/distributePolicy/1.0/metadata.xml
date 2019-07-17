@@ -29,9 +29,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
   <TMLS>
     <!-- Note that the policy server is set via the common.xml -->
     <TML name="common"/>
-    <TML name="ca.cert">
+    <TML name="nodescerts.pem">
       <INCLUDED>false</INCLUDED>
-      <OUTPATH>distributePolicy/1.0/ca.cert</OUTPATH>
+      <OUTPATH>distributePolicy/1.0/nodescerts.pem</OUTPATH>
     </TML>
     <TML name="clientlist">
       <OUTPATH>clientlist/clientlist.cf</OUTPATH>

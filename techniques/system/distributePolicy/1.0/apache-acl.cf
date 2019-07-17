@@ -20,8 +20,8 @@ bundle agent apache_acl
 {
 
   vars:
-      "destination"        string => "/opt/rudder/etc/ssl";
-      "ssl_ca_file"        string => "ca.cert";
+      "destination"        string => "${g.rudder_var}/lib/relay/";
+      "ssl_ca_file"        string => "nodescerts.pem";
       "ssl_ca_size"        string => filestat("${this.promise_dirname}/${ssl_ca_file}", "size");
 
     pass1::
@@ -45,6 +45,15 @@ bundle agent apache_acl
 
   files:
     !role_rudder_relay_promises_only.pass2::
+      # For compatibility with apache config
+      "/opt/rudder/etc/ssl/ca.cert"
+        create        => "true",
+        perms         => mog("600", "root", "0"),
+        copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
+        classes       => classes_generic("rudder_apache_acl"),
+        comment       => "Writing rudder apache ACL";
+
+      # For relayd, should move into relayd config after merging distributPolicy into serverRoles
       "${destination}/${ssl_ca_file}"
         create        => "true",
         perms         => mog("600", "root", "0"),

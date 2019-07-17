@@ -2,8 +2,8 @@
 
 [general]
 
-nodes_list_file = "{{{vars.g.rudder_base}}}/etc/nodeslist.json"
-nodes_certs_file = "{{{vars.g.rudder_base}}}/etc/ssl/nodescerts.pem"
+nodes_list_file = "{{{vars.g.rudder_var}}}/lib/relay/nodeslist.json"
+nodes_certs_file = "{{{vars.g.rudder_var}}}/lib/ssl/allnodescerts.pem"
 node_id = "{{{vars.g.uuid}}}"
 listen = "127.0.0.1:3030"
 
@@ -32,6 +32,7 @@ output = "database"
 {{^classes.root_server}}
 output = "upstream"
 {{/classes.root_server}}
+skip_logs = false
 
 [processing.reporting.catchup]
 frequency = 10
