@@ -26,7 +26,7 @@ bundle agent rudder_relayd_configuration {
   methods:
       "any" usebundle => disable_reporting;
       "any" usebundle => _method_reporting_context("${component}", "None");
-      "any" usebundle => file_from_template_mustache("${this.promise_dir}/relayd.conf.tpl", "${config_file}");
+      "any" usebundle => file_from_template_mustache("${this.promise_dirname}/relayd.conf.tpl", "${config_file}");
       "any" usebundle => service_restart("rudder-relayd"),
                    if => "${file_class_prefix}_repaired";
       "any" usebundle => enable_reporting;
