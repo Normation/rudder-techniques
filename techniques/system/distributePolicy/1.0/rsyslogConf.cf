@@ -17,6 +17,7 @@
 #####################################################################################
 
 bundle agent rudder_postgresql {
+  vars:
     root_server|role_rudder_relay_top::
       "db_name" string => "${distribute_policy_common.report_db_name}";
       "db_user" string => "${distribute_policy_common.report_db_user}";
