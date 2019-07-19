@@ -1,0 +1,19 @@
+= Rudder: Continuous Auditing & Configuration
+
+This project is part of Rudder, see https://github.com/Normation/rudder[the main repository]
+for more information.
+ 
+== License
+
+This sub-project is licensed under GPLv3 license, 
+see the provided "LICENSE" file or 
+http://www.gnu.org/licenses/gpl-3.0.txt
+
+== Synopsis
+
+This repository contains the Techniques Library of Rudder.
+
+== Usage
+
+This project is part of Rudder, and as such is bundled with every Rudder server.
+

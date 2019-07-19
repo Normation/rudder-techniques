@@ -31,7 +31,9 @@ GET = $(PROXY_ENV) $(WGET)
 endif
 endif
 
-all: rudder-templates-cli.jar test
+all: initial-promises bootstrap-promises/failsafe.cf
+
+initial-promises: rudder-templates-cli.jar test
 	# The common technique
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/*.st
@@ -71,6 +73,9 @@ all: rudder-templates-cli.jar test
 	# Provide a default rudder.json
 	cp variables.json initial-promises/rudder.json
 
+bootstrap-promises/failsafe.cf: initial-promises
+	mkdir -p bootstrap-promises/
+	cat initial-promises/node-server/common/1.0/update.cf initial-promises/node-server/failsafe.cf > $@ 
 
 rudder-templates-cli.jar:
 	$(GET) rudder-templates-cli.jar https://repository.rudder.io/build-dependencies/rudder-templates-cli/rudder-templates-cli.jar
