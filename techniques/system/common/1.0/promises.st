@@ -100,7 +100,7 @@ bundle agent rudder_common_system_directive {
 
 }
 
-bundle agent common_system_end {
+bundle agent rudder_common_system_end {
   methods:
 &if(!INITIAL)&
       "Post hook for monitoring methods"  usebundle => monitoring_hook_post;
