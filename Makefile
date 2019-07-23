@@ -76,6 +76,7 @@ initial-promises: rudder-templates-cli.jar test
 bootstrap-promises/failsafe.cf: initial-promises
 	mkdir -p bootstrap-promises/
 	cat initial-promises/node-server/failsafe.cf initial-promises/node-server/common/1.0/common.cf initial-promises/node-server/common/1.0/update.cf | grep -v "^ *inputs *=> *{.*}; *$$"> $@ 
+	cp variables.json bootstrap-promises/rudder.json
 
 rudder-templates-cli.jar:
 	$(GET) rudder-templates-cli.jar https://repository.rudder.io/build-dependencies/rudder-templates-cli/rudder-templates-cli.jar
