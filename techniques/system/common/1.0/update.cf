@@ -27,7 +27,6 @@ body copy_from remote(server, path)
         servers    => {
           "${server}"
         };
-        encrypt    => "true";
         trustkey   => "true";
         source     => "${path}";
         compare    => "digest";
@@ -35,7 +34,6 @@ body copy_from remote(server, path)
         verify     => "true";
         purge      => "true";
         copy_backup => "false";
-    community_edition::
         portnumber => "${system_common.community_port}";
 }
 
@@ -47,8 +45,7 @@ body copy_from copy_digest_without_perms(from)
         preserve    => "false";
         compare     => "digest";
         purge       => "true";
-    community_edition::
-        portnumber => "${system_common.community_port}";
+        portnumber  => "${system_common.community_port}";
 }
 
 bundle common server_info
@@ -238,20 +235,6 @@ bundle agent update_action
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
         touch      => "true";
-
-  processes:
-    config::
-      "cf-serverd" restart_class => "start_server";
-      "cf-execd"   restart_class => "start_exec";
-
-  commands:
-    start_exec::
-      "${sys.cf_execd}"
-        classes => success("executor_ok", "executor_error", "executor_kept");
-
-    !should_disable_server.start_server::
-      "${sys.cf_serverd}"
-        classes => success("server_ok", "server_error", "server_kept");
 
   reports:
     # We want to have always reports if something goes bad

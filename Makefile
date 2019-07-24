@@ -31,7 +31,7 @@ GET = $(PROXY_ENV) $(WGET)
 endif
 endif
 
-all: initial-promises bootstrap-promises/failsafe.cf
+all: initial-promises bootstrap-promises/rudder.json
 
 initial-promises: rudder-templates-cli.jar test
 	# The common technique
@@ -73,10 +73,8 @@ initial-promises: rudder-templates-cli.jar test
 	# Provide a default rudder.json
 	cp variables.json initial-promises/rudder.json
 
-bootstrap-promises/failsafe.cf: initial-promises
-	mkdir -p bootstrap-promises/
-	cat initial-promises/node-server/failsafe.cf initial-promises/node-server/common/1.0/common.cf initial-promises/node-server/common/1.0/update.cf | grep -v "^ *inputs *=> *{.*}; *$$"> $@ 
-	cp variables.json bootstrap-promises/rudder.json
+bootstrap-promises/rudder.json:
+	cp variables.json $@
 
 rudder-templates-cli.jar:
 	$(GET) rudder-templates-cli.jar https://repository.rudder.io/build-dependencies/rudder-templates-cli/rudder-templates-cli.jar
