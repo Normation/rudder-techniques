@@ -52,7 +52,7 @@ bundle agent update
 {
   vars:
       "inputs"          string => "${sys.workdir}/inputs";
-      "policies"        string => "${sys.masterfiles}";
+      "policies"        string => "${sys.masterdir}";
       "rudder_var"      string => "/var/rudder";
       "ncf_common_src"  string => "/usr/share/ncf/tree";
       "ncf_common"      string => "${rudder_var}/ncf/common";
