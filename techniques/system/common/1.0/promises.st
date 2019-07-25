@@ -146,12 +146,13 @@ bundle common va
       "ncf_inputs"            slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
 
     # create the final input list after ncf
-    # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
+    # all other inputs are loaded by body file control in rudder-system-directives.cf
       "inputs_list" slist => { @{ncf_inputs} };
 
 &if(INITIAL)&
+      # rudder-directives.cf is needed, even if empty since we call it in the bundle sequence
       # Idealy these should be generated at compile time from metadata.xml and put into variable.json
-      "common_input_list" slist => { "common/1.0/common.cf", "common/1.0/cf-serverd.cf", "common/1.0/rudder-groups.cf", "common/1.0/hooks.cf", "common/1.0/cron-setup.cf", "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/monitoring.cf", "common/1.0/restart-services.cf", "common/1.0/internal-security.cf",  "common/1.0/environment-variables.cf", "common/1.0/properties.cf" };
+      "common_input_list" slist => {  "rudder-directives.cf", "common/1.0/common.cf", "common/1.0/cf-serverd.cf", "common/1.0/rudder-groups.cf", "common/1.0/hooks.cf", "common/1.0/cron-setup.cf", "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/monitoring.cf", "common/1.0/restart-services.cf", "common/1.0/internal-security.cf",  "common/1.0/environment-variables.cf", "common/1.0/properties.cf" };
       "inventory_input_list" slist => { "inventory/1.0/fusionAgent.cf" };
       "distribute_policy_input_list" slist => { "distributePolicy/1.0/common.cf", "distributePolicy/1.0/rsyslogConf.cf", "distributePolicy/1.0/propagatePromises.cf", "distributePolicy/1.0/apache-acl.cf" };
       "server_roles_input_list" slist => { "server-roles/1.0/common.cf", "server-roles/1.0/relayd.cf", "server-roles/1.0/component-check.cf", "server-roles/1.0/alive-check.cf", "server-roles/1.0/service-check.cf", "server-roles/1.0/integrity-check.cf", "server-roles/1.0/network-check.cf", "server-roles/1.0/password-check.cf", "server-roles/1.0/postgres-check.cf", "server-roles/1.0/logrotate-check.cf", "server-roles/1.0/technique-reload.cf", "server-roles/1.0/compress-webapp-log.cf", "server-roles/1.0/compress-ldap-backups.cf", "server-roles/1.0/servers-by-role.cf" };
