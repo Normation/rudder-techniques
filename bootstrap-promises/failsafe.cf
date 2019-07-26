@@ -88,7 +88,8 @@ bundle agent update
         classes           => classes_generic("config");
 
       "${ncf_common}"
-        copy_from         => remote("${server_info.policy_server}", "${ncf_common}"),
+        copy_from         => remote("${server_info.policy_server}", "${ncf_common_ncf}"),
+        depth_search      => recurse("inf"),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
