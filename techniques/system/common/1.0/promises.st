@@ -80,6 +80,11 @@ bundle agent rudder_init {
 }
 
 bundle agent rudder_common_system_directive {
+  vars:
+      # Hackish way to skip the cf-promises on component check, otherwise it
+      # won't work on the agent since the bundle will not be loaded.
+      "root_component_check"              string => "root_component_check";
+
   methods:
       "Send agent update report"          usebundle => update_reports;
       "Update cfengine files permissions" usebundle => internal_security;
@@ -95,7 +100,7 @@ bundle agent rudder_common_system_directive {
 
     policy_server::
 &if(INITIAL)&
-      "Check root services"               usebundle => root_component_check;
+      "Check root services"               usebundle => "${root_component_check}";
 &endif&
 
 }
