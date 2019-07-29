@@ -163,7 +163,7 @@ bundle agent update_action
         classes           => success("config", "no_update", "config_ok");
 
 
-    initial_promises.root_server::
+    !initial_promises.root_server::
       "${g.rudder_ncf}/common"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
         perms             => u_mog("644", "root", "0"),
