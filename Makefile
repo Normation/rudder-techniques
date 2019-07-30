@@ -31,7 +31,7 @@ GET = $(PROXY_ENV) $(WGET)
 endif
 endif
 
-all: initial-promises bootstrap-promises/rudder.json
+all: initial-promises bootstrap-promises/rudder.json bootstrap-promises/promises.cf
 
 initial-promises: rudder-templates-cli.jar test
 	# The common technique
@@ -75,6 +75,9 @@ initial-promises: rudder-templates-cli.jar test
 
 bootstrap-promises/rudder.json:
 	cp variables.json $@
+
+bootstrap-promises/promises.cf:
+	cp bootstrap-promises/failsafe.cf bootstrap-promises/promises.cf
 
 rudder-templates-cli.jar:
 	$(GET) rudder-templates-cli.jar https://repository.rudder.io/build-dependencies/rudder-templates-cli/rudder-templates-cli.jar
