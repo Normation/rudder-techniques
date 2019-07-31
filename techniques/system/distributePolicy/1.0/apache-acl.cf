@@ -27,7 +27,7 @@ bundle agent apache_acl
     pass1::
       "src_ca_file" string => "${this.promise_dirname}/${ssl_ca_file}",
                 ifvarclass => "!empty_ssl_ca";
-      "src_ca_file" string => "${destination}/rudder.crt",
+      "src_ca_file" string => "/opt/rudder/etc/ssl/rudder.crt",
                 ifvarclass => "empty_ssl_ca";
 
     redhat::
