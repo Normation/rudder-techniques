@@ -71,7 +71,7 @@ initial-promises: rudder-templates-cli.jar test
 	# Initial ncf reporting empty (for compatibility with pre-4.3 servers)
 	touch initial-promises/rudder_expected_reports.csv
 	# Provide a default rudder.json
-	cp variables.json initial-promises/rudder.json
+	cp variables.json initial-promises/node-server/rudder.json
 
 bootstrap-promises/rudder.json:
 	cp variables.json $@
