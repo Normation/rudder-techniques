@@ -79,3 +79,9 @@ bundle agent properties
 
     # That's all, now we have a node.namespace data that contains the overriden values
 }
+
+# Read the inventories variables from Rudder
+bundle agent rudder_node_inventory {
+  vars:
+    "node.inventory" data => readjson("${this.promise_dirname}/../../rudder-vars.json");
+}

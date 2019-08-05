@@ -110,6 +110,7 @@ bundle common va
         "check_zypper",
         "get_environment_variables",
         "properties",
+        "rudder_node_inventory",
         "nxlog_enable",
         "monitoring_hook_pre",
 &endif&
