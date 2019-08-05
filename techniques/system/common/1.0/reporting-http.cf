@@ -44,14 +44,22 @@ bundle agent send_rudder_report(path) {
 bundle agent send_rudder_reports
 {
   vars:
-      "raw_reports" slist => lsdir("${rudder_reports}/ready/", ".*", "false");
+      "raw_reports" slist => lsdir("${g.rudder_reports}/ready/", ".*\.log.gz", "false");
       # Max 50 reports by run to avoid blocking the agent too long after a long
       # disconnection
       "reports"     slist => sublist("reports", "head", 50);
+      "nb_reports"  int   => length("reports");
+
+  classes:
+      "has_reports" not => strcmp("${nb_reports}", "0");
 
   methods:
+    has_reports::
       "send"    usebundle => send_rudder_report("${reports}");
       "cleanup" usebundle => _classes_sanitize("send_rudder_reports");
+    !has_reports::
+      "cleanup" usebundle => _classes_success("send_rudder_reports");
+    any::
       "report"  usebundle => rudder_common_reports_generic("Common", "send_rudder_reports", "${system_common.directiveId}", "Log system for reports", "None", "Reports forwarding to policy server");
 }
 
