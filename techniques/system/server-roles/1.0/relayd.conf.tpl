@@ -54,4 +54,5 @@ password = "{{{vars.g.davpw}}}"
 
 [remote_run]
 command = "/opt/rudder/bin/rudder"
+use_sudo = true
 
