@@ -95,12 +95,12 @@ bundle agent rudder_common_system_directive {
       "Run initial inventory"             usebundle => doInventory;
 &else&
       "Configure logs for reporting"      usebundle => configure_rudder_reporting_system;
-      "Fetch Rudder Inventory variables"  usebundle => rudder_node_inventory
+      "Fetch Rudder Inventory variables"  usebundle => rudder_node_inventory;
       "Pre hook for monitoring methods"   usebundle => monitoring_hook_pre;
 &endif&
 
-    policy_server::
 &if(INITIAL)&
+    policy_server::
       "Check root services"               usebundle => "${root_component_check}";
 &endif&
 
