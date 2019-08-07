@@ -66,7 +66,7 @@ bundle common g
       "rudder_var_reports"          string => "${rudder_var}/reports";
       "davuser"                     string => "${system_common.davuser}";
       "davpw"                       string => "${system_common.davpw}";
-      "ncf_local_excludedreps"      slist => { "50_techniques" };
+      "ncf_excludedreps"            slist => { "50_techniques" };
 
       # Path where all the configurations (git with techniques, groups, ncf, etc) are stored
       "rudder_configuration_repository"

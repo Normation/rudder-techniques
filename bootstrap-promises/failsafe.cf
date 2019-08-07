@@ -56,6 +56,7 @@ bundle agent update
       "rudder_var"      string => "/var/rudder";
       "ncf_common_src"  string => "/usr/share/ncf/tree";
       "ncf_common"      string => "${rudder_var}/ncf/common";
+      "ncf_excludedreps" slist => { "50_techniques" };
 
   files:
       "/var/rudder/ncf/."
@@ -73,6 +74,7 @@ bundle agent update
 
       "${ncf_common}"
         copy_from         => local("${ncf_common_src}"),
+        depth_search      => recurse_ignore("inf", @{ncf_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
@@ -89,7 +91,7 @@ bundle agent update
 
       "${ncf_common}"
         copy_from         => remote("${server_info.policy_server}", "${ncf_common_src}"),
-        depth_search      => recurse("inf"),
+        depth_search      => recurse_ignore("inf", @{ncf_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
@@ -121,6 +123,12 @@ body perms u_mog(mode,user,group)
 body depth_search recurse(d)
 {
     depth => "${d}";
+}
+
+body depth_search recurse_ignore(d,list)
+{
+        depth => "${d}";
+        exclude_dirs => { @{list} };
 }
 
 body action immediate

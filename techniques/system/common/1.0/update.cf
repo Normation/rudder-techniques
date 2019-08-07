@@ -166,6 +166,7 @@ bundle agent update_action
     !initial_promises.root_server::
       "${g.rudder_ncf}/common"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
+        depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
@@ -174,7 +175,7 @@ bundle agent update_action
 
       "${g.rudder_ncf}/local"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
-        depth_search      => recurse_ignore("inf", @{g.ncf_local_excludedreps}),
+        depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
@@ -200,6 +201,7 @@ bundle agent update_action
     !root_server.(new_promises_available|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
         copy_from         => remote("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
+        depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
@@ -208,6 +210,7 @@ bundle agent update_action
 
       "${g.rudder_ncf}/local"
         copy_from         => remote("${server_info.policy_server}", "${g.rudder_ncf_origin_local}"),
+        depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
