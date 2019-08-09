@@ -36,6 +36,7 @@ bundle common rudder_roles
       "changes_only"           expression => "changes_only_mode.!force_full_compliance";
       "reports_disabled"       expression => "reports_disabled_mode.!force_full_compliance";
       "rudder_reporting_https" expression => strcmp("&REPORTING_PROTOCOL&", "HTTPS");
+      "rsyslog_disabled"       expression => strcmp("&SYSLOG_PROTOCOL_DISABLED&", "true");
 
       # full compliance is the default mode
       "full_compliance" not => "changes_only|reports_disabled";
