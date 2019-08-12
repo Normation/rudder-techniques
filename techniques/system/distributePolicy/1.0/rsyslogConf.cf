@@ -94,7 +94,7 @@ bundle agent install_rsyslogd
         comment => "Removing the logging of all in the database";  
 
     # If reports are disabled, or if rsyslog is disabled, we remove rudder rsyslog conf
-    policy_server.(reports_disabled|rsyslog_disabled)
+    policy_server.(reports_disabled|rsyslog_disabled)::
       "/etc/rsyslog.d/rudder.conf"
         delete  => tidy,
         classes => classes_generic("remove_rudder_rsyslog_conf");
