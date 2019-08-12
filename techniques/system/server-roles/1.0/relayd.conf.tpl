@@ -51,6 +51,7 @@ max_pool_size = 10
 url = "https://{{{vars.server_info.policy_server}}}"
 user = "{{{vars.g.davuser}}}"
 password = "{{{vars.g.davpw}}}"
+verify_certificates = false
 
 [remote_run]
 command = "/opt/rudder/bin/rudder"
