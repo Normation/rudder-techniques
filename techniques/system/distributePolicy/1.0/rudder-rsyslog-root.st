@@ -63,12 +63,19 @@ $template RudderReportsFormat,"insert into RudderSysEvents (executionDate, nodeI
 
 # Filtering by content
 # Process :
-# We first store the data in the database, then we drop it to prevent
+# If report protocol is HTTPS, we drop the local rsyslog message
+{{#classes.rudder_reporting_https}}
+if $fromhost-ip == "127.0.0.1" then {
+    :programname, isequal, "rudder" ~
+}
+{{/classes.rudder_reporting_https}}
+
+# Else we first store the data in the database, then we drop it to prevent
 # it from reaching local storage in .log files.
 # The report format is @@Policy@@State@@RuleId@@DirectiveId@@0@@Component@@Key@@ExecutionTimeStamp##NodeId@#HumanReadableMessage
 #
 # 1 - Send every matching report in the database...
-:msg, ereregex, "(R: )?@@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]+?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@0@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:${rudder_postgresql.host},${rudder_postgresql.db_name},${rudder_postgresql.db_user},${rudder_postgresql.db_pass};RudderReportsFormat
+:msg, ereregex, "(R: )?@@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]+?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@0@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*"  :ompgsql:{{vars.rudder_postgresql.host}},{{vars.rudder_postgresql.db_name}},{{vars.rudder_postgresql.db_user}},{{vars.rudder_postgresql.db_pass}};RudderReportsFormat
 
 # 2 - Drop the remaining rudder logs to prevent local storage cluttering 
 
