@@ -38,6 +38,8 @@ bundle common rudder_roles
       "rudder_reporting_https" expression => strcmp("&REPORTING_PROTOCOL&", "HTTPS");
       "rsyslog_disabled"       expression => strcmp("&SYSLOG_PROTOCOL_DISABLED&", "true");
 
+      "rudder_global_audit_mode"      not => strcmp("&RUDDER_COMPLIANCE_MODE&", "enforce");
+
       # full compliance is the default mode
       "full_compliance" not => "changes_only|reports_disabled";
       "rudder_reporting_syslog" not => "rudder_reporting_https";
@@ -69,6 +71,7 @@ body common control
 bundle agent rudder_init {
   methods:
       "Abort if agent is disabled"     usebundle => check_disable_agent;
+      "Abort if agent is not in audit" usebundle => check_rudder_force_audit_agent;
       "Abort on some cfengine version" usebundle => rudder_check_agent_version;
       "Abort on invalid UUID"          usebundle => check_uuid;
       "Startup report log"             usebundle => startup;
@@ -235,8 +238,26 @@ bundle agent check_disable_agent
       "FATAL: The file ${g.rudder_disable_agent_file} is present. Rudder will kill all running daemons and halt immediately."
         classes => if_ok("abort_report_done"),
         action  => immediate;
-
 }
+
+
+##########################################################
+# Check for "force-audit-agent" file and cleanly stop and
+# warn about this if it is present and agent is not in audit
+#
+# All promises in this bundle MUST have action=>immediate,
+# to avoid locking issues in case of several close runs.
+##########################################################
+bundle agent check_rudder_force_audit_agent
+{
+  classes:
+      "should_be_in_audit" expression => fileexists("${g.rudder_force_audit_agent}");
+
+  methods:
+    should_be_in_audit.!rudder_global_audit_mode::
+      "any" usebundle => _abort("not_in_audit_mode", "The file ${g.rudder_force_audit_agent} is present, but node is not in audit mode. Rudder will halt immediately.");
+}
+
 
 ###################################################
 # Special handler when aborting from ncf
