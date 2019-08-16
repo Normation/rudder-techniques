@@ -529,7 +529,12 @@ bundle agent remove_rudder_syslog_configuration {
 
   methods:
       "merge result classes" usebundle  => _classes_combine_three("remove_rudder_syslog_configuration_rsyslog", "remove_rudder_syslog_configuration_syslogng", "remove_rudder_syslog_configuration_syslog", "remove_rudder_syslog_configuration_result");
-      "reports"              usebundle  => rudder_common_reports_generic("Common", "remove_rudder_syslog_configuration_result", "${system_common.directiveId}", "Log system for reports", "None", "Rudder syslog configuration removed");
+      "reports"              usebundle  => rudder_common_reports_generic("Common", "log_repaired", "${system_common.directiveId}", "Log system for reports", "None", "Rudder syslog configuration was correctly removed"),
+                             ifvarclass => "remove_rudder_syslog_configuration_result_repaired";
+      "reports"              usebundle  => rudder_common_reports_generic("Common", "log_info", "${system_common.directiveId}", "Log system for reports", "None", "Rudder syslog configuration is not present"),
+                             ifvarclass => "remove_rudder_syslog_configuration_result_kept";
+      "reports"              usebundle  => rudder_common_reports_generic("Common", "result_error", "${system_common.directiveId}", "Log system for reports", "None", "Rudder syslog configuration could not be removed"),
+                             ifvarclass => "remove_rudder_syslog_configuration_result_error";
 
 }
 &endif&
