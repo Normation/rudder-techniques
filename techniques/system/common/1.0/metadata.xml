@@ -132,6 +132,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>SYSLOG_PROTOCOL_DISABLED</NAME>
     <NAME>RUDDER_INVENTORY_VARS</NAME>
     <NAME>RUDDER_COMPLIANCE_MODE</NAME>
+    <NAME>RUDDER_VERIFY_CERTIFICATES</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>

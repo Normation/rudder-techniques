@@ -21,7 +21,7 @@
 bundle agent send_rudder_report(path) {
   vars:
       "endpoint" string => "https://${server_info.policy_server}/reports/";
-      "command"  string => "${g.rudder_curl} --tlsv1.2 --location --insecure --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file";
+      "command"  string => "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file";
 
   files:
       "${path}" 

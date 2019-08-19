@@ -246,14 +246,14 @@ bundle agent sendInventoryToCmdb
     !disable_upload.policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only)::
 
       "${g.rudder_inventories}/incoming"
-        transformer => "${g.rudder_curl} --tlsv1.2 --insecure --fail --silent --proxy '' --user rudder:rudder --upload-file ${this.promiser} https://${server_info.policy_server}/inventories/",
+        transformer => "${g.rudder_curl} --tlsv1.2 ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user rudder:rudder --upload-file ${this.promiser} https://${server_info.policy_server}/inventories/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
         classes => classes_generic("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
       "${g.rudder_inventories}/accepted-nodes-updates"
-        transformer => "${g.rudder_curl} --tlsv1.2 --insecure --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${this.promiser} https://${server_info.policy_server}/inventory-updates/",
+        transformer => "${g.rudder_curl} --tlsv1.2 ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${this.promiser} https://${server_info.policy_server}/inventory-updates/",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
         classes => classes_generic("rudder_inventory_relay"),

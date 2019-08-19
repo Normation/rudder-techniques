@@ -98,6 +98,10 @@ bundle common g
       "agent_run_interval" string => "${system_common.agent_run_interval}";
 
       "rudder_node_config_id" string => "${system_common.rudder_node_config_id}";
+    
+      "rudder_verify_certs_option" string => "--insecure";
+    rudder_verify_certs::
+      "rudder_verify_certs_option" string => "";
 
   classes:
 

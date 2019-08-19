@@ -139,7 +139,7 @@ bundle agent download_server_uuid
   vars:
 
     # curl should always be available now
-      "download_command"   string => "${g.rudder_curl} --tlsv1.2 --location --insecure --silent --fail --proxy '' --output \"${sys.workdir}/rudder-server-uuid.txt\" https://${server_info.policy_server}/uuid";
+      "download_command"   string => "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --silent --fail --proxy '' --output \"${sys.workdir}/rudder-server-uuid.txt\" https://${server_info.policy_server}/uuid";
 
   methods:
     could_not_download_uuid::
@@ -286,7 +286,7 @@ bundle agent sendInventory
 
     any::
     # curl is always available now
-      "download_command_prefix"   string => "${g.rudder_curl} --tlsv1.2 --location --insecure --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file";
+      "download_command_prefix"   string => "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file";
       "download_command_suffix"   string => "${download_endpoint}";
 
   classes:
