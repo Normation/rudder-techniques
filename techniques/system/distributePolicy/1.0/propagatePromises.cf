@@ -232,13 +232,13 @@ bundle agent sendInventoryToCmdb
     !disable_upload.(root_server|role_rudder_relay_top)::
 
       "${incoming_inventory_files}"
-        transformer => "${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "/bin/bash ${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         classes => classes_generic("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
 
       "${updates_inventory_files}"
-        transformer => "${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
+        transformer => "/bin/bash ${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
         classes => classes_generic("rudder_inventory_processing"),
         ifvarclass => "!rudder_inventory_processing_error",
         comment => "Processing a local inventory";
