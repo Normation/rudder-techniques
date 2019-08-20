@@ -222,22 +222,18 @@ bundle agent check_disable_agent
   classes:
       "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
 
-      # Only define this class when we're ready to die - this is a special class name in "abortclasses"
-      "should_not_continue"
-        expression => "should_disable_agent.!ignore_disable_agent",
-        ifvarclass => "abort_report_done";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+    pass2.should_disable_agent.!ignore_disable_agent::
+      "any" usebundle => _abort("disabled_agent", "This agent is disabled, killing running daemons and aborting");
 
   processes:
     should_disable_agent::
       "${sys.workdir}/bin/${components}"
         signals       => { "term", "kill" },
         action        => immediate;
-
-  reports:
-    should_disable_agent::
-      "FATAL: The file ${g.rudder_disable_agent_file} is present. Rudder will kill all running daemons and halt immediately."
-        classes => if_ok("abort_report_done"),
-        action  => immediate;
 }
 
 
