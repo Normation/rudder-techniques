@@ -56,7 +56,7 @@ verify_certificates = true
 {{/classes.rudder_verify_certs}}
 {{^classes.rudder_verify_certs}}
 verify_certificates = false
-{{#classes.rudder_verify_certs}}
+{{/classes.rudder_verify_certs}}
 
 
 [remote_run]
