@@ -63,3 +63,6 @@ verify_certificates = false
 command = "/opt/rudder/bin/rudder"
 use_sudo = true
 
+[shared_files]
+path = "{{{vars.system_common.sharedfiles_folder}}}"
+
