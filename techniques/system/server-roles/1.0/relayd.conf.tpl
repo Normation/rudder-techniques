@@ -32,7 +32,7 @@ output = "database"
 {{^classes.root_server}}
 output = "upstream"
 {{/classes.root_server}}
-skip_logs = false
+skip_event_types = []
 
 [processing.reporting.catchup]
 frequency = 10
@@ -58,7 +58,6 @@ verify_certificates = true
 verify_certificates = false
 {{/classes.rudder_verify_certs}}
 
-
 [remote_run]
 command = "/opt/rudder/bin/rudder"
 use_sudo = true
@@ -66,3 +65,5 @@ use_sudo = true
 [shared_files]
 path = "{{{vars.system_common.sharedfiles_folder}}}"
 
+[shared_folder]
+path = "{{{g.shared_files}}}"
