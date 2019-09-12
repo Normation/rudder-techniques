@@ -161,17 +161,9 @@ bundle agent fusionAgent
   vars:
     any::
       "inventory_name"           string => "${sys.uqhost}-${g.uuid}.ocs";
-
-    # guarding execresult to save a lot of time during policy validation
-    force_inventory|inventory_time|initial_promises::
-      "fusion_inventory_version" string => execresult("${g.rudder_base}/bin/run-inventory --version | ${paths.path[grep]} '[0-9]\.[0-9]' | ${paths.path[sed]} 's%.*(\([0-9]\+\)\.\([0-9]\+\).*).*%\1\2%'", "useshell");
-
-    any::
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${inventory_name}";
 
   classes:
-      "fusion_inventory_version_22_or_earlier" expression => islessthan("${fusion_inventory_version}", "23");
-
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
@@ -189,9 +181,6 @@ bundle agent fusionAgent
     pass3.run_inventory::
       "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Running inventory");
 
-    pass3.fusion_inventory_version_22_or_earlier::
-      # FusionInventory 2.3+ permits to specify the exact inventory file name we want which is now mandatory
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Fusion inventory version not supported");
     pass3.inventory_failed::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not execute the inventory");
 
