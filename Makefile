@@ -40,6 +40,7 @@ all: rudder-templates-cli.jar test
 	mv initial-promises/node-server/common/1.0/promises.cf initial-promises/node-server/
 	mv initial-promises/node-server/common/1.0/rudder-system-directives.cf initial-promises/node-server/
 	mv initial-promises/node-server/common/1.0/rudder-directives.cf initial-promises/node-server/
+	mv initial-promises/node-server/common/1.0/rudder-vars.cf initial-promises/node-server/rudder-vars.json
 	mkdir -p initial-promises/node-server/common/cron
 	cp techniques/system/common/1.0/rudder-agent-community-cron initial-promises/node-server/common/cron/
 	cp techniques/system/common/1.0/rudder-agent-nova-cron initial-promises/node-server/common/cron/
