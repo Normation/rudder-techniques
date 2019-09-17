@@ -92,12 +92,14 @@
     <SECTION name="Check allowed networks configuration" component="true"/>
     <SECTION name="Check rudder status" component="true"/>
     <SECTION name="Check endpoint status" component="true"/>
-    <SECTION name="Check rudder-passwords.conf and pgpass files" component="true"/>
+    <SECTION name="Check rudder-passwords.conf" component="true"/>
+    <SECTION name="Check pgpass file" component="true"/>
     <SECTION name="Check LDAP credentials" component="true"/>
     <SECTION name="Check LDAP in rudder-webapp.properties" component="true"/>
     <SECTION name="Check SQL credentials" component="true"/>
     <SECTION name="Check SQL in rudder-webapp.properties" component="true"/>
     <SECTION name="Check WebDAV credentials" component="true"/>
+    <SECTION name="Check WebDAV properties" component="true"/>
     <SECTION name="Relayd service configuration" component="true"/>
     <SECTION name="Send metrics to rudder-project" component="true"/>
   </SECTIONS>
