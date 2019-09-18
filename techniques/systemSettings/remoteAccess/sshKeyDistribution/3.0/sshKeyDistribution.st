@@ -80,11 +80,12 @@ bundle agent check_ssh_key_distribution
       "begin_evaluation" expression => isvariable("sshkey_distribution_index");
 
     pass2::
-      "correct_ssh_key_format_${sshkey_distribution_index}" expression => regcmp("(.*\s+)?(${ssh_types})\s+(\S+)(\s.*)?", "${sshkey_distribution_key[${sshkey_distribution_index}]}"); 
+      "correct_ssh_key_format_${sshkey_distribution_index}" expression => regcmp("(.*\s+)?(${ssh_types})\s+(\S+)(\s.*)?", "${sshkey_distribution_key[${sshkey_distribution_index}]}");
     begin_evaluation::
       "user_${sshkey_distribution_index}_exists" expression => userexists("${sshkey_distribution_name[${sshkey_distribution_index}]}");
 
       # Check that home directory indeed exists
+      "home_directory_${sshkey_distribution_index}_defined"       not => strcmp("${homedir[${sshkey_distribution_index}]}", "");
       "home_directory_${sshkey_distribution_index}_exists" expression => isdir("${homedir[${sshkey_distribution_index}]}");
 
   files:
@@ -92,20 +93,20 @@ bundle agent check_ssh_key_distribution
       "${homedir[${sshkey_distribution_index}]}/."
         create        => "true",
         perms         => mog("${homedir_mode_to_use}", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
-        ifvarclass    => "user_${sshkey_distribution_index}_exists.correct_ssh_key_format_${sshkey_distribution_index}.!home_directory_${sshkey_distribution_index}_exists";
+        ifvarclass    => "user_${sshkey_distribution_index}_exists.correct_ssh_key_format_${sshkey_distribution_index}.!home_directory_${sshkey_distribution_index}_exists.home_directory_${sshkey_distribution_index}_defined";
 
       "${homedir[${sshkey_distribution_index}]}/.ssh/."
         create        => "true",
         perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
-        ifvarclass    => concat(canonify("user_${sshkey_distribution_index}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}");
+        ifvarclass    => concat(canonify("user_${sshkey_distribution_index}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
 
       "${homedir[${sshkey_distribution_index}]}/.ssh/${config_basename}"
         create        => "true",
         edit_defaults => rudder_empty_select("${sshkey_distribution_edit_type[${sshkey_distribution_index}]}"),
         perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${gid[${sshkey_distribution_index}]}"),
         edit_line     => append_or_replace_ssh_key("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
-        classes       => classes_generic("${key_class_prefix[${sshkey_distribution_index}]}"),
-        ifvarclass    => concat(canonify("user_${sshkey_distribution_index}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}");
+        classes       => rudder_common_classes("${key_class_prefix[${sshkey_distribution_index}]}"),
+        ifvarclass    => concat(canonify("user_${sshkey_distribution_index}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
 
   methods:
 
@@ -143,6 +144,22 @@ bundle agent check_ssh_key_distribution
         ),
         ifvarclass    => "!user_${sshkey_distribution_index}_exists.!correct_ssh_key_format_${sshkey_distribution_index}";
 
+     "No User Home Defined For Target User"
+        usebundle     => rudder_common_report(
+          "${technique_name}", "result_error",
+          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
+          "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT have a home defined on this machine"
+        ),
+        ifvarclass    => "!home_directory_${sshkey_distribution_index}_defined.user_${sshkey_distribution_index}_exists";
+
+    windows::
+
+      "No Windows Support Report"
+        usebundle     => rudder_common_report(
+          "${technique_name}", "result_error",
+          "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
+          "Unable to add a SSH key for ${sshkey_distribution_name[${sshkey_distribution_index}]}: This Technique does not support Windows"
+        );
 }
 
 # authorized_keys file contains one line per key, in the following format:
