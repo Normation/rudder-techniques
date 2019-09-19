@@ -1,6 +1,6 @@
 bundle agent rudder_postgresql {
   vars:
-    root_server|role_rudder_relay_top::
+    root_server::
       "db_name" string => "${distribute_policy_common.report_db_name}";
       "db_user" string => "${distribute_policy_common.report_db_user}";
       "db_pass" string => "${p.psql_password[2]}";
@@ -12,7 +12,7 @@ bundle agent rudder_postgresql {
     root_server.(!role_rudder_db_server_defined|role_rudder_server_root)::
       "host" string => "localhost";
 
-    (root_server|role_rudder_relay_top).role_rudder_db_server_defined.!role_rudder_server_root::
+    root_server.role_rudder_db_server_defined.!role_rudder_server_root::
       "host" string => "${rudder_servers_by_role.roles[rudder-db]}";
 }
 
@@ -29,10 +29,10 @@ bundle agent install_rsyslogd
     initial_promises.rsyslog_port_not_found::
       "rsyslog_port[2]"    string => "514";
 
-    root_server|role_rudder_relay_top::
+    root_server::
       "rsyslog_source_file" string => "rudder-rsyslog-root.conf";
 
-    policy_server.!(root_server|role_rudder_relay_top)::
+    policy_server.!root_server::
       "rsyslog_source_file" string => "rudder-rsyslog-relay.conf";
 
   classes:
@@ -44,7 +44,7 @@ bundle agent install_rsyslogd
 
   files:
 
-    policy_server.!(reports_disabled|rsyslog_disabled).!role_rudder_relay_promises_only::
+    policy_server.!(reports_disabled|rsyslog_disabled)::
 
       "/etc/rsyslog.d/rudder.conf"
         create          => "true",
@@ -68,7 +68,7 @@ bundle agent install_rsyslogd
         classes => classes_generic("rudder_rsyslog_historical_conf"),
         comment => "Deleting historical rudder-agent.conf file if it is there";
 
-    (root_server|role_rudder_relay_top).debian.!(reports_disabled|rsyslog_disabled).!role_rudder_relay_promises_only::
+    root_server.debian.!(reports_disabled|rsyslog_disabled)::
       "/etc/rsyslog.d/pgsql.conf"
         edit_line => comment_all(),
         edit_defaults => noempty_backup,

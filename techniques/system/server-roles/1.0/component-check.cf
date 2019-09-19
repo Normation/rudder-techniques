@@ -64,12 +64,12 @@ bundle agent root_component_check
         );
 
     # Do this if this is the root_server or a relay server
-    root_server|(policy_server.!role_rudder_relay_promises_only)::
+    policy_server::
       "any" usebundle => root_networks_check;
       "any" usebundle => root_password_check_dav;
       "any" usebundle => rudder_generic_service("apache", "${apache_dist_specific_name}");
 
-    !(root_server|policy_server)|role_rudder_relay_promises_only::
+    !policy_server::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
           "Check allowed networks configuration", "None", "Checking the allowed networks configuration is unnecessary on this machine, skipping."
         );
@@ -78,31 +78,22 @@ bundle agent root_component_check
         );
       "any" usebundle => rudder_generic_service_na("apache");
 
-    role_rudder_jetty::
+    role_rudder_webapp::
       "any" usebundle => rudder_generic_service("jetty", "rudder-jetty");
       "any" usebundle => compress_webapp_log;
-
-    !role_rudder_jetty::
-      "any" usebundle => rudder_generic_service_na("jetty");
-
-    role_rudder_webapp::
       "any" usebundle => root_integrity_check;
       "any" usebundle => root_technique_reload;
       "any" usebundle => generic_alive_check("rudder");
+      "any" usebundle => rudder_generic_service("slapd", "rudder-slapd");
+      "any" usebundle => compress_ldap_backups;
 
     !role_rudder_webapp::
+      "any" usebundle => rudder_generic_service_na("jetty");
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
           "${root_integrity_check}", "None", "Checking configuration-repository is unnecessary on this machine, skipping."
         );
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
           "Check rudder status", "None", "Checking rudder web interface status is unnecessary on this machine, skipping."
         );
-
-    role_rudder_inventory_ldap::
-      "any" usebundle => rudder_generic_service("slapd", "rudder-slapd");
-      "any" usebundle => compress_ldap_backups;
-
-    !role_rudder_inventory_ldap::
       "any" usebundle => rudder_generic_service_na("slapd");
-
 }

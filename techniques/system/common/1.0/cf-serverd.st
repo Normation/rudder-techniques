@@ -13,7 +13,7 @@ bundle server access_rules
   # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
 
-    policy_server|role_rudder_relay_promises_only::
+    policy_server::
       "${def.dir_masterfiles}"
         handle    => "grant_access_policy",
         comment   => "Grant access to the policy updates",
@@ -41,15 +41,6 @@ bundle server access_rules
         admit_ips => {  @{def.acl}  };
 
       &endif&
-
-    role_rudder_cfengine_mission_portal::
-      "${query_types}"
-        handle             => "server_access_grant_${query_types}_for_hub",
-        comment            => "Grant ${query_types} reporting query for the hub on the policy server",
-        resource_type      => "query",
-        report_data_select => rudder_data_select_policy_hub,
-        admit_ips          => { host2ip("${server_info.policy_server}"), @{sys.ip_addresses} }; # an enterprise policy server needs to be able to contact itself
-
 
     any::
     &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY : {host, uuid, key |

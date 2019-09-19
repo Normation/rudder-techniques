@@ -4,7 +4,7 @@
 # It will automatically be updated by Rudder itself if a new component to be managed
 # is added to the machine.
 
-[%CFEngine role_rudder_server_root|(policy_server.!role_rudder_relay_promises_only):: %]
+[%CFEngine role_rudder_server_root|policy_server:: %]
 /var/log/rudder/apache2/*.log {
         daily
         missingok
@@ -19,7 +19,7 @@
         endscript
 }
 
-[%CFEngine !redhat.(role_rudder_server_root|(policy_server.!role_rudder_relay_promises_only)):: %]
+[%CFEngine !redhat.(role_rudder_server_root|policy_server):: %]
 /var/log/rudder/reports/*.log {
         daily
         missingok
@@ -34,7 +34,7 @@
         endscript
 }
 
-[%CFEngine redhat.(role_rudder_server_root|(policy_server.!role_rudder_relay_promises_only)):: %]
+[%CFEngine redhat.(role_rudder_server_root|policy_server):: %]
 /var/log/rudder/reports/*.log {
         daily
         missingok
@@ -49,7 +49,7 @@
         endscript
 }
 
-[%CFEngine !redhat.role_rudder_inventory_ldap:: %]
+[%CFEngine !redhat.role_rudder_webapp:: %]
 /var/log/rudder/ldap/slapd.log {
         daily
         missingok
@@ -63,7 +63,7 @@
         endscript
 }
 
-[%CFEngine redhat.role_rudder_inventory_ldap:: %]
+[%CFEngine redhat.role_rudder_webapp:: %]
 /var/log/rudder/ldap/slapd.log {
         daily
         missingok
