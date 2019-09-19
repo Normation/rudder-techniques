@@ -98,14 +98,6 @@ bundle agent root_component_check
           "Check rudder status", "None", "Checking rudder web interface status is unnecessary on this machine, skipping."
         );
 
-    role_rudder_inventory_endpoint::
-      "any" usebundle => generic_alive_check("endpoint");
-
-    !role_rudder_inventory_endpoint::
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
-          "Check endpoint status", "None", "Checking rudder inventory endpoint status is unnecessary on this machine, skipping."
-        );
-
     role_rudder_inventory_ldap::
       "any" usebundle => rudder_generic_service("slapd", "rudder-slapd");
       "any" usebundle => compress_ldap_backups;

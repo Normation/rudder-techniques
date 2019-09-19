@@ -97,7 +97,6 @@ bundle common g
     "role_rudder_inventory_ldap"           expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-ldap");
     "role_rudder_jetty"                    expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-jetty");
     "role_rudder_webapp"                   expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
-    "role_rudder_inventory_endpoint"       expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-inventory-endpoint");
     "role_rudder_reports"                  expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
     "role_rudder_relay_top"                expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-relay-top");
     "role_rudder_relay_promises_only"      expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-relay-promises-only");

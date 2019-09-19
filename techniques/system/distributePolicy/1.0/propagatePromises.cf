@@ -195,12 +195,6 @@ bundle agent sendInventoryToCmdb
     any::
       "incoming_inventory_files" slist => findfiles("${g.rudder_inventories}/incoming/*.ocs", "${g.rudder_inventories}/incoming/*.ocs.gz");
       "updates_inventory_files" slist => findfiles("${g.rudder_inventories}/accepted-nodes-updates/*.ocs", "${g.rudder_inventories}/accepted-nodes-updates/*.ocs.gz");
-    has_cmdb_endpoint::
-      "rudder_inventory_endpoint" string => "${distribute_policy_common.cmdb_endpoint}";
-    !has_cmdb_endpoint.!role_rudder_inventory_endpoint_server_defined::
-      "rudder_inventory_endpoint" string => "http://localhost:8080/endpoint/upload/";
-    !has_cmdb_endpoint.role_rudder_inventory_endpoint_server_defined::
-      "rudder_inventory_endpoint" string => "http://${rudder_servers_by_role.roles[rudder-inventory-endpoint]}:8080/endpoint/upload/";
 
   classes:
     any::
@@ -210,22 +204,8 @@ bundle agent sendInventoryToCmdb
       "disable_upload" expression => fileexists("/opt/rudder/etc/no_inventory_upload");
 
   files:
-    # Root server and relay-top send to the endpoint, every other send as usual to their policy server
-    !disable_upload.(root_server|role_rudder_relay_top)::
-
-      "${incoming_inventory_files}"
-        transformer => "/bin/bash ${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        classes => classes_generic("rudder_inventory_processing"),
-        ifvarclass => "!rudder_inventory_processing_error",
-        comment => "Processing a local inventory";
-
-      "${updates_inventory_files}"
-        transformer => "/bin/bash ${this.promise_dirname}/send-clean.sh ${rudder_inventory_endpoint} ${this.promiser} ${g.rudder_inventories}/received/ ${g.rudder_inventories}/failed/",
-        classes => classes_generic("rudder_inventory_processing"),
-        ifvarclass => "!rudder_inventory_processing_error",
-        comment => "Processing a local inventory";
-
-    !disable_upload.policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only)::
+    # send inventories from relay to server via webdav
+    !disable_upload.policy_server.!root_server::
 
       "${g.rudder_inventories}/incoming"
         transformer => "${g.rudder_curl} --tlsv1.2 ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user rudder:rudder --upload-file ${this.promiser} https://${server_info.policy_server}/inventories/",
@@ -241,7 +221,7 @@ bundle agent sendInventoryToCmdb
         classes => classes_generic("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
-    !disable_upload.policy_server.!(root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_relay_error::
+    !disable_upload.policy_server.!root_server.!rudder_inventory_relay_error::
 
       "${g.rudder_inventories}/incoming"
         transformer => "/bin/rm -f ${this.promiser}",
@@ -259,15 +239,10 @@ bundle agent sendInventoryToCmdb
 
   methods:
 
-    pass3.(rudder_inventory_processing_repaired.!rudder_inventory_processing_error)::
-      "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Incoming inventories were successfully sent to the inventory API");
-
-    pass3.disable_upload::
+    pass3.(disable_upload|root_server)::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Sending inventories has been disabled");
 
-    pass3.rudder_inventory_processing_error::
-
-    pass3.((root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!rudder_inventory_processing_repaired.!rudder_inventory_processing_error.!disable_upload)::
+    pass3.((root_server|role_rudder_relay_top|role_rudder_relay_promises_only).!disable_upload)::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "No inventory to send");
 
     pass3.(rudder_inventory_relay_repaired.!rudder_inventory_relay_error)::
