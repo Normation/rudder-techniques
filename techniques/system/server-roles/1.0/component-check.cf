@@ -7,7 +7,7 @@ bundle agent root_component_check
       "apache_dist_specific_name"                      string => "httpd";
 
     any::
-      "postgresql_service_name" string => execresult("${paths.systemctl} --no-ask-password --type service | ${paths.awk} -F'.' '{print $1}' | ${paths.grep} -E \"^postgresql-?[0-9]*$\" | tail -n 1", "useshell");
+      "postgresql_service_name" string => execresult("${paths.systemctl} --no-ask-password list-unit-files --type service | ${paths.awk} -F'.' '{print $1}' | ${paths.grep} -E \"^postgresql-?[0-9]*$\" | tail -n 1", "useshell");
 
       "technique_name"                                 string => "server-roles";
 
