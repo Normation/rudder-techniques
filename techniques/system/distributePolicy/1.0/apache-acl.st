@@ -46,7 +46,6 @@ bundle agent apache_acl
   files:
     !role_rudder_relay_promises_only.pass2::
       "${destination}/${ssl_ca_file}"
-        create        => "true",
         perms         => mog("600", "root", "0"),
         copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
         classes       => rudder_common_classes("rudder_apache_acl"),
