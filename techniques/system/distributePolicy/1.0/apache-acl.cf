@@ -37,7 +37,6 @@ bundle agent apache_acl
 
       # For relayd, should move into relayd config after merging distributPolicy into serverRoles
       "${destination}/${ssl_ca_file}"
-        create        => "true",
         perms         => mog("600", "root", "0"),
         copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
         classes       => classes_generic("rudder_apache_acl"),
