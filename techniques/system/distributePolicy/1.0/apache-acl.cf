@@ -25,22 +25,39 @@ bundle agent apache_acl
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
+    pass2::
+      "don_t_check_permission" expression => islink("${src_ca_file}");
+
   files:
     pass2::
       # For compatibility with apache config
       "/opt/rudder/etc/ssl/ca.cert"
-        create        => "true",
         perms         => mog("600", "root", "0"),
         copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
         classes       => classes_generic("rudder_apache_acl"),
-        comment       => "Writing rudder apache ACL";
+        comment       => "Writing rudder apache ACL",
+        ifvarclass    => "!don_t_check_permission";
 
       # For relayd, should move into relayd config after merging distributPolicy into serverRoles
       "${destination}/${ssl_ca_file}"
         perms         => mog("600", "root", "0"),
         copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
         classes       => classes_generic("rudder_apache_acl"),
-        comment       => "Writing rudder apache ACL";
+        comment       => "Writing rudder apache ACL",
+        ifvarclass    => "!don_t_check_permission";
+
+      "/opt/rudder/etc/ssl/ca.cert"
+        copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
+        classes       => classes_generic("rudder_apache_acl"),
+        comment       => "Writing rudder apache ACL",
+        ifvarclass    => "don_t_check_permission";
+
+      # For relayd, should move into relayd config after merging distributPolicy into serverRoles
+      "${destination}/${ssl_ca_file}"
+        copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
+        classes       => classes_generic("rudder_apache_acl"),
+        comment       => "Writing rudder apache ACL",
+        ifvarclass    => "don_t_check_permission";
 
   methods:
     rudder_apache_acl_repaired::
