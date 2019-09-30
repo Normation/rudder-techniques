@@ -43,13 +43,23 @@ bundle agent apache_acl
       "pass2" expression => "pass1";
       "pass1" expression => "any";
 
+    pass2::
+      "don_t_check_permission" expression => islink("${src_ca_file}");
+
   files:
     !role_rudder_relay_promises_only.pass2::
       "${destination}/${ssl_ca_file}"
         perms         => mog("600", "root", "0"),
         copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
         classes       => rudder_common_classes("rudder_apache_acl"),
-        comment       => "Writing rudder apache ACL";
+        comment       => "Writing rudder apache ACL",
+        ifvarclass    => "!don_t_check_permission";
+
+      "${destination}/${ssl_ca_file}"
+        copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
+        classes       => rudder_common_classes("rudder_apache_acl"),
+        comment       => "Writing rudder apache ACL - don't check permissions as it's a symbolic link",
+        ifvarclass    => "don_t_check_permission";
 
   methods:
     rudder_apache_acl_repaired::
