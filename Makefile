@@ -46,6 +46,7 @@ initial-promises: rudder-templates-cli.jar test
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "server-roles@@server-roles-directive@@0",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0/ techniques/system/server-roles/1.0/*.st
 	cp techniques/system/server-roles/1.0/*.cf initial-promises/node-server/server-roles/1.0/ || true
+	cp techniques/system/server-roles/1.0/relayd.conf.tpl initial-promises/node-server/server-roles/1.0/
 	mkdir -p initial-promises/node-server/server-roles/logrotate.conf/
 	cp techniques/system/server-roles/1.0/rudder-logrotate initial-promises/node-server/server-roles/logrotate.conf/rudder
 	mv initial-promises/node-server/server-roles/1.0/rudder-server-roles.cf initial-promises/node-server/rudder-server-roles.conf
