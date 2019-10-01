@@ -58,9 +58,12 @@ bundle server access_rules
 
     # Allow server to remotely run the agent
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
-    any::
+    !root_server::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
         admit_ips => { host2ip("${server_info.policy_server}") };
+    root_server::
+      "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand, root is its own policy server",
+        admit_ips => { host2ip("${server_info.policy_server}"), @{sys.ip_addresses} };
 
     enterprise_edition::
       "${query_types}"
