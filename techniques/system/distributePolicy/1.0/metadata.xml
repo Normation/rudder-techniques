@@ -46,9 +46,6 @@
     <FILE name="apache-acl.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="send-clean.sh">
-      <INCLUDED>false</INCLUDED>
-    </FILE>
   </FILES>
 
   <SYSTEMVARS>
