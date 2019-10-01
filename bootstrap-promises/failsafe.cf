@@ -6,6 +6,13 @@ body common control
     tls_min_version  => "1.2";
 }
 
+
+body server control
+{
+    # Listen on correct port from the beginning	
+    port => "5309";
+}
+
 # WARN: this bundle comes from update.cf
 bundle common server_info
 {
