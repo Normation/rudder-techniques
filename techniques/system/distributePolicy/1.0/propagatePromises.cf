@@ -239,7 +239,7 @@ bundle agent sendInventoryToCmdb
 
   methods:
 
-    pass3.(disable_upload|root_server)::
+    pass3.disable_upload::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Send inventories to Rudder server", "None", "Sending inventories has been disabled");
 
     pass3.(root_server.!disable_upload)::
