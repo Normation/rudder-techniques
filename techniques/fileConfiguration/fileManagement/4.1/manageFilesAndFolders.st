@@ -14,7 +14,7 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
 }&
     &FILE_AND_FOLDER_MANAGEMENT_GROUP:{group |"file[&i&][group]" string => "&group&";
 }&
-&FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND:{cmd |"file[&i&][post_hook_command]" string => "&cmd&";
+    &FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_COMMAND:{cmd |"file[&i&][post_hook_command]" string => "&cmd&";
 }&
     &FILE_AND_FOLDER_MANAGEMENT_SYMLINK_SOURCE:{src |"file[&i&][source]" string => "&src&";
 }&
@@ -83,6 +83,8 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
 }&
     &FILE_AND_FOLDER_DELETION_OPTION:{delopt | "manageFilesAndFolders_deletion_exterminate_&i&" expression => strcmp("&delopt&", "exterminate");
 }&
+    &FILE_AND_FOLDER_DELETION_DAYS:{deldays | "manageFilesAndFolders_deletion_withoutdate_&i&" expression => strcmp("&deldays&", "0");
+}&
 
       &FILE_AND_FOLDER_MANAGEMENT_SUID:{suid |"enable_suid_&i&" expression => strcmp("&suid&", "true");
 }&
@@ -96,7 +98,7 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
 
       "iteration_2" expression => "iteration_1";
       "iteration_1" expression => "any";
- 
+
     any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
@@ -188,27 +190,52 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
       classes      => classes_generic("manageFilesAndFolders_perms_${index}_RudderUniqueID"),
       ifvarclass   => "manageFilesAndFolders_check_permissions_${index}.manageFilesAndFolders_isrecursive_${index}.manageFilesAndFolders_groupset_${index}.!manageFilesAndFolders_userset_${index}.!manageFilesAndFolders_isfile_${index}.manageFilesAndFolders_isdir_${index}";
 
+  ## Case with TTL
     # This will not delete the parent
-    "${file[${index}][path]}" 
+    "${file[${index}][path]}"
       delete       => tidy,
       file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
-      ifvarclass   => "manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
+      ifvarclass   => "!manageFilesAndFolders_deletion_withoutdate_${index}.manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
       depth_search => recurse("0"),
       classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
     # This will not delete the parent
-    "${file[${index}][path]}" 
+    "${file[${index}][path]}"
       delete       => tidy,
       file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
       depth_search => recurse("inf"),
-      ifvarclass   => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_full_recursive_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+      ifvarclass   => "!manageFilesAndFolders_deletion_withoutdate_${index}.manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_full_recursive_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
       classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
     # This WILL delete the parent
-    "${file[${index}][path]}" 
+    "${file[${index}][path]}"
       delete       => tidy,
       file_select  => date_pattern("${file[${index}][ttl]}", "${file[${index}][pattern]}"),
-      ifvarclass   => "manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+      ifvarclass   => "!manageFilesAndFolders_deletion_withoutdate_${index}.manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+      classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
+
+  ## Case without TTL
+    # This will not delete the parent
+    "${file[${index}][path]}"
+      delete       => tidy,
+      file_select  => by_name("${file[${index}][pattern]}"),
+      ifvarclass   => "manageFilesAndFolders_deletion_withoutdate_${index}.manageFilesAndFolders_clean_${index}.manageFilesAndFolders_deletion_single_recursive_${index}",
+      depth_search => recurse("0"),
+      classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
+
+    # This will not delete the parent
+    "${file[${index}][path]}"
+      delete       => tidy,
+      file_select  => by_name("${file[${index}][pattern]}"),
+      depth_search => recurse("inf"),
+      ifvarclass   => "manageFilesAndFolders_deletion_withoutdate_${index}.manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_full_recursive_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
+      classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
+
+    # This WILL delete the parent
+    "${file[${index}][path]}"
+      delete       => tidy,
+      file_select  => by_name("${file[${index}][pattern]}"),
+      ifvarclass   => "manageFilesAndFolders_deletion_withoutdate_${index}.manageFilesAndFolders_clean_${index}.(manageFilesAndFolders_deletion_simple_${index}|manageFilesAndFolders_deletion_exterminate_${index})",
       classes      => classes_generic("manageFilesAndFolders_delete_${index}_RudderUniqueID");
 
   methods:
@@ -259,7 +286,7 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
       ## Reporting for no change
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_success", "${file[${index}][uuid]}", "File", "${file[${index}][path]}", "No file creation action specified for ${file[${index}][path]}", "${index}"),
                                 ifvarclass => "manageFilesAndFolders_nocreate_${index}";
-      
+
       ### Reporting for the permissions
       ## Special cases
       # NA if no perms check setted
