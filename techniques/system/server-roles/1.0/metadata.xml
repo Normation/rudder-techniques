@@ -85,7 +85,6 @@
     <SECTION name="Check slapd boot script" component="true"/>
     <SECTION name="Check apache boot script" component="true"/>
     <SECTION name="Check relayd boot script" component="true"/>
-    <SECTION name="Check PostgreSQL configuration" component="true"/>
     <SECTION name="Check logrotate configuration" component="true"/>
     <SECTION name="Check configuration-repository folder" component="true"/>
     <SECTION name="Check configuration-repository GIT lock" component="true"/>
