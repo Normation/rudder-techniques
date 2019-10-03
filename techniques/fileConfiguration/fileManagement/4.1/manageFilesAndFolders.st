@@ -70,7 +70,7 @@ bundle agent manageFilesAndFolders_RudderUniqueID {
   classes:
 
     # Set a class to define when we need to run the post-modification hook
-    &FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN:{run |"manageFilesAndFolders_post_hook_run_&i&" expression => strcmp("&run&", "true");
+&FILE_AND_FOLDER_MANAGEMENT_POST_HOOK_RUN:{run |"manageFilesAndFolders_post_hook_run_&i&" expression => strcmp("&run&", "true");
 }&
 
     &FILE_AND_FOLDER_MANAGEMENT_CHECK_PERMISSIONS:{perms |"manageFilesAndFolders_check_permissions_&i&" expression => strcmp("&perms&", "true");
