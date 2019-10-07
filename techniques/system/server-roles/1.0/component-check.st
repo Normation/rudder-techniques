@@ -71,7 +71,6 @@ bundle agent root_component_check
 
     # Check that Postgresql is up and running before checking its password
     role_rudder_reports::
-      "any" usebundle => root_postgres_check;
       "any" usebundle => generic_process_check_process("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
       "any" usebundle => generic_process_check_bootstart("${service[rudder_reports][binary]}", "${service[rudder_reports][service]}", "${service[rudder_reports][name]}");
 
