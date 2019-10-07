@@ -31,11 +31,6 @@ bundle agent root_component_check
           "Relayd service configuration", "None", "Checking relayd configuration is unnecessary on this machine, skipping."
         );
 
-    # Check that Postgresql is up and running before checking its password
-    role_rudder_reports::
-      "any" usebundle => root_postgres_check;
-      "any" usebundle => rudder_generic_service("postgresql", "${postgresql_service_name}");
-
     !role_rudder_reports::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
           "Check PostgreSQL configuration", "None", "Checking PostgreSQL configuration is unnecessary on this machine, skipping."
