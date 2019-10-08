@@ -131,7 +131,7 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
       "${runhook_sshKeyDistribution_pre_hook.temp_ssh_key_path}/${sshkey_distribution_name[${sshkey_distribution_index}]}.authorized_keys.tmp"
         perms         => m("600"),
         edit_line     => append_or_replace_ssh_key_RudderUniqueID("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
-        ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}");
+        ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
 
 
   methods:
