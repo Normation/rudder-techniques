@@ -33,9 +33,6 @@
     <FILE name="password-check.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="postgres-check.cf">
-      <INCLUDED>true</INCLUDED>
-    </FILE>
     <FILE name="logrotate-check.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
