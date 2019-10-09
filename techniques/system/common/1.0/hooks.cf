@@ -491,6 +491,8 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
       # check if files have the same size
       "same_size_for_${runhook_sshKeyDistribution_pre_hook.userlist}" expression => strcmp("${tmp_ssh_file_size_${runhook_sshKeyDistribution_pre_hook.userlist}}", "${ssh_file_size_${runhook_sshKeyDistribution_pre_hook.userlist}}");
 
+      # Check if user home dir exists
+      "home_directory_${runhook_sshKeyDistribution_pre_hook.userlist}_defined" not => strcmp("${runhook_sshKeyDistribution_pre_hook.homedir[${runhook_sshKeyDistribution_pre_hook.userlist}]}", "");
 
       # Identical files are if:
       # No error/repair for a user + identical file size
@@ -539,7 +541,7 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
          copy_from  => copy_digest("${runhook_sshKeyDistribution_pre_hook.temp_ssh_key_path}/${runhook_sshKeyDistribution_pre_hook.userlist}.authorized_keys.tmp"),
          classes    => classes_generic("post_hook_flush_ssh_${runhook_sshKeyDistribution_pre_hook.userlist}"),
          comment    => "IN ENFORCE",
-         ifvarclass => "enforce_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
+         ifvarclass => "home_directory_${runhook_sshKeyDistribution_pre_hook.userlistx}_defined.enforce_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
 
 
       # auditing file replacement
@@ -547,7 +549,7 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
          copy_from  => copy_digest("${runhook_sshKeyDistribution_pre_hook.temp_ssh_key_path}/${runhook_sshKeyDistribution_pre_hook.userlist}.authorized_keys.tmp"),
          action     => WarnOnly,
          classes    => classes_generic("post_hook_flush_ssh_${runhook_sshKeyDistribution_pre_hook.userlist}"),
-         ifvarclass => "audit_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
+         ifvarclass => "home_directory_${runhook_sshKeyDistribution_pre_hook.userlistx}_defined.audit_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
 
 
     pass2::
@@ -580,6 +582,21 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
           "The user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} does not exists on this system"
         ),
         ifvarclass => "!ssh_key_distribution_user_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_exists.!enforce_mode_${bundles}";
+
+      # User present, but no home dir
+      "No user" usebundle     => rudder_common_report(
+          "${technique_name}", "result_error",
+          "${${bundles}.sshkey_distribution_uuid[${array[${bundles}]}]}", "${component_name}", "${${bundles}.sshkey_distribution_tag[${array[${bundles}]}]}",
+          "The user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} does not have a defined home dir"
+        ),
+        ifvarclass => "!home_directory_${runhook_sshKeyDistribution_pre_hook.userlist}_defined.ssh_key_distribution_user_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_exists.enforce_mode_${bundles}.ssh_key_distribution_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_to_flush";
+
+      "No user" usebundle     => rudder_common_report(
+          "${technique_name}", "audit_noncompliant",
+          "${${bundles}.sshkey_distribution_uuid[${array[${bundles}]}]}", "${component_name}", "${${bundles}.sshkey_distribution_tag[${array[${bundles}]}]}",
+          "The user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} does not have a defined home dir"
+        ),
+        ifvarclass => "!home_directory_${runhook_sshKeyDistribution_pre_hook.userlist}_defined.ssh_key_distribution_user_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_exists.!enforce_mode_${bundles}.ssh_key_distribution_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_to_flush";
 
       # No flush requested -> NA
       "No flush" usebundle     => rudder_common_report(
