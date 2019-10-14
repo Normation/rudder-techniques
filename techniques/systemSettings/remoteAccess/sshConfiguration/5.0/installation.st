@@ -14,7 +14,7 @@ bundle agent rudder_openssh_server_installation(class_prefix, service_name, para
 
   methods:
     linux::
-      "any" usebundle => package_present("${rudder_openssh_server_package_name}");
+      "any" usebundle => package_present("${rudder_openssh_server_package_name}", "", "", "");
 }
 
 bundle agent rudder_openssh_server_installation_reporting(class_prefix, service_name, params)

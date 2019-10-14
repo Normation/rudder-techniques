@@ -13,7 +13,7 @@ bundle agent check_nfs_client_installation
       "rudder_nfs_client_package" string => "nfs-client";
 
   methods:
-      "any" usebundle => package_present("${rudder_nfs_client_package}");
+      "any" usebundle => package_present("${rudder_nfs_client_package}", "", "", "");
     linux::
       "any" usebundle => rudder_common_reports_generic("nfsClient", "package_present_${rudder_nfs_client_package}", "&TRACKINGKEY&", "NFS Client package install", "None", "The ${rudder_nfs_client_package} package installation");
     !linux::

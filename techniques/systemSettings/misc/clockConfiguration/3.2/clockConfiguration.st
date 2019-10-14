@@ -79,7 +79,7 @@ bundle agent check_clock_configuration
 
   methods:
     linux::
-      "any" usebundle           => package_present("${rudder_ntp_package_name}");
+      "any" usebundle           => package_present("${rudder_ntp_package_name}", "", "", "");
 
     aix::
       "start_xntpd" usebundle   => service_ensure_running("xntpd");
