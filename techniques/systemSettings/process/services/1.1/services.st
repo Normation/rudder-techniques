@@ -19,7 +19,7 @@ bundle agent services_RudderUniqueID
 
       "index" slist => getindices("service");
 
-      "technique_name"           string => "Services technique";
+      "technique_name"           string => "Services";
       "service_canon[${index}]"  string => canonify("${service[${index}]}");
       "posthook_canon[${index}]" string => canonify("${posthook[${index}]}");
 

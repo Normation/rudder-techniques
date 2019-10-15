@@ -83,69 +83,69 @@ bundle agent services_management
 
     pass3::
     # Error when a state (start, stop, etc.) is selected but no process name is given
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Cannot check the status of ${service[${index}][name]}: the process name is not filed", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Cannot check the status of ${service[${index}][name]}: the process name is not filed", "${index}"),
         ifvarclass => "!defined_process_name_${index}.(start_process_${index}|stop_process_${index})";
 
     # Process start/restart
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is running", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is running", "${index}"),
         ifvarclass => "service_${index}_running.!service_${index}_anomaly.!process_${index}_restart.start_process_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was not running and has been restarted", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was not running and has been restarted", "${index}"),
         ifvarclass => "process_${index}_restart.start_process_${index}.service_start_${service[${index}][canon_name]}_repaired";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process couldn't be started", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process couldn't be started", "${index}"),
         ifvarclass => "service_start_${service[${index}][canon_name]}_not_ok";
 
     # Process stop
     # For graceful stop we use the ncf service_stop, for less graceful stopping we use unix signals and cf-engine processes promises
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running", "${index}"),
         ifvarclass => "stop_process_${index}.process_${index}_restart.graceful_stop_process_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped", "${index}"),
         ifvarclass => "stop_process_${index}.!process_${index}_restart.service_stop_${service[${index}][canon_name]}_repaired.graceful_stop_process_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process could't be stopped", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process could't be stopped", "${index}"),
         ifvarclass => "stop_process_${index}.!process_${index}_restart.service_stop_${service[${index}][canon_name]}_not_ok";
 
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} is not running", "${index}"),
         ifvarclass => "stop_process_${index}.service_${index}_already_stopped.!service_${index}_stopped.!graceful_stop_process_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_repaired", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "Process of ${service[${index}][name]} was stopped", "${index}"),
         ifvarclass => "stop_process_${index}.service_${index}_stopped.!graceful_stop_process_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process count could't be stopped", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_error", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]}: the process count could't be stopped", "${index}"),
         ifvarclass => "stop_process_${index}.service_${index}_error.!graceful_stop_process_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]} didn't need to have its process checked", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_success", "${service[${index}][uuid]}", "Process", "${service[${index}][name]}", "${service[${index}][name]} didn't need to have its process checked", "${index}"),
         ifvarclass => "!start_process_${index}.!stop_process_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range is not to be checked for service ${service[${index}][name]}", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_na", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range is not to be checked for service ${service[${index}][name]}", "${index}"),
         ifvarclass => "!check_process_range_${index}";
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} cannot to be checked, for the process name is not set", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} cannot to be checked, for the process name is not set", "${index}"),
         ifvarclass => "check_process_range_${index}.!defined_process_name_${index}";
 
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_success", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} is correct", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_success", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} is correct", "${index}"),
         ifvarclass => "check_process_range_${index}.defined_process_name_${index}.!${service[${index}][canon_name]}_out_of_range";
 
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_repaired", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_repaired", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, but was repaired", "${index}"),
         ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][canon_name]}_repaired";
 
 
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, and could not be repaired", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_error", "${service[${index}][uuid]}", "Advanced options", "${service[${index}][name]}", "The process range for service ${service[${index}][name]} was not correct, and could not be repaired", "${index}"),
         ifvarclass => "check_process_range_${index}.defined_process_name_${index}.${service[${index}][canon_name]}_out_of_range.service_restart_${service[${index}][canon_name]}_not_ok";
 
     # Service boot starting parameters
-      "any" usebundle => rudder_common_report_index("ServicesManagement", "result_na", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required", "${index}"),
+      "any" usebundle => rudder_common_report_index("Processes", "result_na", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "${service[${index}][name]} starting parameters check not required", "${index}"),
         ifvarclass => "!bootstart_process_${index}.!bootstart_prevent_process_${index}";
-        
-      "any" usebundle => rudder_common_reports_generic_index("ServicesManagement", "service_ensure_started_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
+
+      "any" usebundle => rudder_common_reports_generic_index("Processes", "service_ensure_started_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
         ifvarclass => "bootstart_process_${index}";
-          
-      "any" usebundle => rudder_common_reports_generic_index("ServicesManagement", "service_ensure_disabled_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
+
+      "any" usebundle => rudder_common_reports_generic_index("Processes", "service_ensure_disabled_at_boot_${service[${index}][canon_name]}", "${service[${index}][uuid]}", "Service starting parameters", "${service[${index}][name]}", "The ${service[${index}][name]} boot starting configuration", "${index}"),
         ifvarclass => "bootstart_prevent_process_${index}";
 
 
