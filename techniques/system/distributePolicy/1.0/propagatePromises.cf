@@ -54,8 +54,8 @@ bundle agent propagatePromises
         classes => if_else("promises_propagated", "could_not_propagate_promises");
 
     policy_server.!root_server.!disable_classic_sharedfiles::
-      "${system_common.system_common}"
-        copy_from    => remote("${server_info.policy_server}","${system_common.system_common}"),
+      "${system_common.sharedfiles_folder}"
+        copy_from    => remote("${server_info.policy_server}","${system_common.sharedfiles_folder}"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the files shared for the promises execution",
         classes => if_else("files_propagated", "could_not_propagate_files");
