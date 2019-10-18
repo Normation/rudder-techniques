@@ -13,9 +13,18 @@ GET = $(PROXY_ENV) $(WGET)
 endif
 endif
 
+# rudder-agent-community-cron is a mustache template that is not rendered at postinstall
+# It needs to be "correctly" built to avoid breaking the cron service
+ifneq (,$(wildcard /tmp/slackware))
+CRON_AGENT = "$(shell perl -0777 -pe 's|\{\{\#classes.slackware}}(.*?)\{\{/classes.slackware}}.*?\{\{\^classes.slackware}}(.*?)\{\{/classes.slackware}}|\1|sg' techniques/system/common/1.0/rudder-agent-community-cron)"
+else
+CRON_AGENT = "$(shell perl -0777 -pe 's|\{\{\#classes.slackware}}(.*?)\{\{/classes.slackware}}.*?\{\{\^classes.slackware}}(.*?)\{\{/classes.slackware}}|\2|sg' techniques/system/common/1.0/rudder-agent-community-cron)"
+endif
+
 all: initial-promises bootstrap-promises/rudder.json bootstrap-promises/promises.cf
 
 initial-promises: rudder-templates-cli.jar test
+
 	# The common technique
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/*.st
@@ -26,7 +35,8 @@ initial-promises: rudder-templates-cli.jar test
 	mv initial-promises/node-server/common/1.0/rudder-directives.cf initial-promises/node-server/
 	mv initial-promises/node-server/common/1.0/rudder-vars.cf initial-promises/node-server/rudder-vars.json
 	mkdir -p initial-promises/node-server/common/cron
-	cp techniques/system/common/1.0/rudder-agent-community-cron initial-promises/node-server/common/cron/
+	echo "$(CRON_AGENT)" > initial-promises/node-server/common/cron/rudder-agent-community-cron
+	cp techniques/system/common/1.0/rudder-agent-nova-cron initial-promises/node-server/common/cron/
 	mv initial-promises/node-server/common/1.0/run_interval.cf initial-promises/node-server/run_interval
 	mkdir -p initial-promises/node-server/common/utilities
 	# The inventory technique
