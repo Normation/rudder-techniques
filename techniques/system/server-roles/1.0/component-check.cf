@@ -31,10 +31,9 @@ bundle agent root_component_check
           "Relayd service configuration", "None", "Checking relayd configuration is unnecessary on this machine, skipping."
         );
 
+    role_rudder_reports::
+      "any" usebundle => rudder_generic_service("postgresql", "${postgresql_service_name}");
     !role_rudder_reports::
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
-          "Check PostgreSQL configuration", "None", "Checking PostgreSQL configuration is unnecessary on this machine, skipping."
-        );
       "any" usebundle => rudder_generic_service_na("postgresql");
 
 
