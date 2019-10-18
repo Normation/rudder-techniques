@@ -76,10 +76,6 @@ bundle agent root_component_check
 
     !role_rudder_reports::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
-          "Check PostgreSQL configuration", "None", "Checking PostgreSQL configuration is unnecessary on this machine, skipping."
-        );
-
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
           "Check postgresql process", "None", "Checking postgresql process state is unnecessary on this machine, skipping."
         );
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "&TRACKINGKEY&",
