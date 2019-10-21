@@ -15,10 +15,11 @@ endif
 
 # rudder-agent-community-cron is a mustache template that is not rendered at postinstall
 # It needs to be "correctly" built to avoid breaking the cron service
+# Need to also remove all lines starting with comment
 ifneq (,$(wildcard /tmp/slackware))
-CRON_AGENT = "$(shell perl -0777 -pe 's|\{\{\#classes.slackware}}(.*?)\{\{/classes.slackware}}.*?\{\{\^classes.slackware}}(.*?)\{\{/classes.slackware}}|\1|sg' techniques/system/common/1.0/rudder-agent-community-cron)"
+CRON_AGENT = $(shell perl -0777 -pe 's|\{\{\#classes.slackware}}(.*?)\{\{/classes.slackware}}.*?\{\{\^classes.slackware}}(.*?)\{\{/classes.slackware}}|\1|sg' techniques/system/common/1.0/rudder-agent-community-cron)
 else
-CRON_AGENT = "$(shell perl -0777 -pe 's|\{\{\#classes.slackware}}(.*?)\{\{/classes.slackware}}.*?\{\{\^classes.slackware}}(.*?)\{\{/classes.slackware}}|\2|sg' techniques/system/common/1.0/rudder-agent-community-cron)"
+CRON_AGENT = $(shell perl -0777 -pe 's|\{\{\#classes.slackware}}(.*?)\{\{/classes.slackware}}.*?\{\{\^classes.slackware}}(.*?)\{\{/classes.slackware}}|\2|sg' techniques/system/common/1.0/rudder-agent-community-cron)
 endif
 
 all: initial-promises bootstrap-promises/rudder.json bootstrap-promises/promises.cf
@@ -36,7 +37,6 @@ initial-promises: rudder-templates-cli.jar test
 	mv initial-promises/node-server/common/1.0/rudder-vars.cf initial-promises/node-server/rudder-vars.json
 	mkdir -p initial-promises/node-server/common/cron
 	echo "$(CRON_AGENT)" > initial-promises/node-server/common/cron/rudder-agent-community-cron
-	cp techniques/system/common/1.0/rudder-agent-nova-cron initial-promises/node-server/common/cron/
 	mv initial-promises/node-server/common/1.0/run_interval.cf initial-promises/node-server/run_interval
 	mkdir -p initial-promises/node-server/common/utilities
 	# The inventory technique
