@@ -48,6 +48,7 @@ $template RudderReportsFormat,"insert into RudderSysEvents (executionDate, nodeI
 # If report protocol is HTTPS, we drop the local rsyslog message
 {{#classes.rudder_reporting_https}}
 if $fromhost-ip == "127.0.0.1" then {
+    :programname, isequal, "cf-agent" ~
     :programname, isequal, "rudder" ~
 }
 {{/classes.rudder_reporting_https}}
