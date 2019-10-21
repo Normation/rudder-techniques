@@ -54,7 +54,10 @@ bundle agent root_component_check
           "${root_password_check_psql}", "None", "Checking SQL passwords is unnecessary on this machine, skipping."
         );
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
-          "Check rudder-passwords.conf and pgpass files", "None", "Checking the password files is unnecessary on this machine, skipping..."
+          "Check pgpass file", "None", "Checking the pgsql password file is unnecessary on this machine, skipping..."
+        );
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
+          "Check rudder-passwords.conf", "None", "Checking the Rudder password file is unnecessary on this machine, skipping..."
         );
 
     # Do this if this is the root_server or a relay server
