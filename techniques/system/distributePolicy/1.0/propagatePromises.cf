@@ -114,16 +114,23 @@ bundle agent propagatePromises
         copy_from    => local_cp("${this.promise_dirname}/nodeslist.json"),
         perms        => mog("640", "root", "rudder"),
         comment => "Copying list of nodes under this policy server",
-        classes => if_else("nodeslist_copied", "could_not_copy_nodeslist");
+        classes => classes_generic("nodeslist");
 
   methods:
+    nodeslist_repaired::
+      "any" usebundle => service_reload("rudder-relayd");
+
     # Success if resources are updated or not changed (kept or repaired).
     # relays have ncf, masterfiles nodelist and shared_files folder to be updated.
     pass3.root_server::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_na", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Nothing needs to be updated");
 
-    pass3.!root_server.(shared_files_propagated|sharedfiles_not_existent).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.nodeslist_copied.!(sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist)::
+    pass3.!root_server.!service_reload_rudder_relayd_error.(shared_files_propagated|sharedfiles_not_existent).masterfiles_propagated.ncf_local_promises_propagated.ncf_common_promises_propagated.!nodeslist_error.!(sharedfiles_not_copied|could_not_propagate_masterfiles|could_not_propagate_ncf_local_promise|could_not_propagate_ncf_common_promise|could_not_copy_nodeslist)::
+deslist_repaired
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "All resources have been synchronized");
+
+    pass3.service_reload_rudder_relayd_error::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot reload rudder-relayd configuration");
 
     pass3.sharedfiles_not_copied::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot synchronize shared files");
@@ -166,7 +173,7 @@ bundle agent propagatePromises
     pass3.could_not_copy_license::
       "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot copy local license");
 
-    pass3.could_not_copy_nodeslist::
+    pass3.nodeslist_error::
       "any" usebundle => rudder_common_report("DistributePolicy", "log_warn", "${distribute_policy_common.directiveId}", "Synchronize resources", "None", "Cannot copy local nodes list");
 
   commands:
