@@ -20,7 +20,7 @@ bundle agent propagatePromises
   classes:
     !root_server::
        # configure the Relay synchronization method
-       "sync_method_disabled" expression => strcmp("${distribute_policy_common.relay_sync_method}", "disable");
+       "sync_method_disabled" expression => strcmp("${distribute_policy_common.relay_sync_method}", "disabled");
        "sync_method_rsync"    expression => strcmp("${distribute_policy_common.relay_sync_method}", "rsync");
        "sync_promises"        expression => strcmp("${distribute_policy_common.relay_sync_promises}", "true");
        "sync_sharedfiles"     expression => strcmp("${distribute_policy_common.relay_sync_sharedfiles}", "true");
