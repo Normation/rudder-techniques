@@ -50,6 +50,7 @@ bundle agent propagatePromises
       "${client_data}"  #that's a loop on each files in client_inputs
         copy_from    => remote("${server_info.policy_server}","${server_data}"),
         depth_search => recurse_visible("inf"),
+        perms => mog("2750", "root", "rudder-policy-reader"),
         comment => "Fetching the promises to propagate",
         classes => if_else("promises_propagated", "could_not_propagate_promises");
 
