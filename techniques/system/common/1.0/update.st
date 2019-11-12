@@ -337,32 +337,6 @@ bundle agent update_action
         delete => tidy,
         comment => "Deleting ${g.rudder_tools_updated} as the tools couldn't be updated";
 
-  processes:
-    config.!windows::
-      "cf-serverd" restart_class => "start_server";
-      "cf-execd"   restart_class => "start_exec";
-
-&if(NOVA)&
-  services:
-    windows::
-      "CfengineNovaExec"
-        service_policy => "start",
-        service_method => u_bootstart,
-        classes        => success("executor_ok", "executor_error", "executor_kept"),
-        comment        => "Start the executor windows service now and at boot time";
-&endif&
-
-  commands:
-    start_exec.(!windows|cygwin)::
-      "${sys.cf_execd}"
-        action  => u_ifwin_bg,
-        classes => success("executor_ok", "executor_error", "executor_kept");
-
-    !should_disable_server.start_server::
-      "${sys.cf_serverd}"
-        action  => u_ifwin_bg,
-        classes => success("server_ok", "server_error", "server_kept");
-
   reports:
     # We want to have always reports if something goes bad
     rudder_ncf_hash_update_error::

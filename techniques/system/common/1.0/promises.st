@@ -300,73 +300,9 @@ bundle agent check_cf_processes
 }
 bundle agent check_cf_processes_running
 {
-  vars:
-
-    windows::
-      # process_term defines how many maximum instances of this
-      # binary should be running before attempting to SIGTERM them.
-      # process_kill is the same for SIGKILL.
-      "process_term[agent]" string => "5";
-      "process_kill[agent]" string => "8";
-
-      "binaries"            slist  => getindices("process_term");
-
-  classes:
-    any::
-      "pass3" expression => "pass2";
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
-
   methods:
-    pass3.!windows::
-
       "any" usebundle => rudder_common_report("Common", "result_na", "&TRACKINGKEY&", "Process checking", "None", "Rudder agent proccesses check is done by the rudder-agent cron job");
-
-    pass3.windows::
-      "any" usebundle => rudder_common_report("Common", "result_success", "&TRACKINGKEY&", "Process checking", "None", "There is an acceptable number of Rudder agent processes running"),
-      # Here, I can not use the binaries variable as CFEngine will iterate and output two reports, breaking the reporting.
-        ifvarclass => "!agent_has_gone_wild.!agent_has_gone_really_wild.!execd_has_gone_wild.!execd_has_gone_really_wild";
-
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Process checking", "None", "Warning, more than ${process_term[${binaries}]} cf-${binaries} processes were detected. They have been sent a graceful termination signal."),
-        ifvarclass => "${binaries}_has_gone_wild.!${binaries}_has_gone_really_wild";
-
-      "any" usebundle => rudder_common_report("Common", "result_error", "&TRACKINGKEY&", "Process checking", "None", "ALERT: more than ${process_term[${binaries}]} cf-${binaries} processes were detected. Killing processes that do not respect graceful termination signals."),
-        ifvarclass => "${binaries}_has_gone_really_wild";
-
-  processes:
-    windows::
-      # Using the path on windows fails, as process are not reported the same way
-      # And unfortunately, the cf-serverd is not a service.
-      "cf-serverd"  restart_class => "start_server";
-
-      # Windows does only implement SIGTERM. Using SIGKILL makes no sense on it.
-      "cf-${binaries}"
-        process_count => check_range("${binaries}", "0","${process_term[${binaries}]}"),
-        signals       => { "term" },
-        classes       => if_repaired("${binaries}_has_gone_wild"),
-        comment       => "Checking if cf-${binaries} has gone wild";
-
-    windows.should_disable_server::
-      "cf-serverd"
-        signals       => { "term" },
-        action        => immediate;
-
-  services:
-    # By design, there can be only one cf-execd service running on Windows
-    windows::
-      "CfengineNovaExec"
-        service_policy => "start",
-        service_method => u_bootstart,
-        comment => "Start the executor windows service now and at boot time";
-
-  commands:
-    !should_disable_server.start_server::
-      "${sys.cf_serverd}"
-        action  => u_ifwin_bg,
-        classes => outcome("server");
-
 }
-
 
 # Log and reporting configuration not valid in initial promises
 &if(!INITIAL)&
@@ -762,13 +698,8 @@ bundle agent update_reports
     config::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Configuration policy updated");
 
-    (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated|server_ok|executor_ok).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
-      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Policy, tools or configuration library were updated or agent service restarted");
-
-    server_ok::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the server (cf-serverd)");
-    executor_ok::
-      "any" usebundle => rudder_common_report("Common", "log_repaired", "&TRACKINGKEY&", "Update", "None", "Started the scheduler (cf-execd)");
+    (config|rudder_tools_updated|rudder_ncf_common_updated|rudder_ncf_local_updated).!(rudder_promises_generated_tmp_file_error|rudder_tools_updated_error|rudder_tools_update_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|no_update|rudder_ncf_hash_update_error)::
+      "any" usebundle => rudder_common_report("Common", "result_repaired", "&TRACKINGKEY&", "Update", "None", "Policy, tools or configuration library were updated");
 
     reports:
       # We want to have always reports if something goes bad
