@@ -61,10 +61,18 @@ bundle agent rudder_init {
       "Startup report log"             usebundle => startup;
       "Initialize ncf"                 usebundle => initialize_ncf;
       "Define environment variables"   usebundle => get_environment_variables;
+      "Load agent capabilities"        usebundle => load_agent_capabilities;
 &if(!INITIAL)&
       "Load properties"                usebundle => properties;
 &endif&
 
+}
+
+bundle agent load_agent_capabilities {
+  vars:
+      "capabilities" slist => readstringlist("${g.rudder_capabilities_file}", "", "\n", inf, inf);
+  classes:
+      "agent_capability_${capabilities}";
 }
 
 bundle agent rudder_common_system_directive {
@@ -114,7 +122,7 @@ bundle common va
 {
   vars:
     any::
-      "capability_option"      string => "--capability-file /opt/rudder/etc/agent-capabilities";
+      "capability_option"      string => "--capability-file ${g.rudder_capabilities_file}";
       "rudder_var"             string => "/var/rudder";
       "ncf_path"               string => "${rudder_var}/ncf";
       "shell_type"             string => "useshell";
