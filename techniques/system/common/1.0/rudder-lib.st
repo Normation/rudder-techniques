@@ -101,16 +101,17 @@ body copy_from scp(from, server,compare,trustkey,preserve,purge)
 # running on a policy server instead of copying from a localhost remote blindly.
 body copy_from rudder_copy_from(from, server,compare,trustkey,preserve,purge) {
 
-    source   => "${from}";
+    source      => "${from}";
 
-    compare  => "${compare}";
-    encrypt  => "true";
-    verify   => "true";
-    trustkey => "${trustkey}";
-    preserve => "${preserve}"; # Preserve the permissions
-    purge    => "${purge}";
+    compare     => "${compare}";
+    encrypt     => "true";
+    verify      => "true";
+    type_check  => "true";
+    trustkey    => "${trustkey}";
+    preserve    => "${preserve}"; # Preserve the permissions
+    purge       => "${purge}";
     copy_backup => "timestamp";
-    servers  => { "${server}" };
+    servers     => { "${server}" };
 
   community_edition::
     portnumber => "&COMMUNITYPORT&";
