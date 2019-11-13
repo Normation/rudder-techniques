@@ -201,7 +201,7 @@ bundle agent startup
 bundle agent check_disable_agent
 {
   vars:
-      "components" slist => { "cf-serverd", "cf-execd" };
+      "components" slist => { "cf-execd" };
 
   classes:
       "should_disable_agent" expression => fileexists("${g.rudder_disable_agent_file}");
