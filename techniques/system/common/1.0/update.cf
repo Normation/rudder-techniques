@@ -56,8 +56,6 @@ bundle common server_info
       "cfserved"      string => "${policy_server}";
 
   classes:
-      "should_disable_server"     expression => fileexists("${g.rudder_disable_server_file}");
-
       "policy_server_file_exists" expression => fileexists("${policy_server_file}");
 }
 

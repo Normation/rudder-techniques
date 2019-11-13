@@ -25,7 +25,6 @@ bundle common g
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
       "rudder_ncf"               string => "${rudder_var}/ncf";
       "uuid_file"                string => "${rudder_base}/etc/uuid.hive";
-      "rudder_disable_server_file" string => "${rudder_base}/etc/disable-policy-distribution";
 
     any::
       "uuid"                     string => readfile("${g.uuid_file}", 60);
