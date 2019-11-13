@@ -61,14 +61,13 @@ bundle agent rudder_init {
       "Startup report log"             usebundle => startup;
       "Initialize ncf"                 usebundle => initialize_ncf;
       "Define environment variables"   usebundle => get_environment_variables;
-      "Load agent capabilities"        usebundle => load_agent_capabilities;
 &if(!INITIAL)&
       "Load properties"                usebundle => properties;
 &endif&
 
 }
 
-bundle agent load_agent_capabilities {
+bundle common agent_capabilities {
   vars:
       "capabilities" slist => readstringlist("${g.rudder_capabilities_file}", "", "\n", inf, inf);
   classes:
