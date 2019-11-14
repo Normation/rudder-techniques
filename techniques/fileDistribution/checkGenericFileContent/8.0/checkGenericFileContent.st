@@ -87,6 +87,16 @@ bundle agent check_generic_file_content_RudderUniqueID {
     "generic_file_content_creation[&i&]" string => "true";
 }&
 
+    pass2.dry_run::
+      # we need to sanitize the repaired classes of replace_pattern in audit mode
+      # see https://issues.rudder.io/issues/11086
+      "define_error" string => "",
+                    classes => if_ok("file_content_modification_${index}_RudderUniqueID_error"),
+                 ifvarclass => "file_content_modification_${index}_RudderUniqueID_repaired";
+      "ignored_text" string => "",
+                    classes => if_ok_cancel("file_content_modification_${index}_RudderUniqueID_repaired");
+
+
   classes:
 
       # Set a class to define when we need to run the post-modification hook
@@ -188,7 +198,7 @@ bundle agent check_generic_file_content_RudderUniqueID {
       # No line migrations
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
+        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error)).!(file_content_${index}_RudderUniqueID_error|file_edition_global_files_status_${index}_RudderUniqueID_error)";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
         ifvarclass => "!migrate_to_zone_${index}.file_content_${index}_RudderUniqueID_repaired.file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error";
