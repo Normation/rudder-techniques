@@ -149,7 +149,7 @@ bundle agent check_usergroup_user_parameters
       "usermanagement_user_pershome_${usergroup_user_index}" not => strcmp("${usergroup_user_home_perso[${usergroup_user_index}]}","true");
 
       "usermanagement_user_custom_home_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_home[${usergroup_user_index}]");
-      "usermanagement_user_custom_home_no_value_${usergroup_user_index}" expression => strcmp("", "usergroup_user_home[${usergroup_user_index}]");
+      "usermanagement_user_custom_home_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_home[${usergroup_user_index}]}");
       "usermanagement_user_custom_home_defined_${usergroup_user_index}" expression  => "!usermanagement_user_custom_home_no_variable_${usergroup_user_index}.!usermanagement_user_custom_home_no_value_${usergroup_user_index}";
 
       # If we ask to personnalize home, but not define it, it is invalid
@@ -472,7 +472,11 @@ bundle agent check_usergroup_user_parameters
 
       ## In case of check user present or update, but the home is already correct, this is success
       "any" usebundle => rudder_common_report("userGroupManagement", "result_success", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory is valid"),
-        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_current_home_is_invalid_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index}))";
+        ifvarclass => "!windows.(usermanagement_user_pershome_${usergroup_user_index}.!usermanagement_user_home_pershome_invalid_${usergroup_user_index}.!usermanagement_user_current_home_is_invalid_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index}))";
+
+      ## In case of check user present or update, but the custome home directory is not valid
+      "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The given home directory for user ${usergroup_user_login[${usergroup_user_index}]} is invalid", "${usergroup_user_index}"),
+        ifvarclass => "!windows.usermanagement_user_pershome_${usergroup_user_index}.usermanagement_user_home_pershome_invalid_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index})";
 
       ## In case of update, but the home was not correct, and could be changed, this is repaired
       "any" usebundle => rudder_common_report("userGroupManagement", "result_repaired", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} home directory was changed (but not moved)"),
