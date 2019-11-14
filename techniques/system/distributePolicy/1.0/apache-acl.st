@@ -49,17 +49,19 @@ bundle agent apache_acl
   files:
     !role_rudder_relay_promises_only.pass2::
       "${destination}/${ssl_ca_file}"
-        perms         => mog("600", "root", "0"),
-        copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
-        classes       => rudder_common_classes("rudder_apache_acl"),
-        comment       => "Writing rudder apache ACL",
-        ifvarclass    => "!don_t_check_permission";
+        perms             => mog("600", "root", "0"),
+        copy_from         => ncf_local_cp_method("${src_ca_file}", "digest"),
+        move_obstructions => "true",
+        classes           => rudder_common_classes("rudder_apache_acl"),
+        comment           => "Writing rudder apache ACL",
+        ifvarclass        => "!don_t_check_permission";
 
       "${destination}/${ssl_ca_file}"
-        copy_from     => ncf_local_cp_method("${src_ca_file}", "digest"),
-        classes       => rudder_common_classes("rudder_apache_acl"),
-        comment       => "Writing rudder apache ACL - don't check permissions as it's a symbolic link",
-        ifvarclass    => "don_t_check_permission";
+        copy_from         => ncf_local_cp_method("${src_ca_file}", "digest"),
+        move_obstructions => "true",
+        classes           => rudder_common_classes("rudder_apache_acl"),
+        comment           => "Writing rudder apache ACL - don't check permissions as it's a symbolic link",
+        ifvarclass        => "don_t_check_permission";
 
   methods:
     rudder_apache_acl_repaired::
