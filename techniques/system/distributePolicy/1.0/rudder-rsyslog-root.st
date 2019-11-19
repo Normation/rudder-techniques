@@ -18,8 +18,9 @@ $ModLoad ompgsql
 $EscapeControlCharactersOnReceive off
 
 &if(STORE_ALL_CENTRALIZED_LOGS_IN_FILE)&
-# Log everything
-local6.* /var/log/rudder/reports/all.log
+# Log everything related to agent to all.log
+:programname, contains, "rudder" /var/log/rudder/reports/all.log
+:programname, contains, "cf-agent" /var/log/rudder/reports/all.log
 &endif&
 
 # Direct to DB
