@@ -166,9 +166,9 @@ bundle common va
 
   classes:
     # OS classes for compatibility
-      "SUSE" expression => "sles";
-      "SuSE" expression => "sles";
-      "suse" expression => "sles";
+      "SUSE" expression => "sles|opensuse";
+      "SuSE" expression => "sles|opensuse";
+      "suse" expression => "sles|opensuse";
     
     # We are inside Rudder policies
       "rudder_policies" expression => "any";
