@@ -42,7 +42,7 @@ body common control
         # force tls1.2
         tls_min_version => "1.2";
 
-        bundlesequence => { 
+        bundlesequence => {
           rudder_init,
           rudder_common_system_directive,
           rudder_system_directives,
@@ -69,7 +69,7 @@ bundle agent rudder_init {
 
 bundle common agent_capabilities {
   vars:
-      "capabilities" slist => readstringlist("${g.rudder_capabilities_file}", "", "\n", inf, inf);
+      "capabilities" slist => readstringlist("${va.rudder_capabilities_file}", "", "\n", inf, inf);
   classes:
       "agent_capability_${capabilities}";
 }
@@ -121,14 +121,14 @@ bundle common va
 {
   vars:
     any::
-      "capability_option"      string => "--capability-file ${g.rudder_capabilities_file}";
-      "rudder_var"             string => "/var/rudder";
-      "ncf_path"               string => "${rudder_var}/ncf";
-      "shell_type"             string => "useshell";
-      "list_compatible_inputs" string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
-      "compatible_inputs_cmd"  string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
+      "rudder_capabilities_file"   string => "/opt/rudder/etc/agent-capabilities";
+      "capability_option"          string => "--capability-file ${rudder_capabilities_file}";
+      "rudder_var"                 string => "/var/rudder";
+      "ncf_path"                   string => "${rudder_var}/ncf";
+      "shell_type"                 string => "useshell";
+      "list_compatible_inputs"     string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
+      "compatible_inputs_cmd"      string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
 
-    any::
       "raw_path_ncf_common_inputs" slist => splitstring(execresult("${compatible_inputs_cmd} common", "${shell_type}"), "\n", 10000);
       "raw_path_ncf_local_inputs"  slist => splitstring(execresult("${compatible_inputs_cmd} local", "${shell_type}"), "\n", 10000);
 
@@ -169,7 +169,7 @@ bundle common va
       "SUSE" expression => "sles|opensuse";
       "SuSE" expression => "sles|opensuse";
       "suse" expression => "sles|opensuse";
-    
+
     # We are inside Rudder policies
       "rudder_policies" expression => "any";
 
