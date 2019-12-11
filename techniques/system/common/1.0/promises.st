@@ -502,6 +502,9 @@ bundle agent remove_rudder_syslog_configuration {
         delete         => tidy,
         classes        => classes_generic("remove_rudder_syslog_configuration_rsyslog");
 
+      "/etc/rsyslog.d/remove_limit.conf"
+        delete         => tidy;
+
     syslogng::
       "${check_log_system.syslogng_conffile}"
         edit_line      => delete_lines_matching("${syslogng_delete_lines_patterns}"),
