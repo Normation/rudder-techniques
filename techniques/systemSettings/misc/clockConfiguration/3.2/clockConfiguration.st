@@ -96,7 +96,7 @@ bundle agent check_clock_configuration
       "any" usebundle => rudder_common_report("ntpConfiguration", "result_repaired", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "ntp service (package, configuration and/or process) repaired");
 
     # Individual reports for the "Time synchronization (NTP)" component's parts
-    pass3.linux
+    pass3.linux::
       "any" usebundle => rudder_common_reports_generic("ntpConfiguration", "package_present_${rudder_ntp_package_name}", "&TRACKINGKEY&", "Time synchronization (NTP)", "None", "The ${rudder_ntp_package_name} package installation");
 
     pass3.!linux::
