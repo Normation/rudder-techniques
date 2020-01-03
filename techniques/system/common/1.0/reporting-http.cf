@@ -1,5 +1,3 @@
-# TODO purge too old reports
-
 bundle agent send_rudder_report(path) {
   vars:
       "endpoint" string => "https://${server_info.policy_server}/reports/";
@@ -43,5 +41,16 @@ bundle agent send_rudder_reports
       "cleanup" usebundle => _classes_success("send_rudder_reports");
     any::
       "report"  usebundle => rudder_common_reports_generic("Common", "send_rudder_reports", "${system_common.directiveId}", "Log system for reports", "None", "Reports forwarding to policy server");
+
+      "cleanup" usebundle => clean_old_rudder_reports;
+}
+
+bundle agent clean_old_rudder_reports
+{
+  files:
+      "${g.rudder_reports}/ready/"
+        delete => tidy,
+        file_select => days_old("7"),
+        depth_search => recurse("inf");
 }
 
