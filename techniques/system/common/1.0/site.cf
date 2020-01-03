@@ -80,7 +80,7 @@ bundle common g
       "agent_run_interval" string => "${system_common.agent_run_interval}";
 
       "rudder_node_config_id" string => "${system_common.rudder_node_config_id}";
-    
+
       "rudder_verify_certs_option" string => "--insecure";
     rudder_verify_certs::
       "rudder_verify_certs_option" string => "";
@@ -93,7 +93,7 @@ bundle common g
 
     # Roles
     "rudder_server_roles_dir_exists"       expression => isdir("${server_roles_path}");
-    "role_rudder_server_root"              expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root");
+    "role_rudder_server_root"              expression => or(fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root"), strcmp("${g.uuid}", "root"));
     "role_rudder_webapp"                   expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
     "role_rudder_reports"                  expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
 }
