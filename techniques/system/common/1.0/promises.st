@@ -198,6 +198,7 @@ bundle common va
       "SUSE" expression => "sles|opensuse";
       "SuSE" expression => "sles|opensuse";
       "suse" expression => "sles|opensuse";
+      "redhat" expression => "amzn|amazon_linux";
 
     # I don't know why, but these classes are not evaluated if they are in rudder_roles
       # Policy Server is a machine which delivers promises
