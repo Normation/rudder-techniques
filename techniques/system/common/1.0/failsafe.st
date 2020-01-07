@@ -47,6 +47,7 @@ bundle common g
       "SUSE" expression => "sles|opensuse";
       "SuSE" expression => "sles|opensuse";
       "suse" expression => "sles|opensuse";
+      "redhat" expression => "amzn|amazon_linux";
 }
 
 bundle common rudder_roles
