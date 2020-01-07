@@ -24,6 +24,10 @@ output = "upstream"
 frequency = 10
 limit = 50
 
+[processing.inventory.cleanup]
+frequency = "10min"
+retention = "1day"
+
 [processing.reporting]
 directory = "{{{vars.g.rudder_var}}}/reports"
 {{#classes.root_server}}
@@ -37,6 +41,10 @@ skip_event_types = []
 [processing.reporting.catchup]
 frequency = 10
 limit = 50
+
+[processing.reporting.cleanup]
+frequency = "10min"
+retention = "1day"
 
 [output.database]
 {{#classes.root_server}}
