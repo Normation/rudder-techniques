@@ -216,7 +216,9 @@ bundle agent propagatePromises
 
     pass3.files_propagated.sync_method_rsync::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize files", "None", "Shared files synchronized using rsync");
-    pass3.(files_propagated|(could_not_propagate_files.update_successful)).!sync_method_rsync::
+    # Cannot directly use success class as it is not defined if there are no files to copy
+    #     |         condition for the matching files promise      |
+    pass3.(policy_server.!root_server.!disable_classic_sharedfiles).(!could_not_propagate_files|(could_not_propagate_files.update_successful)).!sync_method_rsync::
       "any" usebundle => rudder_common_report("DistributePolicy", "result_success", "&TRACKINGKEY&", "Synchronize files", "None", "Shared files synchronized using classic method");
 
 
