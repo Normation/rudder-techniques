@@ -59,7 +59,9 @@ bundle agent root_networks_check
 
   methods:
     rudder_networks_repaired::
+      "${apache_service}" usebundle => disable_reporting;
       "any" usebundle => service_reload("${apache_service}");
+      "${apache_service}" usebundle => enable_reporting;
 
     pass3.rudder_networks_ok.!rudder_networks_repaired.!rudder_networks_failed::
       "any" usebundle => rudder_common_report("server-roles", "result_success", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Allowed networks configuration is correct");
