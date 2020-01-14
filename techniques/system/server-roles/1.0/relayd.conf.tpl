@@ -73,7 +73,7 @@ command = "/opt/rudder/bin/rudder"
 use_sudo = true
 
 [shared_files]
-path = "{{{vars.system_common.sharedfiles_folder}}}"
+path = "{{{vars.g.rudder_var}}}/shared-files/"
 
 [shared_folder]
-path = "{{{g.shared_files}}}"
+path = "{{{vars.g.shared_files}}}/"
