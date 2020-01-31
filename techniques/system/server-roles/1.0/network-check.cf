@@ -58,8 +58,10 @@ bundle agent root_networks_check
         comment       => "Writing rudder apache configuration";
 
   methods:
-    rudder_networks_repaired::
+    # restarting apache if acl changed, or if network changed (see apache-acl.cf)
+    rudder_networks_repaired|rudder_apache_acl_repaired::
       "${apache_service}" usebundle => disable_reporting;
+      "reload_apache" usebundle => _method_reporting_context("Configure apache ACL & networks", "None");
       "any" usebundle => service_reload("${apache_service}");
       "${apache_service}" usebundle => enable_reporting;
 
@@ -77,4 +79,12 @@ bundle agent root_networks_check
                    if => "${service_class_prefix}_repaired.!${service_class_prefix}_error";
       "any" usebundle => rudder_common_report("server-roles", "result_error", "${server_roles_common.directiveId}", "Check allowed networks configuration", "None", "Apache failed to reload"),
                    if => "${service_class_prefix}_error";
+
+    # Apache ACL specific reporting
+    pass3.rudder_apache_acl_repaired::
+      "any" usebundle => rudder_common_report("DistributePolicy", "result_error", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache failed to reload"),
+                   if => "${service_class_prefix}_error";
+
+      "any" usebundle => rudder_common_report("DistributePolicy", "log_repaired", "${distribute_policy_common.directiveId}", "Configure apache ACL", "None", "Apache has been reloaded successfully"),
+                   if => "${service_class_prefix}_repaired";
 }
