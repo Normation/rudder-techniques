@@ -12,7 +12,12 @@ bundle agent snmp {
       &SNMP_COMMUNITY_NAME:{name | "name[&i&]" string => "&name&";
       }&
 
+    debian|ubuntu::
       "snmp_package" string  => "snmpd";
+    !(debian|ubuntu)::
+      "package_name" string => "net-snmp";
+
+    any::
       "snmp_service" string  => "snmpd";
       "canonified_snmp_package" string => canonify("${snmp_package}");
       "canonified_snmp_service" string => canonify("${snmp_service}");
