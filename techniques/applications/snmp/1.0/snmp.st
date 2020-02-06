@@ -33,7 +33,7 @@ bundle agent snmp {
     debian|ubuntu::
       "snmp_package" string  => "snmpd";
     !(debian|ubuntu)::
-      "package_name" string => "net-snmp";
+      "snmp_package" string => "net-snmp";
 
     any::
       "snmp_service" string  => "snmpd";
@@ -43,7 +43,7 @@ bundle agent snmp {
       "snmp_conf_file" string => "/etc/snmp/snmpd.conf";
       "canonified_snmp_conf_file" string => canonify("${snmp_conf_file}");
 
-      pass2:: 
+      pass2::
         ## Create the section flags
         "rudder_section_start_flag" string => "######## Communities managed by Rudder ########";
         "rudder_section_end_flag" string => "########              END              ########";
