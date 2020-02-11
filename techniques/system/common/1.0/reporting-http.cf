@@ -24,6 +24,7 @@ bundle agent send_rudder_report(path) {
 bundle agent send_rudder_reports
 {
   vars:
+    agent_capability_http_reporting::
       "raw_reports" slist => lsdir("${g.rudder_reports}/ready/", ".*\.log.gz", "false");
       # Max 50 reports by run to avoid blocking the agent too long after a long
       # disconnection

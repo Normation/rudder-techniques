@@ -41,7 +41,7 @@ if $fromhost-ip == "127.0.0.1" then {
 #
 
 # 1 - Send every matching report to the root server
-:msg, ereregex, "(R: )?@@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*" {{vars.check_log_system.rsyslog_rule_prefix}}{{vars.server_info.policy_server}}:&SYSLOGPORT&
+:msg, ereregex, "(R: )?@@[ a-zA-Z0-9_\-]+?@@[a-zA-Z0-9_\-]{1,64}?@@[a-zA-Z0-9\-]+@@[a-zA-Z0-9\-]+?@@[0-9]+?@@.*?@@.*?@@[0-9]{4}-[0-9]{2}-[0-9]{2} [0-9]{2}:[0-9]{2}:[0-9]{2}[+-][0-9]{1,2}:[0-9]{2}##[a-zA-Z0-9\-]+?@#.*" {{vars.rsyslog_system_settings.rsyslog_rule_prefix}}{{vars.server_info.policy_server}}:&SYSLOGPORT&
 
 # 2 - Drop the remaining rudder logs to prevent local storage cluttering
 

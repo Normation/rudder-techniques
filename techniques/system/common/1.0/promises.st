@@ -278,15 +278,40 @@ bundle agent initialize_ncf()
 &if(!INITIAL)&
 bundle agent configure_rudder_reporting_system {
   methods:
-    rudder_reporting_syslog.!reports_disabled::
+    !rsyslog_disabled.!reports_disabled.policy_server::
+      "define rsyslog configuration for relays" usebundle => rsyslog_system_settings;
+
+    (rudder_reporting_syslog|!agent_capability_http_reporting).!reports_disabled::
       "configure_syslog"    usebundle => check_log_system;
       "configure_reporting" usebundle => check_rsyslog_version;
 
-    (rudder_reporting_syslog.reports_disabled)|rudder_reporting_https::
+    reports_disabled|(rudder_reporting_https.rsyslog_disabled)::
       "remove_reporting"    usebundle => remove_rudder_syslog_configuration;
 
-    rudder_reporting_https::
+    rudder_reporting_https.agent_capability_http_reporting::
       "make http reports"   usebundle => send_rudder_reports;
+
+  reports:
+    rsyslog_disabled.!agent_capability_http_reporting.!reports_disabled::
+      "***********************************************************************************
+       * rudder-agent is configured to use HTTPS reporting only, but this agent doesn't  * 
+       * support HTTPS. Please upgrade rudder-agent to version 6.0 or more, or modify    *
+       * reporting configuration within Rudder                                           *
+       ***********************************************************************************";
+}
+
+# Configure rsyslog config for relays
+bundle agent rsyslog_system_settings
+{
+  vars:
+    use_tcp::
+      "rsyslog_rule_prefix"   string => "@@";
+    use_udp::
+      "rsyslog_rule_prefix"   string => "@";
+
+  classes:
+      "use_udp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "UDP");
+      "use_tcp" expression => strcmp("&RUDDER_SYSLOG_PROTOCOL&", "TCP");
 }
 
 #######################################################
