@@ -27,12 +27,14 @@ $ActionQueueSaveOnShutdown on
 # Filtering by content
 # Process :
 
-# If report protocol is HTTPS, we drop the local rsyslog message
 {{#classes.rudder_reporting_https}}
+{{#classes.agent_capability_http_reporting}}
+# If report protocol is HTTPS, we drop the local rsyslog message
 if $fromhost-ip == "127.0.0.1" then {
     :programname, isequal, "cf-agent" ~
     :programname, isequal, "rudder" ~
 }
+{{/classes.agent_capability_http_reporting}}
 {{/classes.rudder_reporting_https}}
 
 # We first forward the data to the root server, then we drop it to prevent
