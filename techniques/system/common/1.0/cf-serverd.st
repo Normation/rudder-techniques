@@ -125,8 +125,12 @@ body server control
           @{def.acl} ,
         };
 
+	# WARNING: this is disabled for compatibility with pre 5.0.16 agent
+	# that do not properly handle minimal TLS version setting and use 1.0
+	# https://issues.rudder.io/issues/16716
+	# TODO: uncomment once compatibility with 5.0 is dropped
         # force connections via tls1.2
-        allowtlsversion => "1.2";
+        # allowtlsversion => "1.2";
 
         maxconnections    => "1000";
         logallconnections => "true";

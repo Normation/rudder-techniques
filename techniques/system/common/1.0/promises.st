@@ -39,9 +39,14 @@ body common control
           "rudder-system-directives.cf",
         };
 
-        # force tls1.2
+        # force tls1.2 on compatible clients
+        # we only support 5.0+, so 3.12+
+	# let's force TLS 1.2 on:
+	# >3.12 | (3.12 if > 3.12.2)
+      !cfengine_3_12|(cfengine_3_12.!(cfengine_3_12_0|cfengine_3_12_1|cfengine_3_12_2))::
         tls_min_version => "1.2";
 
+      any::
         bundlesequence => {
           rudder_init,
           rudder_common_system_directive,

@@ -11,7 +11,8 @@ body common control
 
         protocol_version   => "2";
 
-        # force tls1.2
+        # force tls1.2 (see promises.cf for details)
+      !cfengine_3_12|(cfengine_3_12.!(cfengine_3_12_0|cfengine_3_12_1|cfengine_3_12_2))::
         tls_min_version => "1.2";
 }
 
