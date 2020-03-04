@@ -12,10 +12,6 @@ bundle common g
       "rudder_rm"                  string => "/bin/rm";
       "rudder_var"                 string => "/var/rudder";
 
-    solaris::
-      "rudder_curl"                string => "/opt/csw/bin/curl";
-
-    !solaris::
       "rudder_curl"                string => "/usr/bin/curl",
                                    unless => fileexists("/opt/rudder/bin/curl");
 
