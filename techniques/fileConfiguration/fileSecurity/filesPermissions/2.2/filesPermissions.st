@@ -6,7 +6,7 @@
 # according to user set parameters.                    #
 ########################################################
 
-bundle agent files_permissions_RudderUniqueID
+bundle agent files_permissions_&RudderUniqueID&
 {
   vars:
 
@@ -16,14 +16,14 @@ bundle agent files_permissions_RudderUniqueID
 
   methods:
 
-      "any" usebundle => check_permissions_RudderUniqueID("${file[${filePerms}][0]}",
+      "any" usebundle => check_permissions_&RudderUniqueID&("${file[${filePerms}][0]}",
       "${file[${filePerms}][1]}",
       "${file[${filePerms}][2]}",
       "${filePerms}");
 
 }
 
-bundle agent check_permissions_RudderUniqueID(directiveId, fileName, action_parameters, index)
+bundle agent check_permissions_&RudderUniqueID&(directiveId, fileName, action_parameters, index)
 {
 
 

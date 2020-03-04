@@ -1,6 +1,6 @@
 # Enforce the defined services parameters
 
-bundle agent services_RudderUniqueID
+bundle agent services_&RudderUniqueID&
 {
   vars:
 
@@ -47,7 +47,7 @@ bundle agent services_RudderUniqueID
       "repaired_${index}"        expression => "boot_repaired_${index}|status_repaired_${index}";
 
       "posthook_lauch_${index}"  expression => "!no_posthook_specified_${index}.repaired_${index}";
-      "posthook_rerun_${index}_RudderUniqueID"
+      "posthook_rerun_${index}_&RudderUniqueID&"
                                  expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
                                       scope => "namespace",
                                 persistence => "10000";
@@ -69,7 +69,7 @@ bundle agent services_RudderUniqueID
 
     #Posthook
     "posthook_${index}" usebundle => command_execution("${posthook[${index}]}"),
-      ifvarclass => "posthook_lauch_${index}|posthook_rerun_${index}_RudderUniqueID";
+      ifvarclass => "posthook_lauch_${index}|posthook_rerun_${index}_&RudderUniqueID&";
 
     #Reporting
 

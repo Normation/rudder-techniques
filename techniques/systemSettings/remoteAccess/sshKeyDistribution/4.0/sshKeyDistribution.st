@@ -20,7 +20,7 @@
 #
 # Please note that the last report of the Technique (component "Flush SSH file") is in the posthook of this technique
 
-bundle agent check_ssh_key_distribution_RudderUniqueID
+bundle agent check_ssh_key_distribution_&RudderUniqueID&
 {
 
   meta:
@@ -71,7 +71,7 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
     pass2::
       # if a key for a given user is non compliant, in audit mode, then we prevent all flushing.
       "ssh_key_distribution_${sshkey_distribution_name[${sshkey_distribution_index}]}_prevent_flush" expression => "any",
-        ifvarclass => "(dry_run|global_dry_run).${key_class_prefix[${sshkey_distribution_index}]}_RudderUniqueID_error",
+        ifvarclass => "(dry_run|global_dry_run).${key_class_prefix[${sshkey_distribution_index}]}_&RudderUniqueID&_error",
         scope      => "namespace";
 
     any::
@@ -104,15 +104,15 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
       "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}/.ssh/authorized_keys"
         create        => "true",
         perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_name[${sshkey_distribution_index}]}]}"),
-        edit_line     => append_or_replace_ssh_key_RudderUniqueID("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
+        edit_line     => append_or_replace_ssh_key_&RudderUniqueID&("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
 # should also define a class for the user
-        classes       => classes_generic_two("${key_class_prefix[${sshkey_distribution_index}]}_RudderUniqueID", "check_ssh_key_distribution_user_key_${sshkey_distribution_name[${sshkey_distribution_index}]}"),
+        classes       => classes_generic_two("${key_class_prefix[${sshkey_distribution_index}]}_&RudderUniqueID&", "check_ssh_key_distribution_user_key_${sshkey_distribution_name[${sshkey_distribution_index}]}"),
         ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
 
        # insert in temp file as well, inconditionnaly
       "${runhook_sshKeyDistribution_pre_hook.temp_ssh_key_path}/${sshkey_distribution_name[${sshkey_distribution_index}]}.authorized_keys.tmp"
         perms         => m("600"),
-        edit_line     => append_or_replace_ssh_key_RudderUniqueID("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
+        edit_line     => append_or_replace_ssh_key_&RudderUniqueID&("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
         ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
 
 
@@ -120,7 +120,7 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
     pass2::
       "SSH Key Report"
         usebundle     => rudder_common_reports_generic(
-          "${technique_name}", "${key_class_prefix[${sshkey_distribution_index}]}_RudderUniqueID",
+          "${technique_name}", "${key_class_prefix[${sshkey_distribution_index}]}_&RudderUniqueID&",
           "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
           "SSH key \"${sshkey_distribution_tag[${sshkey_distribution_index}]}\" for user ${sshkey_distribution_name[${sshkey_distribution_index}]}"
         ),
@@ -167,7 +167,7 @@ bundle agent check_ssh_key_distribution_RudderUniqueID
 #   - key value ends with "="
 #   - no spaces are allowed in options, except in double-quoted strings
 #
-bundle edit_line append_or_replace_ssh_key_RudderUniqueID(keyspec, key_content, index)
+bundle edit_line append_or_replace_ssh_key_&RudderUniqueID&(keyspec, key_content, index)
 {
 
   vars:
@@ -183,13 +183,13 @@ bundle edit_line append_or_replace_ssh_key_RudderUniqueID(keyspec, key_content, 
       # NOTE: this is only to ensure that insert is attempted *after* the replace,
       # as normally insert step precedes the replace, see
       # (https://cfengine.com/docs/3.5/manuals-language-concepts-normal-ordering.html)
-      ifvarclass    => canonify("ssh_key_distribution_replace_step_attempted_${index}_RudderUniqueID");
+      ifvarclass    => canonify("ssh_key_distribution_replace_step_attempted_${index}_&RudderUniqueID&");
 
   replace_patterns:
     "^(?!${eline}$)(.* ${key} .*)$"
       comment       => "Replace a key here",
       replace_with  => value("${keyspec}"),
-      classes       => always("ssh_key_distribution_replace_step_attempted_${index}_RudderUniqueID");
+      classes       => always("ssh_key_distribution_replace_step_attempted_${index}_&RudderUniqueID&");
 
 }
 

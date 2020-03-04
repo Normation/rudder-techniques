@@ -2,7 +2,7 @@
 # Download a file from an arbitrary http/https/ftp server #
 ###########################################################
 
-bundle agent execute_file_download_RudderUniqueID
+bundle agent execute_file_download_&RudderUniqueID&
 {
 
   vars:
@@ -48,7 +48,7 @@ bundle agent execute_file_download_RudderUniqueID
       "${destination[${index}]}"
         pathtype => "literal", 	# force literal interpretation
         perms    => mog("${mode[${index}]}","${user[${index}]}","${group[${index}]}"),
-        classes  => classes_generic("file_download_perms_${index}_RudderUniqueID");
+        classes  => classes_generic("file_download_perms_${index}_&RudderUniqueID&");
 
   methods:
     # File downloading part
@@ -57,25 +57,25 @@ bundle agent execute_file_download_RudderUniqueID
 
     pass3::
       "any" usebundle => rudder_common_report("downloadFile", "result_success", "${trackingkey[${index}]}", "Download a file", "${source[${index}]}", "The file ${source[${index}]} already present"),
-           ifvarclass => "!file_not_found_${index}.!file_download_${index}_RudderUniqueID_ok.!file_download_${index}_RudderUniqueID_error";
+           ifvarclass => "!file_not_found_${index}.!file_download_${index}_&RudderUniqueID&_ok.!file_download_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report("downloadFile", "result_repaired", "${trackingkey[${index}]}", "Download a file", "${source[${index}]}", "The file ${source[${index}]} has been successfully downloaded"),
-           ifvarclass => "file_download_${index}_RudderUniqueID_ok.!file_download_${index}_RudderUniqueID_error";
+           ifvarclass => "file_download_${index}_&RudderUniqueID&_ok.!file_download_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report("downloadFile", "result_error", "${trackingkey[${index}]}", "Download a file", "${source[${index}]}", "The file ${source[${index}]} was could not be downloaded"),
-           ifvarclass => "file_download_${index}_RudderUniqueID_error";
+           ifvarclass => "file_download_${index}_&RudderUniqueID&_error";
 
     # File permissions part
     pass3::
-      "any" usebundle => rudder_common_reports_generic("downloadFile", "file_download_perms_${index}_RudderUniqueID", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "Permissions on file ${source[${index}]}");
+      "any" usebundle => rudder_common_reports_generic("downloadFile", "file_download_perms_${index}_&RudderUniqueID&", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "Permissions on file ${source[${index}]}");
 
       "any" usebundle => rudder_common_report("downloadFile", "result_error", "${trackingkey[${index}]}", "Permissions (on UNIX systems)", "${source[${index}]}", "The file ${source[${index}]} was could not be downloaded"),
-           ifvarclass => "!file_download_perms_${index}_RudderUniqueID_reached";
+           ifvarclass => "!file_download_perms_${index}_&RudderUniqueID&_reached";
 
   commands:
       "${download_command[${index}]}"
         comment => "Getting the file from the server",
-        classes => classes_generic("file_download_${index}_RudderUniqueID"),
+        classes => classes_generic("file_download_${index}_&RudderUniqueID&"),
         ifvarclass => "file_not_found_${index}";
 
 }

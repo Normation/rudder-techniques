@@ -18,7 +18,7 @@
 #
 #####################################################################################
 
-bundle agent check_cron_configuration_RudderUniqueID
+bundle agent check_cron_configuration_&RudderUniqueID&
 {
 
   vars:
@@ -80,7 +80,7 @@ bundle agent check_cron_configuration_RudderUniqueID
         perms         => mog("644", "root", "0"),
         edit_line     => insert_lines("${${cron_index}_cron_parameter} ${cron_command[${cron_index}]}"),
         ifvarclass    => "${cron_index}_manual",
-        classes       => classes_generic("cron_file_${cron_index}_RudderUniqueID");
+        classes       => classes_generic("cron_file_${cron_index}_&RudderUniqueID&");
 
       "/etc/cron.${cron_frequency[${cron_index}]}/${cron_name[${cron_index}]}"
         create        => "true",
@@ -88,11 +88,11 @@ bundle agent check_cron_configuration_RudderUniqueID
         perms         => mog("755", "root", "0"),
         edit_line     => insert_lines("${cron_command[${cron_index}]}"),
         ifvarclass    => "!${cron_index}_manual",
-        classes       => classes_generic("cron_file_${cron_index}_RudderUniqueID");
+        classes       => classes_generic("cron_file_${cron_index}_&RudderUniqueID&");
 
   methods:
     pass3::
     # Reports about the creation of the cron entries
 
-      "any" usebundle => rudder_common_reports_generic_index("cronConfiguration", "cron_file_${cron_index}_RudderUniqueID", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} ", "${cron_index}");
+      "any" usebundle => rudder_common_reports_generic_index("cronConfiguration", "cron_file_${cron_index}_&RudderUniqueID&", "${cron_uuid[${cron_index}]}", "Cron entry", "${cron_name[${cron_index}]}", "The cron file ${cron_name[${cron_index}]} ", "${cron_index}");
 }

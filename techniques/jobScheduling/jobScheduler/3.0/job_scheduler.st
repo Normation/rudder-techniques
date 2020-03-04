@@ -1,5 +1,5 @@
 
-bundle agent job_scheduler_RudderUniqueID
+bundle agent job_scheduler_&RudderUniqueID&
 {
   vars:
 
@@ -61,7 +61,7 @@ bundle agent job_scheduler_RudderUniqueID
     pass2::
       # check if the job should run
       "schedule_${iterator}" usebundle => 
-         schedule_simple("${job_scheduler_canon_name[${iterator}]}_RudderUniqueID", "${agent_run_interval}", 0, "${max_execution_delay_hours_${iterator}}", "0", "${job_scheduler_time_min[${iterator}]}", "0", "0", "24", "0", "nodups");
+         schedule_simple("${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&", "${agent_run_interval}", 0, "${max_execution_delay_hours_${iterator}}", "0", "${job_scheduler_time_min[${iterator}]}", "0", "0", "24", "0", "nodups");
 
 
     pass3::
@@ -69,22 +69,22 @@ bundle agent job_scheduler_RudderUniqueID
       # This will cause Rudder to report an "Unknown" status, and is by design
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "result_success", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job returned a success return code after the last completed execution (${job_scheduler_command[${iterator}]})", "${iterator}"),
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_kept";
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&_kept";
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "result_repaired", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job returned a repaired return code on last completed execution (${job_scheduler_command[${iterator}]})", "${iterator}"),
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_repaired";
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&_repaired";
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "result_error", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job failed on last completed execution (${job_scheduler_command[${iterator}]})", "${iterator}"),
-        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_error";
+        ifvarclass => "${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job has been launched (${job_scheduler_command[${iterator}]}), result will be reported on next run", "${iterator}"),
-        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_repaired.!job_scheduler_lock_${iterator}_RudderUniqueID",
+        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&_repaired.!job_scheduler_lock_${iterator}_&RudderUniqueID&",
         # we define here the persistent class, as the command exection is done on the last iteration
         comment    => "Define a persistent class to prevent multiple job executions",
-        classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}_RudderUniqueID", "5");
+        classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}_&RudderUniqueID&", "5");
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "result_error", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Schedule is not valid (from ${job_scheduler_time_min[${iterator}]} to ${job_scheduler_time_max[${iterator}]}", "${iterator}"),
-        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_error";
+        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "The command will be run at a random time after ${job_scheduler_time_min[${iterator}]}:00 on this node", "${iterator}");
 
@@ -94,12 +94,12 @@ bundle agent job_scheduler_RudderUniqueID
       "${job_scheduler_command[${iterator}]}"
         action     => bg("10", "${job_scheduler_timeout[${iterator}]}"),
         contain    => in_shell,
-        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_RudderUniqueID_repaired.!job_scheduler_lock_${iterator}",
-        classes    => common_classes_exclusive_persist_codes("${job_scheduler_canon_name[${iterator}]}_RudderUniqueID",
+        ifvarclass => "schedule_simple_${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&_repaired.!job_scheduler_lock_${iterator}",
+        classes    => common_classes_exclusive_persist_codes("${job_scheduler_canon_name[${iterator}]}_&RudderUniqueID&",
                       "1440", # Persist the reporting classes for 24 hours, this technique deals with daily jobs (for now anyway)
-                      "@{job_scheduler_RudderUniqueID.kept_returncodes_${iterator}}",
-                      "@{job_scheduler_RudderUniqueID.repaired_returncodes_${iterator}}",
-                      "@{job_scheduler_RudderUniqueID.error_returncodes_${iterator}}");
+                      "@{job_scheduler_&RudderUniqueID&.kept_returncodes_${iterator}}",
+                      "@{job_scheduler_&RudderUniqueID&.repaired_returncodes_${iterator}}",
+                      "@{job_scheduler_&RudderUniqueID&.error_returncodes_${iterator}}");
 
 }
 

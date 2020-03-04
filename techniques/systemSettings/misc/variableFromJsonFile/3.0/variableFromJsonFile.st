@@ -1,4 +1,4 @@
-bundle agent variable_from_json_file_RudderUniqueID
+bundle agent variable_from_json_file_&RudderUniqueID&
 {
   vars:
       &VARIABLE_FROM_JSON_FILE_JSON_FILE:{json_file | "json_file[&i&]" string => "&json_file&";

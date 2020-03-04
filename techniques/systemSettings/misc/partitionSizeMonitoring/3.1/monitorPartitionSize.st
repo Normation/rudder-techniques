@@ -5,7 +5,7 @@
 # Execute a command if threshold is reached
 #
 
-bundle agent monitor_partition_size_RudderUniqueID {
+bundle agent monitor_partition_size_&RudderUniqueID& {
 
     vars:
 
@@ -39,11 +39,11 @@ bundle agent monitor_partition_size_RudderUniqueID {
             # Partition status reporting
             # Success
       "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has enough free space", "${index}"),
-                ifvarclass => "!monitorPartitionSize_partition_${index}_RudderUniqueID_full";
+                ifvarclass => "!monitorPartitionSize_partition_${index}_&RudderUniqueID&_full";
 
             # Error
       "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Partition", "${partition[${index}][path]}", "The partition ${partition[${index}][path]} has not enough free space", "${index}"),
-                ifvarclass => "monitorPartitionSize_partition_${index}_RudderUniqueID_full";
+                ifvarclass => "monitorPartitionSize_partition_${index}_&RudderUniqueID&_full";
 
             # Repaired command execution reporting
             # NA not set
@@ -52,34 +52,34 @@ bundle agent monitor_partition_size_RudderUniqueID {
 
             # Success not needed
       "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_success", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command execution was not needed", "${index}"),
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_RudderUniqueID_full";
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.!monitorPartitionSize_partition_${index}_&RudderUniqueID&_full";
 
             # Repaired
       "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_repaired", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command executed - ${partition[${index}][repaired_cmd]}", "${index}"),
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID_repaired";
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_&RudderUniqueID&_repaired";
 
             # Error
       "any" usebundle => rudder_common_report_index("monitorPartitionSize", "result_error", "${partition[${index}][uuid]}", "Command execution on threshold", "${partition[${index}][path]}", "Under threshold command failed to execute", "${index}"),
-                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID_error";
+                ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_repaired_cmd_${index}_&RudderUniqueID&_error";
 
     commands:
         "${partition[${index}][repaired_cmd]}"
-            classes => classes_generic("monitorPartitionSize_repaired_cmd_${index}_RudderUniqueID"),
+            classes => classes_generic("monitorPartitionSize_repaired_cmd_${index}_&RudderUniqueID&"),
             contain => in_shell,
-            ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_partition_${index}_RudderUniqueID_full";
+            ifvarclass => "monitorPartitionSize_repaired_cmd_run_${index}.monitorPartitionSize_partition_${index}_&RudderUniqueID&_full";
 
 
     storage:
 
         "${partition[${index}][path]}"
-            volume  => freespacecheck_RudderUniqueID("${partition[${index}][freesize]}"),
-            classes => if_notkept("monitorPartitionSize_partition_${index}_RudderUniqueID_full"),
+            volume  => freespacecheck_&RudderUniqueID&("${partition[${index}][freesize]}"),
+            classes => if_notkept("monitorPartitionSize_partition_${index}_&RudderUniqueID&_full"),
             comment => "Check free space available on ${partition[${index}][path]}";
 
 
 }
 
-body volume freespacecheck_RudderUniqueID(threshold) {
+body volume freespacecheck_&RudderUniqueID&(threshold) {
     freespace => "${threshold}";
     # see https://dev.cfengine.com/issues/3016
     sensible_size  => "0";

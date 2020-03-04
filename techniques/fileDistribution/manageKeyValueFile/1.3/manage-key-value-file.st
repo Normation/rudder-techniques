@@ -1,4 +1,4 @@
-bundle agent manage_key_value_file_RudderUniqueID {
+bundle agent manage_key_value_file_&RudderUniqueID& {
   vars:
       &MANAGE_KEY_VALUE_FILEPATH:{file |  "file[&i&]"        string => "&file&";
 }&

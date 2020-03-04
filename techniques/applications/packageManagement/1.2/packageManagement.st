@@ -1,7 +1,7 @@
 # Warning: The content of this technique is very close to the content of the package_state() bundle in ncf
 # particularly the log message building. All changes made here should also be done in ncf too.
 
-bundle agent package_management_RudderUniqueID {
+bundle agent package_management_&RudderUniqueID& {
 
   vars:
       &PACKAGE_LIST:{name |"package[&i0&]" string => "&name&";

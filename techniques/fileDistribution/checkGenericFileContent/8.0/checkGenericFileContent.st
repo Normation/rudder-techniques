@@ -2,7 +2,7 @@
 # Checks if a file matches a given content. If not, updates it. #
 #################################################################
 
-bundle agent check_generic_file_content_RudderUniqueID {
+bundle agent check_generic_file_content_&RudderUniqueID& {
 
   vars:
 
@@ -73,10 +73,10 @@ bundle agent check_generic_file_content_RudderUniqueID {
       # we need to sanitize the repaired classes of replace_pattern in audit mode
       # see https://issues.rudder.io/issues/11086
       "define_error" string => "",
-                    classes => if_ok("file_content_modification_${index}_RudderUniqueID_error"),
-                 ifvarclass => "file_content_modification_${index}_RudderUniqueID_repaired";
+                    classes => if_ok("file_content_modification_${index}_&RudderUniqueID&_error"),
+                 ifvarclass => "file_content_modification_${index}_&RudderUniqueID&_repaired";
       "ignored_text" string => "",
-                    classes => if_ok_cancel("file_content_modification_${index}_RudderUniqueID_repaired");
+                    classes => if_ok_cancel("file_content_modification_${index}_&RudderUniqueID&_repaired");
 
 
   classes:
@@ -135,7 +135,7 @@ bundle agent check_generic_file_content_RudderUniqueID {
       # Note: it is too hard to make a single bundle for editing this file, with support of zone edition and non zone edition 
       # So, we call a different bundle_edit_line based on the type of edition we want
       "${generic_file_content_path[${index}]}"
-        edit_line => check_generic_file_content_edition_RudderUniqueID(
+        edit_line => check_generic_file_content_edition_&RudderUniqueID&(
             "${generic_file_content_payload[${index}]}", "${generic_file_content_enforced[${index}]}",
             "${generic_file_content_deletion_regexp[${index}]}", "${generic_file_content_deletion_boolean[${index}]}",
             "${generic_file_content_modification_regexp[${index}]}", "${generic_file_content_modification_destination[${index}]}", "${generic_file_content_modification_boolean[${index}]}",
@@ -145,11 +145,11 @@ bundle agent check_generic_file_content_RudderUniqueID {
         create        => "${generic_file_content_creation[${index}]}",
         edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
         ifvarclass    => "!creation_only_but_already_exists_${index}.!edit_only_in_a_zone_${index}.!file_nothing_to_do_${index}",
-        classes       => classes_generic("file_edition_global_files_status_${index}_RudderUniqueID"),
+        classes       => classes_generic("file_edition_global_files_status_${index}_&RudderUniqueID&"),
         comment       => "Editing ${generic_file_content_path[${index}]}...";
 
       "${generic_file_content_path[${index}]}"
-        edit_line => check_generic_file_content_edition_in_zone_RudderUniqueID( 
+        edit_line => check_generic_file_content_edition_in_zone_&RudderUniqueID&( 
             "${generic_file_content_payload[${index}]}", "${generic_file_content_enforced[${index}]}",
             "${generic_file_content_deletion_regexp[${index}]}", "${generic_file_content_deletion_boolean[${index}]}",
             "${generic_file_content_modification_regexp[${index}]}", "${generic_file_content_modification_destination[${index}]}", "${generic_file_content_modification_boolean[${index}]}",
@@ -160,13 +160,13 @@ bundle agent check_generic_file_content_RudderUniqueID {
         create        => "${generic_file_content_creation[${index}]}",
         edit_defaults => rudder_empty_select("${generic_file_content_enforced[${index}]}"),
         ifvarclass    => "!creation_only_but_already_exists_${index}.edit_only_in_a_zone_${index}.!file_nothing_to_do_${index}",
-        classes       => classes_generic("file_edition_global_files_status_${index}_RudderUniqueID"),
+        classes       => classes_generic("file_edition_global_files_status_${index}_&RudderUniqueID&"),
         comment       => "Editing ${generic_file_content_path[${index}]}...";
 
       "${generic_file_content_path[${index}]}"
         create     => "${generic_file_content_creation[${index}]}",
         perms      => mog("${generic_file_content_perms[${index}]}", "${generic_file_content_owner[${index}]}", "${generic_file_content_group[${index}]}"),
-        classes    => classes_generic("file_content_perms_${index}_RudderUniqueID"),
+        classes    => classes_generic("file_content_perms_${index}_&RudderUniqueID&"),
         ifvarclass => "adjust_permissions_${index}.!creation_only_but_already_exists_${index}.!file_nothing_to_do_${index}",
         comment    => "Setting ${generic_file_content_path[${index}]} permissions...";
 
@@ -180,23 +180,23 @@ bundle agent check_generic_file_content_RudderUniqueID {
       # No line migrations
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error)).!(file_content_${index}_RudderUniqueID_error|file_edition_global_files_status_${index}_RudderUniqueID_error)";
+        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_&RudderUniqueID&_kept.!file_content_${index}_&RudderUniqueID&_repaired)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error)).!(file_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.file_content_${index}_RudderUniqueID_repaired.file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error";
+        ifvarclass => "!migrate_to_zone_${index}.file_content_${index}_&RudderUniqueID&_repaired.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.(file_content_${index}_RudderUniqueID_error|file_edition_global_files_status_${index}_RudderUniqueID_error)";
+        ifvarclass => "!migrate_to_zone_${index}.(file_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
       # if we want to migrate lines
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_RudderUniqueID_kept.!file_content_${index}_RudderUniqueID_repaired.delete_out_of_zone_content_${index}_RudderUniqueID_kept.!delete_out_of_zone_content_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
+        ifvarclass => "migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_&RudderUniqueID&_kept.!file_content_${index}_&RudderUniqueID&_repaired.delete_out_of_zone_content_${index}_&RudderUniqueID&_kept.!delete_out_of_zone_content_${index}_&RudderUniqueID&_repaired)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.(file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error).(file_content_${index}_RudderUniqueID_repaired|delete_out_of_zone_content_${index}_RudderUniqueID_repaired)";
+        ifvarclass => "migrate_to_zone_${index}.(file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error).(file_content_${index}_&RudderUniqueID&_repaired|delete_out_of_zone_content_${index}_&RudderUniqueID&_repaired)";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.(file_content_${index}_RudderUniqueID_error|delete_out_of_zone_content_${index}_RudderUniqueID_error|file_edition_global_files_status_${index}_RudderUniqueID_error)";
+        ifvarclass => "migrate_to_zone_${index}.(file_content_${index}_&RudderUniqueID&_error|delete_out_of_zone_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "No content was given to check file ${generic_file_content_path[${index}]}, skipping", "${index}"),
@@ -204,7 +204,7 @@ bundle agent check_generic_file_content_RudderUniqueID {
 
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "Content contains variables that do not expand properly, replace `$` by `$\{const.dollar\}` (without the \ ), skipping", "${index}"),
-        ifvarclass => "!(file_edition_global_files_status_${index}_RudderUniqueID_error|file_edition_global_files_status_${index}_RudderUniqueID_repaired|file_edition_global_files_status_${index}_RudderUniqueID_kept).!edit_content_${index}.!no_edit_content_${index}.!file_nothing_to_do_${index}.!creation_only_but_already_exists_${index}";
+        ifvarclass => "!(file_edition_global_files_status_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_repaired|file_edition_global_files_status_${index}_&RudderUniqueID&_kept).!edit_content_${index}.!no_edit_content_${index}.!file_nothing_to_do_${index}.!creation_only_but_already_exists_${index}";
 
 
       # Files edition - deletion
@@ -215,13 +215,13 @@ bundle agent check_generic_file_content_RudderUniqueID {
         ifvarclass => "!delete_lines_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the deletion policy", "${index}"),
-        ifvarclass => "delete_lines_${index}.((file_content_deletion_${index}_RudderUniqueID_kept.!file_content_deletion_${index}_RudderUniqueID_repaired.!content_deletion_${index}_RudderUniqueID_error)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired))";
+        ifvarclass => "delete_lines_${index}.((file_content_deletion_${index}_&RudderUniqueID&_kept.!file_content_deletion_${index}_&RudderUniqueID&_repaired.!content_deletion_${index}_&RudderUniqueID&_error)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated using the deletion policy", "${index}"),
-        ifvarclass => "content_deletion_${index}_RudderUniqueID_repaired.file_edition_global_files_status_${index}_RudderUniqueID_repaired";
+        ifvarclass => "content_deletion_${index}_&RudderUniqueID&_repaired.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated using the deletion policy", "${index}"),
-        ifvarclass => "content_deletion_${index}_RudderUniqueID_error";
+        ifvarclass => "content_deletion_${index}_&RudderUniqueID&_error";
 
       # Files edition - replacement
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created", "${index}"),
@@ -231,13 +231,13 @@ bundle agent check_generic_file_content_RudderUniqueID {
         ifvarclass => "!modify_lines_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the replacement policy", "${index}"),
-        ifvarclass => "file_content_modification_${index}_RudderUniqueID_kept.!file_content_modification_${index}_RudderUniqueID_repaired.!file_content_modification_${index}_RudderUniqueID_error";
+        ifvarclass => "file_content_modification_${index}_&RudderUniqueID&_kept.!file_content_modification_${index}_&RudderUniqueID&_repaired.!file_content_modification_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated using the replacement policy", "${index}"),
-        ifvarclass => "file_content_modification_${index}_RudderUniqueID_repaired.!file_content_modification_${index}_RudderUniqueID_error";
+        ifvarclass => "file_content_modification_${index}_&RudderUniqueID&_repaired.!file_content_modification_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated using the replacement policy", "${index}"),
-        ifvarclass => "file_content_modification_${index}_RudderUniqueID_error";
+        ifvarclass => "file_content_modification_${index}_&RudderUniqueID&_error";
 
       # File edition - enforce only at creation
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} already exists, skipping content editing", "${index}"),
@@ -251,13 +251,13 @@ bundle agent check_generic_file_content_RudderUniqueID {
         ifvarclass => "!adjust_permissions_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} permissions are OK", "${index}"),
-        ifvarclass => "file_content_perms_${index}_RudderUniqueID_kept.!file_content_perms_${index}_RudderUniqueID_repaired.!file_content_perms_${index}_RudderUniqueID_error";
+        ifvarclass => "file_content_perms_${index}_&RudderUniqueID&_kept.!file_content_perms_${index}_&RudderUniqueID&_repaired.!file_content_perms_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} permissions were adjusted", "${index}"),
-        ifvarclass => "file_content_perms_${index}_RudderUniqueID_repaired.!file_content_perms_${index}_RudderUniqueID_error";
+        ifvarclass => "file_content_perms_${index}_&RudderUniqueID&_repaired.!file_content_perms_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} permissions could not be adjusted", "${index}"),
-        ifvarclass => "file_content_perms_${index}_RudderUniqueID_error";
+        ifvarclass => "file_content_perms_${index}_&RudderUniqueID&_error";
 
       # Permissions edition - enforce only at creation
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Permission adjustment", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already existing, skipping permission checking", "${index}"),
@@ -278,23 +278,23 @@ bundle agent check_generic_file_content_RudderUniqueID {
 
       # Section edition - No migration
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the section content policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.enforce_section_${index}.((file_content_section_content_modification_${index}_RudderUniqueID_kept.!file_content_section_content_modification_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
+        ifvarclass => "!migrate_to_zone_${index}.enforce_section_${index}.((file_content_section_content_modification_${index}_&RudderUniqueID&_kept.!file_content_section_content_modification_${index}_&RudderUniqueID&_repaired)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated using the section content policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.file_content_section_content_modification_${index}_RudderUniqueID_repaired.!file_content_section_content_modification_${index}_RudderUniqueID_error.file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error";
+        ifvarclass => "!migrate_to_zone_${index}.file_content_section_content_modification_${index}_&RudderUniqueID&_repaired.!file_content_section_content_modification_${index}_&RudderUniqueID&_error.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated using the section content policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.file_content_section_content_modification_${index}_RudderUniqueID_error";
+        ifvarclass => "!migrate_to_zone_${index}.file_content_section_content_modification_${index}_&RudderUniqueID&_error";
 
       # Section edition - migration
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the section content policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.enforce_section_${index}.((file_content_section_content_modification_${index}_RudderUniqueID_kept.!file_content_section_content_modification_${index}_RudderUniqueID_repaired.delete_out_of_zone_section_${index}_RudderUniqueID_kept.!delete_out_of_zone_section_${index}_RudderUniqueID_repaired)|(file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error))";
+        ifvarclass => "migrate_to_zone_${index}.enforce_section_${index}.((file_content_section_content_modification_${index}_&RudderUniqueID&_kept.!file_content_section_content_modification_${index}_&RudderUniqueID&_repaired.delete_out_of_zone_section_${index}_&RudderUniqueID&_kept.!delete_out_of_zone_section_${index}_&RudderUniqueID&_repaired)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated using the section content policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.((file_content_section_content_modification_${index}_RudderUniqueID_repaired.!file_content_section_content_modification_${index}_RudderUniqueID_error)|(delete_out_of_zone_section_${index}_RudderUniqueID_repaired.!delete_out_of_zone_section_${index}_RudderUniqueID_error)).file_edition_global_files_status_${index}_RudderUniqueID_repaired.!file_edition_global_files_status_${index}_RudderUniqueID_error";
+        ifvarclass => "migrate_to_zone_${index}.((file_content_section_content_modification_${index}_&RudderUniqueID&_repaired.!file_content_section_content_modification_${index}_&RudderUniqueID&_error)|(delete_out_of_zone_section_${index}_&RudderUniqueID&_repaired.!delete_out_of_zone_section_${index}_&RudderUniqueID&_error)).file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Enforce content by section", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated using the section content policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.(file_content_section_content_modification_${index}_RudderUniqueID_error|delete_out_of_zone_section_${index}_RudderUniqueID_error|file_edition_global_files_status_${index}_RudderUniqueID_error)";
+        ifvarclass => "migrate_to_zone_${index}.(file_content_section_content_modification_${index}_&RudderUniqueID&_error|delete_out_of_zone_section_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
 
 
@@ -306,13 +306,13 @@ bundle agent check_generic_file_content_RudderUniqueID {
         ifvarclass => "!execute_command_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Post-modification hook", "${generic_file_content_path[${index}]}", "${generic_file_content_path[${index}]} was in the proper state, so no command to execute", "${index}"),
-        ifvarclass => "execute_command_${index}.file_edition_global_files_status_${index}_RudderUniqueID_kept.!file_edition_global_files_status_${index}_RudderUniqueID_repaired";
+        ifvarclass => "execute_command_${index}.file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Post-modification hook", "${generic_file_content_path[${index}]}", "The command for ${generic_file_content_path[${index}]} was correctly executed", "${index}"),
-        ifvarclass => "generic_file_content_posthook_${index}_RudderUniqueID_command_run_ok";
+        ifvarclass => "generic_file_content_posthook_${index}_&RudderUniqueID&_command_run_ok";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Post-modification hook", "${generic_file_content_path[${index}]}", "The command for ${generic_file_content_path[${index}]} could not to be executed", "${index}"),
-        ifvarclass => "generic_file_content_posthook_${index}_RudderUniqueID_command_run_error";
+        ifvarclass => "generic_file_content_posthook_${index}_&RudderUniqueID&_command_run_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Post-modification hook", "${generic_file_content_path[${index}]}", "${generic_file_content_path[${index}]} already exists, skipping command execution", "${index}"),
         ifvarclass => "execute_command_${index}.creation_only_but_already_exists_${index}";
@@ -320,15 +320,15 @@ bundle agent check_generic_file_content_RudderUniqueID {
   commands:
     pass2::
       "${generic_file_content_posthook[${index}]}"
-        classes    => if_else("generic_file_content_posthook_${index}_RudderUniqueID_command_run_ok", "generic_file_content_posthook_${index}_RudderUniqueID_command_run_error"),
+        classes    => if_else("generic_file_content_posthook_${index}_&RudderUniqueID&_command_run_ok", "generic_file_content_posthook_${index}_&RudderUniqueID&_command_run_error"),
         contain    => in_shell,
-        ifvarclass => "execute_command_${index}.file_edition_global_files_status_${index}_RudderUniqueID_repaired";
+        ifvarclass => "execute_command_${index}.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired";
 
 }
 
 
 # The file edition should be unitary made in this bundle
-bundle edit_line check_generic_file_content_edition_RudderUniqueID(
+bundle edit_line check_generic_file_content_edition_&RudderUniqueID&(
     content, enforce_content_boolean,
     deletion_regex, deletion_boolean, 
     modification_regex, modification_replacement, modification_boolean, 
@@ -369,7 +369,7 @@ bundle edit_line check_generic_file_content_edition_RudderUniqueID(
   delete_lines:
     delete_lines::
       "${deletion_regex}"
-        classes => classes_generic("file_content_deletion_${index}_RudderUniqueID"),
+        classes => classes_generic("file_content_deletion_${index}_&RudderUniqueID&"),
         comment => "Deleting lines using the given regexps...";
 
     section_edition.edit_section_valid::
@@ -381,13 +381,13 @@ bundle edit_line check_generic_file_content_edition_RudderUniqueID(
   insert_lines:
     preserve_content.!no_edit_content::
       "${content}"
-        classes     => classes_generic("file_content_${index}_RudderUniqueID"),
+        classes     => classes_generic("file_content_${index}_&RudderUniqueID&"),
         insert_type => "preserve_block",
         comment     => "Editing ...";
 
     !preserve_content.!no_edit_content::
       "${content}"
-        classes => classes_generic("file_content_${index}_RudderUniqueID"),
+        classes => classes_generic("file_content_${index}_&RudderUniqueID&"),
         comment => "Editing ...";
 
     section_edition.edit_section_valid::
@@ -400,21 +400,21 @@ ${section_end}"
       # Insert missing lines into the section
       "${section_content}"
         select_region => rudder_section_selector("${escaped_section_start}", "${escaped_section_end}"),
-        classes       => classes_generic("file_content_section_content_modification_${index}_RudderUniqueID");
+        classes       => classes_generic("file_content_section_content_modification_${index}_&RudderUniqueID&");
 
 
   replace_patterns:
     replace_lines.(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with => value("${modification_replacement}"),
-        classes      => classes_generic("file_content_modification_${index}_RudderUniqueID"),
+        classes      => classes_generic("file_content_modification_${index}_&RudderUniqueID&"),
         comment      => "Replacing lines using the given regexps...";
 
 
     replace_lines.!(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with => value(""),
-        classes      => classes_generic("file_content_modification_${index}_RudderUniqueID"),
+        classes      => classes_generic("file_content_modification_${index}_&RudderUniqueID&"),
         comment      => "Replacing lines using the given regexps...";
 
 
@@ -422,7 +422,7 @@ ${section_end}"
 
 
 # The file edition should be unitary made in this bundle
-bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
+bundle edit_line check_generic_file_content_edition_in_zone_&RudderUniqueID&(
     content, enforce_content_boolean,
     deletion_regex, deletion_boolean,
     modification_regex, modification_replacement, modification_boolean,
@@ -495,7 +495,7 @@ bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
   delete_lines:
     delete_lines.pass_two::
       "${deletion_regex}"
-        classes       =>  classes_generic("file_content_deletion_${index}_RudderUniqueID"),
+        classes       =>  classes_generic("file_content_deletion_${index}_&RudderUniqueID&"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         comment       => "Deleting lines in zone using the given regexps...";
 
@@ -510,13 +510,13 @@ bundle edit_line check_generic_file_content_edition_in_zone_RudderUniqueID(
     # to move, we delete from everywhere, and add it back in the proper location
     section_edition.migrate_to_zone.edit_section_valid::
       "${section_delimiters}"
-        classes => classes_generic("delete_out_of_zone_section_${index}_RudderUniqueID"),
+        classes => classes_generic("delete_out_of_zone_section_${index}_&RudderUniqueID&"),
         comment => "Removing matched lines out of zone ...";
 
     # remove line out of zone if we decide to do so
     !no_edit_content.migrate_to_zone.pass_two::
       "${escaped_content[${content_line_index}]}"
-        classes => classes_generic("delete_out_of_zone_content_${index}_RudderUniqueID"),
+        classes => classes_generic("delete_out_of_zone_content_${index}_&RudderUniqueID&"),
         comment => "Removing matched lines out of zone ...";
 
   insert_lines:
@@ -527,14 +527,14 @@ ${zone_end}";
 
    preserve_content.!no_edit_content.pass_two::
       "${content}"
-        classes       => classes_generic("file_content_${index}_RudderUniqueID"),
+        classes       => classes_generic("file_content_${index}_&RudderUniqueID&"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         insert_type   => "preserve_block",
         comment       => "Editing ...";
 
     !preserve_content.!no_edit_content.pass_two::
       "${content}"
-        classes       => classes_generic("file_content_${index}_RudderUniqueID"),
+        classes       => classes_generic("file_content_${index}_&RudderUniqueID&"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         comment       => "Editing ...";
 
@@ -548,20 +548,20 @@ ${section_end}"
       # Insert missing lines into the section
       "${section_content}"
         select_region => rudder_section_selector("${escaped_section_start}", "${escaped_section_end}"),
-        classes       => classes_generic("file_content_section_content_modification_${index}_RudderUniqueID");
+        classes       => classes_generic("file_content_section_content_modification_${index}_&RudderUniqueID&");
 
   replace_patterns:
     replace_lines.(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with  => value("${modification_replacement}"),
-        classes       => classes_generic("file_content_modification_${index}_RudderUniqueID"),
+        classes       => classes_generic("file_content_modification_${index}_&RudderUniqueID&"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         comment       => "Replacing lines using the given regexps...";
 
     replace_lines.!(replace_lines_destination_defined|(!no_replace_lines_destination_defined.!replace_lines_destination_defined))::
       "${modification_regex}"
         replace_with  => value(""),
-        classes       => classes_generic("file_content_modification_${index}_RudderUniqueID"),
+        classes       => classes_generic("file_content_modification_${index}_&RudderUniqueID&"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         comment       => "Replacing lines using the given regexps...";
 } 

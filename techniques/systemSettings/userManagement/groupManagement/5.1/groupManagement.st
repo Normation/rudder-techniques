@@ -5,7 +5,7 @@
 ##########################################################################
 
 
-bundle agent check_usergroup_grp_parameters_RudderUniqueID {
+bundle agent check_usergroup_grp_parameters_&RudderUniqueID& {
 
 	vars:
 		&USERGROUP_GROUP_NAME:{name |"usergroup_group_name[&i&]" string => "&name&";
@@ -37,11 +37,11 @@ bundle agent check_usergroup_grp_parameters_RudderUniqueID {
 	methods:
 
       "any"
-        usebundle => check_usergroup_group_parameters_grouphandle_RudderUniqueID("${usergroup_group_name[${usergroup_group_index}]}", "${usergroup_group_create[${usergroup_group_index}]}", "${usergroup_group_set_gid[${usergroup_group_index}]}", "${usergroup_group_gid[${usergroup_group_index}]}","${usergroup_group_enforce_content[${usergroup_group_index}]}", "${usergroup_group_content[${usergroup_group_index}]}", "${usergroup_group_index}", "${usergroup_group_directive_id[${usergroup_group_index}]}");
+        usebundle => check_usergroup_group_parameters_grouphandle_&RudderUniqueID&("${usergroup_group_name[${usergroup_group_index}]}", "${usergroup_group_create[${usergroup_group_index}]}", "${usergroup_group_set_gid[${usergroup_group_index}]}", "${usergroup_group_gid[${usergroup_group_index}]}","${usergroup_group_enforce_content[${usergroup_group_index}]}", "${usergroup_group_content[${usergroup_group_index}]}", "${usergroup_group_index}", "${usergroup_group_directive_id[${usergroup_group_index}]}");
 
 }
 
-bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, create, setgid, gid, enforce_content, content, index, directiveId) {
+bundle agent check_usergroup_group_parameters_grouphandle_&RudderUniqueID&(name, create, setgid, gid, enforce_content, content, index, directiveId) {
 
     vars:
 
@@ -64,25 +64,25 @@ bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, c
 
         # Enforce group content on if groupmanagement_group_${index}_enforce_content is set
         "/etc/group"
-            edit_line     => groups_file_set_RudderUniqueID("${name}", "@(check_usergroup_group_parameters_grouphandle_RudderUniqueID.userlist)"),
+            edit_line     => groups_file_set_&RudderUniqueID&("${name}", "@(check_usergroup_group_parameters_grouphandle_&RudderUniqueID&.userlist)"),
             edit_defaults => noempty_backup,
-            classes       => classes_generic("groupmanagement_group_add_${index}_RudderUniqueID"),
-            ifvarclass    => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_RudderUniqueID_repaired)",
+            classes       => classes_generic("groupmanagement_group_add_${index}_&RudderUniqueID&"),
+            ifvarclass    => "groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_&RudderUniqueID&_repaired)",
             comment       => "Set users on the group ${name} only if the group is already present";
 
         # Append group content on if groupmanagement_group_${index}_enforce_content is not set
         "/etc/group"
-            edit_line     => append_user_field("${name}", "4", "@(check_usergroup_group_parameters_grouphandle_RudderUniqueID.userlist)"),
+            edit_line     => append_user_field("${name}", "4", "@(check_usergroup_group_parameters_grouphandle_&RudderUniqueID&.userlist)"),
             edit_defaults => noempty_backup,
-            classes       => classes_generic("groupmanagement_group_add_${index}_RudderUniqueID"),
-            ifvarclass    => "!groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_RudderUniqueID_repaired)",
+            classes       => classes_generic("groupmanagement_group_add_${index}_&RudderUniqueID&"),
+            ifvarclass    => "!groupmanagement_group_${index}_enforce_content.(!groupmanagement_group_${index}_absent|groupmanagement_group_add_${index}_&RudderUniqueID&_repaired)",
             comment       => "Append users on the group ${name} only if the group is already present";
 
         # Enforce GID if setgid has been set
         "/etc/group"
             create     => "false",
             edit_line  => set_user_field("${name}", 3, "${gid}"),
-            classes    => classes_generic("groupmanagement_group_gid_${index}_RudderUniqueID"),
+            classes    => classes_generic("groupmanagement_group_gid_${index}_&RudderUniqueID&"),
             ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
 
 
@@ -92,19 +92,19 @@ bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, c
     pass3.cfengine::
 
       "any" usebundle => rudder_common_report_index("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is already present and compliant with the policy", "${index}"),
-                ifvarclass => "groupmanagement_group_add_${index}_RudderUniqueID_kept.!(groupmanagement_group_add_${index}_RudderUniqueID_repaired|groupmanagement_group_add_${index}_RudderUniqueID_error)";
+                ifvarclass => "groupmanagement_group_add_${index}_&RudderUniqueID&_kept.!(groupmanagement_group_add_${index}_&RudderUniqueID&_repaired|groupmanagement_group_add_${index}_&RudderUniqueID&_error)";
 
       "any" usebundle => rudder_common_report_index("groupManagement", "result_repaired", "${directiveId}", "Groups", "${name}", "The group ${name} has been updated", "${index}"),
-                ifvarclass => "groupmanagement_group_add_${index}_RudderUniqueID_repaired.!groupmanagement_group_add_${index}_RudderUniqueID_error";
+                ifvarclass => "groupmanagement_group_add_${index}_&RudderUniqueID&_repaired.!groupmanagement_group_add_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("groupManagement", "result_error", "${directiveId}", "Groups", "${name}", "The group ${name} could not be created or updated", "${index}"),
-                ifvarclass => "groupmanagement_group_add_${index}_RudderUniqueID_error";
+                ifvarclass => "groupmanagement_group_add_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("groupManagement", "result_success", "${directiveId}", "Groups", "${name}", "The group ${name} is not present and not set to be created", "${index}"),
                 ifvarclass => "groupmanagement_group_${index}_absent.!groupmanagement_group_${index}_create";
 
        #Group enforce GID
-      "any" usebundle => rudder_common_reports_generic_index("groupManagement", "groupmanagement_group_gid_${index}_RudderUniqueID", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} gid set it ${gid}", "${index}"),
+      "any" usebundle => rudder_common_reports_generic_index("groupManagement", "groupmanagement_group_gid_${index}_&RudderUniqueID&", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} gid set it ${gid}", "${index}"),
                 ifvarclass => "!groupmanagement_group_${index}_absent.groupmanagement_group_${index}_setgid";
 
       "any" usebundle => rudder_common_report_index("groupManagement", "result_na", "${directiveId}", "Group enforce GID", "${name}", "The group ${name} is not present", "${index}"),
@@ -121,32 +121,32 @@ bundle agent check_usergroup_group_parameters_grouphandle_RudderUniqueID(name, c
       !aix::
         "/usr/sbin/groupadd"
             args => "-f \"${name}\"",
-            classes => if_else("groupmanagement_group_add_${index}_RudderUniqueID_repaired", "groupmanagement_group_add_${index}_RudderUniqueID_error"),
+            classes => if_else("groupmanagement_group_add_${index}_&RudderUniqueID&_repaired", "groupmanagement_group_add_${index}_&RudderUniqueID&_error"),
             ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.!groupmanagement_group_${index}_setgid",
             comment => "Add the group ${name} if it doesn't exists";
 
         "/usr/sbin/groupadd"
             args => "-f \"${name}\" -g \"${gid}\"",
-            classes => if_else("groupmanagement_group_add_${index}_RudderUniqueID_repaired", "groupmanagement_group_add_${index}_RudderUniqueID_error"),
+            classes => if_else("groupmanagement_group_add_${index}_&RudderUniqueID&_repaired", "groupmanagement_group_add_${index}_&RudderUniqueID&_error"),
             ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.groupmanagement_group_${index}_setgid",
             comment => "Add the group ${name} with GID ${gid} if it doesn't exists";
 
       aix::
         "/usr/bin/mkgroup"
             args => "${name}",
-            classes => if_else("groupmanagement_group_add_${index}_RudderUniqueID_repaired", "groupmanagement_group_add_${index}_RudderUniqueID_error"),
+            classes => if_else("groupmanagement_group_add_${index}_&RudderUniqueID&_repaired", "groupmanagement_group_add_${index}_&RudderUniqueID&_error"),
             ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.!groupmanagement_group_${index}_setgid",
             comment => "Add the group ${name} if it doesn't exists";
 
         "/usr/bin/mkgroup"
             args => "id=${gid} ${name}",
-            classes => if_else("groupmanagement_group_add_${index}_RudderUniqueID_repaired", "groupmanagement_group_add_${index}_RudderUniqueID_error"),
+            classes => if_else("groupmanagement_group_add_${index}_&RudderUniqueID&_repaired", "groupmanagement_group_add_${index}_&RudderUniqueID&_error"),
             ifvarclass => "groupmanagement_group_${index}_absent.groupmanagement_group_${index}_create.groupmanagement_group_${index}_setgid",
             comment => "Add the group ${name} with GID ${gid} if it doesn't exists";
 
 }
 
-bundle edit_line groups_file_set_RudderUniqueID(group,userlist)
+bundle edit_line groups_file_set_&RudderUniqueID&(group,userlist)
 {
 
 vars:

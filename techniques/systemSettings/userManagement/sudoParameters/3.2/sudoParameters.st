@@ -20,7 +20,7 @@
 
 # Depends on hooks runhook_package, runhook_sudo_pre_hook and runhook_sudo_post_hook
 
-bundle agent check_sudo_parameters_RudderUniqueID
+bundle agent check_sudo_parameters_&RudderUniqueID&
 {
   vars:
 
@@ -89,17 +89,17 @@ bundle agent check_sudo_parameters_RudderUniqueID
     # These classes are set by runhook_sudo_pre_hook
     ((sudoconfiguration_sudoers_tmp_copy_kept|sudoconfiguration_sudoers_tmp_copy_repaired).(!sudoconfiguration_sudoers_tmp_copy_error))|dry_run::
       "any"
-        usebundle => sudo_parameter_edit_sudoers_RudderUniqueID("${sudoers_file}", "check_sudo_parameters_RudderUniqueID.entity", "check_sudo_parameters_RudderUniqueID.sudo_entity_nopasswd", "check_sudo_parameters_RudderUniqueID.sudo_entity_all", "check_sudo_parameters_RudderUniqueID.sudo_entity_command");
+        usebundle => sudo_parameter_edit_sudoers_&RudderUniqueID&("${sudoers_file}", "check_sudo_parameters_&RudderUniqueID&.entity", "check_sudo_parameters_&RudderUniqueID&.sudo_entity_nopasswd", "check_sudo_parameters_&RudderUniqueID&.sudo_entity_all", "check_sudo_parameters_&RudderUniqueID&.sudo_entity_command");
 
     pass3::
       "any" usebundle => rudder_common_report_index("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "Entry for ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is invalid (no command given), and has been ignored", "${sudo_index}"), 
-        ifvarclass => "sudo_${sudo_index}_RudderUniqueID_command_empty.!sudo_${sudo_index}_RudderUniqueID_alldo";
+        ifvarclass => "sudo_${sudo_index}_&RudderUniqueID&_command_empty.!sudo_${sudo_index}_&RudderUniqueID&_alldo";
 
-      "any" usebundle => rudder_common_reports_generic_index("sudoParameters", "sudo_parameter_edited_section_${csection_name[${sudo_index}]}_RudderUniqueID", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]}", "${sudo_index}");
+      "any" usebundle => rudder_common_reports_generic_index("sudoParameters", "sudo_parameter_edited_section_${csection_name[${sudo_index}]}_&RudderUniqueID&", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]}", "${sudo_index}");
 
 }
 
-bundle agent sudo_parameter_edit_sudoers_RudderUniqueID(filename, entity, nopasswd, alldo, command)
+bundle agent sudo_parameter_edit_sudoers_&RudderUniqueID&(filename, entity, nopasswd, alldo, command)
 {
   vars:
 
@@ -108,39 +108,39 @@ bundle agent sudo_parameter_edit_sudoers_RudderUniqueID(filename, entity, nopass
     pass1::
 
       "command_all[${index}]" string => "ALL=(ALL) NOPASSWD:ALL",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.sudo_${index}_RudderUniqueID_nopasswd).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_&RudderUniqueID&_alldo.sudo_${index}_&RudderUniqueID&_nopasswd).(!sudo_${index}_&RudderUniqueID&_command_empty|sudo_${index}_&RudderUniqueID&_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) ALL",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_alldo.!sudo_${index}_RudderUniqueID_nopasswd).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_&RudderUniqueID&_alldo.!sudo_${index}_&RudderUniqueID&_nopasswd).(!sudo_${index}_&RudderUniqueID&_command_empty|sudo_${index}_&RudderUniqueID&_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) NOPASSWD:${${command}[${index}]}",
-                      ifvarclass => "(sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(sudo_${index}_&RudderUniqueID&_nopasswd.!sudo_${index}_&RudderUniqueID&_alldo).(!sudo_${index}_&RudderUniqueID&_command_empty|sudo_${index}_&RudderUniqueID&_alldo)";
 
       "command_all[${index}]" string => "ALL=(ALL) ${${command}[${index}]}",
-                      ifvarclass => "(!sudo_${index}_RudderUniqueID_nopasswd.!sudo_${index}_RudderUniqueID_alldo).(!sudo_${index}_RudderUniqueID_command_empty|sudo_${index}_RudderUniqueID_alldo)";
+                      ifvarclass => "(!sudo_${index}_&RudderUniqueID&_nopasswd.!sudo_${index}_&RudderUniqueID&_alldo).(!sudo_${index}_&RudderUniqueID&_command_empty|sudo_${index}_&RudderUniqueID&_alldo)";
 
 
   classes:
       # some classes are used by reporting from parent bundle (scope namespace)
 
       # Disable password asking ?
-      "sudo_${index}_RudderUniqueID_nopasswd" expression => strcmp("${${nopasswd}[${index}]}","true");
+      "sudo_${index}_&RudderUniqueID&_nopasswd" expression => strcmp("${${nopasswd}[${index}]}","true");
 
       # Should we enable ALL as command ?
-      "sudo_${index}_RudderUniqueID_alldo" expression => strcmp("${${alldo}[${index}]}","true"),
+      "sudo_${index}_&RudderUniqueID&_alldo" expression => strcmp("${${alldo}[${index}]}","true"),
                             scope => "namespace";
     pass2::
       # Is command empty ?
-      "sudo_${index}_RudderUniqueID_command_empty" expression => strcmp("${${command}[${index}]}",""),
+      "sudo_${index}_&RudderUniqueID&_command_empty" expression => strcmp("${${command}[${index}]}",""),
                                        scope => "namespace";
 
       # detect if file has been changed by edition
       "sudoparameters_sudoers_tmp_file_ok"
-                         not => classmatch("sudo_parameter_edited_section_.*_RudderUniqueID_error"),
+                         not => classmatch("sudo_parameter_edited_section_.*_&RudderUniqueID&_error"),
                        scope => "namespace";
 
       "sudoparameters_sudoers_tmp_file_error"
-                   expression => classmatch("sudo_parameter_edited_section_.*_RudderUniqueID_error"),
+                   expression => classmatch("sudo_parameter_edited_section_.*_&RudderUniqueID&_error"),
                         scope => "namespace";
 
     any::
@@ -155,17 +155,17 @@ bundle agent sudo_parameter_edit_sudoers_RudderUniqueID(filename, entity, nopass
         edit_defaults => noempty_backup,
         perms         => mog("0440", "root", "0"),
         comment       => "Sanitize environment",
-        edit_line     => sudo_parameter_sanitize_env_RudderUniqueID;
+        edit_line     => sudo_parameter_sanitize_env_&RudderUniqueID&;
 
 
   methods:
     pass2::
-      "edit_file" usebundle => sudo_parameter_ensure_block_section_RudderUniqueID("${filename}", "${${entity}[${index}]}", "${command_all[${index}]}", "# begin_section_${${entity}[${index}]}", "# end_section_${${entity}[${index}]}");
+      "edit_file" usebundle => sudo_parameter_ensure_block_section_&RudderUniqueID&("${filename}", "${${entity}[${index}]}", "${command_all[${index}]}", "# begin_section_${${entity}[${index}]}", "# end_section_${${entity}[${index}]}");
 
 }
 
 # Sanitize the environement
-bundle edit_line sudo_parameter_sanitize_env_RudderUniqueID
+bundle edit_line sudo_parameter_sanitize_env_&RudderUniqueID&
 {
   insert_lines:
     replace_attempted_env_reset::
@@ -179,7 +179,7 @@ bundle edit_line sudo_parameter_sanitize_env_RudderUniqueID
 
 }
 
-bundle agent sudo_parameter_ensure_block_section_RudderUniqueID(filename, entity, command, begin, end) {
+bundle agent sudo_parameter_ensure_block_section_&RudderUniqueID&(filename, entity, command, begin, end) {
   vars:
       "escaped_entity"   string => escape("${entity}");
       "escaped_command"  string => escape("${command}");
@@ -197,7 +197,7 @@ bundle agent sudo_parameter_ensure_block_section_RudderUniqueID(filename, entity
         edit_defaults => noempty_backup,
         perms         => mog("0440", "root", "0"),
         edit_line     => ncf_ensure_section_content_and_purge_type("${begin}", "${end}", "${entity}	${command}", "preserve_block", "${escaped_entity}"),
-        classes       => classes_generic("sudo_parameter_edited_section_${canonified_begin}_RudderUniqueID");
+        classes       => classes_generic("sudo_parameter_edited_section_${canonified_begin}_&RudderUniqueID&");
 
     dry_run::
       "${filename}" 
@@ -205,6 +205,6 @@ bundle agent sudo_parameter_ensure_block_section_RudderUniqueID(filename, entity
         edit_defaults => noempty_backup,
         perms         => mog("0440", "root", "0"),
         edit_line     => insert_lines("${entity}	${command}"),
-        classes       => classes_generic("sudo_parameter_edited_section_${canonified_begin}_RudderUniqueID");
+        classes       => classes_generic("sudo_parameter_edited_section_${canonified_begin}_&RudderUniqueID&");
 }
 
