@@ -2,7 +2,7 @@ bundle agent apache_acl
 {
 
   vars:
-      "destination"        string => "${g.rudder_var}/lib/relay/";
+      "destination"        string => "${g.rudder_var}/lib/ssl/";
       "ssl_ca_file"        string => "nodescerts.pem";
       "ssl_ca_size"        string => filestat("${this.promise_dirname}/${ssl_ca_file}", "size");
 
