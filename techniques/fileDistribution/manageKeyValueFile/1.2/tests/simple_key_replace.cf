@@ -1,8 +1,0 @@
-#!/usr/local/bin/ncf -f
-
-bundle agent init {
-
-  methods:
-    "any" usebundle => file_enforce_content("/tmp/manage-key-value", "", "true");
-
-}

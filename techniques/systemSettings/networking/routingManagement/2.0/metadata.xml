@@ -3,6 +3,7 @@
   <DESCRIPTION>This technique operates on the system routing table.
 
   It will ensure that the defined routes are present, and will add them if required.</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>

@@ -1,6 +1,7 @@
 
 <TECHNIQUE name="NFS client">
   <DESCRIPTION>Configure an NFS Client</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder.</DEPRECATED>
   <COMPATIBLE>
     <OS version=">= 4 (Etch)">Debian</OS>
     <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
