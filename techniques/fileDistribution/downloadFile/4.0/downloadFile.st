@@ -27,13 +27,7 @@ bundle agent execute_file_download_&RudderUniqueID&
 
       "index" slist => getindices("destination");
 
-    # If curl is here, use it
-    curl_installed::
       "download_command[${index}]" string => "${g.rudder_curl} -L -f --proxy '' -o \"${destination[${index}]}\" ${source[${index}]}";
-
-    # If no curl is present, fallback to minicurl
-    !curl_installed::
-      "download_command[${index}]" string => "${g.minicurl} --get --file \"${destination[${index}]}\" --url ${source[${index}]}";
 
   classes:
       "file_not_found_${index}" not => fileexists("${destination[${index}]}");
@@ -52,9 +46,6 @@ bundle agent execute_file_download_&RudderUniqueID&
 
   methods:
     # File downloading part
-    pass3.(!curl_installed)::
-      "any" usebundle => rudder_common_report("downloadFile", "log_info", "${trackingkey[${index}]}", "Download a file", "${source[${index}]}", "No usable cURL binary detected, falling back to minicurl instead");
-
     pass3::
       "any" usebundle => rudder_common_report("downloadFile", "result_success", "${trackingkey[${index}]}", "Download a file", "${source[${index}]}", "The file ${source[${index}]} already present"),
            ifvarclass => "!file_not_found_${index}.!file_download_${index}_&RudderUniqueID&_ok.!file_download_${index}_&RudderUniqueID&_error";
