@@ -40,7 +40,7 @@ skip_event_types = []
 
 [processing.reporting.catchup]
 frequency = 10
-limit = 50
+limit = 0
 
 [processing.reporting.cleanup]
 frequency = "10min"
