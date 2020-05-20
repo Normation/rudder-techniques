@@ -12,27 +12,14 @@ bundle agent computeInventoryTime
   vars:
       "run_interval"             int   => "&AGENT_RUN_INTERVAL&";
 
-      "inventory_time_hours"     slist => { "Hr00", "Hr01", "Hr02", "Hr03", "Hr04", "Hr05" };
-      "inventory_time_selection" slist => maplist("${this}_select", "inventory_time_hours");
-
   classes:
-      "splaying"                   expression => splayclass("${sys.host}${sys.ipv4}","hourly");
-
-      "inventory_run_selection" select_class => { "@{computeInventoryTime.inventory_time_selection}"};
-
-      # If this is the default 5 minute schedule, this is the standart case
-      "default_schedule" expression => isgreaterthan("6", "${run_interval}");
-
-      # If the interval is between 6 and 59 minutes, then we "splay" by the select_class, so between Midnight and 5 am
-      "less_than_one_hour_interval" expression => isgreaterthan("59", "${run_interval}");
-
-      # Compute if we are currently in the hour where the inventory should be done
-      "inventory_hour_selection" expression => "${inventory_time_hours}.${inventory_time_hours}_select";
-
-       # Inventory will be during the night, at the hour selected, with a splay is this is the default schedule, else at the first run during the selected hour
-       # if the interval is less than one hour, else at the first run of the night
-       "inventory_time" expression => "Night.((splaying.default_schedule.inventory_hour_selection)|(!default_schedule.less_than_one_hour_interval.inventory_hour_selection)|(!less_than_one_hour_interval))",
+       "inventory_time" expression => "schedule_simple_rudder_run_inventory_repaired",
                              scope => "namespace";
+
+  methods:
+      # Inventory will be during the 6 hours after midnight, every day
+      "splay_inventory" usebundle => _method_reporting_context("Compute inventory splay", "None");
+      "splay_inventory" usebundle => schedule_simple("rudder_run_inventory", "${run_interval}", "0", "6", "0", "0", "0", "0", "0", "1", "catchup");
 }
 
 bundle agent doInventory
