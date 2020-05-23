@@ -23,7 +23,7 @@
 # To get the original data (for debug only) there is the properties.property_<fileid> variable
 # usage example: ${properties.property__var_rudder_cfengine_community_inputs_properties_properties_json[properties][my_key]}
 #
-bundle agent properties
+bundle common properties
 {
   vars:
     # The files to read
@@ -63,7 +63,7 @@ bundle agent properties
 }
 
 # Read the inventories variables from Rudder
-bundle agent rudder_node_inventory {
+bundle common rudder_node_inventory {
   vars:
     "node.inventory" data => readjson("${this.promise_dirname}/../../rudder-vars.json");
 }
