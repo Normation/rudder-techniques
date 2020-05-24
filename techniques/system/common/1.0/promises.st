@@ -72,13 +72,6 @@ bundle agent rudder_init {
 
 }
 
-bundle common agent_capabilities {
-  vars:
-      "capabilities" slist => readstringlist("${va.rudder_capabilities_file}", "", "\n", inf, inf);
-  classes:
-      "agent_capability_${capabilities}";
-}
-
 bundle agent rudder_common_system_directive {
   vars:
       # Hackish way to skip the cf-promises on component check, otherwise it
@@ -187,6 +180,13 @@ bundle common va
     # static definition of the machine roles
 &NODEROLE&
 
+}
+
+bundle common agent_capabilities {
+  vars:
+      "capabilities" slist => readstringlist("${va.rudder_capabilities_file}", "", "\n", inf, inf);
+  classes:
+      "agent_capability_${capabilities}";
 }
 
 #########################################################
