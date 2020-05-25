@@ -127,6 +127,10 @@ bundle common va
       "list_compatible_inputs"     string => "NCF_CACHE_PATH=${sys.workdir}/state /bin/sh ${ncf_path}/common/10_ncf_internals/list-compatible-inputs";
       "compatible_inputs_cmd"      string => "${list_compatible_inputs} ${capability_option} --agent-version ${sys.cf_version} --ncf-path '${ncf_path}'";
 
+    # prevent reevaluation of list-compatible-inputs command
+    # the list_compatible_inputs_ok is set in the classes part, meaning
+    # command has already been executed, for the better or worse
+    any.!list_compatible_inputs_ok::
       "raw_path_ncf_common_inputs" slist => splitstring(execresult("${compatible_inputs_cmd} common", "${shell_type}"), "\n", 10000);
       "raw_path_ncf_local_inputs"  slist => splitstring(execresult("${compatible_inputs_cmd} local", "${shell_type}"), "\n", 10000);
 
@@ -144,8 +148,8 @@ bundle common va
       # Need to remove cf_null from the list
       "ncf_inputs"            slist => filter("${ncf_path}/cf_null", "raw_ncf_inputs", "false", "true", 10000);
 
-    # create the final input list after ncf
-    # all other inputs are loaded by body file control in rudder-system-directives.cf
+      # create the final input list after ncf
+      # all other inputs are loaded by body file control in rudder-system-directives.cf and rudder-directives.cf
       "inputs_list" slist => { @{ncf_inputs} };
 
 &if(INITIAL)&
@@ -171,6 +175,9 @@ bundle common va
 
     # We are inside Rudder policies
       "rudder_policies" expression => "any";
+
+    # Define classes that policies are evaluable
+      "list_compatible_inputs_ok" expression => "any";
 
     # I don't know why, but these classes are not evaluated if they are in rudder_roles
       # Policy Server is a machine which delivers promises
