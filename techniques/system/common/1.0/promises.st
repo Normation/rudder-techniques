@@ -260,16 +260,6 @@ bundle agent check_rudder_force_audit_agent
 
 
 ###################################################
-# Special handler when aborting from ncf
-###################################################
-bundle agent abort_rudder(reason, message)
-{
-  methods:
-      "abort log" usebundle => rudder_common_report("Common", "log_info", "${system_common.directiveId}", "Abort run", "${reason}", "${message}");
-      "end run"   usebundle => endExecution;
-}
-
-###################################################
 # Initialize ncf and report about it
 ###################################################
 bundle agent initialize_ncf()
