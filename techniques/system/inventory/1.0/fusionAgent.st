@@ -254,11 +254,19 @@ bundle agent sendInventory
       "pass1" expression => "any";
 
   files:
-    any::
+    !root_server::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
+
+    root_server::
+      # minimal change to copy inventories to accepted node updates on root server
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
+        transformer => "${g.rudder_cp} ${this.promiser} ${g.rudder_inventories}/accepted-nodes-updates",
+        classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
+        comment      => "Copying the inventory on root server";
+
 
   # Once we've successfully sent all inventories, remove them
     inventory_sent.!cant_send_inventory::

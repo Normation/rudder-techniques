@@ -10,6 +10,7 @@ bundle common g
 
       "rudder_base"                string => "/opt/rudder";
       "rudder_rm"                  string => "/bin/rm";
+      "rudder_cp"                  string => "/bin/cp";
       "rudder_var"                 string => "/var/rudder";
 
       "rudder_curl"                string => "/usr/bin/curl",
