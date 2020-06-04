@@ -24,16 +24,6 @@ bundle agent root_component_check
       # Make sure every required logrotate entry is present
       "any" usebundle => root_logrotate_check;
 
-    policy_server::
-      "any" usebundle => rudder_generic_service("relayd", "rudder-relayd");
-      "any" usebundle => rudder_relayd_configuration;
-
-    !policy_server::
-      "any" usebundle => rudder_generic_service_na("relayd");
-      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
-          "Relayd service configuration", "None", "Checking relayd configuration is unnecessary on this machine, skipping."
-        );
-
     role_rudder_reports::
       "any" usebundle => rudder_generic_service("postgresql", "${postgresql_service_name}");
     !role_rudder_reports::
@@ -61,6 +51,17 @@ bundle agent root_component_check
         );
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
           "Check rudder-passwords.conf", "None", "Checking the Rudder password file is unnecessary on this machine, skipping..."
+        );
+
+
+    policy_server::
+      "any" usebundle => rudder_generic_service("relayd", "rudder-relayd");
+      "any" usebundle => rudder_relayd_configuration;
+
+    !policy_server::
+      "any" usebundle => rudder_generic_service_na("relayd");
+      "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
+          "Relayd service configuration", "None", "Checking relayd configuration is unnecessary on this machine, skipping."
         );
 
     # Do this if this is the root_server or a relay server
