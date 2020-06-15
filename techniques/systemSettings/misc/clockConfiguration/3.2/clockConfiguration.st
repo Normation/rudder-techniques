@@ -59,7 +59,7 @@ bundle agent check_clock_configuration
         classes => kept_if_else("localtime_kept", "repaired_localtime", "not_repaired_localtime");
 
     # Edit the distro dependant files to set the TZ on boot
-    redhat.!clock_timezone_noedit::
+    redhat.!(centos_7|redhat_7|centos_8|redhat_8).!clock_timezone_noedit::
       "/etc/sysconfig/clock"
         edit_line => EditCentOSTimezone("${linux_timezone}"),
         edit_defaults => noempty_backup,
