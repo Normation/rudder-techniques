@@ -6,6 +6,7 @@ bundle common rudder_servers_by_role
 {
 
   vars:
+    !initial_promises::
       "dim_array" int => readstringarray("roles", "${this.promise_dirname}/../../rudder-server-roles.conf", "#[^\n]*", ":", 15, 4000);
 
       "key" slist => getindices("roles");
