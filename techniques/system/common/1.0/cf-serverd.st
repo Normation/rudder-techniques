@@ -46,12 +46,12 @@ bundle server access_rules
     &MANAGED_NODES_NAME, MANAGED_NODES_ID, MANAGED_NODES_KEY : {host, uuid, key |
       "/var/rudder/share/&uuid&/"
         maproot => {  @{def.acl}  },
-	if => isdir("/var/rudder/share/&uuid&/"),
+        if => isdir("/var/rudder/share/&uuid&/"),
         admit_keys => { "&key&" };
 
       "/var/rudder/shared-files/&uuid&/"
         maproot => {  @{def.acl}  },
-	if => isdir("/var/rudder/shared-files/&uuid&/"),
+        if => isdir("/var/rudder/shared-files/&uuid&/"),
         admit_keys => { "&key&" };
 
     } &
