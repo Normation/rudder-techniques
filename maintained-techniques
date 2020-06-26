@@ -38,6 +38,7 @@ systemSettings/networking/dnsConfiguration/3.0
 systemSettings/networking/hostsConfiguration/2.0
 systemSettings/networking/nfsClient/3.0
 systemSettings/networking/routingManagement/2.0
+systemSettings/networking/firewall/1.0
 systemSettings/process/servicesManagement/3.0
 systemSettings/process/services/1.1
 systemSettings/remoteAccess/sshConfiguration/5.0

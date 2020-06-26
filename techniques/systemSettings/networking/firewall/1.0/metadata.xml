@@ -1,0 +1,61 @@
+<TECHNIQUE name="Firewall">
+    <DESCRIPTION>Configures a simple firewall using nftables</DESCRIPTION>
+
+    <MULTIINSTANCE>false</MULTIINSTANCE>
+    <POLICYGENERATION>separated</POLICYGENERATION>
+
+    <COMPATIBLE>
+        <OS version=">= 9">RHEL / CentOS</OS>
+        <OS version=">= 7">Debian / Ubuntu</OS>
+        <AGENT version=">= 3.12">cfengine-community</AGENT>
+    </COMPATIBLE>
+
+    <BUNDLES>
+        <NAME>rudder_firewall</NAME>
+    </BUNDLES>
+
+    <TMLS>
+        <TML name="firewall" />
+    </TMLS>
+
+    <SECTIONS>
+        <SECTION name="Installation" component="true" />
+        <SECTION name="Service activation" component="true" />
+        <SECTION name="Service start" component="true" />
+        <SECTION name="Firewall changes" component="true" />
+        <SECTION name="Firewall configuration" component="true">
+            <SELECT1>
+                <NAME>FIREWALL_IMPL</NAME>
+                <DESCRIPTION>Firewall to use</DESCRIPTION>
+                <ITEM>
+                    <LABEL>nftables</LABEL>
+                    <VALUE>nftables</VALUE>
+                </ITEM>
+                <CONSTRAINT>
+                    <DEFAULT>nftables</DEFAULT>
+                </CONSTRAINT>
+            </SELECT1>
+            <INPUT>
+                <NAME>FIREWALL_CONF</NAME>
+                <DESCRIPTION>Firewall configuration</DESCRIPTION>
+                <LONGDESCRIPTION>Output of "iptables-save" or "nft list ruleset". It will be templated as mustache.</LONGDESCRIPTION>
+		<CONSTRAINT>
+                    <TYPE>textarea</TYPE>
+                    <MAYBEEMPTY>true</MAYBEEMPTY>
+                </CONSTRAINT>
+            </INPUT>
+        </SECTION>
+        <SECTION name="Load configuration" component="true" />
+        <SECTION name="Post-modification script" component="true">
+            <INPUT>
+                <NAME>FIREWALL_POST_HOOK_COMMAND</NAME>
+                <DESCRIPTION>Command to run after changes the firewall configuration</DESCRIPTION>
+                <CONSTRAINT>
+                    <TYPE>textarea</TYPE>
+                    <MAYBEEMPTY>true</MAYBEEMPTY>
+                </CONSTRAINT>
+            </INPUT>
+        </SECTION>
+    </SECTIONS>
+</TECHNIQUE>
+
