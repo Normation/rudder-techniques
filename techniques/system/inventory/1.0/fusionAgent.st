@@ -255,7 +255,8 @@ bundle agent sendInventory
 
   files:
     !root_server::
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
+    any::
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
         transformer => "${download_command_prefix} ${this.promiser} ${download_command_suffix}",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
@@ -270,7 +271,7 @@ bundle agent sendInventory
 
   # Once we've successfully sent all inventories, remove them
     inventory_sent.!cant_send_inventory::
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
         classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
         comment      => "Cleaning up inventory files already sent to the server";
