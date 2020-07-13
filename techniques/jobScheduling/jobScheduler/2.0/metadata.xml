@@ -2,8 +2,9 @@
 <TECHNIQUE name="Scheduled jobs">
   <DESCRIPTION>Runs commands, in the background, with a random distribution across nodes. 
     
-    The execution time will be spread between nodes over the period selected.
-    Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
+The execution time will be spread between nodes over the period selected.
+
+Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
   <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
   <COMPATIBLE>
     <OS>Every OS</OS>

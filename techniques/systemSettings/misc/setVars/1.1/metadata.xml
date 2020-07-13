@@ -2,15 +2,11 @@
 <TECHNIQUE name="Variables (any)">
 
   <DESCRIPTION>This technique loads rudder variables of type string or dict. They can then be used with a given specific prefix. 
-    <!--
-    Usage: in directives use ${my_prefix.my_name}, in mustache {{{vars.my_prefix.my_name}}} for string type variable.
-    ${my_prefix.my_name[my_key]} for Dict variable. See the documentation for mustache and dict variable usage: https://www.rudder-project.org/doc-4.1/_generic_methods.html#file_from_template_type
-    -->
 
-    Usage: in directives use ${my_prefix.my_name} for string type variables, ${my_prefix.my_name[my_key]} for Dict variables. 
-           In mustache template see the documentation: https://www.rudder-project.org/doc-4.1/_generic_methods.html#file_from_template_type .
+Usage: in directives use `${my_prefix.my_name}` for string type variables, `${my_prefix.my_name[my_key]}` for Dict variables. 
+In mustache template see the [documentation](https://docs.rudder.io/reference/6.1/reference/generic_methods.html#_file_from_template_type) .
 
-    An unrecognized variable may come from a misordering of your rules executions, the execution follows an alphabetical order, based on directives names.
+An unrecognized variable may come from a misordering of your rules executions, the execution follows an alphabetical order, based on rules and directives names.
   </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>

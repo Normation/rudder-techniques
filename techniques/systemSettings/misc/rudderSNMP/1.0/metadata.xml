@@ -1,8 +1,9 @@
 
 <TECHNIQUE name="Rudder SNMP Configuration">
   <DESCRIPTION>
-    Configuration of the SNMP service and rudder agent monitoring.
-    Snmpd will be installed if needed, and the required configuration will be appended to /etc/snmp/snmpd.conf, without destroying any existing user config.
+Configuration of the SNMP service and rudder agent monitoring.
+
+Snmpd will be installed if needed, and the required configuration will be appended to `/etc/snmp/snmpd.conf`, without destroying any existing user config.
   </DESCRIPTION>
   <BUNDLES>
     <NAME>rudderSNMP</NAME>

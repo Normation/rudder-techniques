@@ -1,9 +1,10 @@
 
 <TECHNIQUE name="Scheduled jobs">
   <DESCRIPTION>Runs commands, in the background, with a random distribution across nodes. 
-    
-    The execution time will be spread between nodes over the period selected.
-    Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
+
+The execution time will be spread between nodes over the period selected.
+
+Execution time will remain the same on each node, but will appear random across all nodes.</DESCRIPTION>
   <COMPATIBLE>
     <OS>Every OS</OS>
     <AGENT version=">= 3.10">cfengine-community</AGENT>
