@@ -26,9 +26,11 @@
 
   <DESCRIPTION>
    Manages trusted GPG Keys for the RPM / zypper / APT Package Managers.
-   It uses `rpm --import' and `apt-key add' to load, and `rpm -e' and `apt-key remove' to remove keys.
-   You can use multiple instances of Directives based on this Technique, but keep in mind:
-   when conflicting actions are specified on the same hash by different directives, it will flip-flop!
+   
+It uses `rpm --import` and `apt-key add` to load, and `rpm -e` and `apt-key remove` to remove keys.
+
+You can use multiple instances of Directives based on this Technique, but keep in mind:
+when conflicting actions are specified on the same hash by different directives, it will flip-flop!
   </DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>

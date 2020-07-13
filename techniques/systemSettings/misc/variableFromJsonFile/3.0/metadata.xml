@@ -1,9 +1,10 @@
 
 <TECHNIQUE name="Variable from JSON file (dict)">
-  <DESCRIPTION>Read and merge successive local or remote JSON files to define a local variable. You can use these variables in the form ${your_namespace.variable_name}.
-  The technique will start by defining a the variable with the "base file", which is mandatory. Then, it will try to override this variable with the successive merge of the "override files". If a an "override file" could not be found, it will not prevent the variable creation but will report an error.If an "override files" entry is left blank/empty, it will not prevent the variable definition and will report a "not applicable" report for this specific file.
+  <DESCRIPTION>Read and merge successive local or remote JSON files to define a local variable. You can use these variables in the form `${your_namespace.variable_name}.`
+
+The technique will start by defining a the variable with the _base file_, which is mandatory. Then, it will try to override this variable with the successive merge of the _override files_. If an _override file_ could not be found, it will not prevent the variable creation but will report an error.If an _override files_ entry is left blank/empty, it will not prevent the variable definition and will report a _not applicable_ report for this specific file.
   
-  For example a JSON containing { "datacenter": "paris" } read into the variable "machine_info" with prefix "my_company" can be used as ${my_company.machine_info[datacenter]}. Note that the syntax will differ in a mustache template: {{{vars.my_company.machine_info.datacenter}}}.
+For example a JSON containing `{ "datacenter": "paris" }` read into the variable `machine_info` with prefix `my_company` can be used in Directives and Techniques as `${my_company.machine_info[datacenter]}` and in a mustache template as `{{{vars.my_company.machine_info.datacenter}}}`.
   </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
