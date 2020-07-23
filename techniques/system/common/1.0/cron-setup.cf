@@ -1,17 +1,22 @@
 bundle agent setup_cronjob
 {
+  classes:
+      "in_hours" expression => isgreaterthan("${system_common.agent_run_interval}","60");
+
+  vars:
+    in_hours::
+      "interval_str" string => eval("${system_common.agent_run_interval} / 60", "math", "infix");
+      "interval" string => format("%d", "${interval_str}");
+      "steps" string => execresult("seq -s, 0 ${interval} 23", "useshell");
+      "cron_prefix" string => "0 ${steps} * * *";
+
+    !in_hours::
+      "steps" string => execresult("seq -s, 0 ${system_common.agent_run_interval} 59", "useshell");
+      "cron_prefix" string => "${steps} * * * *";
+
   files:
 
-    linux::
-
-      # Temporary cron file added by rudder-agent postinst to prevent from UUID removal.
-      # When this promise will be generated, this cron will be useless then removed.
-      # (see http://www.rudder-project.org/redmine/issues/3925 and http://www.rudder-project.org/redmine/issues/3930).
-      "/etc/cron.d/rudder-agent-uuid"
-        delete => tidy;
-
     !aix::
-
       "/etc/cron.d/rudder-agent"
         create          => "true",
         perms           => mog("644", "root", "0"),
@@ -20,35 +25,12 @@ bundle agent setup_cronjob
         edit_template   => "${sys.workdir}/inputs/common/cron/rudder-agent-community-cron";
 
     aix::
-
-      # Cleanup the crontab
-      "/var/spool/cron/crontabs/root"
-        edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* if \[ -x /opt/rudder/bin/check-rudder-agent \]; then /opt/rudder/bin/check-rudder-agent( >/dev/null)?; fi");
-
-      # Cleanup the pre-4.0 crontab
-      "/var/spool/cron/crontabs/root"
-        edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/check-rudder-agent.*");
-
-      # Cleanup the crontab without logfile
-      "/var/spool/cron/crontabs/root"
-        edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/rudder && /opt/rudder/bin/rudder agent check >/dev/null");
-
-      # Cleanup crontab again
-      "/var/spool/cron/crontabs/root"
-        edit_defaults => noempty_backup,
-        edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /usr/bin/test -x /opt/rudder/bin/rudder && /opt/rudder/bin/rudder agent check >> /var/log/rudder/agent-check/check.log 2>&1");
-
-      # Add Rudder entry
       "/var/spool/cron/crontabs/root"
         create        => "true",
         perms         => mog("600", "root", "cron"),
-        edit_line     => insert_lines("0,5,10,15,20,25,30,35,40,45,50,55 * * * * /opt/rudder/bin/rudder agent check -q >> /var/log/rudder/agent-check/check.log 2>&1"),
+        edit_line     => insert_lines("${cron_prefix} /opt/rudder/bin/rudder agent check -q >> /var/log/rudder/agent-check/check.log 2>&1 # RUDDER CRON"),
         classes       => classes_generic("rudder_aix_crontab_insertion"),
         comment       => "Insert an AIX-compatible user crontab to run /opt/rudder/bin/rudder agent check";
-
 }
 
 #######################################################
