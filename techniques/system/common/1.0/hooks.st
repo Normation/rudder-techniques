@@ -559,7 +559,7 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
          copy_from  => copy_digest("${runhook_sshKeyDistribution_pre_hook.temp_ssh_key_path}/${runhook_sshKeyDistribution_pre_hook.userlist}.authorized_keys.tmp"),
          classes    => classes_generic("post_hook_flush_ssh_${runhook_sshKeyDistribution_pre_hook.userlist}"),
          comment    => "IN ENFORCE",
-         ifvarclass => "home_directory_${runhook_sshKeyDistribution_pre_hook.userlistx}_defined.enforce_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
+         ifvarclass => "home_directory_${runhook_sshKeyDistribution_pre_hook.userlist}_defined.enforce_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
 
 
       # auditing file replacement
@@ -567,7 +567,7 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
          copy_from  => copy_digest("${runhook_sshKeyDistribution_pre_hook.temp_ssh_key_path}/${runhook_sshKeyDistribution_pre_hook.userlist}.authorized_keys.tmp"),
          action     => WarnOnly,
          classes    => classes_generic("post_hook_flush_ssh_${runhook_sshKeyDistribution_pre_hook.userlist}"),
-         ifvarclass => "home_directory_${runhook_sshKeyDistribution_pre_hook.userlistx}_defined.audit_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
+         ifvarclass => "home_directory_${runhook_sshKeyDistribution_pre_hook.userlist}_defined.audit_ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_to_flush.(same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.userlist}|ssh_keys_repaired_${runhook_sshKeyDistribution_pre_hook.userlist}|same_size_but_repaired_keys_${runhook_sshKeyDistribution_pre_hook.userlist}).!ssh_key_distribution_${runhook_sshKeyDistribution_pre_hook.userlist}_prevent_flush";
 
 
     pass2::
