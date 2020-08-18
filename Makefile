@@ -42,9 +42,6 @@ initial-promises: rudder-templates-cli.jar test
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0/ techniques/system/distributePolicy/1.0/*.st
 	cp techniques/system/distributePolicy/1.0/*.cf initial-promises/node-server/distributePolicy/1.0/ || true
 	mkdir -p initial-promises/node-server/distributePolicy/ncf
-	mkdir -p initial-promises/node-server/distributePolicy/rsyslog.conf
-	mv initial-promises/node-server/distributePolicy/1.0/rudder-rsyslog-root.cf initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-root.conf
-	mv initial-promises/node-server/distributePolicy/1.0/rudder-rsyslog-relay.cf initial-promises/node-server/distributePolicy/rsyslog.conf/rudder-rsyslog-relay.conf
 	# The server-roles technique
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "server-roles@@server-roles-directive@@0",/' variables.json
 	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0/ techniques/system/server-roles/1.0/*.st

@@ -14,10 +14,6 @@
     <NAME>rudder_motd</NAME>
   </BUNDLES>
 
-  <SYSTEMVARS>
-    <NAME>NOVA</NAME>
-  </SYSTEMVARS>
-
   <TMLS>
     <TML name="config"/>
     <TML name="main"/>
