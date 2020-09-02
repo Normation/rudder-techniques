@@ -29,7 +29,6 @@ initial-promises: rudder-templates-cli.jar test
 	mv initial-promises/node-server/common/1.0/rudder-vars.cf initial-promises/node-server/rudder-vars.json
 	mkdir -p initial-promises/node-server/common/cron
 	cp techniques/system/common/1.0/rudder-agent-community-cron initial-promises/node-server/common/cron/
-	cp techniques/system/common/1.0/rudder-agent-nova-cron initial-promises/node-server/common/cron/
 	mv initial-promises/node-server/common/1.0/run_interval.cf initial-promises/node-server/run_interval
 	mkdir -p initial-promises/node-server/common/utilities
 	# The inventory technique
