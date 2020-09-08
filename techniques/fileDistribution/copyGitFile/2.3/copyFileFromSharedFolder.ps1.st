@@ -25,7 +25,7 @@ function copyFileFromSharedFolder_RudderUniqueID {
     $SharedFiles   = "&SHARED_FILES_FOLDER&"
     $componentName = "Copy file"
     $postHookComponent = "Post-modification hook"
-    $HashCheckType = "md5"
+    $HashCheckType = "sha256"
     $local_classes = New-ClassContext
 
     for ($i=0; $i -lt $trackingkey.length; $i++) {
