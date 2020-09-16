@@ -112,6 +112,13 @@ bundle agent check_apt_settings
     ubuntu_eoan|ubuntu_19_10::
       "apt_detected_distro" string => "eoan";
 
+    ubuntu_focal|ubuntu_20_4|ubuntu_20_04::
+      "apt_detected_distro" string => "focal";
+
+    ubuntu_groovy|ubuntu_20_10::
+      "apt_detected_distro" string => "groovy";
+
+
     apt_installrecommends_edit::
 
       "aptconf[APT::Install-Recommends]" string => "&APT_INSTALLRECOMMENDS&";
@@ -141,8 +148,20 @@ bundle agent check_apt_settings
     &APT_COMPONENT_MAIN, APT_COMPONENT_CONTRIB, APT_COMPONENT_NON_FREE, APT_COMPONENT_RESTRICTED, APT_COMPONENT_UNIVERSE, APT_COMPONENT_MULTIVERSE, APT_COMPONENT_CUSTOM:{main, contrib, nonfree, restricted, universe, multiverse, custom |"apt_components[&i&]" string => "&main& &contrib& &nonfree& &restricted& &universe& &multiverse& &custom&";
 }&
 
-    &APT_DISTRIBUTION, APT_DISTRO_AUTODETECT:{apt_distro, apt_autodetect |"apt_distro[&i&]" string => "&if (apt_autodetect)&${apt_detected_distro}&else&&apt_distro&&endif&";
+    # user defined distro
+    &APT_DISTRIBUTION:{apt_distro |"apt_selected_distro[&i&]" string => "&apt_distro&";
 }&
+
+      "repo_index" slist => getindices("apt_selected_distro");
+      
+    pass2::
+      # construct the array for apt
+      "apt_distro[${repo_index}]" string => "${apt_selected_distro[${repo_index}]}",
+                               ifvarclass => "!apt_autodetect_${repo_index}";
+
+      "apt_distro[${repo_index}]" string => "${apt_detected_distro}",
+                               ifvarclass => "apt_autodetect_${repo_index}";
+
 
   classes:
 
@@ -158,6 +177,13 @@ bundle agent check_apt_settings
     # InstallSuggests edition ?
       "apt_installsuggests_edit" not => strcmp("&APT_INSTALLSUGGESTS&","dontchange");
 
+
+      &APT_DISTRO_AUTODETECT:{apt_autodetect |"apt_autodetect_&i&" expression => strcmp("&apt_autodetect&", "true");
+}&
+     # check that we could auto-detect distro
+     "error_in_detected_distribution" not => isvariable("apt_detected_distro");
+
+     "error_in_generated_repositories" expression => "error_in_detected_distribution.apt_autodetect_${repo_index}";
     any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
@@ -165,7 +191,7 @@ bundle agent check_apt_settings
 
   files:
 
-    debian.apt_repositories_edit::
+    pass2.debian.apt_repositories_edit.!error_in_generated_repositories::
 
       "/etc/apt/sources.list.d/rudder-apt.list"
         create => "true",
@@ -209,7 +235,7 @@ bundle agent check_apt_settings
     ## No need to disable other repositories (not require or already disabled) = ((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated)
     ## and
     ## No error = !(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed)
-    pass3.(((apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated).(apt_tier2_kept.!apt_tier2_validated).((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated).!(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed))::
+    pass3.(((apt_tier1_kept|!apt_repositories_edit).!apt_tier1_validated.!error_in_generated_repositories).(apt_tier2_kept.!apt_tier2_validated).((!apt_disablerepositories|(apt_disabled_kept|!apt_repositories_edit)).!apt_disabled_validated).!(apt_tier1_failed|apt_tier2_failed|apt_disabled_failed))::
       "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_success", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT settings were all already correct");
 
     # REPAIRED if:
@@ -258,6 +284,8 @@ bundle agent check_apt_settings
     pass3.(!debian)::
       "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_error", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "APT cannot be configured on non Debian OSes");
 
+    pass3.error_in_generated_repositories::
+      "any" usebundle => rudder_common_report("aptPackageManagerSettings", "result_error", "&TRACKINGKEY&", "aptPackageManagerSettings", "None", "At least one distribution is not detected and not set");
 }
 
 bundle edit_line set_apt_config_values_tier1(apt_url, apt_distro, apt_components)

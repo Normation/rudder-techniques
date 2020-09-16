@@ -112,6 +112,12 @@ bundle agent check_apt_settings
     ubuntu_eoan|ubuntu_19_10::
       "apt_detected_distro" string => "eoan";
 
+    ubuntu_focal|ubuntu_20_4|ubuntu_20_04::
+      "apt_detected_distro" string => "focal";
+
+    ubuntu_groovy|ubuntu_20_10::
+      "apt_detected_distro" string => "groovy";
+
     apt_installrecommends_edit::
 
       "aptconf[APT::Install-Recommends]" string => "&APT_INSTALLRECOMMENDS&";

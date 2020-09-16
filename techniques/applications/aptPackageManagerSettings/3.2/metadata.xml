@@ -15,7 +15,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 -->
 
 <TECHNIQUE name="Package sources and settings (APT)">
-  <DESCRIPTION>This technique configures the APT package manager.</DESCRIPTION>
+  <DESCRIPTION>This technique configures the APT package manager.
+Repositories are defined in file `/etc/apt/sources.list.d/rudder-apt.list` </DESCRIPTION>
 
   <BUNDLES>
     <NAME>check_apt_settings</NAME>
@@ -93,7 +94,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
       <INPUT>
         <NAME>APT_ADDREPOSITORIES</NAME>
         <DESCRIPTION>Also add the following package repositories</DESCRIPTION>
-        <LONGDESCRIPTION>Tick this box if you want to add/edit the package repositories apt uses.</LONGDESCRIPTION>
+        <LONGDESCRIPTION>Tick this box if you want to add/edit the package repositories apt uses. Repositories are defined in `/etc/apt/sources.list.d/rudder-apt.list`</LONGDESCRIPTION>
         <CONSTRAINT>
           <TYPE>boolean</TYPE>
           <DEFAULT>false</DEFAULT>
@@ -110,7 +111,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
         <INPUT>
           <NAME>APT_DISTRO_AUTODETECT</NAME>
           <DESCRIPTION>Automatically detect the distribution</DESCRIPTION>
-          <LONGDESCRIPTION>Tick this box to use the distribution's name (ie, squeeze, lenny, lucid, ...) as the "path" on this repository. This is the default usage for apt repositories, but you may want to specify a different name (ie, squeeze-backports, stable, ...)</LONGDESCRIPTION>
+          <LONGDESCRIPTION>Tick this box to use the distribution's name (ie, buster, bionic, ...) as the "path" on this repository. This is the default usage for apt repositories, but you may want to specify a different name (ie, buster-backports, stable, ...)</LONGDESCRIPTION>
           <CONSTRAINT>
             <TYPE>boolean</TYPE>
           </CONSTRAINT>
