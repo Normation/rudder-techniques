@@ -287,7 +287,7 @@ bundle agent configure_rudder_reporting_system {
       "configure_syslog"    usebundle => check_log_system;
       "configure_reporting" usebundle => check_rsyslog_version;
 
-    reports_disabled|(rudder_reporting_https.rsyslog_disabled)::
+    reports_disabled|(rudder_reporting_https.agent_capability_http_reporting)|rsyslog_disabled::
       "remove_reporting"    usebundle => remove_rudder_syslog_configuration;
 
     rudder_reporting_https.agent_capability_http_reporting::
