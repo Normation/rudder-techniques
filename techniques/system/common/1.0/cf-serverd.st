@@ -60,10 +60,10 @@ bundle server access_rules
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
     !root_server::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
-        admit_keys => { "&policy_server_key_TODO&" };
+        admit_keys => { "&POLICY_SERVER_KEY&" };
     root_server::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand, root is its own policy server",
-        admit_keys => { "&policy_server_key_TODO&" };
+        admit_keys => { "&POLICY_SERVER_KEY&" };
 
     enterprise_edition::
       "${query_types}"
