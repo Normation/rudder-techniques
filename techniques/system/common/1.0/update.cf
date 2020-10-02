@@ -9,7 +9,6 @@ body copy_from remote(server, path)
         servers    => {
           "${server}"
         };
-        trustkey   => "true";
         source     => "${path}";
         compare    => "digest";
         preserve   => "false"; #do not preserve permissions
