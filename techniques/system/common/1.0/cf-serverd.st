@@ -95,11 +95,11 @@ bundle server access_rules
     # Using ${sys.cf_agent} fails, as cf-serverd cannot canonize its path
     windows::
       "${sys.workdir}\bin\cf-agent.exe"
-        admit_ips => { host2ip("${server_info.policy_server}") };
+        admit_keys => { "&POLICY_SERVER_KEY&" };
 
     !windows::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand",
-        admit_ips => { host2ip("${server_info.policy_server}") };
+        admit_keys => { "&POLICY_SERVER_KEY&" };
 
 &if(NOVA)&
     enterprise_edition::
@@ -155,10 +155,15 @@ bundle common def
 
 body server control
 {
+      policy_server::
         trustkeysfrom     => {
           @{def.acl} ,
-        }; #trustkey allows the exchange of keys
+        };
+      # our policy server should already be trusted after bootstraping
+      !policy_server::
+        trustkeysfrom     => {};
 
+      any::
         allowconnects     => {
           @{def.acl} ,
         };

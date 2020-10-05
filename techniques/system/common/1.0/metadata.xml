@@ -126,6 +126,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
     <NAME>RUDDER_NODE_GROUPS_VARS</NAME>
     <NAME>RUDDER_NODE_GROUPS_CLASSES</NAME>
     <NAME>RUDDER_INVENTORY_VARS</NAME>
+    <NAME>POLICY_SERVER_KEY</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
