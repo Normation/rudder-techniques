@@ -3,13 +3,24 @@
 # its promises
 #
 
+bundle common rudder_update_conf
+{
+  vars:
+      "policy_server_hash_file" => "${sys.workdir}/ppkeys/policy_server_hash";
+    known_policy_server::
+      "policy_server_hash" string => readfile("${policy_server_hash_file}");
+
+  classes:
+      "known_policy_server" expression => fileexists("${policy_server_hash_file}");
+      "trust_new_server"    not        => "known_policy_server", scope => "namespace";
+}
+
 # Use for sensitive files
 body copy_from remote(server, path)
 {
         servers    => {
           "${server}"
         };
-        trustkey   => "true";
         source     => "${path}";
         compare    => "digest";
         preserve   => "false"; #do not preserve permissions
@@ -17,6 +28,12 @@ body copy_from remote(server, path)
         purge      => "true";
         copy_backup => "false";
         portnumber => "${system_common.community_port}";
+
+&if(INITIAL)&
+      trust_new_server.!root_server::
+        trustkey    => "true";
+&endif&
+
 }
 
 # Local copy
@@ -117,6 +134,14 @@ bundle agent update_action
       "pass1" expression => "any";
 
   files:
+
+&if(!INITIAL)&
+    # establish trust for policy download
+    "${rudder_update_conf.policy_server_hash_file}"
+        create        => "true",
+        edit_line     => u_rudder_update_lines_present("&POLICY_SERVER_KEY&"),
+        edit_defaults => empty;
+&endif&
 
     any::
       "${g.rudder_ncf}/."
@@ -287,4 +312,11 @@ body perms u_mog(mode,user,group)
   mode   => "${mode}";
   owners => { "${user}" };
   groups => { "${group}" };
+}
+
+
+bundle edit_line u_rudder_update_lines_present(lines)
+{
+  insert_lines:
+      "${lines}";
 }
