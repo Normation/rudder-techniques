@@ -6,11 +6,32 @@ body common control
     tls_min_version  => "1.2";
 }
 
-
 body server control
 {
-    # Listen on correct port from the beginning	
+    # Listen on correct port from the beginning
     port => "5309";
+}
+
+body agent control
+{
+@if feature(copyfrom_restrict_keys)
+  known_policy_server::
+    copyfrom_restrict_keys => { "${rudder_update_conf.policy_server_hash}" };
+@endif
+}
+
+bundle common rudder_update_conf
+{
+  vars:
+      "policy_server_hash_file" => "${sys.workdir}/ppkeys/policy_server_hash";
+    known_policy_server::
+      "policy_server_hash" string => readfile("${policy_server_hash_file}");
+
+  classes:
+      "known_policy_server" expression => fileexists("${policy_server_hash_file}"),
+                                          scope => "namespace";
+      "trust_new_server"    not        => "known_policy_server",
+                                          scope => "namespace";
 }
 
 # WARN: this bundle comes from update.cf
@@ -139,7 +160,6 @@ body copy_from remote(server, path)
         servers    => {
           "${server}"
         };
-        trustkey    => "true";
         source      => "${path}";
         compare     => "digest";
         preserve    => "false";
@@ -147,6 +167,8 @@ body copy_from remote(server, path)
         purge       => "true";
         copy_backup => "false";
         portnumber  => "5309";
+      trust_new_server.!root_server::
+        trustkey    => "true";
 }
 
 body copy_from local(from)
