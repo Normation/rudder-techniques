@@ -16,6 +16,16 @@ body common control
         tls_min_version => "1.2";
 }
 
+body agent control
+{
+&if(!INITIAL)&
+@if feature(copyfrom_restrict_keys)
+      copyfrom_restrict_keys => { "&POLICY_SERVER_KEY&" };
+@endif
+&endif&
+
+}
+
 bundle common g
 {
   vars:
