@@ -84,14 +84,15 @@ bundle common g
 
   classes:
 
-    # Utilities
-    "gzip_installed"                 expression => isexecutable("${gzip}");
-    "curl_installed"                 expression => isexecutable("${rudder_curl}");
+      # Utilities
+      "gzip_installed"                 expression => isexecutable("${gzip}");
+      "curl_installed"                 expression => isexecutable("${rudder_curl}");
 
-    # Roles
-    "rudder_server_roles_dir_exists"       expression => isdir("${server_roles_path}");
-    "role_rudder_server_root"              expression => or(fileexists("${rudder_base}/etc/server-roles.d/rudder-server-root"), strcmp("${g.uuid}", "root"));
-    "role_rudder_webapp"                   expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-webapp");
-    "role_rudder_reports"                  expression => fileexists("${rudder_base}/etc/server-roles.d/rudder-reports");
+      # Roles
+      "rudder_server_roles_dir_exists" expression => isdir("${server_roles_path}");
+    rudder_server_roles_dir_exists::
+      "role_rudder_server_root"        expression => fileexists("${server_roles_path}rudder-server-root");
+      "role_rudder_webapp"             expression => fileexists("${server_roles_path}rudder-webapp");
+      "role_rudder_reports"            expression => fileexists("${server_roles_path}rudder-reports");
 }
 
