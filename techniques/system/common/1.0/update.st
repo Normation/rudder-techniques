@@ -6,7 +6,7 @@
 bundle common rudder_update_conf
 {
   vars:
-      "policy_server_hash_file" => "${sys.workdir}/ppkeys/policy_server_hash";
+      "policy_server_hash_file" string => "${sys.workdir}/ppkeys/policy_server_hash";
     known_policy_server::
       "policy_server_hash" string => readfile("${policy_server_hash_file}");
 
