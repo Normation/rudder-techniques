@@ -31,8 +31,9 @@ bundle agent root_component_check
       "any" usebundle => rudder_generic_service_na("postgresql");
 
 
-    # This is to be done only if the package rudder-server-root is present
-    role_rudder_server_root::
+    # This is to be done only on the root server - package rudder-root-server is not
+    # enough as distributed database need to be configured
+    root_server::
       # Password management is expected to be done manually in case of a splitted/relayed installation for now.
       "any" usebundle => root_password_check_ldap;
       "any" usebundle => root_password_check_file;
@@ -40,7 +41,7 @@ bundle agent root_component_check
       "any" usebundle => root_password_security;
       "any" usebundle => root_password_restart_jetty;
 
-    !role_rudder_server_root::
+    !root_server::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${server_roles_common.directiveId}",
           "${root_password_check_ldap}", "None", "Checking LDAP passwords is unnecessary on this machine, skipping."
         );
