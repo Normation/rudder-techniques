@@ -9,11 +9,6 @@ For example a JSON containing `{ "datacenter": "paris" }` read into the variable
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
 
-  <COMPATIBLE>
-    <OS>Every OS</OS>
-    <AGENT version=">= 3.10">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <BUNDLES>
     <NAME>variable_from_json_file_RudderUniqueID</NAME>
   </BUNDLES>

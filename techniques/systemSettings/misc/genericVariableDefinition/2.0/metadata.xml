@@ -3,11 +3,6 @@
   <DESCRIPTION>Defines a variable.
 
 It can be used in other Directive parameters with the following syntax: `${generic_variable_definition.variablename}`</DESCRIPTION>
-  <COMPATIBLE>
-    <OS>Every OS</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <MULTIINSTANCE>true</MULTIINSTANCE>
 
   <BUNDLES>

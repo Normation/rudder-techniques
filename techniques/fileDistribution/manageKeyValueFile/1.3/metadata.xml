@@ -4,11 +4,6 @@
   <DESCRIPTION>Manage keys-values in file</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
-  <COMPATIBLE>
-    <OS>Every OS</OS>
-    <AGENT version=">= 3.5">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <BUNDLES>
     <NAME>manage_key_value_file_RudderUniqueID</NAME>
   </BUNDLES>
