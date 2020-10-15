@@ -30,12 +30,24 @@ body common control
         protocol_version   => "2";
 }
 
+&if(INITIAL)&
+
+@if feature(copyfrom_restrict_keys)
+body agent control
+{
+  known_policy_server::
+    copyfrom_restrict_keys => { "${rudder_update_conf.policy_server_hash}" };
+}
+@endif
+
+&endif&
+
 &if(!INITIAL)&
 
 @if feature(copyfrom_restrict_keys)
 body agent control
 {
-      copyfrom_restrict_keys => { "&POLICY_SERVER_KEY&" };
+    copyfrom_restrict_keys => { "&POLICY_SERVER_KEY&" };
 }
 @endif
 
