@@ -25,7 +25,7 @@
 bundle common rudder_update_conf
 {
   vars:
-      "policy_server_hash_file" => "${sys.workdir}/ppkeys/policy_server_hash";
+      "policy_server_hash_file" string => "${sys.workdir}/ppkeys/policy_server_hash";
     known_policy_server::
       "policy_server_hash" string => readfile("${policy_server_hash_file}");
 
@@ -228,7 +228,7 @@ bundle agent update_action
     "${rudder_update_conf.policy_server_hash_file}"
         create        => "true",
         edit_line     => u_rudder_update_lines_present("&POLICY_SERVER_KEY&"),
-        edit_defaults => empty;
+        edit_defaults => u_rudder_empty;
 &endif&
 
     any::
@@ -457,4 +457,10 @@ bundle edit_line u_rudder_update_lines_present(lines)
 {
   insert_lines:
       "${lines}";
+}
+
+body edit_defaults u_rudder_empty
+{
+      empty_file_before_editing => "true";
+      edit_backup => "false";
 }
