@@ -12,13 +12,13 @@ body server control
     port => "5309";
 }
 
+@if feature(copyfrom_restrict_keys)
 body agent control
 {
-@if feature(copyfrom_restrict_keys)
   known_policy_server::
     copyfrom_restrict_keys => { "${rudder_update_conf.policy_server_hash}" };
-@endif
 }
+@endif
 
 bundle common rudder_update_conf
 {
