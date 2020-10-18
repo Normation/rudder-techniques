@@ -8,6 +8,7 @@
 applications/apacheReverseProxy/2.0
 applications/apacheServer/3.0
 applications/aptPackageManagerSettings/3.1
+applications/aptPackageManagerSettings/3.2
 applications/packageManagement/1.2
 applications/repoGpgKeyManagement/1.1
 applications/snmp/1.0
