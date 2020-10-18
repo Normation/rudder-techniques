@@ -6,6 +6,7 @@
 # It should always contain the list of technique versions to be maintained.
 # Any missing or extra technique versions will cause tests to fail.
 applications/aptPackageManagerSettings/3.1
+applications/aptPackageManagerSettings/3.2
 applications/packageManagement/1.2
 applications/repoGpgKeyManagement/1.1
 applications/snmp/1.0
