@@ -1,11 +1,6 @@
 <TECHNIQUE name="Package manager settings (Zypper)">
   <DESCRIPTION>This technique configures Zypper package manager.</DESCRIPTION>
 
-  <COMPATIBLE>
-    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
-    <AGENT version=">= 3.5.0">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <BUNDLES>
     <NAME>zypper_package_manager_setup</NAME>
   </BUNDLES>

@@ -7,14 +7,6 @@
 
   Configuration will adapt the existing sshd_config file by changing the values described below. Each option can be set to "Don't change", which means the existing value will be left as is.
   </DESCRIPTION>
-  <COMPATIBLE>
-    <OS version=">= 4 (Etch)">Debian</OS>
-    <OS version=">= 4 (Nahant)">RHEL / CentOS</OS>
-    <OS version=">= 10 SP1 (Agama Lizard)">SuSE LES / DES / OpenSuSE</OS>
-    <OS version=">= 5.3">AIX</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <TMLS>
     <TML name="main"/>
     <TML name="installation"/>

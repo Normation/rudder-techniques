@@ -1,11 +1,6 @@
 <TECHNIQUE name="Cron jobs">
   <DESCRIPTION>This technique enables you to set tasks (or "jobs") that will be launched regularily using crond.</DESCRIPTION>
   <DEPRECATED>This technique version has been superseded by a new version. It will no longer be available in the next stable version of Rudder. Please upgrade to the latest version.</DEPRECATED>
-  <COMPATIBLE>
-    <OS version="System V and related">UNIX</OS>
-    <AGENT version=">= 3.2.0">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <MULTIINSTANCE>true</MULTIINSTANCE>
 
   <BUNDLES>

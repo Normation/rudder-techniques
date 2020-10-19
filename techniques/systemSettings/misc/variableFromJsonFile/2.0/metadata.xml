@@ -5,11 +5,6 @@
 For example a JSON containing `{ "datacenter": "paris" }` read into the variable `machine_info` with prefix `my_company` can be used in Directives and Techniques as `${my_company.machine_info[datacenter]}` and in a mustache template as `{{{vars.my_company.machine_info.datacenter}}}`.
   </DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
-  <COMPATIBLE>
-    <OS>Every OS</OS>
-    <AGENT version=">= 3.6">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <BUNDLES>
     <NAME>variable_from_json_file</NAME>
   </BUNDLES>

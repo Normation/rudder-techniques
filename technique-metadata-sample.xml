@@ -35,14 +35,6 @@
     <NAME>sample_technique</NAME>
   </BUNDLES>
 
-  <!-- Define agent and OS compatibility for this Technique.
-     Currently, this is for information purposes only. -->
-  <COMPATIBLE>
-    <OS version=">= 5">Debian</OS>
-    <OS version=">= 5">RHEL</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <TRACKINGVARIABLE>
     <!--<SAMESIZEAS>MOTD</SAMESIZEAS>-->
   </TRACKINGVARIABLE>

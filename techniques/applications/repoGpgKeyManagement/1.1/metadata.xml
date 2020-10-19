@@ -51,17 +51,6 @@ when conflicting actions are specified on the same hash by different directives,
     <NAME>check_repo_gpg_key_RudderUniqueID</NAME>
   </BUNDLES>
 
-  <!-- Define agent and OS compatibility for this Technique.
-     Currently, this is for information purposes only.
-     ## TODO: It has not been tested on any older OS, only on latest-greatest (SLES11, CentOS 7, Ubuntu 14)
-  <COMPATIBLE>
-    <OS version=">= 5">RHEL</OS>
-    <OS version=">= 11">SuSE Linux</OS>
-    <OS version=">= 4 (Etch)">Debian</OS>
-    <OS version=">= 5">RHEL / CentOS</OS>
-  </COMPATIBLE>
--->
-
   <TRACKINGVARIABLE>
     <SAMESIZEAS>GPG_KEY_HASH</SAMESIZEAS>
   </TRACKINGVARIABLE>

@@ -4,12 +4,6 @@
     <MULTIINSTANCE>false</MULTIINSTANCE>
     <POLICYGENERATION>separated</POLICYGENERATION>
 
-    <COMPATIBLE>
-        <OS version=">= 9">RHEL / CentOS</OS>
-        <OS version=">= 7">Debian / Ubuntu</OS>
-        <AGENT version=">= 3.12">cfengine-community</AGENT>
-    </COMPATIBLE>
-
     <BUNDLES>
         <NAME>rudder_firewall</NAME>
     </BUNDLES>

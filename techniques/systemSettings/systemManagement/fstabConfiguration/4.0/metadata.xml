@@ -2,11 +2,6 @@
 <TECHNIQUE name="Filesystem mount points">
   <DESCRIPTION>Configures the system fstab</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
-  <COMPATIBLE>
-    <OS version="System V and related">UNIX</OS>
-    <AGENT version=">= 3.1.5">cfengine-community</AGENT>
-  </COMPATIBLE>
-
   <BUNDLES>
     <NAME>check_fstab_configuration</NAME>
   </BUNDLES>
