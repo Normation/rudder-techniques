@@ -17,12 +17,13 @@ bundle agent package_management_&RudderUniqueID& {
       # if it has been selected (thanks to to *_specified_${index_pkg} classes).
       &PACKAGE_VERSION:{version |"version[&i0&]" string => "&version&";
 }&
-      &PACKAGE_VERSION_SPECIFIC:{version |"version[&i0&]" string => "&version&", ifvarclass => "version_specified_${index_pkg}";
+
+      &PACKAGE_VERSION_SPECIFIC:{version |"version[&i0&]" string => "&version&", ifvarclass => "version_specified_&i0&";
 }&
 
       &PACKAGE_ARCHITECTURE:{architecture |"architecture[&i0&]" string => "&architecture&";
 }&
-      &PACKAGE_ARCHITECTURE_SPECIFIC:{architecture |"architecture[&i0&]" string => "&architecture&", ifvarclass => "architecture_specified_${index_pkg}";
+      &PACKAGE_ARCHITECTURE_SPECIFIC:{architecture |"architecture[&i0&]" string => "&architecture&", ifvarclass => "architecture_specified_&i0&";
 }&
 
       &PACKAGE_MANAGER:{manager |"manager[&i0&]" string => "&manager&";
@@ -81,8 +82,8 @@ bundle agent package_management_&RudderUniqueID& {
       "bundle_name" string => "package_state_options";
 
       # define inner class prefix
-      "full_inner_class_prefix" string => canonify("package_state_options_${package[${index_pkg}]}_${version[${index_pkg}]}_${architecture[${index_pkg}]}_${manager[${index_pkg}]}_${state[${index_pkg}]}_${manager_final_options[${index_pkg}]}");
-      "inner_class_prefix"      string => string_head("${full_inner_class_prefix}", "1000");
+      "full_inner_class_prefix_${index_pkg}" string => canonify("package_state_options_${package[${index_pkg}]}_${version[${index_pkg}]}_${architecture[${index_pkg}]}_${manager[${index_pkg}]}_${state[${index_pkg}]}_${manager_final_options[${index_pkg}]}");
+      "inner_class_prefix_${index_pkg}"      string => string_head("${full_inner_class_prefix_${index_pkg}}", "1000");
    
   classes:
       # This class is different from the one in ncf (where a version number and latest are considered "specified")
@@ -106,19 +107,19 @@ bundle agent package_management_&RudderUniqueID& {
       # Package
       "package_${index_pkg}" usebundle => package_state_options("${package[${index_pkg}]}", "${version[${index_pkg}]}", "${architecture[${index_pkg}]}", "${manager[${index_pkg}]}", "${state[${index_pkg}]}", "${manager_final_options[${index_pkg}]}");
 
-      "report_${index_pkg}" usebundle => rudder_common_reports_generic_index("packageManagement", "${inner_class_prefix}", "${trackingkey[${index_pkg}]}", "Package", "${package[${index_pkg}]}", "${state_description[${index_pkg}]} of package ${package[${index_pkg}]}${architecture_description[${index_pkg}]}${version_description[${index_pkg}]}", "${index_pkg}");
+      "report_${index_pkg}" usebundle => rudder_common_reports_generic_index("packageManagement", "${inner_class_prefix_${index_pkg}}", "${trackingkey[${index_pkg}]}", "Package", "${package[${index_pkg}]}", "${state_description[${index_pkg}]} of package ${package[${index_pkg}]}${architecture_description[${index_pkg}]}${version_description[${index_pkg}]}", "${index_pkg}");
 
       # Post-modification script
       "post_hook_${index_pkg}"  usebundle => command_execution("${posthook[${index_pkg}]}"),
-                               ifvarclass => "posthook_specified_${index_pkg}.${inner_class_prefix}_repaired";
+                               ifvarclass => "posthook_specified_${index_pkg}.${inner_class_prefix_${index_pkg}}_repaired";
 
       "report_${index_pkg}"     usebundle => rudder_common_report("packageManagement", "result_na", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "No post-modification script was defined"),
                                ifvarclass => "!posthook_specified_${index_pkg}";
 
       "report_${index_pkg}"     usebundle => rudder_common_report("packageManagement", "result_na", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "Post-modification script was not to be run"),
-                               ifvarclass => "posthook_specified_${index_pkg}.!${inner_class_prefix}_repaired";
+                               ifvarclass => "posthook_specified_${index_pkg}.!${inner_class_prefix_${index_pkg}}_repaired";
 
       "report_${index_pkg}"     usebundle => rudder_common_reports_generic_index("packageManagement", "${class_prefix_script[${index_pkg}]}", "${trackingkey[${index_pkg}]}", "Post-modification script", "${package[${index_pkg}]}", "Execution of the post-modification script", "${index_pkg}"),
-                               ifvarclass => "posthook_specified_${index_pkg}.${inner_class_prefix}_repaired";
+                               ifvarclass => "posthook_specified_${index_pkg}.${inner_class_prefix_${index_pkg}}_repaired";
 }
 
