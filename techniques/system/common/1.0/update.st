@@ -26,12 +26,16 @@ bundle common rudder_update_conf
 {
   vars:
       "policy_server_hash_file" string => "${sys.workdir}/ppkeys/policy_server_hash";
-    known_policy_server::
+    have_policy_server_hash::
       "policy_server_hash" string => readfile("${policy_server_hash_file}");
 
   classes:
-      "known_policy_server" expression => fileexists("${policy_server_hash_file}");
-      "trust_new_server"    not        => "known_policy_server", scope => "namespace";
+      "have_policy_server_hash" expression => fileexists("${policy_server_hash_file}");
+    have_policy_server_hash::
+      "known_policy_server"     expression => fileexists("root-MD5=${policy_server_hash}.pub"),
+                                     scope => "namespace";
+      "trust_new_server" not               => "known_policy_server",
+                                     scope => "namespace";
 }
 
 # Use for sensitive files
