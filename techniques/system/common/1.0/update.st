@@ -34,8 +34,8 @@ bundle common rudder_update_conf
     have_policy_server_hash::
       "known_policy_server"     expression => fileexists("root-MD5=${policy_server_hash}.pub"),
                                      scope => "namespace";
-      "trust_new_server" not               => "known_policy_server",
-                                     scope => "namespace";
+    !have_policy_server_hash|(have_policy_server_hash.!known_policy_server)::
+      "trust_new_server"             scope => "namespace";
 }
 
 # Use for sensitive files
