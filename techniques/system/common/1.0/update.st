@@ -256,6 +256,8 @@ bundle agent update_action
 * This can be caused by:                                                        *
 *   * a networking issue                                                        *
 *   * an unavailable server                                                     *
+*   * the node changed policy server without running
+*     'rudder agent server-keys-reset'
 *   * if the node's IP in not if the allowed networks of its policy server.     *
 * Any existing configuration policy will continue to be applied without change. *
 *********************************************************************************"
