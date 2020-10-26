@@ -13,7 +13,7 @@ bundle common rudder_update_conf
   classes:
       "have_policy_server_hash" expression => fileexists("${policy_server_hash_file}");
     have_policy_server_hash::
-      "known_policy_server"     expression => fileexists("root-MD5=${policy_server_hash}.pub"),
+      "known_policy_server"     expression => fileexists("${sys.workdir}/ppkeys/root-${policy_server_hash}.pub"),
                                      scope => "namespace";
     !have_policy_server_hash|(have_policy_server_hash.!known_policy_server)::
       "trust_new_server"             scope => "namespace";
