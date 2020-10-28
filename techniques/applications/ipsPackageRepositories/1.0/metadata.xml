@@ -1,0 +1,65 @@
+<!--
+SPDX-License-Identifier: GPL-3.0
+SPDX-FileCopyrightText: 2020 Normation SAS
+-->
+
+<TECHNIQUE name="Package sources and settings (IPS)">
+  <DESCRIPTION>This technique configures the IPS package manager for Solaris.</DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+  <USEMETHODREPORTING>true</USEMETHODREPORTING>
+
+  <BUNDLES>
+    <NAME>ips_repository_RudderUniqueID</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="ipsPackageRepositories"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>IPS_PUBLISHER_NAME</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="Repository">
+      <INPUT>
+        <NAME>IPS_PUBLISHER_NAME</NAME>
+        <DESCRIPTION>Name</DESCRIPTION>
+        <LONGDESCRIPTION>Name of the publisher repository</LONGDESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>IPS_PUBLISHER_URL</NAME>
+        <DESCRIPTION>URL</DESCRIPTION>
+        <LONGDESCRIPTION>URL of the publisher repository</LONGDESCRIPTION>
+      </INPUT>
+      <SELECT1>
+        <NAME>IPS_PUBLISHER_ENABLED</NAME>
+        <DESCRIPTION>State</DESCRIPTION>
+        <LONGDESCRIPTION>Enable or disable this repository</LONGDESCRIPTION>
+        <ITEM>
+          <VALUE>Enabled</VALUE>
+          <LABEL>true</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>Disabled</VALUE>
+          <LABEL>false</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>Enable</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+    </SECTION>
+
+    <SECTION component="true" name="Publisher check" componentKey="IPS_PUBLISHER_NAME"/>
+    <SECTION component="true" name="Publisher create" componentKey="IPS_PUBLISHER_NAME"/>
+    <SECTION component="true" name="Publisher url check" componentKey="IPS_PUBLISHER_NAME"/>
+    <SECTION component="true" name="Update publisher url" componentKey="IPS_PUBLISHER_NAME"/>
+    <SECTION component="true" name="Publisher enabled check" componentKey="IPS_PUBLISHER_NAME"/>
+    <SECTION component="true" name="Enable publisher" componentKey="IPS_PUBLISHER_NAME"/>
+    <SECTION component="true" name="Disable publisher" componentKey="IPS_PUBLISHER_NAME"/>
+
+  </SECTIONS>
+
+</TECHNIQUE>
