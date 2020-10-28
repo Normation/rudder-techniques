@@ -7,12 +7,12 @@ bundle agent ips_repository_&RudderUniqueID& {
 }
 
 bundle agent ips_repository_real_&RudderUniqueID&(name, url, enabled)  {
-  classes:
-    "publisher_enable_required" expression => strcmp("${enabled}", "true");
-
   vars:
     "args"    slist => { ${name}, ${url}, ${enabled} };
     "prefix" string => "Publisher check_${report_data.directive_id}";
+
+  classes:
+    "publisher_enable_required" expression => strcmp("${enabled}", "true");
 
   methods:
     "${prefix}_0" usebundle => _method_reporting_context("Publisher check", "${name}");
