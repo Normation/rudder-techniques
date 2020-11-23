@@ -38,6 +38,9 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
 }&
       &SSH_KEY_DISTRIBUTION_NAME:{distribution_name |"sshkey_distribution_name[&i&]" string => "&distribution_name&";
 }&
+      # Canonified name is necessary for hooks and class definitions. A login may contains a dash
+      &SSH_KEY_DISTRIBUTION_NAME:{distribution_name |"sshkey_distribution_c_name[&i&]" string => canonify("&distribution_name&");
+}&
       &SSH_KEY_DISTRIBUTION_KEY:{distribution_key |"sshkey_distribution_key[&i&]" string => "&distribution_key&";
 }&
       &SSH_KEY_DISTRIBUTION_EDIT_TYPE:{distribution_edit_type |"sshkey_distribution_edit_type[&i&]" string => "&distribution_edit_type&";
@@ -82,38 +85,38 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
 
       "correct_ssh_key_format_${sshkey_distribution_index}" expression => regcmp("(.*\s+)?(${ssh_types})\s+(\S+)(\s.*)?", "${sshkey_distribution_key[${sshkey_distribution_index}]}");
 
-      "home_directory_${sshkey_distribution_index}_defined"        not => strcmp("${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}", "");
-      "home_directory_${sshkey_distribution_index}_exists"  expression => isdir("${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}");
+      "home_directory_${sshkey_distribution_index}_defined"        not => strcmp("${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}", "");
+      "home_directory_${sshkey_distribution_index}_exists"  expression => isdir("${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}");
 
   files:
     pass2::
       # if home dir doesn't exist, create it with correct permission
       # Skip if home dir is undefined for the given user
-      "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}/."
+      "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}/."
         create        => "true",
-        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_name[${sshkey_distribution_index}]}]}"),
-        ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.!home_directory_${sshkey_distribution_index}_exists.home_directory_${sshkey_distribution_index}_defined");
+        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}"),
+        ifvarclass    => "ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}.!home_directory_${sshkey_distribution_index}_exists.home_directory_${sshkey_distribution_index}_defined";
 
-      "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}/.ssh/."
+      "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}/.ssh/."
         create        => "true",
-        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_name[${sshkey_distribution_index}]}]}"),
-        ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
+        perms         => mog("700", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}"),
+        ifvarclass    => "ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined";
 
 
       # Caution, it can report both repaired and kept (permission ok + file repaired)
-      "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_name[${sshkey_distribution_index}]}]}/.ssh/authorized_keys"
+      "${runhook_sshKeyDistribution_pre_hook.homedir[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}/.ssh/authorized_keys"
         create        => "true",
-        perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_name[${sshkey_distribution_index}]}]}"),
+        perms         => mog("600", "${sshkey_distribution_name[${sshkey_distribution_index}]}", "${runhook_sshKeyDistribution_pre_hook.gid[${sshkey_distribution_c_name[${sshkey_distribution_index}]}]}"),
         edit_line     => append_or_replace_ssh_key_&RudderUniqueID&("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
 # should also define a class for the user
-        classes       => classes_generic_two("${key_class_prefix[${sshkey_distribution_index}]}_&RudderUniqueID&", "check_ssh_key_distribution_user_key_${sshkey_distribution_name[${sshkey_distribution_index}]}"),
-        ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
+        classes       => classes_generic_two("${key_class_prefix[${sshkey_distribution_index}]}_&RudderUniqueID&", "check_ssh_key_distribution_user_key_${sshkey_distribution_c_name[${sshkey_distribution_index}]}"),
+        ifvarclass    => "ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined";
 
        # insert in temp file as well, inconditionnaly
       "${runhook_sshKeyDistribution_pre_hook.temp_ssh_key_path}/${sshkey_distribution_name[${sshkey_distribution_index}]}.authorized_keys.tmp"
         perms         => m("600"),
         edit_line     => append_or_replace_ssh_key_&RudderUniqueID&("${sshkey_distribution_key[${sshkey_distribution_index}]}", "${sshkey_distribution_key_content_${sshkey_distribution_index}}", "${sshkey_distribution_index}"),
-        ifvarclass    => concat(canonify("ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists"),".correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined");
+        ifvarclass    => "ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}.home_directory_${sshkey_distribution_index}_defined";
 
 
   methods:
@@ -124,7 +127,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
           "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
           "SSH key \"${sshkey_distribution_tag[${sshkey_distribution_index}]}\" for user ${sshkey_distribution_name[${sshkey_distribution_index}]}"
         ),
-        ifvarclass    => "ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}";
+        ifvarclass    => "ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}";
 
       "Wrong SSH Key Format Report"
         usebundle     => rudder_common_report(
@@ -132,7 +135,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
           "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
           "Wrong SSH key format \"${sshkey_distribution_tag[${sshkey_distribution_index}]}\" for user ${sshkey_distribution_name[${sshkey_distribution_index}]}"
         ),
-        ifvarclass    => "!correct_ssh_key_format_${sshkey_distribution_index}.ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists";
+        ifvarclass    => "!correct_ssh_key_format_${sshkey_distribution_index}.ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists";
 
       "No User Exist Report"
         usebundle     => rudder_common_report(
@@ -140,7 +143,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
           "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
           "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, not adding SSH key"
         ),
-        ifvarclass    => "!ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}";
+        ifvarclass    => "!ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists.correct_ssh_key_format_${sshkey_distribution_index}";
 
       "No User Exist and Wrong SSH Key Format Report"
         usebundle     => rudder_common_report(
@@ -148,7 +151,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
           "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
           "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT exist on this machine, and the SSH key format is wrong"
         ),
-        ifvarclass    => "!ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists.!correct_ssh_key_format_${sshkey_distribution_index}";
+        ifvarclass    => "!ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists.!correct_ssh_key_format_${sshkey_distribution_index}";
 
       "No User Home Defined For Target User"
         usebundle     => rudder_common_report(
@@ -156,7 +159,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
           "${sshkey_distribution_uuid[${sshkey_distribution_index}]}", "${component_name}", "${sshkey_distribution_tag[${sshkey_distribution_index}]}",
           "The user ${sshkey_distribution_name[${sshkey_distribution_index}]} does NOT have a home defined on this machine"
         ),
-        ifvarclass    => "!home_directory_${sshkey_distribution_index}_defined.ssh_key_distribution_user_${sshkey_distribution_name[${sshkey_distribution_index}]}_exists";
+        ifvarclass    => "!home_directory_${sshkey_distribution_index}_defined.ssh_key_distribution_user_${sshkey_distribution_c_name[${sshkey_distribution_index}]}_exists";
 
 }
 
