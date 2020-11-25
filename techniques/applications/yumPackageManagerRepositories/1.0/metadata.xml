@@ -1,0 +1,95 @@
+<TECHNIQUE name="Package sources (Yum)">
+  <DESCRIPTION>This technique configures repositories for Yum package manager.
+  
+  Each repositories are identified by their repository id.</DESCRIPTION>
+
+  <MULTIINSTANCE>true</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+
+  <COMPATIBLE>
+    <AGENT version=">= 3.12.0">cfengine-community</AGENT>
+  </COMPATIBLE>
+
+  <BUNDLES>
+    <NAME>yum_repositories_management_RudderUniqueID</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="yum-repositories-management"/>
+  </TMLS>
+
+  <TRACKINGVARIABLE>
+    <SAMESIZEAS>YUM_REPO_ID</SAMESIZEAS>
+  </TRACKINGVARIABLE>
+
+  <SECTIONS>
+    <SECTION name="Repositories" multivalued="true" component="true" componentKey="YUM_REPO_ID">
+      <INPUT>
+        <NAME>YUM_REPO_ID</NAME>
+        <DESCRIPTION>Repository id</DESCRIPTION>
+        <LONGDESCRIPTION>The unique repository id, in [ ] in the repository configuration</LONGDESCRIPTION>
+      </INPUT>
+      <SELECT1>
+        <NAME>YUM_REPO_ACTION</NAME>
+        <DESCRIPTION>Add/modify or delete the repository</DESCRIPTION>
+        <ITEM>
+          <VALUE>add</VALUE>
+          <LABEL>Add/modify</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>delete</VALUE>
+          <LABEL>Delete</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+         <DEFAULT>add</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>YUM_REPO_NAME</NAME>
+        <DESCRIPTION>Repository name</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>YUM_REPO_URL</NAME>
+        <DESCRIPTION>Repository URL</DESCRIPTION>
+      </INPUT>
+      <SELECT1>
+        <NAME>YUM_REPO_ENABLED</NAME>
+        <DESCRIPTION>Repository activation status</DESCRIPTION>
+        <LONGDESCRIPTION>Activate or deactive a specific repository</LONGDESCRIPTION>
+        <ITEM>
+          <VALUE>0</VALUE>
+          <LABEL>Disabled</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>1</VALUE>
+          <LABEL>Enabled</LABEL>
+        </ITEM>
+        <CONSTRAINT>
+         <DEFAULT>1</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <SELECT1>
+        <NAME>YUM_REP_GPG_CHECK</NAME>
+        <DESCRIPTION>Activate GPG check</DESCRIPTION>
+        <ITEM>
+          <VALUE>0</VALUE>
+          <LABEL>No</LABEL>
+        </ITEM>
+        <ITEM>
+          <VALUE>1</VALUE>
+          <LABEL>Yes</LABEL>
+        </ITEM>
+      <CONSTRAINT>
+        <DEFAULT>1</DEFAULT>
+      </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
+        <NAME>YUM_REPO_GPG_URI</NAME>
+        <DESCRIPTION>Location of the GPG Key</DESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+</TECHNIQUE>
