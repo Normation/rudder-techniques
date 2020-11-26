@@ -22,8 +22,9 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
       "index" slist => getindices("repo_id");
 
 
-      # Construct the identifier string : \[repo_id\]
-      "grep_repo_id[${index}]" string => "\[${repo_id[${index}]}\]";
+      # Construct the identifier string to grep: \[repo_id\], with start and end line
+      # there may be some spaces after the repo identifier
+      "grep_repo_id[${index}]" string => "^\[${repo_id[${index}]}\]\s*$";
       
     pass1::
       "filename[${index}]" string => execresult("${paths.grep} -rl '${grep_repo_id[${index}]}' /etc/yum.repos.d", "noshell");
@@ -48,7 +49,7 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
 
 
   methods:
-    pass3::
+    pass2::
       # create or enforce entries
       # if file doesn't exist yet, we need to precreate it with an empty section, and a blank line
       "create file ${index}"       usebundle => file_content("${filename[${index}]}", "[${repo_id[${index}]}]
@@ -74,8 +75,37 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
                                           if => "!delete_repo_${index}";
                                           
       # Deletion of repo
-      "delete repo ${index}"      usebundle => file_absent("${filename[${index}]}"),
+      "delete repo ${index}"      usebundle => clean_repo_file_&RudderUniqueID&("${index}"),
+                                         if => "delete_repo_${index}";      
+      
+      "report for deletion"       usebundle => rudder_common_reports_generic_index("Package sources (Yum)", "yum_repositories_repo_removed_${repo_id[${index}]}", "${trackingkey[${index}]}", "Repositories", "${repo_id[${index}]}", "Deleting repository with id ${repo_id[${index}]} ", "${index}"),
                                          if => "delete_repo_${index}";
-      "report for deletion"       usebundle => rudder_common_reports_generic_index("Package sources (Yum)", "file_absent_${canonified_filename[${index}]}", "${trackingkey[${index}]}", "Repositories", "${repo_id[${index}]}", "Deleting repository with id ${repo_id[${index}]} ", "${index}"),
-                                          if => "delete_repo_${index}";
+
+      "trigger refresh if repo changed ${index}" usebundle => yum_repositories_set_refresh_condition_for_post_hook
+                                                        if => "file_key_value_present_in_ini_section_${canonified_filename[${index}]}_repaired|yum_repositories_repo_removed_${repo_id[${index}]}_repaired"
 }
+
+# Delete repo entrys
+bundle agent clean_repo_file_&RudderUniqueID&(index) {
+  vars:
+      # search all sections in the repos
+      "grep_string_${index}"           string => "'^\[.*\]\s*$'";
+      "numberofentriesinfile_${index}" string =>  execresult("${paths.grep} -cl '${grep_string_${index}}' /etc/yum.repos.d/${yum_repositories_management_&RudderUniqueID&.filename[${index}]}", "noshell");
+      
+      # innder class prefix
+      "inner_class_prefix_file_absent_${index}" string => "file_absent_${yum_repositories_management_&RudderUniqueID&.canonified_filename[${index}]}";
+      "inner_class_prefix_section_absent_${index}" string => "file_ini_section_absent_${yum_repositories_management_&RudderUniqueID&.canonified_filename[${index}]}_${yum_repositories_management_&RudderUniqueID&.repo_id[${index}]}";
+  classes:
+      "multiple_section_in_file_${index}" not => strcmp("${numberofentriesinfile_${index}}", "1");
+
+  methods:
+      # Deletion of repo
+      "delete repo ${index}"      usebundle => file_absent("${yum_repositories_management_&RudderUniqueID&.filename[${index}]}"),
+                                         if => "!multiple_section_in_file_${index}";
+      # Deletion of repo
+      "delete repo ${index}"      usebundle => file_ini_section_absent("${yum_repositories_management_&RudderUniqueID&.filename[${index}]}", "${yum_repositories_management_&RudderUniqueID&.repo_id[${index}]}"),
+                                         if => "multiple_section_in_file_${index}";
+      
+      "combine class"             usebundle => ncf_classes_combine_two("${inner_class_prefix_file_absent_${index}}", "${multiple_section_in_file_${index}}", "yum_repositories_repo_removed_${yum_repositories_management_&RudderUniqueID&.repo_id[${index}]}");
+}
+
