@@ -1,0 +1,87 @@
+bundle agent yum_repositories_set_refresh_condition_for_post_hook()
+{
+  classes:
+      "yum_repositories_refresh_condition_for_post_hook_defined" expression    => "any", scope => "namespace";
+}
+
+# 
+# Refresh yum if repositories are changed
+# Parameters are:
+#     "name"      : Repo id
+#     "condition" : Condition on when to check the package (not mandatory)
+# Reports format is
+#     "id"        : Rule id
+#     "mode"      : enforce or audit
+#     "technique" : technique name
+#     "name"      : component name for reporting
+#     "value"     : component value for reporting
+bundle agent runhook_yum_repositories(json) {
+  vars:
+      "definitions" data => parsejson("${json}");
+
+      "parameters"  data => mergedata("definitions[parameters]");
+
+      "reporting"   data => mergedata("definitions[reports]");
+
+      "reportkeys" slist => getindices("reporting");
+      
+      "yum_path"  string => "/usr/bin/yum";
+      "cyum_path" string => canonify("${yum_path}");
+
+    pass1.is_enforce::
+      "set_dry_mode"   string => "false";
+
+    pass1.!is_enforce::
+      "set_dry_mode"   string => "true";
+
+    pass1::
+      "class_condition" string => "yum_repositories_refresh_condition_for_post_hook_defined";
+
+
+  classes:
+      # define if there is at least one enforce
+      "is_enforce"               expression => strcmp("${reporting[${reportkeys}][mode]}", "enforce");
+
+      # For reporting, detect each enforce/audit
+      "is_enforce_${reportkeys}" expression => strcmp("${reporting[${reportkeys}][mode]}", "enforce");
+
+
+    any::
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+  methods:
+    pass2::
+      "configure_dry_run_mode_${reporting[0][id]}"
+         usebundle => set_dry_run_mode("${set_dry_mode}");
+
+      # All GM reports at least a log_info, so we need to set the reporting context correctly
+      "set_reporting_context_for_GM"
+        usebundle => rudder_reporting_context_id("${reporting[0][id]}", "${reporting[0][technique]}");
+
+      "disable_reporting_sudo_pre_hook"
+         usebundle => disable_reporting;
+
+      "refresh yum"
+        usebundle  => command_execution("${yum_path} refresh"),
+        ifvarclass => "${class_condition}";
+
+      "reenable_reporting_sudo_pre_hook"
+         usebundle => enable_reporting;
+
+      # here we need to report correctly based on each mode for each directive
+      "reporting" 
+        usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "command_execution_${cyum_path}_refresh", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Refresh yum repositories", "${reporting[${reportkeys}][mode]}"),
+        ifvarclass => "${class_condition}";
+
+      "na_report"
+        usebundle  => _rudder_common_report_hooks("${reporting[${reportkeys}][technique]}", "result_na", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Refreshing yum repositories was not necessary", "${reporting[${reportkeys}][mode]}"),
+        ifvarclass => "!${class_condition}";
+
+      "clean_reporting_context_${reporting[0][id]}"
+        usebundle  => clean_reporting_context;
+
+  reports:
+    inform.pass2::
+      "Executing hook runhook_yum_repositories to refresh repositories ${reporting[${reportkeys}][id]} - Audit mode: ${set_dry_mode} - Condition is {class_condition}";
+}

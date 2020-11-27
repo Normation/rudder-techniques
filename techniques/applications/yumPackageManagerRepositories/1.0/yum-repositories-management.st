@@ -81,8 +81,8 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
       "report for deletion"       usebundle => rudder_common_reports_generic_index("Package sources (Yum)", "yum_repositories_repo_removed_${repo_id[${index}]}", "${trackingkey[${index}]}", "Repositories", "${repo_id[${index}]}", "Deleting repository with id ${repo_id[${index}]} ", "${index}"),
                                          if => "delete_repo_${index}";
 
-      "trigger refresh if repo changed ${index}" usebundle => yum_repositories_set_refresh_condition_for_post_hook
-                                                        if => "file_key_value_present_in_ini_section_${canonified_filename[${index}]}_repaired|yum_repositories_repo_removed_${repo_id[${index}]}_repaired"
+      "trigger refresh if repo changed ${index}" usebundle => yum_repositories_set_refresh_condition_for_post_hook,
+                                                        if => "file_key_value_present_in_ini_section_${canonified_filename[${index}]}_repaired|yum_repositories_repo_removed_${repo_id[${index}]}_repaired";
 }
 
 # Delete repo entrys

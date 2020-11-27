@@ -17,6 +17,20 @@
   <TMLS>
     <TML name="yum-repositories-management"/>
   </TMLS>
+  
+  <FILES>
+    <FILE name="yum-repositories-post-hook.cf">
+      <OUTPATH>yumPackageManagerRepositories/yum-repositories-post-hook.cf</OUTPATH>
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+  </FILES>
+
+  <RUNHOOKS>
+    <POST bundle="runhook_yum_repositories">
+      <REPORT name="Refresh repositories"/>
+    </POST>
+  </RUNHOOKS>
+
 
   <TRACKINGVARIABLE>
     <SAMESIZEAS>YUM_REPO_ID</SAMESIZEAS>
