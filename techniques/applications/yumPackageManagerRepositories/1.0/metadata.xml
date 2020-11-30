@@ -105,5 +105,6 @@
         </CONSTRAINT>
       </INPUT>
     </SECTION>
+    <SECTION name="Refresh repositories" component="true"/>
   </SECTIONS>
 </TECHNIQUE>

@@ -36,7 +36,7 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
       "canonified_filename[${index}]" string => canonify("${filename[${index}]}");
 
   classes:
-      "delete_repo_${index}" expression => strcmp("${repo_action$[${index}]}", "delete");
+      "delete_repo_${index}" expression => strcmp("${repo_action[${index}]}", "delete");
 
     pass1::
       "repo_entry_absent_${index}" expression => strcmp("${filename[${index}]}", "");

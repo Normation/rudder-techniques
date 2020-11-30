@@ -63,7 +63,7 @@ bundle agent runhook_yum_repositories(json) {
          usebundle => disable_reporting;
 
       "refresh yum"
-        usebundle  => command_execution("${yum_path} refresh"),
+        usebundle  => command_execution("${yum_path} clean expire-cache"),
         ifvarclass => "${class_condition}";
 
       "reenable_reporting_sudo_pre_hook"
@@ -71,7 +71,7 @@ bundle agent runhook_yum_repositories(json) {
 
       # here we need to report correctly based on each mode for each directive
       "reporting" 
-        usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "command_execution_${cyum_path}_refresh", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Refresh yum repositories", "${reporting[${reportkeys}][mode]}"),
+        usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "command_execution_${cyum_path}_clean_expire_cache", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Refresh yum repositories", "${reporting[${reportkeys}][mode]}"),
         ifvarclass => "${class_condition}";
 
       "na_report"
