@@ -41,7 +41,6 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
     pass1::
       "repo_entry_absent_${index}" expression => strcmp("${filename[${index}]}", "");
 
-
     any::
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
@@ -76,10 +75,13 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
                                           
       # Deletion of repo
       "delete repo ${index}"      usebundle => clean_repo_file_&RudderUniqueID&("${index}"),
-                                         if => "delete_repo_${index}";      
+                                         if => "delete_repo_${index}.!repo_entry_absent_${index}";      
       
       "report for deletion"       usebundle => rudder_common_reports_generic_index("Package sources (Yum)", "yum_repositories_repo_removed_${repo_id[${index}]}", "${trackingkey[${index}]}", "Repositories", "${repo_id[${index}]}", "Deleting repository with id ${repo_id[${index}]} ", "${index}"),
-                                         if => "delete_repo_${index}";
+                                         if => "delete_repo_${index}.!repo_entry_absent_${index}";
+
+      "repo not there"            usebundle => rudder_common_report_index("Package sources (Yum)", "result_success", "${trackingkey[${index}]}", "Repositories", "${repo_id[${index}]}", "Deleting repository with id ${repo_id[${index}]} ", "${index}"),
+                                          if => "repo_entry_absent_${index}";
 
       "trigger refresh if repo changed ${index}" usebundle => yum_repositories_set_refresh_condition_for_post_hook,
                                                         if => "file_key_value_present_in_ini_section_${canonified_filename[${index}]}_repaired|yum_repositories_repo_removed_${repo_id[${index}]}_repaired";
@@ -106,6 +108,6 @@ bundle agent clean_repo_file_&RudderUniqueID&(index) {
       "delete repo ${index}"      usebundle => file_ini_section_absent("${yum_repositories_management_&RudderUniqueID&.filename[${index}]}", "${yum_repositories_management_&RudderUniqueID&.repo_id[${index}]}"),
                                          if => "multiple_section_in_file_${index}";
       
-      "combine class"             usebundle => ncf_classes_combine_two("${inner_class_prefix_file_absent_${index}}", "${multiple_section_in_file_${index}}", "yum_repositories_repo_removed_${yum_repositories_management_&RudderUniqueID&.repo_id[${index}]}");
+      "combine class"             usebundle => ncf_classes_combine_two("${inner_class_prefix_file_absent_${index}}", "${inner_class_prefix_section_absent_${index}}", "yum_repositories_repo_removed_${yum_repositories_management_&RudderUniqueID&.repo_id[${index}]}");
 }
 
