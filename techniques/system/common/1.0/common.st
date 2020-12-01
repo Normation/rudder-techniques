@@ -3,7 +3,8 @@ bundle common system_common {
   vars:
     "directiveId"           string => "&TRACKINGKEY&";
     "sharedfiles_folder"    string => "&SHARED_FILES_FOLDER&";
-    "community_port"        string => "&COMMUNITYPORT&";
+    "cf_serverd_port"       string => "&COMMUNITYPORT&";
+    "community_port"        string => "${server_info.policy_server_port}";
     "uuid"                  string => "&UUID&";
     "davuser"               string => "&DAVUSER&";
     "davpw"                 string => "&DAVPASSWORD&";

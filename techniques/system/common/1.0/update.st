@@ -63,9 +63,17 @@ bundle common server_info
     #This part work, because for some reason, the evaluation converge in one pass, and allows to have
     # the correct value in policy_server value. In verbose output, policy_server_file_exists is defined first
     policy_server_file_exists::
-      "policy_server_temp" string => readfile("${policy_server_file}", 2048);
-       # trim space in poilcy_server.dat
-      "policy_server"      string => regex_replace("${policy_server_temp}", " ", "", "g");
+      "policy_server_temp"   string => readfile("${policy_server_file}", 2048);
+      # trim space in policy_server.dat
+      "policy_server_temp2"  string => regex_replace("${policy_server_temp}", " ", "", "g");
+      # separate host and port
+      "policy_server_temp3"  slist  => string_split("${policy_server_temp2}", ":", "2");
+      "policy_server"        string => nth("policy_server_temp3", "0");
+    # pass3 is needed otherwise system_common.community_port is evaluated during pass2 where policy_server_has_port is always false
+    server_info_pass3.policy_server_has_port::
+      "policy_server_port"   string => nth("policy_server_temp3", "1");
+    server_info_pass3.!policy_server_has_port::
+      "policy_server_port"   string => "${system_common.cf_serverd_port}";
 
 
     !policy_server_file_exists::
@@ -78,6 +86,9 @@ bundle common server_info
 
   classes:
       "policy_server_file_exists" expression => fileexists("${policy_server_file}");
+      "policy_server_has_port"    expression => strcmp(length("policy_server_temp3"), "2");
+      "server_info_pass3" expression => "server_info_pass2";
+      "server_info_pass2" expression => "any";
 }
 
 # The update is now split in two parts
