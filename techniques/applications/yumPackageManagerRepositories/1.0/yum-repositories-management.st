@@ -38,6 +38,8 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
   classes:
       "delete_repo_${index}" expression => strcmp("${repo_action[${index}]}", "delete");
 
+      "is_yum_present"       expression => fileexists("/usr/bin/yum");
+
     pass1::
       "repo_entry_absent_${index}" expression => strcmp("${filename[${index}]}", "");
 
@@ -48,7 +50,7 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
 
 
   methods:
-    pass2::
+    pass2.is_yum_present::
       # create or enforce entries
       # if file doesn't exist yet, we need to precreate it with an empty section, and a blank line
       "create file ${index}"       usebundle => file_content("${filename[${index}]}", "[${repo_id[${index}]}]
@@ -85,6 +87,9 @@ bundle agent yum_repositories_management_&RudderUniqueID& {
 
       "trigger refresh if repo changed ${index}" usebundle => yum_repositories_set_refresh_condition_for_post_hook,
                                                         if => "file_key_value_present_in_ini_section_${canonified_filename[${index}]}_repaired|yum_repositories_repo_removed_${repo_id[${index}]}_repaired";
+
+  !is_yum_present::
+      "not a yum system"           usebundle => rudder_common_report_index("Package sources (Yum)", "result_na", "${trackingkey[${index}]}", "Repositories", "${repo_id[${index}]}", "Yum is not available on this system, skipping", "${index}");
 }
 
 # Delete repo entrys
