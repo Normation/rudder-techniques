@@ -81,7 +81,4 @@ bundle agent runhook_yum_repositories(json) {
       "clean_reporting_context_${reporting[0][id]}"
         usebundle  => clean_reporting_context;
 
-  reports:
-    inform.pass2::
-      "Executing hook runhook_yum_repositories to refresh repositories ${reporting[${reportkeys}][id]} - Audit mode: ${set_dry_mode} - Condition is {class_condition}";
 }
