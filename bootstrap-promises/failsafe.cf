@@ -108,11 +108,11 @@ bundle agent update
         classes           => classes_generic("ncf_common");
 
   reports:
-    config_ok.ncf_common_ok::
+    !(config_error|ncf_common_error)::
       "Initial policies have been successfully downloaded from the policy server"
         action => immediate;
 
-    !(config_ok.ncf_common_ok)::
+    config_error|ncf_common_error::
       "*********************************************************************************
 * rudder-agent could not get an its configuration from the policy server.       *
 * This can be caused by:                                                        *
