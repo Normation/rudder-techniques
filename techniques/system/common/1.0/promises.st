@@ -168,9 +168,9 @@ bundle common va
 
   classes:
     # OS classes for compatibility
-      "SUSE" expression => "sles|opensuse";
-      "SuSE" expression => "sles|opensuse";
-      "suse" expression => "sles|opensuse";
+      "SUSE" expression => "sles|sled|opensuse";
+      "SuSE" expression => "sles|sled|opensuse";
+      "suse" expression => "sles|sled|opensuse";
       "redhat" expression => "amzn|amazon_linux";
 
     # We are inside Rudder policies
