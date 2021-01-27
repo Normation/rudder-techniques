@@ -9,7 +9,7 @@ body common control
 body server control
 {
     # Listen on correct port from the beginning
-    port => "5309";
+    port => "${server_info.policy_server_port}";
 }
 
 @if feature(copyfrom_restrict_keys)
@@ -46,9 +46,15 @@ bundle common server_info
     # the correct value in policy_server value. In verbose output, policy_server_file_exists is defined first
     policy_server_file_exists::
       "policy_server_temp" string => readfile("${policy_server_file}", 2048);
-       # trim space in policy_server.dat
-      "policy_server"      string => regex_replace("${policy_server_temp}", " ", "", "g");
-
+      # trim space in policy_server.dat
+      "policy_server_temp2"  string => regex_replace("${policy_server_temp}", " ", "", "g");
+      # separate host and port
+      "policy_server_temp3"  slist  => string_split("${policy_server_temp2}", ":", "2");
+      "policy_server"        string => nth("policy_server_temp3", "0");
+    policy_server_file_exists.policy_server_has_port::
+      "policy_server_port"   string => nth("policy_server_temp3", "1");
+    policy_server_file_exists.!policy_server_has_port::
+      "policy_server_port"   string => "5309";
     !policy_server_file_exists::
       # Use "" as default policy_server if no policy_server.dat exists
       "policy_server" string => "";
@@ -56,6 +62,7 @@ bundle common server_info
   classes:
       "root_server"               expression => strcmp("root","${g.uuid}");
       "policy_server_file_exists" expression => fileexists("${policy_server_file}");
+      "policy_server_has_port"    expression => strcmp(length("policy_server_temp3"), "2");
 }
 
 bundle agent update
@@ -166,7 +173,7 @@ body copy_from remote(server, path)
         verify      => "true";
         purge       => "true";
         copy_backup => "false";
-        portnumber  => "5309";
+        portnumber  => "${server_info.policy_server_port}";
       trust_new_server.!root_server::
         trustkey    => "true";
 }
@@ -178,5 +185,5 @@ body copy_from local(from)
         preserve    => "false";
         compare     => "digest";
         purge       => "true";
-        portnumber  => "5309";
+        portnumber  => "${server_info.policy_server_port}";
 }
