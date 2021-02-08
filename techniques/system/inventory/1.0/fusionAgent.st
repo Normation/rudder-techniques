@@ -153,8 +153,15 @@ bundle agent fusionAgent
     pass3.inventory_failed::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not execute the inventory");
 
+    pass3.!rudder_inventory_not_running::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Skipped the inventory as another is running");
+
+  processes:
+      "${g.rudder_base}/bin/run-inventory .*"
+        restart_class => "rudder_inventory_not_running";
+
   commands:
-    inventoryfoldercreated::
+    inventoryfoldercreated.rudder_inventory_not_running::
       "${g.rudder_base}/bin/run-inventory --local=${inventory_path}"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
@@ -170,6 +177,7 @@ bundle agent checkInventoryFile
       "perl_command" string => "/usr/bin/perl -I /opt/rudder/lib/perl5";
 
   classes:
+    rudder_inventory_not_running::
       "inventory_file_exist" expression => fileexists("${fusionAgent.inventory_path}");
       "has_rudder_perl" expression => fileexists("/opt/rudder/bin/perl");
     pass1.inventory_file_exist::
@@ -315,3 +323,4 @@ bundle agent cleanForceInventoryFlagFile
         ifvarclass => "inventory_sent"; # if the force inventory file was present, and we successfully sent an inventory, clean up the flag file
 
 }
+
