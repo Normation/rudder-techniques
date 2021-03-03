@@ -9,6 +9,7 @@ applications/aptPackageManagerSettings/3.1
 applications/aptPackageManagerSettings/3.2
 applications/ipsPackageRepositories/1.0
 applications/packageManagement/1.2
+applications/packageManagement/1.3
 applications/repoGpgKeyManagement/1.1
 applications/snmp/1.0
 applications/zmdPackageManagerSettings/3.0
