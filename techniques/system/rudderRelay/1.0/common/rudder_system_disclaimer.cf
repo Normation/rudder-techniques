@@ -1,0 +1,9 @@
+bundle agent rudder_system_disclaimer {
+  vars:
+      "disclaim" slist => { "@{p.managed_files}" };
+
+  files:
+      "${disclaim}"
+        edit_line => insert_rudder_disclaimer,
+        comment => "Insert a disclaimer into Rudder";
+}

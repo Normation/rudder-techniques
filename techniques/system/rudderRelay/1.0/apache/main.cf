@@ -1,0 +1,30 @@
+bundle agent rudder_system_apache_configuration {
+  vars:
+      "apache_service"   string => "apache2";
+    redhat::
+      "apache_service"   string => "httpd";
+
+  classes:
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+  methods:
+    pass3::
+      "any" usebundle => enable_reporting;
+      # Force allowed networks
+      "any" usebundle => _method_reporting_context("Apache allowed networks", "None");
+      "any" usebundle => rudder_system_apache_networks_check;
+
+      # Force webdav user/password
+      "any" usebundle => rudder_system_apache_password_check_dav;
+
+      # Check that apache is running and enabled
+      "any" usebundle => _method_reporting_context("Apache service started", "None");
+      "any" usebundle => service_started("${apache_service}");
+
+      "any" usebundle => _method_reporting_context("Apache service enabled", "None");
+      "any" usebundle => service_enabled("${apache_service}");
+
+      # Configure relayd
+      "any" usebundle => rudder_system_relayd_configuration;
+}

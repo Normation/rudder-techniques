@@ -1,0 +1,53 @@
+bundle agent reload_rudder_services {
+  vars:
+      "jetty_service_name"  string => "rudder-jetty";
+      "apache_service_name" string => "apache2";
+      "relayd_service_name" string => "rudder-relayd";
+    redhat::
+      "apache_service_name" string => "httpd";
+
+    any::
+      "jetty_prefix"         string => canonify("service_restart_${jetty_service_name}");
+      "apache_prefix"         string => canonify("service_restart_${apache_service_name}");
+      "relayd_prefix"         string => canonify("service_restart_${relayd_service_name}");
+
+      "prefixes"              slist => { "${jetty_prefix}",
+                                         "${apache_prefix}",
+                                         "${relayd_prefix}"
+                                       };
+
+      "technique_name"      string => "server_roles";
+      "component_name"      string => "reload rudder services";
+
+  classes:
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+    pass3::
+      "result_error"    expression => "${prefixes}_error";
+    pass3.!result_error::
+      "result_repaired" expression => "${prefixes}_repaired";
+    pass3.!result_error.!result_repaired::
+      "result_na"  expression => "any";
+
+  methods:
+      "restart_jetty_password" usebundle => disable_reporting;
+      "restart_jetty_password" usebundle => _method_reporting_context("Reload rudder services", "None");
+    rudder_system_restart_jetty::
+      "restart_jetty_password" usebundle => service_restart("${jetty_service_name}");
+    rudder_system_restart_apache::
+      "restart_jetty_password" usebundle => service_reload("${apache_service}");
+    rudder_system_restart_relayd::
+      "restart_jetty_password" usebundle => service_reload("${relayd_service}");
+    pass3::
+      "restart_jetty_password" usebundle => enable_reporting;
+
+      # Reporting
+      "report_error"   usebundle  => rudder_common_report("${technique_name}", "result_error", "${server_roles_common.directiveId}", "${component_name}", "None", "${report_string}"),
+                       ifvarclass => "result_error";
+      "report_repaired" usebundle => rudder_common_report("${technique_name}", "result_error", "${server_roles_common.directiveId}", "${component_name}", "None", "${report_string}"),
+                       ifvarclass => "result_repaired";
+      "report_na"      usebundle  => rudder_common_report("${technique_name}", "result_na",    "${server_roles_common.directiveId}", "${component_name}", "None", "${report_string}"),
+                       ifvarclass => "result_na";
+}
