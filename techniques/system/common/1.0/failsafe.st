@@ -44,6 +44,7 @@ bundle common g
   vars:
       "rudder_base"              string => "/opt/rudder";
       "rudder_var"               string => "/var/rudder";
+      "rudder_log"               string => "/var/log/rudder";
       "rudder_bin"               string => "${rudder_base}/bin";
       "rudder_sbin"              string => "${rudder_base}/sbin";
       "rudder_base_sbin"         string => "${rudder_base}/sbin"; #folder where tools are installed
