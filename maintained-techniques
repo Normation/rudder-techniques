@@ -28,6 +28,7 @@ jobScheduling/jobScheduler/3.0
 system/common/1.0
 system/distributePolicy/1.0
 system/inventory/1.0
+system/rudderWebapp/1.0
 system/server-roles/1.0
 systemSettings/misc/clockConfiguration/3.2
 systemSettings/misc/genericCommandVariableDefinition/3.0
