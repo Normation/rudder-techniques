@@ -1,25 +1,27 @@
-bundle agent rudder_system_relayd_configuration {
+bundle agent system_rudder_relay_configuration {
   vars:
-      "config_dir"         string => "${g.rudder_base}/etc/relayd";
-      "config_file"        string => "${config_dir}/main.conf2";
-      "relayd_service"     string => "rudder-relayd";
+      "config_dir"          string => "${g.rudder_base}/etc/relayd";
+      "config_file"         string => "${config_dir}/main.conf2";
+      "relayd_service"      string => "rudder-relayd";
 
       "config_class_prefix" string => canonify("file_from_template_${config_file}");
+      "component"           string => "Rudder-relayd service";
 
-  methods:
-      "any" usebundle => _method_reporting_context("Relayd configuration permissions", "None");
-      "any" usebundle => permissions_recursive("${config_dir}", "640", "root", "rudder");
-
-      "any" usebundle => _method_reporting_context("Relayd configuration", "None");
-      "any" usebundle => file_from_template_mustache("${this.promise_dirname}/relayd.conf.tpl", "${config_file}");
-
-      "any" usebundle => _method_reporting_context("Relayd service started", "None");
-      "any" usebundle => service_started("${relayd_service}");
-
-      "any" usebundle => _method_reporting_context("Relayd service enabled", "None");
-      "any" usebundle => service_enabled("${relayd_service}");
-
+  classes:
       # Restart relayd at the end of the technique if needed
       "system_restart_relayd" expression => "${config_class_prefix}_repaired",
                                    scope => "namespace";
+  methods:
+      "any" usebundle => _method_reporting_context("${component}", "Configuration permissions");
+      "any" usebundle => permissions_recursive("${config_dir}", "640", "root", "rudder");
+
+      "any" usebundle => _method_reporting_context("${component}", "Configuration");
+      "any" usebundle => file_from_template_mustache("${this.promise_dirname}/relayd.conf.tpl", "${config_file}");
+
+      "any" usebundle => _method_reporting_context("${component}", "Started");
+      "any" usebundle => service_started("${relayd_service}");
+
+      "any" usebundle => _method_reporting_context("${component}", "Enabled");
+      "any" usebundle => service_enabled("${relayd_service}");
+
 }

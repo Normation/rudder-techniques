@@ -1,4 +1,4 @@
-<TECHNIQUE name="Relay server">
+<TECHNIQUE name="Rudder relay">
   <DESCRIPTION>Configure the relay components</DESCRIPTION>
   <SYSTEM>true</SYSTEM>
 
@@ -6,29 +6,27 @@
     <FILE name="common/reload_rudder_services.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="common/rudder_system_disclaimer.cf">
-      <INCLUDED>true</INCLUDED>
-    </FILE>
     <FILE name="apache/main.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="apache/rudder_system_apache_networks_check.cf">
+    <FILE name="apache/system_rudder_apache_networks_configuration.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="apache/rudder_system_apache_password_check_dav.cf">
+    <FILE name="apache/system_rudder_apache_webdav_configuration.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
     <FILE name="relayd/relayd.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
     <FILE name="relayd/relayd.conf.tpl">
-      <OUTPATH>systemRelay/1.0/relayd/relayd.conf.tpl</OUTPATH>
+      <OUTPATH>rudderRelay/1.0/relayd/relayd.conf.tpl</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </FILE>
   </FILES>
 
   <BUNDLES>
-    <NAME>rudder_system_apache_configuration</NAME>
+    <NAME>system_rudder_apache_configuration</NAME>
+    <NAME>system_rudder_relay_configuration</NAME>
   </BUNDLES>
 
   <SYSTEMVARS>
@@ -36,17 +34,29 @@
   </SYSTEMVARS>
 
   <SECTIONS>
-    <SECTION name="Apache service started" component="true"/>
-    <SECTION name="Apache service enabled" component="true"/>
-    <SECTION name="Apache allowed networks permissions" component="true"/>
-    <SECTION name="Apache allowed networks configuration" component="true"/>
-    <SECTION name="Apache allowed remote run permissions" component="true"/>
-    <SECTION name="Apache allowed remote run configuration" component="true"/>
-    <SECTION name="Apache webdav password" component="true"/>
-    <SECTION name="Apache webdav permissions" component="true"/>
-    <SECTION name="Relayd configuration permissions" component="true"/>
-    <SECTION name="Relayd configuration" component="true"/>
-    <SECTION name="Relayd service started" component="true"/>
-    <SECTION name="Relayd service enabled" component="true"/>
+    <SECTION name="Apache service" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE>Enabled</VALUE>
+        <VALUE>Started</VALUE>
+      </REPORTKEYS>
+    </SECTION>
+    <SECTION name="Apache configuration" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE>Allowed networks permissions</VALUE>
+        <VALUE>Allowed networks configuration</VALUE>
+        <VALUE>Remote run permissions</VALUE>
+        <VALUE>Remote run configuration</VALUE>
+        <VALUE>Webdav configuration</VALUE>
+        <VALUE>Webdav permissions</VALUE>
+      </REPORTKEYS>
+    </SECTION>
+    <SECTION name="Rudder-relayd service" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE>Configuration permissions</VALUE>
+        <VALUE>Configuration</VALUE>
+        <VALUE>Enabled</VALUE>
+        <VALUE>Started</VALUE>
+      </REPORTKEYS>
+    </SECTION>
   </SECTIONS>
 </TECHNIQUE>

@@ -1,12 +1,4 @@
-# This file contains bundles to manage password between all components of a
-# Rudder server (OpenLDAP, PostgreSQL, Apache WebDAV and web interface)
-
-# It is currently only used on root servers where all components are installed
-# on one host. It may be extended in the future to support changing passwords
-# across multiple hosts.
-
-bundle agent rudder_system_apache_password_check_dav {
-
+bundle agent system_rudder_apache_webdav_configuration {
   vars:
     debian::
       "webdav_check_wwwgroup" string => "www-data";
@@ -25,30 +17,24 @@ bundle agent rudder_system_apache_password_check_dav {
 
     any::
      "no"                        int => getfields("RUDDER_WEBDAV_PASSWORD:.*","${g.rudder_base}/etc/rudder-passwords.conf",":","dav_password");
-     "technique_name"         string => "server-roles";
      "report_string"          string => "Apache WebDAV user and password";
 
       "webdav_pwd_cmd"        string => "${htpasswd_bin} -b ${g.rudder_base}/etc/htpasswd-webdav ${g.davuser} ${g.davpw}";
       "args"                  slist  => { "${webdav_pwd_cmd}" };
       "pwd_class_prefix"      string => canonify("command_execution_${webdav_pwd_cmd}");
+      "component"             string => "Apache configuration";
 
   classes:
-
       "dav_cant_connect" not => returnszero("${g.rudder_curl} --tlsv1.2 --proxy '' ${g.rudder_verify_certs_option} --silent --fail --output /dev/null --user ${g.davuser}:${g.davpw} --upload-file ${g.rudder_base}/etc/uuid.hive https://localhost/inventory-updates/uuid.hive","noshell");
 
-    any::
-      "pass3" expression => "pass2";
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
-
-      "system_restart_apache" expression => "${pwd_class_prefix}_repaired",
-                                   scope => "namespace";
+      "rudder_server_system_restart_apache" expression => "${pwd_class_prefix}_repaired",
+                                                 scope => "namespace";
 
   methods:
-      "any" usebundle => _method_reporting_context("Apache webdav permissions", "None");
+      "any" usebundle => _method_reporting_context("${component}", "Webdav permissions");
       "any" usebundle => permissions("${g.rudder_base}/etc/htpasswd-webdav", "640", "root", "${webdav_check_wwwgroup}");
 
-      "any" usebundle => _method_reporting_context("Apache webdav password", "None");
+      "any" usebundle => _method_reporting_context("${component}", "Webdav configuration");
 
     dav_cant_connect::
       "any" usebundle => command_execution("${webdav_pwd_cmd}");

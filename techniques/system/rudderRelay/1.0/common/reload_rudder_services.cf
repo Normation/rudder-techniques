@@ -34,11 +34,11 @@ bundle agent reload_rudder_services {
   methods:
       "restart_jetty_password" usebundle => disable_reporting;
       "restart_jetty_password" usebundle => _method_reporting_context("Reload rudder services", "None");
-    rudder_system_restart_jetty::
+    rudder_server_system_restart_jetty::
       "restart_jetty_password" usebundle => service_restart("${jetty_service_name}");
-    rudder_system_restart_apache::
+    rudder_server_system_restart_apache::
       "restart_jetty_password" usebundle => service_reload("${apache_service}");
-    rudder_system_restart_relayd::
+    rudder_server_system_restart_relayd::
       "restart_jetty_password" usebundle => service_reload("${relayd_service}");
     pass3::
       "restart_jetty_password" usebundle => enable_reporting;
