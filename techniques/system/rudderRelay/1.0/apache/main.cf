@@ -18,7 +18,4 @@ bundle agent system_rudder_apache_configuration {
 
       "any" usebundle => _method_reporting_context("Apache service", "Enabled");
       "any" usebundle => service_enabled("${apache_service}");
-
-      # Configure relayd
-      #"any" usebundle => rudder_system_relayd_configuration;
 }
