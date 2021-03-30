@@ -32,16 +32,16 @@ bundle agent reload_rudder_services {
       "result_na"  expression => "any";
 
   methods:
-      "restart_jetty_password" usebundle => disable_reporting;
-      "restart_jetty_password" usebundle => _method_reporting_context("Reload rudder services", "None");
+      "any" usebundle => disable_reporting;
+      "any" usebundle => _method_reporting_context("Reload rudder services", "None");
     rudder_server_system_restart_jetty::
-      "restart_jetty_password" usebundle => service_restart("${jetty_service_name}");
+      "any" usebundle => service_restart("${jetty_service_name}");
     rudder_server_system_restart_apache::
-      "restart_jetty_password" usebundle => service_reload("${apache_service}");
+      "any" usebundle => service_reload("${apache_service}");
     rudder_server_system_restart_relayd::
-      "restart_jetty_password" usebundle => service_reload("${relayd_service}");
+      "any" usebundle => service_reload("${relayd_service}");
     pass3::
-      "restart_jetty_password" usebundle => enable_reporting;
+      "any" usebundle => enable_reporting;
 
       # Reporting
       "report_error"   usebundle  => rudder_common_report("${technique_name}", "result_error", "${server_roles_common.directiveId}", "${component_name}", "None", "${report_string}"),
