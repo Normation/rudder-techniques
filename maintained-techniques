@@ -31,6 +31,7 @@ system/inventory/1.0
 system/rudderApache/1.0
 system/rudderPostgresql/1.0
 system/rudderRelay/1.0
+system/rudderSlapd/1.0
 system/rudderWebapp/1.0
 system/server-roles/1.0
 systemSettings/misc/clockConfiguration/3.2
