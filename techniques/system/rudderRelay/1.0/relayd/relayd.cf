@@ -1,0 +1,47 @@
+####################################################################################
+# Copyright 2021 Normation SAS
+####################################################################################
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, Version 3.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+#####################################################################################
+bundle common rudder_relayd {
+  vars:
+      "config_dir"          string => "${g.rudder_base}/etc/relayd";
+      "config_file"         string => "${config_dir}/main.conf";
+      "config_log_file"     string => "${config_dir}/logging.conf";
+      "service_name"        string => "rudder-relayd";
+}
+bundle agent system_rudder_relay_configuration {
+  vars:
+      "config_class_prefix" string => canonify("file_from_template_${rudder_relayd.config_file}");
+      "component"           string => "rudder-relayd service";
+
+  classes:
+      # Restart relayd at the end of the technique if needed
+      "system_restart_relayd" expression => "${config_class_prefix}_repaired",
+                                   scope => "namespace";
+  methods:
+      "any" usebundle => _method_reporting_context("${component}", "Configuration permissions");
+      "any" usebundle => permissions_recursive("${rudder_relayd.config_dir}", "640", "root", "rudder");
+
+      "any" usebundle => _method_reporting_context("${component}", "Configuration");
+      "any" usebundle => file_from_template_mustache("${this.promise_dirname}/relayd.conf.tpl", "${rudder_relayd.config_file}");
+
+      "any" usebundle => _method_reporting_context("${component}", "Started");
+      "any" usebundle => service_started("${rudder_relayd.service_name}");
+
+      "any" usebundle => _method_reporting_context("${component}", "Enabled");
+      "any" usebundle => service_enabled("${rudder_relayd.service_name}");
+
+}

@@ -1,0 +1,33 @@
+<TECHNIQUE name="Rudder relay">
+  <DESCRIPTION>Configure the relay components</DESCRIPTION>
+  <SYSTEM>true</SYSTEM>
+
+  <FILES>
+    <FILE name="relayd/relayd.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="relayd/relayd.conf.tpl">
+      <OUTPATH>rudderRelay/1.0/relayd/relayd.conf.tpl</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+  </FILES>
+
+  <BUNDLES>
+    <NAME>system_rudder_relay_configuration</NAME>
+  </BUNDLES>
+
+  <SYSTEMVARS>
+    <NAME>RUDDER_SERVER_ROLES</NAME>
+  </SYSTEMVARS>
+
+  <SECTIONS>
+    <SECTION name="rudder-relayd service" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE>Configuration permissions</VALUE>
+        <VALUE>Configuration</VALUE>
+        <VALUE>Enabled</VALUE>
+        <VALUE>Started</VALUE>
+      </REPORTKEYS>
+    </SECTION>
+  </SECTIONS>
+</TECHNIQUE>
