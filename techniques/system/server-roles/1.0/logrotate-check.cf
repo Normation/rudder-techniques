@@ -6,7 +6,6 @@ bundle agent root_logrotate_check
       "syslog_group"     string => "root";
       "syslog_file_mode" string => "640";
 
-      "service_restart_utility" string => "/sbin/service";
       "apache_service_name"     string => "apache2";
       "syslog_service_name"     string => "rsyslog";
       "syslog_rotation_method"  string => "reload";
@@ -25,9 +24,6 @@ bundle agent root_logrotate_check
       "apache_service_name"     string => "httpd";
     SuSE::
       "syslog_service_name"     string => "syslog";
-
-    debian|ubuntu::
-      "service_restart_utility" string => "/usr/sbin/service";
 
     debian::
       "syslog_rotation_method"  string => "rotate";
