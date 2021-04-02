@@ -2,7 +2,7 @@
 bundle common system_common {
   vars:
     "directiveId"           string => "&TRACKINGKEY&";
-    "sharedfiles_folder"    string => "&SHARED_FILES_FOLDER&";
+    "sharedfiles_folder"    string => "${g.shared_files}";
     "cf_serverd_port"       string => "&COMMUNITYPORT&";
     "community_port"        string => "${server_info.policy_server_port}";
     "uuid"                  string => "&UUID&";
