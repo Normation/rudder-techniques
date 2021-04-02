@@ -61,6 +61,12 @@
     <SECTION name="Synchronize files" component="true"/>
     <SECTION name="Synchronize resources" component="true"/>
     <SECTION name="Send inventories to Rudder server" component="true"/>
-    <SECTION name="Configure apache ACL" component="true"/>
+    <SECTION name="Configure apache ACL" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE>Permissions</VALUE>
+        <VALUE>Apache ACL</VALUE>
+        <VALUE>Relayd ACL</VALUE>
+      </REPORTKEYS>
+    </SECTION>
   </SECTIONS>
 </TECHNIQUE>
