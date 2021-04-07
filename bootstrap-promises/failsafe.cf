@@ -113,12 +113,12 @@ bundle agent update
         action => immediate;
 
     config_error|ncf_common_error::
-      "*********************************************************************************
-* rudder-agent could not get an its configuration from the policy server.       *
+      "******************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by:                                                        *
 *   * a networking issue                                                        *
 *   * an unavailable server                                                     *
-*   * if the node's IP in not if the allowed networks of its policy server.     *
+*   * if the node's IP is not in the allowed networks of its policy server.     *
 *********************************************************************************"
         action => immediate;
 }
