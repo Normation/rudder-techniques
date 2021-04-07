@@ -262,20 +262,20 @@ bundle agent update_action
   reports:
     # We want to have always reports if something goes bad
     rudder_ncf_hash_update_error::
-      "*********************************************************************************
+      "******************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by:                                                        *
 *   * a networking issue                                                        *
 *   * an unavailable server                                                     *
-*   * the node changed policy server without running
-*     'rudder agent server-keys-reset'
-*   * if the node's IP in not if the allowed networks of its policy server.     *
+*   * the node changed policy server without running                            *
+*     'rudder agent server-keys-reset'                                          *
+*   * if the node's IP is not in the allowed networks of its policy server.     *
 * Any existing configuration policy will continue to be applied without change. *
 *********************************************************************************"
       action => immediate;
 
      !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error).!ncf_only::
-       "*********************************************************************************
+       "******************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by:                                                        *
 *   * an agent key that has been changed                                        *
