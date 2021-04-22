@@ -207,11 +207,13 @@ bundle agent sendInventoryToCmdb
       "pass2" expression => "pass1";
       "pass1" expression => "any";
       "disable_upload" expression => fileexists("/opt/rudder/etc/no_inventory_upload");
+      "have_client" expression => fileexists("/opt/rudder/bin/rudder-client");
 
   files:
     # send inventories from relay to server via webdav
-    !disable_upload.policy_server.!root_server::
+    !disable_upload.policy_server.!root_server.!have_client:: 
 
+      # remove this when 6.2 agent are not supported anymore
       "${g.rudder_inventories}/incoming"
         transformer => "${g.rudder_curl} --tlsv1.2 ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user rudder:rudder --upload-file ${this.promiser} https://${server_info.policy_server}/inventories/",
         depth_search => recurse_visible(1),
@@ -219,8 +221,25 @@ bundle agent sendInventoryToCmdb
         classes => classes_generic("rudder_inventory_relay"),
         comment => "Sending an inventory to the root server";
 
+      # remove this when 6.2 agent are not supported anymore
       "${g.rudder_inventories}/accepted-nodes-updates"
         transformer => "${g.rudder_curl} --tlsv1.2 ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${this.promiser} https://${server_info.policy_server}/inventory-updates/",
+        depth_search => recurse_visible(1),
+        file_select => all_inventory_files,
+        classes => classes_generic("rudder_inventory_relay"),
+        comment => "Sending an inventory to the root server";
+
+    !disable_upload.policy_server.!root_server.have_client::
+
+      "${g.rudder_inventories}/incoming"
+        transformer => "/opt/rudder/bin/rudder-client -e /inventories/ -u rudder:rudder -- --upload-file ${this.promiser}",
+        depth_search => recurse_visible(1),
+        file_select => all_inventory_files,
+        classes => classes_generic("rudder_inventory_relay"),
+        comment => "Sending an inventory to the root server";
+
+      "${g.rudder_inventories}/accepted-nodes-updates"
+        transformer => "/opt/rudder/bin/rudder-client -e /inventory-updates/ -- --upload-file ${this.promiser}",
         depth_search => recurse_visible(1),
         file_select => all_inventory_files,
         classes => classes_generic("rudder_inventory_relay"),

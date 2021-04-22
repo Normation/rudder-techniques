@@ -2,7 +2,9 @@ bundle agent send_rudder_report(path) {
   vars:
       "c_path"   string => canonify("${path}");
       "endpoint" string => "https://${server_info.policy_server}/reports/";
-      "command"  string => "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file";
+
+  classes:
+      "have_client" expression => fileexists("/opt/rudder/bin/rudder-client");
 
   files:
       "${path}" 
@@ -18,7 +20,13 @@ bundle agent send_rudder_report(path) {
                    if => "tidy_report_${c_path}_error";
 
   commands:
-      "${command} ${path} ${endpoint}"
+    !have_client::
+      # remove this when 6.2 agent are not supported anymore
+      "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${path} ${endpoint}"
+        classes => classes_generic_two("send_report_${c_path}", "send_rudder_reports");
+
+    have_client::
+      "/opt/rudder/bin/rudder-client -e /reports/ -- --upload-file ${path}"
         classes => classes_generic_two("send_report_${c_path}", "send_rudder_reports");
 }
 
