@@ -162,7 +162,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
 
       # check if user set a gid or a group name
-      "usermanagement_user_group_is_gid_${usergroup_user_index}"   expression => regcmp("[0-9]+", "usergroup_user_fullname[${usergroup_user_index}]"),
+      "usermanagement_user_group_is_gid_${usergroup_user_index}"   expression => regcmp("[0-9]+", "${usergroup_user_groupname[${usergroup_user_index}]}"),
                                                                    ifvarclass => "!usermanagement_user_groupempty_${usergroup_user_index}";
 
       "usermanagement_force_user_group_${usergroup_user_index}"    expression =>  strcmp("true", "${usergroup_force_user_groupname[${usergroup_user_index}]}");
