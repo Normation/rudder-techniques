@@ -13,7 +13,7 @@ bundle agent user_cron_configuration_&RudderUniqueID&
     &USER_CRON_USER:{cron_user |"cron_user[&i&]" string => "&cron_user&";
 }&
 
-    &USER_CRON_COMMAND:{cron_command |"cron_command[&i&]" string => "&cron_command&";
+&USER_CRON_COMMAND:{cron_command |"cron_command[&i&]" string => "&cron_command&";
 }&
 
     &USER_CRON_FREQUENCY:{cron_frequency |"cron_frequency[&i&]" string => "&cron_frequency&";
