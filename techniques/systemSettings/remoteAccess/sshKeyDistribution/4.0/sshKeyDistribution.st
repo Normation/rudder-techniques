@@ -41,7 +41,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
       # Canonified name is necessary for hooks and class definitions. A login may contains a dash
       &SSH_KEY_DISTRIBUTION_NAME:{distribution_name |"sshkey_distribution_c_name[&i&]" string => canonify("&distribution_name&");
 }&
-      &SSH_KEY_DISTRIBUTION_KEY:{distribution_key |"sshkey_distribution_key[&i&]" string => "&distribution_key&";
+&SSH_KEY_DISTRIBUTION_KEY:{distribution_key |"sshkey_distribution_key[&i&]" string => "&distribution_key&";
 }&
       &SSH_KEY_DISTRIBUTION_EDIT_TYPE:{distribution_edit_type |"sshkey_distribution_edit_type[&i&]" string => "&distribution_edit_type&";
 }&
