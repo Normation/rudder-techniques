@@ -26,7 +26,7 @@ bundle agent check_cron_configuration
     &CRON_NAME:{cron_name |"cron_name[&i&]" string => "&cron_name&";
 }&
 
-    &CRON_COMMAND:{cron_command |"cron_command[&i&]" string => "&cron_command&";
+&CRON_COMMAND:{cron_command |"cron_command[&i&]" string => "&cron_command&";
 }&
 
     &CRON_USER:{cron_user |"cron_user[&i&]" string => "&cron_user&";
