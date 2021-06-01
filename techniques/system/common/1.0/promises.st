@@ -443,7 +443,7 @@ bundle agent check_log_system
   commands:
 
     rsyslogd_conffile_present.check_rsyslog_version_present::
-      # 5.6.4 is the first version mentionning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
+      # 5.6.4 is the first version mentioning RepeatedMsgReduction in http://www.rsyslog.com/change-log/
       # The option is probably older though.
       "/bin/sh ${this.promise_dirname}/common/1.0/check-rsyslog-version 5.6.4"
         contain => in_shell,

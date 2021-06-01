@@ -102,7 +102,7 @@ bundle agent runhook_package(json) {
 ########################################################
 
 # This is a pre hook for sudoParameters
-# If any of report mode is enforce, then it will effectively check /etc/sudoers existance, and copy it to /etc/sudoers.rudder
+# If any of report mode is enforce, then it will effectively check /etc/sudoers existence, and copy it to /etc/sudoers.rudder
 # If all are in audit mode, then it won't do anything
 # This method does not report at all
 bundle agent runhook_sudo_pre_hook(json) {

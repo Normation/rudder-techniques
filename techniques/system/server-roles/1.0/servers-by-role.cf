@@ -1,6 +1,6 @@
 # Read the rudder-server-roles.conf, and extract for each roles which server has it
 # It defines two arrays:
-# roles[role_name]: contains the prefered server with this role
+# roles[role_name]: contains the preferred server with this role
 # roles[role_name][all]: contains the list of servers with this role
 bundle common rudder_servers_by_role
 {

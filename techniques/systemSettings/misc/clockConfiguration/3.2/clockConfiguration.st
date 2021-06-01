@@ -50,7 +50,7 @@ bundle agent check_clock_configuration
         edit_defaults => noempty_backup,
         classes => kept_if_else("ntpconf_kept", "repaired_ntpconf", "not_repaired_ntpconf");
 
-    # Copy the correct localtime file (distro independant)
+    # Copy the correct localtime file (distro independent)
     !aix.!clock_timezone_noedit::
       "/etc/localtime"
         copy_from => digest_cp("/usr/share/zoneinfo/${linux_timezone}"),

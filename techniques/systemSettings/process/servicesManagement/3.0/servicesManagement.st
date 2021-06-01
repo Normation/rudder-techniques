@@ -73,7 +73,7 @@ bundle agent services_management
       "start_process"       usebundle => service_start("${service[${index}][name]}"),
                            ifvarclass => "(process_${index}_restart).start_process_${index}.defined_process_name_${index}";
 
-    # Stop process is used only when a "gracefull" stop is selected by the user
+    # Stop process is used only when a "graceful" stop is selected by the user
       "stop_process"        usebundle => service_stop("${service[${index}][name]}"),
                            ifvarclass => "(!process_${index}_restart).(stop_process_${index}.!service_${index}_already_stopped).defined_process_name_${index}";
 

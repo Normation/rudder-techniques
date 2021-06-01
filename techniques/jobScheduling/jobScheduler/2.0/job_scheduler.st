@@ -72,7 +72,7 @@ bundle agent job_scheduler
 
       "any" usebundle => rudder_common_report_index("jobScheduler", "log_info", "${job_scheduler_uuids[${iterator}]}", "Job", "${job_scheduler_command[${iterator}]}", "Job has been launched (${job_scheduler_command[${iterator}]}), result will be reported on next run", "${iterator}"),
         ifvarclass => "job_scheduler_${all_hours}_${iterator}.Hr${all_hours}.job_scheduler_random_time.!job_scheduler_lock_${iterator}",
-        # we define here the persistent class, as the command exection is done on the last iteration
+        # we define here the persistent class, as the command execution is done on the last iteration
         comment    => "Define a persistent class to prevent multiple job executions",
         classes    => rudder_always_classes_persist("job_scheduler_lock_${iterator}", "5");
 

@@ -13,8 +13,8 @@
 # The merge is a first level merge done at the namespace level.
 # This means that:
 # - a key in a namespace is fully overridden by the same key in the same namespace in a later file.
-# - a key in a namespace is never overriden by the same key in a different namespace
-# - a key that is overriden never retain original data even if it is a data container itself
+# - a key in a namespace is never overridden by the same key in a different namespace
+# - a key that is overridden never retain original data even if it is a data container itself
 # 
 
 # The result key is available in the node.<namespace> data variable
@@ -59,7 +59,7 @@ bundle common properties
     "node.${namespace[${sorted_files}]}" data => mergedata("node.${namespace[${sorted_files}]}",
                                                            "property_${file_id[${sorted_files}]}[${namespace[${sorted_files}]}]");
 
-    # That's all, now we have a node.namespace data that contains the overriden values
+    # That's all, now we have a node.namespace data that contains the overridden values
 }
 
 # Read the inventories variables from Rudder
