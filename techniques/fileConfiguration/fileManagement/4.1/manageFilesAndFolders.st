@@ -111,14 +111,14 @@ bundle agent manageFilesAndFolders_&RudderUniqueID& {
     "${file[${index}][path]}/."
       create     => "true",
       classes    => classes_generic("manageFolders_${index}_&RudderUniqueID&"),
-      comment    => "Enforcing the existance of folder ${file[${index}][path]}",
+      comment    => "Enforcing the existence of folder ${file[${index}][path]}",
       ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createfile_${index}.manageFilesAndFolders_createdir_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
     # File
     "${file[${index}][path]}"
       create     => "true",
       classes    => classes_generic("manageFiles_${index}_&RudderUniqueID&"),
-      comment    => "Enforcing the existance of file ${file[${index}][path]}",
+      comment    => "Enforcing the existence of file ${file[${index}][path]}",
       ifvarclass => "(!manageFilesAndFolders_nocreate_${index}.!manageFilesAndFolders_createdir_${index}.manageFilesAndFolders_createfile_${index}).!manageFilesAndFolders_local_cp_${index}.!manageFilesAndFolders_createsymlink_${index}";
 
     # Local copy
@@ -353,7 +353,7 @@ bundle agent manageFilesAndFolders_&RudderUniqueID& {
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_repaired", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "Post-execution hook successfully run", "${index}"),
            ifvarclass => "manageFilesAndFolders_${index}_&RudderUniqueID&_command_run_ok";
 
-      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "An error occured when running the post-execution hook", "${index}"),
+      "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_error", "${file[${index}][uuid]}", "Post-modification hook", "${file[${index}][path]}", "An error occurred when running the post-execution hook", "${index}"),
         ifvarclass => "manageFilesAndFolders_${index}_&RudderUniqueID&_command_run_failed";
 
   commands:

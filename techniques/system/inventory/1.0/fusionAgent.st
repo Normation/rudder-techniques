@@ -47,7 +47,7 @@ bundle agent doInventory_always
 
   vars:
 
-    uuid_succesfully_downloaded::
+    uuid_successfully_downloaded::
       "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
 
   classes:
@@ -55,7 +55,7 @@ bundle agent doInventory_always
       "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory"),
                              scope => "namespace";
 
-    uuid_succesfully_downloaded::
+    uuid_successfully_downloaded::
       "uuid_valid" expression => regcmp("[a-z0-9-]+","${policy_server_uuid}");
       "uuid_validity_checked"
         expression => "any",
@@ -91,7 +91,7 @@ bundle agent doInventory_always
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
 
-    pass3.uuid_succesfully_downloaded.uuid_validity_checked.!uuid_valid::
+    pass3.uuid_successfully_downloaded.uuid_validity_checked.!uuid_valid::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve a valid UUID from the policy server");
 
     # Send reports to confirm this technique success even if we don't need to send an inventory
@@ -122,7 +122,7 @@ bundle agent download_server_uuid
     have_client::
       "/opt/rudder/bin/rudder-client -e /uuid -- --output \"${sys.workdir}/rudder-server-uuid.txt\""
         comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+        classes => if_else("uuid_successfully_downloaded","could_not_download_uuid");
 
 }
 

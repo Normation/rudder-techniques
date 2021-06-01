@@ -112,7 +112,7 @@
       <SELECT1>
         <NAME>FSTAB_ATIME</NAME>
         <DESCRIPTION>Update inode access time on access ("atime/relatime/noatime")</DESCRIPTION>
-        <LONGDESCRIPTION>If set to "No", there is a fair chance that your incremental backup sofware will fail. "Only if modified" is recommended</LONGDESCRIPTION>
+        <LONGDESCRIPTION>If set to "No", there is a fair chance that your incremental backup software will fail. "Only if modified" is recommended</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>
           <VALUE>atime</VALUE>

@@ -27,7 +27,7 @@ then
   EXIT=1
 fi
 
-# Check that the non-existant log level "log_error" is never used
+# Check that the non-existent log level "log_error" is never used
 find ${REPOSITORY_PATH} -type f -name "*.st" | while read filename
 do
   if grep -rHn '"log_error"' "$filename" > /dev/null
@@ -69,7 +69,7 @@ do
   fi
 done || EXIT=1
 
-# Check that we are not using the non-existant class cfengine_community
+# Check that we are not using the non-existent class cfengine_community
 find ${REPOSITORY_PATH} -type f -name "*.st" -or -name "*.cf" | while read filename
 do
   if egrep -q '^[^#]*cfengine_community' "${filename}"; then

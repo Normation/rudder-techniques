@@ -74,7 +74,7 @@
       </SELECT1>
       <SELECT1>
         <NAME>NFS_CLIENT_ADDFSTAB</NAME>
-        <DESCRIPTION>Persist mount accross reboot</DESCRIPTION>
+        <DESCRIPTION>Persist mount across reboot</DESCRIPTION>
         <LONGDESCRIPTION>Include it in /etc/fstab</LONGDESCRIPTION>
         <ITEM>
           <LABEL>Yes</LABEL>

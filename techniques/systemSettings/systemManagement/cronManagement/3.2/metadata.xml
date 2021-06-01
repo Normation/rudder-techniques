@@ -1,5 +1,5 @@
 <TECHNIQUE name="Cron jobs">
-  <DESCRIPTION>This technique enables you to set tasks (or "jobs") that will be launched regularily using crond.</DESCRIPTION>
+  <DESCRIPTION>This technique enables you to set tasks (or "jobs") that will be launched regularly using crond.</DESCRIPTION>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
 

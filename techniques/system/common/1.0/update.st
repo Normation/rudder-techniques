@@ -202,7 +202,7 @@ bundle agent update_action
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
         comment           => "Update the local Rudder ncf instance";
 
-    # do not copy potentialy incompatible ncf if inputs are not up to date
+    # do not copy potentially incompatible ncf if inputs are not up to date
     !root_server.(availability_checked.!no_update)::
       # Check if the hashes of ncf changed
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"

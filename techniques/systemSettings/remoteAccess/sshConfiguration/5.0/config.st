@@ -241,7 +241,7 @@ bundle agent rudder_openssh_server
       usebundle  => rudder_common_report("${rudder_openssh_server_service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${rudder_openssh_server_service_name} parameter \"address family\" isn't implemented on Red Hat/CentOS/SuSE/Debian 3 and 4"),
       ifvarclass => "rudder_openssh_server_address_family_edit.(debian_3|redhat_3|redhat_4|centos_3|centos_4)";
     "any"
-      usebundle  => rudder_common_report("${rudder_openssh_server_service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${rudder_openssh_server_service_name} parameter \"maximum authentication attemps per connection\" isn't implemented on Red Hat/CentOS"), 
+      usebundle  => rudder_common_report("${rudder_openssh_server_service_name}", "log_warn", "&TRACKINGKEY&", "SSH configuration", "None", "The ${rudder_openssh_server_service_name} parameter \"maximum authentication attempts per connection\" isn't implemented on Red Hat/CentOS"), 
       ifvarclass => "rudder_openssh_server_max_auth_tries_edit.(redhat_3|centos_3|debian_3)";
 
     "any"

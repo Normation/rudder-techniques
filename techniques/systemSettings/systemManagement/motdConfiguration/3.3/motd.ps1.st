@@ -42,6 +42,6 @@ function defineReportMessageMotd {
         "audit_noncompliant" { "The welcome message is not compliant" }
         "audit_error" { "Error: the welcome message is not compliant" }
         "audit_na" { "The welcome message was not set to be changed" }
-        default { "Unknwon status for welcome message" }
+        default { "Unknown status for welcome message" }
     }
 }
