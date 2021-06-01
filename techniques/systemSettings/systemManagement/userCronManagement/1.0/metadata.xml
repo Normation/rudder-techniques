@@ -1,5 +1,5 @@
 <TECHNIQUE name="User Cron jobs">
-  <DESCRIPTION>This technique enables you to set jobs that will be launched regularily using crond for users, in /var/spool/cron/crontab
+  <DESCRIPTION>This technique enables you to set jobs that will be launched regularly using crond for users, in /var/spool/cron/crontab
   It supports both Linux, AIX and Solaris.</DESCRIPTION>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
