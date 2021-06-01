@@ -117,7 +117,7 @@ bundle agent download_server_uuid
       # remove this when 6.2 agent are not supported anymore
       "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --silent --fail --proxy '' --output \"${sys.workdir}/rudder-server-uuid.txt\" https://${server_info.p  olicy_server}/uuid"
         comment => "Getting the uuid from the server",
-        classes => if_else("uuid_succesfully_downloaded","could_not_download_uuid");
+        classes => if_else("uuid_successfully_downloaded","could_not_download_uuid");
 
     have_client::
       "/opt/rudder/bin/rudder-client -e /uuid -- --output \"${sys.workdir}/rudder-server-uuid.txt\""
