@@ -129,7 +129,7 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
   files:
     pass2::
       # Edit the file
-      # Defines classes for the file edition globaly, as it can be globally kept even if part are modified
+      # Defines classes for the file edition globally, as it can be globally kept even if part are modified
       # (for instance, section edition have a global status kept, but several repaired status)
 
       # Note: it is too hard to make a single bundle for editing this file, with support of zone edition and non zone edition 

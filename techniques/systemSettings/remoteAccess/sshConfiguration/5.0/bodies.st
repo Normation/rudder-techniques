@@ -1,6 +1,6 @@
 #
 # Configure the port numbers/listen addresses in the OpenSSH configuration file
-# The first arguement is the name of parameter in the config file, second is the values (either a string or a slist)
+# The first argument is the name of parameter in the config file, second is the values (either a string or a slist)
 #
 bundle edit_line rudder_openssh_server_parameters_configuration(parameter_name, values)
 {

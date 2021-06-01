@@ -41,7 +41,7 @@ function fileTemplate_&RudderUniqueID& {
       $componentName = "Templates location"
       #Check for templates folder
       $local_classes = Merge-ClassContext $local_classes $(Directory-Create -target $templatesFolder -ReportId $trackingkey[$i] -componentName $componentName -componentKey $destinations[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true)
-      #No need to check for permissions, they are well defined by the inheritence of Rudder folder
+      #No need to check for permissions, they are well defined by the inheritance of Rudder folder
       if ($isRaws[$i] -eq "Raw") {
         #First, write the input in a file
         $componentName = "Load Template from a file or text input"

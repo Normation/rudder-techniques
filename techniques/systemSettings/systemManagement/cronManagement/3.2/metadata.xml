@@ -1,5 +1,5 @@
 <TECHNIQUE name="Cron jobs">
-  <DESCRIPTION>This technique enables you to set tasks (or "jobs") that will be launched regularily using crond.</DESCRIPTION>
+  <DESCRIPTION>This technique enables you to set tasks (or "jobs") that will be launched regularly using crond.</DESCRIPTION>
   <COMPATIBLE>
     <OS version="System V and related">UNIX</OS>
     <AGENT version=">= 3.10.0">cfengine-community</AGENT>
