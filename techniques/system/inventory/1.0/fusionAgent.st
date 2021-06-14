@@ -26,9 +26,9 @@ bundle agent doInventory
 {
   vars:
     resend_inventory::
-      "cant_send_inventory" string => "undefine", 
+      "cant_send_inventory" string => "undefine",
                             classes => cancel_all_classes("cant_send_inventory");
-      
+
   classes:
       "disable_inventory" expression => fileexists("${g.rudder_disable_inventory_file}");
 
@@ -115,7 +115,7 @@ bundle agent download_server_uuid
   commands:
     !have_client::
       # remove this when 6.2 agent are not supported anymore
-      "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --silent --fail --proxy '' --output \"${sys.workdir}/rudder-server-uuid.txt\" https://${server_info.p  olicy_server}/uuid"
+      "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --silent --fail --proxy '' --output \"${sys.workdir}/rudder-server-uuid.txt\" https://${server_info.policy_server}/uuid"
         comment => "Getting the uuid from the server",
         classes => if_else("uuid_successfully_downloaded","could_not_download_uuid");
 
