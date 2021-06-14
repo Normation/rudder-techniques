@@ -180,17 +180,17 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
       # No line migrations
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_&RudderUniqueID&_kept.!file_content_${index}_&RudderUniqueID&_repaired)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error)).!(file_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
+        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_&RudderUniqueID&_kept.!file_content_${index}_&RudderUniqueID&_repaired).(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error)).!(file_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.file_content_${index}_&RudderUniqueID&_repaired.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error";
+        ifvarclass => "!migrate_to_zone_${index}.(file_content_${index}_&RudderUniqueID&_repaired|file_edition_global_files_status_${index}_&RudderUniqueID&_repaired).!file_edition_global_files_status_${index}_&RudderUniqueID&_error";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated", "${index}"),
         ifvarclass => "!migrate_to_zone_${index}.(file_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
       # if we want to migrate lines
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_&RudderUniqueID&_kept.!file_content_${index}_&RudderUniqueID&_repaired.delete_out_of_zone_content_${index}_&RudderUniqueID&_kept.!delete_out_of_zone_content_${index}_&RudderUniqueID&_repaired)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error))";
+        ifvarclass => "migrate_to_zone_${index}.!no_edit_content_${index}.((file_content_${index}_&RudderUniqueID&_kept.!file_content_${index}_&RudderUniqueID&_repaired.delete_out_of_zone_content_${index}_&RudderUniqueID&_kept.!delete_out_of_zone_content_${index}_&RudderUniqueID&_repaired).(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
         ifvarclass => "migrate_to_zone_${index}.(file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error).(file_content_${index}_&RudderUniqueID&_repaired|delete_out_of_zone_content_${index}_&RudderUniqueID&_repaired)";
@@ -215,13 +215,13 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
         ifvarclass => "!delete_lines_${index}.!file_nothing_to_do_${index}";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the deletion policy", "${index}"),
-        ifvarclass => "delete_lines_${index}.((file_content_deletion_${index}_&RudderUniqueID&_kept.!file_content_deletion_${index}_&RudderUniqueID&_repaired.!content_deletion_${index}_&RudderUniqueID&_error)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired))";
+        ifvarclass => "delete_lines_${index}.((file_content_deletion_${index}_&RudderUniqueID&_kept.!file_content_deletion_${index}_&RudderUniqueID&_repaired.!file_content_deletion_${index}_&RudderUniqueID&_error)|(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired))";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated using the deletion policy", "${index}"),
-        ifvarclass => "content_deletion_${index}_&RudderUniqueID&_repaired.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired";
+        ifvarclass => "file_content_deletion_${index}_&RudderUniqueID&_repaired.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "Line deletion regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated using the deletion policy", "${index}"),
-        ifvarclass => "content_deletion_${index}_&RudderUniqueID&_error";
+        ifvarclass => "file_content_deletion_${index}_&RudderUniqueID&_error";
 
       # Files edition - replacement
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_na", "${generic_file_content_uuid[${index}]}", "Line replacement regular expressions", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} does not exists and is not configured to be created", "${index}"),
