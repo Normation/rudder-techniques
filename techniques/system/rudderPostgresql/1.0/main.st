@@ -15,7 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #####################################################################################
-bundle common rudder_postgreql {
+bundle common rudder_postgresql {
   vars:
     # sles 12, sp1 and sp2 don't have by default a systemd postgresql
     !(sles_12_0|sles_12_1|sles_12_2)::

@@ -28,7 +28,7 @@ bundle agent system_rudder_postgresql(trackingkey, technique_name, db_pass) {
       "pgpass[2]" string => "5432";
       "pgpass[3]" string => "${rudder_postgresql.db_user}";
       "pgpass[4]" string => "${rudder_postgresql.db_name}";
-      "pgpass[5]" string => "${rudder_postgresql.db_pass}";
+      "pgpass[5]" string => "${db_pass}";
 
   classes:
       "pass3" expression => "pass2";
@@ -41,7 +41,7 @@ bundle agent system_rudder_postgresql(trackingkey, technique_name, db_pass) {
     # ensure password access is forbidden
       "${root_home_path}/.pgpass"
         create    => "true",
-        edit_line => rudder_system_pgpass_password("pgpass"),
+        edit_line => rudder_system_pgpass_password("${this.bundle}.pgpass"),
         perms     => mog("600", "root", "0"),
         classes   => classes_generic("rudder_postgres_pgpass");
 
