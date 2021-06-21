@@ -62,7 +62,7 @@
       </SELECT1>
       <SELECT1>
         <NAME>USERGROUP_USER_PASSWORD_POLICY</NAME>
-        <DESCRIPTION>How often do you want to want to check the password</DESCRIPTION>
+        <DESCRIPTION>How often do you want to check the password</DESCRIPTION>
         <ITEM>
           <LABEL>At account creation</LABEL>
           <VALUE>oneshot</VALUE>
@@ -108,7 +108,7 @@
           </CONSTRAINT>
         </INPUT>
       </SECTION>
-    <SECTION name="UNIX specific options" multivalued="false" component="false" componentKey="USERGROUP_USER_LOGIN" displayPriority="low">
+    <SECTION name="UNIX specific options" multivalued="false" component="false" componentKey="USERGROUP_USER_LOGIN">
       <INPUT>
         <NAME>USERGROUP_USER_GROUP</NAME>
         <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
