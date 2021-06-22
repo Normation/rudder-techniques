@@ -390,13 +390,13 @@ bundle agent runhook_sshKeyDistribution_pre_hook(json) {
 
       # get the home dir for each users
       # Only Linuxes (not Slackware), Solaris and FreeBSD support PAM/getent
-    pass1.(linux.!slackware)|solaris|freebsd::
+    pass1.agent.(linux.!slackware)|solaris|freebsd::
 
       "userdata_${c_data_userlist[${bundles}_${array[${bundles}]}]}"
         string  => execresult("/usr/bin/getent passwd ${data_userlist[${bundles}_${array[${bundles}]}]}", "noshell");
 
       # On systems without PAM, directly read entries from /etc/passwd instead (compatibility)
-    pass1.!((linux.!slackware)|solaris|freebsd)::
+    pass1.agent.!((linux.!slackware)|solaris|freebsd)::
 
       "userdata_${c_data_userlist[${bundles}_${array[${bundles}]}]}"
         string  => execresult("/usr/bin/grep ^${data_userlist[${bundles}_${array[${bundles}]}]}: /etc/passwd", "noshell");
