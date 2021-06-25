@@ -3,6 +3,7 @@
 bundle agent get_environment_variables
 {
   vars:
+    agent::
       "env_vars_list_cmd" string => "awk 'BEGIN { for (k in ENVIRON) { print k }; }'";
       "env_vars" slist => splitstring( execresult("${env_vars_list_cmd}","useshell"), "\n" , 2000);
       "node.env[${env_vars}]" string => getenv( "${env_vars}", 5000);
