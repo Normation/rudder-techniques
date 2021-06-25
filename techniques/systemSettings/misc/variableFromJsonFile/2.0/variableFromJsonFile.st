@@ -35,7 +35,8 @@ bundle agent variable_from_json_file
     # string template implementation in the webapp
     "cmd" string => "/usr/bin/uniq << EOF ${const.n}&TRACKINGKEY:{piuuid |&piuuid&};separator="${const.n}"&${const.n}EOF${const.n}"; 
 
-    "long_keys" string => execresult("${cmd}", "useshell");
+    "long_keys" string => execresult("${cmd}", "useshell"),
+                    if => "agent";
     "long_keys_list" slist => splitstring("${long_keys}", "${const.n}", "999");
     "unique_keys[${variable_index}]" string => nth("long_keys_list", "${index_from_zero[${variable_index}]}");
 

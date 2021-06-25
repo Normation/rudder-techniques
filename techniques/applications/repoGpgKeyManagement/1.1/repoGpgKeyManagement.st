@@ -35,7 +35,7 @@ bundle agent check_repo_gpg_key_&RudderUniqueID&
 
 &GPG_KEY_CONTENT:{content |"repo_gpg_content[&i&]" string => "&content&";
 }&
-
+    agent::
       "repo_gpg_hash_lc[${keyid}]" string => execresult("${paths.echo} ${repo_gpg_hash[${keyid}]} | ${paths.tr} \"[:upper:]\" \"[:lower:]\"","useshell"),
         comment => "We need lower case to query RPM and it's also used in the apt-based module for class definition.";
 
