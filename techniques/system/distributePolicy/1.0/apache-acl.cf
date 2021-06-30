@@ -11,7 +11,7 @@ bundle agent apache_acl
       "dummy_certificate"  string => "${g.rudder_var}/lib/ssl/${ssl_ca_file}";
       "webapp_certificate" string => "${g.rudder_base}/etc/ssl/ca.cert";
 
-      "default_rudder_ca"  string => "${g.rudder_base}/etc/ssl/rudder.crt";
+      "default_rudder_ca"  string => "${g.rudder_base}/etc/ssl/agent.cert";
       "override_rudder_ca" string => "${this.promise_dirname}/${ssl_ca_file}";
 
       "ssl_ca_size"        string => filestat("${override_rudder_ca}", "size");
