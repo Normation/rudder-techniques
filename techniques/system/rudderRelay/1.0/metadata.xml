@@ -1,6 +1,8 @@
 <TECHNIQUE name="Rudder relay">
   <DESCRIPTION>Configure the relay components</DESCRIPTION>
   <SYSTEM>true</SYSTEM>
+  <MULTIINSTANCE>false</MULTIINSTANCE>
+  <USEMETHODREPORTING>true</USEMETHODREPORTING>
 
   <FILES>
     <FILE name="relayd/relayd.cf">
@@ -8,6 +10,12 @@
     </FILE>
     <FILE name="relayd/relayd.conf.tpl">
       <OUTPATH>rudderRelay/1.0/relayd/relayd.conf.tpl</OUTPATH>
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+    <FILE name="relayd/logrotate.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="relayd/relay-logrotate.mustache">
       <INCLUDED>false</INCLUDED>
     </FILE>
   </FILES>
@@ -21,12 +29,13 @@
   </SYSTEMVARS>
 
   <SECTIONS>
-    <SECTION name="rudder-relayd service" component="true" multivalued="true">
+    <SECTION name="Rudder-relayd service" component="true" multivalued="true">
       <REPORTKEYS>
         <VALUE>Configuration permissions</VALUE>
         <VALUE>Configuration</VALUE>
         <VALUE>Enabled</VALUE>
         <VALUE>Started</VALUE>
+        <VALUE>Log rotation</VALUE>
       </REPORTKEYS>
     </SECTION>
   </SECTIONS>

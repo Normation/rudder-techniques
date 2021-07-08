@@ -23,6 +23,7 @@ bundle common rudder_slapd {
 
       "config_file"  string => "${g.rudder_base}/etc/openldap/slapd.conf";
 }
+
 bundle agent system_rudder_slapd_configuration {
   vars:
 
@@ -48,6 +49,9 @@ bundle agent system_rudder_slapd_configuration {
         comment   => "Verifying the Rudder LDAP file password and user";
 
   methods:
+    # Log rotation
+      "any" usebundle => system_slapd_logrotate;
+    # Service configuration
       "any" usebundle => _method_reporting_context("Rudder slapd configuration", "Check Rudder ldap permissions");
       "any" usebundle => permissions("${rudder_slapd.config_file}", "640", "root", "${rudder_slapd.group_name}");
       "any" usebundle => _method_reporting_context("Rudder slapd service", "Started");

@@ -30,7 +30,7 @@ bundle agent system_rudder_webapp {
       # Check pgpass and db credentials
       "any" usebundle => system_compress_webapp_log;
       "any" usebundle => system_root_integrity_check("${trackingkey}", "${technique_name}");
-      "any" usebundle => system_metrics_reporting;
+      "any" usebundle => system_metrics_reporting("${trackingkey}", "${technique_name}");
       "any" usebundle => system_rudder_jetty_alive_check;
       "any" usebundle => system_rudder_webapp_properties;
 

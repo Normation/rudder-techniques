@@ -25,13 +25,17 @@ bundle common rudder_relayd {
 bundle agent system_rudder_relay_configuration {
   vars:
       "config_class_prefix" string => canonify("file_from_template_${rudder_relayd.config_file}");
-      "component"           string => "rudder-relayd service";
+      "component"           string => "Rudder-relayd service";
 
   classes:
       # Restart relayd at the end of the technique if needed
       "system_restart_relayd" expression => "${config_class_prefix}_repaired",
                                    scope => "namespace";
   methods:
+    # Log rotation
+      "any" usebundle => system_relay_logrotate;
+
+    # Service configuration
       "any" usebundle => _method_reporting_context("${component}", "Configuration permissions");
       "any" usebundle => permissions_recursive("${rudder_relayd.config_dir}", "640", "root", "rudder");
 

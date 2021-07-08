@@ -3,14 +3,22 @@
   <MULTIINSTANCE>false</MULTIINSTANCE>
   <USEMETHODREPORTING>true</USEMETHODREPORTING>
 
-  <AGENT type="cfengine-community">
-    <BUNDLES>
-      <NAME>system_rudder_slapd_configuration</NAME>
-    </BUNDLES>
-    <TMLS>
-      <TML name="main"/>
-    </TMLS>
-  </AGENT>
+  <BUNDLES>
+    <NAME>system_rudder_slapd_configuration</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="main"/>
+  </TMLS>
+
+  <FILES>
+    <FILE name="slapd-logrotate.mustache">
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+    <FILE name="logrotate.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+  </FILES>
 
   <SECTIONS>
     <SECTION name="Rudder slapd service" multivalued="true" component="true">
@@ -27,6 +35,7 @@
       <REPORTKEYS>
         <VALUE>Check Rudder ldap password</VALUE>
         <VALUE>Check Rudder ldap permissions</VALUE>
+        <VALUE>Log rotation</VALUE>
       </REPORTKEYS>
     </SECTION>
   </SECTIONS>

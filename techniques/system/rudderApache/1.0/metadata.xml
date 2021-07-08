@@ -1,11 +1,10 @@
 <TECHNIQUE name="Rudder apache">
   <DESCRIPTION>Configure the apache components</DESCRIPTION>
   <SYSTEM>true</SYSTEM>
+  <MULTIINSTANCE>false</MULTIINSTANCE>
+  <USEMETHODREPORTING>true</USEMETHODREPORTING>
 
   <FILES>
-    <FILE name="common/reload_rudder_services.cf">
-      <INCLUDED>true</INCLUDED>
-    </FILE>
     <FILE name="apache/main.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
@@ -14,6 +13,12 @@
     </FILE>
     <FILE name="apache/system_rudder_apache_webdav_configuration.cf">
       <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="apache/logrotate.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
+    <FILE name="apache/apache-logrotate.mustache">
+      <INCLUDED>false</INCLUDED>
     </FILE>
   </FILES>
 
@@ -40,6 +45,7 @@
         <VALUE>Remote run configuration</VALUE>
         <VALUE>Webdav configuration</VALUE>
         <VALUE>Webdav permissions</VALUE>
+        <VALUE>Logrotate</VALUE>
       </REPORTKEYS>
     </SECTION>
   </SECTIONS>

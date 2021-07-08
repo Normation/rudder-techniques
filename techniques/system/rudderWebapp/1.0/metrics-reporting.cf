@@ -35,7 +35,7 @@ bundle agent system_metrics_reporting(trackingkey, technique_name)
   methods:
     run_metrics.!metrics_sent::
       "any" usebundle => _method_reporting_context("${component}", "None");
-      "any" usebundle => command_execution_result("", "0", "1,255");
+      "any" usebundle => command_execution_result("${metrics_cmd}", "0", "1,255");
     run_metrics.metrics_sent::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${trackingkey}", "${component}", "None", "Metrics already sent.");
     !run_metrics::

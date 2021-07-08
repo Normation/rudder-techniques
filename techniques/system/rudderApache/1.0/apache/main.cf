@@ -29,12 +29,14 @@ bundle common rudder_apache {
 
 bundle agent system_rudder_apache_configuration {
   methods:
-      "any" usebundle => enable_reporting;
       # Force allowed networks
       "any" usebundle => system_rudder_apache_networks_configuration;
 
       # Force webdav user/password
       "any" usebundle => system_rudder_apache_webdav_configuration;
+
+      # Configure log rotation
+      "any" usebundle => system_apache_logrotate;
 
       # Check that apache is running and enabled
       "any" usebundle => _method_reporting_context("Apache service", "Started");

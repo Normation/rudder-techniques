@@ -33,7 +33,7 @@ system/rudderPostgresql/1.0
 system/rudderRelay/1.0
 system/rudderSlapd/1.0
 system/rudderWebapp/1.0
-system/server-roles/1.0
+system/serverCommon/1.0
 systemSettings/misc/clockConfiguration/3.2
 systemSettings/misc/genericCommandVariableDefinition/3.0
 systemSettings/misc/genericVariableDefinition/2.0
