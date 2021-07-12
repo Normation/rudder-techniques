@@ -1,0 +1,54 @@
+bundle agent apache_cert(trackingkey, technique_name)
+{
+  vars:
+      "component"          string => "Configure apache certificate";
+
+      "ssl_ca_file"        string => "nodescerts.pem";
+
+      "dummy_certificate"  string => "${g.rudder_var}/lib/ssl/${ssl_ca_file}";
+      "webapp_certificate" string => "${g.rudder_base}/etc/ssl/ca.cert";
+
+      "default_rudder_ca"  string => "${g.rudder_base}/etc/ssl/agent.cert";
+      "override_rudder_ca" string => "${this.promise_dirname}/${ssl_ca_file}";
+
+      "ssl_ca_size"        string => filestat("${override_rudder_ca}", "size");
+
+    pass1::
+      "src_ca_file" string => "${override_rudder_ca}",
+                ifvarclass => "!empty_ssl_ca";
+      "src_ca_file" string => "${default_rudder_ca}",
+                ifvarclass => "empty_ssl_ca";
+
+  classes:
+      "empty_ssl_ca" expression => strcmp("${ssl_ca_size}", "0");
+
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
+
+    pass2::
+      "don_t_check_permission" expression => islink("${src_ca_file}");
+
+  files:
+    pass2::
+      # For relayd, should move into relayd config after merging distributPolicy into serverRoles
+      # This certificate does not seem to be used explicitly but Apache seems to expect it to exist.
+      "${dummy_certificate}"
+        copy_from         => ncf_local_cp_method("${src_ca_file}", "digest"),
+        move_obstructions => "true",
+        classes           => classes_generic("rudder_apache_cert"),
+        comment           => "Writing rudder apache certificate";
+
+  methods:
+    pass2::
+      "any" usebundle => _rudder_common_reports_generic("${technique_name}", "rudder_apache_cert", "${trackingkey}", "${component}", "Relayd certificate", "Apache certificates");
+      # For compatibility with apache config
+      "any" usebundle => _method_reporting_context("${component}", "Apache certificate");
+      "any" usebundle => file_from_local_source_recursion("${src_ca_file}", "${webapp_certificate}", "0");
+    pass3.!don_t_check_permission::
+      "any" usebundle => _method_reporting_context("${component}", "Permissions");
+      "any" usebundle => permissions("${dummy_certificate}", "600", "root", "0");
+    pass3.don_t_check_permission::
+      "any" usebundle => rudder_common_report("${technique_name}", "result_success", "${trackingkey}", "${component}", "Permissions", "Apache certificates are correct");
+
+}

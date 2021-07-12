@@ -27,8 +27,8 @@ bundle common rudder_slapd {
 bundle agent system_rudder_slapd_configuration {
   vars:
 
-      "slapd_password" string => "&RUDDER_LDAP_PASSWORD&";
-
+      "no"                  int => getfields("RUDDER_OPENLDAP_BIND_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","password_getter");
+      "slapd_password"   string => "${password_getter[2]}";
       "technique_name"   string => "Rudder slapd";
       "trackingkey"      string => "&TRACKINGKEY&";
 
@@ -68,5 +68,5 @@ bundle edit_line set_rudder_slapd_password(password) {
       "rootpw.*";
 
   insert_lines:
-      "rootpw		${password}" location => after("^rootdn.*");
+      "rootpw  ${password}" location => after("^rootdn.*");
 }

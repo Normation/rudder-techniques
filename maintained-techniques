@@ -26,7 +26,6 @@ fileDistribution/manageKeyValueFile/1.3
 jobScheduling/jobScheduler/2.0
 jobScheduling/jobScheduler/3.0
 system/common/1.0
-system/distributePolicy/1.0
 system/inventory/1.0
 system/rudderApache/1.0
 system/rudderPostgresql/1.0

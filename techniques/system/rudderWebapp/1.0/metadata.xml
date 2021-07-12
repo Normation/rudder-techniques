@@ -2,6 +2,7 @@
   <DESCRIPTION>Configure the Rudder webapp</DESCRIPTION>
   <MULTIINSTANCE>false</MULTIINSTANCE>
   <USEMETHODREPORTING>true</USEMETHODREPORTING>
+  <SYSTEM>true</SYSTEM>
 
   <AGENT type="cfengine-community">
     <BUNDLES>
@@ -24,6 +25,9 @@
         <INCLUDED>true</INCLUDED>
       </FILE>
       <FILE name="password-check.cf">
+        <INCLUDED>true</INCLUDED>
+      </FILE>
+      <FILE name="updateNcfHash.cf">
         <INCLUDED>true</INCLUDED>
       </FILE>
     </FILES>

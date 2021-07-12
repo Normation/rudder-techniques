@@ -28,7 +28,14 @@ bundle common rudder_apache {
 }
 
 bundle agent system_rudder_apache_configuration {
+  vars:
+      "trackingkey"     string => "&TRACKINGKEY&";
+      "technique_name"  string => "Rudder apache";
+
   methods:
+      # Force certificates and permissions
+      "any" usebundle => apache_cert("${trackingkey}", "${technique_name}");
+
       # Force allowed networks
       "any" usebundle => system_rudder_apache_networks_configuration;
 

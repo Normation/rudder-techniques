@@ -20,10 +20,6 @@
 
   <SECTIONS>
     <SECTION name="Postgresql configuration" component="true" multivalued="true">
-      <INPUT>
-        <NAME>RUDDER_PSQL_PASSWORD</NAME>
-        <DESCRIPTION>Postgresql user password</DESCRIPTION>
-      </INPUT>
       <REPORTKEYS>
         <VALUE>Check pgpass file</VALUE>
         <VALUE>Postgresql credentials</VALUE>

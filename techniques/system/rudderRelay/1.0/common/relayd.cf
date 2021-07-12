@@ -15,14 +15,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 #####################################################################################
-bundle common rudder_relayd {
-  vars:
-      "config_dir"          string => "${g.rudder_base}/etc/relayd";
-      "config_file"         string => "${config_dir}/main.conf";
-      "config_log_file"     string => "${config_dir}/logging.conf";
-      "service_name"        string => "rudder-relayd";
-}
-bundle agent system_rudder_relay_configuration {
+bundle agent system_rudder_relayd_configuration {
   vars:
       "config_class_prefix" string => canonify("file_from_template_${rudder_relayd.config_file}");
       "component"           string => "Rudder-relayd service";
@@ -35,12 +28,11 @@ bundle agent system_rudder_relay_configuration {
     # Log rotation
       "any" usebundle => system_relay_logrotate;
 
-    # Service configuration
-      "any" usebundle => _method_reporting_context("${component}", "Configuration permissions");
-      "any" usebundle => permissions_recursive("${rudder_relayd.config_dir}", "640", "root", "rudder");
-
       "any" usebundle => _method_reporting_context("${component}", "Configuration");
       "any" usebundle => file_from_template_mustache("${this.promise_dirname}/relayd.conf.tpl", "${rudder_relayd.config_file}");
+
+      "any" usebundle => _method_reporting_context("${component}", "Configuration permissions");
+      "any" usebundle => permissions_recursive("${rudder_relayd.config_dir}", "640", "root", "rudder");
 
       "any" usebundle => _method_reporting_context("${component}", "Started");
       "any" usebundle => service_started("${rudder_relayd.service_name}");

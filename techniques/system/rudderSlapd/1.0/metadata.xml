@@ -28,10 +28,6 @@
       </REPORTKEYS>
     </SECTION>
     <SECTION name="Rudder slapd configuration" multivalued="true" component="true">
-      <INPUT>
-        <NAME>RUDDER_LDAP_PASSWORD</NAME>
-        <DESCRIPTION>Ldap password</DESCRIPTION>
-      </INPUT>
       <REPORTKEYS>
         <VALUE>Check Rudder ldap password</VALUE>
         <VALUE>Check Rudder ldap permissions</VALUE>

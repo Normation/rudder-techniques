@@ -18,22 +18,23 @@
 bundle agent system_rudder_apache_webdav_configuration {
   vars:
     suse::
-      "htpasswd_bin"          string => "/usr/bin/htpasswd2";
+      "htpasswd_bin"     string => "/usr/bin/htpasswd2";
 
     !SuSE::
-      "htpasswd_bin"          string => "/usr/bin/htpasswd";
+      "htpasswd_bin"     string => "/usr/bin/htpasswd";
 
     any::
-     "no"                        int => getfields("RUDDER_WEBDAV_PASSWORD:.*","${g.rudder_base}/etc/rudder-passwords.conf",":","dav_password");
-     "report_string"          string => "Apache WebDAV user and password";
+      "report_string"    string => "Apache WebDAV user and password";
+      "pwd"                 int => getfields("RUDDER_WEBDAV_PASSWORD:.*","${g.rudder_base}/etc/rudder-passwords.conf}",":","dav_password");
+      "webdav_password"  string => "${dav_password[2]}";
 
-      "webdav_pwd_cmd"        string => "${htpasswd_bin} -b ${g.rudder_base}/etc/htpasswd-webdav ${g.davuser} ${g.davpw}";
-      "args"                  slist  => { "${webdav_pwd_cmd}" };
-      "pwd_class_prefix"      string => canonify("command_execution_${webdav_pwd_cmd}");
-      "component"             string => "Apache configuration";
+      "webdav_pwd_cmd"   string => "${htpasswd_bin} -b ${g.rudder_base}/etc/htpasswd-webdav ${g.davuser} ${webdav_password}";
+      "args"             slist  => { "${webdav_pwd_cmd}" };
+      "pwd_class_prefix" string => canonify("command_execution_${webdav_pwd_cmd}");
+      "component"        string => "Apache configuration";
 
   classes:
-      "dav_cant_connect" not => returnszero("${g.rudder_curl} --tlsv1.2 --proxy '' ${g.rudder_verify_certs_option} --silent --fail --output /dev/null --user ${g.davuser}:${g.davpw} --upload-file ${g.rudder_base}/etc/uuid.hive https://localhost/inventory-updates/uuid.hive","noshell");
+      "dav_cant_connect" not => returnszero("${g.rudder_curl} --tlsv1.2 --proxy '' ${g.rudder_verify_certs_option} --silent --fail --output /dev/null --user ${g.davuser}:${webdav_password} --upload-file ${g.rudder_base}/etc/uuid.hive https://localhost/inventory-updates/uuid.hive","noshell");
 
       "rudder_server_system_restart_apache" expression => "${pwd_class_prefix}_repaired",
                                                  scope => "namespace";
@@ -50,5 +51,4 @@ bundle agent system_rudder_apache_webdav_configuration {
       "any" usebundle => _classes_success("${pwd_class_prefix}");
     any::
       "any" usebundle => _log_v3("Setting Apache webdav password", "${webdav_pwd_cmd}", "${pwd_class_prefix}", "${pwd_class_prefix}", @{args});
-
 }

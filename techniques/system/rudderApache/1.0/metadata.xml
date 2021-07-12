@@ -4,8 +4,15 @@
   <MULTIINSTANCE>false</MULTIINSTANCE>
   <USEMETHODREPORTING>true</USEMETHODREPORTING>
 
+  <TMLS>
+    <TML name="apache/main"/>
+    <TML name="apache/nodescerts.pem">
+      <INCLUDED>false</INCLUDED>
+      <OUTPATH>rudderApache/1.0/apache/nodescerts.pem</OUTPATH>
+    </TML>
+  </TMLS>
   <FILES>
-    <FILE name="apache/main.cf">
+    <FILE name="apache/apache-certificate.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
     <FILE name="apache/system_rudder_apache_networks_configuration.cf">
@@ -28,6 +35,7 @@
 
   <SYSTEMVARS>
     <NAME>RUDDER_SERVER_ROLES</NAME>
+    <NAME>MANAGED_NODES_CERT_PEM</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
@@ -46,6 +54,13 @@
         <VALUE>Webdav configuration</VALUE>
         <VALUE>Webdav permissions</VALUE>
         <VALUE>Logrotate</VALUE>
+      </REPORTKEYS>
+    </SECTION>
+    <SECTION name="Configure apache certificate" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE>Permissions</VALUE>
+        <VALUE>Relayd certificate</VALUE>
+        <VALUE>Apache certificate</VALUE>
       </REPORTKEYS>
     </SECTION>
   </SECTIONS>

@@ -27,6 +27,8 @@ bundle agent system_rudder_webapp {
       "technique_name"     string => "Rudder Webapp";
 
   methods:
+      # Generate ncf hash file
+      "any" usebundle => update_ncf_hash;
       # Check pgpass and db credentials
       "any" usebundle => system_compress_webapp_log;
       "any" usebundle => system_root_integrity_check("${trackingkey}", "${technique_name}");

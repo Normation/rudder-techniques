@@ -49,7 +49,7 @@ retention = "1day"
 [output.database]
 {{#classes.root_server}}
 url = "postgres://{{{vars.rudder_postgresql.db_user}}}@{{{vars.rudder_postgresql.host}}}/{{{vars.rudder_postgresql.db_name}}}"
-password = "{{{vars.rudder_postgresql.db_pass}}}"
+password = "{{{vars.rudder_postgresql.postgres_passwd}}}"
 {{/classes.root_server}}
 {{^classes.root_server}}
 url = "postgres://user@host/rudder"
