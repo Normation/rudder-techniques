@@ -3,7 +3,7 @@
 # Must not do it on the RootServer though...
 
 
-bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, relayd_sync_promises, relay_sync_sharedfiles) {
+bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, relay_sync_promises, relay_sync_sharedfiles) {
 
   vars:
     any::
