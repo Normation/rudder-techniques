@@ -28,9 +28,26 @@ test_shell_error()
     done
 }
 
+# verify that each file has a correct license header
+test_license_header()
+{
+  find . -name '*.cf' -o -name '*.st' -print0 |
+    while IFS= read -r -d '' file; do
+      if ! grep -qE "# SPDX-FileCopyrightText.*" $file; then
+        # Ignore very small files
+        if [ `wc -l $file | awk '{print $1}'` -gt "10" ]; then
+          echo "$file is missing a correct license header"
+          exit 1
+        fi
+      fi
+    done
+}
+
 if [ "$1" = "--shell" ]; then
   test_shell
   exit 0
+elif [ "$1" = "--license" ]; then
+  test_license_header
 else
   # quick tests to be launched during merge
   test_shell_error

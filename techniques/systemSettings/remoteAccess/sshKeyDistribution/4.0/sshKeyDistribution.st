@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # Manage SSH Key - per user
 # Allow to set keys for users, and optionnaly to flush all keys that are not managed by Rudder.
 

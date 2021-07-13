@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 function rudderMotd {
   [CmdletBinding()]
   param (
@@ -5,7 +8,7 @@ function rudderMotd {
       [parameter(Mandatory=$true)]  [string]$techniqueName,
       [switch]$auditOnly
   )
-    
+
     $trackingKey = "&TRACKINGKEY&"
 
     $motdContent = "&MOTD&"

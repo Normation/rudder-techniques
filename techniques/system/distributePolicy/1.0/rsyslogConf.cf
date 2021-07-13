@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle agent rudder_postgresql {
   vars:
     root_server::
@@ -73,7 +76,7 @@ bundle agent install_rsyslogd
         edit_line => comment_all(),
         edit_defaults => noempty_backup,
         classes => classes_generic("rudder_rsyslog_pgsql"),
-        comment => "Removing the logging of all in the database";  
+        comment => "Removing the logging of all in the database";
 
     # If reports are disabled, or if rsyslog is disabled, we remove rudder rsyslog conf
     policy_server.(reports_disabled|rsyslog_disabled)::

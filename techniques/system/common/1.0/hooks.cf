@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
 
 # This file contains the collection of pre and post hooks for techniques
 # They all have a unique parameter, which is a JSON containing parameters, and all the list of reports, in the form
@@ -8,7 +10,6 @@
 # By convention, if any of reports is in enforce, then the hook will perform the action, otherwise it will only audit
 
 
-# 
 # Ensure that a package is present
 # Parameters are:
 #     "name"      : Package Name

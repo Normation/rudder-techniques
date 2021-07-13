@@ -1,6 +1,9 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 ###########################################################################
 # Monitor partition and optionnaly execute command if threshold is reached
-# 
+#
 # Take a partition mount point and check free space
 # Execute a command if threshold is reached
 #

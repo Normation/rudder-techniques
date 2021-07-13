@@ -1,4 +1,6 @@
-# (C) Normation 2011
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2011 Normation SAS
+
 
 bundle agent check_nfs_client_configuration
 {

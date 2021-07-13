@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # List of files permission
 # Format of the file :
 # directiveId:file:user;;group;;mode;;edituser;;editgroup;;editmode;;suid;;sgid;;recursion

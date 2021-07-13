@@ -1,20 +1,23 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle common generic_cmd_var_def {
 
   vars:
     agent::
 &GENERIC_COMMAND_VARIABLE_NAME, GENERIC_COMMAND_VARIABLE_BINARY, GENERIC_COMMAND_VARIABLE_SHELL:{name, binary, shell |"&name&" string => execresult("&binary&", "&shell&");
 }&
-		
+
 }
 
 bundle agent generic_cmd_var_def_report {
-	vars:
+  vars:
                 &TRACKINGKEY:{directiveId |"generic_command_name_uuid[&i&]" string => "&directiveId&";
-}& 
+}&
                 &GENERIC_COMMAND_VARIABLE_NAME:{name |"generic_cmd_variable_name[&i&]" string => "&name&";
 }&
 
-		"generic_cmd_variable_name_index" slist => getindices("generic_command_name_uuid");
+      "generic_cmd_variable_name_index" slist => getindices("generic_command_name_uuid");
 
   classes:
     any::

@@ -1,4 +1,6 @@
 #!/usr/bin/perl
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
 
 use warnings;
 use strict;
@@ -56,14 +58,14 @@ foreach my $agent (@agents) {
     print "Inventory ERROR: No RUDDER/AGENT/OWNER\n";
     exit 1;
   }
-  
+
   # Test RUDDER/AGENT/POLICY_SERVER_UUID
   my $server_uuid = $agent->{POLICY_SERVER_UUID};
   if(!defined $server_uuid || $server_uuid eq "" || ($server_uuid ne "root" \&\& $server_uuid !~ /[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/i)) {
     print "Inventory ERROR: No RUDDER/AGENT/POLICY_SERVER_UUID\n";
     exit 1;
   }
-  
+
   # Test RUDDER/AGENT/AGENT_NAME
   my $agent_name = $agent->{AGENT_NAME};
   if(!defined $agent_name || $agent_name eq "") {

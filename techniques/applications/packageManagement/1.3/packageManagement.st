@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # Warning: The content of this technique is very close to the content of the package_state() bundle in ncf
 # particularly the log message building. All changes made here should also be done in ncf too.
 

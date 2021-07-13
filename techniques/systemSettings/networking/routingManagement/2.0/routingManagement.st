@@ -1,7 +1,10 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 ##########################################################################
 # Routing management PT                                                  #
 #                                                                        #
-# Objective: Check the routing parameters according to the given ones   #
+# Objective: Check the routing parameters according to the given ones    #
 # and take the required actions (check or require)                       #
 ##########################################################################
 

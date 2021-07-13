@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle agent monitoring_hook_pre
 {
   methods:
@@ -14,13 +17,13 @@ bundle agent monitoring_hook_post
   methods:
     "reporting" usebundle => disable_reporting;
     "reporting" usebundle => _method_reporting_context("Monitoring", "None");
-    
+
     csv_exists::
     "share file" usebundle => sharedfile_to_node("root", "rudder_monitoring.csv", "/var/rudder/tmp/rudder_monitoring.csv", "1d");
-    
+
     any::
     "reporting" usebundle => enable_reporting;
-    
+
     csv_exists::
     "reporting" usebundle => rudder_common_reports_generic("Common", "sharedfile_to_node_rudder_monitoring_csv", "${system_common.directiveId}", "Monitoring", "None", "Share Rudder monitoring information with the server");
 

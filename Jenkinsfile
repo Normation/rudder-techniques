@@ -26,6 +26,12 @@ pipeline {
                         }
                     }
                 }
+                stage('license') {
+                    agent { label 'script' }
+                    steps {
+                        sh script: './qa-test --license', label: 'license header check'
+                    }
+                }
             }
         }
     }

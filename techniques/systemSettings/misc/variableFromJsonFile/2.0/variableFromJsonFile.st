@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle agent variable_from_json_file
 {
   vars:
@@ -19,21 +22,21 @@ bundle agent variable_from_json_file
     "directory_agent_canon" string => canonify("${directory_agent}");
     "prefix"           string => "tmp_merging_json_files";
 
-    
+
 
     "variable_index"   slist  => getindices("complete_name");
     "index"            slist  => getindices("json_file");
     "files_index"      slist  => sort("index", "int");
-    "tmp_index_1[${variable_index}]"      string  => eval("${variable_index} -1", "math", "infix"); 
+    "tmp_index_1[${variable_index}]"      string  => eval("${variable_index} -1", "math", "infix");
     "index_from_zero[${variable_index}]" string => format("%d", "${tmp_index_1[${variable_index}]}");
 
     "strTok[${variable_index}]" slist => splitstring("${complete_name[${variable_index}]}", "\.", "2");
     "prefixes[${variable_index}]" string => nth("strTok[${variable_index}]", 0);
     "names[${variable_index}]" string => nth("strTok[${variable_index}]", 1);
 
-    #Making an array with the unique trackingkey, with shell for the moment. Waiting for future feature on 
+    #Making an array with the unique trackingkey, with shell for the moment. Waiting for future feature on
     # string template implementation in the webapp
-    "cmd" string => "/usr/bin/uniq << EOF ${const.n}&TRACKINGKEY:{piuuid |&piuuid&};separator="${const.n}"&${const.n}EOF${const.n}"; 
+    "cmd" string => "/usr/bin/uniq << EOF ${const.n}&TRACKINGKEY:{piuuid |&piuuid&};separator="${const.n}"&${const.n}EOF${const.n}";
 
     "long_keys" string => execresult("${cmd}", "useshell"),
                     if => "agent";
@@ -41,7 +44,7 @@ bundle agent variable_from_json_file
     "unique_keys[${variable_index}]" string => nth("long_keys_list", "${index_from_zero[${variable_index}]}");
 
 
-    #Making an array containing the complete_name as many times as their respectives 
+    #Making an array containing the complete_name as many times as their respectives
     #number of files to merge. The array's length must be equal to the trackingkey array length.
     "name_list[${files_index}]" string => "${complete_name[${variable_index}]}",
       ifvarclass => "same_key_${variable_index}_${files_index}";
@@ -68,7 +71,7 @@ bundle agent variable_from_json_file
     "prepare" usebundle => directory_create("${directory_agent}");
     #Base file
     #Remote source
-    "download_base_files_${variable_index}" 
+    "download_base_files_${variable_index}"
         usebundle => file_copy_from_remote_source(
           "${directory_server}/${base_file[${variable_index}]}",
           "${directory_agent}/${base_file_canon[${variable_index}]}"
@@ -76,7 +79,7 @@ bundle agent variable_from_json_file
         ifvarclass => "base_remote_source_${variable_index}";
 
     #Local source
-    "download_base_files_${variable_index}" 
+    "download_base_files_${variable_index}"
         usebundle => file_copy_from_local_source(
           "${base_file[${variable_index}]}",
           "${directory_agent}/${base_file_canon[${variable_index}]}"
@@ -92,7 +95,7 @@ bundle agent variable_from_json_file
 
     #Others files
     #Remote source
-    "download_other_files_${files_index}" 
+    "download_other_files_${files_index}"
         usebundle => file_copy_from_remote_source(
           "${directory_server}/${json_file[${files_index}]}",
           "${directory_agent}/${json_file_canon[${files_index}]}"
@@ -100,7 +103,7 @@ bundle agent variable_from_json_file
         ifvarclass => "!empty_input_${files_index}.remote_source_${files_index}";
 
     #Local source
-    "download_other_files_${files_index}" 
+    "download_other_files_${files_index}"
         usebundle => file_copy_from_local_source(
           "${json_file[${files_index}]}",
           "${directory_agent}/${json_file_canon[${files_index}]}"
@@ -119,7 +122,7 @@ bundle agent variable_from_json_file
     #Merging
     "merging_${files_index}" usebundle => merge("${name_list[${files_index}]}" , "${prefix}.${json_file_canon[${files_index}]}", "${json_file[${files_index}]}", "${trackingkey[${files_index}]}"),
         ifvarclass => "!empty_input_${files_index}";
-    
+
     #Reporting
     #File copy
     #Remote

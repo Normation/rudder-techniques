@@ -1,4 +1,7 @@
-#!/usr/local/bin/ncf -f 
+#!/usr/local/bin/ncf -f
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle agent init {
   vars:
     "gen_files" slist => {"test1.conf", "test2.conf", "posthooktest", "persistentPosthooktest"};

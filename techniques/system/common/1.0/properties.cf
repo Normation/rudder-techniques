@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # Read node properties and put them into the node namespace
 #
 # Properties are available using the node.namespace container that contains the values
@@ -5,7 +8,7 @@
 # /var/rudder/local/properties.d/*.json
 # All files are taken in order and overrides the previous one, the last one wins, with the local
 # defined properties overriding the one in /var/rudder/cfengine-community/inputs/properties/
-# 
+#
 # Each file must contain at least a 2 levels JSON content, the first level is the namespace level
 # and the second level is the key level.
 # The namespace name must comply with CFEngine variable names rules (ie [a-zA-Z_]+)
@@ -15,7 +18,7 @@
 # - a key in a namespace is fully overridden by the same key in the same namespace in a later file.
 # - a key in a namespace is never overridden by the same key in a different namespace
 # - a key that is overridden never retain original data even if it is a data container itself
-# 
+#
 
 # The result key is available in the node.<namespace> data variable
 # usage example: ${node.properties[my_key]}

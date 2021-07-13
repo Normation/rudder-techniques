@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 function snmp {
   [CmdletBinding()]
   param (
@@ -8,11 +11,11 @@ function snmp {
     $sources = ("&SNMP_AUTHORIZED_SOURCES&").Split(",") | foreach { $_.Trim() }
     $sources = $sources | Select-Object -Unique
     $flush = "&SNMP_FLUSH&"
-  
+
     $acls = @(
     &SNMP_COMMUNITY_ACL:{acl |
     "&acl&" };separator=","& )
-  
+
     $names = @(
     &SNMP_COMMUNITY_NAME:{name |
     "&name&" };separator=","& )

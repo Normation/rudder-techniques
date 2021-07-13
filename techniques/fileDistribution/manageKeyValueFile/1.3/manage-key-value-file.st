@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle agent manage_key_value_file_&RudderUniqueID& {
   vars:
       &MANAGE_KEY_VALUE_FILEPATH:{file |  "file[&i&]"        string => "&file&";

@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 function copyFileFromSharedFolder_&RudderUniqueID& {
   [CmdletBinding()]
   param (
@@ -5,7 +8,7 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
       [parameter(Mandatory=$true)]  [string]$techniqueName,
       [switch]$auditOnly
   )
-    
+
     $trackingkey = @(
     &TRACKINGKEY:{directiveId |
     "&directiveId&" };separator=","& )
@@ -30,7 +33,7 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
 
     for ($i=0; $i -lt $trackingkey.length; $i++) {
       $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Destination $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i])
-      $class_prefix  = "copy_file_" 
+      $class_prefix  = "copy_file_"
       $class_prefix += Canonify-Class $destinations[$i]
       $class_prefix += "_repaired"
 
@@ -39,9 +42,9 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
       if ((-not([String]::IsNullOrEmpty($posthooks[$i]))) -And ($local_classes["classes"].contains($class_prefix))) {
         $local_classes = Merge-ClassContext $local_classes $(Command-Execution -CommandName $posthooks[$i] -ComponentKey $destinations[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
       } else {
-        if ($auditOnly) { 
+        if ($auditOnly) {
           $state = [ComplianceStatus]::audit_na
-        } else { 
+        } else {
           $state = [ComplianceStatus]::result_na
         }
         if ([String]::IsNullOrEmpty($posthooks[$i])) {

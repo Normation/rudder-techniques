@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 function fileTemplate_&RudderUniqueID& {
   [CmdletBinding()]
   param (
@@ -5,7 +8,7 @@ function fileTemplate_&RudderUniqueID& {
       [parameter(Mandatory=$true)]  [string]$techniqueName,
       [switch]$auditOnly
   )
-    
+
     $trackingkey = @(
     &TRACKINGKEY:{directiveId |
     "&directiveId&" };separator=","& )

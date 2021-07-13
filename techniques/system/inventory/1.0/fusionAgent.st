@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 #
 # This file launch a fusion-inventory agent
 # inventory in local.
@@ -26,9 +29,9 @@ bundle agent doInventory
 {
   vars:
     resend_inventory::
-      "cant_send_inventory" string => "undefine", 
+      "cant_send_inventory" string => "undefine",
                             classes => cancel_all_classes("cant_send_inventory");
-      
+
   classes:
       "disable_inventory" expression => fileexists("${g.rudder_disable_inventory_file}");
 

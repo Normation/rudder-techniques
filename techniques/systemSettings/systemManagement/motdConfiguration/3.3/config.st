@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 ##############################################################################
 # This Technique configures a machine MOTD. See metadata.xml for more details.
 ##############################################################################

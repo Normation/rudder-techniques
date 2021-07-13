@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 #Check the dns configuration, and correct it if required
 
 bundle agent check_dns_configuration
