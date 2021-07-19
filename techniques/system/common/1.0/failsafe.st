@@ -64,22 +64,13 @@ bundle common g
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
       "execRun"                  string => execresult("/bin/date -u \"+%Y-%m-%d %T+00:00\"", "noshell");
 
-# definition of the node roles
-  &NODEROLE&
-
   classes:
       # OS classes for compatibility
       "SUSE" expression => "sles|sled|opensuse";
       "SuSE" expression => "sles|sled|opensuse";
       "suse" expression => "sles|sled|opensuse";
       "redhat" expression => "amzn|amazon_linux";
-}
 
-bundle common rudder_roles
-{
-  classes:
-      # Policy Server is a machine which delivers promises
-      "policy_server"       expression => strcmp("root","${g.uuid}");
       # Root Server is the top policy server machine
       "root_server"         expression => strcmp("root","${g.uuid}");
 

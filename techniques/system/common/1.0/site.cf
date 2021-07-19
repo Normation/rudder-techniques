@@ -64,8 +64,6 @@ bundle common g
       "inventory_file_types"              slist => { "@{uncompressed_inventory_file_types}", ".*.gz" };
       "signed_inventory_file_types"       slist => { "@{inventory_file_types}", ".*\.sign" };
 
-      "server_roles_path"           string => "${rudder_base}/etc/server-roles.d/";
-
       "shared_files"                string => "${rudder_configuration_repository}/shared-files";
 
       # We would like to use date's "--rfc-3339=second" option here, but it is not available on older OSes (RHEL 3/4, AIX 5...)
@@ -88,12 +86,5 @@ bundle common g
       # Utilities
       "gzip_installed"                 expression => isexecutable("${gzip}");
       "curl_installed"                 expression => isexecutable("${rudder_curl}");
-
-      # Roles
-      "rudder_server_roles_dir_exists" expression => isdir("${server_roles_path}");
-    rudder_server_roles_dir_exists::
-      "role_rudder_server_root"        expression => fileexists("${server_roles_path}rudder-server-root");
-      "role_rudder_webapp"             expression => fileexists("${server_roles_path}rudder-webapp");
-      "role_rudder_reports"            expression => fileexists("${server_roles_path}rudder-reports");
 }
 

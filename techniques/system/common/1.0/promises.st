@@ -219,6 +219,8 @@ bundle common va
       "policy_server" expression => strcmp("root","${rudder_roles.uuid}");
       # Root Server is the top policy server machine
       "root_server" expression => strcmp("root","${rudder_roles.uuid}");
+      # for compatibility
+      "role_rudder_server_root" expression => "root_server";
     # static definition of the machine roles
 &NODEROLE&
 
