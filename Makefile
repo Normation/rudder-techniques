@@ -17,43 +17,10 @@ endif
 all: initial-promises bootstrap-promises/rudder.json bootstrap-promises/promises.cf
 
 initial-promises: rudder-templates-cli.jar test
-
-	# The common technique
-	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",/' variables.json
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/common/1.0/ techniques/system/common/1.0/*.st
-	cp techniques/system/common/1.0/*.cf initial-promises/node-server/common/1.0/ || true
-	mv initial-promises/node-server/common/1.0/failsafe.cf initial-promises/node-server/
-	mv initial-promises/node-server/common/1.0/promises.cf initial-promises/node-server/
-	mv initial-promises/node-server/common/1.0/rudder-system-directives.cf initial-promises/node-server/
-	mv initial-promises/node-server/common/1.0/rudder-directives.cf initial-promises/node-server/
-	mv initial-promises/node-server/common/1.0/rudder-vars.cf initial-promises/node-server/rudder-vars.json
+	python generateInitialPolicies.py
 	mkdir -p initial-promises/node-server/common/cron
-	cp techniques/system/common/1.0/rudder-agent-community-cron initial-promises/node-server/common/cron/
-	mv initial-promises/node-server/common/1.0/run_interval.cf initial-promises/node-server/run_interval
 	mkdir -p initial-promises/node-server/common/utilities
-	# The inventory technique
-	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "inventory-all@@inventory-all@@00",/' variables.json
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/inventory/1.0/ techniques/system/inventory/1.0/*.st
-	cp techniques/system/inventory/1.0/*.cf initial-promises/node-server/inventory/1.0/ || true
-	mv initial-promises/node-server/inventory/1.0/test-inventory.pl.cf initial-promises/node-server/inventory/1.0/test-inventory.pl
-	# The distributePolicy technique
-	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/distributePolicy/1.0/ techniques/system/distributePolicy/1.0/*.st
-	cp techniques/system/distributePolicy/1.0/*.cf initial-promises/node-server/distributePolicy/1.0/ || true
-	mkdir -p initial-promises/node-server/distributePolicy/ncf
-	# The server-roles technique
-	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "server-roles@@server-roles-directive@@0",/' variables.json
-	java -jar rudder-templates-cli.jar --outext .cf --outdir initial-promises/node-server/server-roles/1.0/ techniques/system/server-roles/1.0/*.st
-	cp techniques/system/server-roles/1.0/*.cf initial-promises/node-server/server-roles/1.0/ || true
-	cp techniques/system/server-roles/1.0/relayd.conf.tpl initial-promises/node-server/server-roles/1.0/
-	mkdir -p initial-promises/node-server/server-roles/logrotate.conf/
-	cp techniques/system/server-roles/1.0/rudder-logrotate initial-promises/node-server/server-roles/logrotate.conf/rudder
-	mv initial-promises/node-server/server-roles/1.0/rudder-server-roles.cf initial-promises/node-server/rudder-server-roles.conf
-	# Bring variables.json back to its initial state
-	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",/' variables.json
-	# Initial ncf reporting empty (for compatibility with pre-4.3 servers)
 	touch initial-promises/rudder_expected_reports.csv
-	# Provide a default rudder.json
 	cp variables.json initial-promises/node-server/rudder.json
 
 bootstrap-promises/rudder.json:
