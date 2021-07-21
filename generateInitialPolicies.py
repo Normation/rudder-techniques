@@ -128,8 +128,10 @@ class Technique:
                   source
                ])
 
+           # Remove the variable.json as it is not needed
+           ignore = shutil.ignore_patterns('.*/variables.json')
            print("Copy to " + DESTINATION_FOLDER + '/' + self.technique_path_name)
-           shutil.copytree(tmpdirname + '/' + self.technique_path_name, DESTINATION_FOLDER + '/' + self.technique_path_name)
+           shutil.copytree(tmpdirname, DESTINATION_FOLDER, dirs_exist_ok=True, ignore=ignore)
 
 
     def list_files(self):
