@@ -3,7 +3,6 @@ import tempfile
 import json
 import shutil
 import os
-from urllib3.exceptions import InsecureRequestWarning
 import xml.etree.ElementTree as ET
 
 DESTINATION_FOLDER = './initial-promises/node-server'
@@ -32,6 +31,11 @@ system_directives = { # technique : directive
                       "Rudder Webapp" : "root-rudderWebapp",
                       "Server Common" : "root-serverCommon"
                     }
+
+def merge_dicts(x, y):
+    z = x.copy()
+    z.update(y)
+    return z
 
 class Technique:
     def __init__(self, folder):
@@ -91,7 +95,7 @@ class Technique:
        with tempfile.TemporaryDirectory() as tmpdirname:
            with open('./variables.json') as json_file:
                src_data = json.load(json_file)
-           data = src_data | data
+           data = merge_dicts(src_data, data)
            with open(tmpdirname + '/variables.json', 'w') as f:
                json.dump(data, f)
            print('created temporary directory', tmpdirname)
