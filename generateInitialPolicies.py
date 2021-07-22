@@ -7,6 +7,7 @@ import xml.etree.ElementTree as ET
 
 DESTINATION_FOLDER = './initial-promises/node-server'
 JAR_FILE = './rudder-templates-cli.jar'
+SYSTEM_FOLDER = './techniques/system'
 
 system_rules = { # rule : [directives]
                  "hasPolicyServer-root": ["common-root"],
@@ -38,10 +39,14 @@ def merge_dicts(x, y):
     return z
 
 class Technique:
+    """
+    Describe a rudder technique as described by its source.
+    It assumes that the only version available is 1.0 atm, the folder
+    input must not include the version folder but its parent.
+    """
     def __init__(self, folder):
         self.root = folder
         self.technique_path_name = os.path.basename(folder)
-        print(self.technique_path_name)
         self._parse_metadata()
 
     def _parse_metadata(self):
@@ -79,75 +84,90 @@ class Technique:
         self.templates = templates
         self.files = files
 
-    def generate_initial_policies(self):
-       # create the variables to replace in the templates
-       directive_name = system_directives[self.technique_name]
-       #rule_name = system_rules[directive_name]
-       rule_name = next(x for x in system_rules.keys() if directive_name in system_rules[x])
-       data = {
-                "trackingkey": "{rule_name}@@{directive_name}@@00".format(
-                                  rule_name = rule_name,
-                                  directive_name = directive_name
-                                )
-              }
+    def compute_bundle_files(self):
+        """
+        Compute the bundle files of the technique from its metadata
+        """
+        bundle_files = []
+        for file in self.files + self.templates:
+            bundle_file = self.technique_path_name + '/1.0/' + os.path.splitext(file['name'])[0]+'.cf'
+            if 'outpath' in file:
+                bundle_file = file['outpath']
+            if ('included' in file and file['included'] == 'true') or 'included' not in file:
+                bundle_files.append(bundle_file)
+        return { self.technique_path_name.upper() + "_SEQUENCE" : bundle_files }
 
-       # create a temp folder, generate a variables.json file
-       with tempfile.TemporaryDirectory() as tmpdirname:
-           with open('./variables.json') as json_file:
-               src_data = json.load(json_file)
-           data = merge_dicts(src_data, data)
-           with open(tmpdirname + '/variables.json', 'w') as f:
-               json.dump(data, f)
-           print('created temporary directory', tmpdirname)
+    def generate_initial_policies(self, extra_data={}):
+        """
+        create the variables to replace in the templates
+        """
+        print("Generate initial policies for technique " + self.technique_name)
+        directive_name = system_directives[self.technique_name]
+        rule_name = next(x for x in system_rules.keys() if directive_name in system_rules[x])
+        data = {
+                 "trackingkey": "{rule_name}@@{directive_name}@@00".format(
+                                   rule_name = rule_name,
+                                   directive_name = directive_name
+                                 )
+               }
+        data = merge_dicts(data, extra_data)
 
-           # generate the things
-           build_path = tmpdirname + '/' + self.technique_path_name
-           os.mkdir(build_path)
+        # create a temp folder, generate a temporary variables.json file
+        with tempfile.TemporaryDirectory() as tmpdirname:
+            with open('./variables.json') as json_file:
+                src_data = json.load(json_file)
+            data = merge_dicts(src_data, data)
+            with open(tmpdirname + '/variables.json', 'w') as f:
+                json.dump(data, f)
 
-           # copy files as needed
-           for file in self.files:
-               source = self.root + '/1.0/' + file['name']
-               destination = build_path + '/1.0/' + file['name']
-               if 'outpath' in file:
-                   destination = tmpdirname + '/' + file['outpath']
-               os.makedirs(os.path.dirname(destination), exist_ok=True)
-               shutil.copy(source, destination)
+            # generate the things
+            build_path = tmpdirname + '/' + self.technique_path_name
+            os.mkdir(build_path)
 
-           # render templates as needed
-           for file in self.templates:
-               source = self.root + '/1.0/' + file['name']
-               destination = build_path + '/1.0/'
-               if 'outpath' in file:
-                   destination = os.path.dirname(tmpdirname + '/' + file['outpath'])
-               os.makedirs(destination, exist_ok=True)
-               subprocess.run([
-                  "java", "-jar", JAR_FILE,
-                  "--outext", ".cf",
-                  "--outdir", destination,
-                  "-p", tmpdirname + '/variables.json',
-                  source
-               ])
+            # copy files as needed
+            for file in self.files:
+                source = self.root + '/1.0/' + file['name']
+                destination = build_path + '/1.0/' + file['name']
+                if 'outpath' in file:
+                    destination = tmpdirname + '/' + file['outpath']
+                os.makedirs(os.path.dirname(destination), exist_ok=True)
+                shutil.copy(source, destination)
 
-           # Remove the variable.json as it is not needed
-           ignore = shutil.ignore_patterns('.*/variables.json')
-           print("Copy to " + DESTINATION_FOLDER + '/' + self.technique_path_name)
-           shutil.copytree(tmpdirname, DESTINATION_FOLDER, dirs_exist_ok=True, ignore=ignore)
+            # render templates as needed
+            for file in self.templates:
+                source = self.root + '/1.0/' + file['name']
+                destination_folder = os.path.dirname(build_path + '/1.0/' + file['name'])
+                if 'outpath' in file:
+                    destination = tmpdirname + '/' + file['outpath']
+                    destination_folder = os.path.dirname(destination)
+                os.makedirs(destination_folder, exist_ok=True)
+                subprocess.run([
+                   "java", "-jar", JAR_FILE,
+                   "--outext", ".cf",
+                   "--outdir", destination_folder,
+                   "-p", tmpdirname + '/variables.json',
+                   source
+                ])
+                # Rename the file afterward since the jar can not modify the file name...
+                # the extension is automatically changed to .cf by the jar, we need to modify it in
+                # the source path.
+                if 'outpath' in file:
+                    shutil.move(destination_folder + '/' + os.path.splitext(os.path.basename(file['name']))[0]+'.cf', destination)
+
+            # Remove the variable.json as it is not needed
+            ignore = shutil.ignore_patterns('.*/variables.json')
+            shutil.copytree(tmpdirname, DESTINATION_FOLDER, dirs_exist_ok=True, ignore=ignore)
 
 
-    def list_files(self):
-        print('TECHNIQUE NAME')
-        print(self.technique_name)
-        print('FILES')
-        for i in self.files:
-            print(i)
-        print('TEMPLATES')
-        for i in self.templates:
-            print(i)
-
-base = './techniques/system'
-with os.scandir(base) as f:
+techniques = []
+compute_bundle_files = {}
+# Compute techniques and their bundle sequence
+with os.scandir(SYSTEM_FOLDER) as f:
     for entry in f:
         if entry.is_dir():
-            t = Technique(os.path.join(base, entry.name))
-            t.list_files()
-            t.generate_initial_policies()
+            t = Technique(os.path.join(SYSTEM_FOLDER, entry.name))
+            techniques.append(t)
+            compute_bundle_files = merge_dicts(compute_bundle_files, t.compute_bundle_files())
+# Generate the promises
+for t in techniques:
+    t.generate_initial_policies(extra_data = compute_bundle_files)

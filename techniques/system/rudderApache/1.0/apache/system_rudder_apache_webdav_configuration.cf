@@ -25,7 +25,7 @@ bundle agent system_rudder_apache_webdav_configuration {
 
     any::
       "report_string"    string => "Apache WebDAV user and password";
-      "pwd"                 int => getfields("RUDDER_WEBDAV_PASSWORD:.*","${g.rudder_base}/etc/rudder-passwords.conf}",":","dav_password");
+      "pwd"                 int => getfields("RUDDER_WEBDAV_PASSWORD:.*","${g.rudder_base}/etc/rudder-passwords.conf",":","dav_password");
       "webdav_password"  string => "${dav_password[2]}";
 
       "webdav_pwd_cmd"   string => "${htpasswd_bin} -b ${g.rudder_base}/etc/htpasswd-webdav ${g.davuser} ${webdav_password}";

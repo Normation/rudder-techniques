@@ -71,9 +71,14 @@ bundle agent rudder_init {
 
 bundle agent rudder_common_system_directive {
   vars:
-      # Hackish way to skip the cf-promises on component check, otherwise it
+      # Hackish way to skip the cf-promises on server bundles, otherwise it
       # won't work on the agent since the bundle will not be loaded.
-      "root_component_check"              string => "root_component_check";
+      "rudder_apache"                     string => "system_rudder_apache_configuration";
+      "rudder_slapd"                      string => "system_rudder_slapd_configuration";
+      "server_common"                     string => "system_reload_rudder_service";
+      "rudder_postgresql"                 string => "system_rudder_postgresql_configuration";
+      "rudder_relay"                      string => "system_rudder_relay_configuration";
+      "rudder_webapp"                     string => "system_rudder_webapp";
 
   methods:
       "Send agent update report"          usebundle => update_reports;
@@ -91,7 +96,12 @@ bundle agent rudder_common_system_directive {
 
 &if(INITIAL)&
     policy_server::
-      "Check root services"               usebundle => "${root_component_check}";
+      "rudder_apache"                     usebundle => "${rudder_apache}";
+      "rudder_slapd"                      usebundle => "${rudder_slapd}";
+      "server_common"                     usebundle => "${server_common}";
+      "rudder_postgresql"                 usebundle => "${rudder_postgresql}";
+      "rudder_relay"                      usebundle => "${rudder_relay}";
+      "rudder_webapp"                     usebundle => "${rudder_webapp}";
 &endif&
 
 }
@@ -150,15 +160,43 @@ bundle common va
       "inputs_list" slist => { @{ncf_inputs} };
 
 &if(INITIAL)&
-      # rudder-directives.cf is needed, even if empty since we call it in the bundle sequence
-      # Idealy these should be generated at compile time from metadata.xml and put into variable.json
-      "common_input_list" slist => {  "rudder-directives.cf", "common/1.0/common.cf", "common/1.0/cf-serverd.cf", "common/1.0/rudder-groups.cf", "common/1.0/hooks.cf", "common/1.0/cron-setup.cf", "common/1.0/site.cf", "common/1.0/update.cf", "common/1.0/monitoring.cf", "common/1.0/restart-services.cf", "common/1.0/internal-security.cf",  "common/1.0/environment-variables.cf", "common/1.0/properties.cf" };
-      "inventory_input_list" slist => { "inventory/1.0/fusionAgent.cf" };
-      "distribute_policy_input_list" slist => { "distributePolicy/1.0/common.cf", "distributePolicy/1.0/propagatePromises.cf", "distributePolicy/1.0/apache-acl.cf" };
-      "server_roles_input_list" slist => { "server-roles/1.0/common.cf", "server-roles/1.0/relayd.cf", "server-roles/1.0/component-check.cf", "server-roles/1.0/alive-check.cf", "server-roles/1.0/service-check.cf", "server-roles/1.0/integrity-check.cf", "server-roles/1.0/network-check.cf", "server-roles/1.0/password-check.cf", "server-roles/1.0/logrotate-check.cf", "server-roles/1.0/technique-reload.cf", "server-roles/1.0/compress-webapp-log.cf", "server-roles/1.0/compress-ldap-backups.cf", "server-roles/1.0/servers-by-role.cf" };
+      "common_input_list" slist => {
+        &COMMON_SEQUENCE:{common_file_input |"&common_file_input&",
+}&      };
+      "inventory_input_list" slist => {
+        &INVENTORY_SEQUENCE:{inventory_file_input |"&inventory_file_input&",
+}&      };
+      "rudder_apache_input_list" slist => {
+        &RUDDERAPACHE_SEQUENCE:{rudder_apache_file_input |"&rudder_apache_file_input&",
+}&      };
+      "rudder_webapp_input_list" slist => {
+        &RUDDERWEBAPP_SEQUENCE:{rudder_webapp_file_input |"&rudder_webapp_file_input&",
+}&      };
+      "rudder_relay_input_list" slist => {
+        &RUDDERRELAY_SEQUENCE:{rudder_relay_file_input |"&rudder_relay_file_input&",
+}&      };
+      "rudder_postgresql_input_list" slist => {
+        &RUDDERPOSTGRESQL_SEQUENCE:{rudder_postgresql_file_input |"&rudder_postgresql_file_input&",
+}&      };
+      "rudder_slapd_input_list" slist => {
+        &RUDDERSLAPD_SEQUENCE:{rudder_slapd_file_input |"&rudder_slapd_file_input&",
+}&      };
+      "server_common_input_list" slist => {
+        &SERVERCOMMON_SEQUENCE:{server_common_file_input |"&server_common_file_input&",
+}&      };
 
     policy_server::
-      "inputs_list" slist => { @{ncf_inputs}, @{common_input_list}, @{inventory_input_list}, @{distribute_policy_input_list}, @{server_roles_input_list} };
+      "inputs_list" slist => {
+        @{ncf_inputs},
+        @{common_input_list},
+        @{inventory_input_list},
+        @{rudder_apache_input_list},
+        @{rudder_webapp_input_list},
+        @{rudder_relay_input_list},
+        @{rudder_postgresql_input_list},
+        @{rudder_slapd_input_list},
+        @{server_common_input_list},
+      };
     !policy_server::
       "inputs_list" slist => { @{ncf_inputs}, @{common_input_list}, @{inventory_input_list} };
 &endif&

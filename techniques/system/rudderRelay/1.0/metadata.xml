@@ -9,7 +9,7 @@
     <TML name="main"/>
     <TML name="relay/nodeslist.json">
       <INCLUDED>false</INCLUDED>
-      <OUTPATH>relay/1.0/nodeslist.json</OUTPATH>
+      <OUTPATH>rudderRelay/1.0/relay/nodeslist.json</OUTPATH>
     </TML>
   </TMLS>
 
