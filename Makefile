@@ -17,7 +17,7 @@ endif
 all: initial-promises bootstrap-promises/rudder.json bootstrap-promises/promises.cf
 
 initial-promises: rudder-templates-cli.jar test
-	python3 generateInitialPolicies.py
+	python3 generate_initial_policies.py
 	mkdir -p initial-promises/node-server/common/cron
 	mkdir -p initial-promises/node-server/common/utilities
 	touch initial-promises/rudder_expected_reports.csv

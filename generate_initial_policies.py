@@ -1,9 +1,15 @@
+"""
+This script is used to generate the initial policies for the agent
+and server. It parses the techniques/system folder and read the metadata
+to render all templates, techniques and bundlesequences.
+"""
 import subprocess
 import tempfile
 import json
 import shutil
 import os
 import xml.etree.ElementTree as ET
+from distutils.dir_util import copy_tree
 
 DESTINATION_FOLDER = './initial-promises/node-server'
 JAR_FILE = './rudder-templates-cli.jar'
@@ -33,10 +39,13 @@ system_directives = { # technique : directive
                       "Server Common" : "root-serverCommon"
                     }
 
-def merge_dicts(x, y):
-    z = x.copy()
-    z.update(y)
-    return z
+def merge_dicts(src_data, override_data):
+    """
+    Merge src_data and override_data in a new dict
+    """
+    result = src_data.copy()
+    result.update(override_data)
+    return result
 
 class Technique:
     """
@@ -90,7 +99,10 @@ class Technique:
         """
         bundle_files = []
         for file in self.files + self.templates:
-            bundle_file = self.technique_path_name + '/1.0/' + os.path.splitext(file['name'])[0]+'.cf'
+            bundle_file = "{technique_name}/1.0/{file_path}".format(
+                             technique_name = self.technique_path_name,
+                             file_path = os.path.splitext(file['name'])[0]+'.cf'
+                          )
             if 'outpath' in file:
                 bundle_file = file['outpath']
             if ('included' in file and file['included'] == 'true') or 'included' not in file:
@@ -103,9 +115,9 @@ class Technique:
         """
         print("Generate initial policies for technique " + self.technique_name)
         directive_name = system_directives[self.technique_name]
-        rule_name = next(x for x in system_rules.keys() if directive_name in system_rules[x])
+        rule_name = next(k for k,v in system_rules.items() if directive_name in v)
         data = {
-                 "trackingkey": "{rule_name}@@{directive_name}@@00".format(
+                 "TRACKINGKEY": "{rule_name}@@{directive_name}@@00".format(
                                    rule_name = rule_name,
                                    directive_name = directive_name
                                  )
@@ -117,8 +129,9 @@ class Technique:
             with open('./variables.json') as json_file:
                 src_data = json.load(json_file)
             data = merge_dicts(src_data, data)
-            with open(tmpdirname + '/variables.json', 'w') as f:
-                json.dump(data, f)
+            print(data)
+            with open(tmpdirname + '/variables.json', 'w') as variables_file:
+                json.dump(data, variables_file)
 
             # generate the things
             build_path = tmpdirname + '/' + self.technique_path_name
@@ -147,16 +160,20 @@ class Technique:
                    "--outdir", destination_folder,
                    "-p", tmpdirname + '/variables.json',
                    source
-                ])
+                ], check=True)
                 # Rename the file afterward since the jar can not modify the file name...
                 # the extension is automatically changed to .cf by the jar, we need to modify it in
                 # the source path.
                 if 'outpath' in file:
-                    shutil.move(destination_folder + '/' + os.path.splitext(os.path.basename(file['name']))[0]+'.cf', destination)
+                    src = "{build_path}/{template}".format(
+                        build_path = destination_folder,
+                        template = os.path.splitext(os.path.basename(file['name']))[0]+'.cf'
+                    )
+                    shutil.move(src, destination)
 
             # Remove the variable.json as it is not needed
-            ignore = shutil.ignore_patterns('.*/variables.json')
-            shutil.copytree(tmpdirname, DESTINATION_FOLDER, dirs_exist_ok=True, ignore=ignore)
+            os.remove(tmpdirname + '/variables.json')
+            copy_tree(tmpdirname, DESTINATION_FOLDER)
 
 
 techniques = []
