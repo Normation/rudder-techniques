@@ -96,7 +96,10 @@ class Technique:
     def compute_bundle_files(self):
         """
         Compute the bundle files of the technique from its metadata
+        Some files must be excluded from the initial policies since they can not
+        properly be applied.
         """
+        blacklist = ["common/1.0/reporting-http.cf", "rudder-system-directives.cf", "common/1.0/rudder-parameters.cf"]
         bundle_files = []
         for file in self.files + self.templates:
             bundle_file = "{technique_name}/1.0/{file_path}".format(
@@ -106,7 +109,8 @@ class Technique:
             if 'outpath' in file:
                 bundle_file = file['outpath']
             if ('included' in file and file['included'] == 'true') or 'included' not in file:
-                bundle_files.append(bundle_file)
+                if bundle_file not in blacklist:
+                    bundle_files.append(bundle_file)
         return { self.technique_path_name.upper() + "_SEQUENCE" : bundle_files }
 
     def generate_initial_policies(self, extra_data={}):
@@ -129,7 +133,6 @@ class Technique:
             with open('./variables.json') as json_file:
                 src_data = json.load(json_file)
             data = merge_dicts(src_data, data)
-            print(data)
             with open(tmpdirname + '/variables.json', 'w') as variables_file:
                 json.dump(data, variables_file)
 
