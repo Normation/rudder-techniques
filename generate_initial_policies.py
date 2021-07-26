@@ -16,27 +16,27 @@ JAR_FILE = './rudder-templates-cli.jar'
 SYSTEM_FOLDER = './techniques/system'
 
 system_rules = { # rule : [directives]
-                 "hasPolicyServer-root": ["common-root"],
+                 "hasPolicyServer-root": ["common-hasPolicyServer-root-root"],
                  "inventory-all": ["inventory-all"],
-                 "root-DP": [
-                   "root-rudderApache",
-                   "root-rudderPostgresql",
-                   "root-rudderRelay",
-                   "root-rudderSlapd",
-                   "root-rudderWebapp",
-                   "root-serverCommon"
+                 "policy-server-root": [
+                   "rudder-service-apache-root",
+                   "rudder-service-postgresql-root",
+                   "rudder-service-relayd-root",
+                   "rudder-service-slapd-root",
+                   "rudder-service-webapp-root",
+                   "server-common-root"
                  ],
                }
 
 system_directives = { # technique : directive
                       "Make an inventory of the node" : "inventory-all",
                       "Common policies" : "common-root",
-                      "Rudder apache" : "root-rudderApache",
-                      "Rudder Postgresql" : "root-rudderPostgresql",
-                      "Rudder relay" : "root-rudderRelay",
-                      "Rudder slapd" : "root-rudderSlapd",
-                      "Rudder Webapp" : "root-rudderWebapp",
-                      "Server Common" : "root-serverCommon"
+                      "Rudder apache" : "rudder-service-apache-root",
+                      "Rudder Postgresql" : "rudder-service-postgresql-root",
+                      "Rudder relay" : "rudder-service-relayd-root",
+                      "Rudder slapd" : "rudder-service-slapd-root",
+                      "Rudder Webapp" : "rudder-service-webapp-root",
+                      "Server Common" : "server-common-root"
                     }
 
 def merge_dicts(src_data, override_data):
