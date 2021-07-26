@@ -9,7 +9,7 @@
     <TML name="main"/>
     <TML name="relay/nodeslist.json">
       <INCLUDED>false</INCLUDED>
-      <OUTPATH>rudderRelay/1.0/relay/nodeslist.json</OUTPATH>
+      <OUTPATH>rudder-service-relayd/1.0/relay/nodeslist.json</OUTPATH>
     </TML>
   </TMLS>
 
@@ -18,7 +18,7 @@
       <INCLUDED>true</INCLUDED>
     </FILE>
     <FILE name="common/relayd.conf.tpl">
-      <OUTPATH>rudderRelay/1.0/common/relayd.conf.tpl</OUTPATH>
+      <OUTPATH>rudder-service-relayd/1.0/common/relayd.conf.tpl</OUTPATH>
       <INCLUDED>false</INCLUDED>
     </FILE>
     <FILE name="common/logrotate.cf">

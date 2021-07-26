@@ -21,5 +21,5 @@ bundle agent system_apache_logrotate {
   methods:
     pass2::
       "any" usebundle => _method_reporting_context("Apache configuration", "Logrotate");
-      "any" usebundle => file_from_template_mustache("${sys.workdir}/inputs/rudderApache/1.0/apache/apache-logrotate.mustache", "/etc/logrotate.d/rudder-apache");
+      "any" usebundle => file_from_template_mustache("${sys.workdir}/inputs/rudder-service-apache/1.0/apache/apache-logrotate.mustache", "/etc/logrotate.d/rudder-apache");
 }

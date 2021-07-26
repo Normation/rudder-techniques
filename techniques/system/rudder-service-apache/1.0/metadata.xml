@@ -8,7 +8,7 @@
     <TML name="apache/main"/>
     <TML name="apache/nodescerts.pem">
       <INCLUDED>false</INCLUDED>
-      <OUTPATH>rudderApache/1.0/apache/nodescerts.pem</OUTPATH>
+      <OUTPATH>rudder-service-apache/1.0/apache/nodescerts.pem</OUTPATH>
     </TML>
   </TMLS>
   <FILES>

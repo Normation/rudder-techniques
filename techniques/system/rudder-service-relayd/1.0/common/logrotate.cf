@@ -26,5 +26,5 @@ bundle agent system_relay_logrotate {
   methods:
     pass2::
       "any" usebundle => _method_reporting_context("Rudder-relayd service", "Log rotation");
-      "any" usebundle => file_from_template_mustache("${sys.workdir}/inputs/rudderRelay/1.0/common/relay-logrotate.mustache", "/etc/logrotate.d/rudder-relay");
+      "any" usebundle => file_from_template_mustache("${sys.workdir}/inputs/rudder-service-relayd/1.0/common/relay-logrotate.mustache", "/etc/logrotate.d/rudder-relay");
 }

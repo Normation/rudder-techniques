@@ -26,5 +26,5 @@ bundle agent system_slapd_logrotate {
   methods:
     pass2::
       "any" usebundle => _method_reporting_context("Rudder slapd configuration", "Log rotation");
-      "any" usebundle => file_from_template_mustache("${sys.workdir}/inputs/rudderSlapd/1.0/slapd-logrotate.mustache", "/etc/logrotate.d/rudder-slapd");
+      "any" usebundle => file_from_template_mustache("${sys.workdir}/inputs/rudder-service-slapd/1.0/slapd-logrotate.mustache", "/etc/logrotate.d/rudder-slapd");
 }
