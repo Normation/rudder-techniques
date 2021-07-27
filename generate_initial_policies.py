@@ -16,7 +16,7 @@ JAR_FILE = './rudder-templates-cli.jar'
 SYSTEM_FOLDER = './techniques/system'
 
 system_rules = { # rule : [directives]
-                 "hasPolicyServer-root": ["common-hasPolicyServer-root-root"],
+                 "hasPolicyServer-root": ["common-hasPolicyServer-root"],
                  "inventory-all": ["inventory-all"],
                  "policy-server-root": [
                    "rudder-service-apache-root",
@@ -30,7 +30,7 @@ system_rules = { # rule : [directives]
 
 system_directives = { # technique : directive
                       "Make an inventory of the node" : "inventory-all",
-                      "Common policies" : "common-root",
+                      "Common policies" : "common-hasPolicyServer-root",
                       "Rudder apache" : "rudder-service-apache-root",
                       "Rudder Postgresql" : "rudder-service-postgresql-root",
                       "Rudder relay" : "rudder-service-relayd-root",
