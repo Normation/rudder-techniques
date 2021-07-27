@@ -2,6 +2,10 @@
 This script is used to generate the initial policies for the agent
 and server. It parses the techniques/system folder and read the metadata
 to render all templates, techniques and bundlesequences.
+
+When adding a system technique, promises.st need to have a new variable TECHNIQUE_NAME_SEQUENCE
+in bundle va to list all the included files for this directive
+Note that the rudder_common_system_directive is not modified by this script
 """
 import subprocess
 import tempfile
@@ -111,7 +115,7 @@ class Technique:
             if ('included' in file and file['included'] == 'true') or 'included' not in file:
                 if bundle_file not in blacklist:
                     bundle_files.append(bundle_file)
-        return { self.technique_path_name.upper() + "_SEQUENCE" : bundle_files }
+        return { self.technique_path_name.upper().replace("-", "_") + "_SEQUENCE" : bundle_files }
 
     def generate_initial_policies(self, extra_data={}):
         """

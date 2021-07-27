@@ -75,7 +75,7 @@ bundle agent rudder_common_system_directive {
       # won't work on the agent since the bundle will not be loaded.
       "rudder_apache"                     string => "system_rudder_apache_configuration";
       "rudder_slapd"                      string => "system_rudder_slapd_configuration";
-      "server_common"                     string => "system_reload_rudder_service";
+      "server_common"                     string => "system_reload_rudder_services";
       "rudder_postgresql"                 string => "system_rudder_postgresql_configuration";
       "rudder_relay"                      string => "system_rudder_relay_configuration";
       "rudder_webapp"                     string => "system_rudder_webapp";
@@ -167,22 +167,22 @@ bundle common va
         &INVENTORY_SEQUENCE:{inventory_file_input |"&inventory_file_input&",
 }&      };
       "rudder_apache_input_list" slist => {
-        &RUDDERAPACHE_SEQUENCE:{rudder_apache_file_input |"&rudder_apache_file_input&",
+        &RUDDER_SERVICE_APACHE_SEQUENCE:{rudder_apache_file_input |"&rudder_apache_file_input&",
 }&      };
       "rudder_webapp_input_list" slist => {
-        &RUDDERWEBAPP_SEQUENCE:{rudder_webapp_file_input |"&rudder_webapp_file_input&",
+        &RUDDER_SERVICE_WEBAPP_SEQUENCE:{rudder_webapp_file_input |"&rudder_webapp_file_input&",
 }&      };
       "rudder_relay_input_list" slist => {
-        &RUDDERRELAY_SEQUENCE:{rudder_relay_file_input |"&rudder_relay_file_input&",
+        &RUDDER_SERVICE_RELAYD_SEQUENCE:{rudder_relay_file_input |"&rudder_relay_file_input&",
 }&      };
       "rudder_postgresql_input_list" slist => {
-        &RUDDERPOSTGRESQL_SEQUENCE:{rudder_postgresql_file_input |"&rudder_postgresql_file_input&",
+        &RUDDER_SERVICE_POSTGRESQL_SEQUENCE:{rudder_postgresql_file_input |"&rudder_postgresql_file_input&",
 }&      };
       "rudder_slapd_input_list" slist => {
-        &RUDDERSLAPD_SEQUENCE:{rudder_slapd_file_input |"&rudder_slapd_file_input&",
+        &RUDDER_SERVICE_SLAPD_SEQUENCE:{rudder_slapd_file_input |"&rudder_slapd_file_input&",
 }&      };
       "server_common_input_list" slist => {
-        &SERVERCOMMON_SEQUENCE:{server_common_file_input |"&server_common_file_input&",
+        &SERVER_COMMON_SEQUENCE:{server_common_file_input |"&server_common_file_input&",
 }&      };
 
     policy_server::
