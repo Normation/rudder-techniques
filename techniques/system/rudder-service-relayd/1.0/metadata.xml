@@ -7,9 +7,9 @@
   <TMLS>
     <!-- Note that the policy server is set via the common.xml -->
     <TML name="main"/>
-    <TML name="relay/nodeslist.json">
+    <TML name="common/nodeslist.json">
       <INCLUDED>false</INCLUDED>
-      <OUTPATH>rudder-service-relayd/1.0/relay/nodeslist.json</OUTPATH>
+      <OUTPATH>rudder-service-relayd/1.0/common/nodeslist.json</OUTPATH>
     </TML>
   </TMLS>
 
