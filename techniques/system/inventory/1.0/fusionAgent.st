@@ -268,7 +268,7 @@ bundle agent sendInventory
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
 
-    !root_server.!have_client::
+    !root_server.have_client::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
         transformer => "/opt/rudder/bin/rudder-client -e ${endpoint} -- --upload-file ${this.promiser}",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
