@@ -22,8 +22,8 @@ bundle agent system_rudder_relayd_configuration {
 
   classes:
       # Restart relayd at the end of the technique if needed
-      "system_restart_relayd" expression => "${config_class_prefix}_repaired",
-                                   scope => "namespace";
+      "rudder_server_system_restart_relayd" expression => "${config_class_prefix}_repaired",
+                                                 scope => "namespace";
   methods:
     # Log rotation
       "any" usebundle => system_relay_logrotate;

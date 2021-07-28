@@ -1,5 +1,6 @@
 <TECHNIQUE name="Rudder slapd">
   <DESCRIPTION>Configure the rudder-slapd service</DESCRIPTION>
+  <SYSTEM>true</SYSTEM>
   <MULTIINSTANCE>false</MULTIINSTANCE>
   <USEMETHODREPORTING>true</USEMETHODREPORTING>
 

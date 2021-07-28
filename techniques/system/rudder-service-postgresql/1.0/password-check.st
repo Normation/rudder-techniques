@@ -60,7 +60,7 @@ bundle agent system_rudder_postgresql(trackingkey, technique_name, db_pass) {
       "any" usebundle => rudder_common_report("${technique_name}", "result_success", "${trackingkey}", "${component}", "Postgresql credentials", "PostgreSQL user account's password");
 
   commands:
-    psql_cant_connect::
+    psql_cant_connect|rudder_postgres_pgpass_repaired::
       "/usr/bin/psql --no-password -q -c \"ALTER USER rudder WITH PASSWORD '${db_pass}'\""
         contain => setuid_sh("${rudder_postgresql.user_name}"),
         classes => classes_generic("rudder_psql_sql_password");

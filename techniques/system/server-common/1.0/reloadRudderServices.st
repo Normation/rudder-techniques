@@ -5,16 +5,20 @@ bundle agent system_reload_rudder_services {
       "jetty_service_name"  string => "${rudder_webapp.service_name}";
       "apache_service_name" string => "${rudder_apache.service_name}";
       "relayd_service_name" string => "${rudder_relayd.service_name}";
+      "slapd_service_name"  string => "${rudder_slapd.service_name}";
 
     any::
       "jetty_prefix"        string => canonify("service_restart_${jetty_service_name}");
       "apache_prefix"       string => canonify("service_reload_${apache_service_name}");
-      "relayd_prefix"       string => canonify("service_reload_${relayd_service_name}");
+      "relayd_prefix"       string => canonify("service_restart_${relayd_service_name}");
+      "slapd_prefix"        string => canonify("service_restart_${slapd_service_name}");
+
 
       "prefixes"             slist => {
                                         "${jetty_prefix}",
                                         "${apache_prefix}",
-                                        "${relayd_prefix}"
+                                        "${relayd_prefix}",
+                                        "${slapd_prefix}"
                                       };
 
       "technique_name"      string => "Server common";
@@ -35,12 +39,14 @@ bundle agent system_reload_rudder_services {
   methods:
       "any" usebundle => disable_reporting;
       "any" usebundle => _method_reporting_context("${component_name}", "None");
+    rudder_server_system_restart_slapd::
+      "any" usebundle => service_restart("${slapd_service_name}");
     rudder_server_system_restart_jetty::
       "any" usebundle => service_restart("${jetty_service_name}");
     rudder_server_system_restart_apache::
       "any" usebundle => service_reload("${apache_service_name}");
     rudder_server_system_restart_relayd::
-      "any" usebundle => service_reload("${relayd_service_name}");
+      "any" usebundle => service_restart("${relayd_service_name}");
     pass3::
       "any" usebundle => enable_reporting;
 

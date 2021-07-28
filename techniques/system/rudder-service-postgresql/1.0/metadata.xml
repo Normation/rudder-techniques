@@ -1,5 +1,6 @@
 <TECHNIQUE name="Rudder Postgresql">
   <DESCRIPTION>Configure the postgresql Rudder database and service</DESCRIPTION>
+  <SYSTEM>true</SYSTEM>
   <MULTIINSTANCE>false</MULTIINSTANCE>
   <USEMETHODREPORTING>true</USEMETHODREPORTING>
 
