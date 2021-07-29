@@ -221,9 +221,6 @@ bundle common va
       "root_server" expression => strcmp("root","${rudder_roles.uuid}");
       # for compatibility
       "role_rudder_server_root" expression => "root_server";
-    # static definition of the machine roles
-&NODEROLE&
-
 }
 
 bundle common agent_capabilities {
