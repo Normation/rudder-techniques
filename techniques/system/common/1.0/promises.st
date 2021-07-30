@@ -50,11 +50,6 @@ body common control
           "rudder-system-directives.cf",
         };
 
-        # force tls1.2 on compatible clients
-        # we only support 5.0+, so 3.12+
-	# let's force TLS 1.2 on:
-	# >3.12 | (3.12 if > 3.12.2)
-      !cfengine_3_12|(cfengine_3_12.!(cfengine_3_12_0|cfengine_3_12_1|cfengine_3_12_2))::
         tls_min_version => "1.2";
 
       any::
@@ -503,7 +498,7 @@ bundle agent update_reports
 bundle agent rudder_check_agent_version
 {
   methods:
-    cfengine_3_1|cfengine_3_2|cfengine_3_3|cfengine_3_4|cfengine_3_5|cfengine_3_6|cfengine_3_7|cfengine_3_8|cfengine_3_9::
+    cfengine_3_1|cfengine_3_2|cfengine_3_3|cfengine_3_4|cfengine_3_5|cfengine_3_6|cfengine_3_7|cfengine_3_8|cfengine_3_9|cfengine_3_10|cfengine_3_11|cfengine_3_12|cfengine_3_13|cfengine_3_14::
       "any" usebundle => _abort("unsupported_agent", "This agent is not compatible with its Rudder server, please upgrade");
 }
 
