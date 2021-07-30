@@ -27,8 +27,8 @@ bundle common rudder_postgresql {
       "no"                 int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","password_getter");
       "postgres_passwd" string => "${password_getter[2]}";
 
-      "db_name"         string => "&RUDDER_REPORTS_DB_NAME&";
-      "db_user"         string => "&RUDDER_REPORTS_DB_USER&";
+      "db_url"          string => "&RUDDER_REPORTS_DB_URL&";
+      "db_password"     string => "&RUDDER_REPORTS_DB_PASSWORD&";
       "user_name"       string => "postgres";
     # Define the where to send the reports messages
     # default is localhost if the rudder_db is unknown
