@@ -12,6 +12,20 @@ bundle common rudder_roles
 
   classes:
 
+&if(INITIAL)&
+      # no kind for initial policies
+      "root_server"   expression => strcmp("root","${rudder_roles.uuid}");
+      "policy_server" expression => "root_server";
+&else&
+      # kind, i.e. "node", "relay" or "root"
+      "rudder_kind_&RUDDER_NODE_KIND&" expression => "any";
+      "root_server"                    expression => "rudder_kind_root";
+      "policy_server"                          or => { "rudder_kind_relay", "rudder_kind_root" };
+&endif&
+
+      # for compatibility, was used in some techniques
+      "role_rudder_server_root"        expression => "root_server";
+
       # on changes only, we only reports on repaired or error message
       "changes_only_mode"      expression => strcmp("&RUDDER_REPORT_MODE&", "changes-only");
       "reports_disabled_mode"  expression => strcmp("&RUDDER_REPORT_MODE&", "reports-disabled");
@@ -213,14 +227,6 @@ bundle common va
 
     # Define classes that policies are evaluable
       "list_compatible_inputs_ok" expression => "any";
-
-    # I don't know why, but these classes are not evaluated if they are in rudder_roles
-      # Policy Server is a machine which delivers promises
-      "policy_server" expression => strcmp("root","${rudder_roles.uuid}");
-      # Root Server is the top policy server machine
-      "root_server" expression => strcmp("root","${rudder_roles.uuid}");
-      # for compatibility
-      "role_rudder_server_root" expression => "root_server";
 }
 
 bundle common agent_capabilities {
