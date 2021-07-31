@@ -14,6 +14,11 @@ bundle agent system_rudder_relay_configuration {
     "relay_sync_method"      string => "&RELAY_SYNC_METHOD&";
     "relay_sync_promises"    string => "&RELAY_SYNC_PROMISES&";
     "relay_sync_sharedfiles" string => "&RELAY_SYNC_SHAREDFILES&";
+    "https_port"             string => "&HTTPS_POLICY_DISTRIBUTION_PORT&";
+
+
+    "db_url"          string => "&RUDDER_REPORTS_DB_URL&";
+    "db_password"     string => "&RUDDER_REPORTS_DB_PASSWORD&";
 
   methods:
     # Only run this on relays (non-root)

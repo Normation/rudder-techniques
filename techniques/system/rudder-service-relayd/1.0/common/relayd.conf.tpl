@@ -9,7 +9,13 @@ listen = "127.0.0.1:3030"
 
 # Use the number of CPUs
 #core_threads = "4"
-blocking_threads = 100
+#blocking_threads = 100
+
+# Use cert pinning
+peer_authentication = "cert_pinning"
+
+# Use proper port
+https_port = {{{vars.system_rudder_relay_configuration.https_port}}}
 
 [processing.inventory]
 directory = "{{{vars.g.rudder_var}}}/inventories"
@@ -48,21 +54,15 @@ retention = "1day"
 
 [output.database]
 {{#classes.root_server}}
-url = "{{{vars.rudder_postgresql.db_url}}}"
-password = "{{{vars.rudder_postgresql.db_password}}}"
+url = "{{{vars.system_rudder_relay_configuration.db_url}}}"
+password = "{{{vars.system_rudder_relay_configuration.db_password}}}"
 {{/classes.root_server}}
 max_pool_size = 10
 
 [output.upstream]
-url = "https://{{{vars.server_info.policy_server}}}"
+host = "{{{vars.server_info.policy_server}}}"
 user = "{{{vars.g.davuser}}}"
 password = "{{{vars.g.davpw}}}"
-{{#classes.rudder_verify_certs}}
-verify_certificates = true
-{{/classes.rudder_verify_certs}}
-{{^classes.rudder_verify_certs}}
-verify_certificates = false
-{{/classes.rudder_verify_certs}}
 
 [remote_run]
 command = "{{{vars.g.rudder_base}}}/bin/rudder"
