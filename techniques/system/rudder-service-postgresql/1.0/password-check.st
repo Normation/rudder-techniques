@@ -24,10 +24,10 @@ bundle agent system_rudder_postgresql(trackingkey, technique_name, db_pass) {
 
     any::
     # Array used to force content of the .pgpass file
-      "pgpass[1]" string => "${rudder_postgresql.host}";
+      #"pgpass[1]" string => "${rudder_postgresql.host}";
       "pgpass[2]" string => "5432";
-      "pgpass[3]" string => "${rudder_postgresql.db_user}";
-      "pgpass[4]" string => "${rudder_postgresql.db_name}";
+      "pgpass[3]" string => "${rudder_postgresql.db_name}";
+      "pgpass[4]" string => "rudder"; # this is always rudder, we don't have anything else to configure it
       "pgpass[5]" string => "${db_pass}";
 
   classes:
@@ -62,7 +62,7 @@ bundle agent system_rudder_postgresql(trackingkey, technique_name, db_pass) {
   commands:
     psql_cant_connect|rudder_postgres_pgpass_repaired::
       "/usr/bin/psql --no-password -q -c \"ALTER USER rudder WITH PASSWORD '${db_pass}'\""
-        contain => setuid_sh("${rudder_postgresql.user_name}"),
+        contain => setuid_sh("${rudder_postgresql.db_admin_name}"),
         classes => classes_generic("rudder_psql_sql_password");
 
 }
@@ -73,11 +73,11 @@ bundle edit_line rudder_system_pgpass_password(parameter) {
       "indices" slist => getindices(${parameter});
 
   field_edits:
-      "localhost:5432:rudder:.*"
+      "localhost:5432:${${parameter}[3]}:.*"
 
     # Set field of the file to parameter
         edit_field => col(":","${indices}","${${parameter}[${indices}]}","set");
 
   insert_lines:
-      "localhost:5432:rudder:${${parameter}[4]}:${${parameter}[5]}";
+      "localhost:5432:${${parameter}[3]}:${${parameter}[4]}:${${parameter}[5]}";
 }
