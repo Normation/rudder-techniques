@@ -24,9 +24,11 @@ bundle common rudder_postgresql {
       "service_name"    string => execresult("chkconfig 2>/dev/null | ${paths.awk} '{ print $1 }' | ${paths.grep} 'postgresql' | tail -n 1", "useshell");
 
     any::
+      "no"                 int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","password_getter");
+      "postgres_passwd" string => "${password_getter[2]}";
+      
       "db_url"          string => "&RUDDER_REPORTS_DB_URL&";
       "db_name"         string => "&RUDDER_REPORTS_DB_NAME&";
-      "db_password"     string => "&RUDDER_REPORTS_DB_PASSWORD&";
       "db_admin_name"   string => "postgres";
     # Define the where to send the reports messages
     # default is localhost if the rudder_db is unknown
@@ -40,7 +42,7 @@ bundle agent system_rudder_postgresql_configuration {
   vars:
     any::
       "trackingkey"     string => "&TRACKINGKEY&";
-      "postgres_passwd" string => "${rudder_postgresql.db_password}";
+      "postgres_passwd" string => "${rudder_postgresql.postgres_passwd}";
       "technique_name"  string => "Rudder Postgresql";
 
   methods:
