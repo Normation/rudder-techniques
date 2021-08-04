@@ -3,7 +3,13 @@
 [general]
 
 nodes_list_file = "{{{vars.g.rudder_var}}}/lib/relay/nodeslist.json"
+{{#classes.root_server}}
 nodes_certs_file = "{{{vars.g.rudder_var}}}/lib/ssl/allnodescerts.pem"
+{{/classes.root_server}}
+{{^classes.root_server}}
+nodes_certs_file = "{{{vars.g.rudder_var}}}/lib/ssl/nodescerts.pem"
+{{/classes.root_server}}
+
 node_id = "{{{vars.g.uuid}}}"
 listen = "127.0.0.1:3030"
 

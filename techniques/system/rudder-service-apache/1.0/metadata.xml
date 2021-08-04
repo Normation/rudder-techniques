@@ -58,7 +58,6 @@
     <SECTION name="Configure apache certificate" component="true" multivalued="true">
       <REPORTKEYS>
         <VALUE>Permissions</VALUE>
-        <VALUE>Relayd certificate</VALUE>
         <VALUE>Apache certificate</VALUE>
       </REPORTKEYS>
     </SECTION>
