@@ -24,10 +24,11 @@ bundle agent system_rudder_relayd_configuration {
 
   classes:
       # Restart relayd at the end of the technique if needed
-      "rudder_server_system_restart_relayd" or => { "${config_class_prefix}_repaired",
-                                                    "${policy_cert_class_prefix}_repaired",
+      "rudder_server_system_restart_relayd" or => { "${config_class_prefix}_repaired" },
+                                         scope => "namespace";
+      "rudder_server_system_reload_relayd"  or => { "${policy_cert_class_prefix}_repaired",
                                                     "${root_cert_class_prefix}_repaired" },
-                                            scope => "namespace";
+                                         scope => "namespace";
 
   methods:
     # Log rotation

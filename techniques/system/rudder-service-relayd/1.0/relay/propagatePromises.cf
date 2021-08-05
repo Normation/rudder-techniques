@@ -99,6 +99,8 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
                                                    not("any_resources_error")
                                                  );
 
+      # Reload relayd if needed
+      "rudder_server_system_reload_relayd" expression => "rudder_relayd_nodeslist_repaired";
 
   files:
     !disable_classic_promises::
@@ -157,9 +159,6 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
 
 
   methods:
-    rudder_relayd_nodeslist_repaired::
-      "any" usebundle => service_reload("rudder-relayd");
-
     # Success if resources are updated or not changed (kept or repaired).
     # relays have ncf, masterfiles nodelist and shared_files folder to be updated.
 
