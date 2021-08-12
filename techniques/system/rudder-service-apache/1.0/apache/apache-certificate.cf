@@ -35,6 +35,6 @@ bundle agent apache_cert(trackingkey, technique_name)
       "any" usebundle => file_from_local_source_recursion("${src_ca_file}", "${nodes_certs}", "0");
 
       "any" usebundle => _method_reporting_context("${component}", "Permissions");
-      "any" usebundle => permissions("${nodes_certs}", "640", "root", "0");
+      "any" usebundle => permissions("${nodes_certs}", "640", "root", "rudder");
 
 }

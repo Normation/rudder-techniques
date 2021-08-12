@@ -62,7 +62,8 @@
         <VALUE>Log rotation</VALUE>
         <VALUE>Policy-server certificate</VALUE>
         <VALUE>Root server certificate</VALUE>
-        <VALUE>Certificate permissions</VALUE>
+        <VALUE>Root certificate permissions</VALUE>
+        <VALUE>Policy server certificate permissions</VALUE>
       </REPORTKEYS>
     </SECTION>
     <SECTION name="Synchronize policies" component="true"/>

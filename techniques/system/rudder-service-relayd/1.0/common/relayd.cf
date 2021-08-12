@@ -37,11 +37,14 @@ bundle agent system_rudder_relayd_configuration {
       "any" usebundle => _method_reporting_context("${component}", "Policy-server certificate");
       "any" usebundle => file_copy_from_local_source("${sys.policy_entry_dirname}/certs/policy-server.pem", "${g.rudder_var}/lib/ssl/policy_server.pem");
 
+      "any" usebundle => _method_reporting_context("${component}", "Policy server certificate permissions");
+      "any" usebundle => permissions("${g.rudder_var}/lib/ssl/policy_server.pem", "640", "root", "rudder");
+
       "any" usebundle => _method_reporting_context("${component}", "Root server certificate");
       "any" usebundle => file_copy_from_local_source("${sys.policy_entry_dirname}/certs/root.pem", "${g.rudder_var}/lib/ssl/root.pem");
 
-      "any" usebundle => _method_reporting_context("${component}", "Certificate permissions");
-      "any" usebundle => permissions_dirs("${g.rudder_var}/lib/ssl/", "640", "root", "rudder");
+      "any" usebundle => _method_reporting_context("${component}", "Root certificate permissions");
+      "any" usebundle => permissions("${g.rudder_var}/lib/ssl/root.pem", "640", "root", "rudder");
 
       "any" usebundle => _method_reporting_context("${component}", "Configuration");
       "any" usebundle => file_from_template_mustache("${this.promise_dirname}/relayd.conf.tpl", "${rudder_relayd.config_file}");
