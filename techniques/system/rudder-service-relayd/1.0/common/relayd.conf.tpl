@@ -58,12 +58,12 @@ limit = 0
 frequency = "10min"
 retention = "1day"
 
-[output.database]
 {{#classes.root_server}}
+[output.database]
 url = "{{{vars.system_rudder_relay_configuration.db_url}}}"
 password = "{{{vars.system_rudder_relay_configuration.db_password}}}"
-{{/classes.root_server}}
 max_pool_size = 10
+{{/classes.root_server}}
 
 [output.upstream]
 host = "{{{vars.server_info.policy_server}}}"
