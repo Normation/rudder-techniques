@@ -26,8 +26,8 @@ bundle agent system_rudder_apache_networks_configuration {
       "allowed_network_file"   string => "${g.rudder_base}/etc/rudder-networks-24.conf";
       "remote_run_file"        string => "${g.rudder_base}/etc/rudder-networks-policy-server-24.conf";
 
-      "allowed_network_prefix" string => canonify("file_content_${allowed_network_file}");
-      "remote_run_prefix"      string => canonify("file_content_${remote_run_file}");
+      "allowed_network_prefix" string => canonify("file_lines_present_${allowed_network_file}");
+      "remote_run_prefix"      string => canonify("file_lines_present_${remote_run_file}");
 
       "policy_server_ip"       string => host2ip("${server_info.policy_server}");
 
