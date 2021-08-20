@@ -95,7 +95,6 @@ body copy_from cp(from,server)
         servers     => { "${server}" };
         source      => "${from}";
         compare     => "digest";
-    community_edition::
         portnumber => "${system_common.community_port}";
 
 }

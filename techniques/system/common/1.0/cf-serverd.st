@@ -6,13 +6,8 @@
 
 bundle server access_rules
 {
-  vars:
-    enterprise_edition::
-      "query_types" slist => {"delta", "rebase", "full"};
-
-  # Access rules are only defined on a policy server. Standard nodes should not share any files.
   access:
-
+    # Access rules are only defined on a policy server. Standard nodes should not share any files.
     policy_server::
       "${def.dir_masterfiles}"
         handle    => "grant_access_policy",
@@ -64,14 +59,6 @@ bundle server access_rules
     root_server::
       "${g.rudder_command}" comment => "Grant access to rudder agent command for cfruncommand, root is its own policy server",
         admit_keys => { "&POLICY_SERVER_KEY&" };
-
-    enterprise_edition::
-      "${query_types}"
-        handle             => "server_access_grant_${query_types}_for_hosts",
-        comment            => "Grant ${query_types} reporting query for the hub on the hosts",
-        resource_type      => "query",
-        report_data_select => rudder_data_select_host,
-        admit_ips          => { host2ip("${server_info.policy_server}"), @{sys.ip_addresses} };
 
   roles:
       # Allow user root to set any class
@@ -150,9 +137,9 @@ body server control
 
         denybadclocks => "&DENYBADCLOCKS&";
 
-    community_edition.!debug_port::
+    !debug_port::
         port => "&COMMUNITYPORT&";
-    community_edition.debug_port::
+    debug_port::
         port => "5310";
 
     ipv6_enabled::
@@ -165,24 +152,14 @@ body server control
 &if(MANAGED_NODES_NAME)&
 body runagent control
 {
-  enterprise_edition::
-  # If using enterprise, the nodes to connect to are using default port
-        hosts => {
-          &MANAGED_NODES_NAME: {
-          "&it&",}&
-        };
-
-  !enterprise_edition::
-  # When using community, we must use the port &COMMUNITYPORT& to connect to nodes
         hosts => {
           &MANAGED_NODES_NAME: {
           "&it&:&COMMUNITYPORT&",}&
         };
 
-    any::
         max_children => "25";
 
-    community_edition.!debug_port::
+    !debug_port::
         port => "&COMMUNITYPORT&";
     debug_port::
         port => "5310";
