@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
 
 bundle agent file_alteration_monitor_&RudderUniqueID&
 {
@@ -56,9 +58,4 @@ bundle agent file_alteration_monitor_&RudderUniqueID&
 
       "any" usebundle => rudder_common_report_index("fileAlterationMonitoring", "result_na", "${monitor_entity[${index}][uuid]}", "File or directory to monitor", "${monitor_entity[${index}][name]}", "The entity ${monitor_entity[${index}][name]} does not exist: alteration monitoring not applicable", "${index}"),
         ifvarclass => "(!isdir_${index}.!isfile_${index}).!nofile_reports_error_${index}";
-
-
-
-
-
 }

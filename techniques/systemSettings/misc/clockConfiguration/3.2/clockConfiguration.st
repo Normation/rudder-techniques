@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2015 Janos Mattyasovszky
+
 ######################################################
 # Configure the ntp
 # If ntp is not installed, install it (linux)

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
 
 bundle agent job_scheduler_&RudderUniqueID&
 {
@@ -24,8 +26,6 @@ bundle agent job_scheduler_&RudderUniqueID&
 
       "job_scheduler_canon_name[${iterator}]" string => canonify("${job_scheduler_command[${iterator}]}");
 
-
-      
       "kept_returncodes_${iterator}"          slist => splitstring("${job_scheduler_keptcodes[${iterator}]}",",","128");
 
       "repaired_returncodes_${iterator}"      slist => splitstring("${job_scheduler_repaircodes[${iterator}]}",",","128");

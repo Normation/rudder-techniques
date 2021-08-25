@@ -1,4 +1,6 @@
-# (C) Normation 2011
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2011 Normation SAS
+
 #
 # NOTE : I permitted the creation of the hosts file if absent, but on a purely
 # functional side, its absence means a severe breakage of your IP stack. Be

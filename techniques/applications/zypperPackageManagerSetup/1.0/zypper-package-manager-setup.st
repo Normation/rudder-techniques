@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 ######################################################
 # Setups the Zypper Package Manager                  #
 ######################################################
@@ -14,8 +17,6 @@ bundle agent zypper_package_manager_setup
       "zypper_sections" slist => getindices("zmdconf");
 
       "class_prefix"   string => "zypper_package_manager_setup";
-  classes:
-      
 
   files:
 

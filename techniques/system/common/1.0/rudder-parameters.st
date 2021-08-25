@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # This file contain the Global Parameters, to be available within all
 # promises, in the form ${rudder_parameters.parameterName}
 
@@ -14,7 +17,7 @@ bundle common rudder_parameters {
 #
 # Parameters are available using the rudder.parameters container that contains the values
 # Those values are read from /var/rudder/cfengine-community/inputs/rudder-parameters.json
-# 
+#
 # The file must contain at least a 2 levels JSON content, the first level is the namespace level
 # (namely parameters) and the second level is the key level.
 # The namespace name must comply with CFEngine variable names rules (ie [a-zA-Z_]+)

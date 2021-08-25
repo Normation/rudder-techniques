@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle agent setup_cronjob
 {
   vars:
@@ -68,7 +71,7 @@ bundle agent check_cron_daemon
   methods:
       "restart_cron" usebundle => disable_reporting;
       "restart_cron" usebundle => _method_reporting_context("CRON Daemon", "None");
-      "check_cron_service" 
+      "check_cron_service"
                      usebundle => service_check_running("${service_name}"),
                             if => "!aix";
 
@@ -82,7 +85,7 @@ bundle agent check_cron_daemon
                    if => "(rudder_system_user_crontab_insertion_repaired|service_check_running_${service_name}_error).!aix";
 
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "CRON Daemon", "None", "CRON is correctly running"),
-                   if => "!(rudder_system_user_crontab_insertion_repaired|service_check_running_${service_name}_error).!aix";   
+                   if => "!(rudder_system_user_crontab_insertion_repaired|service_check_running_${service_name}_error).!aix";
     aix::
       "any" usebundle => rudder_common_report("Common", "result_na", "${system_common.directiveId}", "CRON Daemon", "None", "CRON is not a service on AIX: CRON verifications skipped");
 

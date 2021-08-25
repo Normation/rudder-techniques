@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # Here we have our firewall configuration (iptables or nftables)
 # But format may not be exactly what the output of iptables-save or nft export.
 # What we will do it to maintain an export from a previous run to be able to compare

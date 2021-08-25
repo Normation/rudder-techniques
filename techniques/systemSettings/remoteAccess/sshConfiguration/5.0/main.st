@@ -1,5 +1,8 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 #####################################################################################
-# Configure the OpenSSH server 
+# Configure the OpenSSH server
 #####################################################################################
 # If ssh is not installed, install it (linux)
 # Change the server configuration, and restart the daemon

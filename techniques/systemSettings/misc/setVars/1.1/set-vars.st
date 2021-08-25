@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # Define one or more variable on rudder
 #   -Variables can be defined by a Json  file or a text input
 #    -Allowed types are string and dict
@@ -14,7 +17,7 @@ bundle agent set_vars_&RudderUniqueID& {
       &SET_VARS_TYPE: {type|"types[&i&]" string => "&type&";}&
       #Variable name and prefix
       &SET_VARS_NAME: {name|"complete_names[&i&]" string => "&name&";}&
-      "strTok[${index}]" slist => splitstring("${complete_names[${index}]}", "\.", "2"); 
+      "strTok[${index}]" slist => splitstring("${complete_names[${index}]}", "\.", "2");
       "prefixes[${index}]" string => nth("strTok[${index}]", 0);
       "names[${index}]" string => nth("strTok[${index}]", 1);
 
@@ -88,7 +91,7 @@ bundle agent set_vars_&RudderUniqueID& {
 
 
 ################################################################################
-#                                    REPORTING                                 # 
+#                                    REPORTING                                 #
 ################################################################################
 
       "any" usebundle => rudder_common_reports_generic("setVars", "variable_string_${names_canon[${index}]}", "${trackingkey[${index}]}", "Load rudder variables", "${complete_names[${index}]}", "Definition of string variable ${complete_names[${index}]}"),

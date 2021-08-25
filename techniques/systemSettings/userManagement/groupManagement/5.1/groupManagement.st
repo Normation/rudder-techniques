@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 ##########################################################################
 # Group management Technique                                             #
 #                                                                        #
@@ -7,7 +10,7 @@
 
 bundle agent check_usergroup_grp_parameters_&RudderUniqueID& {
 
-	vars:
+  vars:
 		&USERGROUP_GROUP_NAME:{name |"usergroup_group_name[&i&]" string => "&name&";
 }&
 
@@ -32,9 +35,9 @@ bundle agent check_usergroup_grp_parameters_&RudderUniqueID& {
         &TRACKINGKEY:{directiveId |"usergroup_group_directive_id[&i&]" string => "&directiveId&";
 }&
 
-		"usergroup_group_index" slist => getindices("usergroup_group_name");
+      "usergroup_group_index" slist => getindices("usergroup_group_name");
 
-	methods:
+  methods:
 
       "any"
         usebundle => check_usergroup_group_parameters_grouphandle_&RudderUniqueID&("${usergroup_group_name[${usergroup_group_index}]}", "${usergroup_group_create[${usergroup_group_index}]}", "${usergroup_group_set_gid[${usergroup_group_index}]}", "${usergroup_group_gid[${usergroup_group_index}]}","${usergroup_group_enforce_content[${usergroup_group_index}]}", "${usergroup_group_content[${usergroup_group_index}]}", "${usergroup_group_index}", "${usergroup_group_directive_id[${usergroup_group_index}]}");
@@ -173,14 +176,14 @@ bundle edit_line groups_file_set_&RudderUniqueID&(group,userlist)
 
 vars:
 
-	"finalgroup" string => join(",","userlist");
+    "finalgroup" string => join(",","userlist");
 
 field_edits:
 
-	"${group}:.*"
+    "${group}:.*"
 
-	# Set field of the file to parameter
-	# /etc/group entry is: groupname:x:gid:users
-	edit_field => col(":","4","${finalgroup}","set");
+      # Set field of the file to parameter
+      # /etc/group entry is: groupname:x:gid:users
+      edit_field => col(":","4","${finalgroup}","set");
 
 }

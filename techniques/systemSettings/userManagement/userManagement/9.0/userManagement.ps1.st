@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 function check_usergroup_user_parameters_&RudderUniqueID& {
   [CmdletBinding()]
   param (
@@ -5,7 +8,7 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
       [parameter(Mandatory=$true)]  [string]$techniqueName,
       [switch]$auditOnly
   )
-    
+
     $trackingkey = @(
     &TRACKINGKEY:{directiveId |
     "&directiveId&" };separator=","& )
@@ -36,7 +39,7 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
     $homeSection    = "Home directory"
     $passwdSection  = "Password"
     $resultNAString = "Not applicable"
-    
+
 
     $local_classes = New-ClassContext
 
@@ -59,7 +62,7 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
             } else {
               if ($auditOnly) {
                 $state = [ComplianceStatus]::audit_na
-              } else { 
+              } else {
                 $state = [ComplianceStatus]::result_na
               }
               $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $passwdSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
@@ -81,17 +84,17 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
         $TestResult = $LastExitCode -eq 0
         if ($TestResult) {
           #User exists
-          if ($auditOnly) { 
+          if ($auditOnly) {
             $state = [ComplianceStatus]::audit_compliant
-          } else { 
+          } else {
             $state = [ComplianceStatus]::result_success
           }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
         } else {
           #User does not exists
-          if ($auditOnly) { 
+          if ($auditOnly) {
             $state = [ComplianceStatus]::audit_noncompliant
-          } else { 
+          } else {
             $state = [ComplianceStatus]::result_error
           }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
@@ -103,17 +106,17 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
         $TestResult = $LastExitCode -eq 0
         if ($TestResult) {
           #User exists
-          if ($auditOnly) { 
+          if ($auditOnly) {
             $state = [ComplianceStatus]::audit_noncompliant
-          } else { 
+          } else {
             $state = [ComplianceStatus]::result_error
           }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
         } else {
           #User does not exists
-          if ($auditOnly) { 
+          if ($auditOnly) {
             $state = [ComplianceStatus]::audit_compliant
-          } else { 
+          } else {
             $state = [ComplianceStatus]::result_success
           }
           $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
@@ -122,9 +125,9 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
       }
 
       #Unix section reporting
-      if ($auditOnly) { 
+      if ($auditOnly) {
         $state = [ComplianceStatus]::audit_na
-      } else { 
+      } else {
         $state = [ComplianceStatus]::result_na
       }
       $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $homeSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true

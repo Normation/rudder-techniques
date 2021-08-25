@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 bundle agent send_rudder_report(path) {
   vars:
       "c_path"   string => canonify("${path}");
@@ -7,7 +10,7 @@ bundle agent send_rudder_report(path) {
       "have_client" expression => fileexists("/opt/rudder/bin/rudder-client");
 
   files:
-      "${path}" 
+      "${path}"
         delete  => tidy,
         if      => "send_report_${c_path}_ok",
         classes => classes_generic("tidy_report_${c_path}");
