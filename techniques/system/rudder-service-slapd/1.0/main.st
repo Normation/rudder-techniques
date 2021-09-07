@@ -54,8 +54,10 @@ bundle agent system_rudder_slapd_configuration {
     # Service configuration
       "any" usebundle => _method_reporting_context("Rudder slapd configuration", "Check Rudder ldap permissions");
       "any" usebundle => permissions("${rudder_slapd.config_file}", "640", "root", "${rudder_slapd.group_name}");
+    !is_rudder_bootstrap::
       "any" usebundle => _method_reporting_context("Rudder slapd service", "Started");
       "any" usebundle => service_started("${rudder_slapd.service_name}");
+    any::
       "any" usebundle => _method_reporting_context("Rudder slapd service", "Enabled");
       "any" usebundle => service_enabled("${rudder_slapd.service_name}");
 
