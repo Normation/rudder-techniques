@@ -604,15 +604,14 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
           "${technique_name}", "result_error",
           "${${bundles}.sshkey_distribution_uuid[${array[${bundles}]}]}", "${component_name}", "${${bundles}.sshkey_distribution_tag[${array[${bundles}]}]}",
           "The user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} does not have a defined home dir"
-        ),
-        ifvarclass => "!home_directory_${runhook_sshKeyDistribution_pre_hook.c_userlist}_defined.ssh_key_distribution_user_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_exists.enforce_mode_${bundles}.ssh_key_distribution_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_to_flush";
+        ifvarclass => "!home_directory_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_defined.ssh_key_distribution_user_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_exists.enforce_mode_${bundles}.ssh_key_distribution_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_to_flush";
 
       "No user" usebundle     => rudder_common_report(
           "${technique_name}", "audit_noncompliant",
           "${${bundles}.sshkey_distribution_uuid[${array[${bundles}]}]}", "${component_name}", "${${bundles}.sshkey_distribution_tag[${array[${bundles}]}]}",
           "The user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} does not have a defined home dir"
         ),
-        ifvarclass => "!home_directory_${runhook_sshKeyDistribution_pre_hook.c_userlist}_defined.ssh_key_distribution_user_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_exists.!enforce_mode_${bundles}.ssh_key_distribution_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_to_flush";
+        ifvarclass => "!home_directory_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_defined.ssh_key_distribution_user_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_exists.!enforce_mode_${bundles}.ssh_key_distribution_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_to_flush";
 
       # No flush requested -> NA
       "No flush" usebundle     => rudder_common_report(
