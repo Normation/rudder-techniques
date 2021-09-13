@@ -1,8 +1,8 @@
-#
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # Fetch the promises from the server to be available for others machines
 # Must not do it on the RootServer though...
-
-
 bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, relay_sync_promises, relay_sync_sharedfiles) {
 
   vars:

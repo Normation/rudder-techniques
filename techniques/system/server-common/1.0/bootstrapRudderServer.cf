@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2021 Normation SAS
+
 # Used only for bootstrapping Rudder server
 bundle agent bootstrap_server_rudder {
 
