@@ -79,7 +79,7 @@ bundle common def
 
    # List here the IP masks that we grant access to on the server
 
-    policy_server::
+    policy_server.(agent|server)::
       "acl" slist => {
         "127.0.0.0/8" , "::1", @{sys.ip_addresses},
 &if(ALLOWED_NETWORKS)&
@@ -89,7 +89,7 @@ bundle common def
 
     };
 
-    !policy_server::
+    !policy_server.(agent|server)::
       "acl" slist => {
         host2ip("${server_info.policy_server}")
       };

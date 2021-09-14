@@ -4,12 +4,12 @@
 bundle common rudder_postgresql {
   vars:
     # sles 12, sp1 and sp2 don't have by default a systemd postgresql
-    !(sles_12_0|sles_12_1|sles_12_2)::
+    agent.!(sles_12_0|sles_12_1|sles_12_2)::
       "service_name"    string => execresult("${paths.systemctl} --no-ask-password list-unit-files --type service | ${paths.awk} -F'.' '{print $1}' | ${paths.grep} -E \"^postgresql-?[0-9]*$\" | tail -n 1", "useshell");
-    sles_12_0|sles_12_1|sles_12_2::
+    agent.(sles_12_0|sles_12_1|sles_12_2)::
       "service_name"    string => execresult("chkconfig 2>/dev/null | ${paths.awk} '{ print $1 }' | ${paths.grep} 'postgresql' | tail -n 1", "useshell");
 
-    any::
+    agent::
       "no"                 int => getfields("RUDDER_PSQL_PASSWORD:.*","/opt/rudder/etc/rudder-passwords.conf",":","password_getter");
       "postgres_passwd" string => "${password_getter[2]}";
       
