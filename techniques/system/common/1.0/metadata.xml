@@ -135,10 +135,6 @@
         <DESCRIPTION>UUID of the machine</DESCRIPTION>
       </INPUT>
       <INPUT>
-        <NAME>POLICYSERVER</NAME>
-        <DESCRIPTION>Promises server hostname</DESCRIPTION>
-      </INPUT>
-      <INPUT>
         <NAME>POLICYSERVER_ID</NAME>
         <DESCRIPTION>UUID of the policy server</DESCRIPTION>
       </INPUT>
