@@ -11,14 +11,16 @@ bundle agent system_reload_rudder_services {
       "slapd_service_name"  string => "${rudder_slapd.service_name}";
 
       "jetty_prefix"          string => canonify("service_restart_${jetty_service_name}");
-      "apache_prefix"         string => canonify("service_reload_${apache_service_name}");
+      "apache_reload_prefix"  string => canonify("service_reload_${apache_service_name}");
+      "apache_restart_prefix" string => canonify("service_restart_${apache_service_name}");
       "relayd_reload_prefix"  string => canonify("service_reload_${relayd_service_name}");
       "relayd_restart_prefix" string => canonify("service_restart_${relayd_service_name}");
       "slapd_prefix"          string => canonify("service_restart_${slapd_service_name}");
 
       "prefixes"              slist => {
                                          "${jetty_prefix}",
-                                         "${apache_prefix}",
+                                         "${apache_reload_prefix}",
+                                         "${apache_restart_prefix}",
                                          "${relayd_reload_prefix}",
                                          "${relayd_restart_prefix}",
                                          "${slapd_prefix}"
@@ -47,6 +49,8 @@ bundle agent system_reload_rudder_services {
     rudder_server_system_restart_jetty::
       "any" usebundle => service_restart("${jetty_service_name}");
     rudder_server_system_restart_apache::
+      "any" usebundle => service_restart("${apache_service_name}");
+    rudder_server_system_reload_apache.!rudder_server_system_restart_apache::
       "any" usebundle => service_reload("${apache_service_name}");
     rudder_server_system_reload_relayd.!rudder_server_system_restart_relayd::
       "any" usebundle => service_reload("${relayd_service_name}");

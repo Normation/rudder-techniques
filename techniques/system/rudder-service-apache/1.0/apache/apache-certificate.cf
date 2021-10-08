@@ -15,6 +15,10 @@ bundle agent apache_cert(trackingkey, technique_name)
 
       "nodes_certs_src_size" string => filestat("${nodes_certs_src}", "size");
 
+      "copy_prefix"          string => canonify("file_from_local_source_${src_ca_file}_${nodes_certs}_0");
+      "perms_prefix"         string => canonify("permissions_${nodes_certs}_640_root_rudder");
+
+
     pass1::
       "src_ca_file" string => "${nodes_certs_src}",
                         if => "!empty_ssl_ca";
@@ -27,6 +31,9 @@ bundle agent apache_cert(trackingkey, technique_name)
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
+
+      "rudder_server_system_reload_apache" expression => or("${copy_prefix}_repaired", "${perms_prefix}_repaired"),
+                                                scope => "namespace";
 
   methods:
     pass2::
