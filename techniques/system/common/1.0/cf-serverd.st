@@ -107,6 +107,18 @@ bundle common def
         host2ip("${server_info.policy_server}")
       };
 
+
+    ipv6_enabled::
+      "bindtointerface" string => "${node.properties[rudder2][server][cf_serverd_bind_address]}";
+
+    !ipv6_enabled::
+      "bindtointerface" string => "",
+                            if => strcmp("${node.properties[rudder][server][cf_serverd_bind_address]}", "::");
+
+      "bindtointerface" string => "${node.properties[rudder][server][cf_serverd_bind_address]}",
+                        unless => strcmp("${node.properties[rudder][server][cf_serverd_bind_address]}", "::");
+
+
   classes:
       "ipv6_enabled" expression => fileexists("/proc/net/if_inet6"),
                           scope => "namespace";
@@ -162,8 +174,9 @@ body server control
     community_edition.debug_port::
         port => "5310";
 
-    ipv6_enabled::
-        bindtointerface => "::";
+    any::
+        bindtointerface => "${def.bindtointerface}";
+
 
 }
 
