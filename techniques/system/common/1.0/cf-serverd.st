@@ -109,7 +109,7 @@ bundle common def
 
 
     ipv6_enabled::
-      "bindtointerface" string => "${node.properties[rudder2][server][cf_serverd_bind_address]}";
+      "bindtointerface" string => "${node.properties[rudder][server][cf_serverd_bind_address]}";
 
     !ipv6_enabled::
       "bindtointerface" string => "",
