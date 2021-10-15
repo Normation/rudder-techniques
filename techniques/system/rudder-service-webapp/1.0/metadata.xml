@@ -30,6 +30,9 @@
       <FILE name="updateNcfHash.cf">
         <INCLUDED>true</INCLUDED>
       </FILE>
+      <FILE name="bootstrapRudderServer.cf">
+        <INCLUDED>true</INCLUDED>
+      </FILE>
     </FILES>
   </AGENT>
 

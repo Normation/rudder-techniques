@@ -11,9 +11,6 @@
     <FILE name="rudder_syslog.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
-    <FILE name="bootstrapRudderServer.cf">
-      <INCLUDED>true</INCLUDED>
-    </FILE>
   </FILES>
 
   <BUNDLES>
