@@ -17,6 +17,7 @@ bundle agent system_rudder_apache_configuration {
   vars:
       "trackingkey"     string => "&TRACKINGKEY&";
       "technique_name"  string => "Rudder apache";
+      "https_port"      string => "&HTTPS_POLICY_DISTRIBUTION_PORT&";
 
   methods:
       # Force certificates and permissions
