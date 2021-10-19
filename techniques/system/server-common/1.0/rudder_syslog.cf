@@ -15,6 +15,6 @@ bundle common rudder_syslog {
     debian::
       "group_name"       string => "adm";
       "rotation_method"  string => "rotate";
-    SuSE::
+    suse::
       "service_name"     string => "syslog";
 }

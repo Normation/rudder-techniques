@@ -20,7 +20,7 @@ bundle agent system_rudder_apache_webdav_configuration {
     suse::
       "htpasswd_bin"     string => "/usr/bin/htpasswd2";
 
-    !SuSE::
+    !suse::
       "htpasswd_bin"     string => "/usr/bin/htpasswd";
 
     root_server::

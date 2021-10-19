@@ -215,8 +215,10 @@ bundle common va
 
   classes:
     # OS classes for compatibility
+    # those two are deprecated
       "SUSE" expression => "sles|sled|opensuse";
       "SuSE" expression => "sles|sled|opensuse";
+    # for OS family compatibility
       "suse" expression => "sles|sled|opensuse";
       "redhat" expression => "amzn|amazon_linux";
 

@@ -29,16 +29,16 @@ bundle agent restart_services
       "restart_syslog" usebundle => disable_reporting;
       "restart_syslog" usebundle => _method_reporting_context("Restarting log system", "None");
 
-    (!SuSE.!aix.!solaris).remove_rudder_syslog_configuration_syslog_repaired::
+    (!suse.!aix.!solaris).remove_rudder_syslog_configuration_syslog_repaired::
       "restart_syslog" usebundle => service_restart("syslog");
 
-    (!SuSE.!aix.!solaris).remove_rudder_syslog_configuration_syslogng_repaired::
+    (!suse.!aix.!solaris).remove_rudder_syslog_configuration_syslogng_repaired::
       "restart_syslog_ng" usebundle => service_restart("syslog-ng");
 
-    (!SuSE.!aix.!solaris).remove_rudder_syslog_configuration_rsyslog_repaired::
+    (!suse.!aix.!solaris).remove_rudder_syslog_configuration_rsyslog_repaired::
       "restart_rsyslog" usebundle => service_restart("rsyslog");
 
-    SuSE.remove_rudder_syslog_configuration_result_repaired::
+    suse.remove_rudder_syslog_configuration_result_repaired::
       "restart_rsyslog" usebundle => service_restart("syslog");
 
     (aix|solaris).remove_rudder_syslog_configuration_result_repaired::
