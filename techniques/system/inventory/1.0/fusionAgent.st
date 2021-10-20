@@ -43,7 +43,7 @@ bundle agent doInventory
     ignore_disable_inventory|!disable_inventory::
       "any" usebundle => doInventory_always;
     !(ignore_disable_inventory|!disable_inventory)::
-      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "The file ${g.rudder_disable_inventory_file} is present, so Rudder will not send an inventory. Use 'rudder agent inventory -f' to override this temporarily");
+      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "Inventory", "None", "The file ${g.rudder_disable_inventory_file} is present, so Rudder will not send an inventory. Use 'rudder agent inventory -f' to override this temporarily");
 }
 bundle agent doInventory_always
 {
@@ -95,14 +95,14 @@ bundle agent doInventory_always
       "any" usebundle => cleanForceInventoryFlagFile;
 
     pass3.uuid_successfully_downloaded.uuid_validity_checked.!uuid_valid::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve a valid UUID from the policy server");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not retrieve a valid UUID from the policy server");
 
     # Send reports to confirm this technique success even if we don't need to send an inventory
     pass3.inventory_sent::
-      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "inventory", "None", "An inventory was already sent less than 8 hours ago");
+      "any" usebundle => rudder_common_report("Inventory", "log_info", "&TRACKINGKEY&", "Inventory", "None", "An inventory was already sent less than 8 hours ago");
 
     pass3.!inventory_time.!force_inventory::
-      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "inventory", "None", "Next inventory scheduled between 00:00 and 06:00");
+      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "Inventory", "None", "Next inventory scheduled between 00:00 and 06:00");
 
 }
 
@@ -113,7 +113,7 @@ bundle agent download_server_uuid
 
   methods:
     could_not_download_uuid::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not retrieve the UUID of the policy server. Please check that the defined Policy Server exists, and that this Node IP address is in the Allowed Networks of its policy server.");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not retrieve the UUID of the policy server. Please check that the defined Policy Server exists, and that this Node IP address is in the Allowed Networks of its policy server.");
 
   commands:
     !have_client::
@@ -152,13 +152,13 @@ bundle agent fusionAgent
 
   methods:
     pass3.run_inventory::
-      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "inventory", "None", "Running inventory");
+      "any" usebundle => rudder_common_report("Inventory", "log_debug", "&TRACKINGKEY&", "Inventory", "None", "Running inventory");
 
     pass3.inventory_failed::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not execute the inventory");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not execute the inventory");
 
     pass3.!rudder_inventory_not_running::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Skipped the inventory as another is running");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Skipped the inventory as another is running");
 
   processes:
       "${g.rudder_base}/bin/run-inventory .*"
@@ -194,7 +194,7 @@ bundle agent checkInventoryFile
 
   methods:
     pass2.inventory_file_exist.!inventory_valid::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Generated inventory has been detected as invalid");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Generated inventory has been detected as invalid");
 
   reports:
     pass2.inventory_file_exist.!inventory_valid::
@@ -306,13 +306,13 @@ bundle agent sendInventory
 
   methods:
     pass3.inventory_sent::
-      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "inventory", "None", "The inventory has been successfully sent");
+      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "Inventory", "None", "The inventory has been successfully sent");
 
     pass3.cant_send_inventory::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "inventory", "None", "Could not send the inventory");
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not send the inventory");
 
     pass3.cant_delete_inventory_file::
-      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "inventory", "None", "Could not delete inventory file after sending to server");
+      "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "Inventory", "None", "Could not delete inventory file after sending to server");
 
 }
 body file_select fusion_by_name_old(names,days)

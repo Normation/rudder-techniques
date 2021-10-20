@@ -22,5 +22,12 @@
     </TML>
   </TMLS>
 
-  <SECTIONS/>
+  <SECTIONS>
+    <SECTION name="Inventory" component="true">
+      <REPORTKEYS>
+            <VALUE>None</VALUE>
+      </REPORTKEYS>
+    </SECTION>
+  </SECTIONS>
+
 </TECHNIQUE>
