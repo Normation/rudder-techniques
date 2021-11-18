@@ -1,6 +1,7 @@
 
 <TECHNIQUE name="Filesystem mount points">
   <DESCRIPTION>Configures the system fstab</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <BUNDLES>
     <NAME>check_fstab_configuration</NAME>

@@ -3,6 +3,7 @@
   <DESCRIPTION>Defines a variable.
 
 It can be used in other Directive parameters with the following syntax: `${generic_variable_definition.variablename}`</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder. Please use group or node properties instead.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
 
   <BUNDLES>

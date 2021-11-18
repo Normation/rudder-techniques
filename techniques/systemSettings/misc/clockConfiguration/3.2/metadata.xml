@@ -17,6 +17,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 <TECHNIQUE name="Time settings">
   <DESCRIPTION>Configure system clock (automatic updates via NTP, time zone, ...)</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder.</DEPRECATED>
   <BUNDLES>
     <NAME>tz_variables</NAME>
     <NAME>check_clock_configuration</NAME>

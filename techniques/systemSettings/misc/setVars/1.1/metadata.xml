@@ -8,6 +8,7 @@ In mustache template see the [documentation](https://docs.rudder.io/reference/6.
 
 An unrecognized variable may come from a misordering of your rules executions, the execution follows an alphabetical order, based on rules and directives names.
   </DESCRIPTION>
+ <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next stable version of Rudder. Please use group or node properties instead, or generic methods.</DEPRECATED>
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
 
