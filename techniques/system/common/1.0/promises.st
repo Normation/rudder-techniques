@@ -351,14 +351,17 @@ bundle agent remove_rudder_syslog_configuration {
 
       "syslogng_conffile"     string => "/etc/syslog-ng/syslog-ng.conf";
       "syslog_conffile"       string => "/etc/syslog.conf";
-      "rsyslog_rudder_conffile" string => "/etc/rsyslog.d/rudder-agent.conf";
 
   classes:
       "syslogng" expression => fileexists("${syslogng_conffile}");
       "syslogd"  expression => fileexists("${syslog_conffile}");
 
   files:
-      "${rsyslog_rudder_conffile}"
+      "/etc/rsyslog.d/rudder.conf"
+        delete         => tidy,
+        classes        => classes_generic("remove_rudder_syslog_configuration_rsyslog");
+
+      "/etc/rsyslog.d/rudder-agent.conf"
         delete         => tidy,
         classes        => classes_generic("remove_rudder_syslog_configuration_rsyslog");
 
