@@ -51,7 +51,10 @@ bundle agent system_rudder_apache_webdav_configuration {
       "any" usebundle => _method_reporting_context("${component}", "Webdav configuration");
 
     dav_cant_connect::
+      "any" usebundle => disable_reporting;
       "any" usebundle => command_execution("${webdav_pwd_cmd}");
+      "any" usebundle => enable_reporting;
+
     !dav_cant_connect::
       "any" usebundle => _classes_success("${pwd_class_prefix}");
     any::
