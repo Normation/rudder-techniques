@@ -56,5 +56,5 @@ bundle edit_line set_rudder_slapd_password(password) {
       "rootpw.*";
 
   insert_lines:
-      "rootpw  ${password}" location => after("^rootdn.*");
+      "rootpw         ${password}" location => after("^rootdn.*");
 }
