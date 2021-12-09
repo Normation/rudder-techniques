@@ -10,8 +10,8 @@ bundle agent system_rudder_postgresql(trackingkey, technique_name, db_pass) {
 
     any::
     # Array used to force content of the .pgpass file
-      #"pgpass[1]" string => "${rudder_postgresql.host}";
-      "pgpass[2]" string => "5432";
+      "pgpass[1]" string => "${rudder_postgresql.db_host}";
+      "pgpass[2]" string => "${rudder_postgresql.db_port}";
       "pgpass[3]" string => "${rudder_postgresql.db_name}";
       "pgpass[4]" string => "rudder"; # this is always rudder, we don't have anything else to configure it
       "pgpass[5]" string => "${db_pass}";
@@ -59,11 +59,12 @@ bundle edit_line rudder_system_pgpass_password(parameter) {
       "indices" slist => getindices(${parameter});
 
   field_edits:
-      "localhost:5432:${${parameter}[3]}:.*"
+      # The only value that can be used to identify the line is the rudder username hardcoded
+      ".*:.*:.*:rudder:.*"
 
     # Set field of the file to parameter
         edit_field => col(":","${indices}","${${parameter}[${indices}]}","set");
 
   insert_lines:
-      "localhost:5432:${${parameter}[3]}:${${parameter}[4]}:${${parameter}[5]}";
+      "${${parameter}[1]}:${${parameter}[2]}:${${parameter}[3]}:${${parameter}[4]}:${${parameter}[5]}";
 }

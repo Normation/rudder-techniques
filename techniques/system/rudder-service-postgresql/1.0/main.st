@@ -16,12 +16,11 @@ bundle common rudder_postgresql {
       "db_url"          string => "&RUDDER_REPORTS_DB_URL&";
       "db_name"         string => "&RUDDER_REPORTS_DB_NAME&";
       "db_admin_name"   string => "postgres";
+      "postgres_connection" slist => string_split(string_replace("${db_url}", "postgresql://", ""), "[@|:|/]", 5);
+
     # Define the where to send the reports messages
-    # default is localhost if the rudder_db is unknown
-    # or if the role rudder-server-root is installed
-      "host"            string => "localhost";
-    role_rudder_db_server_defined.!role_rudder_server_root::
-      "host"            string => "${rudder_servers_by_role.roles[rudder-db]}";
+      "db_host"         string => nth("postgres_connection", 1);
+      "db_port"         string => nth("postgres_connection", 2);
 }
 
 bundle agent system_rudder_postgresql_configuration {
