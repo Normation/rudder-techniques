@@ -16,7 +16,7 @@ endif
 
 all: initial-promises bootstrap-promises/rudder.json bootstrap-promises/promises.cf
 
-initial-promises: rudder-templates-cli.jar test
+initial-promises: rudder-templates-cli.jar
 
 	# The common technique
 	sed -i -e 's/.*TRACKINGKEY.*/  "TRACKINGKEY": "hasPolicyServer-root@@common-root@@00",/' variables.json
