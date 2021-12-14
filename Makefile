@@ -22,6 +22,9 @@ initial-promises: rudder-templates-cli.jar test
 	mkdir -p initial-promises/node-server/common/utilities
 	cp variables.json initial-promises/node-server/rudder.json
 	echo '{ "parameters":{ "rudder_file_edit_header":"### Managed by Rudder, edit with care ###"  } }' > initial-promises/node-server/rudder-parameters.json
+	# Provide default properties for the node
+	mkdir -p initial-promises/node-server/properties.d
+	cp properties.json initial-promises/node-server/properties.d/properties.json
 
 bootstrap-promises/rudder.json:
 	cp variables.json $@
