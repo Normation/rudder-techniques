@@ -59,6 +59,9 @@ initial-promises: rudder-templates-cli.jar test
 	touch initial-promises/rudder_expected_reports.csv
 	# Provide a default rudder.json
 	cp variables.json initial-promises/node-server/rudder.json
+	# Provide default properties for the node
+	mkdir -p initial-promises/node-server/properties.d
+	cp properties.json initial-promises/node-server/properties.d/properties.json
 
 bootstrap-promises/rudder.json:
 	cp variables.json $@
