@@ -2,6 +2,8 @@
 
 set -ex
 
+export QA_TEST=1
+
 test_shell()
 {
   mkdir -p .shellcheck
