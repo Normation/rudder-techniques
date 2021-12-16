@@ -139,7 +139,7 @@ do
 done || EXIT=1
 
 # Check that there is an empty line after each endif
-${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -f '*.cf' -f '*.st' "${REPOSITORY_PATH}" | while read filename
 do
   if grep -n -A1 "^[[:space:]]*&endif&[[:space:]]*$" "${filename}" | grep -E -B1 -- "^[[:digit:]]+-.+"; then
     echo "&endif& not followed by an empty line in ${filename}"
@@ -148,7 +148,7 @@ do
 done || EXIT=1
 
 # Check that .cf files do not contain stringtemplate variables ( lines beginning with & or StringTemplate iterators )
-${REPOSITORY_PATH}/scripts/technique-files -l -f '*.cf' "${REPOSITORY_PATH}/techniques/" | while read filename
+${REPOSITORY_PATH}/scripts/technique-files -f '*.cf' "${REPOSITORY_PATH}/techniques/" | while read filename
 do
   if grep -E '^\s*&|&[a-zA-Z_]&' "${filename}" > /dev/null; then
     echo "Stringtemplate variable in .cf file ${filename}"
@@ -169,6 +169,46 @@ do
     exit 1
   fi
 done || EXIT=1
+
+# don't run cf-promises tests in qa-test context
+if [ -z $QA_TEST ]; then
+  # Check that .cf files in techniques do not contains syntax error
+  # NOTE: We can't check templated files for now
+  ${REPOSITORY_PATH}/scripts/technique-files -i -f '*.cf' "${REPOSITORY_PATH}/techniques/" | while read filename
+  do
+    echo "${filename}"
+    if ! cf-promises "${filename}"; then
+      echo "Syntax error in ${filename}"
+      exit 1
+    fi
+  done || EXIT=1
+
+  # Check that initial policies do not contains syntax error
+  rm -f "${REPOSITORY_PATH}/initial-promises/node-server/distributePolicy/1.0/nodeslist.json.cf"
+  # Avoid automated full check based on promises.cf file name...
+  mv "${REPOSITORY_PATH}/initial-promises/node-server/promises.cf" "${REPOSITORY_PATH}/initial-promises/node-server/promises2.cf" || true
+  ${REPOSITORY_PATH}/scripts/technique-files -i -f '*.cf' "${REPOSITORY_PATH}/initial-promises/" | while read filename
+  do
+    echo "${filename}"
+    # Pass list_compatible_inputs_ok to skip check for executable existence
+    if ! cf-promises -D  list_compatible_inputs_ok "${filename}"; then
+      echo "Syntax error in ${filename}"
+      exit 1
+    fi
+  done || EXIT=1
+  # Put the file back in place
+  mv "${REPOSITORY_PATH}/initial-promises/node-server/promises2.cf" "${REPOSITORY_PATH}/initial-promises/node-server/promises.cf" || true
+
+  # Check that bootstrap policies do not contains syntax error
+  ${REPOSITORY_PATH}/scripts/technique-files -i -f '*.cf' "${REPOSITORY_PATH}/bootstrap-promises/" | while read filename
+  do
+    echo "${filename}"
+    if ! cf-promises "${filename}"; then
+      echo "Syntax error in ${filename}"
+      exit 1
+    fi
+  done || EXIT=1
+fi
 
 if [ ${EXIT} -eq 0 ]; then
   echo "This repository seems clean"
