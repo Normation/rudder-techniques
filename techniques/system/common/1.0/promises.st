@@ -241,6 +241,10 @@ bundle common agent_capabilities {
 #########################################################
 bundle agent startup
 {
+  classes:
+    "rudder_is_full_run" expression => "any",
+                              scope => "namespace";
+
   methods:
     # Should we send a message stating this agent is starting up?
     # Always do it in "full_compliance" mode
