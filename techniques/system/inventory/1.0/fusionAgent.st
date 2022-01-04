@@ -158,7 +158,7 @@ bundle agent fusionAgent
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not execute the inventory");
 
     pass3.!rudder_inventory_not_running::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Skipped the inventory as another is running");
+      "any" usebundle => rudder_common_report("Inventory", "result_na", "&TRACKINGKEY&", "Inventory", "None", "Skipped the inventory as another is running");
 
   processes:
       "${g.rudder_base}/bin/run-inventory .*"
