@@ -742,7 +742,7 @@ bundle agent runhook_cron_process_post_hook(json) {
         ifvarclass => "cron_restart";
 
       "na_report"
-        usebundle  => _rudder_common_report_hooks("${reporting[${reportkeys}][technique]}", "result_na", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Restarting service ${cron_service}", "${reporting[${reportkeys}][mode]}"),
+        usebundle  => _rudder_common_report_hooks("${reporting[${reportkeys}][technique]}", "result_na", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "No need to restart service ${cron_service}", "${reporting[${reportkeys}][mode]}"),
         ifvarclass => "!cron_restart";
 
       "clean_reporting_context_${reporting[0][id]}"
