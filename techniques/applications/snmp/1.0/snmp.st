@@ -39,7 +39,7 @@ bundle agent snmp {
 ", communities);
 
         ## Classes prefixes
-        "package_prefix" string => "package_install_${canonified_snmp_package}";
+        "package_prefix" string => "package_present_${canonified_snmp_package}";
         "service_reload_prefix" string => "service_reload_${canonified_snmp_service}";
         "service_running_prefix" string => "service_ensure_running_${canonified_snmp_service}";
         "block_prefix" string => "file_block_present_in_section_${canonified_snmp_conf_file}";
@@ -57,8 +57,8 @@ bundle agent snmp {
 
   methods:
     # SNMP installation
-    "any" usebundle => package_install("${snmp_package}");
-    "any" usebundle => rudder_common_reports_generic("SNMP installation", "package_install_${canonified_snmp_package}", "&TRACKINGKEY&", "SNMP installation", "None", "Installation of the SNMP agent package");
+    "any" usebundle => package_present("${snmp_package}");
+    "any" usebundle => rudder_common_reports_generic("SNMP installation", "package_present_${canonified_snmp_package}", "&TRACKINGKEY&", "SNMP installation", "None", "Installation of the SNMP agent package");
 
     # SNMP Community Configuration Section
     pass2::
