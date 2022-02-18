@@ -26,6 +26,10 @@ bundle agent system_slapd_logrotate {
       "pass1" expression => "any";
       "duration_configured" expression => isvariable("rudder_parameters.log_duration");
 
+  files:
+      "/etc/logrotate.d/rudder"
+        delete  => tidy,
+        comment => "Removing logrotate file from 6.x";
   methods:
     pass2::
       "any" usebundle => _method_reporting_context("Rudder slapd configuration", "Log rotation");
