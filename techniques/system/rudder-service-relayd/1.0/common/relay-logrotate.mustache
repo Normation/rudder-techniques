@@ -1,10 +1,10 @@
-{{{#vars.system_relay_logrotate.relay_logs}}} {
+{{#vars.system_relay_logrotate.relay_data}}
 {{{.name}}} {
         daily
         missingok
         rotate {{{.duration}}}
         compress
-        notifyempty
+        notifempty
         create {{{.create}}}
         delaycompress
         sharedscripts
@@ -12,4 +12,4 @@
           {{{.postrotate}}}
         endscript
 }
-{{{/vars.system_relay_logrotate.relay_logs}}} {
+{{/vars.system_relay_logrotate.relay_data}}
