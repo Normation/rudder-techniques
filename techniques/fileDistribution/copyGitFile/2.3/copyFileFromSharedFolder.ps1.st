@@ -32,7 +32,7 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
     $local_classes = New-ClassContext
 
     for ($i=0; $i -lt $trackingkey.length; $i++) {
-      $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Destination $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i])
+      $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Destination $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i] -ClassPrefix $componentName)
       $class_prefix  = "copy_file_"
       $class_prefix += Canonify-Class $destinations[$i]
       $class_prefix += "_repaired"
@@ -52,7 +52,7 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
         } else {
           $PostHookString = "No posthook execution needed"
         }
-        $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $postHookComponent -ComponentKey $destinations[$i] -Message $PostHookString -report:$true
+        $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $postHookComponent -ComponentKey $destinations[$i] -Message $PostHookString -report:$true -ClassPrefix $techniqueName
       }
     }
 }
