@@ -53,12 +53,20 @@
   </SYSTEMVARS>
 
   <SECTIONS>
+    <SECTION name="Rudder-relayd service started" id="0f1aa3e5-d4c7-486c-8757-2f1b0085272a" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE id="0f1aa3e5-d4c7-486c-8757-2f1b0085272a">rudder-relayd</VALUE>
+      </REPORTKEYS>
+    </SECTION>
+    <SECTION name="Rudder-relayd service enabled" id="3a528693-d133-4dc3-878e-529cd9ad48dd" component="true" multivalued="true">
+      <REPORTKEYS>
+        <VALUE id="3a528693-d133-4dc3-878e-529cd9ad48dd">rudder-relayd</VALUE>
+      </REPORTKEYS>
+    </SECTION>
     <SECTION name="Rudder-relayd service" component="true" multivalued="true">
       <REPORTKEYS>
         <VALUE>Configuration permissions</VALUE>
         <VALUE>Configuration</VALUE>
-        <VALUE>Enabled</VALUE>
-        <VALUE>Started</VALUE>
         <VALUE>Log rotation</VALUE>
         <VALUE>Policy-server certificate</VALUE>
         <VALUE>Root server certificate</VALUE>

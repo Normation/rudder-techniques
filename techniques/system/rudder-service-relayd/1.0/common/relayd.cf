@@ -38,10 +38,10 @@ bundle agent system_rudder_relayd_configuration {
       "any" usebundle => _method_reporting_context("${component}", "Configuration permissions");
       "any" usebundle => permissions_recursive("${rudder_relayd.config_dir}", "640", "root", "rudder");
 
-      "any" usebundle => _method_reporting_context("${component}", "Started");
+      "any" usebundle => _method_reporting_context_v4("${component} started", "Started", "0f1aa3e5-d4c7-486c-8757-2f1b0085272a");
       "any" usebundle => service_started("${rudder_relayd.service_name}");
 
-      "any" usebundle => _method_reporting_context("${component}", "Enabled");
+      "any" usebundle => _method_reporting_context_v4("${component} enabled", "Enabled", "3a528693-d133-4dc3-878e-529cd9ad48dd");
       "any" usebundle => service_enabled("${rudder_relayd.service_name}");
 
 }
