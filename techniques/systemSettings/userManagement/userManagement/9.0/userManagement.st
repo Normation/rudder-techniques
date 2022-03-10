@@ -259,6 +259,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "pass1" expression => "any";
 
   files:
+    pass3::
       "/etc/passwd"
         create        => "false",
         edit_line     => set_user_fullname_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}","${usergroup_user_index}","${usergroup_user_fullname[${usergroup_user_index}]}"),
@@ -289,7 +290,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
         action        => WarnOnly,
                    if => "usermanagement_user_checkpres_${usergroup_user_index}";
 
-    aix::
+    pass3.aix::
       # On AIX, if password is supplied and user must exist, then the second field needs to be a ! to allow login
       "/etc/passwd"
         create        => "false",
@@ -307,7 +308,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                                 )
                            );
 
-    !aix::
+    pass3.!aix::
       # Define password when user has already been created
       "/etc/shadow"
         create        => "false",
@@ -339,7 +340,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                               "usermanagement_user_checkpres_${usergroup_user_index}"
                             );
 
-    aix::
+    pass3.aix::
       "/etc/security/passwd"
         create        => "false",
         edit_line     => ncf_ensure_AIX_password("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"),
@@ -490,11 +491,13 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                      "usermanagement_shell_edit_${usergroup_user_index}_&RudderUniqueID&_error"
                    );
 
+
       ## Does not exist (Error)
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is not present on the system, which violates the presence policy", "${usergroup_user_index}"),
           if => and( "!usermanagement_user_exists_${usergroup_user_index}",
-                     "usermanagement_user_update_${usergroup_user_index}",
-                     "pass3"
+                     or( "usermanagement_user_checkpres_${usergroup_user_index}",
+                         "usermanagement_user_update_${usergroup_user_index}"
+                       )
                    );
 
 
@@ -522,7 +525,8 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) could not be added to the system", "${usergroup_user_index}"),
           if => and( "!usermanagement_user_exists_${usergroup_user_index}",
                       "usermanagement_user_update_${usergroup_user_index}",
-                      "usermanagement_login_add_${usergroup_user_index}_&RudderUniqueID&_error"
+                      "usermanagement_login_add_${usergroup_user_index}_&RudderUniqueID&_error",
+                      not("dry_run|global_dry_run")
                    );
 
       ## Could not be added, for the default path was not selected, but the custom one was not defined
@@ -649,12 +653,6 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                        )
                    );
  
-
-      ## Does not exist (Error)
-      "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Users", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) is not present on the system, which violates the presence policy", "${usergroup_user_index}"),
-          if => and( "!usermanagement_user_exists_${usergroup_user_index}",
-                     "usermanagement_user_checkpres_${usergroup_user_index}"
-                   );
 
       ### Password handling
       "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_&RudderUniqueID&", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}"),
