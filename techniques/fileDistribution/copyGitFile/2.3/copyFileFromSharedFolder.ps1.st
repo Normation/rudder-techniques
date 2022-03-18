@@ -38,7 +38,6 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
       $class_prefix += "_repaired"
 
       #Posthook execution
-      $componentName = "Posthook"
       if ((-not([String]::IsNullOrEmpty($posthooks[$i]))) -And ($local_classes["classes"].contains($class_prefix))) {
         $local_classes = Merge-ClassContext $local_classes $(Command-Execution -CommandName $posthooks[$i] -ComponentKey $destinations[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
       } else {
