@@ -24,9 +24,9 @@ bundle agent system_rudder_webapp {
 
       # Check that rudder-jetty is running and enabled
     !is_rudder_bootstrap::  
-      "any" usebundle => _method_reporting_context("Rudder-jetty service", "Started");
+      "any" usebundle => _method_reporting_context_v4("Rudder-jetty service", "Started", "jetty_started");
       "any" usebundle => service_started("${rudder_webapp.service_name}");
     any::
-      "any" usebundle => _method_reporting_context("Rudder-jetty service", "Enabled");
+      "any" usebundle => _method_reporting_context_v4("Rudder-jetty service", "Enabled", "jetty_enavled");
       "any" usebundle => service_enabled("${rudder_webapp.service_name}");
 }

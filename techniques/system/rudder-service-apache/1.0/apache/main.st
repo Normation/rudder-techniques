@@ -33,9 +33,9 @@ bundle agent system_rudder_apache_configuration {
       "any" usebundle => system_apache_logrotate;
 
       # Check that apache is running and enabled
-      "any" usebundle => _method_reporting_context("Apache service", "Started");
+      "any" usebundle => _method_reporting_context_v4("Apache service", "Started", "apache_started");
       "any" usebundle => service_started("${rudder_apache.service_name}");
 
-      "any" usebundle => _method_reporting_context("Apache service", "Enabled");
+      "any" usebundle => _method_reporting_context_v4("Apache service", "Enabled", "apache_enabled");
       "any" usebundle => service_enabled("${rudder_apache.service_name}");
 }

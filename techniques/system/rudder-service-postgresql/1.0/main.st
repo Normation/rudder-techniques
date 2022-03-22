@@ -33,10 +33,10 @@ bundle agent system_rudder_postgresql_configuration {
   methods:
 
       # Check that apache is running and enabled
-      "any" usebundle => _method_reporting_context("Postgresql service", "Started");
+      "any" usebundle => _method_reporting_context_v4("Postgresql service", "Started", "postgres_started");
       "any" usebundle => service_started("${rudder_postgresql.service_name}");
 
-      "any" usebundle => _method_reporting_context("Postgresql service", "Enabled");
+      "any" usebundle => _method_reporting_context("Postgresql service", "Enabled", "postgres_enabled");
       "any" usebundle => service_enabled("${rudder_postgresql.service_name}");
 
       # Check pgpass and db credentials

@@ -41,10 +41,10 @@ bundle agent system_rudder_slapd_configuration {
       "any" usebundle => _method_reporting_context("Rudder slapd configuration", "Check Rudder ldap permissions");
       "any" usebundle => permissions("${rudder_slapd.config_file}", "640", "root", "${rudder_slapd.group_name}");
     !is_rudder_bootstrap::
-      "any" usebundle => _method_reporting_context("Rudder slapd service", "Started");
+      "any" usebundle => _method_reporting_context_v4("Rudder slapd service", "Started", "slapd_started");
       "any" usebundle => service_started("${rudder_slapd.service_name}");
     any::
-      "any" usebundle => _method_reporting_context("Rudder slapd service", "Enabled");
+      "any" usebundle => _method_reporting_context_v4("Rudder slapd service", "Enabled", "slapd_enabled");
       "any" usebundle => service_enabled("${rudder_slapd.service_name}");
 
       "any" usebundle => rudder_common_reports_generic("${technique_name}", "rudder_slapd_ldap_password", "${trackingkey}", "Rudder slapd configuration", "Check Rudder ldap password", "OpenLDAP configuration file (rootdn password)");
