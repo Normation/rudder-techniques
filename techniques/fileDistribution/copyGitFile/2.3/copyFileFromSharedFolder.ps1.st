@@ -32,7 +32,7 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
     $local_classes = New-ClassContext
 
     for ($i=0; $i -lt $trackingkey.length; $i++) {
-      $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Destination $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i] -ClassPrefix $componentName)
+      $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Path $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i] -ClassPrefix $componentName)
       $class_prefix  = "copy_file_"
       $class_prefix += Canonify-Class $destinations[$i]
       $class_prefix += "_repaired"
@@ -40,7 +40,7 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
       #Posthook execution
       $componentName = "Posthook"
       if ((-not([String]::IsNullOrEmpty($posthooks[$i]))) -And ($local_classes["classes"].contains($class_prefix))) {
-        $local_classes = Merge-ClassContext $local_classes $(Command-Execution -CommandName $posthooks[$i] -ComponentKey $destinations[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
+        $local_classes = Merge-ClassContext $local_classes $(Command-Execution -Command $posthooks[$i] -ComponentKey $destinations[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
       } else {
         if ($auditOnly) {
           $state = [ComplianceStatus]::audit_na

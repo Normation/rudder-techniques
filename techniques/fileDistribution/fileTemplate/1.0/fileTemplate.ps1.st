@@ -44,7 +44,7 @@ function fileTemplate_&RudderUniqueID& {
 
       $componentName = "Templates location"
       #Check for templates folder
-      $local_classes = Merge-ClassContext $local_classes $(Directory-Create -target $templatesFolder -ReportId $trackingkey[$i] -componentName $componentName -componentKey $destinations[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true).classes
+      $local_classes = Merge-ClassContext $local_classes $(Directory-Create -Path $templatesFolder -ReportId $trackingkey[$i] -componentName $componentName -componentKey $destinations[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true).classes
       #No need to check for permissions, they are well defined by the inheritance of Rudder folder
       if ($isRaws[$i] -eq "Raw") {
         #First, write the input in a file
@@ -53,16 +53,16 @@ function fileTemplate_&RudderUniqueID& {
       } else {
         #First, get the template from the server
         $componentName = "Load Template from a file or text input"
-        $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $sources[$i] -Destination $templateDestinations -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName  -componentName $componentName -componentKey $destinations[$i] -auditOnly:$auditOnly -Report:$true).classes
+        $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $sources[$i] -Path $templateDestinations -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName  -componentName $componentName -componentKey $destinations[$i] -auditOnly:$auditOnly -Report:$true).classes
       }
       $componentName = "Expand template"
       #Expand the template
-      $local_classes = Merge-ClassContext $local_classes $(File-From-Template-Mustache -SourceTemplate $templateDestinations -Destination $destinations[$i] -ReportId $trackingkey[$i] -TechniqueName $techniqueName -componentName $componentName -componentKey $destinations[$i] -auditOnly:$auditOnly -Report:$true -ClassPrefix $posthookPrefix).classes
+      $local_classes = Merge-ClassContext $local_classes $(File-From-Template-Mustache -SourceTemplate $templateDestinations -Path $destinations[$i] -ReportId $trackingkey[$i] -TechniqueName $techniqueName -componentName $componentName -componentKey $destinations[$i] -auditOnly:$auditOnly -Report:$true -ClassPrefix $posthookPrefix).classes
 
       #Posthook execution
       $componentName = "Posthook"
       if ($posthooks[$i] -ne "" -And (Evaluate-Class "${posthookPrefix}_${destinationsCanon}_repaired" $local_classes $system_classes)) {
-        $local_classes = Merge-ClassContext $local_classes $(Command-Execution -CommandName $posthooks[$i] -ComponentKey $destinations[$i] -ReportId $trackingkey[$i] -TechniqueName $techniqueName -ComponentName $componentName -Report:$true -auditOnly:$auditOnly).classes
+        $local_classes = Merge-ClassContext $local_classes $(Command-Execution -Command $posthooks[$i] -ComponentKey $destinations[$i] -ReportId $trackingkey[$i] -TechniqueName $techniqueName -ComponentName $componentName -Report:$true -auditOnly:$auditOnly).classes
       } else {
         if ($auditOnly) { $state = [ComplianceStatus]::audit_na } else { $state = [ComplianceStatus]::result_na }
         if ($posthooks[$i] -eq "") {
