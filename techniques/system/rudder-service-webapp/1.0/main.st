@@ -27,6 +27,6 @@ bundle agent system_rudder_webapp {
       "any" usebundle => _method_reporting_context_v4("Rudder-jetty service", "Started", "jetty_started");
       "any" usebundle => service_started("${rudder_webapp.service_name}");
     any::
-      "any" usebundle => _method_reporting_context_v4("Rudder-jetty service", "Enabled", "jetty_enavled");
+      "any" usebundle => _method_reporting_context_v4("Rudder-jetty service", "Enabled", "jetty_enabled");
       "any" usebundle => service_enabled("${rudder_webapp.service_name}");
 }
