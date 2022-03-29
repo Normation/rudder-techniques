@@ -135,7 +135,7 @@ body server control
         # force connections via tls1.2 or higher
         allowtlsversion => "1.2";
 
-        maxconnections    => "1000";
+        maxconnections    => "10000";
         logallconnections => "true";
 
         # Disallow old protocol
