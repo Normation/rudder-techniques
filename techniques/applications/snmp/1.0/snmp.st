@@ -55,7 +55,7 @@ bundle agent snmp {
 
   methods:
     # SNMP installation
-    "any" usebundle => package_present("${snmp_package}");
+    "any" usebundle => package_present("${snmp_package}", "", "", "");
     "any" usebundle => rudder_common_reports_generic("SNMP installation", "package_present_${canonified_snmp_package}", "&TRACKINGKEY&", "SNMP installation", "None", "Installation of the SNMP agent package");
 
     # SNMP Community Configuration Section
