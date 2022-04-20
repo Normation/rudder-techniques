@@ -1,4 +1,4 @@
-<TECHNIQUE name="SystemUpdate">
+<TECHNIQUE name="System Update">
   <DESCRIPTION>This technique can handle simple system wide updates on different Linux based systems.
 ### Configuration
 

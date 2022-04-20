@@ -24,20 +24,20 @@ bundle agent rudder_system_update {
       "start_on_hours"           string => "&START_ON_HOURS&";
       "start_on_days_of_week"    string => "&START_ON_DAYS&";
 
-      "must_run_system_update"   string => canonify("job_${campaign_name}_run");
       "canonified_campaign_name" string => canonify("${campaign_name}");
 
+    pass1::
       "variable_reporting"       string => "Identifying the package manager.",
-                                     if => not(or("use_yum_provider", "user_apt_provider", "user_zypper_provider"));
+                                     if => or("use_yum_provider", "use_apt_provider", "use_zypper_provider");
       "variable_reporting"       string => "Unsupported OS for the system update, identifying the package manager.",
-                                     if => or("use_yum_provider", "user_apt_provider", "user_zypper_provider");
+                                     unless => or("use_yum_provider", "use_apt_provider", "use_zypper_provider");
 
-    use_yum_provider::
-      "update_command"           string => "yum -y update";
-    user_apt_provider::
-      "update_command"           string => "export DEBIAN_FRONTEND=noninteractive \&\& apt-get update \&\& apt-get -y upgrade";
-    use_zypper_provider::
-      "update_command"           string => "zypper refresh \&\& zypper --non-interactive update";
+      "update_command"           string => "yum -y update",
+                                     if => "use_yum_provider";
+      "update_command"           string => "export DEBIAN_FRONTEND=noninteractive \&\& apt-get update \&\& apt-get -y upgrade",
+                                     if => "use_apt_provider";
+      "update_command"           string => "zypper refresh \&\& zypper --non-interactive update",
+                                     if => "use_zypper_provider";
 
     pass2::
       "na_message"               string => "System update already done for the campaign '${campaign_name}'. It",
@@ -46,25 +46,29 @@ bundle agent rudder_system_update {
                                      if => "!flag_set";
 
   classes:
-    "pass3"    expression => "pass2";
-    "pass2"    expression => "pass1";
-    "pass1"    expression => "any";
-    "update"   expression => strcmp("${update}", "enabled");
-    "reboot"   expression => strcmp("${reboot}", "enabled");
-    "use_zypper_provider" expression => strcmp("zypper", "${package_module_knowledge.platform_default}");
-    "use_apt_provider"    expression => strcmp("apt",    "${package_module_knowledge.platform_default}");
-    "use_yum_provider"    expression => strcmp("yum",    "${package_module_knowledge.platform_default}");
+      "pass3"    expression => "pass2";
+      "pass2"    expression => "pass1";
+      "pass1"    expression => "any";
+      "update"   expression => strcmp("${update}", "enabled");
+      "reboot"   expression => strcmp("${reboot}", "enabled");
+      "use_zypper_provider" expression => strcmp("zypper" , "${package_module_knowledge.platform_default}");
+      "use_apt_provider"    expression => strcmp("apt_get", "${package_module_knowledge.platform_default}");
+      "use_yum_provider"    expression => strcmp("yum"    , "${package_module_knowledge.platform_default}");
 
 
-   pass2::
-    "flag_set" expression => strcmp("${is_set[1]}", "set");
+    pass2::
+      "flag_set" expression => strcmp("${is_set[1]}", "set");
+    pass3::
+      "must_run_system_update" expression => "schedule_simple_${canonified_campaign_name}_repaired";
 
   methods:
     any::
       "Already done"         usebundle => get_flag(canonify("command_execution_once_${campaign_name}")),
                              useresult => "is_set";
       # Define a splaytime class
-      "Schedule the update if needed" usebundle => schedule_simple_generic( "${canonified_campaign_name}",
+      "Schedule context" usebundle => _method_reporting_context_v4("Setup schedule", "Setup schedule", "Setup schedule");
+      "disable_reporting"   usebundle => disable_reporting;
+      "Schedule the update if needed" usebundle => schedule_simple( "${canonified_campaign_name}",
                                                                             "&AGENT_RUN_INTERVAL&",
                                                                             "${minutes_splay}",
                                                                             "${hours_splay}",
@@ -76,16 +80,18 @@ bundle agent rudder_system_update {
                                                                             "1", # periodicity days
                                                                             "stateless"
                                                                           );
+      "enable_reporting"   usebundle => enable_reporting;
 
       # Pre-Update
+    pass1::
       "Setup variable context" usebundle => _method_reporting_context_v4("Setup variable context", "Setup variable context", "Setup variable context");
-      "Unsupported OS"         usebundle => report_if_condition("variable_reporting", "use_yum_provider|user_apt_provider|user_zypper_provider");
+      "Unsupported OS"         usebundle => report_if_condition("variable_reporting", "use_yum_provider|use_apt_provider|use_zypper_provider");
 
     pass3::
       # Update
       "Update the system"     usebundle => _method_reporting_context_v4("Update the system", "Update the system", "Update the system");
       "Update the system"     usebundle => command_execution_once("${update_command}", "0", "any", "${campaign_name}"),
-                                     if => and("update", "${must_run_system_update}", "!flag_set");
+                                     if => and("update", "must_run_system_update", "!flag_set");
 
       "NA report by conf"     usebundle => log_na_rudder( "An update is needed but the update step is disabled by the directive configuration",
                                                           "Update the system",
@@ -98,9 +104,9 @@ bundle agent rudder_system_update {
                                                           "rudder_system_update_reboot",
                                                           @{args}
                                                         ),
-                                     if => or( and("update", not("${must_run_system_update}")),
+                                     if => or( and("update", not("must_run_system_update")),
                                                and("update",
-                                                   "${must_run_system_update}",
+                                                   "must_run_system_update",
                                                    "flag_set",
                                                    not(canonify("command_execution_once_${update_command}_reached")))
                                              );
