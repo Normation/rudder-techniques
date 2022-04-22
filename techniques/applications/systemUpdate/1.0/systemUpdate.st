@@ -40,9 +40,11 @@ bundle agent rudder_system_update {
                                      if => "use_zypper_provider";
 
     pass2::
-      "na_message"               string => "System update already done for the campaign '${campaign_name}'. It",
+      "na_message"               string => "An update is needed but the update step is disabled by the directive configuration",
+                                     if => not("update");
+      "na_message"               string => "System update already done for the campaign '${campaign_name}'.",
                                      if => "flag_set";
-      "na_message"               string => "System update scheduled for the campaign '${campaign_name}'. It is not ready yet. It",
+      "na_message"               string => "System update scheduled for the campaign '${campaign_name}'. It is not ready yet.",
                                      if => "!flag_set";
 
   classes:
@@ -59,14 +61,14 @@ bundle agent rudder_system_update {
     pass2::
       "flag_set" expression => strcmp("${is_set[1]}", "set");
     pass3::
-      "must_run_system_update" expression => "schedule_simple_${canonified_campaign_name}_repaired";
-
+      "must_run_system_update" expression => "any",
+                                       if => "schedule_simple_${canonified_campaign_name}_repaired";
   methods:
     any::
       "Already done"         usebundle => get_flag(canonify("command_execution_once_${campaign_name}")),
                              useresult => "is_set";
       # Define a splaytime class
-      "Schedule context" usebundle => _method_reporting_context_v4("Setup schedule", "Setup schedule", "Setup schedule");
+      "Schedule context" usebundle => _method_reporting_context_v4("Setup schedule", "None", "system-update");
       "disable_reporting"   usebundle => disable_reporting;
       "Schedule the update if needed" usebundle => schedule_simple( "${canonified_campaign_name}",
                                                                             "&AGENT_RUN_INTERVAL&",
@@ -83,48 +85,41 @@ bundle agent rudder_system_update {
       "enable_reporting"   usebundle => enable_reporting;
 
       # Pre-Update
-    pass1::
-      "Setup variable context" usebundle => _method_reporting_context_v4("Setup variable context", "Setup variable context", "Setup variable context");
-      "Unsupported OS"         usebundle => report_if_condition("variable_reporting", "use_yum_provider|use_apt_provider|use_zypper_provider");
-
+    pass2::
+      "Setup variable context" usebundle => _method_reporting_context_v4("OS Support", "", "system-update");
+      "Setup variable context" usebundle => _rudder_report_state("system-update", "Unsupported OS for system update", "result_error"),
+                                  unless => or("use_yum_provider", "use_apt_provider", "use_zypper_provider");
     pass3::
       # Update
-      "Update the system"     usebundle => _method_reporting_context_v4("Update the system", "Update the system", "Update the system");
+      "Update the system"     usebundle => _method_reporting_context_v4("Update the system", "", "system-update");
       "Update the system"     usebundle => command_execution_once("${update_command}", "0", "any", "${campaign_name}"),
                                      if => and("update", "must_run_system_update", "!flag_set");
 
-      "NA report by conf"     usebundle => log_na_rudder( "An update is needed but the update step is disabled by the directive configuration",
-                                                          "Update the system",
-                                                          "rudder_system_update_reboot",
-                                                          @{args}
-                                                        ),
-                                    if  => not("update");
-      "NA report by schedule" usebundle => log_na_rudder( "${na_message}",
-                                                          "Update the system",
-                                                          "rudder_system_update_reboot",
-                                                          @{args}
-                                                        ),
-                                     if => or( and("update", not("must_run_system_update")),
+      "NA update" usebundle => _rudder_report_state("system-update", "${na_message}", "result_na"),
+                                     if => or( not("update"),
+                                               and("update", not("must_run_system_update")),
                                                and("update",
                                                    "must_run_system_update",
-                                                   "flag_set",
-                                                   not(canonify("command_execution_once_${update_command}_reached")))
-                                             );
+                                                   "flag_set"
+                                               )
+                                           );
 
       # Post update
-      "Post update"           usebundle => _method_reporting_context_v4("Post update", "Post update","Post update");
+      "Post update"           usebundle => _method_reporting_context_v4("Reboot", "","system-update");
       "Post update inventory" usebundle => rudder_inventory_trigger("post_update_inventory"),
                                      if => concat("command_execution_once_",canonify("${update_command}"),"_repaired");
       "Post update reboot"    usebundle => command_execution_once("reboot", "0", "any", "${campaign_name}_reboot"),
                                      if => and(concat("command_execution_once_",canonify("${update_command}"), "_repaired"),
                                             "reboot"
                                            );
-      "NA report"             usebundle => log_na_rudder( "No reboot needed, method",
-                                                          "Post update",
-                                                          "rudder_system_update_reboot",
-                                                          @{args}
-                                                        ),
-                                     if => not(and(concat("command_execution_once_",canonify("${update_command}"), "_repaired"),
-                                                   "reboot"
-                                              ));
+      "NA reboot" usebundle => _rudder_report_state("system-update", "No reboot needed", "result_na"),
+                                     if => or (
+                                             not("reboot"),
+                                             not(
+                                               and (
+                                                 concat("command_execution_once_",canonify("${update_command}"), "_repaired"),
+                                                 "reboot"
+                                               )
+                                             )
+                                           );
 }&
