@@ -16,6 +16,8 @@ bundle common system_common {
     "heartbeat_interval"    string => "&RUDDER_HEARTBEAT_INTERVAL&";
     "rudder_node_config_id" string => "&RUDDER_NODE_CONFIG_ID&";
     "agent_run_interval"    string => "&AGENT_RUN_INTERVAL&";
+    
+    "cf_serverd_service_name" string => "rudder-cf-serverd";
 
   classes:
 &if(INITIAL)&
