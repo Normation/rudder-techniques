@@ -67,8 +67,8 @@ bundle agent check_apt_settings
     ubuntu_vivid|ubuntu_15_4|ubuntu_15_04::
       "apt_detected_distro" string => "vivid";
 
-    ubuntu_willy|ubuntu_15_10::
-      "apt_detected_distro" string => "willy";
+    ubuntu_wily|ubuntu_15_10::
+      "apt_detected_distro" string => "wily";
 
     ubuntu_xenial|ubuntu_16_4|ubuntu_16_04::
       "apt_detected_distro" string => "xenial";
