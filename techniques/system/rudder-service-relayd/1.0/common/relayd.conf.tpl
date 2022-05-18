@@ -66,7 +66,13 @@ max_pool_size = 10
 {{/classes.root_server}}
 
 [output.upstream]
+# url in 6.X, host after
+{{#classes.cfengine_3_15}}
+url = "https://{{{vars.server_info.policy_server}}}"
+{{/classes.cfengine_3_15}}
+{{^classes.cfengine_3_15}}
 host = "{{{vars.server_info.policy_server}}}"
+{{/classes.cfengine_3_15}}
 user = "{{{vars.g.davuser}}}"
 password = "{{{vars.g.davpw}}}"
 
