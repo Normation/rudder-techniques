@@ -190,7 +190,7 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
     pass3.sharedfiles_disabled::
       "any" usebundle => rudder_common_report("${technique_name}", "result_na", "${trackingkey}", "Synchronize files", "None", "Shared files need to be synchronized by an external system");
 
-    pass3.!(sharedfiles_rsync_ok|sharedfiles_classic_ok)::
+    pass3.!sharedfiles_disabled.!(sharedfiles_rsync_ok|sharedfiles_classic_ok)::
       "any" usebundle => rudder_common_report("${technique_name}", "result_error", "${trackingkey}", "Synchronize files", "None", "Cannot propagate shared files");
 
     pass3.sharedfiles_rsync_ok::
