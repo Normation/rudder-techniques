@@ -13,6 +13,7 @@ applications/packageManagement/1.3
 applications/repoGpgKeyManagement/1.1
 applications/snmp/1.0
 applications/systemUpdate/1.0
+applications/systemUpdate/2.0
 applications/zmdPackageManagerSettings/3.0
 applications/zypperPackageManagerRepositories/1.0
 applications/zypperPackageManagerSetup/1.0
