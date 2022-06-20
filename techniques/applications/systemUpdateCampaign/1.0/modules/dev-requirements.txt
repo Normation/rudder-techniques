@@ -1,0 +1,5 @@
+bandit==1.7.4
+blue==0.8.0
+pycodestyle==2.8.0
+pylint==2.13.7
+

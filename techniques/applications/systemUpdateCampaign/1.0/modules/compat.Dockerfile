@@ -1,0 +1,6 @@
+ARG PYTHON_VERSION=3
+FROM python:${PYTHON_VERSION}
+
+ARG USER_ID=1000
+COPY ci/user.sh .
+RUN ./user.sh $USER_ID

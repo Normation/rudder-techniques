@@ -9,6 +9,38 @@ pipeline {
     }
 
     stages {
+        stage('Python Tests') {
+            matrix {
+                axes {
+                    axis {
+                        name 'PYTHON_VERSION'
+                        values '2.7', '3.3', '3.4', '3.5', '3.6', '3.10'
+                    }
+                }
+                stages {
+                    stage('module') {
+                        agent {
+                            dockerfile { 
+                                filename 'techniques/applications/systemUpdateCampaign/1.0/modules/compat.Dockerfile'
+                                additionalBuildArgs  "--build-arg USER_ID=${env.JENKINS_UID} --build-arg PYTHON_VERSION=${PYTHON_VERSION}"
+                            }
+                        }
+                        steps {
+                            dir ('techniques/applications/systemUpdateCampaign/1.0/modules/') {
+                                sh script: 'make test', label: 'system-updates base tests'
+                            }
+                        }
+                        post {
+                            always {
+                                script {
+                                    new SlackNotifier().notifyResult("python-team")
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
         stage('Tests') {
             parallel {
                 stage('shell') {
@@ -29,6 +61,26 @@ pipeline {
 
                             script {
                                 new SlackNotifier().notifyResult("shell-team")
+                            }
+                        }
+                    }
+                }
+                stage('system-updates') {
+                    agent {
+                        dockerfile { 
+                            filename 'techniques/applications/systemUpdateCampaign/1.0/modules/Dockerfile'
+                            additionalBuildArgs  "--build-arg USER_ID=${env.JENKINS_UID}"
+                        }
+                    }
+                    steps {
+                        dir ('techniques/applications/systemUpdateCampaign/1.0/modules/') {
+                            sh script: 'make check', label: 'system-updates tests'
+                        }
+                    }
+                    post {
+                        always {
+                            script {
+                                new SlackNotifier().notifyResult("python-team")
                             }
                         }
                     }

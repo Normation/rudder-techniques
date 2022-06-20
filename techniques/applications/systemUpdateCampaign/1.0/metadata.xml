@@ -1,0 +1,71 @@
+<TECHNIQUE name="System Update Campaign">
+  <DESCRIPTION>This technique can handle simple system wide updates on different Linux based systems.
+
+### Configuration
+
+Each update is unique and *must* be tagged by a unique `campaign name`. The name will be used to reference the scheduled system update by the agent.
+Updates can be scheduled by giving a scheduling expression and a duration. The update is only run once, and there is no retry in case of error.
+The error will not persist so you will have to check manually in the node reports if it was successful or not. Except at update time, every report generated
+by the technique will have the `not_applicable` status so it should be easy to identify the proper execution time in the logs.
+
+### Post update
+
+The technique will automatically run a Rudder inventory after the update if it was successful. A system reboot can also be triggered if needed.
+</DESCRIPTION>
+  <MULTIINSTANCE>false</MULTIINSTANCE>
+  <POLICYGENERATION>separated</POLICYGENERATION>
+  <USEMETHODREPORTING>true</USEMETHODREPORTING>
+
+  <BUNDLES>
+    <NAME>rudder_system_update_campaign_RudderUniqueID</NAME>
+  </BUNDLES>
+
+  <TMLS>
+    <TML name="systemUpdateCampaign"/>
+  </TMLS>
+  <FILES>
+    <FILE name="modules/system_update.py">
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+  </FILES>
+
+  <SYSTEMVARS>
+    <NAME>AGENT_RUN_INTERVAL</NAME>
+  </SYSTEMVARS>
+
+  <SECTIONS>
+    <SECTION name="Update the system" reporting="worst-case-weighted-one" id="Update the system" component="true">
+      <SECTION name="${update}" id="system-update" multivalued="true" component="true">
+        <REPORTKEYS>
+          <VALUE id="system-update">${updateValue}</VALUE>
+        </REPORTKEYS>
+      </SECTION>
+    </SECTION>
+    <SECTION name="Campaign Infos" multivalued="false" component="false">
+      <INPUT>
+        <NAME>ENABLE_UPDATE</NAME>
+        <DESCRIPTION>Activate or not the update. Can be "enabled" or "disabled"</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>CAMPAIGN_NAME</NAME>
+        <DESCRIPTION>Friendly name of the update campaign</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>REBOOT</NAME>
+        <DESCRIPTION>Reboot the node after update if needed. Can be "enabled" or "disabled"</DESCRIPTION>
+      </INPUT>
+    </SECTION>
+    <SECTION name="Schedule" multivalued="false" component="false">
+      <INPUT>
+        <NAME>START</NAME>
+        <DESCRIPTION>Start date time for the campaign in RFC3339 format with timezone (like "2022-07-04T20:40:24+02:00")</DESCRIPTION>
+      </INPUT>
+      <INPUT>
+        <NAME>END</NAME>
+        <DESCRIPTION>End date time for the campaign in RFC3339 format with timezone (like "2022-07-04T20:40:24+02:00")</DESCRIPTION>
+      </INPUT>
+    </SECTION>
+  </SECTIONS>
+</TECHNIQUE>
+
+
