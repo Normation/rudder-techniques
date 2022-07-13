@@ -414,14 +414,18 @@ bundle agent garbage_collection
   files:
 
       "${sys.workdir}/outputs"
+        delete => tidy,
+        file_select => days_old("&CFENGINE_OUTPUTS_TTL&"),
+        depth_search => recurse("inf"),
+        action => if_elapsed_day;
 
+      "${g.rudder_var}/system-updates"
         delete => tidy,
         file_select => days_old("&CFENGINE_OUTPUTS_TTL&"),
         depth_search => recurse("inf"),
         action => if_elapsed_day;
 
       "${g.rudder_var}/modified-files"
-
         delete => tidy,
         file_select => days_old("&MODIFIED_FILES_TTL&"),
         depth_search => recurse("inf");
