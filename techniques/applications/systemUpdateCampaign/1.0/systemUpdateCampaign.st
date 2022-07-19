@@ -23,9 +23,9 @@ bundle agent rudder_system_update_campaign_&RudderUniqueID& {
                           if => "${status_prefix}_report";
 
   classes:
-      "has_py"    or => { returnszero("command -v python", "useshell"),
-                          returnszero("command -v python2", "useshell"),
-                          returnszero("command -v python3", "useshell") };
+      "has_py"    or => { returnszero("command -v python > /dev/null", "useshell"),
+                          returnszero("command -v python2 > /dev/null", "useshell"),
+                          returnszero("command -v python3 > /dev/null", "useshell") };
       "enabled"   expression => strcmp("${enabled}", "enabled");
       "reboot"    expression => strcmp("${reboot}", "enabled");
 
