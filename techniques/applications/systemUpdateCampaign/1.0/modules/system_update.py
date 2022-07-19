@@ -176,7 +176,7 @@ def commands_output(commands):
     return (code, '\n'.join(outputs), '\n'.join(errors))
 
 
-def reboot():
+def do_reboot():
     try:
         Popen(['/usr/bin/systemctl', 'reboot'])
     except Exception as e:
@@ -293,7 +293,7 @@ class UpdateManager(object):
         self.store_file('report', report)
 
         if reboot:
-            reboot()
+            do_reboot()
         else:
             # consider report sent
             self.set_sent()
@@ -435,8 +435,9 @@ class Apt(Dpkg):
 
 def usage():
     sys.stderr.write(
-        'Usage: system_update.py --action=[update|report] \
-        --package_manager=[yum|apt|zypper] [--reboot] --campaign_id=ID\n'
+        'Usage: system_update.py --package_manager=[yum|zypper|apt_get] --campaign_id=CAMPAIGNID \
+        --start=2022-07-19T14:04:00+02:00 --end=2022-07-19T17:20:00+02:00 --node_id=NODE_ID \
+        --agent_schedule=5 [--reboot]\n'
     )
     sys.exit(2)
 
