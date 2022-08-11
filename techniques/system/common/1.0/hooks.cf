@@ -728,31 +728,18 @@ bundle agent runhook_cron_process_post_hook(json) {
       "disable_reporting_cron_post_hook"
          usebundle => disable_reporting;
 
-    pass2.cron_restart::
-
-      "restart_cron" usebundle => service_restart("${cron_service}");
-
     pass2::
+      "restart_cron" usebundle => service_started("${cron_service}");
+
       "reenable_reporting_cron_post_hook"
          usebundle => enable_reporting;
 
       # here we need to report correctly based on each mode for each directive
       "reporting" 
-        usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "service_restart_${cron_service}", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Restarting service ${cron_service}", "${reporting[${reportkeys}][mode]}"),
-        ifvarclass => "cron_restart";
-
-      "na_report"
-        usebundle  => _rudder_common_report_hooks("${reporting[${reportkeys}][technique]}", "result_na", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "No need to restart service ${cron_service}", "${reporting[${reportkeys}][mode]}"),
-        ifvarclass => "!cron_restart";
+        usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "service_started_${cron_service}", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Service started ${cron_service}", "${reporting[${reportkeys}][mode]}");
 
       "clean_reporting_context_${reporting[0][id]}"
         usebundle  => clean_reporting_context;
-
-
-  processes:
-      "cron"
-        process_select => cron_bin,
-        restart_class => "cron_restart";
 }
 
 
