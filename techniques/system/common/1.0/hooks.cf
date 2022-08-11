@@ -750,8 +750,7 @@ bundle agent runhook_cron_process_post_hook(json) {
 
 
   processes:
-      "cron"
-        process_select => cron_bin,
+      "(/usr/sbin/)?crond?( -n| -f| -l notice)*"
         restart_class => "cron_restart";
 }
 
