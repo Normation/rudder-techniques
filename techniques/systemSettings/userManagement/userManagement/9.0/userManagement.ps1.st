@@ -4,11 +4,14 @@
 function check_usergroup_user_parameters_&RudderUniqueID& {
   [CmdletBinding()]
   param (
-      [parameter(Mandatory=$true)]  [string]$reportId,
-      [parameter(Mandatory=$true)]  [string]$techniqueName,
-      [switch]$auditOnly
+      [parameter(Mandatory=$true)]   [string]$reportId,
+      [parameter(Mandatory=$true)]   [string]$techniqueName,
+      [Parameter(Mandatory = $true)] [Rudder.PolicyMode]$policyMode
   )
 
+
+    $localContext = [Rudder.Context]::new($techniqueName)
+    $localContext.merge($system_classes)
     $trackingkey = @(
     &TRACKINGKEY:{directiveId |
     "&directiveId&" };separator=","& )
@@ -40,97 +43,69 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
     $passwdSection  = "Password"
     $resultNAString = "Not applicable"
 
-
-    $local_classes = New-ClassContext
+    $commonParams = @{
+      TechniqueName = $techniqueName
+      ReportId      = $reportId
+      PolicyMode    = $policyMode
+      ClassPrefix   = "user_management_&RudderUniqueID&"
+    }
 
     for ($i=0; $i -lt $trackingkey.length; $i++) {
-
+      $userParams = $commonParams + @{
+          ComponentName = "Users"
+          ComponentKey = $logins[$i]
+      }
+        
       if ($policies[$i] -eq $present) {
-        $local_classes = Merge-ClassContext $local_classes $(User-Present -login $logins[$i] -ReportId $trackingkey[$i] -TechniqueName $techniqueName -componentName $componentName -auditOnly:$auditOnly)
+        $methodCallPresent = User-Present -login $logins[$i] -PolicyMode $policyMode
+        $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
+
+        $passwordParams = $commonParams + @{
+          ComponentName = "Password"
+          ComponentKey = $logins[$i]
+        }
         if ($Passwords[$i]) {
           #Password defined
           if ($password_policies[$i] -eq "everytime") {
             #Checking password everytime
-            $local_classes = Merge-ClassContext $local_classes $(User-Password-Clear -login $logins[$i] -password $passwords[$i] -ReportId $trackingkey[$i] -componentName $passwdSection -TechniqueName $techniqueName -auditOnly:$auditOnly)
+            $methodCallPassword = User-Password-Clear -login $logins[$i] -password $passwords[$i] -PolicyMode $policyMode
+            $null = Compute-Method-Call -MethodCall $methodCallPassword @passwordParams
+            
           } elseif ($password_policies[$i] -eq "oneshot") {
             #Checking password at creation only
-            $login_name = $logins[$i]
-            $class_name = "users_${login_name}_repaired"
-            if ($local_classes["classes"].contains($class_name)) {
+
+            if ($methodCallPresent.MethodStatus -eq [Rudder.MethodStatus]::Repaired) {
               #User absent => setting password
-              $local_classes = Merge-ClassContext $local_classes $(User-Password-Clear -login $logins[$i] -password $passwords[$i] -ReportId $trackingkey[$i] -componentName $passwdSection -TechniqueName $techniqueName -auditOnly:$auditOnly)
+              $methodCallPassword = User-Password-Clear -login $logins[$i] -password $passwords[$i] -PolicyMode $policyMode
+              
+              $null = Compute-Method-Call -MethodCall $methodCallPassword @passwordParams
             } else {
-              if ($auditOnly) {
-                $state = [ComplianceStatus]::audit_na
-              } else {
-                $state = [ComplianceStatus]::result_na
-              }
-              $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $passwdSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
+              $null = Rudder-Report-NA  @passwordParams -message "Password is not requested to be checked"
             }
           }
         } else {
-          $state = [ComplianceStatus]::result_na
-          $passwordAbsent = "$resultNAString, no password defined"
-          $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $passwdSection -ComponentKey $logins[$i] -Message $passwordAbsent -report:$true
+          $null = Rudder-Report-NA  @passwordParams -message "Not applicable, no password defined"
         }
 
       } elseif ($policies[$i] -eq $absent) {
-        $local_classes = Merge-ClassContext $local_classes $(User-Absent -login $logins[$i] -reportId $trackingkey[$i] -TechniqueName $techniqueName -componentName $componentName -auditOnly:$auditOnly)
+        $methodCallPresent = User-Absent -login $logins[$i] -PolicyMode $policyMode
+        $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
 
 #To REMOVE in the future
       } elseif ($policies[$i] -eq $check_present) {
-        $reportString = "User ${logins[$i]} check_present"
-        $command = Invoke-Expression "NET USER $logins[$i] 2>\&1"
-        $TestResult = $LastExitCode -eq 0
-        if ($TestResult) {
-          #User exists
-          if ($auditOnly) {
-            $state = [ComplianceStatus]::audit_compliant
-          } else {
-            $state = [ComplianceStatus]::result_success
-          }
-          $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
-        } else {
-          #User does not exists
-          if ($auditOnly) {
-            $state = [ComplianceStatus]::audit_noncompliant
-          } else {
-            $state = [ComplianceStatus]::result_error
-          }
-          $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
-        }
-
+        $methodCallPresent = User-Present -login $logins[$i] -PolicyMode ([Rudder.PolicyMode]::Audit)
+        $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
       } elseif ($policies[$i] -eq $check_absent) {
-        $reportString = "User ${logins[$i]} check_absent"
-        $command = Invoke-Expression "NET USER $logins[$i] 2>\&1"
-        $TestResult = $LastExitCode -eq 0
-        if ($TestResult) {
-          #User exists
-          if ($auditOnly) {
-            $state = [ComplianceStatus]::audit_noncompliant
-          } else {
-            $state = [ComplianceStatus]::result_error
-          }
-          $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
-        } else {
-          #User does not exists
-          if ($auditOnly) {
-            $state = [ComplianceStatus]::audit_compliant
-          } else {
-            $state = [ComplianceStatus]::result_success
-          }
-          $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $componentName -ComponentKey $logins[$i] -Message $reportString -report:$true
-        }
-#END
+        $methodCallPresent = User-Absent -login $logins[$i] -PolicyMode ([Rudder.PolicyMode]::Audit)
+        $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
       }
 
       #Unix section reporting
-      if ($auditOnly) {
-        $state = [ComplianceStatus]::audit_na
-      } else {
-        $state = [ComplianceStatus]::result_na
+      $unixParams = $commonParams + @{
+          ComponentName = "Home directory"
+          ComponentKey = $logins[$i]
       }
-      $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $homeSection -ComponentKey $logins[$i] -Message $resultNAString -report:$true
+      $null = Rudder-Report-NA  @unixParams -message "Not applicable on Windows"
     }
 }
 
