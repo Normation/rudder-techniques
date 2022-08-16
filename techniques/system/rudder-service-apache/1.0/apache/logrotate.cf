@@ -10,7 +10,7 @@ bundle agent system_apache_logrotate {
                                "name": "${g.rudder_log}/apache2/*.log",
                                "duration": "${logrotate_duration}",
                                "create": "${rudder_syslog.file_mode} ${rudder_syslog.user_name} ${rudder_syslog.group_name}"
-                               "postrotate": "systemctl ${rudder_apache.service_name} reload > /dev/null || true"
+                               "postrotate": "systemctl reload ${rudder_apache.service_name} > /dev/null || true"
                              }');
 
   classes:
