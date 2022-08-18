@@ -37,7 +37,7 @@ bundle agent rudder_system_update_campaign_&RudderUniqueID& {
       "pass1"     expression => "any";
 
     pass2::
-      "call"      expression => usemodule("system_update.py", "--package_manager=${package_module_knowledge.platform_default} --campaign_id=${campaign_id} --start=${start} --end=${end} --node_id=${g.uuid} --agent_schedule=${g.agent_run_interval} ${reboot_opt}"),
+      "call"      expression => usemodule("system_update.py", "--package_manager=${package_module_knowledge.platform_default} --campaign_id=${campaign_name} --start=${start} --end=${end} --node_id=${g.uuid} --agent_schedule=${g.agent_run_interval} ${reboot_opt}"),
                           if => "enabled.has_py";
 
   methods:
@@ -54,7 +54,7 @@ bundle agent rudder_system_update_campaign_&RudderUniqueID& {
 
     pass3::
       "context"    usebundle => _method_reporting_context_v4("System update", "", "system-update");
-      "json"       usebundle => rudder_common_report("system-update","report_json", "&TRACKINGKEY&", "campaign-system-update", "${campaign_id}", "${report}"),
+      "json"       usebundle => rudder_common_report("system-update","report_json", "&TRACKINGKEY&", "campaign-system-update", "${campaign_name}", "${report}"),
                           if => "${status_prefix}_report";
       "inventory"  usebundle => rudder_inventory_trigger("post_update_inventory_${campaign_id}"),
                           if => "${status_prefix}_report";
