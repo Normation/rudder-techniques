@@ -115,6 +115,7 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
       "${g.shared_files}"
         copy_from    => remote("${server_info.policy_server}","${g.shared_files}"),
         depth_search => recurse_visible("inf"),
+        perms => mog("640", "root", "rudder"),
         comment => "Fetching the files shared for the promises execution",
         classes => if_else("files_propagated", "could_not_propagate_files");
     
