@@ -34,6 +34,9 @@ bundle agent check_apt_settings
     debian_11::
       "apt_detected_distro" string => "bullseye";
 
+    debian_12::
+      "apt_detected_distro" string => "bookworm";
+
     ubuntu_karmic|ubuntu_9_10::
       "apt_detected_distro" string => "karmic";
 
@@ -102,6 +105,18 @@ bundle agent check_apt_settings
 
     ubuntu_groovy|ubuntu_20_10::
       "apt_detected_distro" string => "groovy";
+
+    ubuntu_hirsute|ubuntu_21_04::
+      "apt_detected_distro" string => "hirsute";
+
+    ubuntu_impish|ubuntu_21_10::
+      "apt_detected_distro" string => "impish";
+
+    ubuntu_jammy|ubuntu_22_04::
+      "apt_detected_distro" string => "jammy";
+
+    ubuntu_kinetic|ubuntu_22_10::
+      "apt_detected_distro" string => "kinetic";
 
 
     apt_installrecommends_edit::
