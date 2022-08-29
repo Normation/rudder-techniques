@@ -4,47 +4,37 @@
 function rudderMotd {
   [CmdletBinding()]
   param (
-      [parameter(Mandatory=$true)]  [string]$reportId,
-      [parameter(Mandatory=$true)]  [string]$techniqueName,
-      [switch]$auditOnly
+      [parameter(Mandatory = $true)]
+      [string]$reportId,
+
+      [parameter(Mandatory = $true)]
+      [string]$techniqueName,
+
+      [Rudder.PolicyMode]$policyMode
   )
+  $trackingKey = "&TRACKINGKEY&"
+  $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 
-    $trackingKey = "&TRACKINGKEY&"
+  $commonParams = @{
+    TechniqueName = $techniqueName
+    PolicyMode = $policyMode
+    ClassPrefix = "rudderMotd"
+    ReportID = "&TRACKINGKEY&"
+    ComponentKey = "None"
+    ComponentName = "MOTD Configuration"
+  }
 
-    $motdContent = "&MOTD&"
+  # Ensure that the caption is there (mandatory to have the message)
+  $regCall = Registry-Entry-Present -Key $registryPath -Entry "legalnoticecaption" -Value "Notice" -RegistryType "String" -PolicyMode $policyMode
+  $null = Compute-Method-Call @commonParams -MethodCall $regCall -DisableReporting:$true
 
-    $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
-
-    $local_classes = New-ClassContext
-
-    # Ensure that the caption is there (mandatory to have the message)
-    $local_classes = Registry-Entry-Present -Key $registryPath -Entry "legalnoticecaption" -Value "Notice" -RegistryType "String" -ReportId $trackingKey -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$false
-
-    # Ensure that the content is valid
-    $local_classes = Merge-ClassContext $local_classes $(Registry-Entry-Present -Key $registryPath -Entry "legalnoticetext" -Value $motdContent -RegistryType "String"  -ReportId $trackingKey -TechniqueName $techniqueName -auditOnly:$auditOnly  -componentName "MOTD Configuration" -Report:$false  )
-
-    $msg = defineReportMessageMotd -status $local_classes["status"]
-    $classes = _rudder_common_report -TechniqueName $techniqueName -Status $local_classes["status"] -ReportId $reportId -ComponentName "MOTD Configuration" -ComponentKey "None" -Message $msg -report:$true
-
-}
-
-function defineReportMessageMotd {
-  [CmdletBinding()]
-  param (
-      [parameter(Mandatory=$true)]  [string]$status
-  )
-
-
-    switch ($status)
-    {
-        "result_success" { "The welcome message is correct" }
-        "result_repaired" { "The welcome message was repaired" }
-        "result_error" { "The welcome message is incorrect and could not be corrected" }
-        "result_na" { "The welcome message was not set to be changed" }
-        "audit_compliant" { "The welcome message is correct" }
-        "audit_noncompliant" { "The welcome message is not compliant" }
-        "audit_error" { "Error: the welcome message is not compliant" }
-        "audit_na" { "The welcome message was not set to be changed" }
-        default { "Unknown status for welcome message" }
-    }
+  # Ensure that the content is valid
+  $contentCall = Registry-Entry-Present -Key $registryPath -Entry "legalnoticetext" -Value "&MOTD&" -RegistryType "String" -PolicyMode $policyMode
+  $message = switch ($contentCall.MethodStatus) {
+    ([Rudder.MethodStatus]::Success) { "The welcome message is correct" }
+    ([Rudder.MethodStatus]::Repaired) { "The welcome message was repaired" }
+    ([Rudder.MethodStatus]::Error) { "The welcome message is incorrect and could not be corrected" }
+    default { "Unknown status for welcome message: $(contentCall.MethodStatus)" }
+  }
+  $null = Compute-Method-Call @commonParams -MethodCall $contentCall
 }

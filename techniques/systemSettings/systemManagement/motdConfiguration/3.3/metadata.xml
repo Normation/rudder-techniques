@@ -18,7 +18,7 @@
       <NAME>rudderMotd</NAME>
     </BUNDLES>
     <TMLS>
-      <TML name="motd.ps1"/>    
+      <TML name="motd.ps1"/>
     </TMLS>
   </AGENT>
 
