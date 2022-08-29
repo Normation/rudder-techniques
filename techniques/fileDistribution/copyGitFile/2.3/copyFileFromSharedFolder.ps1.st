@@ -4,9 +4,13 @@
 function copyFileFromSharedFolder_&RudderUniqueID& {
   [CmdletBinding()]
   param (
-      [parameter(Mandatory=$true)]  [string]$reportId,
-      [parameter(Mandatory=$true)]  [string]$techniqueName,
-      [switch]$auditOnly
+      [parameter(Mandatory=$true)]
+      [string]$reportId,
+
+      [parameter(Mandatory=$true)]
+      [string]$techniqueName,
+
+      [Rudder.PolicyMode]$policyMode
   )
 
     $trackingkey = @(
@@ -25,33 +29,35 @@ function copyFileFromSharedFolder_&RudderUniqueID& {
     &COPYFILE_POST_HOOK_COMMAND:{posthook |
     "&posthook&" };separator=","& )
 
-    $SharedFiles   = "&SHARED_FILES_FOLDER&"
-    $componentName = "Copy file"
-    $postHookComponent = "Post-modification hook"
-    $HashCheckType = "sha256"
-    $local_classes = New-ClassContext
-
     for ($i=0; $i -lt $trackingkey.length; $i++) {
-      $local_classes = Merge-ClassContext $local_classes $(File-From-Shared-Folder -Source $names[$i] -Path $destinations[$i] -HashType $HashCheckType -ReportId $trackingkey[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true -componentName $componentName -componentKey $destinations[$i] -ClassPrefix $componentName)
-      $class_prefix  = "copy_file_"
-      $class_prefix += Canonify-Class $destinations[$i]
-      $class_prefix += "_repaired"
+      $commonParams = @{
+        TechniqueName = $techniqueName
+        PolicyMode = $policyMode
+        ClassPrefix = "copyGitFile_&RUDDERUniqueID&"
+        ReportID = $trackingkey[$i]
+      }
+      $downloadCall = File-From-Shared-Folder -Source $names[$i] -Path $destinations[$i] -HashType "sha256" -PolicyMode $policyMode
+      $downloadParams = $commonParams + @{
+        ComponentName = "Copy file"
+        ComponentKey = $destinations[$i]
+      }
+      $null = Compute-Method-Call -MethodCall $downloadCall @downloadParams
 
       #Posthook execution
-      if ((-not([String]::IsNullOrEmpty($posthooks[$i]))) -And ($local_classes["classes"].contains($class_prefix))) {
-        $local_classes = Merge-ClassContext $local_classes $(Command-Execution -Command $posthooks[$i] -ComponentKey $destinations[$i] -ComponentName $postHookComponent -ReportId $trackingkey[$i] -Techniquename $techniqueName -Report:$true -auditOnly:$auditOnly)
+      $posthookParams = $commonParams + @{
+        ComponentName = "Post-modification hook"
+        ComponentKey = $destinations[$i]
+      }
+      if ((-not([String]::IsNullOrEmpty($posthooks[$i]))) -And ($downloadCall.MethodStatus -eq ([Rudder.MethodStatus]::Repaired))) {
+        $posthookCall = Command-Execution -Command $posthooks[$i] -PolicyMode $policyMode
+        $null = Compute-Method-Call -MethodCall $posthookCall @posthookParams
       } else {
-        if ($auditOnly) {
-          $state = [ComplianceStatus]::audit_na
+        $message = if ([String]::IsNullOrEmpty($posthooks[$i])) {
+          "No posthook defined"
         } else {
-          $state = [ComplianceStatus]::result_na
+          "No posthook execution needed"
         }
-        if ([String]::IsNullOrEmpty($posthooks[$i])) {
-          $PostHookString = "No posthook defined"
-        } else {
-          $PostHookString = "No posthook execution needed"
-        }
-        $classes = _rudder_common_report -TechniqueName $techniqueName -Status $state -ReportId $reportId -ComponentName $postHookComponent -ComponentKey $destinations[$i] -Message $PostHookString -report:$true -ClassPrefix $techniqueName
+        $null = Rudder-Report-NA @postHookParams -Message $message
       }
     }
 }
