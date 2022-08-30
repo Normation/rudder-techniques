@@ -4,247 +4,92 @@
 function snmp {
   [CmdletBinding()]
   param (
-      [parameter(Mandatory=$true)]  [string]$reportId,
-      [parameter(Mandatory=$true)]  [string]$techniqueName,
-      [switch]$auditOnly
+      [parameter(Mandatory = $true)]
+      [String]$reportId,
+
+      [parameter(Mandatory = $true)]
+      [String]$techniqueName,
+
+      [Rudder.PolicyMode]$policyMode
   )
-    $sources = ("&SNMP_AUTHORIZED_SOURCES&").Split(",") | foreach { $_.Trim() }
-    $sources = $sources | Select-Object -Unique
-    $flush = "&SNMP_FLUSH&"
 
-    $acls = @(
-    &SNMP_COMMUNITY_ACL:{acl |
-    "&acl&" };separator=","& )
+  . $PSScriptRoot/snmp_communities.ps1
+  . $PSScriptRoot/snmp_sources.ps1
 
-    $names = @(
-    &SNMP_COMMUNITY_NAME:{name |
-    "&name&" };separator=","& )
+  $sources = ("&SNMP_AUTHORIZED_SOURCES&").Split(",") | foreach { $_.Trim() } | Select-Object -Unique
+  $flush = "&SNMP_FLUSH&"
 
+  $acls = @(
+  &SNMP_COMMUNITY_ACL:{acl |
+  "&acl&" };separator=","& )
 
-    $local_classes = New-ClassContext
-    $snmpComponent = "SNMP-service"
-    $snmpRegistry = "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters"
-    $snmpService = "SNMP"
+  $names = @(
+  &SNMP_COMMUNITY_NAME:{name |
+  "&name&" };separator=","& )
 
-    ## Check the installation of the SNMP feature
-    $componentKeyInstallation = "None"
-    $componentNameInstallation = "SNMP installation"
-
-    $local_classes = Merge-ClassContext $local_classes $(Windows-Component-Present -Component $snmpComponent -ReportId $reportId -TechniqueName $techniqueName -auditOnly:$auditOnly -componentKey $componentKeyInstallation -componentName $componentNameInstallation )
-
-
-    # Check service configuration (ie check all checkboxes in Services->SNMP->Properties->Agent->Service)
-    $snmpConfigKey = "${snmpRegistry}\RFC1156Agent"
-    $serviceConfigurationContext = Registry-Entry-Present -Key "$snmpConfigKey" -Entry "sysServices" -Value 79 -RegistryType "DWord" -techniqueName $techniqueName -ReportId $reportId -Report:$false -auditOnly:$auditOnly
-
-    ## Check the Communities
-    # Flush if needed
-    if ($flush -eq $true) {
-      $flushCommunitiesContext = sanitize-communities -communities $names -auditOnly:$auditOnly
-    }
-    $snmpCommunitiesKey = "${snmpRegistry}\ValidCommunities"
-    for ($i=0; $i -lt $names.length; $i++) {
-      switch ($acls[$i]) {
-        rocommunity { $WindowsAcls = 4 }
-        rwcommunity { $WindowsAcls = 8 }
-      }
-      $name = $names[$i]
-      if (-not [string]::IsNullOrEmpty($name)) {
-        $localCommunitiesContext = Registry-Entry-Present -Key "$snmpCommunitiesKey" -Entry "$name" -Value $WindowsAcls -RegistryType "DWord" -techniqueName $techniqueName -ReportId $reportId -Report:$false -auditOnly:$auditOnly
-        $communitiesContext = ncf_classes_local_combine_N -auditOnly:$auditOnly -destinationPrefix "SNMP_Communities_Context" -contexts @($communitiesContext, $localCommunitiesContext)
-      }
-    }
-
-    ## Check the permitted sources
-    # Flush if needed
-    if ("any" -eq $sources) {
-      $flush = $true
-      $sources = @()
-    }
-    if ($flush -eq $true) {
-      $flushSourcesContext = sanitize-authorized-sources -Sources $sources -auditOnly:$auditOnly
-    }
-    # Add the missing ones
-    $snmpPermittedServerKey = "${snmpRegistry}\PermittedManagers"
-    $entries = Get-ItemProperty -Path "registry::${snmpPermittedServerKey}"
-
-    # Next indice of permitted source
-    $indices = (Get-Item -Path "Registry::${snmpPermittedServerKey}").property
-    $nextIndice = ($indices | Measure-Object -Maximum).maximum + 1
-
-    foreach ($iSource in $sources) {
-      $permitted = 0
-      foreach ($iIndice in $indices) {
-        if (($entries).($iIndice) -eq $iSource) {
-          $permitted = 1;
-          break
-        }
-      }
-      if ($permitted -eq 0 -and -not [string]::IsNullOrEmpty($iSource)) {
-        $authorizedSourcesContext = Merge-ClassContext $local_classes $(Registry-Entry-Present -Key "$snmpPermittedServerKey" -Entry $nextindice -Value $iSource -RegistryType "String" -techniqueName $techniqueName -ReportId $reportId -Report:$false -auditOnly:$auditOnly)
-        $nextIndice = $nextIndice + 1
-      }
-    }
-
-    # Re index if needed
-    $indexContext = index-authorized-sources -auditOnly:$auditOnly
-
-    # Check the service status
-    $serviceContext = Service-started -ServiceName $snmpService -ReportId $reportId -TechniqueName $techniqueName -auditOnly:$auditOnly -report:$False
-
-    ## Communities Reporting
-    $componentKeyCommunities = "None"
-    $componentNameCommunities = "Communities configuration"
-    $CommunitiesResult = ncf_classes_local_combine_N -auditOnly:$auditOnly -destinationPrefix "SNMP_Communities" -contexts @($serviceConfigurationContext, $communitiesContext, $serviceContext, $flushCommunitiesContext)
-
-    $classes = _rudder_common_report -TechniqueName $techniqueName -Status $CommunitiesResult["status"] -ReportId $reportId -ComponentName $componentNameCommunities -ComponentKey $componentKeyCommunities -Message "Communities configuration" -report:$true
-
-    ## Authorized Sources Reporting
-    $componentKeyAuthorizedServers = "None"
-    $componentNameAuthorizedServers = "Authorized Servers"
-    $AuthorizedServersResult = ncf_classes_local_combine_N -auditOnly:$auditOnly -destinationPrefix "SNMP_AuthorizedServers" -contexts @($serviceConfigurationContext, $authorizedSourcesContext, $ServiceContext, $flushSourcesContext, $indexContext, $flushSourcesContext)
-
-    $classes = _rudder_common_report -TechniqueName $techniqueName -Status $AuthorizedServersResult["status"] -ReportId $reportId -ComponentName $componentNameAuthorizedServers -ComponentKey $componentKeyAuthorizedServers -Message "Authorized SNMP sources" -report:$true
-
-}
-
-
-# Since the authorized sources entries are an index, which should all be consecutives
-# whenever we delete some entries, we must reindex the indices.
-function index-authorized-sources {
-  param (
-      [switch]$auditOnly
-  )
-  $reIndexContext = New-ClassContext
-  $snmpPermittedRegistry = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\PermittedManagers"
-  $mustReIndex = $false
-  $sources = @()
-  $expectedIndice = 1
-  $indice = 1
-
-  # Check if we need to reindex
-  $entryLIst = (Get-Item -Path "${snmpPermittedRegistry}").property | sort-Object
-  $reIndexContext["status"] = 
-    try {
-      if (Test-Path "${snmpPermittedRegistry}") {
-        foreach ($iIndice in $entryList) {
-          $currentSource = (Get-ItemProperty -Path "${snmpPermittedRegistry}").($iIndice)
-          $sources += $currentSource
-          if ($iIndice -ne $expectedIndice) {
-            $mustReIndex = $true
-          }
-          $expectedIndice++
-        }
-      }
-
-      if (($mustReIndex -eq $true) -and ($auditOnly -eq $false)) {
-        foreach ($iOldIndice in $entryList) {
-          Remove-ItemProperty -Path "${snmpPermittedRegistry}" -Name $iOldIndice
-        }
-        # At this point the authorized servers are empty
-        foreach ($iNewSource in $Sources) {
-          New-ItemProperty -Path "${snmpPermittedRegistry}" -Name $indice -Value $iNewSource | Out-Null
-          $indice++
-        }
-        [ComplianceStatus]::result_repaired
-      } elseif ($auditOnly -eq $true) {
-        if ($mustReIndex -eq $true) {
-          [ComplianceStatus]::audit_noncompliant
-        } else {
-          [ComplianceStatus]::audit_compliant
-        }
-      } else {
-          [ComplianceStatus]::result_success
-      }
-    } catch {
-      if ($auditOnly -eq $true) {
-        [ComplianceStatus]::audit_error
-      } else {
-        [ComplianceStatus]::result_error
-      }
-    }
-    return $reIndexContext
-}
-
-# If flush is active, all entries non defined by rudder should be removed
-function sanitize-authorized-sources {
-  param (
-      [string[]]$sources,
-      [switch]$auditOnly
-  )
-  $mustFlush = $false
-  $alreadySeen = @()
-  $snmpPermittedRegistry = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\PermittedManagers"
-  $flushSourcesContext = New-ClassContext
-  $flushSourcesContext["status"] =
-  try {
-    # Get entry list in the registry key
-    $entryLIst = (Get-Item -Path "${snmppermittedRegistry}").property | sort-Object
-    foreach ($iIndice in $entryList) {
-      $currentSource = (Get-ItemProperty -Path "${snmppermittedRegistry}").($iIndice)
-      if ((-not ($sources -contains $currentSource)) -or ($alreadySeen -contains $currentSource)) {
-        $mustFlush = $true
-        if ($auditOnly -eq $false) {
-          Remove-ItemProperty -Path "${snmpPermittedRegistry}" -Name $iIndice
-        }
-      }
-      $alreadySeen += $currentSource
-    }
-    if (($auditOnly -eq $true) -and ($mustFlush -eq $true)) {
-      [ComplianceStatus]::audit_noncompliant
-    } elseif (($auditOnly -eq $false) -and ($mustFlush -eq $true)) {
-      [ComplianceStatus]::result_repaired
-    } elseif (($auditOnly -eq $true) -and ($mustFlush -eq $false)) {
-      [ComplianceStatus]::audit_compliant
-    } elseif (($auditOnly -eq $false) -and ($mustFlush -eq $false)) {
-      [ComplianceStatus]::result_success
-    }
-  } catch {
-    if ($auditOnly -eq $true) {
-      [ComplianceStatus]::audit_error
-    } else {
-      [ComplianceStatus]::result_error
-    }
+  $commonParams = @{
+    TechniqueName = $techniqueName
+    ReportID = $reportID
+    ClassPrefix = "rudder_snmp"
+    PolicyMode = $policyMode
   }
-  return $flushSourcesContext
-}
+  ################################
+  # SNMP installation
+  ################################
 
-# If flush is active, all communities non defined by rudder should be removed
-function sanitize-communities {
-  param (
-      [string[]]$communities,
-      [switch]$auditOnly
-  )
-  $mustFlush = $false
-  $snmpCommunitiesRegistry = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\ValidCommunities"
-  $flushCommunitiesContext = New-ClassContext
-  $flushCommunitiesContext["status"] =
-  try {
-    # Get entry list in the registry key
-    $entryLIst = (Get-Item -Path "${snmpCommunitiesRegistry}").property
-    foreach ($iCommunity in $entryList) {
-      if (-not ($communities -contains $iCommunity)) {
-        $mustFlush = $true
-        if ($auditOnly -eq $false) {
-          Remove-ItemProperty -Path "${snmpCommunitiesRegistry}" -Name $iCommunity
-        }
-      }
-    }
-    if (($auditOnly -eq $true) -and ($mustFlush -eq $true)) {
-      [ComplianceStatus]::audit_noncompliant
-    } elseif (($auditOnly -eq $false) -and ($mustFlush -eq $true)) {
-      [ComplianceStatus]::result_repaired
-    } elseif (($auditOnly -eq $true) -and ($mustFlush -eq $false)) {
-      [ComplianceStatus]::audit_compliant
-    } elseif (($auditOnly -eq $false) -and ($mustFlush -eq $false)) {
-      [ComplianceStatus]::result_success
-    }
-  } catch {
-    if ($auditOnly -eq $true) {
-      [ComplianceStatus]::audit_error
-    } else {
-      [ComplianceStatus]::result_error
-    }
+  $installParams = @commonParams + @{
+    ComponentName = "SNMP installation"
+    ComponentKey = "None"
   }
-  return $flushCommunitiesContext
+  $installCall = Windows-Component-Present -Component $snmpComponent -PolicyMode $policyMode
+  # Check service configuration (ie check all checkboxes in Services->SNMP->Properties->Agent->Service)
+  $regCall = Registry-Entry-Present -Key "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\RFC1156Agent" -Entry "sysServices" -Value 79 -RegistryType "DWord" -PolicyMode $policyMode
+
+  $worstStatus = (@($installCall.MethodStatus, $regCall.MethodStatus) | Measure -Maximum).Maximum
+  $installMessage = switch($worstStatus) {
+    ([Rudder.MethodStatus]::Error) { "An unexpected error occured while installing the SNMP components" }
+    ([Rudder.MethodStatus]::Repaired) { "SNMP components were correctly installed" }
+    ([Rudder.MethodStatus]::Success) { "SNMP components are already installed" }
+    default { throw "Unexpected method status '${worstStatus}'" }
+  }
+  $installResult = [Rudder.MethodResult]::new(
+    $worstStatus,
+    $installMessage,
+    (Get-FunctionName),
+    ($installCall.InfoLogs + $regCallL.InfoLogs)
+  )
+  $null = Compute-Method-Call -MethodCall $installResult @installParams
+
+  ################################
+  # Check the Communities
+  ################################
+  $communitiesParams = @commonParams + @{
+    ComponentName = "Communities configuration"
+    ComponentKey = "None"
+  }
+  $communitiesCall = Manage-Communities -Names $names -Acls $acls -Force:$force -PolicyMode $policyMode
+  $null = Compute-Method-Call -MethodCall $communitiesCall @communitiesParams
+
+  ################################
+  # Check the permitted sources
+  ################################
+  $sourcesParams = @commonParams + @{
+    ComponentName = "Authorized Servers"
+    ComponentKey = "None"
+  }
+  $authorizedSourcesCall = Manage-SnmpSources -Sources $sources -Force:$force -PolicyMode $policyMode
+  $null = Compute-Method-Call -MethodCall $authorizedSourcesCall @sourcesParams
+
+  ################################
+  # Check the service status
+  ################################
+  $serviceParams = @commonParams + @{
+    ComponentName = "Communities configuration"
+    ComponentKey = "None"
+    # Disable the reporting as it was previously merged with the communities reporting
+    # this is bad, but good enough
+    DisableReporting = $true
+  }
+  $serviceCall = Service-started -Name "snmp" -PolicyMode $policyMode
+  $null = Compute-Method-Call -MethodCall $serviceCall @serviceParams
 }

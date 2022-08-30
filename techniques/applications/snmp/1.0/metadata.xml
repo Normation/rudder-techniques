@@ -3,7 +3,7 @@
 <TECHNIQUE name="SNMP installation">
   <DESCRIPTION>Install an SNMP agent, and configure it</DESCRIPTION>
   <POLICYGENERATION>separated</POLICYGENERATION>
-  
+
   <MULTIINSTANCE>false</MULTIINSTANCE>
 
   <AGENT type="dsc">
@@ -13,6 +13,14 @@
     <TMLS>
       <TML name="snmp.ps1"/>
     </TMLS>
+    <FILES>
+      <FILE name="snmp_communities.ps1">
+        <INCLUDED>true</INCLUDED>
+      </FILE>
+      <FILE name="snmp_sources.ps1">
+        <INCLUDED>true</INCLUDED>
+      </FILE>
+    </FILES>
   </AGENT>
 
   <AGENT type="cfengine-community">
@@ -28,7 +36,6 @@
     <SAMESIZEAS>SNMP_COMMUNITY_NAME</SAMESIZEAS>
   </TRACKINGVARIABLE>
 
-  
   <SECTIONS>
     <SECTION name="SNMP installation" component="true"/>
     <SECTION name="Communities configuration" component="true"/>
