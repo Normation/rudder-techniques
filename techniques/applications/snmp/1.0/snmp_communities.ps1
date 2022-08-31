@@ -27,12 +27,12 @@ function Force-SnmpCommunities {
   $registry = "Registry::HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\ValidCommunities"
 
   (Get-Item -Path $registry).Property | Foreach-Object {
-    Write-Host "Removing entry '${_}'"
+    [Rudder.Logger]::Log.Debug("Removing entry '${_}'")
     Remove-ItemProperty -Path $registry -Name $_
   }
 
   $communities.Keys | Foreach-Object {
-    Write-Host "Adding entry '${_}' = '$($communities[$_])'"
+    [Rudder.Logger]::Log.Debug("Adding entry '${_}' = '$($communities[$_])'")
     New-ItemProperty -Path $registry -Name $_ -Value $communities[$_] -PropertyType String | Out-Null
   }
 }
@@ -60,11 +60,15 @@ function Check-SnmpCommunities {
   } catch {
     return $false
   } finally {
-    Write-Host "Comparing expected and found communities.`nFOUND:"
-    $currentCommu.Keys | Foreach-Object { Write-Host "'${_}' = '$($currentCommu[$_])'" }
-    Write-Host "EXPECTED:"
-    $expected.Keys | Foreach-Object { Write-Host "'${_}' = '$($expected[$_])'" }
-    Write-Host "--> returning ${result}"
+    [Rudder.Logger]::Log.Debug("Comparing expected and found communities.`nFOUND:")
+    $currentCommu.Keys | Foreach-Object {
+      [Rudder.Logger]::Log.Debug( "'${_}' = '$($currentCommu[$_])'")
+    }
+    [Rudder.Logger]::Log.Debug("EXPECTED:")
+    $expected.Keys | Foreach-Object {
+      [Rudder.Logger]::Log.Debug("'${_}' = '$($expected[$_])'")
+    }
+    [Rudder.Logger]::Log.Debug("--> returning ${result}")
   }
 }
 

@@ -44,7 +44,7 @@
       <INPUT>
         <NAME>SNMP_AUTHORIZED_SOURCES</NAME>
         <DESCRIPTION>Sources authorized to access to the agent via following communities. Comma separated</DESCRIPTION>
-        <LONGDESCRIPTION>Sources can be hostname, IP address or IP subnet. Just enter "any" if you do not want to restrict the access.</LONGDESCRIPTION>
+        <LONGDESCRIPTION>Sources can be hostnames, IP addresses or subnets(Linux only). Just enter "any" if you do not want to restrict the access.</LONGDESCRIPTION>
         <CONSTRAINT>
           <MAYBEEMPTY>false</MAYBEEMPTY>
         </CONSTRAINT>

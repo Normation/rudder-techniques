@@ -35,8 +35,8 @@ function Check-SnmpAuthSources {
     [Switch] $force
   )
   $currentSources = Get-SnmpAuthSources
-  Write-Host "Found configured SNMP sources:"
-  $currentSources | Foreach-Object { Write-Host $_ }
+  [Rudder.Logger]::Log.Debug("Found configured SNMP sources:")
+  $currentSources | Foreach-Object { [Rudder.Logger]::Log.Debug($_) }
 
   if (Compare-Object ($currentSources | Sort-Object -Unique) $currentSources) {
     return $false
@@ -48,9 +48,8 @@ function Check-SnmpAuthSources {
 
   $result = $true
   $null = $expected | Foreach-Object {
-    Write-Host "Testing that current stuff do not contains ${_}"
     if ($currentSources -notcontains $_) {
-      Write-Host "Missing ${_}!"
+      [Rudder.Logger]::Log.Debug("Missing " + $_)
       $result = $false
     }
   }
@@ -97,7 +96,7 @@ function Manage-SnmpSources {
       # Try to repair
       Force-SnmpAuthSources -Sources $expected
       if (Check-SnmpAuthSources -Expected $expected -Force:$force) {
-        return [Rudder.ApplyResult]::Success("SNMP authorized sources were reconfigured to match the expected configuration")
+        return [Rudder.ApplyResult]::Repaired("SNMP authorized sources were reconfigured to match the expected configuration")
       } else {
         $message = "Could not repair the SNMP authorized sources to match the expected configuration. Current state:`n"
         Get-SnmpAuthSources | Foreach-Object {
@@ -114,7 +113,7 @@ function Manage-SnmpSources {
     }
   }
 
-  $localResult = CheckApply -Names $names -Acls $acls -Force:$force
+  $localResult = CheckApply -Sources $sources -Acls $acls -Force:$force
   return [Rudder.MethodResult]::new(
     $localResult.Status,
     $localResult.Message,

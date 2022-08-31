@@ -37,11 +37,11 @@ function snmp {
   # SNMP installation
   ################################
 
-  $installParams = @commonParams + @{
+  $installParams = $commonParams + @{
     ComponentName = "SNMP installation"
     ComponentKey = "None"
   }
-  $installCall = Windows-Component-Present -Component $snmpComponent -PolicyMode $policyMode
+  $installCall = Windows-Component-Present -Component "SNMP-service" -PolicyMode $policyMode
   # Check service configuration (ie check all checkboxes in Services->SNMP->Properties->Agent->Service)
   $regCall = Registry-Entry-Present -Key "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\RFC1156Agent" -Entry "sysServices" -Value 79 -RegistryType "DWord" -PolicyMode $policyMode
 
@@ -56,14 +56,14 @@ function snmp {
     $worstStatus,
     $installMessage,
     (Get-FunctionName),
-    ($installCall.InfoLogs + $regCallL.InfoLogs)
+    ($installCall.InfoLogs + $regCall.InfoLogs)
   )
   $null = Compute-Method-Call -MethodCall $installResult @installParams
 
   ################################
   # Check the Communities
   ################################
-  $communitiesParams = @commonParams + @{
+  $communitiesParams = $commonParams + @{
     ComponentName = "Communities configuration"
     ComponentKey = "None"
   }
@@ -73,7 +73,7 @@ function snmp {
   ################################
   # Check the permitted sources
   ################################
-  $sourcesParams = @commonParams + @{
+  $sourcesParams = $commonParams + @{
     ComponentName = "Authorized Servers"
     ComponentKey = "None"
   }
@@ -83,7 +83,7 @@ function snmp {
   ################################
   # Check the service status
   ################################
-  $serviceParams = @commonParams + @{
+  $serviceParams = $commonParams + @{
     ComponentName = "Communities configuration"
     ComponentKey = "None"
     # Disable the reporting as it was previously merged with the communities reporting
