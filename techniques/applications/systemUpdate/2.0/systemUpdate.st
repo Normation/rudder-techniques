@@ -124,4 +124,4 @@ bundle agent rudder_system_update {
                                                )
                                              )
                                            );
-}&
+}
