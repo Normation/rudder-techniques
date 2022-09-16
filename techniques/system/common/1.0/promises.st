@@ -519,6 +519,24 @@ bundle agent rudder_check_agent_version
 }
 
 #######################################################
+# Select the syslog facility to use based on node property syslog_facility
+bundle common rudder_syslog_facility {
+  vars:
+@if feature(syslog_disableable)
+      "valid_values" slist => {"NONE", "LOG_USER", "LOG_DAEMON", "LOG_LOCAL0", "LOG_LOCAL1", "LOG_LOCAL2", "LOG_LOCAL3", "LOG_LOCAL4", "LOG_LOCAL5", "LOG_LOCAL6", "LOG_LOCAL7"};
+@else
+      "valid_values" slist => {"LOG_USER", "LOG_DAEMON", "LOG_LOCAL0", "LOG_LOCAL1", "LOG_LOCAL2", "LOG_LOCAL3", "LOG_LOCAL4", "LOG_LOCAL5", "LOG_LOCAL6", "LOG_LOCAL7"};
+@endif
+      "syslog"     string => "LOG_LOCAL3";
+
+    rudder_is_syslog_out_valid::
+      "syslog" string => "${node.properties[rudder][syslog_facility]}";
+  classes:
+    "rudder_is_syslog_out_valid" expression => strcmp("${valid_values}", "${node.properties[rudder][syslog_facility]}");
+}
+
+
+#######################################################
 
 body agent control
 {
@@ -530,7 +548,7 @@ body agent control
 
         abortclasses => { "should_not_continue", "abort_agent_run" };
 
-        agentfacility => "LOG_LOCAL6";
+        agentfacility => "${rudder_syslog_facility.syslog}";
 
   # Repository where to put the copy of modified files
         default_repository => "${g.rudder_var}/modified-files";

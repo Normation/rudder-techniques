@@ -152,6 +152,8 @@ body server control
 
         denybadclocks => "&DENYBADCLOCKS&";
 
+        serverfacility => "${rudder_syslog_facility.syslog}";
+
     !debug_port::
         port => "&COMMUNITYPORT&";
     debug_port::
