@@ -526,9 +526,9 @@ bundle common rudder_syslog_facility {
       "syslog"     string => "LOG_LOCAL3";
 
     rudder_is_syslog_out_valid::
-      "syslog" string => "${node.properties[rudder][syslog_facility]}";
+      "syslog" string => "${node.properties[rudder][log][syslog_facility]}";
   classes:
-    "rudder_is_syslog_out_valid" expression => strcmp("${valid_values}", "${node.properties[rudder][syslog_facility]}");
+    "rudder_is_syslog_out_valid" expression => strcmp("${valid_values}", "${node.properties[rudder][log][syslog_facility]}");
 }
 
 
