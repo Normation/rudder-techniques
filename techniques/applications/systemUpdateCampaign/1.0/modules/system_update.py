@@ -110,6 +110,8 @@ def parse_rfc3339(date):
                 date_p += timedelta(
                     hours=int(date[20:22]), minutes=int(date[23:])
                 )
+            elif date[19] == 'Z':
+                pass
             else:
                 raise Exception('Could not parse timezone in ' + date)
             # make offset-aware

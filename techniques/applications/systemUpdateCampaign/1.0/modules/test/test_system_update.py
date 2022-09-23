@@ -137,6 +137,8 @@ class TestSplay(unittest.TestCase):
     def test_rfc_3339(self):
         date = parse_rfc3339('2022-07-04T20:40:24+02:00')
         self.assertEqual(timestamp(date), 1656960024)
+        date = parse_rfc3339('2022-07-04T18:40:24Z')
+        self.assertEqual(timestamp(date), 1656960024)
 
     def test_splay(self):
         start = parse_rfc3339('2022-07-04T20:40:24+02:00')
