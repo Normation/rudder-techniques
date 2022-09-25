@@ -3,14 +3,15 @@
 
 bundle agent rudder_system_update_campaign_&RudderUniqueID& {
   vars:
-      "enabled"       string => "&ENABLE_UPDATE&";
-      "campaign_name" string => "&CAMPAIGN_NAME&";
-      "reboot"        string => "&REBOOT&";
-      "start"         string => "&START&";
-      "end"           string => "&END&";
-      "campaign_id"   string => canonify("${campaign_name}");
-      "status_prefix" string => "rudder_system_update_campaign";
-      "reboot_opt"    string => "";
+      "enabled"                string => "&ENABLE_UPDATE&";
+      "campaign_name"          string => "&CAMPAIGN_NAME&";
+      "reboot"                 string => "&REBOOT&";
+      "start"                  string => "&START&";
+      "end"                    string => "&END&";
+      "campaign_id"            string => canonify("${campaign_name}");
+      "status_prefix"          string => "rudder_system_update_campaign";
+      "reboot_opt"             string => "";
+      "report_data.identifier" string => "0";
 
     pass1::
       "reboot_opt"    string => "--reboot",
