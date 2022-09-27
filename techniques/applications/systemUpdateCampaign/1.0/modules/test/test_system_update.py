@@ -94,7 +94,7 @@ mesa-vulkan-drivers 22.1.2-1.fc36 x86_64
 mesa-libxatracker 22.1.2-1.fc36 x86_64
 gtksourceview5 5.4.2-1.fc36 x86_64
 gnome-software 42.2-4.fc36 x86_64
-google-chrome-stable 103.0.5060.53-1 x86_64"""
+google-chrome-stable 0:103.0.5060.53-1 x86_64"""
         reference = """
 {
   "sushi.x86_64": { "version": "2:41.2-2.fc36" },

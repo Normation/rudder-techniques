@@ -360,7 +360,7 @@ class Rpm(UpdateManager):
         super(Rpm, self).__init__(campaign_id, workdir)
 
     def get_installed(self):
-        output_format = '%{name} %{epoch}:%{version}-%{release} %{arch}\n'
+        output_format = '%{name} %{epochnum}:%{version}-%{release} %{arch}\n'
         command = [self.rpm_path, '-qa', '--qf', output_format]
         (code, output, errors) = run(
             command,
@@ -376,7 +376,7 @@ class Rpm(UpdateManager):
             version_parts = parts[1].split(':')
             if version_parts[0] in ['', '0']:
                 # Remove default epoch
-                version = version_parts[0]
+                version = version_parts[1]
             else:
                 version = parts[1]
             # Store name with arch to allow fast indexing when comparing versions
