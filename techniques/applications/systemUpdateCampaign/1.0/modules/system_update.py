@@ -352,9 +352,16 @@ class UpdateManager(object):
 
 
 class Rpm(UpdateManager):
+    def __init__(self, campaign_id, workdir=WORKDIR):
+        if os.path.exists("/usr/bin/rpm"):
+            self.rpm_path = "/usr/bin/rpm"
+        else:
+            self.rpm_path = "/bin/rpm"
+        super(Rpm, self).__init__(campaign_id, workdir)
+
     def get_installed(self):
         output_format = '%{name} %{epoch}:%{version}-%{release} %{arch}\n'
-        command = ['/usr/bin/rpm', '-qa', '--qf', output_format]
+        command = [self.rpm_path, '-qa', '--qf', output_format]
         (code, output, errors) = run(
             command,
             # Fail on errors
