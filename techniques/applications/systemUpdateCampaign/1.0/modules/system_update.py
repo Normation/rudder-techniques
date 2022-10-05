@@ -437,7 +437,7 @@ class Apt(Dpkg):
     def update(self):
         commands = [
             ['/usr/bin/apt-get', 'update'],
-            ['/usr/bin/apt-get', '-y', 'upgrade'],
+            ['/usr/bin/apt-get', '-y', 'dist-upgrade'],
         ]
         return commands_output(commands)
 
