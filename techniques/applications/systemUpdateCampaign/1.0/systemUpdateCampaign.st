@@ -54,7 +54,7 @@ bundle agent rudder_system_update_campaign_&RudderUniqueID& {
       #   the json report file.
 
     pass3::
-      "context"    usebundle => _method_reporting_context_v4("System update", "", "system-update");
+      "context"    usebundle => _method_reporting_context_v4("System update", "None", "system-update");
       "json"       usebundle => rudder_common_report("system-update","report_json", "&TRACKINGKEY&", "campaign-system-update", "${campaign_name}", "${report}"),
                           if => "${status_prefix}_report";
       "inventory"  usebundle => rudder_inventory_trigger("post_update_inventory_${campaign_id}"),
