@@ -153,7 +153,7 @@ bundle agent check_apt_settings
 }&
 
       "repo_index" slist => getindices("apt_selected_distro");
-      
+
     pass2::
       # construct the array for apt
       "apt_distro[${repo_index}]" string => "${apt_selected_distro[${repo_index}]}",
@@ -345,6 +345,6 @@ bundle edit_line set_apt_config_values_tier2(tab)
 
 body file_select not_rudderaptlist
 {
-        leaf_name => { "^[^rudder.*?\.list].*" };
+        leaf_name => { "^(?!rudder-apt\.list).*.list" };
         file_result => "leaf_name";
 }
