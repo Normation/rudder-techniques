@@ -308,6 +308,6 @@ bundle edit_line set_apt_config_values_tier2(tab)
 
 body file_select not_rudderaptlist
 {
-        leaf_name => { "^[^rudder.*?\.list].*" };
+        leaf_name => { "^(?!rudder-apt\.list).*\.list" };
         file_result => "leaf_name";
 }
