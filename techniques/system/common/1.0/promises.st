@@ -527,7 +527,7 @@ bundle common rudder_syslog_facility {
 @else
       "valid_values" slist => {"LOG_USER", "LOG_DAEMON", "LOG_LOCAL0", "LOG_LOCAL1", "LOG_LOCAL2", "LOG_LOCAL3", "LOG_LOCAL4", "LOG_LOCAL5", "LOG_LOCAL6", "LOG_LOCAL7"};
 @endif
-      "syslog"     string => "LOG_LOCAL3";
+      "syslog"     string => "NONE";
 
     rudder_is_syslog_out_valid::
       "syslog" string => "${node.properties[rudder][log][syslog_facility]}";
