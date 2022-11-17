@@ -221,6 +221,12 @@ bundle common va
     # for OS family compatibility
       "suse" expression => "sles|sled|opensuse";
       "redhat" expression => "amzn|amazon_linux";
+    # sles 12 and after already have this
+      "sles_11" expression => "SLES_11";
+      "sles_11_1" expression => "SLES_11_1";
+      "sles_11_2" expression => "SLES_11_2";
+      "sles_11_3" expression => "SLES_11_3";
+      "sles_11_4" expression => "SLES_11_4";
 
     # We are inside Rudder policies
       "rudder_policies" expression => "any";
@@ -330,7 +336,7 @@ bundle agent configure_rudder_reporting_system {
   reports:
     !agent_capability_http_reporting.!reports_disabled::
       "******************************************************************
-       * This version of rudder-agent does not support https reporting. * 
+       * This version of rudder-agent does not support https reporting. *
        * Please upgrade rudder-agent to version 6.0 or more.            *
        ******************************************************************";
 }

@@ -71,6 +71,13 @@ bundle common g
       "SuSE" expression => "sles|sled|opensuse";
       "suse" expression => "sles|sled|opensuse";
       "redhat" expression => "amzn|amazon_linux";
+      # sles 12 and after already have this
+      "sles_11" expression => "SLES_11";
+      "sles_11_1" expression => "SLES_11_1";
+      "sles_11_2" expression => "SLES_11_2";
+      "sles_11_3" expression => "SLES_11_3";
+      "sles_11_4" expression => "SLES_11_4";
+
 
       # Root Server is the top policy server machine
       "root_server"         expression => strcmp("root","${g.uuid}");
