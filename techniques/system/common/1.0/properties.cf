@@ -58,11 +58,31 @@ bundle common properties
     # Initialize all namespace variables (mergedata refuses to merge undefined variables)
     "node.${namespace[${sorted_files}]}" data => parsejson('{}');
 
-    # First level merge within each namespace, in file name order 
+    # First level merge within each namespace, in file name order
     "node.${namespace[${sorted_files}]}" data => mergedata("node.${namespace[${sorted_files}]}",
                                                            "property_${file_id[${sorted_files}]}[${namespace[${sorted_files}]}]");
 
     # That's all, now we have a node.namespace data that contains the overridden values
+
+    # List properties that must be automatically converted to conditions
+    "autocond_properties" slist => getvalues("node.properties[rudder_auto_conditions]");
+    # Each property must be a json
+    "${autocond_properties}_items" slist => getindices("node.properties[${autocond_properties}]");
+
+  classes:
+    # Each property must be a json with first level key pointing to boolean value
+    # eg: myproperty = { "mykey": true } will generate a myproperty_mykey class
+    # false will not generate a class, this allows overriding true with false
+    "${autocond_properties}_${${autocond_properties}_items}" expression => "${node.properties[${autocond_properties}][${${autocond_properties}_items}]}";
+
+# auto conditions special cases:
+# - it the property is a string : it is ignored
+# - if the property is a json list such as [x,y...] : it is considered as a json object {"0": x, "1":y ... }
+# - if the property is a json object that contains sub levels : if there is a true value somewhere inside, it is considered true
+# - if the property is a json object that contains key/values with string values: the "true" string ins considered true, everything else is considered false
+# - if the property doesn't exist it doesn't fail
+# - if 'rudder_auto_conditions' is not a list it is first converted to a list (a string becomes a list of 1 object and a json becomes the list of its values)
+# - if 'rudder_auto_conditions' doesn't exist, there is no error
 }
 
 # Read the inventories variables from Rudder
