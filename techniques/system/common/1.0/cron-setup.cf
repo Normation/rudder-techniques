@@ -44,6 +44,7 @@ bundle agent setup_cronjob
       # Cleanup old crontab, without the tag
       "/var/spool/cron/crontabs/root"
         edit_defaults => noempty_backup,
+        classes       => classes_generic("rudder_system_user_crontab_insertion"),
         edit_line => delete_lines_matching("0,5,10,15,20,25,30,35,40,45,50,55 \* \* \* \* /opt/rudder/bin/rudder agent check -q >> /var/log/rudder/agent-check/check.log 2>&1");
 
  }
@@ -77,6 +78,8 @@ bundle agent check_cron_daemon
 
       "restart_cron" usebundle => service_restart("${service_name}"),
                             if => "(rudder_system_user_crontab_insertion_repaired|service_check_running_${service_name}_error).!aix";
+      "restart_cron" usebundle => command_execution("EDITOR=/bin/true crontab -e"),
+                            if => "rudder_system_user_crontab_insertion_repaired.aix";
       "restart_cron" usebundle => enable_reporting;
 
 
