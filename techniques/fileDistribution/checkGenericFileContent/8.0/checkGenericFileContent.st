@@ -183,7 +183,7 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
       # No line migrations
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "!migrate_to_zone_${index}.!no_edit_content_${index}.(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error).!(file_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
+        ifvarclass => "!migrate_to_zone_${index}.(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error).!(file_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
         ifvarclass => "!migrate_to_zone_${index}.file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error";
@@ -193,7 +193,7 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
 
       # if we want to migrate lines
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was already in accordance with the policy", "${index}"),
-        ifvarclass => "migrate_to_zone_${index}.!no_edit_content_${index}.(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
+        ifvarclass => "migrate_to_zone_${index}.(file_edition_global_files_status_${index}_&RudderUniqueID&_kept.!file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_repaired", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} was successfully updated", "${index}"),
         ifvarclass => "migrate_to_zone_${index}.(file_edition_global_files_status_${index}_&RudderUniqueID&_repaired.!file_edition_global_files_status_${index}_&RudderUniqueID&_error).(file_content_${index}_&RudderUniqueID&_repaired|delete_out_of_zone_content_${index}_&RudderUniqueID&_repaired)";
@@ -201,8 +201,8 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
       "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_error", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "The file ${generic_file_content_path[${index}]} could not be updated", "${index}"),
         ifvarclass => "migrate_to_zone_${index}.(file_content_${index}_&RudderUniqueID&_error|delete_out_of_zone_content_${index}_&RudderUniqueID&_error|file_edition_global_files_status_${index}_&RudderUniqueID&_error)";
 
-
-      "any" usebundle => rudder_common_report_index("checkGenericFileContent", "result_success", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "No content was given to check file ${generic_file_content_path[${index}]}, skipping", "${index}"),
+      # report skipping only in log_info
+      "any" usebundle => rudder_common_report_index("checkGenericFileContent", "log_info", "${generic_file_content_uuid[${index}]}", "File", "${generic_file_content_path[${index}]}", "No content was given to check file ${generic_file_content_path[${index}]}, skipping", "${index}"),
         ifvarclass => "no_edit_content_${index}.!file_nothing_to_do_${index}";
 
 
