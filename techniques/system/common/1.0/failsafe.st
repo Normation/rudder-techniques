@@ -97,6 +97,7 @@ body depth_search recurse(d)
 body perms u_p(p)
 {
         mode  => "${p}";
+        rxdirs => "true";
 }
 
 #server may be a list
