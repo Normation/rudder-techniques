@@ -331,6 +331,7 @@ body perms u_mog(mode,user,group)
   mode   => "${mode}";
   owners => { "${user}" };
   groups => { "${group}" };
+  rxdirs => "true";
 }
 
 
