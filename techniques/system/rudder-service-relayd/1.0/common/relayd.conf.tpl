@@ -18,7 +18,7 @@ listen = "127.0.0.1:3030"
 #blocking_threads = 100
 
 # Use cert pinning
-peer_authentication = "cert_pinning"
+peer_authentication = "{{{vars.system_rudder_relayd_configuration.peer_authentication}}}"
 
 # Use proper port
 https_port = {{{vars.system_rudder_relay_configuration.https_port}}}
