@@ -17,9 +17,6 @@ listen = "127.0.0.1:3030"
 #core_threads = "4"
 #blocking_threads = 100
 
-# Use cert pinning
-peer_authentication = "{{{vars.system_rudder_relayd_configuration.peer_authentication}}}"
-
 # Use proper port
 https_port = {{{vars.system_rudder_relay_configuration.https_port}}}
 
@@ -75,6 +72,9 @@ host = "{{{vars.server_info.policy_server}}}"
 {{/classes.cfengine_3_15}}
 user = "{{{vars.g.davuser}}}"
 password = "{{{vars.g.davpw}}}"
+{{#classes.rudder_relayd_disable_cert_pinning}}
+verify_certificates = false
+{{/classes.rudder_relayd_disable_cert_pinning}}
 
 [remote_run]
 command = "{{{vars.g.rudder_base}}}/bin/rudder"

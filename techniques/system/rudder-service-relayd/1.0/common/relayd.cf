@@ -8,14 +8,12 @@ bundle agent system_rudder_relayd_configuration {
       "root_cert_class_prefix"   string => canonify("file_copy_from_local_source_${sys.policy_entry_dirname}/certs/root.pem");
       "component"                string => "Rudder-relayd service";
 
-    cfengine_3_15::
+  classes:
       # For Rudder 6.2 relays: we need to disable certificate verification
       # as it does not understand pinning.
-      "peer_authentication" string => "dangerous_none";
-    !cfengine_3_15::
-      "peer_authentication" string => "cert_pinning";
+      "rudder_relayd_disable_cert_pinning" expression => "cfengine_3_15",
+                                                scope => "namespace";
 
-  classes:
       # Restart relayd at the end of the technique if needed
       "rudder_server_system_restart_relayd" or => { "${config_class_prefix}_repaired" },
                                          scope => "namespace";
