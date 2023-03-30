@@ -559,6 +559,8 @@ body agent control
   # Repository where to put the copy of modified files
         default_repository => "${g.rudder_var}/modified-files";
 
+        default_timeout => "10";
+
 &if(!INITIAL)&
 # to protect copy methods and techniques
 @if feature(copyfrom_restrict_keys)
