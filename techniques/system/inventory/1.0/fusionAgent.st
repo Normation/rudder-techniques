@@ -123,8 +123,9 @@ bundle agent download_server_uuid
         classes => if_else("uuid_successfully_downloaded","could_not_download_uuid");
 
     have_client::
-      "/opt/rudder/bin/rudder-client -e /uuid -- --output \"${sys.workdir}/rudder-server-uuid.txt\""
+      "/opt/rudder/bin/rudder-client -e /uuid -- --connect-timeout 10 --output \"${sys.workdir}/rudder-server-uuid.txt\""
         comment => "Getting the uuid from the server",
+        exec_timeout => "10";
         classes => if_else("uuid_successfully_downloaded","could_not_download_uuid");
 
 }
@@ -202,7 +203,7 @@ bundle agent checkInventoryFile
       "********************************************************************************
 * WARNING Generated inventory is not valid, as it is missing mandatory fields. *
 * Not sending it to the Rudder Server                                          *
-* You can get a full error message by running: ${perl_command} ${this.promise_dirname}/test-inventory.pl ${fusionAgent.inventory_path} 
+* You can get a full error message by running: ${perl_command} ${this.promise_dirname}/test-inventory.pl ${fusionAgent.inventory_path}
 ********************************************************************************";
 }
 
@@ -273,7 +274,7 @@ bundle agent sendInventory
 
     !root_server.have_client::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
-        transformer => "/opt/rudder/bin/rudder-client -e ${endpoint} -- --upload-file ${this.promiser}",
+        transformer => "/opt/rudder/bin/rudder-client -e ${endpoint} -- --connect-timeout 10 --upload-file ${this.promiser}",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
 
