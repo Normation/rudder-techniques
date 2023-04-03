@@ -106,6 +106,11 @@ bundle agent doInventory_always
 
 }
 
+body contain download_uuid_timeout
+{
+  exec_timeout => "10";
+}
+
 bundle agent download_server_uuid
 {
   classes:
@@ -125,7 +130,7 @@ bundle agent download_server_uuid
     have_client::
       "/opt/rudder/bin/rudder-client -e /uuid -- --output \"${sys.workdir}/rudder-server-uuid.txt\""
         comment => "Getting the uuid from the server",
-        exec_timeout => "10";
+        contain => download_uuid_timeout,
         classes => if_else("uuid_successfully_downloaded","could_not_download_uuid");
 
 }
