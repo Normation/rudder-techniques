@@ -11,6 +11,7 @@ by the technique will have the `not_applicable` status so it should be easy to i
 
 The technique will automatically run a Rudder inventory after the update if it was successful. A system reboot can also be triggered if needed.
   </DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next version of Rudder.</DEPRECATED>
   <MULTIINSTANCE>false</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
   <USEMETHODREPORTING>true</USEMETHODREPORTING>
