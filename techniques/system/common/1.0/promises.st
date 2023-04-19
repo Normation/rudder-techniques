@@ -252,10 +252,10 @@ bundle agent startup
                               scope => "namespace";
 
   methods:
-    # Should we send a message stating this agent is starting up?
-    # Always do it in "full_compliance" mode
-    # In other modes, only do it here if we need to send it as a "heartbeat", that is if it hasn't already been sent recently enough
-    full_compliance|!heartbeat_sent::
+    # Always send start/end messages, this will ensure all sent runlogs are valid.
+    # We can as disabled reporting is handled in the wrapper layer, and should as changes-only always produces some logs
+    # (since HTTP reporting and agent output capture).
+    # NOTE: This means heartbeat configuration is actually ignored and a report is sent for every agent run.
       "Send start message"
         usebundle => startExecution,
         action    => immediate;
