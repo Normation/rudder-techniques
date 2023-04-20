@@ -117,7 +117,7 @@ bundle agent update_action
      current_promise_timestamp_defined::
        "current_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp}", 2048);
 
-     # File ought to be there only in second pass, but since classes are persistent, we need to 
+     # File ought to be there only in second pass, but since classes are persistent, we need to
      # enforce the check on pass_2
      pass2.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired).!rudder_promises_generated_tmp_file_error::
        "target_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp_tmp}", 2048);
@@ -278,6 +278,15 @@ bundle agent update_action
       action => immediate;
 
      !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error).!ncf_only::
+&if(INITIAL)&
+        "*********************************************************************************
+  *  You must accept this node on the server before updating this node            *
+  *  This node uses initial policies, some error message are expected until       *
+  *  the node is accepted.                                                        *
+  *********************************************************************************"
+&endif&
+
+&if(!INITIAL)&
        "******************************************************************************
 * rudder-agent could not get an updated configuration from the policy server.   *
 * This can be caused by:                                                        *
@@ -286,6 +295,7 @@ bundle agent update_action
 *   * if this node has changed policy server without sending a new inventory    *
 * Any existing configuration policy will continue to be applied without change. *
 *********************************************************************************"
+&endif&
       action => immediate;
 }
 
@@ -323,7 +333,7 @@ body classes success(if, else, kept)
 
         # persist for 4 minutes so that it wont overlap with the next
         # execution in 5 minutes
-        persist_time     => "4"; 
+        persist_time     => "4";
 }
 
 body perms u_mog(mode,user,group)
