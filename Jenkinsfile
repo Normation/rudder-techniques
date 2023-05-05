@@ -55,12 +55,13 @@ pipeline {
                     agent { 
                         dockerfile { 
                             filename 'ci/cf-promises.Dockerfile'
-                            args  "--user 0"
+                            additionalBuildArgs  "--build-arg USER_ID=${env.JENKINS_UID}"
                         }
                     }
                     steps {
                         sh script: 'make all', label: 'build techniques'
                         sh script: 'PATH="/opt/rudder/bin:$PATH" make', label: 'check techniques'
+                        sh script: 'make clean', label: 'cleanup'
                         sh script: 'git clean -fdx', label: 'cleanup'
                     }
                     post {

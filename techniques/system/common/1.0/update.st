@@ -296,6 +296,7 @@ bundle agent update_action
 * Any existing configuration policy will continue to be applied without change. *
 *********************************************************************************"
 &endif&
+
       action => immediate;
 }
 

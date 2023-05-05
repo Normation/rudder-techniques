@@ -521,6 +521,7 @@ bundle agent update_reports
   * Any existing configuration policy will continue to be applied without change. *
   *********************************************************************************"
 &endif&
+
         action => immediate;
 }
 
