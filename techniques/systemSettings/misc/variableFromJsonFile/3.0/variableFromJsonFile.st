@@ -57,8 +57,14 @@ bundle agent variable_from_json_file_&RudderUniqueID&
       "pass1" expression => "any";
 
     pass3::
-      "remote_base_file_ok" expression => "base_remote_source_list_${files_index}.file_copy_from_remote_source_${base_source_file_canon}_${base_destination_file_canon}_ok.variable_dict_from_file_${complete_name_canon}_${base_destination_file_canon}_ok";
-      "local_base_file_ok"  expression => "base_local_source_list_${files_index}.file_copy_from_local_source_${base_file_canon}_${base_destination_file_canon}_ok.variable_dict_from_file_${complete_name_canon}_${base_destination_file_canon}_ok";
+      "remote_base_file_ok" expression => and( "base_remote_source_list_${files_index}",
+                                               "file_copy_from_remote_source_${base_source_file_canon}_${base_destination_file_canon}_ok",
+                                               "variable_dict_from_file_${complete_name_canon}_${base_destination_file_canon}_ok"
+                                             );
+      "local_base_file_ok"  expression => and( "base_local_source_list_${files_index}",
+                                               "file_copy_from_local_source_${base_file_canon}_${base_destination_file_canon}_ok",
+                                               "variable_dict_from_file_${complete_name_canon}_${base_destination_file_canon}_ok"
+                                             );
       "base_file_ok"        expression => "remote_base_file_ok|local_base_file_ok";
 
 
@@ -120,43 +126,128 @@ bundle agent variable_from_json_file_&RudderUniqueID&
       #Merging
       "any" usebundle => variable_dict_merge("${variable_prefix}", "${variable_name}", "${complete_name}", "${prefix}.${json_file_canon[${files_index}]}"),
           ifvarclass => "!empty_input_${files_index}.base_file_ok";
-      "any" usebundle => rudder_common_reports_generic("variableFromJsonFile", "variable_dict_merge_${variable_name}", "${trackingkey[${files_index}]}", "Variable definition", "${json_file[${files_index}]}", "Merging ${prefix}.${json_file_canon[${files_index}]} with ${complete_name} in ${complete_name}"),
+      "any" usebundle => rudder_common_reports_generic( "variableFromJsonFile",
+                                                        "variable_dict_merge_${variable_name}",
+                                                        "${trackingkey[${files_index}]}",
+                                                        "Variable definition",
+                                                        "${json_file[${files_index}]}",
+                                                        "Merging ${prefix}.${json_file_canon[${files_index}]} with ${complete_name} in ${complete_name}"
+                                                      ),
           ifvarclass => "!empty_input_${files_index}.base_file_ok";
       
       #Reporting
       # Base file
-      "any" usebundle => rudder_common_report_index("variableFromJsonFile", "result_success", "${trackingkey[${files_index}]}", "Base file", "${json_file[${files_index}]}", "Base variable definition from the shared file: ${base_file_list[${files_index}]} was correct", "${files_index}"),
-          ifvarclass => "remote_base_file_ok";
+      "any" usebundle => rudder_common_report_index( 
+                           "variableFromJsonFile",
+                           "result_success",
+                           "${trackingkey[${files_index}]}",
+                           "Base file",
+                           "${base_file}",
+                           "Base variable definition from the shared file: ${base_file_list[${files_index}]} was correct",
+                           "${files_index}"
+                         ),
+           ifvarclass => "remote_base_file_ok";
 
-      "any" usebundle => rudder_common_report_index("variableFromJsonFile", "result_success", "${trackingkey[${files_index}]}", "Base file", "${json_file[${files_index}]}", "Base variable definition from the local file: ${base_file_list[${files_index}]} was correct", "${files_index}"),
-          ifvarclass => "local_base_file_ok";
+      "any" usebundle => rudder_common_report_index(
+                           "variableFromJsonFile",
+                           "result_success",
+                           "${trackingkey[${files_index}]}",
+                           "Base file",
+                           "${base_file}",
+                           "Base variable definition from the local file: ${base_file_list[${files_index}]} was correct",
+                           "${files_index}"
+                         ),
+           ifvarclass => "local_base_file_ok";
 
-      "any" usebundle => rudder_common_report_index("variableFromJsonFile", "result_error", "${trackingkey[${files_index}]}", "Base file", "${json_file[${files_index}]}", "Base variable definition from the shared file: ${base_file_list[${files_index}]} could not be defined", "${files_index}"),
-          ifvarclass => "!base_file_ok";
+      "any" usebundle => rudder_common_report_index(
+                           "variableFromJsonFile",
+                           "result_error", "${trackingkey[${files_index}]}",
+                           "Base file",
+                           "${base_file}",
+                           "Base variable definition from the shared file: ${base_file_list[${files_index}]} could not be defined",
+                           "${files_index}"
+                         ),
+           ifvarclass => "!base_file_ok";
 
       #File copy
       #Remote
-      "any" usebundle => rudder_common_reports_generic_index("variableFromJsonFile", "file_copy_from_remote_source_${directory_agent_canon}_${json_file_canon[${files_index}]}", "${trackingkey[${files_index}]}", "File copy", "${json_file[${files_index}]}", "Copy of ${directory_server}/${json_file[${files_index}]} from the policy server to ${directory_agent}", "${files_index}"),
-          ifvarclass => "!empty_input_${files_index}.remote_source_${files_index}";
+      "any" usebundle => rudder_common_reports_generic_index(
+                           "variableFromJsonFile",
+                           "file_copy_from_remote_source_${directory_agent_canon}_${json_file_canon[${files_index}]}",
+                           "${trackingkey[${files_index}]}",
+                           "File copy",
+                           "${json_file[${files_index}]}",
+                           "Copy of ${directory_server}/${json_file[${files_index}]} from the policy server to ${directory_agent}",
+                           "${files_index}"
+                         ),
+           ifvarclass => "!empty_input_${files_index}.remote_source_${files_index}";
 
       #Local
-      "any" usebundle => rudder_common_reports_generic_index("variableFromJsonFile", "file_copy_from_local_source_${directory_agent_canon}_${json_file_canon[${files_index}]}", "${trackingkey[${files_index}]}", "File copy", "${json_file[${files_index}]}", "Copy of ${json_file[${files_index}]} to ${directory_agent}", "${files_index}"),
-          ifvarclass => "!empty_input_${files_index}.local_source_${files_index}";
+      "any" usebundle => rudder_common_reports_generic_index(
+                           "variableFromJsonFile",
+                           "file_copy_from_local_source_${directory_agent_canon}_${json_file_canon[${files_index}]}",
+                           "${trackingkey[${files_index}]}",
+                           "File copy",
+                           "${json_file[${files_index}]}",
+                           "Copy of ${json_file[${files_index}]} to ${directory_agent}",
+                           "${files_index}"
+                         ),
+           ifvarclass => "!empty_input_${files_index}.local_source_${files_index}";
 
       #Variable definition
-      "any" usebundle => rudder_common_reports_generic_index("variableFromJsonFile", "variable_dict_from_file_${json_file_canon[${files_index}]}", "${trackingkey[${files_index}]}", "Overriding file", "${json_file[${files_index}]}", "${json_file[${files_index}]} loading", "${files_index}"),
-          ifvarclass => "!empty_input_${files_index}";
+      "any" usebundle => rudder_common_reports_generic_index(
+                           "variableFromJsonFile",
+                           "variable_dict_from_file_${json_file_canon[${files_index}]}",
+                           "${trackingkey[${files_index}]}",
+                           "Overriding file",
+                           "${json_file[${files_index}]}",
+                           "${json_file[${files_index}]} loading",
+                           "${files_index}"
+                         ),
+           ifvarclass => "!empty_input_${files_index}";
 
       # Error in the merging if the base variable could not be defined from the base file
-      "any" usebundle => rudder_common_report_index("variableFromJsonFile", "result_error", "${trackingkey[${files_index}]}", "Variable definition", "${json_file[${files_index}]}", "Merging variable could not be executed since the base variable ${complete_name} could not be defined.", "${files_index}"),
-          ifvarclass => "!base_file_ok";
+      "any" usebundle => rudder_common_report_index(
+                           "variableFromJsonFile",
+                           "result_error",
+                           "${trackingkey[${files_index}]}",
+                           "Variable definition",
+                           "${json_file[${files_index}]}",
+                           "Merging variable could not be executed since the base variable ${complete_name} could not be defined.",
+                           "${files_index}"
+                         ),
+           ifvarclass => "!base_file_ok";
 
       #Not applicable
-      "any" usebundle => rudder_common_report_index("variableFromJsonFile", "result_na", "${trackingkey[${files_index}]}", "File copy", "${json_file[${files_index}]}", "No merging files precised", "${files_index}"),
+      "any" usebundle => rudder_common_report_index(
+                           "variableFromJsonFile",
+                           "result_na",
+                           "${trackingkey[${files_index}]}",
+                           "File copy",
+                           "",
+                           "No merging files precised",
+                           "${files_index}"
+                         ),
           ifvarclass => "empty_input_${files_index}";
-      "any" usebundle => rudder_common_report_index("variableFromJsonFile", "result_na", "${trackingkey[${files_index}]}", "Overriding file", "${json_file[${files_index}]}", "No merging files precised", "${files_index}"),
+      "any" usebundle => rudder_common_report_index(
+                           "variableFromJsonFile",
+                           "result_na",
+                           "${trackingkey[${files_index}]}",
+                           "Overriding file",
+                           "${json_file[${files_index}]}",
+                           "No merging files precised",
+                           "${files_index}"
+                         ),
           ifvarclass => "empty_input_${files_index}";
-      "any" usebundle => rudder_common_report_index("variableFromJsonFile", "result_na", "${trackingkey[${files_index}]}", "Variable definition", "${json_file[${files_index}]}", "No merging files precised", "${files_index}"),
+      "any" usebundle => rudder_common_report_index(
+                           "variableFromJsonFile",
+                           "result_na",
+                           "${trackingkey[${files_index}]}",
+                           "Variable definition",
+                           "${json_file[${files_index}]}",
+                           "No merging files precised",
+                           "${files_index}"
+                         ),
           ifvarclass => "empty_input_${files_index}.base_file_ok";
 
 }

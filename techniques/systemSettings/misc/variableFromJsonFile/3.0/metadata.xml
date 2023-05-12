@@ -27,7 +27,7 @@ For example a JSON containing `{ "datacenter": "paris" }` read into the variable
   </TRACKINGVARIABLE>
 
   <SECTIONS>
-    <SECTION name="Base file" component="true" componentKey="VARIABLE_FROM_JSON_FILE_JSON_FILE" />
+    <SECTION name="Base file" component="true" componentKey="VARIABLE_FROM_JSON_FILE_BASE_FILE" />
     <SECTION name="File copy" component="true" componentKey="VARIABLE_FROM_JSON_FILE_JSON_FILE" />
     <SECTION name="Variable definition" component="true" componentKey="VARIABLE_FROM_JSON_FILE_JSON_FILE" >
       <INPUT>
