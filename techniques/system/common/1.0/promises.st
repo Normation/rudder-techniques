@@ -505,12 +505,23 @@ bundle agent update_reports
     reports:
       # We want to have always reports if something goes bad
       rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error::
+&if(INITIAL)&
+        "*********************************************************************************
+  *  You must accept this node on the server before updating this node            *
+  *  This node uses initial policies, some error message are expected until       *
+  *  the node is accepted.                                                        *
+  *********************************************************************************"
+&endif&
+
+&if(!INITIAL)&
         "*********************************************************************************
   * rudder-agent could not get an updated configuration from the policy server.   *
   * This can be caused by a network issue, an unavailable server, or if this      *
   * node was deleted from the Rudder root server.                                 *
   * Any existing configuration policy will continue to be applied without change. *
   *********************************************************************************"
+&endif&
+
         action => immediate;
 }
 
