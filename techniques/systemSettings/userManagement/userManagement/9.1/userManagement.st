@@ -21,6 +21,12 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
     &USERGROUP_FORCE_USER_GROUP:{force_group |"usergroup_force_user_groupname[&i&]" string => "&force_group&";
 }&
 
+    &USERGROUP_USER_SECONDARY_GROUPS:{secgroup |"usergroup_user_secondary_groupsname[&i&]" string => "&secgroup&";
+}&
+
+    &USERGROUP_FORCE_USER_SECONDARY_GROUPS:{force_group |"usergroup_force_user_secondary_groupsname[&i&]" string => "&force_group&";
+}&
+
     &USERGROUP_USER_NAME:{name |"usergroup_user_fullname[&i&]" string => "&name&";
 }&
 
@@ -104,6 +110,11 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
         string => "-u ${usergroup_user_uid[${usergroup_user_index}]}",
             if => "!usermanagement_user_uid_empty_${usergroup_user_index}";
 
+      # define inner class prefix of secondary group management
+      "inner_classprefix_secondary_group_${usergroup_user_index}"
+        string => canonify("user_secondary_groups_${usergroup_user_login[${usergroup_user_index}]}"),
+            if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}";
+
     any_2nd_pass.!pass2::
 
 
@@ -186,7 +197,6 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                                                                                      "usermanagement_user_group_no_value_${usergroup_user_index}"
                                                                                    );
 
-
       # check if user set a gid or a group name
       "usermanagement_user_group_is_gid_${usergroup_user_index}"        expression => regcmp("[0-9]+", "${usergroup_user_groupname[${usergroup_user_index}]}"),
                                                                                 if => "!usermanagement_user_groupempty_${usergroup_user_index}";
@@ -195,13 +205,18 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "usermanagement_force_user_group_defined_${usergroup_user_index}" expression => and( "usermanagement_force_user_group_${usergroup_user_index}",
                                                                                            "!usermanagement_user_groupempty_${usergroup_user_index}"
                                                                                          );
-
+      # check if secondary groups are defined
+      "usermanagement_user_secondary_groups_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_secondary_groupsname[${usergroup_user_index}]");
+      "usermanagement_user_secondary_groups_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}");
+      "usermanagement_user_secondary_groupsempty_${usergroup_user_index}"     expression => or( "usermanagement_user_secondary_groups_no_variable_${usergroup_user_index}",
+                                                                                                "usermanagement_user_secondary_groups_no_value_${usergroup_user_index}"
+                                                                                              );
 
       "usermanagement_user_uid_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_uid[${usergroup_user_index}]");
       "usermanagement_user_uid_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_uid[${usergroup_user_index}]}");
       "usermanagement_user_uid_empty_${usergroup_user_index}"    expression => or( "usermanagement_user_uid_no_variable_${usergroup_user_index}",
                                                                                    "usermanagement_user_uid_no_value_${usergroup_user_index}"
-                                                                                 );
+                                                                                  );
 
       "usermanagement_user_groupmatchesname_${usergroup_user_index}" expression => strcmp("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}");
 
@@ -391,6 +406,40 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
   methods:
     pass3.showtime::
+
+      ######################
+      # set/check secondary groups
+      # if checkpres, then we are doing dry run only
+      ######################
+      "force_dry_run_mode_${usergroup_user_login[${usergroup_user_index}]}_${usergroup_user_secondary_groupsname[${usergroup_user_index}]}"
+            usebundle => push_dry_run_mode("true"),
+                   if => "usermanagement_user_checkpres_${usergroup_user_index}";
+      "any" usebundle => _method_reporting_context("User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}");
+
+      "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}"
+            usebundle => user_secondary_groups("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}"),
+                   if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index})",
+              comment => "Set secondary groups if they are defined on user ${usergroup_user_login[${usergroup_user_index}]}";
+
+      "remove_force_dry_run_mode_${usergroup_user_login[${usergroup_user_index}]}_${usergroup_user_secondary_groupsname[${usergroup_user_index}]}"
+            usebundle => pop_dry_run_mode(),
+                   if => "usermanagement_user_checkpres_${usergroup_user_index}";
+
+      # reporting (cannot be done by the method as it may be in dry run)
+      "report_${usergroup_user_index}" usebundle => rudder_common_reports_generic_index("userGroupManagement", "${inner_classprefix_secondary_group_${usergroup_user_index}}", "${usergroup_directive_id[${usergroup_user_index}]}", "User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}", "Secondary groups for user ${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_index}}"),
+                                              if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index})";
+
+
+      # no secondary group has been set
+      "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}", "No secondary groups defined for user", "${usergroup_user_index}"),
+                    if => "usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index})";
+
+      # only deletion, or check should not exist
+      "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}", "User secondary groups are not checked in this mode", "${usergroup_user_index}"),
+                    if => "!usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_checkpres_${usergroup_user_index}";
+
+      #############################
+      # Only reporting after that #
 
       # Add user
       ## Does exist (Success), and gid not requested to be changed

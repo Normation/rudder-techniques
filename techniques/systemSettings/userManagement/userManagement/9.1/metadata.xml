@@ -134,6 +134,30 @@
         </CONSTRAINT>
       </SELECT1>
       <INPUT>
+        <NAME>USERGROUP_USER_SECONDARY_GROUPS</NAME>
+        <DESCRIPTION>Secondary groups name for this user, comma separated</DESCRIPTION>
+        <LONGDESCRIPTION>On UNIX systems, ensure that the user belongs to the list of groups, as secondary groups</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <SELECT1>
+        <NAME>USERGROUP_FORCE_USER_SECONDARY_GROUPS</NAME>
+        <DESCRIPTION>Enforce the secondary groups of the user</DESCRIPTION>
+        <LONGDESCRIPTION>If set to exclusive, the user will belong exactly to the list of secondary groups, otherwise, it may also be in other groups</LONGDESCRIPTION>
+        <ITEM>
+          <LABEL>Included</LABEL>
+          <VALUE>false</VALUE>
+        </ITEM>
+        <ITEM>
+          <LABEL>Exclusive</LABEL>
+          <VALUE>true</VALUE>
+        </ITEM>
+        <CONSTRAINT>
+          <DEFAULT>false</DEFAULT>
+        </CONSTRAINT>
+      </SELECT1>
+      <INPUT>
         <NAME>USERGROUP_USER_NAME</NAME>
         <DESCRIPTION>Full name for this account</DESCRIPTION>
         <CONSTRAINT>
@@ -183,6 +207,7 @@
       </INPUT>
     </SECTION>
     <SECTION name="Home directory" component="true" componentKey="USERGROUP_USER_LOGIN"/>
+    <SECTION name="User secondary groups" component="true" componentKey="USERGROUP_USER_LOGIN"/>
     </SECTION>
   </SECTIONS>
 
