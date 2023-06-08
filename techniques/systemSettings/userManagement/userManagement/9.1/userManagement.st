@@ -111,8 +111,9 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
             if => "!usermanagement_user_uid_empty_${usergroup_user_index}";
 
       # define inner class prefix of secondary group management
+      "args"                           slist => { "${login}", "${groups}", "${force}" };
       "inner_classprefix_secondary_group_${usergroup_user_index}"
-        string => canonify("user_secondary_groups_${usergroup_user_login[${usergroup_user_index}]}"),
+        string => canonify(string_head("user_secondary_groups_${usergroup_user_login[${usergroup_user_index}]}_${usergroup_user_secondary_groupsname[${usergroup_user_index}]}_${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}", 1000)),
             if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}";
 
     any_2nd_pass.!pass2::

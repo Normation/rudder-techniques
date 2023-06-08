@@ -106,6 +106,13 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
           ComponentKey = $logins[$i]
       }
       $null = Rudder-Report-NA  @unixParams -message "Not applicable on Windows"
+
+      #Secondary group section reporting
+      $secondaryParams = $commonParams + @{
+          ComponentName = "User secondary groups"
+          ComponentKey = $logins[$i]
+      }
+      $null = Rudder-Report-NA  @secondaryParams -message "Not applicable on Windows"
     }
 }
 
