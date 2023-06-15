@@ -13,9 +13,6 @@
   </TMLS>
 
   <FILES>
-    <FILE name="slapd-logrotate.mustache">
-      <INCLUDED>false</INCLUDED>
-    </FILE>
     <FILE name="logrotate.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
