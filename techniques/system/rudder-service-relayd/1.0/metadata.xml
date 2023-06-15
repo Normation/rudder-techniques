@@ -56,7 +56,6 @@
         <VALUE>Configuration</VALUE>
         <VALUE>Enabled</VALUE>
         <VALUE>Started</VALUE>
-        <VALUE>Log rotation</VALUE>
         <VALUE>Policy-server certificate</VALUE>
         <VALUE>Root server certificate</VALUE>
         <VALUE>Root certificate permissions</VALUE>

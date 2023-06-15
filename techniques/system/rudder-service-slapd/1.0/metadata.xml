@@ -29,7 +29,6 @@
       <REPORTKEYS>
         <VALUE>Check Rudder ldap password</VALUE>
         <VALUE>Check Rudder ldap permissions</VALUE>
-        <VALUE>Log rotation</VALUE>
       </REPORTKEYS>
     </SECTION>
   </SECTIONS>
