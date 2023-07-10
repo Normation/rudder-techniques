@@ -5,6 +5,7 @@ Configuration of the SNMP service and rudder agent monitoring.
 
 Snmpd will be installed if needed, and the required configuration will be appended to `/etc/snmp/snmpd.conf`, without destroying any existing user config.
   </DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next version of Rudder.</DEPRECATED>
   <BUNDLES>
     <NAME>rudderSNMP</NAME>
   </BUNDLES>

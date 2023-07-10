@@ -1,6 +1,7 @@
 
 <TECHNIQUE name="Partition size monitoring">
   <DESCRIPTION>Execute command(s) when partition free space gets under desired threshold</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next version of Rudder.</DEPRECATED>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>

@@ -2,6 +2,7 @@
 
 <TECHNIQUE name="SNMP installation">
   <DESCRIPTION>Install an SNMP agent, and configure it</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next version of Rudder.</DEPRECATED>
   <POLICYGENERATION>separated</POLICYGENERATION>
 
   <MULTIINSTANCE>false</MULTIINSTANCE>

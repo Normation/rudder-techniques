@@ -1,6 +1,7 @@
 
 <TECHNIQUE name="DNS settings">
   <DESCRIPTION>Configure DNS resolution</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next version of Rudder.</DEPRECATED>
   <BUNDLES>
     <NAME>check_dns_configuration</NAME>
   </BUNDLES>

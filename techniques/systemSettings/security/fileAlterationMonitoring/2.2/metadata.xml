@@ -1,6 +1,7 @@
 
 <TECHNIQUE name="Monitor a file or directory content">
   <DESCRIPTION>This technique checks wether a file or directory has changed between agent executions and report changes if any</DESCRIPTION>
+  <DEPRECATED>This technique version is not maintained anymore, it will no longer be available in the next version of Rudder.</DEPRECATED>
 
   <MULTIINSTANCE>true</MULTIINSTANCE>
   <POLICYGENERATION>separated</POLICYGENERATION>
