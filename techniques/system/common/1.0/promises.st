@@ -93,6 +93,8 @@ bundle agent rudder_common_system_directive {
       "rudder_webapp"                     string => "system_rudder_webapp";
 
   methods:
+      # We need context for method reporting
+      "Reporting context"                 usebundle => rudder_reporting_context_v4("common-hasPolicyServer-root","hasPolicyServer-root","Common","","","reportid");
       "Send agent update report"          usebundle => update_reports;
       "Update cfengine files permissions" usebundle => internal_security;
       "Cleanup log files"                 usebundle => garbage_collection;
