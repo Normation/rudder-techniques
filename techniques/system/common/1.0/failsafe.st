@@ -14,7 +14,7 @@ body common control
 
         protocol_version   => "2";
 
-        tls_min_version => "1.2";
+        tls_min_version => "1.3";
 }
 
 &if(INITIAL)&

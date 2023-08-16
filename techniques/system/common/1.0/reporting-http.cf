@@ -25,7 +25,7 @@ bundle agent send_rudder_report(path) {
   commands:
     !have_client::
       # remove this when 6.2 agent are not supported anymore
-      "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${path} ${endpoint}"
+      "${g.rudder_curl} --tlsv1.3 --location ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${path} ${endpoint}"
         classes => classes_generic_two("send_report_${c_path}", "send_rudder_reports");
 
     have_client::

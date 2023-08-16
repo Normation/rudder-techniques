@@ -39,7 +39,7 @@ bundle agent system_rudder_apache_webdav_configuration {
       "component"        string => "Apache configuration";
 
   classes:
-      "dav_cant_connect" not => returnszero("${g.rudder_curl} --tlsv1.2 --proxy '' ${g.rudder_verify_certs_option} --silent --fail --output /dev/null --user ${system_common.davuser}:${webdav_password} --upload-file ${g.rudder_base}/etc/uuid.hive https://localhost:${system_rudder_apache_configuration.https_port}/inventory-updates/uuid.hive","noshell");
+      "dav_cant_connect" not => returnszero("${g.rudder_curl} --tlsv1.3 --proxy '' ${g.rudder_verify_certs_option} --silent --fail --output /dev/null --user ${system_common.davuser}:${webdav_password} --upload-file ${g.rudder_base}/etc/uuid.hive https://localhost:${system_rudder_apache_configuration.https_port}/inventory-updates/uuid.hive","noshell");
 
       "rudder_server_system_reload_apache"     expression => "${pwd_class_prefix}_repaired",
                                                     scope => "namespace";

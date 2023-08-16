@@ -53,7 +53,7 @@ body common control
           "rudder-system-directives.cf",
         };
 
-        tls_min_version => "1.2";
+        tls_min_version => "1.3";
 
       any::
         bundlesequence => {
