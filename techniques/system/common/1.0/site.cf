@@ -76,10 +76,6 @@ bundle common g
 
       "rudder_node_config_id" string => "${system_common.rudder_node_config_id}";
 
-      "rudder_verify_certs_option" string => "--insecure";
-    rudder_verify_certs::
-      "rudder_verify_certs_option" string => "";
-
   classes:
 
       # Utilities

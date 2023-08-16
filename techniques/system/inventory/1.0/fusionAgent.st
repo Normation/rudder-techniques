@@ -113,21 +113,11 @@ body contain download_uuid_timeout
 
 bundle agent download_server_uuid
 {
-  classes:
-      "have_client" expression => fileexists("/opt/rudder/bin/rudder-client");
-
   methods:
     could_not_download_uuid::
       "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not retrieve the UUID of the policy server. Please check that the defined Policy Server exists, and that this Node IP address is in the Allowed Networks of its policy server.");
 
   commands:
-    !have_client::
-      # remove this when 6.2 agent are not supported anymore
-      "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --silent --fail --proxy '' --output \"${sys.workdir}/rudder-server-uuid.txt\" https://${server_info.policy_server}/uuid"
-        comment => "Getting the uuid from the server",
-        classes => if_else("uuid_successfully_downloaded","could_not_download_uuid");
-
-    have_client::
       "/opt/rudder/bin/rudder-client -e /uuid -- --output \"${sys.workdir}/rudder-server-uuid.txt\""
         comment => "Getting the uuid from the server",
         contain => download_uuid_timeout,
@@ -267,17 +257,9 @@ bundle agent sendInventory
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
-      "have_client" expression => fileexists("/opt/rudder/bin/rudder-client");
 
   files:
-    !root_server.!have_client::
-      # remove this when 6.2 agent are not supported anymore
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
-        transformer => "${g.rudder_curl} --tlsv1.2 --location ${g.rudder_verify_certs_option} --fail --silent --proxy '' --user ${g.davuser}:${g.davpw} --upload-file ${this.promiser} ${download_endpoint}",
-        classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
-        comment      => "Sending the inventory to the server";
-
-    !root_server.have_client::
+    !root_server::
       "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
         transformer => "/opt/rudder/bin/rudder-client -e ${endpoint} -- --upload-file ${this.promiser}",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
