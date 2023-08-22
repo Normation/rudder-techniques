@@ -132,8 +132,8 @@ body server control
           @{def.acl} ,
         };
 
-        # force connections via tls1.2 or higher
-        allowtlsversion => "1.2";
+        # force connections via tls1.3 or higher
+        allowtlsversion => "1.3";
 
         maxconnections    => "10000";
         logallconnections => "true";
