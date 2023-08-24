@@ -62,6 +62,11 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       "usergroup_user_index" slist => getindices("usergroup_user_login");
 
+      # number of days since epoch
+      "now"               int => now();
+      "epoch_days_str" string => eval("${now}/86400", math, infix);
+      "epoch_days"        int => int("${epoch_days_str}");
+
 
     any_2nd_pass::
 
@@ -233,7 +238,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       # check if user exists when enforcing ids
       "usermanagement_uid_exists_${usergroup_user_index}" expression => userexists("${usergroup_user_uid[${usergroup_user_index}]}"),
                                                                   if => "!usermanagement_user_uid_empty_${usergroup_user_index}";
-      
+
       # UID is defined and already exists
       "usermanagement_user_uid_definition_error_${usergroup_user_index}" expression => "!usermanagement_user_uid_empty_${usergroup_user_index}.usermanagement_uid_exists_${usergroup_user_index}";
 
@@ -341,6 +346,14 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                                   "!usermanagement_user_pwempty_${usergroup_user_index}"
                                 )
                            );
+
+
+      # Define password update date if it has been changed
+      "/etc/shadow"
+        create        => "false",
+        edit_line     => set_user_field("${usergroup_user_login[${usergroup_user_index}]}", 3, "${epoch_days}"),
+        edit_defaults => noempty_backup,
+                   if => "usermanagement_user_password_${usergroup_user_index}_&RudderUniqueID&_repaired";
 
       # Check password if we are in "check only (account should exist)
       # Due to https://tracker.mender.io/browse/CFE-2424, if password is correct, no class is defined. Waiting for fix in the agent
@@ -702,7 +715,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                          "usermanagement_shell_edit_${usergroup_user_index}_&RudderUniqueID&_error"
                        )
                    );
- 
+
 
       ### Password handling
       "any" usebundle => rudder_common_reports_generic_index("userGroupManagement", "usermanagement_user_password_${usergroup_user_index}_&RudderUniqueID&", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "The user ${usergroup_user_login[${usergroup_user_index}]} ( ${repname[${usergroup_user_index}]} ) password", "${usergroup_user_index}"),
@@ -782,7 +795,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                                  )
                             )
                       );
-                           
+
 
       # Homedir management
       ## In case of user to remove or to check absent, this is a result_na
