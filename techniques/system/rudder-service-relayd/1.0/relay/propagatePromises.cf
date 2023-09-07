@@ -121,7 +121,7 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
     
     any::
       "${g.rudder_var}/shared-files/"
-        copy_from    => remote("${server_info.policy_server}","${g.rudder_var}/shared-files/${g.uuid}/shared-files"),
+        copy_from    => try_remote("${server_info.policy_server}","${g.rudder_var}/shared-files/${g.uuid}/shared-files"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching files shared between agents",
         classes => if_else("shared_files_propagated", "could_not_propagate_shared_files");

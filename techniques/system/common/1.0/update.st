@@ -22,7 +22,6 @@ bundle common rudder_update_conf
       "trust_new_server"             scope => "namespace";
 }
 
-# Use for sensitive files
 body copy_from remote(server, path)
 {
         servers    => {
@@ -41,6 +40,13 @@ body copy_from remote(server, path)
         trustkey    => "true";
 &endif&
 
+}
+
+# Same as remote above, but don't fail on missing target
+body copy_from try_remote(server, path)
+{
+        inherit_from => remote("${server}", "${path}");
+        missing_ok => "true";
 }
 
 # Local copy
