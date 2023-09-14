@@ -45,8 +45,22 @@ body copy_from remote(server, path)
 # Same as remote above, but don't fail on missing target
 body copy_from try_remote(server, path)
 {
-        inherit_from => remote("${server}", "${path}");
+        servers    => {
+          "${server}"
+        };
+        source     => "${path}";
+        compare    => "digest";
+        preserve   => "false"; #do not preserve permissions
+        verify     => "true";
+        purge      => "true";
+        copy_backup => "false";
+        portnumber => "${system_common.community_port}";
         missing_ok => "true";
+
+&if(INITIAL)&
+      trust_new_server.!root_server::
+        trustkey    => "true";
+&endif&
 }
 
 # Local copy
