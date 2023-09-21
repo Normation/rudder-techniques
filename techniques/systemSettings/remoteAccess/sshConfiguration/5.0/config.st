@@ -38,7 +38,7 @@ bundle agent rudder_openssh_server
         string => "&OPENSSH_SERVER_ADDRESSESEDIT&";
 
     # Class specific parameters
-    rudder_openssh_server_address_family_edit.!(debian_3|redhat_3|redhat_4|centos_3|centos_4)::
+    rudder_openssh_server_address_family_edit::
       "rudder_openssh_server_config[config][AddressFamily]"
         string => "&OPENSSH_SERVER_ADDRESSFAMILY&";
 
@@ -46,7 +46,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[config][Protocol]"
         string => "&OPENSSH_SERVER_PROTOCOL&";
 
-    rudder_openssh_server_max_sessions_edit.!(redhat_3|redhat_4|redhat_5|centos_3|centos_4|centos_5|SuSE_10|debian_3|debian_4|aix_5_3|aix_5_2|aix_5_1)::
+    rudder_openssh_server_max_sessions_edit::
       "rudder_openssh_server_config[config][MaxSessions]"
         string => "&OPENSSH_SERVER_MAXSESSIONS&";
 
@@ -70,7 +70,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[config][PermitRootLogin]"
         string => "&OPENSSH_SERVER_PERMITROOTLOGIN&";
 
-    rudder_openssh_server_max_auth_tries_edit.!(debian_3|redhat_3|centos_3)::
+    rudder_openssh_server_max_auth_tries_edit::
       "rudder_openssh_server_config[config][MaxAuthTries]"
         string => "&OPENSSH_SERVER_MAXAUTHTRIES&";
 
@@ -86,7 +86,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[config][StrictModes]"
         string => "&OPENSSH_SERVER_STRICTMODES&";
 
-    rudder_openssh_server_allow_agent_forwarding_edit.!(redhat|SuSE|debian_3|debian_4)::
+    rudder_openssh_server_allow_agent_forwarding_edit::
       "rudder_openssh_server_config[config][AllowAgentForwarding]"
         string => "&OPENSSH_SERVER_ALLOWAGENTFORWARDING&";
 
@@ -94,7 +94,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[config][AllowTcpForwarding]"
         string => "&OPENSSH_SERVER_ALLOWTCPFORWARDING&";
 
-    rudder_openssh_server_permit_tunnel_edit.!(SuSE|debian_3|redhat_3|redhat_4|centos_3|centos_4)::
+    rudder_openssh_server_permit_tunnel_edit::
       "rudder_openssh_server_config[config][PermitTunnel]"
         string => "&OPENSSH_SERVER_PERMITTUNNEL&";
 
@@ -114,7 +114,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[config][PrintMotd]"
         string => "&OPENSSH_SERVER_PRINTMOTD&";
 
-    rudder_openssh_server_tcp_keepalive_edit.!(redhat_3|centos_3)::
+    rudder_openssh_server_tcp_keepalive_edit::
       "rudder_openssh_server_config[config][TCPKeepAlive]"
         string => "&OPENSSH_SERVER_TCPKEEPALIVE&";
 
