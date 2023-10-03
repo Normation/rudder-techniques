@@ -21,6 +21,7 @@ bundle agent computeInventoryTime
 
   methods:
       # Inventory will be during the 6 hours after midnight, every day
+      "splay_inventory" usebundle => rudder_reporting_context_id("inventory-all@@inventory-all@@00", "Inventory");
       "splay_inventory" usebundle => _method_reporting_context("Compute inventory splay", "None");
       "splay_inventory" usebundle => schedule_simple("rudder_run_inventory", "${run_interval}", "0", "6", "0", "0", "0", "0", "0", "1", "catchup");
 }
