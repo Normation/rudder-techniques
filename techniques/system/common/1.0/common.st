@@ -18,7 +18,7 @@ bundle common system_common {
 
     "cf_serverd_service_name" string => "rudder-cf-serverd";
 
-    pass3.executor::
+    executor::
       # first line is the data used to create splay hash
       # +0 is the uid of the user we use to run (root)
       # Other lines are used to compute real splay time
@@ -28,8 +28,5 @@ bundle common system_common {
 &if(INITIAL)&
     "initial_promises" expression => "any", scope => "namespace";
 &endif&
-
-    "pass3" expression => "pass2";
-    "pass2" expression => "any";
 
 }
