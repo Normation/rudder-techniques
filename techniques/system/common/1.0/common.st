@@ -19,10 +19,11 @@ bundle common system_common {
     "cf_serverd_service_name" string => "rudder-cf-serverd";
 
     system_common_pass3.executor::
+      "inventory_splay_hex" string => string_head(hash("${sys.host}", "md5"), "7");
       # first line is the data used to create splay hash
       # +0 is the uid of the user we use to run (root)
       # Other lines are used to compute real splay time
-      "executor_data"       string => execresult("printf '${sys.fqhost}+${sys.ipv4}+0\n${sys.systime}\n&AGENT_RUN_SPLAYTIME&\n${agent_run_interval}\n' > /var/rudder/tmp/cf-execd.data ", "useshell");
+      "executor_data"       string => execresult("printf '${sys.fqhost}+${sys.ipv4}+0\n${sys.systime}\n&AGENT_RUN_SPLAYTIME&\n${agent_run_interval}\n${inventory_splay_hex}\n' > /var/rudder/tmp/cf-execd.data ", "useshell");
 
   classes:
 &if(INITIAL)&
