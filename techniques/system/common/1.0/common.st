@@ -15,12 +15,21 @@ bundle common system_common {
                             string => "&CONFIGURATION_REPOSITORY_FOLDER&";
     "rudder_node_config_id" string => "&RUDDER_NODE_CONFIG_ID&";
     "agent_run_interval"    string => "&AGENT_RUN_INTERVAL&";
-    
+
     "cf_serverd_service_name" string => "rudder-cf-serverd";
+
+    system_common_pass3.executor::
+      # first line is the data used to create splay hash
+      # +0 is the uid of the user we use to run (root)
+      # Other lines are used to compute real splay time
+      "executor_data"       string => execresult("printf '${sys.fqhost}+${sys.ipv4}+0\n${sys.systime}\n&AGENT_RUN_SPLAYTIME&\n${agent_run_interval}\n' > /var/rudder/tmp/cf-execd.data ", "useshell");
 
   classes:
 &if(INITIAL)&
     "initial_promises" expression => "any", scope => "namespace";
 &endif&
+
+    "system_common_pass3" expression => "system_common_pass2";
+    "system_common_pass2" expression => "any";
 
 }
