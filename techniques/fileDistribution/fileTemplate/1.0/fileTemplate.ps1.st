@@ -45,17 +45,17 @@ function fileTemplate_&RudderUniqueID& {
         ReportID = $trackingkeys[$i]
         ComponentKey = $destinations[$i]
       }
-      $templateDestinations = $templatesFolder + "\" + ([Rudder.Condition]::canonify($destinations[$i]))
+      $templateFolder = Join-Path -Path $rudderBase -ChildPath "tmp/templates"
+      $templateDestinations = Join-Path -Path templateFolder -ChildPath ([Rudder.Condition]::canonify($destinations[$i]))
 
-      #Check for templates folder
-      $templateFolderCall = Directory-Create -Path $templatesFolder -ReportId $trackingkeys[$i] -PolicyMode $policyMode -componentName $componentName -componentKey $destinations[$i] -TechniqueName $techniqueName -auditOnly:$auditOnly -Report:$true).classes
-      $templateFolderCall = Directory-Create -Path "C:\Program Files\Rudder\tmp\templates" -ReportId $trackingkeys[$i] -PolicyMode $policyMode
+      #Check for template folder
+      $templateFolderCall = Directory-Create -Path $templateFolder -PolicyMode $policyMode
       $null = Compute-Method-Call @commonParams -MethodCall $templateFolderCall -ComponentName "Templates location"
 
       # Prepare the template source
       #No need to check for permissions, they are well defined by the inheritance of Rudder folder
       $templateSrcCall = if ($isRaws[$i] -eq "Raw") {
-        File-Enforce-Content -File $templateDestinations -Lines $rawSources[$i] -PolicyMode $policyMode
+        File-Enforce-Content -Path $templateDestinations -Lines $rawSources[$i] -Enforce:$true -PolicyMode $policyMode
       } else {
         File-From-Shared-Folder -Source $sources[$i] -Path $templateDestinations -HashType "sha256" -PolicyMode $policyMode
       }
