@@ -132,6 +132,10 @@ bundle agent fusionAgent
     any::
       "inventory_name"           string => "${sys.uqhost}-${g.uuid}.ocs";
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${inventory_name}";
+    verbose_inventory|verbose_mode::
+      "inventory_opts"           string => "--debug --debug ";
+    !(verbose_inventory|verbose_mode)::
+      "inventory_opts"           string => "";
 
   classes:
       "pass3" expression => "pass2";
@@ -163,7 +167,7 @@ bundle agent fusionAgent
 
   commands:
     inventoryfoldercreated.rudder_inventory_not_running::
-      "${g.rudder_base}/bin/run-inventory --local=${inventory_path}"
+      "${g.rudder_base}/bin/run-inventory --local=${inventory_path} ${inventory_opts}"
         classes => cf2_if_else("run_inventory", "inventory_failed"),
         comment => "Generating inventory, in the temporary folder";
 }
