@@ -26,8 +26,8 @@ function fileTemplate_&RudderUniqueID& {
     "&isRaw&" };separator=","& )
 
     $rawSources = @(
-    &FILE_TEMPLATE_RAW_TEMPLATE:{rawSource |
-    "&rawSource&" };separator=","& )
+&FILE_TEMPLATE_RAW_TEMPLATE:{rawSource |
+"&rawSource&" };separator=","& )
 
     $destinations = @(
     &FILE_TEMPLATE_AGENT_DESTINATION_PATH:{destination |
