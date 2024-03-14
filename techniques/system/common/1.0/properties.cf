@@ -88,7 +88,7 @@ bundle common properties
                                                                                                                                                  if => "is_string_${autocond_properties}_${${autocond_properties}_items}";
 
 # auto conditions cases:
-# - it the property is a boolean: define the condition if true (else do nothing)
+# - if the sub-property value is a boolean: define the condition if true (else do nothing)
 # - it the property is a string: define the condition with the value as suffix
 # - if the property has another type: do nothing
 # - if the property doesn't exist it doesn't fail
