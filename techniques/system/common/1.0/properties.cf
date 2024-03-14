@@ -70,10 +70,6 @@ bundle common properties
     "${autocond_properties}_items" slist => getindices("node.properties[${autocond_properties}]");
     "typeof_${autocond_properties}_${${autocond_properties}_items}" string => type("node.properties[${autocond_properties}][${${autocond_properties}_items}]", "true");
 
-  reports:
-    debug::
-      "typeof_${autocond_properties}_${${autocond_properties}_items}: '${typeof_${autocond_properties}_${${autocond_properties}_items}}'";
-
   classes:
     "is_boolean_${autocond_properties}_${${autocond_properties}_items}" expression => strcmp("data boolean", "${typeof_${autocond_properties}_${${autocond_properties}_items}}");
     "is_string_${autocond_properties}_${${autocond_properties}_items}"  expression => strcmp("data string",  "${typeof_${autocond_properties}_${${autocond_properties}_items}}");
