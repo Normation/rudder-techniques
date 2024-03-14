@@ -68,18 +68,29 @@ bundle common properties
     "autocond_properties" slist => getvalues("node.properties[rudder_auto_conditions]");
     # Each property must be a json
     "${autocond_properties}_items" slist => getindices("node.properties[${autocond_properties}]");
+    "typeof_${autocond_properties}_${${autocond_properties}_items}" string => type("node.properties[${autocond_properties}][${${autocond_properties}_items}]", "true");
+
+  reports:
+    debug::
+      "typeof_${autocond_properties}_${${autocond_properties}_items}: '${typeof_${autocond_properties}_${${autocond_properties}_items}}'";
 
   classes:
-    # Each property must be a json with first level key pointing to boolean value
+    "is_boolean_${autocond_properties}_${${autocond_properties}_items}" expression => strcmp("data boolean", "${typeof_${autocond_properties}_${${autocond_properties}_items}}");
+    "is_string_${autocond_properties}_${${autocond_properties}_items}"  expression => strcmp("data string",  "${typeof_${autocond_properties}_${${autocond_properties}_items}}");
+
     # eg: myproperty = { "mykey": true } will generate a myproperty_mykey class
     # false will not generate a class, this allows overriding true with false
-    "${autocond_properties}_${${autocond_properties}_items}" expression => "${node.properties[${autocond_properties}][${${autocond_properties}_items}]}";
+    "${autocond_properties}_${${autocond_properties}_items}" expression => "${node.properties[${autocond_properties}][${${autocond_properties}_items}]}",
+                                                                     if => "is_boolean_${autocond_properties}_${${autocond_properties}_items}";
 
-# auto conditions special cases:
-# - it the property is a string : it is ignored
-# - if the property is a json list such as [x,y...] : it is considered as a json object {"0": x, "1":y ... }
-# - if the property is a json object that contains sub levels : if there is a true value somewhere inside, it is considered true
-# - if the property is a json object that contains key/values with string values: the "true" string ins considered true, everything else is considered false
+    # eg: myproperty = { "mykey": "audit" } will generate a myproperty_mykey_audit class
+    "${autocond_properties}_${${autocond_properties}_items}_${node.properties[${autocond_properties}][${${autocond_properties}_items}]}" expression => "true",
+                                                                                                                                                 if => "is_string_${autocond_properties}_${${autocond_properties}_items}";
+
+# auto conditions cases:
+# - if the sub-property value is a boolean: define the condition if true (else do nothing)
+# - if the sub-property is a string: define the condition with the value as suffix
+# - if the property is not a Json type or its sub-properties are neither string nor boolean: do nothing
 # - if the property doesn't exist it doesn't fail
 # - if 'rudder_auto_conditions' is not a list it is first converted to a list (a string becomes a list of 1 object and a json becomes the list of its values)
 # - if 'rudder_auto_conditions' doesn't exist, there is no error
