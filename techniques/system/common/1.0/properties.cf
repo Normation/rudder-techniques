@@ -90,7 +90,7 @@ bundle common properties
 # auto conditions cases:
 # - if the sub-property value is a boolean: define the condition if true (else do nothing)
 # - if the sub-property is a string: define the condition with the value as suffix
-# - if the property has another type: do nothing
+# - if the property is not a Json type or its sub-properties are neither string nor boolean: do nothing
 # - if the property doesn't exist it doesn't fail
 # - if 'rudder_auto_conditions' is not a list it is first converted to a list (a string becomes a list of 1 object and a json becomes the list of its values)
 # - if 'rudder_auto_conditions' doesn't exist, there is no error
