@@ -144,7 +144,7 @@
         </INPUT>
         <INPUT>
           <NAME>PACKAGE_MANAGER_OPTIONS</NAME>
-          <DESCRIPTION>Specify options to pass to the package manager (only with apt for now)</DESCRIPTION>
+          <DESCRIPTION>Specify options to pass to the package manager (only with apt and yum for now)</DESCRIPTION>
           <CONSTRAINT>
             <MAYBEEMPTY>true</MAYBEEMPTY>
           </CONSTRAINT>
