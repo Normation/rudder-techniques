@@ -129,8 +129,12 @@ bundle agent download_server_uuid
 bundle agent fusionAgent
 {
   vars:
-    any::
-      "inventory_name"           string => "${sys.uqhost}-${g.uuid}.ocs";
+    !pass1::
+      # Add a unique value to allow matching inventory and signature files
+      "date"                     string => execresult("LANG=C /bin/date --utc --iso-8601=seconds", "useshell");
+      "inventory_name"           string => "${g.uuid}_${date}.ocs";
+      # Required when used in a regex
+      "inventory_name_esc"       string => escape("${inventory_name}");
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${inventory_name}";
     verbose_inventory|verbose_mode::
       "inventory_opts"           string => "--debug --debug ";
@@ -265,14 +269,14 @@ bundle agent sendInventory
 
   files:
     !root_server::
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name_esc}.*"
         transformer => "/opt/rudder/bin/rudder-client -e ${endpoint} -- --upload-file ${this.promiser}",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Sending the inventory to the server";
 
     root_server::
       # minimal change to copy inventories to accepted node updates on root server
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}\..*"
+      "${g.rudder_inventories}/${fusionAgent.inventory_name_esc}\..*"
         transformer => "${g.rudder_cp} ${this.promiser} ${g.rudder_inventories}/accepted-nodes-updates",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Copying the inventory on root server";
