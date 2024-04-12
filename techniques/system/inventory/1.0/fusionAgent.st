@@ -136,9 +136,9 @@ bundle agent fusionAgent
       # Required when used in a regex
       "inventory_name_esc"       string => escape("${inventory_name}");
       "inventory_path"           string => "${g.rudder_var_tmp}/inventory/${inventory_name}";
-    verbose_inventory|verbose_mode::
+    verbose_inventory|verbose_mode|inform_mode::
       "inventory_opts"           string => "--debug --debug ";
-    !(verbose_inventory|verbose_mode)::
+    !(verbose_inventory|verbose_mode|inform_mode)::
       "inventory_opts"           string => "";
 
   classes:
