@@ -22,7 +22,7 @@
     <SECTION name="Services status"  multivalued="true"  component="true" componentKey="SERVICES_TECHNIQUE_NAME">
         <INPUT>
             <NAME>SERVICES_TECHNIQUE_NAME</NAME>
-            <DESCRIPTION>Service name (as seen in chkconfig or systemctl, or Windows tasks)</DESCRIPTION>
+            <DESCRIPTION>Service name (as seen in systemctl, chkconfig, etc.)</DESCRIPTION>
         </INPUT>
      
         <SELECT1>
