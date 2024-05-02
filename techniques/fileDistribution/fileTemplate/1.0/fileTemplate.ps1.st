@@ -46,7 +46,7 @@ function fileTemplate_&RudderUniqueID& {
         ComponentKey = $destinations[$i]
       }
       $templateFolder = Join-Path -Path $rudderBase -ChildPath "tmp/templates"
-      $templateDestinations = Join-Path -Path templateFolder -ChildPath ([Rudder.Condition]::canonify($destinations[$i]))
+      $templateDestinations = Join-Path -Path $templateFolder -ChildPath ([Rudder.Condition]::canonify($destinations[$i]))
 
       #Check for template folder
       $templateFolderCall = Directory-Create -Path $templateFolder -PolicyMode $policyMode
