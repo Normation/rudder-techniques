@@ -49,11 +49,11 @@ bundle agent rudder_firewall {
       "en5" usebundle => enable_reporting;
       "any" usebundle => _method_reporting_context("Service activation", "None");
       "any" usebundle => service_enabled("${${firewall}.service}");
-      "any" usebundle => _method_reporting_context("Service start", "None");
+      "any" usebundle => _method_reporting_context_v4("Service start", "None","${${firewall}.service}");
       "any" usebundle => service_started("${${firewall}.service}");
       # Reload
     rudder_firewall_reload_true::
-      "any" usebundle => _method_reporting_context("Load configuration", "None");
+      "any" usebundle => _method_reporting_context_v4("Load configuration", "None", "load_configuration");
       "any" usebundle => service_reload("${${firewall}.service}");
       "en6" usebundle => disable_reporting;
       # Dump just after change (not totally atomic here)
