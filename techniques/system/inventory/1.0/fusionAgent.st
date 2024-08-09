@@ -46,7 +46,7 @@ bundle agent doInventory
     !(ignore_disable_inventory|!disable_inventory)::
       "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "Inventory", "None", "The file ${g.rudder_disable_inventory_file} is present, so Rudder will not send an inventory. Use 'rudder agent inventory -f' to override this temporarily");
 
-    # Clean temp files anyway
+    # Clean all remaining inventories files
     any::
       "any" usebundle => cleanInventoryFiles;
 }
