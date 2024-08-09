@@ -45,12 +45,16 @@ bundle agent doInventory
       "any" usebundle => doInventory_always;
     !(ignore_disable_inventory|!disable_inventory)::
       "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "Inventory", "None", "The file ${g.rudder_disable_inventory_file} is present, so Rudder will not send an inventory. Use 'rudder agent inventory -f' to override this temporarily");
+
+    # Clean all remaining inventories files
+    any::
+      "any" usebundle => cleanInventoryFiles;
 }
+
 bundle agent doInventory_always
 {
 
   vars:
-
     uuid_successfully_downloaded::
       "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
 
@@ -281,18 +285,36 @@ bundle agent sendInventory
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Copying the inventory on root server";
 
-
-  # Once we've successfully sent all inventories, remove them
     inventory_sent.!cant_send_inventory::
-      "${g.rudder_inventories}/${fusionAgent.inventory_name}.*"
-        transformer  => "${g.rudder_rm} -f ${this.promiser}",
-        classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
-        comment      => "Cleaning up inventory files already sent to the server";
-
       "${g.rudder_var_tmp}/inventory_sent"
         create       => "true",
         touch        => "true",
         comment      => "Create local info about successful upload";
+
+  methods:
+    pass3.inventory_sent::
+      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "Inventory", "None", "The inventory has been successfully sent");
+
+    pass3.cant_send_inventory::
+      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not send the inventory");
+}
+
+body file_select fusion_by_name_old(names,days)
+{
+      leaf_name   => { @(names) };
+      mtime       => irange(0,ago(0,0,"${days}",0,0,0));
+      file_result => "mtime.leaf_name";
+}
+
+bundle agent cleanInventoryFiles
+{
+  files:
+      "${g.rudder_inventories}"
+        transformer  => "${g.rudder_rm} -f ${this.promiser}",
+        depth_search => recurse_visible(1),
+        file_select  => fusion_by_name_old("@{g.signed_inventory_file_types}", 0),
+        classes      => if_else("inventory_file_deleted", "cant_delete_inventory_file"),
+        comment      => "Cleaning up inventory files already sent to the server";
 
       "${g.rudder_var_tmp}/inventory"
         transformer  => "${g.rudder_rm} -f ${this.promiser}",
@@ -302,21 +324,9 @@ bundle agent sendInventory
         comment      => "Cleaning up inventory files already sent to the server";
 
   methods:
-    pass3.inventory_sent::
-      "any" usebundle => rudder_common_report("Inventory", "result_success", "&TRACKINGKEY&", "Inventory", "None", "The inventory has been successfully sent");
-
-    pass3.cant_send_inventory::
-      "any" usebundle => rudder_common_report("Inventory", "result_error", "&TRACKINGKEY&", "Inventory", "None", "Could not send the inventory");
-
-    pass3.cant_delete_inventory_file::
+    cant_delete_inventory_file::
       "any" usebundle => rudder_common_report("Inventory", "log_warn", "&TRACKINGKEY&", "Inventory", "None", "Could not delete inventory file after sending to server");
 
-}
-body file_select fusion_by_name_old(names,days)
-{
-      leaf_name   => { @(names) };
-      mtime       => irange(0,ago(0,0,"${days}",0,0,0));
-      file_result => "mtime.leaf_name";
 }
 
 bundle agent cleanForceInventoryFlagFile
