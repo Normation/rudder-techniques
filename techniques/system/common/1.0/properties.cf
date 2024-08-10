@@ -66,22 +66,31 @@ bundle common properties
 
     # List properties that must be automatically converted to conditions
     "autocond_properties" slist => getvalues("node.properties[rudder_auto_conditions]");
-    # Each property must be a json
-    "${autocond_properties}_items" slist => getindices("node.properties[${autocond_properties}]");
-    "typeof_${autocond_properties}_${${autocond_properties}_items}" string => type("node.properties[${autocond_properties}][${${autocond_properties}_items}]", "true");
+    # canonified property name to use in class names
+    "var[${autocond_properties}]" string => canonify("${autocond_properties}");
+    # Each property must be a json, we get each top level key from json
+    "items[${autocond_properties}]" slist => getindices("node.properties[${autocond_properties}]");
+    # canonfied items from our property
+    "var_items[${autocond_properties}][${items[${autocond_properties}]}]" string => canonify("${items[${autocond_properties}]}");
+    # the we get type of the value of our items
+    "typeof[${autocond_properties}][${items[${autocond_properties}]}]" string => type("node.properties[${autocond_properties}][${items[${autocond_properties}]}]", "true");
 
   classes:
-    "is_boolean_${autocond_properties}_${${autocond_properties}_items}" expression => strcmp("data boolean", "${typeof_${autocond_properties}_${${autocond_properties}_items}}");
-    "is_string_${autocond_properties}_${${autocond_properties}_items}"  expression => strcmp("data string",  "${typeof_${autocond_properties}_${${autocond_properties}_items}}");
+    # Check wether the item value is a boolean or ...
+    "is_boolean_${var[${autocond_properties}]}_${var_items[${autocond_properties}][${items[${autocond_properties}]}]}" expression => strcmp("data boolean", "${typeof[${autocond_properties}][${items[${autocond_properties}]}]}");
+    # ... a string
+    "is_string_${var[${autocond_properties}]}_${var_items[${autocond_properties}][${items[${autocond_properties}]}]}"  expression => strcmp("data string", "${typeof[${autocond_properties}][${items[${autocond_properties}]}]}");
 
     # eg: myproperty = { "mykey": true } will generate a myproperty_mykey class
     # false will not generate a class, this allows overriding true with false
-    "${autocond_properties}_${${autocond_properties}_items}" expression => "${node.properties[${autocond_properties}][${${autocond_properties}_items}]}",
-                                                                     if => "is_boolean_${autocond_properties}_${${autocond_properties}_items}";
+    # to sum up, Boolean property case
+    "${autocond_properties}_${items[${autocond_properties}]}" expression => "${node.properties[${autocond_properties}][${items[${autocond_properties}]}]}",
+                                                                     if => "is_boolean_${var[${autocond_properties}]}_${var_items[${autocond_properties}][${items[${autocond_properties}]}]}";
 
     # eg: myproperty = { "mykey": "audit" } will generate a myproperty_mykey_audit class
-    "${autocond_properties}_${${autocond_properties}_items}_${node.properties[${autocond_properties}][${${autocond_properties}_items}]}" expression => "true",
-                                                                                                                                                 if => "is_string_${autocond_properties}_${${autocond_properties}_items}";
+    # to sum up, String property case
+    "${autocond_properties}_${items[${autocond_properties}]}_${node.properties[${autocond_properties}][${items[${autocond_properties}]}]}" expression => "true",
+                                                                                                                                                 if => "is_string_${var[${autocond_properties}]}_${var_items[${autocond_properties}][${items[${autocond_properties}]}]}";
 
 # auto conditions cases:
 # - if the sub-property value is a boolean: define the condition if true (else do nothing)
