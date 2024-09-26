@@ -15,7 +15,7 @@ function Get-SnmpCommunities {
   $hash = @{}
   $raw = Get-ItemProperty -Path $registry
   $null = $indices | Foreach-Object {
-    $hash.Add($_, ($raw | Select -ExpandProperty $_))
+    $hash.Add($_, ($raw | Select-Object -ExpandProperty $_))
   }
   $hash
 }
@@ -40,8 +40,13 @@ function Force-SnmpCommunities {
 # If $force is set to $true, flush all the sources that are not explicitly
 # listed in the $expected input.
 function Check-SnmpCommunities {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'result')]
   param(
-    [Hashtable] $expected
+    [Parameter(Mandatory = $true)]
+    [Hashtable] $expected,
+
+    [Parameter(Mandatory = $true)]
+    [Switch] $force
   )
   $result = $true
   $currentCommu = Get-SnmpCommunities
@@ -95,26 +100,6 @@ function Build-Expected-SnmpCommunities {
 }
 
 #### MAIN STUFF
-$sources = @(
-  "192.111.12.1",
-  "192.168.23.0",
-  "192.168.23.1",
-  "192.168.23.2",
-  "10.0.2.15/24"
-)
-
-$acls = @(
-  "rocommunity",
-  "rocommunity",
-  "rocommunity"
-)
-
-$names = @(
-  "rudder",
-  "rudder1",
-  "rudder3"
-)
-$force = $false
 
 function Manage-Communities {
   param(
@@ -135,7 +120,7 @@ function Manage-Communities {
     $localErrors = [System.Collections.Generic.List[Rudder.InfoLog]]::new()
     try {
       $expected = Build-Expected-SnmpCommunities -Names $names -Acls $acls -Force:$force
-      if (Check-SnmpCommunities -Expected $expected) {
+      if (Check-SnmpCommunities -Expected $expected -Force:$force) {
         return [Rudder.ApplyResult]::Success("SNMP Communities are already configured.")
       }
 
@@ -145,7 +130,7 @@ function Manage-Communities {
 
       # Try to repair
       Force-SnmpCommunities -Communities $expected
-      if (Check-SnmpCommunities -Expected $expected) {
+      if (Check-SnmpCommunities -Expected $expected -Force:$force) {
         return [Rudder.ApplyResult]::Repaired("SNMP Communities were reconfigured to match the expected configuration.")
       } else {
         $message = "Could not repair the SNMP communities to match the expected configuration. Current state:`n"
@@ -164,7 +149,7 @@ function Manage-Communities {
     }
   }
 
-  $localResult = CheckApply -Names $names -Acls $acls -Force:$force
+  $localResult = CheckApply -Names $names -Acls $acls -Force:$force -PolicyMode $policyMode
   return [Rudder.MethodResult]::new(
     $localResult.Status,
     $localResult.Message,

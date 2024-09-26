@@ -3,16 +3,16 @@
 
 function rudderMotd {
   [CmdletBinding()]
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSReviewUnusedParameter', 'reportId', Justification = 'Very old technique')]
   param (
-      [parameter(Mandatory = $true)]
-      [string]$reportId,
+    [parameter(Mandatory = $true)]
+    [string]$reportId,
 
-      [parameter(Mandatory = $true)]
-      [string]$techniqueName,
+    [parameter(Mandatory = $true)]
+    [string]$techniqueName,
 
-      [Rudder.PolicyMode]$policyMode
+    [Rudder.PolicyMode]$policyMode
   )
-  $trackingKey = "&TRACKINGKEY&"
   $registryPath = "HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion\Winlogon"
 
   $commonParams = @{
@@ -30,11 +30,5 @@ function rudderMotd {
 
   # Ensure that the content is valid
   $contentCall = Registry-Entry-Present -Key $registryPath -Entry "legalnoticetext" -Value "&MOTD&" -RegistryType "String" -PolicyMode $policyMode
-  $message = switch ($contentCall.MethodStatus) {
-    ([Rudder.MethodStatus]::Success) { "The welcome message is correct" }
-    ([Rudder.MethodStatus]::Repaired) { "The welcome message was repaired" }
-    ([Rudder.MethodStatus]::Error) { "The welcome message is incorrect and could not be corrected" }
-    default { "Unknown status for welcome message: $(contentCall.MethodStatus)" }
-  }
   $null = Compute-Method-Call @commonParams -MethodCall $contentCall
 }

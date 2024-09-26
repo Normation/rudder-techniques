@@ -4,28 +4,29 @@
 function snmp {
   [CmdletBinding()]
   param (
-      [parameter(Mandatory = $true)]
-      [String]$reportId,
+    [parameter(Mandatory = $true)]
+    [String]$reportId,
 
-      [parameter(Mandatory = $true)]
-      [String]$techniqueName,
+    [parameter(Mandatory = $true)]
+    [String]$techniqueName,
 
-      [Rudder.PolicyMode]$policyMode
+    [parameter(Mandatory = $true)]
+    [Rudder.PolicyMode]$policyMode
   )
 
+  $force = $false
   . $PSScriptRoot/snmp_communities.ps1
   . $PSScriptRoot/snmp_sources.ps1
 
-  $sources = ("&SNMP_AUTHORIZED_SOURCES&").Split(",") | foreach { $_.Trim() } | Select-Object -Unique
-  $flush = "&SNMP_FLUSH&"
+  $sources = ("&SNMP_AUTHORIZED_SOURCES&").Split(",") | Foreach-Object { $_.Trim() } | Select-Object -Unique
 
   $acls = @(
   &SNMP_COMMUNITY_ACL:{acl |
-  "&acl&" };separator=","& )
+  "&acl&" };separator=","&  )
 
   $names = @(
   &SNMP_COMMUNITY_NAME:{name |
-  "&name&" };separator=","& )
+  "&name&" };separator=","&  )
 
   $commonParams = @{
     TechniqueName = $techniqueName
@@ -44,9 +45,8 @@ function snmp {
   $installCall = Windows-Component-Present -Component "SNMP-service" -PolicyMode $policyMode
   # Check service configuration (ie check all checkboxes in Services->SNMP->Properties->Agent->Service)
   $regCall = Registry-Entry-Present -Key "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\RFC1156Agent" -Entry "sysServices" -Value 79 -RegistryType "DWord" -PolicyMode $policyMode
-
-  $worstStatus = (@($installCall.MethodStatus, $regCall.MethodStatus) | Measure -Maximum).Maximum
-  $installMessage = switch($worstStatus) {
+  $worstStatus = (@($installCall.MethodStatus, $regCall.MethodStatus) | Measure-Object -Maximum).Maximum
+  $installMessage = switch ($worstStatus) {
     ([Rudder.MethodStatus]::Error) { "An unexpected error occured while installing the SNMP components" }
     ([Rudder.MethodStatus]::Repaired) { "SNMP components were correctly installed" }
     ([Rudder.MethodStatus]::Success) { "SNMP components are already installed" }
@@ -77,7 +77,7 @@ function snmp {
     ComponentName = "Authorized Servers"
     ComponentKey = "None"
   }
-  $authorizedSourcesCall = Manage-SnmpSources -Sources $sources -Force:$force -PolicyMode $policyMode
+  $authorizedSourcesCall = Manage-SnmpSources -Sources $sources -Force:$force -PolicyMode $policyMode -Acls $acls
   $null = Compute-Method-Call -MethodCall $authorizedSourcesCall @sourcesParams
 
   ################################

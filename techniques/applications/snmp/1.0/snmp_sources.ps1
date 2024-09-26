@@ -3,7 +3,7 @@ function Get-SnmpAuthSources {
   $indices = (Get-Item -Path $registry).Property
   $raw = Get-ItemProperty -Path $registry
   $indices | Foreach-Object {
-    $raw | Select -ExpandProperty $_
+    $raw | Select-Object -ExpandProperty $_
   }
 }
 
@@ -30,6 +30,7 @@ function Force-SnmpAuthSources {
 # If $force is set to $true, flush all the sources that are not explicitly
 # listed in the $expected input.
 function Check-SnmpAuthSources {
+  [Diagnostics.CodeAnalysis.SuppressMessageAttribute('PSUseDeclaredVarsMoreThanAssignments', 'result')]
   param(
     [String[]] $expected,
     [Switch] $force
@@ -71,7 +72,8 @@ function Manage-SnmpSources {
   param(
     [String[]] $sources,
     [Switch] $force,
-    [Rudder.PolicyMode] $policyMode
+    [Rudder.PolicyMode] $policyMode,
+    $acls
   )
   function CheckApply {
     [OutputType("Rudder.ApplyResult")]
@@ -113,7 +115,7 @@ function Manage-SnmpSources {
     }
   }
 
-  $localResult = CheckApply -Sources $sources -Acls $acls -Force:$force
+  $localResult = CheckApply -Sources $sources -Acls $acls -Force:$force -PolicyMode $policyMode
   return [Rudder.MethodResult]::new(
     $localResult.Status,
     $localResult.Message,

@@ -12,8 +12,8 @@ pipeline {
         stage('Tests') {
             parallel {
                 stage('shell') {
-                    agent { 
-                        dockerfile { 
+                    agent {
+                        dockerfile {
                             filename 'ci/shellcheck.Dockerfile'
                         }
                     }
@@ -33,9 +33,22 @@ pipeline {
                         }
                     }
                 }
+                stage('powershell lint') {
+                    agent {
+                        dockerfile {
+                            filename 'ci/linter.Dockerfile'
+                            additionalBuildArgs "--build-arg VERSION=1.20.0 --build-arg USER_ID=${env.JENKINS_UID}"
+                            args "--read-only --mount type=tmpfs,destination=/tmp"
+                        }
+                    }
+                    steps {
+                        sh script: './qa-test --dsc', label: 'powershell techniques lint'
+                    }
+                }
+
                 stage('typos') {
-                    agent { 
-                        dockerfile { 
+                    agent {
+                        dockerfile {
                             filename 'ci/typos.Dockerfile'
                             additionalBuildArgs  '--build-arg VERSION=1.0'
                         }
@@ -52,8 +65,8 @@ pipeline {
                     }
                 }
                 stage('test') {
-                    agent { 
-                        dockerfile { 
+                    agent {
+                        dockerfile {
                             filename 'ci/cf-promises.Dockerfile'
                             additionalBuildArgs  "--build-arg USER_ID=${env.JENKINS_UID}"
                         }

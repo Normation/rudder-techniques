@@ -1,0 +1,15 @@
+@{
+  Policy = @(
+    'ALLDSCRESOURCES',
+    # Should not be needed anymore since 8.2
+    'RUDDERVARIABLE',
+    'WINDOWSUPDATEPERSISTENTDATA',
+    'WINDOWSUPDATEPERSISTENTFILE',
+    'WINDOWSUPDATEPERSISTENTSTATEFILE'
+  )
+  Internal = @(
+    'LOCAL',
+    'RUDDERVARIABLE'
+  )
+
+}

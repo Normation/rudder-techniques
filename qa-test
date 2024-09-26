@@ -45,11 +45,33 @@ test_license_header()
     done
 }
 
+test_windows_techniques()
+{
+  if [ ! -f rudder-templates-cli.jar ]; then
+    wget https://repository.rudder.io/build-dependencies/rudder-templates-cli/rudder-templates-cli.jar
+  fi
+  for technique in $(find techniques -type d -regex ".*[0-9]+.[0-9]+")
+  do
+    tmp_dir=$(mktemp -d -t qa-test-XXXXXXXXXX)
+    cp -r $technique/* $tmp_dir
+    for file in $(find $technique -name "*.ps1.st")
+    do
+      baseFile=$(basename $file .ps1.st)
+      renderedFile=$tmp_dir/$baseFile.ps1
+      java -Dfile.encoding=UTF-8 -jar rudder-templates-cli.jar --outdir $tmp_dir -p variables.json $file
+    done
+    pwsh -command "Invoke-ScriptAnalyzer -Path ${tmp_dir} -Settings ./PSScriptAnalyzerSettingsPolicy.psd1 -EnableExit -ReportSummary"
+    rm -rf $tmp_dir
+  done
+}
+
 if [ "$1" = "--shell" ]; then
   test_shell
   exit 0
 elif [ "$1" = "--license" ]; then
   test_license_header
+elif [ "$1" = "--dsc" ]; then
+  test_windows_techniques
 else
   # quick tests to be launched during merge
   test_shell_error
