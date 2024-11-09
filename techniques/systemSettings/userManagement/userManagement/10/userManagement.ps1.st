@@ -34,10 +34,8 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
 
     $present        = "add"
     $absent         = "remove"
-#To REMOVE in the future
-    $check_present  = "checkhere"
-    $check_absent   = "checknothere"
-#END
+    $updateIfExists = "updateonly"
+
     $componentName  = "Users"
     $homeSection    = "Home directory"
     $passwdSection  = "Password"
@@ -55,15 +53,22 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
           ComponentName = "Users"
           ComponentKey = $logins[$i]
       }
+      $passwordParams = $commonParams + @{
+          ComponentName = "Password"
+          ComponentKey = $logins[$i]
+      }
+      # check if user exists
+      $global:lastExitCode = $null
+      # Test if user already exists
+      $login = $logins[$i]
+      Invoke-Expression "NET USER ${login} 2>&1" | Out-Null
+      $userExists = $LastExitCode -eq 0
+
         
-      if ($policies[$i] -eq $present) {
+      if ( ($policies[$i] -eq $present) -or ($userExists -and ($policies[$i] -eq $updateIfExists) ) ) {
         $methodCallPresent = User-Present -login $logins[$i] -PolicyMode $policyMode
         $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
 
-        $passwordParams = $commonParams + @{
-          ComponentName = "Password"
-          ComponentKey = $logins[$i]
-        }
         if ($Passwords[$i]) {
           #Password defined
           if ($password_policies[$i] -eq "everytime") {
@@ -91,23 +96,36 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
         $methodCallPresent = User-Absent -login $logins[$i] -PolicyMode $policyMode
         $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
 
-#To REMOVE in the future
-      } elseif ($policies[$i] -eq $check_present) {
-        $methodCallPresent = User-Present -login $logins[$i] -PolicyMode ([Rudder.PolicyMode]::Audit)
-        $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
-      } elseif ($policies[$i] -eq $check_absent) {
-        $methodCallPresent = User-Absent -login $logins[$i] -PolicyMode ([Rudder.PolicyMode]::Audit)
-        $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
+      } elseif ( (-not $userExists) -and ($policies[$i] -eq $updateIfExists) ) {
+        $null = Rudder-Report-NA  @userParams -message "User does not exists"
+        $null = Rudder-Report-NA  @passwordParams -message "User does not exists"
       }
 
       #Unix section reporting
-      $unixParams = $commonParams + @{
-          ComponentName = "Home directory"
+      $primaryGroup = $commonParams + @{
+          ComponentName = "User primary group"
           ComponentKey = $logins[$i]
       }
-      $null = Rudder-Report-NA  @unixParams -message "Not applicable on Windows"
+      $null = Rudder-Report-NA  @primaryGroup -message "Not applicable on Windows"
 
-      #Secondary group section reporting
+      $userFullName = $commonParams + @{
+          ComponentName = "User full name"
+          ComponentKey = $logins[$i]
+      }
+      $null = Rudder-Report-NA  @userFullName -message "Not applicable on Windows"
+
+      $userDefaultShell = $commonParams + @{
+          ComponentName = "User default shell"
+          ComponentKey = $logins[$i]
+      }
+      $null = Rudder-Report-NA  @userDefaultShell -message "Not applicable on Windows"
+
+      $homeDirectory = $commonParams + @{
+          ComponentName = "Home Directory"
+          ComponentKey = $logins[$i]
+      }
+      $null = Rudder-Report-NA  @homeDirectory -message "Not applicable on Windows"
+
       $secondaryParams = $commonParams + @{
           ComponentName = "User secondary groups"
           ComponentKey = $logins[$i]

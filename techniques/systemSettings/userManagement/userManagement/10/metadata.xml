@@ -49,12 +49,8 @@
           <VALUE>remove</VALUE>
         </ITEM>
         <ITEM>
-          <LABEL>Check only (account should exist)</LABEL>
-          <VALUE>checkhere</VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Check only (account should not exist)</LABEL>
-          <VALUE>checknothere</VALUE>
+          <LABEL>Update only if exists</LABEL>
+          <VALUE>updateonly</VALUE>
         </ITEM>
         <CONSTRAINT>
           <DEFAULT>add</DEFAULT>
@@ -108,106 +104,109 @@
           </CONSTRAINT>
         </INPUT>
       </SECTION>
-    <SECTION name="UNIX specific options" multivalued="false" component="false" componentKey="USERGROUP_USER_LOGIN">
-      <INPUT>
-        <NAME>USERGROUP_USER_GROUP</NAME>
-        <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
-        <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </INPUT>
-      <SELECT1>
-        <NAME>USERGROUP_FORCE_USER_GROUP</NAME>
-        <DESCRIPTION>Enforce the primary group of the user</DESCRIPTION>
-        <LONGDESCRIPTION>If set to everytime, the user primary group will be checked or updated even if the user alreay exists. The primary group needs to be a GID (and not a group name)</LONGDESCRIPTION>
-        <ITEM>
-          <LABEL>At account creation</LABEL>
-          <VALUE>false</VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Everytime</LABEL>
-          <VALUE>true</VALUE>
-        </ITEM>
-        <CONSTRAINT>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </SELECT1>
-      <INPUT>
-        <NAME>USERGROUP_USER_SECONDARY_GROUPS</NAME>
-        <DESCRIPTION>Secondary groups name for this user, comma separated</DESCRIPTION>
-        <LONGDESCRIPTION>On UNIX systems, ensure that the user belongs to the list of groups, as secondary groups</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </INPUT>
-      <SELECT1>
-        <NAME>USERGROUP_FORCE_USER_SECONDARY_GROUPS</NAME>
-        <DESCRIPTION>Enforce the secondary groups of the user</DESCRIPTION>
-        <LONGDESCRIPTION>If set to exclusive, the user will belong exactly to the list of secondary groups, otherwise, it may also be in other groups</LONGDESCRIPTION>
-        <ITEM>
-          <LABEL>Included</LABEL>
-          <VALUE>false</VALUE>
-        </ITEM>
-        <ITEM>
-          <LABEL>Exclusive</LABEL>
-          <VALUE>true</VALUE>
-        </ITEM>
-        <CONSTRAINT>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </SELECT1>
-      <INPUT>
-        <NAME>USERGROUP_USER_NAME</NAME>
-        <DESCRIPTION>Full name for this account</DESCRIPTION>
-        <CONSTRAINT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </INPUT>
-    <INPUT>
-      <NAME>USERGROUP_USER_SHELL</NAME>
-      <DESCRIPTION>Shell for this account</DESCRIPTION>
-      <LONGDESCRIPTION>Will be used only on UNIX systems</LONGDESCRIPTION>
-      <CONSTRAINT>
-        <DEFAULT>/bin/bash</DEFAULT>
-      </CONSTRAINT>
-    </INPUT>
-    <INPUT>
-      <NAME>USERGROUP_USER_UID</NAME>
-      <DESCRIPTION>User ID (enforced at user creation only)</DESCRIPTION>
-      <LONGDESCRIPTION>Numeric user id, only on UNIX systems</LONGDESCRIPTION>
-      <CONSTRAINT>
-        <MAYBEEMPTY>true</MAYBEEMPTY>
-      </CONSTRAINT>
-    </INPUT>
-      <INPUT>
-        <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
-        <DESCRIPTION>Use the default home directory</DESCRIPTION>
-        <LONGDESCRIPTION>If not checked, it will set the defined home directory if "Policy to apply to this account" if "Create/Update"</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>true</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>USERGROUP_USER_HOME_MOVE</NAME>
-        <DESCRIPTION>Move the content of previous home directory to the defined one</DESCRIPTION>
-        <LONGDESCRIPTION>If checked, it will move the existing home directory to the defined one if they don't match</LONGDESCRIPTION>
-        <CONSTRAINT>
-          <TYPE>boolean</TYPE>
-          <DEFAULT>false</DEFAULT>
-        </CONSTRAINT>
-      </INPUT>
-      <INPUT>
-        <NAME>USERGROUP_USER_HOME</NAME>
-        <DESCRIPTION>Home directory, if not default</DESCRIPTION>
-        <CONSTRAINT>
-          <MAYBEEMPTY>true</MAYBEEMPTY>
-        </CONSTRAINT>
-      </INPUT>
-    </SECTION>
-    <SECTION name="Home directory" component="true" componentKey="USERGROUP_USER_LOGIN"/>
-    <SECTION name="User secondary groups" component="true" componentKey="USERGROUP_USER_LOGIN"/>
+      <SECTION name="UNIX specific options" multivalued="false" componentKey="USERGROUP_USER_LOGIN">
+        <INPUT>
+          <NAME>USERGROUP_USER_GROUP</NAME>
+          <DESCRIPTION>Primary group for this user (name or number)</DESCRIPTION>
+          <LONGDESCRIPTION>On UNIX systems, this group will be applied on this user as the primary group</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+        <SELECT1>
+          <NAME>USERGROUP_FORCE_USER_GROUP</NAME>
+          <DESCRIPTION>Enforce the primary group of the user</DESCRIPTION>
+          <LONGDESCRIPTION>If set to everytime, the user primary group will be checked or updated even if the user alreay exists. The primary group needs to be a GID (and not a group name)</LONGDESCRIPTION>
+          <ITEM>
+            <LABEL>At account creation</LABEL>
+            <VALUE>false</VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL>Everytime</LABEL>
+            <VALUE>true</VALUE>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
+        <INPUT>
+          <NAME>USERGROUP_USER_SECONDARY_GROUPS</NAME>
+          <DESCRIPTION>Secondary groups name for this user, comma separated</DESCRIPTION>
+          <LONGDESCRIPTION>On UNIX systems, ensure that the user belongs to the list of groups, as secondary groups</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+        <SELECT1>
+          <NAME>USERGROUP_FORCE_USER_SECONDARY_GROUPS</NAME>
+          <DESCRIPTION>Enforce the secondary groups of the user</DESCRIPTION>
+          <LONGDESCRIPTION>If set to exclusive, the user will belong exactly to the list of secondary groups, otherwise, it may also be in other groups</LONGDESCRIPTION>
+          <ITEM>
+            <LABEL>Included</LABEL>
+            <VALUE>false</VALUE>
+          </ITEM>
+          <ITEM>
+            <LABEL>Exclusive</LABEL>
+            <VALUE>true</VALUE>
+          </ITEM>
+          <CONSTRAINT>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
+        </SELECT1>
+        <INPUT>
+          <NAME>USERGROUP_USER_NAME</NAME>
+          <DESCRIPTION>Full name for this account</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>USERGROUP_USER_SHELL</NAME>
+          <DESCRIPTION>Shell for this account</DESCRIPTION>
+          <LONGDESCRIPTION>Will be used only on UNIX systems</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <DEFAULT>/bin/bash</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>USERGROUP_USER_UID</NAME>
+          <DESCRIPTION>User ID (enforced at user creation only)</DESCRIPTION>
+          <LONGDESCRIPTION>Numeric user id, only on UNIX systems</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>USERGROUP_USER_HOME_PERSONNALIZE</NAME>
+          <DESCRIPTION>Use the default home directory</DESCRIPTION>
+          <LONGDESCRIPTION>If not checked, it will set the defined home directory if "Policy to apply to this account" if "Create/Update"</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>true</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>USERGROUP_USER_HOME_MOVE</NAME>
+          <DESCRIPTION>Move the content of previous home directory to the defined one</DESCRIPTION>
+          <LONGDESCRIPTION>If checked, it will move the existing home directory to the defined one if they don't match</LONGDESCRIPTION>
+          <CONSTRAINT>
+            <TYPE>boolean</TYPE>
+            <DEFAULT>false</DEFAULT>
+          </CONSTRAINT>
+        </INPUT>
+        <INPUT>
+          <NAME>USERGROUP_USER_HOME</NAME>
+          <DESCRIPTION>Home directory, if not default</DESCRIPTION>
+          <CONSTRAINT>
+            <MAYBEEMPTY>true</MAYBEEMPTY>
+          </CONSTRAINT>
+        </INPUT>
+      </SECTION>
+      <SECTION name="User primary group" multivalued="false" component="true" componentKey="USERGROUP_USER_LOGIN"/>
+      <SECTION name="User full name" multivalued="false" component="true" componentKey="USERGROUP_USER_LOGIN"/>
+      <SECTION name="User default shell" multivalued="false" component="true" componentKey="USERGROUP_USER_LOGIN"/>
+      <SECTION name="Home directory" component="true" componentKey="USERGROUP_USER_LOGIN"/>
+      <SECTION name="User secondary groups" component="true" componentKey="USERGROUP_USER_LOGIN"/>
     </SECTION>
   </SECTIONS>
 
