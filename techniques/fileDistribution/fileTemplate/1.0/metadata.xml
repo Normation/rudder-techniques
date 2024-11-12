@@ -60,7 +60,7 @@
           <LONGDESCRIPTION>Relative to /var/rudder/configuration-repository/shared-files/</LONGDESCRIPTION>
           <CONSTRAINT>
             <MAYBEEMPTY>true</MAYBEEMPTY>
-            <TYPE>string</TYPE>
+            <TYPE>sharedfile</TYPE>
             <DEFAULT>myTemplateName</DEFAULT>
           </CONSTRAINT>
         </INPUT>
