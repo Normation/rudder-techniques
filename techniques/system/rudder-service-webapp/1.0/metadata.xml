@@ -21,9 +21,6 @@
       <FILE name="integrity-check.cf">
         <INCLUDED>true</INCLUDED>
       </FILE>
-      <FILE name="metrics-reporting.cf">
-        <INCLUDED>true</INCLUDED>
-      </FILE>
       <FILE name="password-check.cf">
         <INCLUDED>true</INCLUDED>
       </FILE>
@@ -60,6 +57,5 @@
         <VALUE>rudder-users.xml permissions</VALUE>
       </REPORTKEYS>
     </SECTION>
-    <SECTION name="Send metrics to rudder-project" component="true"/>
   </SECTIONS>
 </TECHNIQUE>
