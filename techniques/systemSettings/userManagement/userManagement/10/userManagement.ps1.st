@@ -102,35 +102,15 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
       }
 
       #Unix section reporting
-      $primaryGroup = $commonParams + @{
-          ComponentName = "User primary group"
+      $naParams = $commonParams  + @{
           ComponentKey = $logins[$i]
+          Message = 'Not applicable on Windows'
       }
-      $null = Rudder-Report-NA  @primaryGroup -message "Not applicable on Windows"
-
-      $userFullName = $commonParams + @{
-          ComponentName = "User full name"
-          ComponentKey = $logins[$i]
-      }
-      $null = Rudder-Report-NA  @userFullName -message "Not applicable on Windows"
-
-      $userDefaultShell = $commonParams + @{
-          ComponentName = "User default shell"
-          ComponentKey = $logins[$i]
-      }
-      $null = Rudder-Report-NA  @userDefaultShell -message "Not applicable on Windows"
-
-      $homeDirectory = $commonParams + @{
-          ComponentName = "Home Directory"
-          ComponentKey = $logins[$i]
-      }
-      $null = Rudder-Report-NA  @homeDirectory -message "Not applicable on Windows"
-
-      $secondaryParams = $commonParams + @{
-          ComponentName = "User secondary groups"
-          ComponentKey = $logins[$i]
-      }
-      $null = Rudder-Report-NA  @secondaryParams -message "Not applicable on Windows"
+      $null = Rudder-Report-NA @naParams -ComponentName 'User primary group'
+      $null = Rudder-Report-NA @naParams -ComponentName 'User full name'
+      $null = Rudder-Report-NA @naParams -ComponentName 'User default shell'
+      $null = Rudder-Report-NA @naParams -ComponentName 'Home Directory'
+      $null = Rudder-Report-NA @naParams -ComponentName 'User secondary groups'
     }
 }
 

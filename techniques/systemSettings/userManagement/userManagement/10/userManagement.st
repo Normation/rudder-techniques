@@ -136,7 +136,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "usermanagement_user_updateonly_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","updateonly");
       "usermanagement_user_remove_${usergroup_user_index}"     expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","remove");
       
-      # If we ask to update only and user don't exist, then we won't do anything
+      # If we ask to update only and user does not exist, then we won't do anything
       "usermanagement_user_skipall_${usergroup_user_index}" expression => and("!usermanagement_user_exists_${usergroup_user_index}", "usermanagement_user_updateonly_${usergroup_user_index}");
       "usermanagement_user_create_${usergroup_user_index}"  expression => and("!usermanagement_user_exists_${usergroup_user_index}", "usermanagement_user_add_${usergroup_user_index}");
       "usermanagement_user_update_${usergroup_user_index}"  expression => and(
@@ -149,7 +149,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
     # Actions
     any::
-      # NOTE: usergroup_user_home_perso is true when we use the default home, and thus usermanagement_user_pershome_ is true when we don't want tu use the default home
+      # NOTE: usergroup_user_home_perso is true when we use the default home, and thus usermanagement_user_pershome_ is true when we don't want to use the default home
       "usermanagement_user_pershome_${usergroup_user_index}" not => strcmp("${usergroup_user_home_perso[${usergroup_user_index}]}","true");
 
       "usermanagement_user_custom_home_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_home[${usergroup_user_index}]");
