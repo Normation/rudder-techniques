@@ -45,6 +45,12 @@
     <FILE name="hooks.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
+    <FILE name="rudder_release_key.pub">
+      <INCLUDED>false</INCLUDED>
+    </FILE>
+    <FILE name="rpm-key.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
     <FILE name="cron-setup.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
@@ -114,6 +120,7 @@
     <SECTION name="ncf Initialization" component="true" />
     <SECTION name="Security parameters" component="true" />
     <SECTION name="CRON Daemon" component="true" />
+    <SECTION name="GPG key" component="true" />
     <SECTION name="Monitoring" component="true" />
 
     <SECTION name="common">
