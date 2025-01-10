@@ -98,6 +98,7 @@ bundle agent rudder_common_system_directive {
       "Cleanup log files"                 usebundle => garbage_collection;
       "Setup agent check cron"            usebundle => setup_cronjob;
       "Make sure cron daemon is running"  usebundle => check_cron_daemon;
+      "Make sure rpm key is up to date"   usebundle => import_rpm_key;
 &if(INITIAL)&
       "Run initial inventory"             usebundle => doInventory;
 &else&
