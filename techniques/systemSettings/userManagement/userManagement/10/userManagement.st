@@ -285,18 +285,13 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "en_&RudderUniqueID&" usebundle => enable_reporting;
 
       ###############
-      # User deletion (only case with user method)
-      "any" usebundle => _method_reporting_context("Users", "${usergroup_user_login[${usergroup_user_index}]}");
-      "${usergroup_user_login[${usergroup_user_index}]}"
-            usebundle => user_absent("${usergroup_user_login[${usergroup_user_index}]}"),
+      # User deletion
+      "any" usebundle => delete_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}"),
                    if => "usermanagement_user_remove_${usergroup_user_index}";
 
-      
       ###############
       # Primary group
-      "any" usebundle => _method_reporting_context("User primary group", "${usergroup_user_login[${usergroup_user_index}]}");
-      "${usergroup_user_login[${usergroup_user_index}]}"
-            usebundle => user_primary_group("${usergroup_user_login[${usergroup_user_index}]}", ${usergroup_user_groupname[${usergroup_user_index}]}),
+      "any" usebundle => primary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}"),
                    if => "usermanagement_user_update_${usergroup_user_index}.usermanagement_force_user_group_defined_${usergroup_user_index}";
 
       # no primary group has been set
@@ -317,13 +312,8 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       ###############
       # Password
       # Note: the password should also be checked at creation, because otherwise it won't be set at 1st run
-      "any" usebundle => _method_reporting_context("Password", "${usergroup_user_login[${usergroup_user_index}]}");
-      "${usergroup_user_login[${usergroup_user_index}]}"
-            usebundle => user_password_hash("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}"), #TODO check if changes the age
-                   if => "linux.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index}).usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
-      "${usergroup_user_login[${usergroup_user_index}]}"
-            usebundle => user_password_hash("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"), #TODO check if changes the age
-                   if => "aix.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index}).usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
+      "any" usebundle => password_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"),
+                   if => "(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index}).usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
 
       # no password supplied
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "No password defined for user", "${usergroup_user_index}"),
@@ -344,9 +334,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       ################
       # User full name
-      "any" usebundle => _method_reporting_context("User full name", "${usergroup_user_login[${usergroup_user_index}]}");
-      "${usergroup_user_login[${usergroup_user_index}]}"
-            usebundle => user_fullname("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}"),
+      "any" usebundle => fullname_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}"),
                    if => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
       # no full name has been set
@@ -366,9 +354,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                     if => "usermanagement_login_add_${usergroup_user_index}_&RudderUniqueID&_repaired";
       ###############
       # Default shell
-      "any" usebundle => _method_reporting_context("User default shell", "${usergroup_user_login[${usergroup_user_index}]}");
-      "${usergroup_user_login[${usergroup_user_index}]}"
-            usebundle => user_shell("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_shell[${usergroup_user_index}]}"),
+      "any" usebundle => default_shell_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_shell[${usergroup_user_index}]}"),
                    if => "usermanagement_user_update_${usergroup_user_index}";
 
       # Don't exist and in update only or deletion
@@ -457,13 +443,10 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                     if => "!usermanagement_user_exists_${usergroup_user_index}.usermanagement_user_updateonly_${usergroup_user_index}";
       ############################
       # set/check secondary groups
-      "any" usebundle => _method_reporting_context("User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}");
-
       # Note: the secondary group should also be checked at creation, because otherwise it won't be set at 1st run
-      "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}"
-            usebundle => user_secondary_groups("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}"),
-                   if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index})",
-              comment => "Set secondary groups if they are defined on user ${usergroup_user_login[${usergroup_user_index}]}";
+
+      "any" usebundle => secondary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}"),
+                   if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index})";
 
       # no secondary group has been set
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}", "No secondary groups defined for user", "${usergroup_user_index}"),
@@ -589,3 +572,41 @@ bundle edit_line set_user_shell_&RudderUniqueID&(user,user_index,shell)
         classes    => classes_generic("usermanagement_shell_edit_${user_index}_&RudderUniqueID&");
 }
 
+bundle agent delete_&RudderUniqueID&(user_login) {
+  methods:
+      "any" usebundle => _method_reporting_context("Users", "${user_login}");
+      "any" usebundle => user_absent("${user_login}");
+}
+
+bundle agent primary_group_&RudderUniqueID&(user_login, group_name) {
+  methods:
+      "any" usebundle => _method_reporting_context("User primary group", "${user_login}");
+      "any" usebundle => user_primary_group("${user_login}", ${group_name});
+}
+
+bundle agent password_&RudderUniqueID&(user_login, password, password_aix) {
+  methods:
+      "any" usebundle => _method_reporting_context("Password", "${user_login}");
+      "any" usebundle => user_password_hash("${user_login}", "${password}"), #TODO check if changes the age
+                   if => "linux";
+      "any" usebundle => user_password_hash("${user_login}", "${password_aix}"), #TODO check if changes the age
+                   if => "aix";
+}
+
+bundle agent fullname_&RudderUniqueID&(user_login, fullname) {
+  methods:
+      "any" usebundle => _method_reporting_context("User full name", "${user_login}");
+      "any" usebundle => user_fullname("${user_login}", "${fullname}");
+}
+
+bundle agent default_shell_&RudderUniqueID&(user_login, shell) {
+  methods:
+      "any" usebundle => _method_reporting_context("User default shell", "${user_login}");
+      "any" usebundle => user_shell("${user_login}", "${shell}");
+}
+
+bundle agent secondary_group_&RudderUniqueID&(user_login, groups, force_groups) {
+  methods:
+      "any" usebundle => _method_reporting_context("User secondary groups", "${user_login}");
+      "any" usebundle => user_secondary_groups("${user_login}", "${groups}", "${force_groups}");
+}

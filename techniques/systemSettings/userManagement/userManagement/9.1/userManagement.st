@@ -428,10 +428,8 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "force_dry_run_mode_${usergroup_user_login[${usergroup_user_index}]}_${usergroup_user_secondary_groupsname[${usergroup_user_index}]}"
             usebundle => push_dry_run_mode("true"),
                    if => "usermanagement_user_checkpres_${usergroup_user_index}";
-      "any" usebundle => _method_reporting_context("User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}");
 
-      "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}"
-            usebundle => user_secondary_groups("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}"),
+      "any" usebundle => secondary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}"),
                    if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index})",
               comment => "Set secondary groups if they are defined on user ${usergroup_user_login[${usergroup_user_index}]}";
 
@@ -958,3 +956,8 @@ bundle edit_line set_user_shell_&RudderUniqueID&(user,user_index,shell)
         classes    => classes_generic("usermanagement_shell_edit_${user_index}_&RudderUniqueID&");
 }
 
+bundle agent secondary_group_&RudderUniqueID&(user_login, groups, force_groups) {
+  methods:
+      "any" usebundle => _method_reporting_context("User secondary groups", "${user_login}");
+      "any" usebundle => user_secondary_groups("${user_login}", "${groups}", "${force_groups}");
+}
