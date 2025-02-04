@@ -317,7 +317,11 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       # no password supplied
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "No password defined for user", "${usergroup_user_index}"),
-                    if => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pwempty_${usergroup_user_index}";
+                    if => and( or( "usermanagement_user_create_${usergroup_user_index}",
+                                   "usermanagement_user_update_${usergroup_user_index}"
+                                 ),
+                               "usermanagement_user_pwempty_${usergroup_user_index}"
+                             );
                     
       # password not checked everytime
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "Password only checked at creation", "${usergroup_user_index}"),
@@ -450,7 +454,11 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       # no secondary group has been set
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}", "No secondary groups defined for user", "${usergroup_user_index}"),
-                    if => "usermanagement_user_secondary_groupsempty_${usergroup_user_index}.usermanagement_user_update_${usergroup_user_index}";
+                    if => and( "usermanagement_user_secondary_groupsempty_${usergroup_user_index}",
+                               or( "usermanagement_user_update_${usergroup_user_index}",
+                                   "usermanagement_user_create_${usergroup_user_index}"
+                                 )
+                             );
 
       # Don't exist and in update only or deletion
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}", "User secondary groups are not checked in this mode", "${usergroup_user_index}"),
