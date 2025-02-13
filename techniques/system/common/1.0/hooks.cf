@@ -631,7 +631,7 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
           "${${bundles}.sshkey_distribution_uuid[${array[${bundles}]}]}", "${component_name}", "${${bundles}.sshkey_distribution_tag[${array[${bundles}]}]}",
           "The user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} does not have a defined home dir"
         ),
-        if => and( "!home_directory_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_defined",
+        if => and( not(canonify("home_directory_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_defined")),
                    "ssh_key_distribution_user_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_exists",
                    "enforce_mode_${bundles}",
                    "ssh_key_distribution_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_to_flush"
@@ -642,7 +642,7 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
           "${${bundles}.sshkey_distribution_uuid[${array[${bundles}]}]}", "${component_name}", "${${bundles}.sshkey_distribution_tag[${array[${bundles}]}]}",
           "The user ${${bundles}.sshkey_distribution_name[${array[${bundles}]}]} does not have a defined home dir"
         ),
-        if => and( "!home_directory_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_defined",
+        if => and( not(canonify("home_directory_${${bundles}.sshkey_distribution_name[${array[${bundles}]}]}_defined")),
                    "ssh_key_distribution_user_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_exists",
                    "!enforce_mode_${bundles}",
                    "ssh_key_distribution_${${bundles}.sshkey_distribution_c_name[${array[${bundles}]}]}_to_flush"
