@@ -28,10 +28,10 @@ bundle agent rudderSNMP
       "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "file_ensure_lines_present__etc_snmp_snmpd_conf", "&TRACKINGKEY&", "SNMP configuration file contains required OID and community", "None", "Checking the configuration file for SNMP");
 
       "method_call" usebundle => directory_create("/etc/snmp/scripts");
-      "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "directory_create__etc_snmp_scripts", "&TRACKINGKEY&", "Presence of a scripts directory whithin /etc/snmp/", "None", "Directory /etc/snmp/scripts");
+      "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "directory_create__etc_snmp_scripts", "&TRACKINGKEY&", "Presence of a scripts directory within /etc/snmp/", "None", "Directory /etc/snmp/scripts");
 
      "method_call" usebundle => file_copy_from_local_source("${this.promise_dirname}/rudder_health.sh", "/etc/snmp/scripts/rudder_health.sh");
-      "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "file_copy_from_local_source__etc_snmp_scripts_rudder_health_sh", "&TRACKINGKEY&","Presence of the rudder agent health evaluation script whithin /etc/snmp/scripts/", "None", "Copy rudder_health.sh");
+      "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "file_copy_from_local_source__etc_snmp_scripts_rudder_health_sh", "&TRACKINGKEY&","Presence of the rudder agent health evaluation script within /etc/snmp/scripts/", "None", "Copy rudder_health.sh");
 
       "method_call" usebundle => permissions("/etc/snmp/scripts/rudder_health.sh", "755", "root", "root");
       "reporting" usebundle => rudder_common_reports_generic("rudderSNMP", "permissions__etc_snmp_scripts_rudder_health_sh", "&TRACKINGKEY&", "Execution permission for the rudder agent health evaluation script", "None", "Check permissions on rudder_health.sh");

@@ -1,10 +1,7 @@
-FROM debian:11
+FROM debian:12
 LABEL ci=rudder/ci/cf-promises.Dockerfile
 
-ARG USER_ID=1000
-COPY ci/user.sh .
-RUN ./user.sh $USER_ID ;\
-  apt-get update && apt-get install -y wget gnupg2 make libxml-parser-perl openjdk-17-jdk-headless git python3-distutils
+RUN apt-get update && apt-get install -y wget gnupg2 make libxml-parser-perl openjdk-17-jdk-headless git python3-distutils
 
 # Accept all OSes
 ENV UNSUPPORTED=y

@@ -49,7 +49,7 @@ bundle agent services_&RudderUniqueID&
       "boot_repaired_${index}"   expression => "service_ensure_started_at_boot_${service_canon[${index}]}_repaired|service_ensure_disabled_at_boot_${service_canon[${index}]}_repaired";
       "repaired_${index}"        expression => "boot_repaired_${index}|status_repaired_${index}";
 
-      "posthook_lauch_${index}"  expression => "!no_posthook_specified_${index}.repaired_${index}";
+      "posthook_launch_${index}"  expression => "!no_posthook_specified_${index}.repaired_${index}";
       "posthook_rerun_${index}_&RudderUniqueID&"
                                  expression => "posthook_persistent_${index}.command_execution_${posthook_canon[${index}]}_failed",
                                       scope => "namespace",
@@ -72,7 +72,7 @@ bundle agent services_&RudderUniqueID&
 
     #Posthook
     "posthook_${index}" usebundle => command_execution("${posthook[${index}]}"),
-      ifvarclass => "posthook_lauch_${index}|posthook_rerun_${index}_&RudderUniqueID&";
+      ifvarclass => "posthook_launch_${index}|posthook_rerun_${index}_&RudderUniqueID&";
 
     #Reporting
 

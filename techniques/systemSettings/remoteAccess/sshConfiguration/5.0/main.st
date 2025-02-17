@@ -173,7 +173,7 @@ bundle agent rudder_openssh_server_configuration_reporting(class_prefix, service
       # Listening addresses edition defined
       "any" usebundle => rudder_common_reports_generic("${service_name}", "${class_prefix}_addresses", "${${params}[report]}", "SSH listening addresses configuration", "None", "The ${service_name} listening addresses configuration"),
         ifvarclass => "${class_prefix}_addresses_edit";
-      # When no listening addreses edition is defined
+      # When no listening addresses edition is defined
       "any"
         usebundle  => rudder_common_report("${service_name}", "result_success", "${${params}[report]}", "SSH listening addresses configuration", "None", "The ${service_name} listening addresses configuration is not set to be edited"),
         ifvarclass => "!${class_prefix}_addresses_edit";

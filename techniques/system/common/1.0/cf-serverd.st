@@ -119,7 +119,7 @@ body server control
         trustkeysfrom     => {
           @{def.acl} ,
         };
-      # our policy server should already be trusted after bootstraping
+      # our policy server should already be trusted after bootstrapping
       !policy_server::
         trustkeysfrom     => {};
 

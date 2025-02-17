@@ -80,7 +80,7 @@ bundle agent runhook_package(json) {
          usebundle => enable_reporting;
 
       # here we need to report correctly based on each mode for each directive
-      "reporting" 
+      "reporting"
         usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "package_present_${parameters[name]}", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Installing package ${parameters[name]}", "${reporting[${reportkeys}][mode]}"),
         ifvarclass => "${class_condition}";
 
@@ -257,7 +257,7 @@ bundle agent runhook_sudo_post_hook(json) {
 ########################################################
 
 # This is a pre hook for Package repository keys (RPM/APT)
-# If any of report mode is enforce, then it will effectively get all the keys in repos, 
+# If any of report mode is enforce, then it will effectively get all the keys in repos,
 # create {repo_gpg_homedir}/. folder
 # If all are in audit mode, then it won't do anything
 # This method does not report at all
@@ -512,7 +512,7 @@ bundle agent runhook_sshKeyDistribution_post_hook(json) {
       "no_change_on_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.c_userlist}" expression => "same_size_for_${runhook_sshKeyDistribution_pre_hook.c_userlist}.!(check_ssh_key_distribution_user_key_${runhook_sshKeyDistribution_pre_hook.c_userlist}_repaired|check_ssh_key_distribution_user_key_${runhook_sshKeyDistribution_pre_hook.c_userlist}_error)",
           ifvarclass => "ssh_key_distribution_user_${runhook_sshKeyDistribution_pre_hook.c_userlist}_exists";
 
-      # file differents and  No error/repair for a user -> maybe need to flush
+      # files are different and  No error/repair for a user -> maybe need to flush
       "same_keys_different_size_ssh_file_for_${runhook_sshKeyDistribution_pre_hook.c_userlist}" expression => "!same_size_for_${runhook_sshKeyDistribution_pre_hook.c_userlist}.!(check_ssh_key_distribution_user_key_${runhook_sshKeyDistribution_pre_hook.c_userlist}_repaired|check_ssh_key_distribution_user_key_${runhook_sshKeyDistribution_pre_hook.c_userlist}_error)",
           ifvarclass => "ssh_key_distribution_user_${runhook_sshKeyDistribution_pre_hook.c_userlist}_exists";
 
@@ -779,7 +779,7 @@ bundle agent runhook_cron_process_post_hook(json) {
          usebundle => enable_reporting;
 
       # here we need to report correctly based on each mode for each directive
-      "reporting" 
+      "reporting"
         usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "service_started_${cron_service}", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Service started ${cron_service}", "${reporting[${reportkeys}][mode]}");
 
       "clean_reporting_context_${reporting[0][id]}"
@@ -791,8 +791,8 @@ bundle agent runhook_cron_process_post_hook(json) {
 ########################################################
 ## User Cron management specific hooks
 ########################################################
-# 
-# Ensure that a process cron(d) is up and running, reload it 
+#
+# Ensure that a process cron(d) is up and running, reload it
 # if any change in crontab
 #
 bundle agent runhook_user_cron_process_post_hook(json) {
@@ -857,7 +857,7 @@ bundle agent runhook_user_cron_process_post_hook(json) {
          usebundle => enable_reporting;
 
       # here we need to report correctly based on each mode for each directive
-      "reporting" 
+      "reporting"
         usebundle  => _rudder_common_reports_generic_hooks("${reporting[${reportkeys}][technique]}", "service_restart_${cron_service}", "${reporting[${reportkeys}][id]}", "${reporting[${reportkeys}][name]}", "${reporting[${reportkeys}][value]}", "Restarting service ${cron_service}", "${reporting[${reportkeys}][mode]}"),
         ifvarclass => "user_cron_configuration_need_reload_posthook|service_check_running_${cron_service}_error";
 

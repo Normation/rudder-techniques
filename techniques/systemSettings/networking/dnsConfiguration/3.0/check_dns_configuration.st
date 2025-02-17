@@ -61,7 +61,7 @@ bundle agent check_dns_configuration
 }
 
 #######################################################
-# Add lines in the file, formated for resolv.conf file
+# Add lines in the file, formatted for resolv.conf file
 bundle edit_line resolv_edition(search, list, options)
 {
 

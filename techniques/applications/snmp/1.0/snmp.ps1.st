@@ -47,7 +47,7 @@ function snmp {
 
   $worstStatus = (@($installCall.MethodStatus, $regCall.MethodStatus) | Measure -Maximum).Maximum
   $installMessage = switch($worstStatus) {
-    ([Rudder.MethodStatus]::Error) { "An unexpected error occured while installing the SNMP components" }
+    ([Rudder.MethodStatus]::Error) { "An unexpected error occurred while installing the SNMP components" }
     ([Rudder.MethodStatus]::Repaired) { "SNMP components were correctly installed" }
     ([Rudder.MethodStatus]::Success) { "SNMP components are already installed" }
     default { throw "Unexpected method status '${worstStatus}'" }

@@ -95,7 +95,7 @@ bundle agent check_sudo_parameters_&RudderUniqueID&
         usebundle => sudo_parameter_edit_sudoers_&RudderUniqueID&("${sudoers_file}", "check_sudo_parameters_&RudderUniqueID&.entity", "check_sudo_parameters_&RudderUniqueID&.sudo_entity_nopasswd", "check_sudo_parameters_&RudderUniqueID&.sudo_entity_all", "check_sudo_parameters_&RudderUniqueID&.sudo_entity_command");
 
     pass3::
-      "any" usebundle => rudder_common_report_index("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "Entry for ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is invalid (no command given), and has been ignored", "${sudo_index}"), 
+      "any" usebundle => rudder_common_report_index("sudoParameters", "log_warn", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "Entry for ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]} is invalid (no command given), and has been ignored", "${sudo_index}"),
         ifvarclass => "sudo_${sudo_index}_&RudderUniqueID&_command_empty.!sudo_${sudo_index}_&RudderUniqueID&_alldo";
 
       "any" usebundle => rudder_common_reports_generic_index("sudoParameters", "sudo_parameter_edited_section_${csection_name[${sudo_index}]}_&RudderUniqueID&", "${sudo_directive_id[${sudo_index}]}", "Permissions", "${sudo_entity_name[${sudo_index}]}", "The ${sudo_entity_type[${sudo_index}]} ${sudo_entity_name[${sudo_index}]}", "${sudo_index}");
@@ -167,7 +167,7 @@ bundle agent sudo_parameter_edit_sudoers_&RudderUniqueID&(filename, entity, nopa
 
 }
 
-# Sanitize the environement
+# Sanitize the environment
 bundle edit_line sudo_parameter_sanitize_env_&RudderUniqueID&
 {
   insert_lines:
@@ -195,7 +195,7 @@ bundle agent sudo_parameter_ensure_block_section_&RudderUniqueID&(filename, enti
   # In audit mode, we don't want to ensure it is in a section - if the value is preexisting, then it's fine
   files:
     !dry_run::
-      "${filename}" 
+      "${filename}"
         create        => "true",
         edit_defaults => noempty_backup,
         perms         => mog("0440", "root", "0"),
@@ -203,7 +203,7 @@ bundle agent sudo_parameter_ensure_block_section_&RudderUniqueID&(filename, enti
         classes       => classes_generic("sudo_parameter_edited_section_${canonified_begin}_&RudderUniqueID&");
 
     dry_run::
-      "${filename}" 
+      "${filename}"
         create        => "true",
         edit_defaults => noempty_backup,
         perms         => mog("0440", "root", "0"),
