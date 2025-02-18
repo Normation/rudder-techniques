@@ -135,7 +135,7 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
       # Defines classes for the file edition globally, as it can be globally kept even if part are modified
       # (for instance, section edition have a global status kept, but several repaired status)
 
-      # Note: it is too hard to make a single bundle for editing this file, with support of zone edition and non zone edition 
+      # Note: it is too hard to make a single bundle for editing this file, with support of zone edition and non zone edition
       # So, we call a different bundle_edit_line based on the type of edition we want
       "${generic_file_content_path[${index}]}"
         edit_line => check_generic_file_content_edition_&RudderUniqueID&(
@@ -152,7 +152,7 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
         comment       => "Editing ${generic_file_content_path[${index}]}...";
 
       "${generic_file_content_path[${index}]}"
-        edit_line => check_generic_file_content_edition_in_zone_&RudderUniqueID&( 
+        edit_line => check_generic_file_content_edition_in_zone_&RudderUniqueID&(
             "${generic_file_content_payload[${index}]}", "${generic_file_content_enforced[${index}]}",
             "${generic_file_content_deletion_regexp[${index}]}", "${generic_file_content_deletion_boolean[${index}]}",
             "${generic_file_content_modification_regexp[${index}]}", "${generic_file_content_modification_destination[${index}]}", "${generic_file_content_modification_boolean[${index}]}",
@@ -333,8 +333,8 @@ bundle agent check_generic_file_content_&RudderUniqueID& {
 # The file edition should be unitary made in this bundle
 bundle edit_line check_generic_file_content_edition_&RudderUniqueID&(
     content, enforce_content_boolean,
-    deletion_regex, deletion_boolean, 
-    modification_regex, modification_replacement, modification_boolean, 
+    deletion_regex, deletion_boolean,
+    modification_regex, modification_replacement, modification_boolean,
     section_start, section_end, section_content, section_boolean,
     index # For the reporting
     )
@@ -449,15 +449,15 @@ bundle edit_line check_generic_file_content_edition_in_zone_&RudderUniqueID&(
     migrate_to_zone::
       # if we migrate to zone, then we need to split the content of text to add, so that it is handled line by line
       # and escape it, so that anything that might look like a regular expression would not be matched as a regex
-      "num_line_splittedcontent" int => parsestringarrayidx("splitted_content", "${content}", "", "\n", 33000, 33000);
-      "content_line_index" slist => getindices("splitted_content");
-      "escaped_content[${content_line_index}]" string => escape("${splitted_content[${content_line_index}][0]}");
+      "num_line_splitcontent" int => parsestringarrayidx("split_content", "${content}", "", "\n", 33000, 33000);
+      "content_line_index" slist => getindices("split_content");
+      "escaped_content[${content_line_index}]" string => escape("${split_content[${content_line_index}][0]}");
 
   # define the classes that will define which edition we are to do
   classes:
       # CAUTION, the semantic of "preserve content" means we empty the file in this technique
       "preserve_content" expression => strcmp("true", "${enforce_content_boolean}");
- 
+
       # when need to check the validity of the content on the original value, otherwise local context is always true
       "no_edit_content" expression => strcmp("${content}", "");
       "delete_lines"    expression => strcmp("${deletion_boolean}", "true");
@@ -567,4 +567,4 @@ ${section_end}"
         classes       => classes_generic("file_content_modification_${index}_&RudderUniqueID&"),
         select_region => rudder_section_selector("${escaped_zone_start}", "${escaped_zone_end}"),
         comment       => "Replacing lines using the given regexps...";
-} 
+}

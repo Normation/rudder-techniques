@@ -135,7 +135,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "usermanagement_user_add_${usergroup_user_index}"        expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","add");
       "usermanagement_user_updateonly_${usergroup_user_index}" expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","updateonly");
       "usermanagement_user_remove_${usergroup_user_index}"     expression => strcmp("${usergroup_user_action[${usergroup_user_index}]}","remove");
-      
+
       # If we ask to update only and user does not exist, then we won't do anything
       "usermanagement_user_skipall_${usergroup_user_index}" expression => and("!usermanagement_user_exists_${usergroup_user_index}", "usermanagement_user_updateonly_${usergroup_user_index}");
       "usermanagement_user_create_${usergroup_user_index}"  expression => and("!usermanagement_user_exists_${usergroup_user_index}", "usermanagement_user_add_${usergroup_user_index}");
@@ -180,7 +180,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       "usermanagement_user_pweverytime_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","everytime");
 
-      # with variables that are not unique, the emptyness detection is quite tricky
+      # with variables that are not unique, the emptiness detection is quite tricky
       # either the variable is not defined, or the variable value is ""
       "usermanagement_user_pw_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_password[${usergroup_user_index}]");
       "usermanagement_user_pw_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_password[${usergroup_user_index}]}");
@@ -301,7 +301,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       # Don't exist and in update only or deletion
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "User primary group", "${usergroup_user_login[${usergroup_user_index}]}", "User primary group is not checked in this mode", "${usergroup_user_index}"),
                     if => "usermanagement_user_skipall_${usergroup_user_index}|usermanagement_user_remove_${usergroup_user_index}";
-   
+
       # Couldn't create the user
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "User primary group", "${usergroup_user_login[${usergroup_user_index}]}", "User could not be created", "${usergroup_user_index}"),
                     if => "usermanagement_user_creation_failed_${usergroup_user_index}";
@@ -322,10 +322,10 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                                  ),
                                "usermanagement_user_pwempty_${usergroup_user_index}"
                              );
-                    
+
       # password not checked everytime
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "Password only checked at creation", "${usergroup_user_index}"),
-                    if => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";                  
+                    if => "usermanagement_user_update_${usergroup_user_index}.usermanagement_user_pwoneshot_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
 
       # In update only or deletion
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "User password is not checked in this mode", "${usergroup_user_index}"),
@@ -391,7 +391,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                       "usermanagement_user_update_${usergroup_user_index}"
                    );
 
-      ## In case of check user present or update, but the custome home directory is not valid
+      ## In case of check user present or update, but the custom home directory is not valid
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The given home directory for user ${usergroup_user_login[${usergroup_user_index}]} is invalid", "${usergroup_user_index}"),
           if => and( "usermanagement_user_pershome_${usergroup_user_index}",
                       "usermanagement_user_home_pershome_invalid_${usergroup_user_index}",

@@ -292,8 +292,8 @@ bundle agent manageFilesAndFolders_&RudderUniqueID& {
 
       ### Reporting for the permissions
       ## Special cases
-      # NA if no perms check setted
-      # NA if the target does not exists and no creation setted
+      # NA if no perms check set
+      # NA if the target does not exists and no creation set
       # Error if no result permissions classes are defined (ie no check were executed, most likely on an unknown path without creation asked) AND no NA conditions already fulfilled
       ## Basic cases
       # Success if a kept class is defined
@@ -304,7 +304,7 @@ bundle agent manageFilesAndFolders_&RudderUniqueID& {
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} was not requested to have its permission enforced", "${index}"),
         ifvarclass => "!manageFilesAndFolders_check_permissions_${index}";
 
-      ## NA if the path does not exist, no creation rules setted and permissions check set to true
+      ## NA if the path does not exist, no creation rules set and permissions check set to true
       "any" usebundle => rudder_common_report_index("manageFilesAndFolders", "result_na", "${file[${index}][uuid]}", "Permissions", "${file[${index}][path]}", "The item ${file[${index}][path]} was not found but not requested to be created", "${index}"),
         ifvarclass => "manageFilesAndFolders_check_permissions_${index}.!manageFilesAndFolders_exists_${index}.manageFilesAndFolders_nocreate_${index}";
 

@@ -117,7 +117,7 @@ bundle common server_info
 
 # The update is now split in two parts
 # - the action part, only launched during failsafe
-#   it copies files, restarts deamons, defines persistent classes
+#   it copies files, restarts daemons, defines persistent classes
 # - the report part, not done during failsafe but during regular run
 #   see update_reports in promises.st
 #

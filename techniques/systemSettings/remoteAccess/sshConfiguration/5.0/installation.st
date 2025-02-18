@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2021 Normation SAS
 
 ###############################################################
-# Installs SSH, and checks wether it is started on boot or not.
+# Installs SSH, and checks whether it is started on boot or not.
 ###############################################################
 
 bundle agent rudder_openssh_server_installation(class_prefix, service_name, params)

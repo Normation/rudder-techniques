@@ -115,7 +115,7 @@ bundle agent download_from_shared_folder_&RudderUniqueID&
   files:
     is_valid.iteration_2::
 
-      # Suid and sgid may be setted only if the option to set it recursively, and recursion level is 1, or we are managing a file
+      # Suid and sgid may be set only if the option to set it recursively, and recursion level is 1, or we are managing a file
       # If it's a directory, without exclusion
       "${copyfile[${index}][destination]}"
         copy_from    => rudder_copy_from("&SHARED_FILES_FOLDER&/${copyfile[${index}][name]}", "${server_info.policy_server}", "${copyfile[${index}][compare_method]}", "false", "false", "${copyfile[${index}][purge]}"),

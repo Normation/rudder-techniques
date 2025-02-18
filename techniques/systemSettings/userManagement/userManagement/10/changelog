@@ -21,7 +21,7 @@
   ** Add an option to force gid
  -- Nicolas Charles <nicolas.charles@normation.com> Tue Jun  5 17:06:21 2018
   * Version 9.0
-  ** Port to multi-versionned format
+  ** Port to multi-versioned format
  -- Nicolas Charles <nicolas.charles@rudder.io> Tue Jun  5 17:27:21 2023
   * Version 9.1
   ** Add option to set secondary group

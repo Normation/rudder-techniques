@@ -30,7 +30,7 @@ bundle agent fileTemplate_&RudderUniqueID& {
       "src[${index}]" string => "${dst_canon[${index}]}.tpl",
         ifvarclass => "raw_${index}";
 
-      #Choose beetwen raw template and load from file
+      #Choose between raw template and load from file
       &FILE_TEMPLATE_RAW_OR_NOT: {rawornot|"rawOrNot[&i&]" string => "&rawornot&";}&
 
       #Raw template text
@@ -185,7 +185,7 @@ pass3::
       "any" usebundle => rudder_common_reports_generic("fileTemplate", "file_from_template_${dst_canon[${index}]}", "${trackingkey[${index}]}", "Expand template", "${dst[${index}]}", "The expansion of the template ${temp}/${name[${index}]} in ${dst[${index}]}");
 
 
-#Permmissions on the generated conf file
+#Permissions on the generated conf file
 
       "any" usebundle => rudder_common_reports_generic("fileTemplate", "permissions_${dst_canon[${index}]}", "${trackingkey[${index}]}", "Put permissions", "${dst[${index}]}", "The application of the rights ${perms[${index}]} on the file ${dst[${index}]}, owner=${dst_owner[${index}]}  group=${dst_group[${index}]}");
 

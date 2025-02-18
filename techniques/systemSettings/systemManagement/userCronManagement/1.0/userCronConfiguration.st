@@ -44,7 +44,7 @@ bundle agent user_cron_configuration_&RudderUniqueID&
 
     pass1.debian::
       "user_gid_${cron_index}" string => "crontab";
-    pass1.!debain::
+    pass1.!debian::
       "user_gid_${cron_index}" string => "${user_complete_data_${cron_index}[gid]}",
                                    if => "user_${cron_index}_exists";
 
