@@ -33,7 +33,7 @@ bundle agent rudder_openssh_server
       "rudder_openssh_server_config[edit_ports]"
         string => "&OPENSSH_SERVER_PORTSEDIT&";
 
-      # Variable that holds if we want to edit listenning addresses
+      # Variable that holds if we want to edit listening addresses
       "rudder_openssh_server_config[edit_addresses]"
         string => "&OPENSSH_SERVER_ADDRESSESEDIT&";
 

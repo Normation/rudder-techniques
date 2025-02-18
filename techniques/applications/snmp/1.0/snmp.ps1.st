@@ -47,7 +47,7 @@ function snmp {
   $regCall = Registry-Entry-Present -Key "HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\SNMP\Parameters\RFC1156Agent" -Entry "sysServices" -Value 79 -RegistryType "DWord" -PolicyMode $policyMode
   $worstStatus = (@($installCall.MethodStatus, $regCall.MethodStatus) | Measure-Object -Maximum).Maximum
   $installMessage = switch ($worstStatus) {
-    ([Rudder.MethodStatus]::Error) { "An unexpected error occured while installing the SNMP components" }
+    ([Rudder.MethodStatus]::Error) { "An unexpected error occurred while installing the SNMP components" }
     ([Rudder.MethodStatus]::Repaired) { "SNMP components were correctly installed" }
     ([Rudder.MethodStatus]::Success) { "SNMP components are already installed" }
     default { throw "Unexpected method status '${worstStatus}'" }

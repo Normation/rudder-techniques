@@ -411,7 +411,7 @@ bundle agent update_reports
     #   - Staggered update: rudder_promises_generated_tmp_file_kept OR (rudder_promises_generated_tmp_file_repaired AND config_ok)
     # Note: its possible to have only rudder_ncf_hash_update_repaired and not rudder_ncf_common_updated, rudder_ncf_common_update_error but rudder_ncf_common_updated_ok if a technique is created, but not applied - in this case this is a success
     # There must be NO components in repair or error
-    # Note: we can't use classe new_promises_available here because they are local to the update_action bundle
+    # Note: we can't use class new_promises_available here because they are local to the update_action bundle
     !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_updated_ok.rudder_ncf_local_updated_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.config_ok)).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_updated|rudder_ncf_common_update_error|rudder_ncf_local_updated|rudder_ncf_local_update_error|config|no_update|rudder_ncf_hash_update_error|(rudder_ncf_hash_update_repaired.!rudder_ncf_common_updated_ok))::
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Policy and configuration library are already up to date. No action required.");
 

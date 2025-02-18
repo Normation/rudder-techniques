@@ -127,7 +127,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       "usermanagement_user_move_home_dir_from[${usergroup_user_index}]" string => execresult("${paths.grep} '^${usergroup_user_login[${usergroup_user_index}]}:' /etc/passwd | ${paths.cut} -d: -f6", "useshell"),
            if => "usermanagement_user_exists_${usergroup_user_index}";
 
-      # Get current user gid (or name) to compare it with the setted on, if we need to force it
+      # Get current user gid (or name) to compare it with the set on, if we need to force it
       "user_current_gid[${usergroup_user_index}]"   string => execresult("/usr/bin/id -g ${usergroup_user_login[${usergroup_user_index}]}", "noshell"),
                                                         if => and( "usermanagement_force_user_group_defined_${usergroup_user_index}",
                                                                    "usermanagement_user_exists_${usergroup_user_index}",
@@ -183,7 +183,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       "usermanagement_user_pweverytime_${usergroup_user_index}" expression => strcmp("${usergroup_user_password_policy[${usergroup_user_index}]}","everytime");
 
-      # with variables that are not unique, the emptyness detection is quite tricky
+      # with variables that are not unique, the emptiness detection is quite tricky
       # either the variable is not defined, or the variable value is ""
       "usermanagement_user_pw_no_variable_${usergroup_user_index}"     not => isvariable("usergroup_user_password[${usergroup_user_index}]");
       "usermanagement_user_pw_no_value_${usergroup_user_index}" expression => strcmp("", "${usergroup_user_password[${usergroup_user_index}]}");
@@ -820,7 +820,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                         )
                    );
 
-      ## In case of check user present or update, but the custome home directory is not valid
+      ## In case of check user present or update, but the custom home directory is not valid
       "any" usebundle => rudder_common_report_index("userGroupManagement", "result_error", "${usergroup_directive_id[${usergroup_user_index}]}", "Home directory", "${usergroup_user_login[${usergroup_user_index}]}", "The given home directory for user ${usergroup_user_login[${usergroup_user_index}]} is invalid", "${usergroup_user_index}"),
           if => and( "usermanagement_user_pershome_${usergroup_user_index}",
                       "usermanagement_user_home_pershome_invalid_${usergroup_user_index}",

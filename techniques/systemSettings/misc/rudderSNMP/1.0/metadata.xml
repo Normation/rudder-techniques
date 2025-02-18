@@ -16,8 +16,8 @@ Snmpd will be installed if needed, and the required configuration will be append
     <FILE name="rudder_health.sh" />
   </FILES>
   <SECTIONS>
-    <SECTION component="true" name="Presence of a scripts directory whithin /etc/snmp/" />
-    <SECTION component="true" name="Presence of the rudder agent health evaluation script whithin /etc/snmp/scripts/" />
+    <SECTION component="true" name="Presence of a scripts directory within /etc/snmp/" />
+    <SECTION component="true" name="Presence of the rudder agent health evaluation script within /etc/snmp/scripts/" />
     <SECTION component="true" name="Presence of the SNMP server package" />
     <SECTION component="true" name="SNMP configuration file contains required OID and community" />
     <SECTION component="true" name="Execution permission for the rudder agent health evaluation script" />

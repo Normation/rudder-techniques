@@ -154,7 +154,7 @@ bundle agent check_repo_gpg_key_&RudderUniqueID&
   commands:
 
     repo_gpg_uses_apt|repo_gpg_uses_rpm::
-       # we completly skip the command in dry run, so that it doesn't wrongly set the _reached class
+       # we completely skip the command in dry run, so that it doesn't wrongly set the _reached class
       "${runhook_repoGpgKeyManagementGetKeys.repo_gpg_binary} ${runhook_repoGpgKeyManagementGetKeys.repo_gpg_options} ${repo_gpg_file[${keyid}]} | ${paths.awk} -v HASH='${repo_gpg_hash_lc[${keyid}]}' -F':' '$1 == \"pub\" { ++count; if (tolower($5) == HASH) { printf \"+repo_gpg_file_%s_validated\n\", HASH; } } END { if (count > 1) { printf \"+repo_gpg_file_%s_multikeyed\n\", HASH; } }'"
         comment    => "We verify the content of the key-field matches the actual hash that was provided by the user. We also check for multiple keys present in one key-field, which is not acceptable",
         ifvarclass => "!(dry_run|global_dry_run).repo_gpg_file_${keyid}_created_&RudderUniqueID&_ok.repo_gpg_has_gpg_binary",

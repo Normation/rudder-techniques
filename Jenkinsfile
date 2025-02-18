@@ -14,7 +14,9 @@ pipeline {
                 stage('shell') {
                     agent {
                         dockerfile {
-                            filename 'ci/shellcheck.Dockerfile'
+                            label 'generic-docker'
+                            filename 'ci/common.Dockerfile'
+                            args '-u 0:0'
                         }
                     }
                     steps {
@@ -49,8 +51,9 @@ pipeline {
                 stage('typos') {
                     agent {
                         dockerfile {
-                            filename 'ci/typos.Dockerfile'
-                            additionalBuildArgs  '--build-arg VERSION=1.0'
+                            label 'generic-docker'
+                            filename 'ci/common.Dockerfile'
+                            args '-u 0:0'
                         }
                     }
                     steps {
@@ -67,8 +70,9 @@ pipeline {
                 stage('test') {
                     agent {
                         dockerfile {
+                            label 'generic-docker'
                             filename 'ci/cf-promises.Dockerfile'
-                            additionalBuildArgs  "--build-arg USER_ID=${env.JENKINS_UID}"
+                            args '-u 0:0'
                         }
                     }
                     steps {

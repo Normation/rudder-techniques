@@ -83,21 +83,21 @@
           <CONSTRAINT>
             <MAYBEEMPTY>true</MAYBEEMPTY>
             <TYPE>masterPassword</TYPE>
-            <PASSWORDHASH>linux-shadow-md5,linux-shadow-sha256,linux-shadow-sha512,plain</PASSWORDHASH> 
-            <!-- 
+            <PASSWORDHASH>linux-shadow-md5,linux-shadow-sha256,linux-shadow-sha512,plain</PASSWORDHASH>
+            <!--
             Tell that master password must create other variables derived from the user input from
-            that one. The master variable will be created using the hashes defined here, and the derived 
-            variable(s) will be automatically  created using other equivalent hashes for the target OS. 
-            The accepted values for now are "AIX" and "LINUX" (or both, comma separated). The derived variable name will be the current name 
+            that one. The master variable will be created using the hashes defined here, and the derived
+            variable(s) will be automatically  created using other equivalent hashes for the target OS.
+            The accepted values for now are "AIX" and "LINUX" (or both, comma separated). The derived variable name will be the current name
             postfixed with _AIX (or _LINUX)
 
-            A correspondance is made between hash algo listed above and the matching one on target OS:
+            A correspondence is made between hash algo listed above and the matching one on target OS:
             Linux md5 crypt is mapped to AIX "smd5" version, Linux Sha-Crypt-256 is
             mapped to AIX ssha256, and Linux Sha-Crypt-512 to AIX ssha512.
             AIX ssha256 and ssha512 need the JCE PBKDF2WithHmacSHA256 / PBKDF2WithHmacSHA512.
 
             Caution:
-              They are provided on Oracle Java 8 JVM standard installation, but NOT in Java 7 and some 
+              They are provided on Oracle Java 8 JVM standard installation, but NOT in Java 7 and some
               other vendor versions.
               In case these algo are not available, a fallback to AIX ssha1 (which uses
               PBKDF2WithHmacSHA1) will be done. This hash scheme is also quite robust, but
@@ -120,7 +120,7 @@
       <SELECT1>
         <NAME>USERGROUP_FORCE_USER_GROUP</NAME>
         <DESCRIPTION>Enforce the primary group of the user</DESCRIPTION>
-        <LONGDESCRIPTION>If set to everytime, the user primary group will be checked or updated even if the user alreay exists. The primary group needs to be a GID (and not a group name)</LONGDESCRIPTION>
+        <LONGDESCRIPTION>If set to everytime, the user primary group will be checked or updated even if the user already exists. The primary group needs to be a GID (and not a group name)</LONGDESCRIPTION>
         <ITEM>
           <LABEL>At account creation</LABEL>
           <VALUE>false</VALUE>

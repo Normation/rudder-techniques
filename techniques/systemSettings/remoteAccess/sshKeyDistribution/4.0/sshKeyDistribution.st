@@ -2,7 +2,7 @@
 # SPDX-FileCopyrightText: 2021 Normation SAS
 
 # Manage SSH Key - per user
-# Allow to set keys for users, and optionnaly to flush all keys that are not managed by Rudder.
+# Allow to set keys for users, and optionally to flush all keys that are not managed by Rudder.
 
 
 # Available data, coming from pre-hook:
@@ -17,7 +17,7 @@
 #   if a key is not compliant for a user, in audit mode, it will define the  class ssh_key_distribution_<user>_prevent_flush to prevent flushing the keys, as it would change a key in audit
 
 # Then in post-hook:
-#    if all keys are kept status, then we compare the file sizes. If equals, then all is kept (resp compliant). If differents, in non audit, we flush the ssh key with the .tmp file, and flush component is repaired, in audit, they are all non compliant, with a message saying there are there, but there are extra keys
+#    if all keys are kept status, then we compare the file sizes. If equals, then all is kept (resp compliant). If different, in non audit, we flush the ssh key with the .tmp file, and flush component is repaired, in audit, they are all non compliant, with a message saying there are there, but there are extra keys
 #    if any is in repaired, in enforce then we copy the ssh key from the .tmp, and keep the status of each keys, in audit we keep the compliant/non compliant status
 #    if a key is non-compliant (in audit), there won't ben any flushing for this user.
 #
@@ -27,7 +27,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
 {
 
   meta:
-      # Tags are necessaary for pre/post hook - to identify all the bundles for the differents directives
+      # Tags are necessary for pre/post hook - to identify all the bundles for the different directives
       "tags" slist => { "check_ssh_key_distribution_technique" };
 
   vars:
