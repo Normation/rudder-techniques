@@ -76,7 +76,7 @@ bundle common properties
     "typeof[${autocond_properties}][${items[${autocond_properties}]}]" string => type("node.properties[${autocond_properties}][${items[${autocond_properties}]}]", "true");
 
   classes:
-    # Check wether the item value is a boolean or ...
+    # Check whether the item value is a boolean or ...
     "is_boolean_${var[${autocond_properties}]}_${var_items[${autocond_properties}][${items[${autocond_properties}]}]}" expression => strcmp("data boolean", "${typeof[${autocond_properties}][${items[${autocond_properties}]}]}");
     # ... a string
     "is_string_${var[${autocond_properties}]}_${var_items[${autocond_properties}][${items[${autocond_properties}]}]}"  expression => strcmp("data string", "${typeof[${autocond_properties}][${items[${autocond_properties}]}]}");
