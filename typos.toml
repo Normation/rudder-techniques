@@ -1,6 +1,6 @@
 [files]
 #extend-exclude = [ "*.json", "test_fileTemplate.*", "template1", "checkGenericFileContent.st", "rudder-groups.st", "Jenkinsfile" ]
-extend-exclude = [ "*.json", "test_fileTemplate.*", "template1", "Jenkinsfile" ]
+extend-exclude = [ "*.json", "test_fileTemplate.*", "template1", "Jenkinsfile", "*.pub" ]
 
 [default]
 extend-ignore-re = [ "2nd", "64f85ba8" ]
