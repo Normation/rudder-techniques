@@ -6,6 +6,8 @@
   It will ensure the "openssh-server" package is installed (via the appropriate packaging tool for each OS), ensure the service is running and start it if not and ensure the service is configured to run on initial system startup.
 
   Configuration will adapt the existing sshd_config file by changing the values described below. Each option can be set to "Don't change", which means the existing value will be left as is.
+
+  Please note that "Match User" block at the end of the file is not supported by this technique, that can lead to the sshd daemon failing to start.
   </DESCRIPTION>
   <TMLS>
     <TML name="main"/>
