@@ -33,9 +33,6 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
     &USERGROUP_USER_PASSWORD:{password |"usergroup_user_password[&i&]" string => "&password&";
 }&
 
-    &USERGROUP_USER_PASSWORD_AIX:{password |"usergroup_user_password_aix[&i&]" string => "&password&";
-}&
-
     &USERGROUP_USER_PASSWORD_POLICY:{passwordpol |"usergroup_user_password_policy[&i&]" string => "&passwordpol&";
 }&
 
@@ -312,8 +309,13 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       ###############
       # Password
       # Note: the password should also be checked at creation, because otherwise it won't be set at 1st run
-      "any" usebundle => password_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}", "${usergroup_user_password_aix[${usergroup_user_index}]}"),
-                   if => "(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index}).usermanagement_user_pweverytime_${usergroup_user_index}.!usermanagement_user_pwempty_${usergroup_user_index}";
+      "any" usebundle => password_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}"),
+                    if => and( or( "usermanagement_user_create_${usergroup_user_index}",
+                                   "usermanagement_user_update_${usergroup_user_index}"
+                                 ),
+                               "usermanagement_user_pweverytime_${usergroup_user_index}",
+                               "!usermanagement_user_pwempty_${usergroup_user_index}"
+                             );
 
       # no password supplied
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "Password", "${usergroup_user_login[${usergroup_user_index}]}", "No password defined for user", "${usergroup_user_index}"),
@@ -589,16 +591,13 @@ bundle agent delete_&RudderUniqueID&(user_login) {
 bundle agent primary_group_&RudderUniqueID&(user_login, group_name) {
   methods:
       "any" usebundle => _method_reporting_context("User primary group", "${user_login}");
-      "any" usebundle => user_primary_group("${user_login}", ${group_name});
+      "any" usebundle => user_primary_group("${user_login}", "${group_name}");
 }
 
-bundle agent password_&RudderUniqueID&(user_login, password, password_aix) {
+bundle agent password_&RudderUniqueID&(user_login, password) {
   methods:
       "any" usebundle => _method_reporting_context("Password", "${user_login}");
-      "any" usebundle => user_password_hash("${user_login}", "${password}"), #TODO check if changes the age
-                   if => "linux";
-      "any" usebundle => user_password_hash("${user_login}", "${password_aix}"), #TODO check if changes the age
-                   if => "aix";
+      "any" usebundle => user_password_hash("${user_login}", "${password}"); #TODO check if changes the age
 }
 
 bundle agent fullname_&RudderUniqueID&(user_login, fullname) {
