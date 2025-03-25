@@ -146,13 +146,6 @@ bundle agent update_action
      any::
        "server_inputs"        string => "${server_info.policy_files}/rules/cfengine-community"; #actual directory with promises
 
-      "classes_to_persist"   slist  => { "rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok",
-                                         "rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok",
-                                         "rudder_ncf_hash_update_repaired", "rudder_ncf_hash_update_error", "rudder_ncf_hash_update_ok",
-                                         "config", "no_update", "config_ok",
-                                         "rudder_promises_generated_tmp_file_repaired", "rudder_promises_generated_tmp_file_error", "rudder_promises_generated_tmp_file_kept",
-                                       };
-
   classes:
     current_promise_timestamp_defined::
       "current_promise_timestamp_valid" expression => regcmp("[0-9]+", "${current_promises_timestamp}");
@@ -328,30 +321,6 @@ bundle agent update_action
       action => immediate;
 }
 
-# Only persist classes once as it is a very expensive operation now.
-# Done outside of update_action as some actions are done in files promises during last pass.
-bundle agent rudder_persist_update_classes {
-  vars:
-    pass1.!pass2::
-       "clean_classes" string => "",
-                      classes => u_cancel_classes("${update_action.classes_to_persist}");
-
-  classes:
-      "pass3" expression => "pass2";
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
-
-    pass1::
-      "${update_action.classes_to_persist}_tmp" expression => "${update_action.classes_to_persist}";
-
-    pass3::
-      "${update_action.classes_to_persist}" expression => "${update_action.classes_to_persist}_tmp",
-                                           # persist for 4 minutes so that it wont overlap with the next
-                                           # execution in 5 minutes
-                                           persistence => "4",
-                                                 scope => "namespace";
-}
-
 #######################################################
 # UUID file checking
 
@@ -384,7 +353,9 @@ body classes success(if, else, kept)
         cancel_kept      => { "${else}" };
         cancel_repaired  => { "${else}" };
 
-        scope => "namespace";
+        # persist for 4 minutes so that it wont overlap with the next
+        # execution in 5 minutes
+        persist_time     => "4";
 }
 
 body perms u_mog(mode,user,group)
@@ -406,27 +377,4 @@ body edit_defaults u_rudder_empty
 {
       empty_file_before_editing => "true";
       edit_backup => "false";
-}
-
-body classes u_cancel_classes(y)
-{
-   cancel_repaired => { "promise_repaired_$(y)", "$(y)_repaired", "$(y)_ok",
-                        "$(y)_reached", "$(y)_not_kept",  "repair_failed_$(y)",
-                        "$(y)_failed", "$(y)_not_ok", "$(y)_error", "$(y)_not_repaired",
-                        "repair_denied_$(y)", "$(y)_denied", "repair_timeout_$(y)",
-                        "$(y)_timeout", "promise_kept_$(y)", "$(y)_kept"
-                      };
-   cancel_kept     => { "promise_repaired_$(y)", "$(y)_repaired", "$(y)_ok",
-                        "$(y)_reached", "$(y)_not_kept", "repair_failed_$(y)",
-                        "$(y)_failed", "$(y)_not_ok", "$(y)_error", "$(y)_not_repaired",
-                        "repair_denied_$(y)", "$(y)_denied", "repair_timeout_$(y)",
-                        "$(y)_timeout", "promise_kept_$(y)", "$(y)_kept"
-                      };
-   cancel_notkept  => { "promise_repaired_$(y)", "$(y)_repaired", "$(y)_ok",
-                        "$(y)_reached", "$(y)_not_kept",  "repair_failed_$(y)",
-                        "$(y)_failed", "$(y)_not_ok", "$(y)_error", "$(y)_not_repaired",
-                        "repair_denied_$(y)", "$(y)_denied", "repair_timeout_$(y)",
-                        "$(y)_timeout", "promise_kept_$(y)", "$(y)_kept"
-                      };
-
 }
