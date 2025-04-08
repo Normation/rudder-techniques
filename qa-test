@@ -50,7 +50,7 @@ test_windows_techniques()
   if [ ! -f rudder-templates-cli.jar ]; then
     wget https://repository.rudder.io/build-dependencies/rudder-templates-cli/rudder-templates-cli.jar
   fi
-  for technique in $(find techniques -type d -regex ".*[0-9]+.[0-9]+")
+  for technique in $(find techniques -type d -regex ".*[0-9]+\(.[0-9]+\)?")
   do
     tmp_dir=$(mktemp -d -t qa-test-XXXXXXXXXX)
     cp -r $technique/* $tmp_dir

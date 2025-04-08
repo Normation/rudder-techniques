@@ -40,6 +40,7 @@
   }
 
   ExcludeRules = @(
+    "PSAvoidTrailingWhitespace",
     "AvoidUninitializedVariableInModule",
     "PSAvoidUsingWriteHost",
     "PSUseApprovedVerbs",
