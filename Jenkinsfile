@@ -38,6 +38,7 @@ pipeline {
                 stage('powershell lint') {
                     agent {
                         dockerfile {
+                            label "generic-docker"
                             filename 'ci/linter.Dockerfile'
                             additionalBuildArgs "--build-arg VERSION=1.20.0 --build-arg USER_ID=${env.JENKINS_UID}"
                             args "--read-only --mount type=tmpfs,destination=/tmp"
