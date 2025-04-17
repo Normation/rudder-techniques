@@ -37,6 +37,9 @@ bundle agent check_apt_settings
     debian_12::
       "apt_detected_distro" string => "bookworm";
 
+    debian_13::
+      "apt_detected_distro" string => "trixie";
+
     ubuntu_karmic|ubuntu_9_10::
       "apt_detected_distro" string => "karmic";
 
@@ -117,6 +120,18 @@ bundle agent check_apt_settings
 
     ubuntu_kinetic|ubuntu_22_10::
       "apt_detected_distro" string => "kinetic";
+
+    ubuntu_lunar|ubuntu_23_04::
+      "apt_detected_distro" string => "lunar";
+
+    ubuntu_mantic|ubuntu_23_10::
+      "apt_detected_distro" string => "mantic";
+
+    ubuntu_noble|ubuntu_24_04::
+      "apt_detected_distro" string => "noble";
+
+    ubuntu_plucky|ubuntu_24_10::
+      "apt_detected_distro" string => "plucky";
 
 
     apt_installrecommends_edit::
