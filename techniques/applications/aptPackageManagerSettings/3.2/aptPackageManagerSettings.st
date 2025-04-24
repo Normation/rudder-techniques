@@ -322,16 +322,8 @@ bundle edit_line set_apt_config_values_tier2(tab)
   # Be careful if the index string contains funny chars
       "cindex[${index}]" string => canonify("${index}");
 
-  field_edits:
-
-  # If the line is there, but commented out, first uncomment it
-      "#+${index}\s+.*"
-        edit_field => col("\s+","1","${index}","set");
-
-  # match a line starting like the key something
-      "${index}\s+.*"
-        edit_field => col("\s+","2","${${tab}[${index}]}","set"),
-        classes => if_ok("not_${cindex[${index}]}");
+  delete_lines:
+      "^#?${index}\s.*";
 
   insert_lines:
 
