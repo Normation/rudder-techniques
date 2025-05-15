@@ -216,9 +216,9 @@ bundle common va
     # OS classes for compatibility
     # those two are deprecated
       "SUSE" expression => "sles|sled|opensuse";
-      "SuSE" expression => "sles|sled|opensuse";
+      "SuSE" expression => "SUSE";
     # for OS family compatibility
-      "suse" expression => "sles|sled|opensuse";
+      "suse" expression => "SUSE";
       "redhat" expression => "amzn|amazon_linux";
     # sles 12 and after already have this
       "sles_11" expression => "SLES_11";
