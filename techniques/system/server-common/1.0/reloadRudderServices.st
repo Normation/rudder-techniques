@@ -47,7 +47,7 @@ bundle agent system_reload_rudder_services {
 
   methods:
       "any" usebundle => disable_reporting;
-      "any" usebundle => _method_reporting_context("${component_name}", "None");
+      "any" usebundle => _method_reporting_context_v4("${component_name}", "None", "restart_rudder_services");
     rudder_server_system_restart_slapd::
       "any" usebundle => service_restart("${slapd_service_name}");
     rudder_server_system_restart_jetty::

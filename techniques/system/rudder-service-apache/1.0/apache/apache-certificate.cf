@@ -38,10 +38,10 @@ bundle agent apache_cert(trackingkey, technique_name)
   methods:
     pass2::
       # Copy the right file in the expected path
-      "any" usebundle => _method_reporting_context("${component}", "Apache certificate");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Apache certificate", "apache_certificate");
       "any" usebundle => file_from_local_source_recursion("${src_ca_file}", "${nodes_certs}", "0");
 
-      "any" usebundle => _method_reporting_context("${component}", "Permissions");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Permissions", "apache_certificate_permissions");
       "any" usebundle => permissions("${nodes_certs}", "640", "root", "rudder");
 
 }

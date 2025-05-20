@@ -38,7 +38,7 @@ bundle agent system_rudder_slapd_configuration {
     # Log rotation
       "any" usebundle => system_slapd_logrotate;
     # Service configuration
-      "any" usebundle => _method_reporting_context("Rudder slapd configuration", "Check Rudder ldap permissions");
+      "any" usebundle => _method_reporting_context_v4("Rudder slapd configuration", "Check Rudder ldap permissions", "rudder_ldap_permissions");
       "any" usebundle => permissions("${rudder_slapd.config_file}", "640", "root", "${rudder_slapd.group_name}");
     !is_rudder_bootstrap::
       "any" usebundle => _method_reporting_context_v4("Rudder slapd service", "Started", "slapd_started");

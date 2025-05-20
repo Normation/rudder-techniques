@@ -65,14 +65,14 @@ bundle agent system_rudder_apache_networks_configuration {
 
   methods:
       # Allowed networks
-      "any" usebundle => _method_reporting_context("${component}", "Allowed networks permissions");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Allowed networks permissions", "allowed_network_permissions");
       "any" usebundle => permissions("${allowed_network_file}", "600", "root", "0");
-      "any" usebundle => _method_reporting_context("${component}", "Allowed networks configuration");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Allowed networks configuration", "allowed_network_configuration");
       "any" usebundle => file_content("${allowed_network_file}", "${allowed_network_acl}", "true");
 
       # Remote run
-      "any" usebundle => _method_reporting_context("${component}", "Remote run configuration");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Remote run configuration", "remote_run_configuration");
       "any" usebundle => file_content("${remote_run_file}", "${remote_run_acl}", "true");
-      "any" usebundle => _method_reporting_context("${component}", "Remote run permissions");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Remote run permissions", "remote_run_permissions");
       "any" usebundle => permissions("${remote_run_file}", "600", "root", "0");
 }

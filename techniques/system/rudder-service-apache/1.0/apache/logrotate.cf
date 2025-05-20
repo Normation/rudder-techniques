@@ -14,8 +14,8 @@ bundle agent system_apache_logrotate {
                              }');
 
   classes:
-      "pass2" expression => "pass1";
-      "pass1" expression => "any";
+      "pass2"               expression => "pass1";
+      "pass1"               expression => "any";
       "duration_configured" expression => isvariable("rudder_parameters.log_duration");
 
   files:
@@ -25,6 +25,6 @@ bundle agent system_apache_logrotate {
 
   methods:
     pass2::
-      "any" usebundle => _method_reporting_context("Apache configuration", "Logrotate");
+      "any" usebundle => _method_reporting_context_v4("Apache configuration", "Logrotate", "logrotate");
       "any" usebundle => file_from_template_mustache("${sys.workdir}/inputs/rudder-service-apache/1.0/apache/apache-logrotate.mustache", "/etc/logrotate.d/rudder-apache");
 }

@@ -27,22 +27,22 @@ bundle agent system_rudder_relayd_configuration {
     # Log rotation
       "any" usebundle => system_relay_logrotate;
 
-      "any" usebundle => _method_reporting_context("${component}", "Policy-server certificate");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Policy-server certificate", "rudder_server_cert_copy");
       "any" usebundle => file_copy_from_local_source("${sys.policy_entry_dirname}/certs/policy-server.pem", "${g.rudder_var}/lib/ssl/policy_server.pem");
 
-      "any" usebundle => _method_reporting_context("${component}", "Policy server certificate permissions");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Policy server certificate permissions", "rudder_server_cert_permissions");
       "any" usebundle => permissions("${g.rudder_var}/lib/ssl/policy_server.pem", "640", "root", "rudder");
 
-      "any" usebundle => _method_reporting_context("${component}", "Root server certificate");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Root server certificate", "root_server_cert_copy");
       "any" usebundle => file_copy_from_local_source("${sys.policy_entry_dirname}/certs/root.pem", "${g.rudder_var}/lib/ssl/root.pem");
 
-      "any" usebundle => _method_reporting_context("${component}", "Root certificate permissions");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Root certificate permissions", "root_server_cert_permissions");
       "any" usebundle => permissions("${g.rudder_var}/lib/ssl/root.pem", "640", "root", "rudder");
 
-      "any" usebundle => _method_reporting_context("${component}", "Configuration");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Configuration", "relayd_configuration");
       "any" usebundle => file_from_template_mustache("${this.promise_dirname}/relayd.conf.tpl", "${rudder_relayd.config_file}");
 
-      "any" usebundle => _method_reporting_context("${component}", "Configuration permissions");
+      "any" usebundle => _method_reporting_context_v4("${component}", "Configuration permissions", "relayd_configuration_permissions");
       "any" usebundle => permissions_recursive("${rudder_relayd.config_dir}", "640", "root", "rudder");
 
       "any" usebundle => _method_reporting_context_v4("${component}", "Started", "${component}_started");
