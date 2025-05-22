@@ -100,7 +100,7 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
     $null = Rudder-Report-NA @naParams -ComponentName 'User primary group'
     $null = Rudder-Report-NA @naParams -ComponentName 'User full name'
     $null = Rudder-Report-NA @naParams -ComponentName 'User default shell'
-    $null = Rudder-Report-NA @naParams -ComponentName 'Home Directory'
+    $null = Rudder-Report-NA @naParams -ComponentName 'Home directory'
     $null = Rudder-Report-NA @naParams -ComponentName 'User secondary groups'
   }
 }
