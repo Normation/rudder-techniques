@@ -48,7 +48,7 @@ bundle common server_info {
       "policy_server_split"   slist  => string_split("${policy_server_trimmed}", ":", "2");
       "policy_server"         string => nth("policy_server_split", "0");
 
-      "policy_server_port"    string => "${system_common.cf_serverd_port}",
+      "policy_server_port"    string => "${system_common.cf_serverd_port}";
       "policy_server_port"    string => nth("policy_server_split", "1"),
                                   if => "policy_server_has_port";
 
@@ -120,7 +120,7 @@ bundle agent u_check_inputs {
     # ncf_only is used to update only ncf and nothing that could be private (this can be used when an agent is not yet registered)
     !root_server.!ncf_only::
       "${server_info.local_inputs}/${rudder_promises_timestamp_tmp}"
-        copy_from         => remote("${server_info.policy_server}","${server_info.remote_inputs}/${rudder_promises_timestamp}"),
+        copy_from         => u_copy_remote("${server_info.policy_server}","${server_info.remote_inputs}/${rudder_promises_timestamp}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => u_classes_generic_persist("rudder_promises_generated_tmp_file");
@@ -133,16 +133,17 @@ bundle agent u_check_inputs {
 }
 
 bundle agent u_check_ncf {
+  files:
     # do not copy potentially incompatible ncf if inputs are not up to date
     !root_server.(availability_checked.!rudder_policies_update_error)::
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
-        copy_from         => remote("${server_info.policy_server}","${g.rudder_ncf_origin_common_hash}"),
+        copy_from         => u_copy_remote("${server_info.policy_server}","${g.rudder_ncf_origin_common_hash}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => u_classes_generic_persist("rudder_ncf_hash_update");
 
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
-        copy_from         => remote("${server_info.policy_server}","${g.rudder_ncf_origin_local_hash}"),
+        copy_from         => u_copy_remote("${server_info.policy_server}","${g.rudder_ncf_origin_local_hash}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => u_classes_generic_persist("rudder_ncf_hash_update");
@@ -164,10 +165,11 @@ bundle agent u_check_ncf {
 }
 
 bundle agent u_download_inputs {
+  files:
     # The defined class are persistent, so if they are already set, promises has already been updated a short while ago
     new_promises_available.!root_server.!ncf_only::
       "${client_inputs}"
-        copy_from         => remote("${server_info.policy_server}","${server_inputs}"),
+        copy_from         => u_copy_remote("${server_info.policy_server}","${server_inputs}"),
         depth_search      => recurse("inf"),
         action            => immediate,
         move_obstructions => "true",
@@ -182,9 +184,10 @@ bundle agent u_download_inputs {
 }
 
 bundle agent u_download_ncf {
+  files:
     root_server::
       "${g.rudder_ncf}/common"
-        copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
+        copy_from         => u_copy_local("${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
@@ -192,7 +195,7 @@ bundle agent u_download_ncf {
         classes           => u_classes_generic_persist("rudder_ncf_common");
 
       "${g.rudder_ncf}/local"
-        copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
+        copy_from         => u_copy_local("${g.rudder_ncf_origin_local}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
@@ -202,7 +205,7 @@ bundle agent u_download_ncf {
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
     !root_server.(new_promises_available|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
-        copy_from         => remote("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
+        copy_from         => u_copy_remote("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
@@ -210,7 +213,7 @@ bundle agent u_download_ncf {
         classes           => u_classes_generic_persist("rudder_ncf_common");
 
       "${g.rudder_ncf}/local"
-        copy_from         => remote("${server_info.policy_server}", "${g.rudder_ncf_origin_local}"),
+        copy_from         => u_copy_remote("${server_info.policy_server}", "${g.rudder_ncf_origin_local}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
@@ -230,8 +233,7 @@ bundle agent u_download_ncf {
 
 bundle agent update_action
 {
-
-
+  reports:
      !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error).!ncf_only::
 &if(INITIAL)&
         "*********************************************************************************
@@ -308,7 +310,7 @@ body edit_defaults u_rudder_empty
       edit_backup               => "false";
 }
 
-body copy_from u_copy_remote(server, path, missing_ok) {
+body copy_from u_copy_remote(server, path) {
       servers     => {
         "${server}"
       };
@@ -319,7 +321,26 @@ body copy_from u_copy_remote(server, path, missing_ok) {
       purge       => "true";
       copy_backup => "false";
       portnumber  => "${system_common.community_port}";
-      missing_ok  => "${missing_ok}";
+      missing_ok  => "false";
+
+&if(INITIAL)&
+    trust_new_server.!root_server::
+      trustkey    => "true";
+&endif&
+}
+
+body copy_from u_copy_remote_missing_ok(server, path) {
+      servers     => {
+        "${server}"
+      };
+      source      => "${path}";
+      compare     => "digest";
+      preserve    => "false";
+      verify      => "true";
+      purge       => "true";
+      copy_backup => "false";
+      portnumber  => "${system_common.community_port}";
+      missing_ok  => "true";
 
 &if(INITIAL)&
     trust_new_server.!root_server::

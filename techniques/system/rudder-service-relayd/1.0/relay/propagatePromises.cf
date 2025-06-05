@@ -105,7 +105,7 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
   files:
     !disable_classic_promises::
       "${client_data}"  #that's a loop on each files in client_inputs
-        copy_from    => remote("${server_info.policy_server}","${server_data}"),
+        copy_from    => u_copy_remote("${server_info.policy_server}","${server_data}"),
         depth_search => recurse_visible("inf"),
         perms => mog("2750", "root", "rudder-policy-reader"),
         comment => "Fetching the promises to propagate",
@@ -113,7 +113,7 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
 
     !disable_classic_sharedfiles::
       "${g.shared_files}"
-        copy_from    => remote("${server_info.policy_server}","${g.shared_files}"),
+        copy_from    => u_copy_remote("${server_info.policy_server}","${g.shared_files}"),
         depth_search => recurse_visible("inf"),
         perms => mog("640", "root", "rudder"),
         comment => "Fetching the files shared for the promises execution",
@@ -121,25 +121,25 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
     
     any::
       "${g.rudder_var}/shared-files/"
-        copy_from    => try_remote("${server_info.policy_server}","${g.rudder_var}/shared-files/${g.uuid}/shared-files"),
+        copy_from    => u_copy_remote_missing_ok("${server_info.policy_server}","${g.rudder_var}/shared-files/${g.uuid}/shared-files"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching files shared between agents",
         classes => if_else("shared_files_propagated", "could_not_propagate_shared_files");
 
       "${g.rudder_ncf_origin_local}"
-        copy_from    => remote("${server_info.policy_server}","${g.rudder_ncf_origin_local}"),
+        copy_from    => u_copy_remote("${server_info.policy_server}","${g.rudder_ncf_origin_local}"),
         depth_search => recurse_visible("inf"),
         comment      => "Fetching the ncf local to propagate",
         classes      => if_else("ncf_local_promises_propagated", "could_not_propagate_ncf_local_promise");
 
       "${g.rudder_ncf_origin_common}"
-        copy_from    => remote("${server_info.policy_server}","${g.rudder_ncf_origin_common}"),
+        copy_from    => u_copy_remote("${server_info.policy_server}","${g.rudder_ncf_origin_common}"),
         depth_search => recurse_visible("inf"),
         comment      => "Fetching the ncf common to propagate",
         classes      => if_else("ncf_common_promises_propagated", "could_not_propagate_ncf_common_promise");
 
       "${sys.workdir}/masterfiles"
-        copy_from    => remote("${server_info.policy_server}","${sys.workdir}/masterfiles"),
+        copy_from    => u_copy_remote("${server_info.policy_server}","${sys.workdir}/masterfiles"),
         depth_search => recurse_visible("inf"),
         comment => "Fetching the bootstrap promises",
         classes => if_else("masterfiles_propagated", "could_not_propagate_masterfiles");
