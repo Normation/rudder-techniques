@@ -233,6 +233,13 @@ bundle agent u_download_ncf {
 
 bundle agent update_action
 {
+  methods:
+    "any" usebundle => u_prepare;
+    "any" usebundle => u_check_inputs;
+    "any" usebundle => u_check_ncf;
+    "any" usebundle => u_download_inputs;
+    "any" usebundle => u_download_ncf;
+
   reports:
      !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error).!ncf_only::
 &if(INITIAL)&

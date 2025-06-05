@@ -69,7 +69,7 @@ bundle agent rudder_init {
       "Abort if agent is disabled"     usebundle => check_disable_agent;
       "Abort if agent is not in audit" usebundle => check_rudder_force_audit_agent;
       "Abort on some cfengine version" usebundle => rudder_check_agent_version;
-      "Abort on invalid UUID"          usebundle => check_uuid;
+      "Abort on invalid UUID"          usebundle => u_check_node_id;
       "Startup report log"             usebundle => startup;
       "Initialize ncf"                 usebundle => initialize_ncf;
       "Define environment variables"   usebundle => get_environment_variables;
