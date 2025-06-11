@@ -116,6 +116,8 @@ bundle agent rudder_common_system_directive {
       "Setup agent check cron"            usebundle => setup_cronjob;
       "Make sure cron daemon is running"  usebundle => check_cron_daemon;
       "Make sure rpm key is up to date"   usebundle => import_rpm_key;
+      # this one must be before any rudder-client call
+      "Setup certificate authority"       usebundle => setup_ca;
 &if(INITIAL)&
       "Run initial inventory"             usebundle => doInventory;
 &else&
@@ -384,6 +386,21 @@ bundle agent garbage_collection
         rename      => rotate("10"),
         file_select => bigger_than("1M");
 
+}
+
+#######################################################
+# This bundle is responsible for setting up the certificate authority required by the server
+bundle agent setup_ca
+{
+  files:
+      "${g.rudder_var}//lib/ssl/policy_server_ca.pem"
+&if(POLICY_SERVER_CERT_CA)&
+        content => "&POLICY_SERVER_CERT_CA&",
+        create => "true",
+        perms => mog("644","root","root");
+&else&
+        delete => tidy;
+&endif&
 }
 
 #######################################################
