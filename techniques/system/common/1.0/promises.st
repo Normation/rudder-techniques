@@ -330,13 +330,6 @@ bundle agent initialize_ncf()
 bundle agent configure_rudder_reporting_system {
   methods:
       "make http reports"   usebundle => send_rudder_reports;
-
-  reports:
-    !agent_capability_http_reporting.!reports_disabled::
-      "******************************************************************
-       * This version of rudder-agent does not support https reporting. *
-       * Please upgrade rudder-agent to version 6.0 or more.            *
-       ******************************************************************";
 }
 &endif&
 
