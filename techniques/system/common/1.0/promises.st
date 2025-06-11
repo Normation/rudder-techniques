@@ -102,7 +102,7 @@ bundle agent rudder_common_system_directive {
 &if(INITIAL)&
       "Run initial inventory"             usebundle => doInventory;
 &else&
-      "Configure logs for reporting"      usebundle => configure_rudder_reporting_system;
+      "Configure logs for reporting"      usebundle => send_rudder_reports;
       "Fetch Rudder Inventory variables"  usebundle => rudder_node_inventory;
       "Pre hook for monitoring methods"   usebundle => monitoring_hook_pre;
 &endif&
@@ -325,20 +325,6 @@ bundle agent initialize_ncf()
                              ifvarclass => "local_modules_exist";
       "report about ncf init" usebundle => rudder_common_reports_generic("Common", "ncf_init", "${system_common.directiveId}", "ncf Initialization", "None", "Configuration library initialization");
 }
-
-&if(!INITIAL)&
-bundle agent configure_rudder_reporting_system {
-  methods:
-      "make http reports"   usebundle => send_rudder_reports;
-
-  reports:
-    !agent_capability_http_reporting.!reports_disabled::
-      "******************************************************************
-       * This version of rudder-agent does not support https reporting. *
-       * Please upgrade rudder-agent to version 6.0 or more.            *
-       ******************************************************************";
-}
-&endif&
 
 ###################################################################
 # Trash every output report and modified files older than the TTL #
