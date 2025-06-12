@@ -69,7 +69,7 @@ bundle agent rudder_init {
       "Abort if agent is disabled"     usebundle => check_disable_agent;
       "Abort if agent is not in audit" usebundle => check_rudder_force_audit_agent;
       "Abort on some cfengine version" usebundle => rudder_check_agent_version;
-      "Abort on invalid UUID"          usebundle => check_uuid;
+      "Abort on invalid UUID"          usebundle => u_check_node_id;
       "Startup report log"             usebundle => startup;
       "Initialize ncf"                 usebundle => initialize_ncf;
       "Define environment variables"   usebundle => get_environment_variables;
@@ -216,9 +216,9 @@ bundle common va
     # OS classes for compatibility
     # those two are deprecated
       "SUSE" expression => "sles|sled|opensuse";
-      "SuSE" expression => "sles|sled|opensuse";
+      "SuSE" expression => "SUSE";
     # for OS family compatibility
-      "suse" expression => "sles|sled|opensuse";
+      "suse" expression => "SUSE";
       "redhat" expression => "amzn|amazon_linux";
     # sles 12 and after already have this
       "sles_11" expression => "SLES_11";
