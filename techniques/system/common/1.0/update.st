@@ -61,6 +61,46 @@ bundle common server_info {
       "policy_server_has_port"    expression => strcmp(length("policy_server_split"), "2");
 }
 
+bundle agent update_action {
+  methods:
+      "any" usebundle => u_prepare;
+
+      "any" usebundle => u_check_inputs;
+      "any" usebundle => u_check_ncf;
+
+    !root_server::
+      "any" usebundle => u_download_inputs,
+                   if => "new_promises_available";
+      "any" usebundle => u_download_ncf,
+                   if => "new_promises_available|rudder_ncf_hash_update_repaired";
+
+    root_server::
+      "any" usebundle => u_root_copy_ncf;
+
+  reports:
+     !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error)::
+&if(INITIAL)&
+        "*********************************************************************************
+  *  You must accept this node on the server before updating this node            *
+  *  This node uses initial policies, some error message are expected until       *
+  *  the node is accepted.                                                        *
+  *********************************************************************************"
+&endif&
+
+&if(!INITIAL)&
+       "******************************************************************************
+* rudder-agent could not get an updated configuration from the policy server.   *
+* This can be caused by:                                                        *
+*   * an agent key that has been changed                                        *
+*   * if this node is not accepted or deleted node on the Rudder root server    *
+*   * if this node has changed policy server without sending a new inventory    *
+* Any existing configuration policy will continue to be applied without change. *
+*********************************************************************************"
+&endif&
+
+      action => immediate;
+}
+
 bundle agent u_prepare {
   files:
       "${g.rudder_ncf}/." create => "true";
@@ -105,7 +145,7 @@ bundle agent u_check_inputs {
       "new_promises_available" not => strcmp("${target_promises_timestamp}", "${current_promises_timestamp}");
       "availability_checked";
 
-    # always update if current promise timestamp is not valid
+    # Always update if current promise timestamp is not valid
     pass2.!current_promise_timestamp_valid.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
       "new_promises_available";
       "availability_checked";
@@ -117,15 +157,14 @@ bundle agent u_check_inputs {
 
   files:
     # check if new promises are available
-    # ncf_only is used to update only ncf and nothing that could be private (this can be used when an agent is not yet registered)
-    !root_server.!ncf_only::
+    !root_server::
       "${server_info.local_inputs}/${rudder_promises_timestamp_tmp}"
         copy_from         => u_copy_remote("${server_info.policy_server}","${server_info.remote_inputs}/${rudder_promises_timestamp}"),
         action            => immediate,
         move_obstructions => "true",
         classes           => u_classes_generic_persist("rudder_promises_generated_tmp_file");
 
-    root_server|(rudder_promises_generated_tmp_file_kept|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error).!ncf_only::
+    root_server|(rudder_promises_generated_tmp_file_kept|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error)::
       # Every time we check update inputs successfully (already up to date or
       # updated), touch a file to let other promises know we are doing ok
       "${sys.workdir}/last_successful_inputs_update"
@@ -167,7 +206,7 @@ bundle agent u_check_ncf {
 bundle agent u_download_inputs {
   files:
     # The defined class are persistent, so if they are already set, promises has already been updated a short while ago
-    new_promises_available.!root_server.!ncf_only::
+
       "${client_inputs}"
         copy_from         => u_copy_remote("${server_info.policy_server}","${server_inputs}"),
         depth_search      => recurse("inf"),
@@ -177,15 +216,15 @@ bundle agent u_download_inputs {
         classes           => u_classes_generic_persist("rudder_policies_update");
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
-    new_promises_available.!root_server.no_update.!ncf_only::
+    no_update::
       "${client_inputs}/${rudder_promises_timestamp}"
         delete  => tidy,
         comment => "Deleting ${rudder_promises_timestamp} as the policy files couldn't be downloaded";
 }
 
-bundle agent u_download_ncf {
+# Copy the file locally, on a root server
+bundle agent u_root_copy_ncf {
   files:
-    root_server::
       "${g.rudder_ncf}/common"
         copy_from         => u_copy_local("${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
@@ -201,9 +240,11 @@ bundle agent u_download_ncf {
         action            => immediate,
         move_obstructions => "true",
         classes           => u_classes_generic_persist("rudder_ncf_local");
+}
 
+# Download the files on a non-root server, if the hash file changed or if promises have been updated
+bundle agent u_download_ncf {
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
-    !root_server.(new_promises_available|rudder_ncf_hash_update_repaired)::
       "${g.rudder_ncf}/common"
         copy_from         => u_copy_remote("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
@@ -220,48 +261,15 @@ bundle agent u_download_ncf {
         move_obstructions => "true",
         classes           => u_classes_generic_persist("rudder_ncf_local");
 
-    (new_promises_available|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_common_update_error::
+    rudder_ncf_common_update_error::
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
         delete  => tidy,
         comment => "Deleting ${g.rudder_ncf_hash_file} as common ncf files couldn't be downloaded";
 
-    (new_promises_available|rudder_ncf_hash_update_repaired).!root_server.rudder_ncf_local_update_error::
+    rudder_ncf_local_update_error::
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
         delete  => tidy,
         comment => "Deleting ${g.rudder_ncf_hash_file} as custom ncf files couldn't be downloaded";
-}
-
-bundle agent update_action
-{
-  methods:
-    "any" usebundle => u_prepare;
-    "any" usebundle => u_check_inputs;
-    "any" usebundle => u_check_ncf;
-    "any" usebundle => u_download_inputs;
-    "any" usebundle => u_download_ncf;
-
-  reports:
-     !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error).!ncf_only::
-&if(INITIAL)&
-        "*********************************************************************************
-  *  You must accept this node on the server before updating this node            *
-  *  This node uses initial policies, some error message are expected until       *
-  *  the node is accepted.                                                        *
-  *********************************************************************************"
-&endif&
-
-&if(!INITIAL)&
-       "******************************************************************************
-* rudder-agent could not get an updated configuration from the policy server.   *
-* This can be caused by:                                                        *
-*   * an agent key that has been changed                                        *
-*   * if this node is not accepted or deleted node on the Rudder root server    *
-*   * if this node has changed policy server without sending a new inventory    *
-* Any existing configuration policy will continue to be applied without change. *
-*********************************************************************************"
-&endif&
-
-      action => immediate;
 }
 
 #######################################################
