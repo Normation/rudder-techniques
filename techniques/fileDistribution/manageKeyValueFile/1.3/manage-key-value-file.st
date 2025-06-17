@@ -15,33 +15,56 @@ bundle agent manage_key_value_file_&RudderUniqueID& {
 }&
 &MANAGE_KEY_VALUE_POST_HOOK_COMMAND:{post_hook |  "post_hook[&i&]"   string => "&post_hook&";
 }&
-      &TRACKINGKEY:{uuid |  "trackingkey[&i&]" string => "&uuid&";
-}&
-
-
-    "index" slist => getindices("file");
-
-    "args"  slist => { "${file[${index}]}", "${key[${index}]}", "${value[${index}]}","${separator[${index}]}", "${option[${index}]}" };
-    "report_param[${index}]"         string => join("_", args);
-    "canonified_params[${index}]"    string => canonify("${report_param[${index}]}");
-    "canonified_hook[${index}]"      string => canonify("${post_hook[${index}]}");
-
-    "class_prefix_${index}"          string => "file_ensure_key_value_${canonified_params[${index}]}";
-    "hook_class_prefix_${index}"     string => "command_execution_${canonified_hook[${index}]}";
-    "technique_name"                 string => "Manage keys-values file";
+    "index"                          slist => getindices("file");
+    "hash[${index}]"                 string => hash("${file[${index}]} ${key[${index}]} ${value[${index}]} ${separator[${index}]} ${option[${index}]}", "sha256");
 
   classes:
-    "hook_empty_${index}"        expression => strcmp("${post_hook[${index}]}", "");
+      "pass3" expression => "pass2";
+      "pass2" expression => "pass1";
+      "pass1" expression => "any";
 
   methods:
-    "apply_${index}"   usebundle => file_ensure_key_value_option("${file[${index}]}", "${key[${index}]}", "${value[${index}]}", "${separator[${index}]}", "${option[${index}]}");
-    "report_${index}"  usebundle => rudder_common_reports_generic_index("${technique_name}", "${class_prefix_${index}}", "${trackingkey[${index}]}", "File", "${file[${index}]}", "The key -> value ${key[${index}]} ${separator[${index}]} ${value[${index}]} with ${option[${index}]} spacing around the separator", "${index}");
+    pass3::
+      "${report_data.method_id}" usebundle => manage_key_value_file_edit("File", "${file[${index}]}", "${file[${index}]}", "${key[${index}]}", "${value[${index}]}", "${separator[${index}]}", "${option[${index}]}", "${hash[${index}]}");
+      "${report_data.method_id}" usebundle => manage_key_value_file_posthook("Post-modification script", "${file[${index}]}", "${post_hook[${index}]}", "${hash[${index}]}");
+}
 
-  # call post-hooks
-    "apply_${index}"   usebundle => command_execution("${post_hook[${index}]}"),
-                      ifvarclass => "!hook_empty_${index}.${class_prefix_${index}}_repaired";
-    "na_report"        usebundle => _classes_noop("${hook_class_prefix_${index}}"),
-                      ifvarclass => "hook_empty_${index}|${class_prefix_${index}}_kept|${class_prefix_${index}}_error";
-    "report_${index}"  usebundle => rudder_common_reports_generic_index("${technique_name}", "${hook_class_prefix_${index}}", "${trackingkey[${index}]}", "Post-modification script", "${file[${index}]}", "The hook '${post_hook[${index}]}'", "${index}");
+bundle agent manage_key_value_file_posthook(c_name, c_key, command, hash) {
+  classes:
+      "pass3"      expression => "pass2";
+      "pass2"      expression => "pass1";
+      "pass1"      expression => "any";
+      "hook_empty" expression => strcmp("${command}", "");
 
+  methods:
+    pass3::
+      "${report_data.method_id}" usebundle => _method_reporting_context_v4("${c_name}", "${c_key}", "${hash}_posthook");
+    "pass3.(hook_empty|!${hash}_repaired)"::
+      "${report_data.method_id}" usebundle => _classes_noop("${report_data.method_id}");
+
+    "pass3.!(hook_empty|!${hash}_repaired)"::
+      "${report_data.method_id}" usebundle => call_method("command_execution");
+      "${report_data.method_id}" usebundle => command_execution("${command}");
+      "${report_data.method_id}" usebundle => call_method_classes_caller;
+      "${report_data.method_id}" usebundle => call_method_end("command_execution");
+
+    pass3::
+      "${report_data.method_id}" usebundle => log_rudder_v4("${c_key}", "The hook '${command}'", "");
+}
+
+bundle agent manage_key_value_file_edit(c_name, c_key, file, key, value, separator, option, hash) {
+  classes:
+      "pass3"            expression => "pass2";
+      "pass2"            expression => "pass1";
+      "pass1"            expression => "any";
+  methods:
+    pass3::
+      "${report_data.method_id}" usebundle => _method_reporting_context_v4("${c_name}", "${c_key}", "${hash}_edit");
+      "${report_data.method_id}" usebundle => call_method("${hash}");
+      "${report_data.method_id}" usebundle => file_ensure_key_value_option("${file}", "${key}", "${value}", "${separator}", "${option}");
+      # Copy the resulting condition to the ${hash} prefix
+      "${report_data.method_id}" usebundle => call_method_classes("${hash}");
+      "${report_data.method_id}" usebundle => call_method_classes_caller;
+      "${report_data.method_id}" usebundle => call_method_end("${hash}");
+      "${report_data.method_id}" usebundle => log_rudder_v4("${file}", "The key -> value ${key} ${separator} ${value} with ${option} spacing around the separator", "");
 }
