@@ -49,11 +49,14 @@ bundle agent system_rudder_apache_webdav_configuration(directive_id, technique_n
       "any" usebundle => _method_reporting_context_v4("Apache configuration", "Webdav permissions", "ht_passwd_permissions");
       "any" usebundle => permissions("${g.rudder_base}/etc/htpasswd-webdav", "640", "root", "${rudder_apache.group_name}");
 
-   pass2.!pass3.dav_cant_connect::
       "any" usebundle => _method_reporting_context_v4("Apache configuration", "Webdav configuration", "ht_passwd_configuration");
+   pass2.!pass3.dav_cant_connect::
+      "any" usebundle => call_method("command_execution");
       "any" usebundle => command_execution("${webdav_pwd_cmd}");
+      "any" usebundle => call_method_classes_caller;
+      "any" usebundle => call_method_end("command_execution");
    pass2.!pass3.!dav_cant_connect::
-      "any" usebundle => _classes_success("ht_passwd_configuration");
+      "any" usebundle => _classes_success("${report_data.method_id}");
+   pass2.!pass3::
       "any" usebundle => log_rudder_v4("Webdav configuration", "Webdav configuration", "");
-      "any" usebundle => rudder_common_reports_generic("${technique_name}", "ht_passwd_configuration", "${directive_id}", "Apache configuration", "Webdav configuration", "Webdav configuration");
 }

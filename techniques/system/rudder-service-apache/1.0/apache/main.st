@@ -27,7 +27,7 @@ bundle agent system_rudder_apache_configuration {
       "any" usebundle => system_rudder_apache_networks_configuration;
 
       # Force webdav user/password
-      "any" usebundle => system_rudder_apache_webdav_configuration("${trackingkey}", "${technique_name");
+      "any" usebundle => system_rudder_apache_webdav_configuration("${trackingkey}", "${technique_name}");
 
       # Configure log rotation
       "any" usebundle => system_apache_logrotate;

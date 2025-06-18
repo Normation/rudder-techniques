@@ -18,14 +18,10 @@ bundle agent system_rudder_slapd_configuration {
       "technique_name"   string => "Rudder slapd";
       "trackingkey"      string => "&TRACKINGKEY&";
 
-      "args"              slist => { "${rudder_slapd.config_file}", "640", "root", "${rudder_slapd.group_name}" };
-      "report_param"     string => join("_", args);
-      "permission_class" string => canonify("permissions_${report_param}");
-
   classes:
-      "rudder_server_system_restart_slapd" expression => "rudder_slapd_ldap_password_repaired|${permission_class}_repaired",
+      "rudder_server_system_restart_slapd" expression => "rudder_slapd_ldap_password_repaired|rudder_ldap_permissions_repaired",
                                                 scope => "namespace";
-      "rudder_server_system_restart_jetty" expression => "rudder_slapd_ldap_password_repaired|${permission_class}_repaired",
+      "rudder_server_system_restart_jetty" expression => "rudder_slapd_ldap_password_repaired|rudder_ldap_permissions_repaired",
                                                 scope => "namespace";
 
   files:
