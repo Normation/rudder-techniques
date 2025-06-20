@@ -531,7 +531,7 @@ body executor control
         schedule         => { &AGENT_RUN_SCHEDULE& };
         executorfacility => "LOG_DAEMON";
 
-        exec_command => "${g.rudder_command} agent run -uRN";
+        exec_command => "${g.rudder_command} agent run -RN";
 }
 
 ########################################################
