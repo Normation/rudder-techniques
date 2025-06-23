@@ -15,6 +15,8 @@ bundle agent system_rudder_webapp {
   methods:
       # Generate ncf hash file
       "any" usebundle => update_ncf_hash;
+      # Generate ncf archive files
+      "any" usebundle => update_archives;
       # Check pgpass and db credentials
       "any" usebundle => system_compress_webapp_log;
       "any" usebundle => system_root_integrity_check("${trackingkey}", "${technique_name}");
@@ -22,7 +24,7 @@ bundle agent system_rudder_webapp {
       "any" usebundle => system_rudder_webapp_properties;
 
       # Check that rudder-jetty is running and enabled
-    !is_rudder_bootstrap::  
+    !is_rudder_bootstrap::
       "any" usebundle => _method_reporting_context_v4("Rudder-jetty service", "Started", "jetty_started");
       "any" usebundle => service_started("${rudder_webapp.service_name}");
     any::

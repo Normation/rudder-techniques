@@ -50,7 +50,8 @@ bundle common g
       "rudder_configuration_repository"
                                     string => "${system_common.rudder_configuration_repository}";
 
-      "rudder_ncf_origin_common"    string => "/usr/share/ncf/tree";
+      "rudder_ncf_share"            string => "/usr/share/ncf";
+      "rudder_ncf_origin_common"    string => "${rudder_ncf_share}/tree";
       "rudder_ncf_origin_local"     string => "${rudder_configuration_repository}/ncf";
 
       "rudder_ncf_hash_file"          string => "ncf_hash_file";
