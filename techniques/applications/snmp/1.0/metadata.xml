@@ -14,14 +14,6 @@
     <TMLS>
       <TML name="snmp.ps1"/>
     </TMLS>
-    <FILES>
-      <FILE name="snmp_communities.ps1">
-        <INCLUDED>true</INCLUDED>
-      </FILE>
-      <FILE name="snmp_sources.ps1">
-        <INCLUDED>true</INCLUDED>
-      </FILE>
-    </FILES>
   </AGENT>
 
   <AGENT type="cfengine-community">
