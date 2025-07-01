@@ -69,7 +69,7 @@ bundle agent rudder_init {
       "Abort if agent is disabled"     usebundle => check_disable_agent;
       "Abort if agent is not in audit" usebundle => check_rudder_force_audit_agent;
       "Abort on some cfengine version" usebundle => rudder_check_agent_version;
-      "Abort on invalid UUID"          usebundle => check_uuid;
+      "Abort on invalid UUID"          usebundle => u_check_node_id;
       "Startup report log"             usebundle => startup;
       "migrate modules"                usebundle => migrate_modules;
       "Initialize ncf"                 usebundle => initialize_ncf;
@@ -410,7 +410,7 @@ bundle agent setup_ca
 bundle agent update_reports
 {
   methods:
-    p_no_update::
+    p_rudder_policies_update_error::
       "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update configuration policy");
 
     p_rudder_ncf_hash_update_error::
@@ -423,7 +423,7 @@ bundle agent update_reports
       "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update local configuration library");
 
     p_rudder_promises_generated_tmp_file_error::
-      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update configuration policy");
+      "any" usebundle => rudder_common_report("Common", "result_error", "${system_common.directiveId}", "Update", "None", "Cannot update configuration policy (update flag file)");
 
     # Success report relies on several matching conditions (nodes except root_server)
     # On all nodes except root server:
@@ -432,27 +432,27 @@ bundle agent update_reports
     # Note: its possible to have only rudder_ncf_hash_update_repaired and not rudder_ncf_common_updated, rudder_ncf_common_update_error but rudder_ncf_common_updated_ok if a technique is created, but not applied - in this case this is a success
     # There must be NO components in repair or error
     # Note: we can't use class new_promises_available here because they are local to the update_action bundle
-    !root_server.(p_rudder_ncf_hash_update_ok|(p_rudder_ncf_hash_update_repaired.p_rudder_ncf_common_updated_ok.p_rudder_ncf_local_updated_ok)).(p_rudder_promises_generated_tmp_file_kept|(p_rudder_promises_generated_tmp_file_repaired.p_config_ok)).!(p_rudder_promises_generated_tmp_file_error|p_rudder_ncf_common_updated|p_rudder_ncf_common_update_error|p_rudder_ncf_local_updated|p_rudder_ncf_local_update_error|p_config|p_no_update|p_rudder_ncf_hash_update_error|(p_rudder_ncf_hash_update_repaired.!p_rudder_ncf_common_updated_ok))::
+    !root_server.(p_rudder_ncf_hash_update_kept|(p_rudder_ncf_hash_update_repaired.p_rudder_ncf_common_update_kept.p_rudder_ncf_local_update_kept)).(p_rudder_promises_generated_tmp_file_kept|(p_rudder_promises_generated_tmp_file_repaired.p_rudder_policies_update_kept)).!(p_rudder_promises_generated_tmp_file_error|p_rudder_ncf_common_update_repaired|p_rudder_ncf_common_update_error|p_rudder_ncf_common_update_repaired|p_rudder_ncf_local_update_error|p_rudder_policies_update_repaired|p_rudder_policies_update_error|p_rudder_ncf_hash_update_error|(p_rudder_ncf_hash_update_repaired.!p_rudder_ncf_common_update_kept))::
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Policy and configuration library are already up to date. No action required.");
 
     # Success report relies on several matching conditions (root_server only)
     # On the root server only:
-    #   - Simple test: rudder_ncf_common_updated_ok
-    #   - Simple test: rudder_ncf_local_updated_ok
+    #   - Simple test: rudder_ncf_common_update_kept
+    #   - Simple test: rudder_ncf_local_update_kept
     # There must be NO components in repair or error
-    root_server.p_rudder_ncf_common_updated_ok.p_rudder_ncf_local_updated_ok.!(p_rudder_ncf_common_updated|p_rudder_ncf_common_update_error|p_rudder_ncf_local_updated|p_rudder_ncf_local_update_error)::
+    root_server.p_rudder_ncf_common_update_kept.p_rudder_ncf_local_update_kept.!(p_rudder_ncf_common_update_repaired|p_rudder_ncf_common_update_error|p_rudder_ncf_local_update_repaired|p_rudder_ncf_local_update_error)::
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Configuration library already up to date on this root server. No action required.");
 
-    p_rudder_ncf_common_updated::
+    p_rudder_ncf_common_update_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Common configuration library updated");
 
-    p_rudder_ncf_local_updated::
+    p_rudder_ncf_local_update_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Local configuration library updated");
 
-    p_config::
+    p_rudder_policies_update_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Configuration policy updated");
 
-    (p_config|p_rudder_ncf_common_updated|p_rudder_ncf_local_updated).!(p_rudder_promises_generated_tmp_file_error|p_rudder_ncf_common_update_error|p_rudder_ncf_local_update_error|p_no_update|p_rudder_ncf_hash_update_error)::
+    (p_rudder_policies_update_repaired|p_rudder_ncf_common_update_repaired|p_rudder_ncf_local_update_repaired).!(p_rudder_promises_generated_tmp_file_error|p_rudder_ncf_common_update_error|p_rudder_ncf_local_update_error|p_rudder_policies_update_error|p_rudder_ncf_hash_update_error)::
       "any" usebundle => rudder_common_report("Common", "result_repaired", "${system_common.directiveId}", "Update", "None", "Policy or configuration library were updated");
 
     server_ok::
@@ -462,7 +462,7 @@ bundle agent update_reports
 
     reports:
       # We want to have always reports if something goes bad
-      p_rudder_promises_generated_error|p_no_update|p_rudder_promises_generated_tmp_file_error::
+      rudder_policies_update_error|rudder_promises_generated_tmp_file_error::
 &if(INITIAL)&
         "*********************************************************************************
   *  You must accept this node on the server before updating this node            *
