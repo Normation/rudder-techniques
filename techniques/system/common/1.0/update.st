@@ -121,11 +121,11 @@ bundle agent u_prepare {
 
 bundle agent u_check_inputs {
   vars:
-      "promises_timestamp"     string => "rudder-promises-generated";
-      "promises_timestamp_tmp" string => "rudder-promises-generated.tmp";
+      "rudder_promises_timestamp"     string => "rudder-promises-generated";
+      "rudder_promises_timestamp_tmp" string => "rudder-promises-generated.tmp";
 
     current_promise_timestamp_defined::
-      "current_promises_timestamp" string => readfile("${client_inputs}/${promises_timestamp}", 2048);
+      "current_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp}", 2048);
 
     # File ought to be there only in second pass, but since classes are persistent, we need to
     # enforce the check on pass_2
@@ -212,14 +212,14 @@ bundle agent u_download_inputs {
         depth_search      => recurse("inf"),
         action            => immediate,
         move_obstructions => "true",
-        file_select       => exclude("${rudder_promises_timestamp_tmp}"),
+        file_select       => exclude("${u_check_inputs.rudder_promises_timestamp_tmp}"),
         classes           => u_classes_generic_persist("rudder_policies_update");
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
     no_update::
-      "${client_inputs}/${rudder_promises_timestamp}"
+      "${client_inputs}/${u_check_inputs.rudder_promises_timestamp}"
         delete  => tidy,
-        comment => "Deleting ${rudder_promises_timestamp} as the policy files couldn't be downloaded";
+        comment => "Deleting ${u_check_inputs.rudder_promises_timestamp} as the policy files couldn't be downloaded";
 }
 
 # Copy the file locally, on a root server
@@ -244,6 +244,7 @@ bundle agent u_root_copy_ncf {
 
 # Download the files on a non-root server, if the hash file changed or if promises have been updated
 bundle agent u_download_ncf {
+  files:
     # We copy ncf on non root server if ncf hash file changed, or if  promises have been updated
       "${g.rudder_ncf}/common"
         copy_from         => u_copy_remote("${server_info.policy_server}", "${g.rudder_ncf_origin_common}"),
