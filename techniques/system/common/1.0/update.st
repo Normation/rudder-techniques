@@ -77,6 +77,9 @@ bundle agent update_action {
     root_server::
       "any" usebundle => u_root_copy_ncf;
 
+    any::
+      "any" usebundle => u_class_persister;
+
   reports:
      !rudder_ncf_hash_update_error.(rudder_policies_update_error|rudder_promises_generated_tmp_file_error)::
 &if(INITIAL)&
@@ -125,30 +128,30 @@ bundle agent u_check_inputs {
       "rudder_promises_timestamp_tmp" string => "rudder-promises-generated.tmp";
 
     current_promise_timestamp_defined::
-      "current_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp}", 2048);
+      "current_promises_timestamp" string => readfile("${server_info.local_inputs}/${rudder_promises_timestamp}", 2048);
 
     # File ought to be there only in second pass, but since classes are persistent, we need to
     # enforce the check on pass_2
     pass2.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired).!rudder_promises_generated_tmp_file_error::
-      "target_promises_timestamp" string => readfile("${client_inputs}/${rudder_promises_timestamp_tmp}", 2048);
+      "target_promises_timestamp" string => readfile("${server_info.local_inputs}/${rudder_promises_timestamp_tmp}", 2048);
 
   classes:
     current_promise_timestamp_defined::
       "current_promise_timestamp_valid"   expression => regcmp("[0-9]+", "${current_promises_timestamp}");
 
     any::
-      "current_promise_timestamp_defined" expression => fileexists("${client_inputs}/${rudder_promises_timestamp}");
+      "current_promise_timestamp_defined" expression => fileexists("${server_info.local_inputs}/${rudder_promises_timestamp}");
 
     # Check for the validity of the content of the files, and check if we ought to update the promises
 
     pass2.current_promise_timestamp_valid.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
-      "new_promises_available" not => strcmp("${target_promises_timestamp}", "${current_promises_timestamp}");
-      "availability_checked";
+      "new_promises_available" not => strcmp("${target_promises_timestamp}", "${current_promises_timestamp}"),  scope => "namespace";
+      "availability_checked" scope => "namespace";
 
     # Always update if current promise timestamp is not valid
     pass2.!current_promise_timestamp_valid.(rudder_promises_generated_tmp_file_kept|rudder_promises_generated_tmp_file_repaired)::
-      "new_promises_available";
-      "availability_checked";
+      "new_promises_available" scope => "namespace";
+      "availability_checked" scope => "namespace";
 
     any::
       "pass3" expression => "pass2";
@@ -162,7 +165,7 @@ bundle agent u_check_inputs {
         copy_from         => u_copy_remote("${server_info.policy_server}","${server_info.remote_inputs}/${rudder_promises_timestamp}"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_promises_generated_tmp_file");
+        classes           => u_classes_generic("rudder_promises_generated_tmp_file");
 
     root_server|(rudder_promises_generated_tmp_file_kept|(new_promises_available.(config|config_ok)).!no_update.!rudder_promises_generated_tmp_file_error)::
       # Every time we check update inputs successfully (already up to date or
@@ -179,13 +182,13 @@ bundle agent u_check_ncf {
         copy_from         => u_copy_remote("${server_info.policy_server}","${g.rudder_ncf_origin_common_hash}"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_hash_update");
+        classes           => u_classes_generic("rudder_ncf_hash_update");
 
       "${g.rudder_ncf}/local/${g.rudder_ncf_hash_file}"
         copy_from         => u_copy_remote("${server_info.policy_server}","${g.rudder_ncf_origin_local_hash}"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_hash_update");
+        classes           => u_classes_generic("rudder_ncf_hash_update");
 
   reports:
     # We want to have always reports if something goes bad
@@ -206,17 +209,17 @@ bundle agent u_check_ncf {
 bundle agent u_download_inputs {
   files:
     # The defined class are persistent, so if they are already set, promises has already been updated a short while ago
-      "${client_inputs}"
-        copy_from         => u_copy_remote("${server_info.policy_server}","${server_inputs}"),
+      "${server_info.local_inputs}"
+        copy_from         => u_copy_remote("${server_info.policy_server}","${server_info.policy_files}/rules/cfengine-community"),
         depth_search      => recurse("inf"),
         action            => immediate,
         move_obstructions => "true",
         file_select       => exclude("${u_check_inputs.rudder_promises_timestamp_tmp}"),
-        classes           => u_classes_generic_persist("rudder_policies_update");
+        classes           => u_classes_generic("rudder_policies_update");
 
     # If the file to check if update are available was updated, but the promises files failed to copy correctly, we must force a new copy of the promises at next run
     no_update::
-      "${client_inputs}/${u_check_inputs.rudder_promises_timestamp}"
+      "${server_info.local_inputs}/${u_check_inputs.rudder_promises_timestamp}"
         delete  => tidy,
         comment => "Deleting ${u_check_inputs.rudder_promises_timestamp} as the policy files couldn't be downloaded";
 }
@@ -230,7 +233,7 @@ bundle agent u_root_copy_ncf {
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_common_update");
+        classes           => u_classes_generic("rudder_ncf_common_update");
 
       "${g.rudder_ncf}/local"
         copy_from         => u_copy_local("${g.rudder_ncf_origin_local}"),
@@ -238,7 +241,7 @@ bundle agent u_root_copy_ncf {
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_local_update");
+        classes           => u_classes_generic("rudder_ncf_local_update");
 }
 
 # Download the files on a non-root server, if the hash file changed or if promises have been updated
@@ -251,7 +254,7 @@ bundle agent u_download_ncf {
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_common_update");
+        classes           => u_classes_generic("rudder_ncf_common_update");
 
       "${g.rudder_ncf}/local"
         copy_from         => u_copy_remote("${server_info.policy_server}", "${g.rudder_ncf_origin_local}"),
@@ -259,7 +262,7 @@ bundle agent u_download_ncf {
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_local_update");
+        classes           => u_classes_generic("rudder_ncf_local_update");
 
     rudder_ncf_common_update_error::
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
@@ -272,11 +275,39 @@ bundle agent u_download_ncf {
         comment => "Deleting ${g.rudder_ncf_hash_file} as custom ncf files couldn't be downloaded";
 }
 
+# This bundle is used to persist the classes defined in the update bundles.
+# Allows minimizing the amount of persistence event, which are VERY expensive.
+bundle agent u_class_persister {
+    vars:
+      "class_to_persist" slist => {
+          "rudder_policies_update",
+          "rudder_promises_generated_tmp_file",
+          "rudder_ncf_hash_update",
+          "rudder_ncf_common_update",
+          "rudder_ncf_local_update"
+      };
+      "state" slist => {
+          "repaired",
+          "error",
+          "kept"
+      };
+
+    classes:
+      pass2.!pass3::
+        "p_${class_to_persist}_${state}" expression => "${class_to_persist}_${state}",
+                                           persistence => "4",
+                                                 scope => "namespace";
+
+      any::
+        "pass3" expression => "pass2";
+        "pass2" expression => "pass1";
+        "pass1" expression => "any";
+}
+
 #######################################################
 # Node ID check
 
-bundle agent u_check_node_id
-{
+bundle agent u_check_node_id {
   classes:
       # Abort if no node id is defined
       "should_not_continue" expression => "wrong_id|no_id";
@@ -293,17 +324,13 @@ bundle agent u_check_node_id
 
 ############################################
 
-body classes u_classes_generic_persist(x)
+body classes u_classes_generic(x)
 {
       promise_repaired => { "$(x)_repaired", "$(x)_ok",     "$(x)_reached",      "$(x)_not_kept" };
       repair_failed    => { "$(x)_failed",   "$(x)_not_ok", "$(x)_error",        "$(x)_not_kept", "$(x)_not_repaired", "$(x)_reached" };
       repair_denied    => { "$(x)_denied",   "$(x)_not_ok", "$(x)_error",        "$(x)_not_kept", "$(x)_not_repaired", "$(x)_reached" };
       repair_timeout   => { "$(x)_timeout",  "$(x)_not_ok", "$(x)_error",        "$(x)_not_kept", "$(x)_not_repaired", "$(x)_reached" };
       promise_kept     => { "$(x)_kept",     "$(x)_ok",     "$(x)_not_repaired", "$(x)_reached" };
-
-      # persist for 4 minutes so that it wont overlap with the next
-      # execution in 5 minutes
-      persist_time     => "4";
 }
 
 body perms u_mog(mode,user,group) {
@@ -325,7 +352,7 @@ body edit_defaults u_rudder_empty
       edit_backup               => "false";
 }
 
-body copy_from u_copy_remote(server, path) {
+body copy_from u_copy_remote_generic(server, path, missing_ok) {
       servers     => {
         "${server}"
       };
@@ -336,7 +363,7 @@ body copy_from u_copy_remote(server, path) {
       purge       => "true";
       copy_backup => "false";
       portnumber  => "${system_common.community_port}";
-      missing_ok  => "false";
+      missing_ok  => "${missong_ok}";
 
 &if(INITIAL)&
     trust_new_server.!root_server::
@@ -344,23 +371,13 @@ body copy_from u_copy_remote(server, path) {
 &endif&
 }
 
-body copy_from u_copy_remote_missing_ok(server, path) {
-      servers     => {
-        "${server}"
-      };
-      source      => "${path}";
-      compare     => "digest";
-      preserve    => "false";
-      verify      => "true";
-      purge       => "true";
-      copy_backup => "false";
-      portnumber  => "${system_common.community_port}";
-      missing_ok  => "true";
+body copy_from u_copy_remote(server, path) {
+      inherit_from => u_copy_remote_generic("${server}", "${path}", "false");
+}
 
-&if(INITIAL)&
-    trust_new_server.!root_server::
-      trustkey    => "true";
-&endif&
+body copy_from u_copy_remote_missing_ok(server, path) {
+      inherit_from => u_copy_remote_generic("${server}", "${path}", "true");
+
 }
 
 body copy_from u_copy_local(from) {
@@ -370,4 +387,11 @@ body copy_from u_copy_local(from) {
        purge       => "true";
        copy_backup => "false";
        portnumber  => "${system_common.community_port}";
+}
+
+body classes u_cancel_class(y)
+{
+   cancel_repaired     => { "${y}" };
+   cancel_kept     => { "${y}" };
+   cancel_notkept     => { "${y}" };
 }
