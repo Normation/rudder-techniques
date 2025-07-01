@@ -412,27 +412,27 @@ bundle agent update_reports
     # Note: its possible to have only rudder_ncf_hash_update_repaired and not rudder_ncf_common_updated, rudder_ncf_common_update_error but rudder_ncf_common_updated_ok if a technique is created, but not applied - in this case this is a success
     # There must be NO components in repair or error
     # Note: we can't use class new_promises_available here because they are local to the update_action bundle
-    !root_server.(rudder_ncf_hash_update_ok|(rudder_ncf_hash_update_repaired.rudder_ncf_common_update_ok.rudder_ncf_local_update_ok)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.rudder_policies_update_kept)).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_update_repaired|rudder_ncf_common_update_error|rudder_ncf_local_update_repaired|rudder_ncf_local_update_error|rudder_policies_update_repaired|rudder_policies_update_error|rudder_ncf_hash_update_error|(rudder_ncf_hash_update_repaired.!rudder_ncf_common_update_ok))::
+    !root_server.(rudder_ncf_hash_update_kept|(rudder_ncf_hash_update_repaired.rudder_ncf_common_update_kept.rudder_ncf_local_update_kept)).(rudder_promises_generated_tmp_file_kept|(rudder_promises_generated_tmp_file_repaired.rudder_policies_update_kept)).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_update_repaired|rudder_ncf_common_update_error|rudder_ncf_common_update_repaired|rudder_ncf_local_update_error|rudder_policies_update_repaired|rudder_policies_update_error|rudder_ncf_hash_update_error|(rudder_ncf_hash_update_repaired.!rudder_ncf_common_update_kept))::
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Policy and configuration library are already up to date. No action required.");
 
     # Success report relies on several matching conditions (root_server only)
     # On the root server only:
-    #   - Simple test: rudder_ncf_common_update_ok
-    #   - Simple test: rudder_ncf_local_update_ok
+    #   - Simple test: rudder_ncf_common_update_kept
+    #   - Simple test: rudder_ncf_local_update_kept
     # There must be NO components in repair or error
-    root_server.rudder_ncf_common_update_ok.rudder_ncf_local_update_ok.!(rudder_ncf_common_update_repaired|rudder_ncf_common_update_error|rudder_ncf_local_update_ok|rudder_ncf_local_update_error)::
+    root_server.rudder_ncf_common_update_kept.rudder_ncf_local_update_kept.!(rudder_ncf_common_update_repaired|rudder_ncf_common_update_error|rudder_ncf_local_update_repaired|rudder_ncf_local_update_error)::
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Configuration library already up to date on this root server. No action required.");
 
-    rudder_ncf_common_update_ok::
+    rudder_ncf_common_update_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Common configuration library updated");
 
-    rudder_ncf_local_update_ok::
+    rudder_ncf_local_update_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Local configuration library updated");
 
     rudder_policies_update_repaired::
       "any" usebundle => rudder_common_report("Common", "log_repaired", "${system_common.directiveId}", "Update", "None", "Configuration policy updated");
 
-    (rudder_policies_update_repaired|rudder_ncf_common_update_ok|rudder_ncf_local_update_ok).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|rudder_policies_update_error|rudder_ncf_hash_update_error)::
+    (rudder_policies_update_repaired|rudder_ncf_common_update_repaired|rudder_ncf_local_update_repaired).!(rudder_promises_generated_tmp_file_error|rudder_ncf_common_update_error|rudder_ncf_local_update_error|rudder_policies_update_error|rudder_ncf_hash_update_error)::
       "any" usebundle => rudder_common_report("Common", "result_repaired", "${system_common.directiveId}", "Update", "None", "Policy or configuration library were updated");
 
     server_ok::
