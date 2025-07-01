@@ -33,7 +33,7 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
     pass3::
      # If any update of the relay personal policies fails
      "update_error"                     expression => or(
-                                                        "p_no_update",
+                                                        "p_rudder_policies_update_error",
                                                         "p_rudder_ncf_hash_update_error",
                                                         "p_rudder_ncf_common_update_error",
                                                         "p_rudder_ncf_local_update_error",
@@ -44,15 +44,15 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
                                                        "p_rudder_ncf_hash_update_ok",
                                                        and(
                                                          "p_rudder_ncf_hash_update_repaired",
-                                                         "p_rudder_ncf_common_updated_ok",
-                                                         "p_rudder_ncf_local_updated_ok"
+                                                         "p_rudder_ncf_common_update_kept",
+                                                         "p_rudder_ncf_local_update_kept"
                                                        )
                                                      );
      # Verify that the relay promises are up to date
      "promises_update_ok"              expression => or(
                                                        "rudder_promises_generated_tmp_file_kept",
                                                        and(
-                                                           "p_config_ok",
+                                                           "p_rudder_policies_update_kept",
                                                            "p_rudder_promises_generated_tmp_file_repaired"
                                                        )
                                                      );
