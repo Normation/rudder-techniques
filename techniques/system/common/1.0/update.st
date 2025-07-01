@@ -78,7 +78,7 @@ bundle agent update_action {
       "any" usebundle => u_root_copy_ncf;
 
   reports:
-     !rudder_ncf_hash_update_error.(rudder_promises_generated_error|no_update|rudder_promises_generated_tmp_file_error)::
+     !rudder_ncf_hash_update_error.(rudder_policies_update_error|rudder_promises_generated_tmp_file_error)::
 &if(INITIAL)&
         "*********************************************************************************
   *  You must accept this node on the server before updating this node            *
@@ -206,7 +206,6 @@ bundle agent u_check_ncf {
 bundle agent u_download_inputs {
   files:
     # The defined class are persistent, so if they are already set, promises has already been updated a short while ago
-
       "${client_inputs}"
         copy_from         => u_copy_remote("${server_info.policy_server}","${server_inputs}"),
         depth_search      => recurse("inf"),
@@ -231,7 +230,7 @@ bundle agent u_root_copy_ncf {
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_common");
+        classes           => u_classes_generic_persist("rudder_ncf_common_update");
 
       "${g.rudder_ncf}/local"
         copy_from         => u_copy_local("${g.rudder_ncf_origin_local}"),
@@ -239,7 +238,7 @@ bundle agent u_root_copy_ncf {
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_local");
+        classes           => u_classes_generic_persist("rudder_ncf_local_update");
 }
 
 # Download the files on a non-root server, if the hash file changed or if promises have been updated
@@ -252,7 +251,7 @@ bundle agent u_download_ncf {
         perms             => u_mog("644", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_common");
+        classes           => u_classes_generic_persist("rudder_ncf_common_update");
 
       "${g.rudder_ncf}/local"
         copy_from         => u_copy_remote("${server_info.policy_server}", "${g.rudder_ncf_origin_local}"),
@@ -260,7 +259,7 @@ bundle agent u_download_ncf {
         perms             => u_mog("600", "root", "0"),
         action            => immediate,
         move_obstructions => "true",
-        classes           => u_classes_generic_persist("rudder_ncf_local");
+        classes           => u_classes_generic_persist("rudder_ncf_local_update");
 
     rudder_ncf_common_update_error::
       "${g.rudder_ncf}/common/${g.rudder_ncf_hash_file}"
