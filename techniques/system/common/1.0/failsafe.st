@@ -7,7 +7,7 @@
 
 body common control
 {
-        bundlesequence     => { "check_uuid", "update_action" };
+        bundlesequence     => { "check_uuid", "update_action", "rudder_persist_update_classes" };
 
         inputs             => { "common/1.0/common.cf", "common/1.0/update.cf" };
         output_prefix      => "rudder";
