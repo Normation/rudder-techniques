@@ -4,7 +4,6 @@
 bundle agent system_rudder_relayd_configuration {
   vars:
       "config_class_prefix"      string => canonify("file_from_template_${rudder_relayd.config_file}");
-      "policy_cert_class_prefix" string => canonify("file_copy_from_local_source_${sys.policy_entry_dirname}/certs/policy-server.pem");
       "root_cert_class_prefix"   string => canonify("file_copy_from_local_source_${sys.policy_entry_dirname}/certs/root.pem");
       "component"                string => "Rudder-relayd service";
 
@@ -19,8 +18,7 @@ bundle agent system_rudder_relayd_configuration {
       # Restart relayd at the end of the technique if needed
       "rudder_server_system_restart_relayd" or => { "${config_class_prefix}_repaired" },
                                          scope => "namespace";
-      "rudder_server_system_reload_relayd"  or => { "${policy_cert_class_prefix}_repaired",
-                                                    "${root_cert_class_prefix}_repaired" },
+      "rudder_server_system_reload_relayd"  or => { "${root_cert_class_prefix}_repaired" },
                                          scope => "namespace";
 
   methods:
@@ -28,7 +26,7 @@ bundle agent system_rudder_relayd_configuration {
       "any" usebundle => system_relay_logrotate;
 
       "any" usebundle => _method_reporting_context("${component}", "Policy-server certificate");
-      "any" usebundle => file_copy_from_local_source("${sys.policy_entry_dirname}/certs/policy-server.pem", "${g.rudder_var}/lib/ssl/policy_server.pem");
+      "any" usebundle => file_copy_from_local_source("${sys.policy_entry_dirname}/certs/root", "${g.rudder_var}/lib/ssl/policy_server.pem");
 
       "any" usebundle => _method_reporting_context("${component}", "Policy server certificate permissions");
       "any" usebundle => permissions("${g.rudder_var}/lib/ssl/policy_server.pem", "640", "root", "rudder");
