@@ -13,8 +13,10 @@ bundle agent update_archives
       "local"  usebundle => _method_reporting_context_v4("", "", "rudder_ncf_local_hash_init");
       "local"  usebundle => file_from_local_source("${g.rudder_ncf_origin_local_hash}", "${g.rudder_var_tmp}/ncf_local_hash");
     # if just synchronized, update archive
-      "tar mv" usebundle => _method_reporting_context_v4("Generate library archives", "Archive generation", "rudder_tar_mv_archive");
     rudder_ncf_common_hash_init_0_repaired|rudder_ncf_local_hash_init_0_repaired::
+      "mkdir" usebundle => _method_reporting_context_v4("Generate library directory", "Archive directory generation", "rudder_mkdir_archive");
+      "mkdir" usebundle => directory_present("${g.rudder_var}/share/common");
+      "tar mv" usebundle => _method_reporting_context_v4("Generate library archives", "Archive generation", "rudder_tar_mv_archive");
       "tar mv" usebundle => command_execution("tar cfj ${policy_archive}.new -C \"${g.rudder_ncf_share}\" --transform \"s|^tree|ncf/common|\" tree -C \"${g.rudder_configuration_repository}\" --transform \"s|^ncf|ncf/local|\" ncf && mv ${policy_archive}.new ${policy_archive}");
       "tar perm" usebundle => permissions("${policy_archive}", "644", "root", "root");
     !(rudder_ncf_common_hash_init_0_repaired|rudder_ncf_local_hash_init_0_repaired)::
