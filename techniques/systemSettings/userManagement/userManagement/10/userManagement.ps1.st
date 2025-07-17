@@ -87,6 +87,7 @@ function check_usergroup_user_parameters_&RudderUniqueID& {
     } elseif ($policies[$i] -eq $absent) {
       $methodCallPresent = User-Absent -login $logins[$i] -PolicyMode $policyMode
       $null = Compute-Method-Call -MethodCall $methodCallPresent @userParams
+      $null = Rudder-Report-NA  @passwordParams -message "User asked to be removed"
     } elseif ( (-not $userExists) -and ($policies[$i] -eq $updateIfExists) ) {
       $null = Rudder-Report-NA  @userParams -message "User does not exists"
       $null = Rudder-Report-NA  @passwordParams -message "User does not exists"
