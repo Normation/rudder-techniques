@@ -19,7 +19,7 @@ bundle agent update_archives
       "permissions" usebundle => _method_reporting_context_v4("Library directory permissions", "Archive directory permissions", "rudder_archive_dir");
       "permissions" usebundle => permissions_dirs("${g.rudder_var}/share/common", "750", "root", "rudder-policy-reader");
       "tar mv" usebundle => _method_reporting_context_v4("Generate library archives", "Archive generation", "rudder_tar_mv_archive");
-      "tar mv" usebundle => command_execution("tar cfj ${policy_archive}.new -C \"${g.rudder_ncf_share}\" --transform \"s|^tree|ncf/common|\" tree -C \"${g.rudder_configuration_repository}\" --transform \"s|^ncf|ncf/local|\" ncf && mv ${policy_archive}.new ${policy_archive}");
+      "tar mv" usebundle => command_execution("tar cfj ${policy_archive}.new -C \"${g.rudder_configuration_repository}\" --transform \"s|^ncf|ncf/local|\" ncf -C \"${g.rudder_ncf_share}\" --transform \"s|^tree|ncf/common|\" tree && mv ${policy_archive}.new ${policy_archive}");
       "tar perm" usebundle => permissions("${policy_archive}", "644", "root", "root");
     !(rudder_ncf_common_hash_init_0_repaired|rudder_ncf_local_hash_init_0_repaired)::
       "tar mv" usebundle => log_na_rudder("Skipping archive generation since it is up to date", "", "rudder_tar_mv_archive", "");
