@@ -37,6 +37,10 @@ bundle common rudder_roles
 
       "rudder_global_audit_mode"      not => strcmp("&RUDDER_COMPLIANCE_MODE&", "enforce");
 
+      "rudder_https_only"      expression => strcmp("&POLICY_SERVER_HTTPS_ONLY&", "true");
+      "rudder_cert_validation" expression => strcmp("&POLICY_SERVER_CERT_VALIDATION&", "true");
+      "rudder_custom_ca"              not => strcmp("&POLICY_SERVER_CERT_CA&", "");
+
       # full compliance is the default mode
       "full_compliance" not => "changes_only|reports_disabled";
 }
@@ -112,6 +116,8 @@ bundle agent rudder_common_system_directive {
       "Reporting context"                 usebundle => rudder_reporting_context_v4("common-hasPolicyServer-root","hasPolicyServer-root","Common","","","reportid");
       "Send agent update report"          usebundle => update_reports;
       "Update cfengine files permissions" usebundle => internal_security;
+      "Disable cf-serverd"                usebundle => disable_cf_serverd,
+                                                 if => "rudder_https_only";
       "Cleanup log files"                 usebundle => garbage_collection;
       "Setup agent check cron"            usebundle => setup_cronjob;
       "Make sure cron daemon is running"  usebundle => check_cron_daemon;

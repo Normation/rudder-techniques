@@ -23,13 +23,6 @@ bundle agent system_rudder_relayd_configuration {
       "pass2"  expression => "pass1";
       "pass1"  expression => "any";
 
-      # For Rudder 6.2 relays: we need to disable certificate verification
-      # as it does not understand pinning.
-      # Conveniently, 3.15 = Rudder 6
-      #               3.18 = Rudder 7
-      "rudder_relayd_disable_cert_pinning" expression => "cfengine_3_15",
-                                                scope => "namespace";
-
       # Restart relayd at the end of the technique if needed
       "rudder_server_system_restart_relayd" or => { "${config_class_prefix}_repaired" },
                                          scope => "namespace";

@@ -43,6 +43,7 @@
       <REPORTKEYS>
         <VALUE>Enabled</VALUE>
         <VALUE>Started</VALUE>
+        <VALUE>Configured</VALUE>
       </REPORTKEYS>
     </SECTION>
     <SECTION name="Apache configuration" component="true" multivalued="true">

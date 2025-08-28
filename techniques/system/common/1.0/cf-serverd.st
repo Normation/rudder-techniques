@@ -209,3 +209,9 @@ body report_data_select rudder_data_select_policy_hub
     monitoring_include     => { ".*" };
     promise_handle_exclude => { "noreport_.*" };
 }
+
+bundle agent disable_cf_serverd {
+  methods:
+      "any" usebundle => service_stopped("rudder-cf-serverd");
+      "any" usebundle => service_action("rudder-cf-serverd", "mask");
+}

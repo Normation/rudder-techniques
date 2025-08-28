@@ -60,7 +60,7 @@ bundle agent system_reload_rudder_services {
       "any" usebundle => service_reload("${relayd_service_name}");
     rudder_server_system_restart_relayd::
       "any" usebundle => service_restart("${relayd_service_name}");
-    rudder_server_system_reload_cf_serverd::
+    rudder_server_system_reload_cf_serverd.!rudder_https_only::
       "any" usebundle => service_action("${cf_serverd_service_name}", "reload-or-restart");
     pass3::
       "any" usebundle => enable_reporting;

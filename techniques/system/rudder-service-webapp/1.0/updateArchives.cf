@@ -6,6 +6,7 @@ bundle agent update_archives
 {
   vars:
       "policy_archive" string => "${g.rudder_var}/share/common/policies-library-linux.tar.bz2";
+
   methods:
     # try to synchronize hash file
       "common" usebundle => _method_reporting_context_v4("", "", "rudder_ncf_common_hash_init");
@@ -22,6 +23,7 @@ bundle agent update_archives
       "tar mv" usebundle => command_execution("tar cfj ${policy_archive}.new -C \"${g.rudder_configuration_repository}\" --transform \"s|^ncf|ncf/local|\" ncf -C \"${g.rudder_ncf_share}\" --transform \"s|^tree|ncf/common|\" tree && mv ${policy_archive}.new ${policy_archive}");
       "tar perm" usebundle => permissions("${policy_archive}", "644", "root", "root");
     !(rudder_ncf_common_hash_init_0_repaired|rudder_ncf_local_hash_init_0_repaired)::
+      "tar mv" usebundle => _method_reporting_context_v4("Generate library archives", "Archive generation", "rudder_tar_mv_archive");
       "tar mv" usebundle => log_na_rudder("Skipping archive generation since it is up to date", "", "rudder_tar_mv_archive", "");
     # if error reset synchronization
     rudder_ncf_common_hash_init_0_error|rudder_ncf_local_hash_init_0_error|rudder_tar_mv_archive_0_error::
