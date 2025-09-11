@@ -24,7 +24,9 @@ peer_authentication = "cert_validation"
 peer_authentication = "cert_pinning"
 {{/classes.rudder_cert_validation}}
 
-ca_path = "tests/files/http/cert.pem"
+{{#classes.rudder_custom_ca}}
+ca_path = "/var/rudder/lib/ssl/policy_server_ca.pem"
+{{/classes.rudder_custom_ca}}
 
 # Use proper port
 https_port = {{{vars.system_rudder_relay_configuration.https_port}}}
