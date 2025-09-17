@@ -123,7 +123,11 @@ bundle agent rudder_common_system_directive {
       "Make sure cron daemon is running"  usebundle => check_cron_daemon;
       "Make sure rpm key is up to date"   usebundle => import_rpm_key;
       # this one must be before any rudder-client call
+&if(!INITIAL)&
+      # The value is always empty in initial policies but we need to let it configurable locally.
       "Setup certificate authority"       usebundle => setup_ca;
+&endif&
+
 &if(INITIAL)&
       "Run initial inventory"             usebundle => doInventory;
 &else&
