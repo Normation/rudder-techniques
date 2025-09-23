@@ -97,7 +97,11 @@ bundle agent migrate_modules {
   files:
     needs_migrate.agent_noexec::
       "${new_path}/." create => "true", perms => mog("755", "root", "root");
-      "${old_path}"   link_from => ln_s("${new_path}"), move_obstructions => "true";
+
+  commands:
+    needs_migrate.agent_noexec::
+      "rm -rf ${old_path} \&\& ln -s ${new_path} ${old_path}"
+        contain => in_shell;
 }
 
 bundle agent rudder_common_system_directive {
