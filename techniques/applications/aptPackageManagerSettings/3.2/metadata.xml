@@ -239,6 +239,7 @@ Repositories are defined in file `/etc/apt/sources.list.d/rudder-apt.list` </DES
         </CONSTRAINT>
       </INPUT>
     </SECTION>
+    <SECTION name="aptPackageManagerSettings" component="true" />
   </SECTIONS>
 
 </TECHNIQUE>

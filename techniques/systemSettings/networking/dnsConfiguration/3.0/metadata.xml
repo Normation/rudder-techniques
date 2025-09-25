@@ -87,6 +87,7 @@
         </INPUT>
       </SECTION>
     </SECTION>
+    <SECTION name="dnsConfiguration" component="true" />
   </SECTIONS>
 
 </TECHNIQUE>
