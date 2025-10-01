@@ -223,6 +223,7 @@
         </CONSTRAINT>
       </INPUT>
     </SECTION>
+    <SECTION name="aptPackageManagerSettings" component="true" />
   </SECTIONS>
 
 </TECHNIQUE>
