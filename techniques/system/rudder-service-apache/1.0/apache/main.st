@@ -23,7 +23,8 @@ bundle agent system_rudder_apache_configuration {
       "reload_cond"     string => canonify("file_from_template_options_${rudder_apache.templated_conf}_repaired");
 
   classes:
-      "rudder_server_system_reload_apache" expression => "${reload_cond}";
+      "rudder_server_system_reload_apache" expression => "${reload_cond}",
+                                                scope => "namespace";
 
   methods:
       # Force certificates and permissions
