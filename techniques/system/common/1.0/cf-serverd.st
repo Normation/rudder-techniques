@@ -213,5 +213,5 @@ body report_data_select rudder_data_select_policy_hub
 bundle agent disable_cf_serverd {
   methods:
       "any" usebundle => service_stopped("rudder-cf-serverd");
-      "any" usebundle => service_action("rudder-cf-serverd", "mask");
+      "any" usebundle => service_disabled("rudder-cf-serverd");
 }
