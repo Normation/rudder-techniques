@@ -424,7 +424,7 @@ bundle agent setup_ca
 bundle agent update_reports
 {
   methods:
-    rudder_https_only::
+    rudder_https_only.!root_server::
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Update is done over HTTPS");
 
     p_no_update::
