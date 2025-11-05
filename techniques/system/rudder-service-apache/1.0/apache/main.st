@@ -21,6 +21,11 @@ bundle agent system_rudder_apache_configuration {
       "technique_name"  string => "Rudder apache";
       "https_port"      string => "&HTTPS_POLICY_DISTRIBUTION_PORT&";
       "reload_cond"     string => canonify("file_from_template_options_${rudder_apache.templated_conf}_repaired");
+      "custom_ca"              string => "true";
+      "custom_ca"              string => "false",
+                                   if => strcmp("&POLICY_SERVER_CERT_CA&", "");
+      "templating_data_r" data => '{ "https_only": &POLICY_SERVER_HTTPS_ONLY&, "cert_validation": &POLICY_SERVER_CERT_VALIDATION&, "custom_ca": ${custom_ca} }';
+      "templating_data" string => storejson(templating_data_r);
 
   classes:
       "rudder_server_system_reload_apache" expression => "${reload_cond}",
@@ -47,5 +52,5 @@ bundle agent system_rudder_apache_configuration {
       "any" usebundle => service_enabled("${rudder_apache.service_name}");
 
       "any" usebundle => _method_reporting_context_v4("Apache service", "Configured", "apache_configured");
-      "any" usebundle => file_from_template_options("${rudder_apache.templated_conf}", "", "", "", "${rudder_apache.templated_conf}.j2", "");
+      "any" usebundle => file_from_template_options("${rudder_apache.templated_conf}", "", "${templating_data}", "", "${rudder_apache.templated_conf}.j2", "");
 }
