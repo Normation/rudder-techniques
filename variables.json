@@ -9,10 +9,12 @@
   "CONFIGURATION_REPOSITORY_FOLDER": "/var/rudder/configuration-repository",
   "DAVPASSWORD": "rudder",
   "DAVUSER": "rudder",
+  "POLICY_SERVER_HTTPS_ONLY": false,
+  "POLICY_SERVER_CERT_VALIDATION": false,
   "DENYBADCLOCKS": "true",
   "INITIAL": true,
-  "MANAGED_NODES_ID": [ ],
-  "MANAGED_NODES_NAME": [ ],
+  "MANAGED_NODES_ID": [],
+  "MANAGED_NODES_NAME": [],
   "MODIFIED_FILES_TTL": "30",
   "POLICYSERVER_ADMIN": "root",
   "RUDDER_DIRECTIVES_INPUTS": "",
@@ -23,10 +25,8 @@
   "RUDDER_REPORT_MODE": "full-compliance",
   "RUDDER_REPORTS_DB_NAME": "rudder",
   "RUDDER_REPORTS_DB_USER": "rudder",
-  "RUDDER_SYSTEM_DIRECTIVES_INPUTS": "",
-  "RUDDER_SYSTEM_DIRECTIVES_SEQUENCE": "",
   "SEND_METRICS": "no",
   "SHARED_FILES_FOLDER": "/var/rudder/configuration-repository/shared-files",
   "TRACKINGKEY": "root-DP@@root-distributePolicy@@00",
-  "RUDDER_INVENTORY_VARS":  "{ \"initial-policies\": \"true\" }"
+  "RUDDER_INVENTORY_VARS": "{ \"initial-policies\": \"true\" }"
 }
