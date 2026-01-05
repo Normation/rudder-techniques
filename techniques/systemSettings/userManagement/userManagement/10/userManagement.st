@@ -283,12 +283,12 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       ###############
       # User deletion
-      "any" usebundle => delete_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}"),
+      "any" usebundle => delete_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_index}"),
                    if => "usermanagement_user_remove_${usergroup_user_index}";
 
       ###############
       # Primary group
-      "any" usebundle => primary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}"),
+      "any" usebundle => primary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_groupname[${usergroup_user_index}]}", "${usergroup_user_index}"),
                    if => "usermanagement_user_update_${usergroup_user_index}.usermanagement_force_user_group_defined_${usergroup_user_index}";
 
       # no primary group has been set
@@ -309,7 +309,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       ###############
       # Password
       # Note: the password should also be checked at creation, because otherwise it won't be set at 1st run
-      "any" usebundle => password_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}"),
+      "any" usebundle => password_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_password[${usergroup_user_index}]}", "${usergroup_user_index}"),
                     if => and( or( "usermanagement_user_create_${usergroup_user_index}",
                                    "usermanagement_user_update_${usergroup_user_index}"
                                  ),
@@ -340,7 +340,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
 
       ################
       # User full name
-      "any" usebundle => fullname_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}"),
+      "any" usebundle => fullname_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_fullname[${usergroup_user_index}]}", "${usegroup_user_index}"),
                    if => "usermanagement_user_update_${usergroup_user_index}.!usermanagement_user_nameempty_${usergroup_user_index}";
 
       # no full name has been set
@@ -360,7 +360,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
                     if => "usermanagement_login_add_${usergroup_user_index}_&RudderUniqueID&_repaired";
       ###############
       # Default shell
-      "any" usebundle => default_shell_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_shell[${usergroup_user_index}]}"),
+      "any" usebundle => default_shell_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_shell[${usergroup_user_index}]}", "${usergroup_user_index}"),
                    if => "usermanagement_user_update_${usergroup_user_index}";
 
       # Don't exist and in update only or deletion
@@ -451,7 +451,7 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       # set/check secondary groups
       # Note: the secondary group should also be checked at creation, because otherwise it won't be set at 1st run
 
-      "any" usebundle => secondary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}"),
+      "any" usebundle => secondary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_user_index}"),
                    if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index})";
 
       # no secondary group has been set
@@ -582,38 +582,50 @@ bundle edit_line set_user_shell_&RudderUniqueID&(user,user_index,shell)
         classes    => classes_generic("usermanagement_shell_edit_${user_index}_&RudderUniqueID&");
 }
 
-bundle agent delete_&RudderUniqueID&(user_login) {
+bundle agent delete_&RudderUniqueID&(user_login, index) {
+  vars:
+      "id" string => canonify("&RudderUniqueID&_${index}");
   methods:
-      "any" usebundle => _method_reporting_context("Users", "${user_login}");
+      "any" usebundle => _method_reporting_context_v4("Users", "${user_login}", "${id}");
       "any" usebundle => user_absent("${user_login}");
 }
 
-bundle agent primary_group_&RudderUniqueID&(user_login, group_name) {
+bundle agent primary_group_&RudderUniqueID&(user_login, group_name, index) {
+  vars:
+      "id" string => canonify("&RudderUniqueID&_${index}");
   methods:
-      "any" usebundle => _method_reporting_context("User primary group", "${user_login}");
+      "any" usebundle => _method_reporting_context_v4("User primary group", "${user_login}", "${id}");
       "any" usebundle => user_primary_group("${user_login}", "${group_name}");
 }
 
-bundle agent password_&RudderUniqueID&(user_login, password) {
+bundle agent password_&RudderUniqueID&(user_login, password, index) {
+  vars:
+      "id" string => canonify("&RudderUniqueID&_${index}");
   methods:
-      "any" usebundle => _method_reporting_context("Password", "${user_login}");
+      "any" usebundle => _method_reporting_context_v4("Password", "${user_login}", "${id}");
       "any" usebundle => user_password_hash("${user_login}", "${password}"); #TODO check if changes the age
 }
 
-bundle agent fullname_&RudderUniqueID&(user_login, fullname) {
+bundle agent fullname_&RudderUniqueID&(user_login, fullname, index) {
+  vars:
+      "id" string => canonify("&RudderUniqueID&_${index}");
   methods:
-      "any" usebundle => _method_reporting_context("User full name", "${user_login}");
+      "any" usebundle => _method_reporting_context_v4("User full name", "${user_login}", "${id}");
       "any" usebundle => user_fullname("${user_login}", "${fullname}");
 }
 
-bundle agent default_shell_&RudderUniqueID&(user_login, shell) {
+bundle agent default_shell_&RudderUniqueID&(user_login, shell, index) {
+  vars:
+      "id" string => canonify("&RudderUniqueID&_${index}");
   methods:
-      "any" usebundle => _method_reporting_context("User default shell", "${user_login}");
+      "any" usebundle => _method_reporting_context_v4("User default shell", "${user_login}", "${id}");
       "any" usebundle => user_shell("${user_login}", "${shell}");
 }
 
-bundle agent secondary_group_&RudderUniqueID&(user_login, groups, force_groups) {
+bundle agent secondary_group_&RudderUniqueID&(user_login, groups, force_groups, index) {
+  vars:
+      "id" string => canonify("&RudderUniqueID&_${index}");
   methods:
-      "any" usebundle => _method_reporting_context("User secondary groups", "${user_login}");
+      "any" usebundle => _method_reporting_context_v4("User secondary groups", "${user_login}", "${id}");
       "any" usebundle => user_secondary_groups("${user_login}", "${groups}", "${force_groups}");
 }
