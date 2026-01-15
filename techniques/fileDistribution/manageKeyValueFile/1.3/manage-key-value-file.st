@@ -25,11 +25,11 @@ bundle agent manage_key_value_file_&RudderUniqueID& {
 
   methods:
     pass3::
-      "${report_data.method_id}" usebundle => manage_key_value_file_edit("File", "${file[${index}]}", "${file[${index}]}", "${key[${index}]}", "${value[${index}]}", "${separator[${index}]}", "${option[${index}]}", "${hash[${index}]}");
-      "${report_data.method_id}" usebundle => manage_key_value_file_posthook("Post-modification script", "${file[${index}]}", "${post_hook[${index}]}", "${hash[${index}]}");
+      "${report_data.method_id}" usebundle => manage_key_value_file_edit_&RudderUniqueID&("File", "${file[${index}]}", "${file[${index}]}", "${key[${index}]}", "${value[${index}]}", "${separator[${index}]}", "${option[${index}]}", "${hash[${index}]}");
+      "${report_data.method_id}" usebundle => manage_key_value_file_posthook_&RudderUniqueID&("Post-modification script", "${file[${index}]}", "${post_hook[${index}]}", "${hash[${index}]}");
 }
 
-bundle agent manage_key_value_file_posthook(c_name, c_key, command, hash) {
+bundle agent manage_key_value_file_posthook_&RudderUniqueID&(c_name, c_key, command, hash) {
   classes:
       "pass3"      expression => "pass2";
       "pass2"      expression => "pass1";
@@ -52,7 +52,7 @@ bundle agent manage_key_value_file_posthook(c_name, c_key, command, hash) {
       "${report_data.method_id}" usebundle => log_rudder_v4("${c_key}", "The hook '${command}'", "");
 }
 
-bundle agent manage_key_value_file_edit(c_name, c_key, file, key, value, separator, option, hash) {
+bundle agent manage_key_value_file_edit_&RudderUniqueID&(c_name, c_key, file, key, value, separator, option, hash) {
   classes:
       "pass3"            expression => "pass2";
       "pass2"            expression => "pass1";
