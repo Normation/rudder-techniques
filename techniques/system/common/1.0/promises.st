@@ -75,33 +75,12 @@ bundle agent rudder_init {
       "Abort on some cfengine version" usebundle => rudder_check_agent_version;
       "Abort on invalid UUID"          usebundle => check_uuid;
       "Startup report log"             usebundle => startup;
-      "migrate modules"                usebundle => migrate_modules;
       "Initialize ncf"                 usebundle => initialize_ncf;
       "Define environment variables"   usebundle => get_environment_variables;
 &if(!INITIAL)&
       "Load properties"                usebundle => properties;
 &endif&
 
-}
-
-bundle agent migrate_modules {
-  # This is executed before NCF is initialized
-  vars:
-    "new_path" string => "/opt/rudder/var/modules";
-    "old_path" string => "/var/rudder/cfengine-community/modules";
-
-  classes:
-    "agent_noexec" not => fileexists("/var/rudder/cfengine-community/bin/cf-agent");
-    "needs_migrate" not => islink("${old_path}");
-
-  files:
-    needs_migrate.agent_noexec::
-      "${new_path}/." create => "true", perms => mog("755", "root", "root");
-
-  commands:
-    needs_migrate.agent_noexec::
-      "rm -rf ${old_path} \&\& ln -s ${new_path} ${old_path}"
-        contain => in_shell;
 }
 
 bundle agent rudder_common_system_directive {
