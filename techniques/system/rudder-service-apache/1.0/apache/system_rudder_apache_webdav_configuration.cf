@@ -17,9 +17,9 @@
 #####################################################################################
 bundle agent system_rudder_apache_webdav_configuration(directive_id, technique_name) {
   vars:
-    suse::
+    sles_15::
       "htpasswd_bin"     string => "/usr/bin/htpasswd2";
-    !suse::
+    !sles_15::
       "htpasswd_bin"     string => "/usr/bin/htpasswd";
 
     root_server::
