@@ -112,7 +112,7 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
                          if => "!(state_upgrade_only.!already_installed)";
 
       # Report special case when the state is "upgrade only" and the package was not found on the machine
-      "${unique}" usebundle => rudder_common_report_index("packageManagement", "result_na", "${trackingkey}", "Package", "${package[${index_pkg}]}", "Upgrade only set for package ${package[${index_pkg}]} but this package was not found on the machine.", "${index_pkg}"),
+      "${unique}" usebundle => rudder_common_report_index("packageManagement", "result_na", "${trackingkey}", "Package", "${package}", "Upgrade only set for package ${package} but this package was not found on the machine."),
                          if => "state_upgrade_only.!already_installed";
 
       # Post-modification script
