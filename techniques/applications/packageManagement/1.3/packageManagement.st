@@ -69,9 +69,9 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
 
       # Translate technique state to ncf_package state
       "ncf_state" string => "${state}",
-                      if => "!state_upgrade_only)";
+                      if => "!state_upgrade_only";
       "ncf_state" string => "present",
-                      if => "state_upgrade_only)";
+                      if => "state_upgrade_only";
 
       # define inner class prefixes
       "inner_check_prefix"  string => "${unique}_check";
