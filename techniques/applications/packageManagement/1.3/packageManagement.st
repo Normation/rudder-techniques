@@ -75,10 +75,9 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
 
       # define inner class prefixes
       "inner_check_prefix"  string => "${unique}_check";
-      "inner_action_prefix" string => "${unique}_do";
+      "inner_action_prefix" string => "${unique}_fallout";
 
   classes:
-    any::
       "state_upgrade_only" expression => strcmp("${state}", "upgrade_only");
 
       "pass3" expression => "pass2";
@@ -117,9 +116,9 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
                          if => "state_upgrade_only.!already_installed";
 
       # Post-modification script
-      "${unique}" usebundle => _method_reporting_context_v4("Post-modification script", "${package}", "${unique}_hook");
+      "${unique}" usebundle => _method_reporting_context("Post-modification script", "${package}");
 
-      "${unique}" usebundle => command_execution("${posthook[${index_pkg}]}"),
+      "${unique}" usebundle => command_execution("${posthook}"),
                          if => "posthook_specified.${inner_action_prefix}_repaired";
 
       "${unique}" usebundle => rudder_common_report("packageManagement", "result_na", "${trackingkey}", "Post-modification script", "${package}", "No post-modification script was defined"),
@@ -127,7 +126,4 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
 
       "${unique}" usebundle => rudder_common_report("packageManagement", "result_na", "${trackingkey}", "Post-modification script", "${package}", "Post-modification script was not to be run"),
                          if => "posthook_specified.!${inner_action_prefix}_repaired";
-
-      "${unique}" usebundle => rudder_common_reports_generic_index("packageManagement", "${class_prefix_script[${index_pkg}]}", "${trackingkey}", "Post-modification script", "${package}", "Execution of the post-modification script", "${index_pkg}"),
-                         if => "posthook_specified.${inner_action_prefix}_repaired";
 }
