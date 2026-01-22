@@ -76,12 +76,10 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
       # define inner class prefixes
       "inner_check_prefix"  string => "${unique}_check";
       "inner_action_prefix" string => "${unique}_do";
-      "inner_hook_prefix"   string => "${unique}_hook";
 
   classes:
     any::
       "state_upgrade_only" expression => strcmp("${state}", "upgrade_only");
-      "state_present"      expression => strcmp("${state}", "present");
 
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
@@ -97,9 +95,8 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
 
   methods:
     pass2.!pass3::
-      "${unique}" usebundle => _method_reporting_context_v4("Package", "${package}", "${unique}_check");
-
-      # FIXME disable reporting
+      "${unique}" usebundle => _method_reporting_context_v4("Package", "${package}", "${inner_check_prefix}");
+      "${unique}" usebundle => disable_reporting;
 
       # Force to audit mode to verify if packages are already installed (whatever their version is)
       "${unique}" usebundle => push_dry_run_mode("true");
@@ -108,7 +105,8 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
       "${unique}" usebundle => pop_dry_run_mode();
 
     pass3::
-      "${unique}" usebundle => _method_reporting_context_v4("Package", "${package}", "${unique}_do");
+      "${unique}" usebundle => _method_reporting_context_v4("Package", "${package}", "${inner_action_prefix}");
+      "${unique}" usebundle => enable_reporting;
 
       # Package
       "${unique}" usebundle => package_state_options("${package}", "${version}", "${architecture}", "${manager}", "${ncf_state}", "${manager_final_options}"),
