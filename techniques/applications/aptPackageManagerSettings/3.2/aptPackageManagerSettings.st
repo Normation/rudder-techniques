@@ -130,8 +130,17 @@ bundle agent check_apt_settings
     ubuntu_noble|ubuntu_24_04::
       "apt_detected_distro" string => "noble";
 
-    ubuntu_plucky|ubuntu_24_10::
+    ubuntu_ocular|ubuntu_24_10::
+      "apt_detected_distro" string => "oracular";
+
+    ubuntu_plucky|ubuntu_25_04::
       "apt_detected_distro" string => "plucky";
+
+    ubuntu_questing|ubuntu_25_10::
+      "apt_detected_distro" string => "questing";
+
+    ubuntu_resolute|ubuntu_26_04::
+      "apt_detected_distro" string => "resolute";
 
 
     apt_installrecommends_edit::
