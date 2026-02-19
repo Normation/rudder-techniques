@@ -159,6 +159,12 @@ bundle agent check_apt_settings
 
 &endif&
 
+&if (APT_HTTPSPROXY_URL)&
+
+      "aptconf[Acquire::https::Proxy]" string => "\"&APT_HTTPSPROXY_URL&\";";
+
+&endif&
+
 &if (APT_FTPPROXY_URL)&
 
       "aptconf[Acquire::ftp::Proxy]" string => "\"&APT_FTPPROXY_URL&\";";
