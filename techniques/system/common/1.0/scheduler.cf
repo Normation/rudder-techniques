@@ -1,0 +1,97 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileCopyrightText: 2026 Normation SAS
+
+promise agent scheduler {
+  path => "/opt/rudder/bin/rudder-module-scheduler";
+}
+
+#bundle agent rudder_event_scheduler() {
+bundle agent main() {
+  classes:
+    "has_module" expression => fileexists("/opt/rudder/bin/rudder-module-scheduler");
+
+  methods:
+    has_module::
+      "any" usebundle => rudder_event_scheduler_real;
+
+
+reports:
+schedule_df6ebe63_a13a_484f_9add_57836517947a_run::
+"TOTOrr";
+
+
+}
+
+bundle agent rudder_event_scheduler_real {
+
+  vars:
+    pass1::
+      "res" slist => classesmatching("schedule_.+");
+    any::
+#      "data" string => "${system_common.schedule_events}";
+      "data" string => '
+      {
+        "events":
+        [
+    {
+      "schedule": "once",
+      "id": "600abb6b-c294-4ba1-9014-944b67d59935",
+      "schedule_id": "df6ebe63-a13a-484f-9add-57836517947a",
+      "name": "CIS RHEL9 - 2025/12/01",
+      "type": "benchmark",
+      "not_before": "2025-12-01T11:23:05+01:00",
+      "not_after": "2025-12-01T23:23:05+01:00"
+    },
+    {
+      "schedule": "once",
+      "id": "b214ae9f-638f-4d82-a432-daeeb6bd8d59",
+      "schedule_id": "e27fd139-5961-4cb2-8314-1d16ddf0de92",
+      "name": "CIS RHEL9 - 2025/12/01",
+      "type": "benchmark",
+      "not_before": "2025-12-01T11:23:05+01:00"
+    },
+    {
+      "schedule": "always",
+      "id": "b4f0e7e8-3767-4746-abf7-4a5e21f5dd47",
+      "type": "benchmark",
+      "schedule_id": "df6ebe63-a13a-484f-9add-57836517947a",
+      "name": "System update debug"
+    },
+    {
+      "schedule": "never",
+      "id": "1c0cc85c-2452-4c5d-b77d-0cd213e34616",
+      "type": "benchmark",
+      "schedule_id": "df6ebe63-a13a-484f-9add-57836517947a",
+      "name": "System update debug"
+    }
+]
+
+      }
+      ';
+  classes:
+      "pass3"         expression => "pass2";
+      "pass2"         expression => "pass1";
+      "pass1"         expression => "any";
+
+    pass3::
+      "${res}_run" expression => "true", scope => "namespace";
+
+  scheduler:
+    !pass2::
+      "module_call"
+        rudder_module_protocol  => "0",
+ #       action                  => rudder_module,
+        state_dir               => "/tmp/",
+        backup_dir              => "/tmp/modified-files/",
+        node_id                 => "toto",
+        agent_frequency_minutes => "5",
+ #       classes                 => classes_generic("rudder_scheduler_result"),
+        data                    => "${data}";
+
+# FIXME recopy classes!
+
+reports:
+schedule_df6ebe63_a13a_484f_9add_57836517947a::
+"TOTO";
+"${res}";
+}

@@ -72,6 +72,9 @@
     <FILE name="reporting-http.cf">
       <INCLUDED>true</INCLUDED>
     </FILE>
+    <FILE name="scheduler.cf">
+      <INCLUDED>true</INCLUDED>
+    </FILE>
     <FILE name="rudder-agent-community-cron">
       <OUTPATH>common/cron/rudder-agent-community-cron</OUTPATH>
       <INCLUDED>false</INCLUDED>
@@ -113,6 +116,7 @@
     <NAME>POLICY_SERVER_CERT_CA</NAME>
     <NAME>POLICY_SERVER_CERT_VALIDATION</NAME>
     <NAME>POLICY_SERVER_HTTPS_ONLY</NAME>
+    <NAME>POLICY_SCHEDULE_EVENTS</NAME>
   </SYSTEMVARS>
 
   <SECTIONS>
