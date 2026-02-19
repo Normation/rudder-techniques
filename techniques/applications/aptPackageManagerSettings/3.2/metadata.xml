@@ -80,6 +80,14 @@ Repositories are defined in file `/etc/apt/sources.list.d/rudder-apt.list` </DES
         </CONSTRAINT>
       </INPUT>
       <INPUT>
+        <NAME>APT_HTTPSPROXY_URL</NAME>
+        <DESCRIPTION>HTTPS proxy URL</DESCRIPTION>
+        <LONGDESCRIPTION>The URL should be in the following format: https://[user:password@]server[:port]/</LONGDESCRIPTION>
+        <CONSTRAINT>
+          <MAYBEEMPTY>true</MAYBEEMPTY>
+        </CONSTRAINT>
+      </INPUT>
+      <INPUT>
         <NAME>APT_FTPPROXY_URL</NAME>
         <DESCRIPTION>FTP proxy URL</DESCRIPTION>
         <LONGDESCRIPTION>The URL should be in the following format: ftp://[user:password@]server[:port]/</LONGDESCRIPTION>
