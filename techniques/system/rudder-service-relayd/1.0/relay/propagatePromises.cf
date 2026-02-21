@@ -50,7 +50,7 @@ bundle agent propagate_promises(trackingkey, technique_name, relay_sync_method, 
                                                      );
      # Verify that the relay promises are up to date
      "promises_update_ok"              expression => or(
-                                                       "rudder_promises_generated_tmp_file_kept",
+                                                       "p_rudder_promises_generated_tmp_file_kept",
                                                        and(
                                                            "p_config_ok",
                                                            "p_rudder_promises_generated_tmp_file_repaired"
