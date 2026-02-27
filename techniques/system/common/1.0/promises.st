@@ -129,6 +129,7 @@ bundle agent rudder_common_system_directive {
       "rudder_webapp"                     usebundle => "${rudder_webapp}";
 &endif&
 
+      "schedule events"                   usebundle => rudder_event_scheduler;
 }
 
 bundle agent rudder_common_system_end {
