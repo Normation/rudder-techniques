@@ -65,7 +65,7 @@ bundle agent check_ssh_key_distribution_&RudderUniqueID&
       "key_class_prefix[${sshkey_distribution_index}]"
         string  => canonify("${sshkey_distribution_tag[${sshkey_distribution_index}]}_${sshkey_distribution_uuid[${sshkey_distribution_index}]}");
 
-      "ssh_types" string => "ssh-rsa|ssh-dss|ssh-ed25519|ecdsa-sha2-nistp521|ecdsa-sha2-nistp384|ecdsa-sha2-nistp256|ssh-dsa|ssh-ed25519-sk|ssh-ecdsa-sk";
+      "ssh_types" string => "ssh-rsa|ssh-dss|ssh-ed25519|ecdsa-sha2-nistp521|ecdsa-sha2-nistp384|ecdsa-sha2-nistp256|ssh-dsa|sk-ssh-ed25519@openssh.com|sk-ecdsa-sha2-nistp256@openssh.com";
 
     # Extract key content from the keys
     # -E option to get rid of escaping char
