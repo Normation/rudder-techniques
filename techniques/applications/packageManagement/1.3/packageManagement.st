@@ -16,7 +16,15 @@ bundle agent package_management_&RudderUniqueID& {
       &PACKAGE_VERSION:{version |"version[&i0&]" string => "&version&";
 }&
 
+      # For the two following variables, we override the general value with the content of the specific value
+      # if it has been selected (thanks to to *_specified_${index_pkg} classes).
+      &PACKAGE_VERSION_SPECIFIC:{version |"version[&i0&]" string => "&version&", ifvarclass => "version_specified_&i0&";
+}&
+
       &PACKAGE_ARCHITECTURE:{architecture |"architecture[&i0&]" string => "&architecture&";
+}&
+
+      &PACKAGE_ARCHITECTURE_SPECIFIC:{architecture |"architecture[&i0&]" string => "&architecture&", ifvarclass => "architecture_specified_&i0&";
 }&
 
       &PACKAGE_MANAGER:{manager |"manager[&i0&]" string => "&manager&";
@@ -35,6 +43,10 @@ bundle agent package_management_&RudderUniqueID& {
       "unique"   string => canonify("&RudderUniqueID&");
 
   classes:
+
+      "version_specified_${index_pkg}"      expression => strcmp("${version[${index_pkg}]}", "specific");
+      "architecture_specified_${index_pkg}" expression => strcmp("${architecture[${index_pkg}]}", "specific");
+
       "pass3" expression => "pass2";
       "pass2" expression => "pass1";
       "pass1" expression => "any";
@@ -102,10 +114,10 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
       "${unique}" usebundle => package_state_options("${package}", "any", "${architecture}", "${manager}", "present", "${manager_final_options}"),
                          if => "state_upgrade_only";
       "${unique}" usebundle => pop_dry_run_mode();
+      "${unique}" usebundle => enable_reporting;
 
     pass3::
       "${unique}" usebundle => _method_reporting_context_v4("Package", "${package}", "${inner_action_prefix}");
-      "${unique}" usebundle => enable_reporting;
 
       # Package
       "${unique}" usebundle => package_state_options("${package}", "${version}", "${architecture}", "${manager}", "${ncf_state}", "${manager_final_options}"),
