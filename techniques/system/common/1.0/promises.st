@@ -48,7 +48,7 @@ bundle common rudder_roles
 body common control
 {
         output_prefix => "rudder";
-        protocol_version => "2";
+        protocol_version => "latest";
 
         inputs => {
           @{va.inputs_list},

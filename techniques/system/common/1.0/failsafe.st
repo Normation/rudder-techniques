@@ -12,7 +12,7 @@ body common control
         inputs             => { "common/1.0/common.cf", "common/1.0/update.cf" };
         output_prefix      => "rudder";
 
-        protocol_version   => "2";
+        protocol_version   => "latest";
 
         tls_min_version => "1.3";
 }
