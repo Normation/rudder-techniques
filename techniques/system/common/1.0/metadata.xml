@@ -21,6 +21,9 @@
     <TML name="rudder-system-directives">
       <OUTPATH>rudder-system-directives.cf</OUTPATH>
     </TML>
+    <TML name="rudder-system-directives-end">
+      <OUTPATH>rudder-system-directives-end.cf</OUTPATH>
+    </TML>
     <TML name="rudder-promises-generated">
       <OUTPATH>rudder-promises-generated</OUTPATH>
       <INCLUDED>false</INCLUDED>
