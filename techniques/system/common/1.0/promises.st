@@ -77,10 +77,20 @@ bundle agent rudder_init {
       "Startup report log"             usebundle => startup;
       "Initialize ncf"                 usebundle => initialize_ncf;
       "Define environment variables"   usebundle => get_environment_variables;
+      "Parse agent.conf"               usebundle => read_rudder_agent_config;
 &if(!INITIAL)&
       "Load properties"                usebundle => properties;
 &endif&
 
+}
+
+bundle agent read_rudder_agent_config {
+  classes:
+      "rudder_https_local" expression => strcmp("${internal_rudder_agent.config[https_only]}", "true"),
+                                scope => "namespace";
+
+  methods:
+      "any" usebundle => variable_dict_from_file_type("internal_rudder_agent", "config", "/opt/rudder/etc/agent.conf", "ENV");
 }
 
 bundle agent rudder_common_system_directive {
@@ -404,7 +414,7 @@ bundle agent setup_ca
 bundle agent update_reports
 {
   methods:
-    rudder_https_only.!root_server::
+    (rudder_https_only|rudder_https_local).!root_server::
       "any" usebundle => rudder_common_report("Common", "result_success", "${system_common.directiveId}", "Update", "None", "Update is done over HTTPS");
 
     p_no_update::
