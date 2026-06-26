@@ -87,12 +87,17 @@ bundle agent rudder_init {
 }
 
 bundle agent read_rudder_agent_config {
+  vars:
+      "config_file" string => "/opt/rudder/etc/agent.conf";
+
   classes:
+      "config_exists"      expression => fileexists("${config_file}");
       "rudder_https_local" expression => strcmp("${internal_rudder_agent.config[https_only]}", "true"),
                                 scope => "namespace";
 
   methods:
-      "any" usebundle => variable_dict_from_file_type("internal_rudder_agent", "config", "/opt/rudder/etc/agent.conf", "ENV");
+    config_exists::
+      "any" usebundle => variable_dict_from_file_type("internal_rudder_agent", "config", "${config_file}", "ENV");
 }
 
 bundle agent rudder_common_system_directive {
