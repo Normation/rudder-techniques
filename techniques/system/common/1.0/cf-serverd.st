@@ -64,8 +64,12 @@ bundle server access_rules
         admit_keys => { "&POLICY_SERVER_KEY&" };
 
   roles:
-      # Allow user root to set any class
-      ".*"  authorize => { "root" };
+      # Allow user root to set the class to force an inventory
+      "force_inventory"  authorize => { "root" };
+      # Verbosity control
+      "info"             authorize => { "root" };
+      "debug"            authorize => { "root" };
+      "trace"            authorize => { "root" };
 }
 
 bundle common def
