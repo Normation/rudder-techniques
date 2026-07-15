@@ -52,5 +52,5 @@ bundle agent system_rudder_apache_configuration {
       "any" usebundle => service_enabled("${rudder_apache.service_name}");
 
       "any" usebundle => _method_reporting_context_v4("Apache service", "Configured", "apache_configured");
-      "any" usebundle => file_from_template_options("${rudder_apache.templated_conf}", "", "${templating_data}", "", "${rudder_apache.templated_conf}.j2", "");
+      "any" usebundle => file_from_template_options("${rudder_apache.templated_conf}", "", "${templating_data}", "", "${rudder_apache.templated_conf}.j2", "", "");
 }
