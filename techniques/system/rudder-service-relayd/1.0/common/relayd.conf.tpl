@@ -4,7 +4,7 @@
 
 nodes_list_file = "{{{vars.g.rudder_var}}}/lib/relay/nodeslist.json"
 {{#classes.root_server}}
-nodes_certs_file = "{{{vars.g.rudder_var}}}/lib/ssl/allnodescerts.pem"
+nodes_certs_file = "{{{vars.g.rudder_var}}}/lib/ssl/shared/allnodescerts.pem"
 {{/classes.root_server}}
 {{^classes.root_server}}
 nodes_certs_file = "{{{vars.g.rudder_var}}}/lib/ssl/nodescerts.pem"
