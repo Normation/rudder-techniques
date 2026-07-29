@@ -102,8 +102,10 @@ bundle agent package_management_action_&RudderUniqueID&(package, state, version,
       "allow_unstrusted"       expression => strcmp("${manager_allow_untrusted}", "true");
       "manager_apt"            expression => strcmp("${manager}", "apt");
       "apt_allow_untrusted"    expression => "allow_unstrusted.((debian.!manager_specified)|manager_apt)";
-      "already_installed"      expression => "${inner_check_prefix}_kept";
-
+    
+    pass2::
+      "already_installed"      expression => "${inner_check_prefix}_kept",
+                                  comment => "${unique}";
   methods:
     pass2.!pass3::
       "${unique}" usebundle => _method_reporting_context_v4("Package", "${package}", "${inner_check_prefix}");
