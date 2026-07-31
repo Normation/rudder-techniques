@@ -15,6 +15,10 @@ body server control
     port => "${server_info.policy_server_port}";
 }
 
+body executor control {
+    exec_command => "/opt/rudder/bin/rudder agent run -uRN";
+}
+
 @if feature(copyfrom_restrict_keys)
 body agent control
 {
