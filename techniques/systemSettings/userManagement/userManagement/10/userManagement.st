@@ -451,8 +451,11 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
       # set/check secondary groups
       # Note: the secondary group should also be checked at creation, because otherwise it won't be set at 1st run
 
+      # reporting has been disabled by directive generation for native technique, but here we are calling a ncf method that should do its own reporting
+      "any" usebundle => enable_reporting;
       "any" usebundle => secondary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_user_index}"),
                    if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_create_${usergroup_user_index})";
+      # we do not need to disable it here since there is no other ncf call after this
 
       # no secondary group has been set
       "any" usebundle  => rudder_common_report_index("userGroupManagement", "result_na", "${usergroup_directive_id[${usergroup_user_index}]}", "User secondary groups", "${usergroup_user_login[${usergroup_user_index}]}", "No secondary groups defined for user", "${usergroup_user_index}"),
