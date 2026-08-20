@@ -429,9 +429,12 @@ bundle agent check_usergroup_user_parameters_&RudderUniqueID&
             usebundle => push_dry_run_mode("true"),
                    if => "usermanagement_user_checkpres_${usergroup_user_index}";
 
+      # reporting has been disabled by directive generation for native technique, but here we are calling a ncf method that should do its own reporting
+      "any" usebundle => enable_reporting;
       "any" usebundle => secondary_group_&RudderUniqueID&("${usergroup_user_login[${usergroup_user_index}]}", "${usergroup_user_secondary_groupsname[${usergroup_user_index}]}", "${usergroup_force_user_secondary_groupsname[${usergroup_user_index}]}"),
                    if => "!usermanagement_user_secondary_groupsempty_${usergroup_user_index}.(usermanagement_user_update_${usergroup_user_index}|usermanagement_user_checkpres_${usergroup_user_index})",
               comment => "Set secondary groups if they are defined on user ${usergroup_user_login[${usergroup_user_index}]}";
+      # we do not need to disable it here since there is no other ncf call after this
 
       "remove_force_dry_run_mode_${usergroup_user_login[${usergroup_user_index}]}_${usergroup_user_secondary_groupsname[${usergroup_user_index}]}"
             usebundle => pop_dry_run_mode(),
