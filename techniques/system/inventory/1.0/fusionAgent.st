@@ -255,9 +255,12 @@ bundle agent sendInventory
         comment      => "Sending the inventory to the server";
 
     root_server::
+      "${g.rudder_inventories}/${fusionAgent.inventory_name_esc}\..*"
+        perms => mog("600", "rudder-webapp", "root");
+
       # minimal change to copy inventories to accepted node updates on root server
       "${g.rudder_inventories}/${fusionAgent.inventory_name_esc}\..*"
-        transformer => "${g.rudder_cp} ${this.promiser} ${g.rudder_inventories}/accepted-nodes-updates",
+        transformer => "${g.rudder_cp} -p ${this.promiser} ${g.rudder_inventories}/accepted-nodes-updates",
         classes      => persistent_class("inventory_sent", "cant_send_inventory", "${min_resend_delay}"),
         comment      => "Copying the inventory on root server";
 
