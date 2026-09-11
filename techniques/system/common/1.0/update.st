@@ -218,7 +218,7 @@ bundle agent update_action
       "${g.rudder_ncf}/common"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_common}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
-        perms             => u_mog("644", "root", "0"),
+        perms             => u_mog("644", "rudder-webapp", "rudder"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_common_updated", "rudder_ncf_common_update_error", "rudder_ncf_common_updated_ok"),
@@ -227,7 +227,7 @@ bundle agent update_action
       "${g.rudder_ncf}/local"
         copy_from         => copy_digest_without_perms("${g.rudder_ncf_origin_local}"),
         depth_search      => recurse_ignore("inf", @{g.ncf_excludedreps}),
-        perms             => u_mog("600", "root", "0"),
+        perms             => u_mog("600", "rudder-webapp", "rudder"),
         action            => immediate,
         move_obstructions => "true",
         classes           => success("rudder_ncf_local_updated", "rudder_ncf_local_update_error", "rudder_ncf_local_updated_ok"),
@@ -397,3 +397,11 @@ body edit_defaults u_rudder_empty
       empty_file_before_editing => "true";
       edit_backup => "false";
 }
+
+body depth_search recurse_ignore_with_base(d,list)
+{
+     depth           => "${d}";
+     exclude_dirs    => { @{list} };
+     include_basedir => "true";
+}
+
