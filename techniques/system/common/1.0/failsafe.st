@@ -123,6 +123,13 @@ body depth_search recurse_ignore(d,list)
         exclude_dirs => { @{list} };
 }
 
+body depth_search recurse_ignore_with_base(d,list)
+{
+        depth           => "${d}";
+        exclude_dirs    => { @{list} };
+	include_basedir => "true";
+}
+
 body delete tidy
 {
         dirlinks => "delete";
