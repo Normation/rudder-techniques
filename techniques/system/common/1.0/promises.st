@@ -250,6 +250,10 @@ bundle common va
     # for OS family compatibility
       "suse" expression => "sles|sled|opensuse";
       "redhat" expression => "amzn|amazon_linux";
+      "redhat_7" expression => "almalinux_7|rocky_7|oracle_7";
+      "redhat_8" expression => "almalinux_8|rocky_8|oracle_8";
+      "redhat_9" expression => "almalinux_9|rocky_9|oracle_9";
+      "redhat_10" expression => "almalinux_10|rocky_10|oracle_10";
     # sles 12 and after already have this
       "sles_11" expression => "SLES_11";
       "sles_11_1" expression => "SLES_11_1";
