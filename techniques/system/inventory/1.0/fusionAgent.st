@@ -50,6 +50,26 @@ bundle agent doInventory_always
 {
 
   vars:
+      "flag_file" string => "${g.rudder_var_tmp}/inventory_sent";
+    initial_promises::
+      # number of inventory sent while in initial promises
+      "initial_inventory_id" string => readfile("${flag_file}"),
+				if => fileexists("${flag_file}");
+      # default must match pre existing flag file, empty is treated as 1 in next eval
+      "initial_inventory_id" string => "",
+				unless => fileexists("${flag_file}");
+      # delay = 15mn * id    -> seems too fast (reaches 2h30 after 5 run)
+      # delay = 15mn * id^2  -> seems too slow (reaches 9h30 after 5 tries)
+      # delay = 15mn * id^2 / 2   -> OK (it starts at 15mn because inventory_sent enforces a minimum of 15mn delay)
+      # delay:            7 -    30 -    67 -   120 -   187 -   270
+      # runs: 00:00 - 00:15 - 00:45 - 01:52 - 03:52 - 06:59 - 11:29
+      "initial_inventory_delay_real" string => eval("15*${initial_inventory_id}*${initial_inventory_id}/2", "math", "infix");
+      "initial_inventory_delay_max" string => format("%d", "${initial_inventory_delay_real}");
+      # cap the delay to 24h (1440mn)
+      "initial_inventory_delay" string => ifelse(islessthan("1440", "${initial_inventory_delay_max}"), "1440", "${initial_inventory_delay_max}");
+      # this is is a workaround because file_older_than is not yet available
+      "initial_inventory_ref" string => execresult("touch -m -d '${initial_inventory_delay} minutes ago' ${flag_file}.ref", "useshell", "stderr");
+
     uuid_successfully_downloaded::
       "policy_server_uuid" string => readfile("${sys.workdir}/rudder-server-uuid.txt", 50);
 
@@ -57,6 +77,9 @@ bundle agent doInventory_always
     # The force_inventory class may be specified by the user at runtime, or defined here
       "force_inventory" expression => fileexists("${g.rudder_base}/etc/force_inventory"),
                              scope => "namespace";
+    initial_promises::
+      # this is slighly convoluted because file_older_than is not yet available
+      "initial_delay" expression => isnewerthan("${flag_file}.ref", "${flag_file}");
 
     uuid_successfully_downloaded::
       "uuid_valid" expression => regcmp("[a-z0-9-]+","${policy_server_uuid}");
@@ -70,18 +93,18 @@ bundle agent doInventory_always
       # Compute the inventory time
       "any" usebundle => computeInventoryTime;
 
-    force_inventory|((inventory_time|initial_promises).!inventory_sent)::
+    force_inventory|((inventory_time|(initial_promises.initial_delay)).!inventory_sent)::
       "any" usebundle => download_server_uuid;
 
-    uuid_valid.(force_inventory|((inventory_time|initial_promises).!inventory_sent))::
+    uuid_valid.(force_inventory|((inventory_time|(initial_promises.initial_delay)).!inventory_sent))::
       "any" usebundle => fusionAgent;
       "any" usebundle => checkInventoryFile;
 
-    uuid_valid.(force_inventory|((inventory_time|initial_promises).!inventory_sent)).inventory_valid::
+    uuid_valid.(force_inventory|((inventory_time|(initial_promises.initial_delay)).!inventory_sent)).inventory_valid::
       "any" usebundle => signInventories;
       "any" usebundle => compressInventories;
 
-    uuid_valid.(force_inventory|resend_inventory|((inventory_time|initial_promises).!inventory_sent)).inventory_valid::
+    uuid_valid.(force_inventory|resend_inventory|((inventory_time|(initial_promises.initial_delay)).!inventory_sent)).inventory_valid::
       "any" usebundle => sendInventory;
       "any" usebundle => cleanForceInventoryFlagFile;
 
@@ -265,6 +288,9 @@ bundle agent sendInventory
       "${g.rudder_var_tmp}/inventory_sent"
         create       => "true",
         touch        => "true",
+	content      => "${with}",
+        # this expression is mandatory so that cfengine transforms empty to 1
+        with         => format("%d", eval("1*${doInventory_always.initial_inventory_id}+1", "math", "infix")),
         comment      => "Create local info about successful upload";
 
   methods:
