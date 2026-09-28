@@ -2,4 +2,5 @@
 <xml>
     <name>Job scheduling</name>
     <description>This category contains Techniques to schedule jobs across groups of nodes</description>
+    <security><open-ro/></security>
 </xml>

@@ -116,4 +116,5 @@ when conflicting actions are specified on the same hash by different directives,
      </INPUT>
  </SECTION>
 </SECTIONS>
+  <security><open-ro/></security>
 </TECHNIQUE>

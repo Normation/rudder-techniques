@@ -274,5 +274,6 @@ Execution time will remain the same on each node, but will appear random across 
       </INPUT>
     </SECTION>
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

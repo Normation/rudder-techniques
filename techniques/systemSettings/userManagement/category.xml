@@ -2,4 +2,5 @@
 <xml>
     <name>User management</name>
     <description>This category contains Techniques to manage all user related parameters, such as group and user creation, sudo parameters...</description>
+    <security><open-ro/></security>
 </xml>

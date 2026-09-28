@@ -2,4 +2,5 @@
 <xml>
     <name>Remote access</name>
     <description>This sub-category contains Techniques to configure remote access to a system (SSH, RDP, VNC, ...)</description>
+    <security><open-ro/></security>
 </xml>

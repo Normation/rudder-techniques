@@ -4,4 +4,5 @@
     <description>
         Manage node files.
     </description>
+    <security><open-ro/></security>
 </xml>
