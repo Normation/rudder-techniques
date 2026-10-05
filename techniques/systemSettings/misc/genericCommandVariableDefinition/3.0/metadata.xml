@@ -63,5 +63,6 @@ If one does not need shell functionality such as piping through multiple command
       <!-- End of hidden sub-section -->
     </SECTION>
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

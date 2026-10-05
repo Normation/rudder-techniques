@@ -2,4 +2,5 @@
 <xml>
     <name>Networking</name>
     <description>This sub-category contains Techniques to configure networking on a system (DNS, routing, interfaces...)</description>
+    <security><open-ro/></security>
 </xml>

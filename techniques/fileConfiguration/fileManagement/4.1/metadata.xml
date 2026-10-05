@@ -214,5 +214,6 @@
       </SECTION>
     </SECTION>
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

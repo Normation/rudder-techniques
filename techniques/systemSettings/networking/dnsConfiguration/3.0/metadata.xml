@@ -89,5 +89,6 @@
     </SECTION>
     <SECTION name="dnsConfiguration" component="true" />
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

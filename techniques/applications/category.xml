@@ -2,4 +2,5 @@
 <xml>
     <name>Application management</name>
     <description>This category contains Techniques designed to install, configure and manage applications</description>
+    <security><open-ro/></security>
 </xml>

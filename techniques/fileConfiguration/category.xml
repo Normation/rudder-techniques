@@ -4,4 +4,5 @@
     <description>
         Define state about files (especially configuration files)
     </description>
+    <security><open-ro/></security>
 </xml>

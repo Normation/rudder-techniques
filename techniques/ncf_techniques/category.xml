@@ -3,4 +3,5 @@
   <description>
     Techniques created using the Technique editor.
   </description>
+  <security><open-ro/></security>
 </xml>

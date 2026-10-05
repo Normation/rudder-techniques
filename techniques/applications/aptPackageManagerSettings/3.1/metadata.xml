@@ -225,5 +225,6 @@
     </SECTION>
     <SECTION name="aptPackageManagerSettings" component="true" />
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

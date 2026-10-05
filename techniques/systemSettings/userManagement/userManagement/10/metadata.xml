@@ -209,5 +209,6 @@
       <SECTION name="User secondary groups" component="true" componentKey="USERGROUP_USER_LOGIN"/>
     </SECTION>
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>
