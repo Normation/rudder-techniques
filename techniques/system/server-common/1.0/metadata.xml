@@ -20,4 +20,5 @@
   <SECTIONS>
     <SECTION name="Reload Rudder services" component="true"/>
   </SECTIONS>
+  <security><open-ro/></security>
 </TECHNIQUE>

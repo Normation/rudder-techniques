@@ -66,4 +66,5 @@
     <SECTION name="Synchronize files" component="true"/>
     <SECTION name="Synchronize resources" component="true"/>
   </SECTIONS>
+  <security><open-ro/></security>
 </TECHNIQUE>

@@ -2,4 +2,5 @@
 <xml>
     <name>Miscellaneous</name>
     <description>This sub-category contains various Techniques to configure system settings.</description>
+    <security><open-ro/></security>
 </xml>

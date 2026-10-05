@@ -228,5 +228,6 @@ path needs to contain the destination filename. The permissions defined below wi
     </SECTION>
   </SECTION>
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

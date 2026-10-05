@@ -4,4 +4,5 @@
     <description>
         Assert and correct security rules
     </description>
+    <security><open-ro/></security>
 </xml>

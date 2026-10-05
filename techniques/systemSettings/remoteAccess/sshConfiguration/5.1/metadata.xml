@@ -565,5 +565,6 @@
       </SELECT1>
     </SECTION>
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

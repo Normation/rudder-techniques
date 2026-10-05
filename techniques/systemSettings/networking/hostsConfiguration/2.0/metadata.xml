@@ -58,5 +58,6 @@ ff02::3 ip6-allhosts
      </SECTION>
      <SECTION name="hostsConfiguration" component="true" />
   </SECTIONS>
+  <security><open-ro/></security>
 
 </TECHNIQUE>

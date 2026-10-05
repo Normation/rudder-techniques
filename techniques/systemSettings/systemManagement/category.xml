@@ -2,4 +2,5 @@
 <xml>
     <name>System management</name>
     <description>This category contains Techniques to manage all system related parameters, such as fstab, ...</description>
+    <security><open-ro/></security>
 </xml>

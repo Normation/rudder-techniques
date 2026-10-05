@@ -6,4 +6,5 @@
         These Techniques should not be used directly.
     </description>
     <system>true</system>
+    <security><open-ro/></security>
 </xml>

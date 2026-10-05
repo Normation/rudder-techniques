@@ -2,4 +2,5 @@
 <xml>
     <name>Process</name>
     <description>This sub-category contains Techniques to enforce some system process policies</description>
+    <security><open-ro/></security>
 </xml>

@@ -2,4 +2,5 @@
 <xml>
     <name>Security settings</name>
     <description>This category contains Techniques aimed to configure the basic security settings a system, like the file integrity monitoring</description>
+    <security><open-ro/></security>
 </xml>

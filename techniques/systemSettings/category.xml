@@ -2,4 +2,5 @@
 <xml>
     <name>System settings</name>
     <description>This category contains Techniques to configure the basic components of a system: name resolution, time synchronization, remote access, networking...</description>
+    <security><open-ro/></security>
 </xml>
