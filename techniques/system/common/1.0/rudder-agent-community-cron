@@ -5,8 +5,8 @@
 # To temporarily avoid this behaviour, run 'rudder agent disable'
 
 {{#classes.slackware}}
-{{{vars.setup_cronjob.cron_prefix}}} /opt/rudder/bin/rudder agent check -q >> /var/log/rudder/agent-check/check.log 2>&1
+{{{vars.setup_cronjob.cron_prefix}}} /opt/rudder/bin/rudder agent check -q -d >> /var/log/rudder/agent-check/check.log 2>&1
 {{/classes.slackware}}
 {{^classes.slackware}}
-{{{vars.setup_cronjob.cron_prefix}}} root /opt/rudder/bin/rudder agent check -q >> /var/log/rudder/agent-check/check.log 2>&1
+{{{vars.setup_cronjob.cron_prefix}}} root /opt/rudder/bin/rudder agent check -q -d >> /var/log/rudder/agent-check/check.log 2>&1
 {{/classes.slackware}}
