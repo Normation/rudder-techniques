@@ -25,10 +25,10 @@ function rudderMotd {
   }
 
   # Ensure that the caption is there (mandatory to have the message)
-  $regCall = Registry-Entry-Present -Key $registryPath -Entry "legalnoticecaption" -Value "Notice" -RegistryType "String" -PolicyMode $policyMode
+  $regCall = Registry-Entry-Present -Key $registryPath -Entry "LegalNoticeCaption" -Value "Notice" -RegistryType "String" -PolicyMode $policyMode
   $null = Compute-Method-Call @commonParams -MethodCall $regCall -DisableReporting:$true
 
   # Ensure that the content is valid
-  $contentCall = Registry-Entry-Present -Key $registryPath -Entry "legalnoticetext" -Value "&MOTD&" -RegistryType "String" -PolicyMode $policyMode
+  $contentCall = Registry-Entry-Present -Key $registryPath -Entry "LegalNoticeText" -Value "&MOTD&" -RegistryType "String" -PolicyMode $policyMode
   $null = Compute-Method-Call @commonParams -MethodCall $contentCall
 }
