@@ -13,7 +13,6 @@ import json
 import shutil
 import os
 import xml.etree.ElementTree as ET
-from distutils.dir_util import copy_tree
 
 DESTINATION_FOLDER = './initial-promises/node-server'
 JAR_FILE = './rudder-templates-cli.jar'
@@ -180,7 +179,7 @@ class Technique:
 
             # Remove the variable.json as it is not needed
             os.remove(tmpdirname + '/variables.json')
-            copy_tree(tmpdirname, DESTINATION_FOLDER)
+            shutil.copytree(tmpdirname, DESTINATION_FOLDER, dirs_exist_ok=True)
 
 
 techniques = []
