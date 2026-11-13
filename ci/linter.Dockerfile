@@ -1,15 +1,15 @@
-FROM debian:bullseye
+FROM debian:trixie
 LABEL ci=rudder/ci/linter.Dockerfile
 ARG VERSION
 ARG USER_ID=1000
 
 ENV HOME=/tmp
 RUN <<EOF
-set -e
+set -ex
 useradd -r -u $USER_ID -d $HOME jenkins
 apt-get -y update
 apt-get install -y wget git default-jdk
-wget https://packages.microsoft.com/config/debian/10/packages-microsoft-prod.deb
+wget https://packages.microsoft.com/config/debian/13/packages-microsoft-prod.deb
 dpkg -i packages-microsoft-prod.deb
 apt-get -y update
 apt-get install -y powershell

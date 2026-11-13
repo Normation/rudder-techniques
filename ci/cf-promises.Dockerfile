@@ -1,7 +1,7 @@
-FROM debian:12
+FROM debian:trixie
 LABEL ci=rudder/ci/cf-promises.Dockerfile
 
-RUN apt-get update && apt-get install -y wget gnupg2 make libxml-parser-perl openjdk-17-jdk-headless git python3-distutils
+RUN apt-get update && apt-get install -y wget gnupg2 make libxml-parser-perl openjdk-21-jdk-headless git
 
 # Accept all OSes
 ENV UNSUPPORTED=y
